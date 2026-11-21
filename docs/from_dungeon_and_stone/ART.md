@@ -1,0 +1,117 @@
+# ART — 그림을 같은 그림체로 그리는 법
+
+이 게임의 그림은 **전부 코드가 그린다.** 그림 생성 AI나 손그림 원화가 없는 환경이라, 저장소 안의 그림 도구(GDScript)가
+"정해진 방식"대로 칠하고 그 결과(WebP)를 커밋한다. 그래서 어느 세션이든 **같은 도구 + 같은 규칙**을 쓰면 같은 그림체가 나온다.
+같은 설계·같은 시드로 다시 그리면 픽셀까지 같은 그림이 나온다.
+
+새 그림을 그리기 전에 이 문서를 읽고, 이미 있는 그림 하나를 골라 그 설계 항목을 본보기로 삼는다.
+
+그림을 코드 대신 ComfyUI(그림 생성 AI)로 바꿀 때의 프롬프트·교체 규칙은 `docs/COMFYUI_PROMPTS.md`.
+
+## 0. 그림 도구 명령 (CLAUDE.md에서 옮김, 2026-10-20)
+
+- 도시 그림 다시 만들기(약 2분): `godot --headless --path . --script res://tools/paint_city.gd [-- --only=street|buildings|plaza]` → `assets/city/`(데이터가 가리키는 경로, WebP). 건물·내부·거리 레이어(원경·중경·거리)는 그림 등급마다 한 장씩(1 = 기본 경로, 2~4 = `<이름>_t<등급>.webp` — 같은 시드 그림 위에 `Dress.gd` 꾸밈 + `Refine.gd` 구역 색(위로 갈수록 밝은 사암·석회암, 푸른·청동 지붕) + 거리는 `StreetTier.gd`(판석·난간·가로수·분수·석상), **게임은 `city.json district.look` 하나만 쓴다**(지금 2 — 라비기온 7구역, CT64). 거리 레이어의 건물 자리 = `CityDistrict.facility_x`(특별 시설은 거리에 없어 그 자리를 당긴다). 건물만 약 2분 `--only=buildings`, 거리 약 1분 `--only=street`, 내부 약 30분 `--only=interiors`. 확인: 캡처 `--screen=city --scroll=<px>`(다른 그림 등급은 `--look=<1~4>`, 특별 시설 창 `--travel`). 그림체 = 피어 앤 헝거 2풍 손그림 일러스트(ASSUMPTIONS CT21~CT25).
+  - 렌더링을 바꿨으면 반드시 캡처해서 직접 본다(헤드리스 테스트는 그림을 검증하지 못한다).
+- 탐험가 옷차림 후보(AM42): `godot --headless --path . --script res://tools/paint_actors.gd -- --look=<id,id> --out=<폴더>` → `<폴더>/<id>.webp`(후보 = `tools/monster_art/MapLooks.gd`, 겉옷 부품 `BackCloak` — 쓴 두건·외투·누빔·사슬 + 망토는 `BackDrape`(몸에 맞춰 떨어지는 망토 — 원뿔을 얹지 말 것, AM45), 야만전사 부품 `BackSavage` — 멜빵·띠 치마·어깨받이·목걸이·전투 칠, AM43). 게임 그림의 옷차림 = `MapLooks.CHOSEN`(맵 걷기와 전투 뒷모습 `Party.spec_of`가 같이 — 바꾸면 `paint_actors --only=human,barbarian` + `paint_monsters --only=human_back,barbarian_back` + `paint_motions`), 남겨 두는 옷차림 `MapLooks.KEEP` → `assets/actors/looks/<id>.webp`. 비교 그림 `docs/screens/map_looks.png`. **새 종족 후보(AM59)**: 몸 `tools/monster_art/RaceParts.gd`(엘프·드워프·수인 — 여성 체형·엘프/짐승 귀·털 꼬리·긴 수염·묶은 머리), 종족 소품 `RaceKit.gd`(머리띠·화살통·천 띠·목도리(털 깃)·앞치마·버클·등짐·코 가리개) + `RaceGear.gd`(엉덩이 띠·긴 칼집·밧줄·메달·등 도끼), 옷 `MapLooks` e*·d*·k*(`note` = 비교 그림 부제). **시안은 가볍게**: `paint_look_preview.gd -- --look=<id,…> --out=<폴더>`(전투 그림 크기 앞·옆·뒤, 한 종 약 8초) + `paint_actors --look`(맵) → `python3 tools/looks_sheet.py --views <폴더> --map <폴더> --out <png> <id …>` → `docs/screens/race_looks/`. 전투 동작 전체(`paint_motions --look`, 한 종 약 1분 반)는 사용자가 고른 하나만. 게임 그림은 건드리지 않는다.
+- 도시 잡템 그림(CT74): `tools/item_art/Junk2.gd`(쇳조각·녹슨 못·부러진 칼날·낱장 종이·양초 토막·노끈 타래·부러진 화살촉 — Junk.paint가 없으면 부른다), 나머지는 Goods BY_ID 기존 그림. `paint_items --only=<id,…>`.
+- 맵 걷기 시트가 없는 새 몬스터(AM67): `tools/monster_art/MapMonster.gd` `spec_of`에 한 줄 — 사람형은 `FIGURES`, 네발짐승은 beast 목록, 그 밖(전갈 · 새 · 버섯 · 넝쿨 · 떼)은 `MapThings.gd`(돌릴 수 있는 몸) → `paint_actors.gd -- --only=<id>`.
+- 탐험 맵 몸 그림 다시 만들기(약 1분): `godot --headless --path . --script res://tools/paint_actors.gd [-- --only=<종족|monsters|id>]` → `assets/actors/<종족>.webp`(4방향 × 걸음 5장 시트 — 걸음·반걸음·섬·반걸음·걸음, 재생 순서 `render.json view.actor_sheet.walk_cycle`, `ActorSheet` — 탐험가는 전투 그림의 3D 몸에 피어 앤 헝거 맵 그림 비율·자세·깎은 얼굴·머리 타래를 붙여 그린다, 값은 `paint_actors.gd` 맨 위 상수, 시험은 `--set=<상수 소문자>=<값> --out=<폴더>`로 게임 그림을 건드리지 않고) + `assets/actors/monsters/<id>.webp`(전투 그림 축소). 전투 그림을 다시 그렸으면 이것도. 설정 `render.json view.actor_sheet`(ASSUMPTIONS AM27~AM28·AM31 걸음 각도). 몬스터 걷기 시트는 `<id>_walk.webp` + `sheets.json`(설계 `tools/monster_art/MapMonster.gd`, 35종 — AM35). 보스·중간보스는 걷기 대신 기다리는 자세 한 장(`MapMonster.BOSSES`·`BackPose`, 크게 — `--idle=<id>`로 그것만, AM34).
+- 탐험 맵 재질 그림 다시 만들기(몇 초): `godot --headless --path . --script res://tools/paint_floor.gd [-- --only=<장소|style>]` → `assets/floor/<장소>/<재질>.webp`(`data/tiles.json art`가 가리킴, 설계 `tools/floor_art/Specs.gd`). 그린 뒤 `--import`하고 `--shots`로 캡처해서 본다.
+- 아이템 그림 다시 만들기(약 2분): `godot --headless --path . --script res://tools/paint_items.gd [-- --only=<id,id> | --kind=<종류 id>]` → `assets/items/<id>.webp`(가방 칸 × 80px, 투명). 새 아이템·소재·종류를 넣었으면 그 아이템을 그린다(`tests/test_item_art.gd`가 모든 아이템의 그림·크기를 본다). 확인: 캡처 `--screen=explore --menu=inventory --give=<id,id>`.
+- 상태이상 아이콘 다시 만들기(약 10초): `godot --headless --path . --script res://tools/paint_status_icons.gd [-- --only=<id,id>] [--out=<폴더>]` → `assets/statuses/<id>.webp`(96×96, 투명 — 전투 머리 위 28px). 새 상태 = `tools/status_art/Icons.gd` MAP 한 줄(기호·색, 없으면 buff·debuff 화살표 — `tests/test_status_audit.gd`가 그림 파일을 본다). 확인: 캡처 `--screen=explore --combat --monster=<id> --statuses=<id,id> --party_statuses=<id,id>`.
+- **던전 에셋 키트(AM65)**: 층과 상관없이 꺼내 쓰는 바닥 · 벽 · 물건 181종 — `python3 tools/dungeon_kit/build.py`, 새 에셋 = `tools/dungeon_kit/a_<분류>.py`에 함수 하나(`docs/DUNGEON_KIT.md` §4). 아래 2층 부품(sdf · solid · mats · tex)을 그대로 쓴다 — 그 넷을 고치면 키트 그림도 바뀐다.
+- **도시 · 건물 실내 라이브러리(AM69)**: 같은 키트 생성기(`tools/dungeon_kit/a_city*` · `a_interior*` · `a_smithy` · `a_inn` · `a_shrine*` · `a_shop` · `a_bank` · `a_env_*` · `a_item` · `a_icon`) → `build.py` → `library.py`(카탈로그) → `texture_compress.py` → `--import` → 갤러리 `xvfb-run … godot --rendering-driver opengl3 --path . res://tools/kit_gallery.tscn -- --shots=<폴더> [--group=<id>]`. 시험 렌더는 `KIT_MODULES=<모듈,…> python3 tools/dungeon_kit/build.py <id …> --sheet=<png>`(그 모듈만 읽는다). 도우미 함수만 고쳤으면 캐시가 모르니 `--force`.
+- **2층 바닥 · 소품(AM64 — 파이썬, numpy + PIL)**: 바닥 재질 = `python3 tools/f2_art/ground.py [재질 …] [--preview <png>]`(13장 약 10초 — 4 × 4칸을 덮는 이어지는 그림, 타일 `art.span`) · 번짐 띠 모양 + 덧그림 = `python3 tools/f2_art/ground_extra.py` · 소품 · 큰 구조물 = `python3 tools/f2_art/props.py [f2d|f2g][:stand|big] [--only=<이름,…>] [--preview=<폴더>]`(전부 약 5분 — 칸 순서는 `floor_art/rift/specs.json` stands · bigs, 끝에 `sheet_bounds.py`가 그림 네모를 다시 잰다). 새 소품 = `models_dead.py` · `models_forest.py`에 함수 하나(덩어리 `sdf.py` · 재질 `mats.py` · 나무 `trees.py`) + STAND · BIG 표 한 줄. 그린 뒤 `texture_compress.py` → `--import` → 캡처 `--up=floor2_<쪽> --nomon --reveal --cam=x,y`. `paint_floor.gd`는 이 그림들을 건드리지 않는다(specs `props: "python"`). 다른 소품 시트를 다시 그렸으면 `python3 tools/sheet_bounds.py`.
+- **입체 소품(V27)**: 바닥에 놓이는 작은 소품(돌·자루·상자·더미·통나무)은 평면 도형 + 그늘 한 번으로 그리지 않는다 — 바닥 무늬처럼 보인다. `tools/floor_art/Solid.gd`(lump·block·drum·log + shadow)나 `tools/city_art/RoomSolid.gd`로 윗면·옆면·접지 그늘이 있게. 확인은 캡처(실내 `--screen=city --facility=<id>`, 1층 `--shots=res://tools/shots/floor1.json`).
+- **동전·균열 상자(V25)**: `godot --headless --path . --script res://tools/paint_coin.gd` → `assets/ui/coin/heads·tails·edge.webp`(256px 정면 한 장씩, 높이장 돋을새김 금속 칠 — 돌리기·튀기기는 실행 중 `CoinFlip`이 눌러 그린다) · `tools/paint_chest.gd` → `assets/floor/chest/closed·open.webp`(rift/Kit 상자 부품). 둘 다 몇 초, `-- --out=<폴더>`로 시험. 확인: 캡처 `--screen=coin --frames=30 --out=<폴더>`(연출 시각별) · `--screen=explore --rift=rift_blood_fortress --chapter=1 --near=chest [--open_chest=<초> --dialog]`.
+- **시설 실내 그림**(약 30초, CT106): `python3 tools/interior_bake.py [<id> …] [--preview]` → `assets/city/interiors/<id>/`. 3/4 그림판(`tools/interior_canvas.py` — 화면 = (x, y − z) × 48px, 면마다 색 · 면 번호 · 빛 받기) 위에 바닥 재질(`interior_mats.py`) · 높이 3칸 북벽 · 올라간 옆벽 윗면 · 0.42칸으로 자른 남벽 · 벽 장식(`interior_walldeco.py`) · 가구(`interior_furn.py` — 새 가구 = art 이름 하나 + 함수 가지 하나)를 그리고 빛을 입힌 뒤 동네 집과 같은 손그림 마감(`town_handdrawn.finish`). 벽과 바닥이 이어 보이지 않게 돌벽은 바닥 판석보다 작고 어두운 마름돌 + 걸레받이 · 처마 띠. 확인: 캡처 `--screen=city --facility=<id> --in_at=x,y`.
+- 여관 요리 그림 다시 만들기(약 5분): `godot --headless --path . --script res://tools/paint_meals.gd [-- --only=<id,id>]` → `assets/city/meals/<id>.webp`(`data/meals.json` art, 960×540 — 식사하면 여관 실내를 가득 덮는다). 새 요리 = meals.json 한 항목 + `tools/meal_art/Dishes*.gd` 함수 하나 + `MealArt.DISHES` 한 줄. 확인: 캡처 `--screen=city --facility=inn --activity=inn_meal --meal_pick=<id> --dialog`. 부품 함정: `ridge`·`bump`는 이미 빚은 그룹 표면 위에만 붙는다(빈 그룹엔 `Bits.rope`), 받침 위 그릇은 `Kit.bowl(… lift)`로 올린다.
+- 도서관 서적 그림 다시 만들기(장당 약 11초, 6장 약 1분 — CT57): `godot --headless --path . --script res://tools/paint_books.gd [-- --only=<분야 id,…>] [--out=<폴더>]` → `assets/city/books/<분야>.webp`(960×540 — 어두운 책상 위 펼친 낡은 책, `city.json library.fields[].art`). 글은 읽히지 않는 필사체 낙서(실제 글은 아래 대화창), 분야마다 쪽 배치 = `tools/book_art/Plates.gd`(미궁·소재와 무기·상태이상)·`Plates2.gd`(몬스터와 정수·생존과 야영·도시와 탐험가) 함수 하나(`paint_books.gd PLATES`에 한 줄). 확인: 캡처 `--screen=city --facility=library --activity=library_<분야> --dialog --advance=1`.
+- 전투 뒷그림 다시 만들기(장당 약 30~40초, 5장 약 3분): `godot --headless --path . --script res://tools/paint_battlebacks.gd [-- --only=<id,id>] [--out=<폴더>]` → `assets/battle/<id>.webp`(1280×720, 18장 약 11분 — 층 JSON `art.battleback`·균열 `look.art.battleback`·챕터 `battleback` {image, half_width}이 가리킨다, UI28). 장면 = `tools/battle_art/Scene*.gd` 한 파일(`paint_battlebacks.gd` `SCENES`에 한 줄, 챕터는 `<균열>_ch<n>` — `SceneBf1`~`SceneIt4`). 새 장면을 그렸으면 데이터 `half_width`(적이 서는 통로 반 폭 m — 그림의 벽·기둥 안쪽)를 캡처로 맞춘다(UI29). 확인: `--import` 후 캡처 `--screen=explore --combat --monster=goblin`(1층) · `--rift=<균열 id> --engage`(균열).
+- 몬스터 전투 그림 다시 만들기(약 4분): `godot --headless --path . --script res://tools/paint_monsters.gd [-- --only=<id,id>]` → `assets/monsters/<id>.webp` + `index.json`(몸 높이). 그림체 = 피어 앤 헝거 몬스터 그림풍(ASSUMPTIONS UI8), 설계는 `tools/monster_art/Specs.gd`·`Specs2.gd`. 새로 그렸으면 `--import` 후 `screenshot.tscn -- --screen=explore --combat --monster=<id>`로 본다. 아군 그림(탐험가 뒷/옆모습·소환수 뒷모습, `tools/monster_art/Party.gd`)은 `-- --only=party`, 캡처는 `--mate=barbarian,human --ally_summon=ghoul,slime`(ASSUMPTIONS UI11).
+  - `--script` 도구가 파싱 오류로 멈추면(출력 없이 시간 초과) `--check-only --script res://tools/monster_art/<파일>.gd`로 찾는다.
+
+## 1. 도구 지도
+
+| 무엇 | 도구(실행) | 부품 | 결과 |
+|---|---|---|---|
+| 도시 거리·건물·사람·차원광장(옛 횡스크롤 — M5에서 정리) | `tools/paint_city.gd [-- --only=street\|buildings\|plaza]` | `tools/city_art/` — Paint(캔버스·붓결)·Ink(잉크·빛·색 보정)·Mat(재질)·Parts·Buildings(2·3·4 — 4 = 거래소)·Dress(구역 꾸밈)·Refine(구역 색)·Backdrop·Street·StreetTier(구역 거리)·Interiors(+InteriorRooms·2·3)·Npcs·NpcParts·Plaza | `assets/city/` (data가 가리키는 경로) |
+| 도시 동네 집(**CT97 — 손그림 집 키트**: `tools/paint_town_hand.gd` 넷 → `tools/town_hand_bake.py`(리터칭 `tools/town_retouch.py` — AM70, 소품 · 실내 · 탐험 소품은 에셋 라이브러리 그림 — AM71 `tools/dungeon_kit/*_swap.py` · `tools/interior_kit.py`) → `paint_town_houses.gd --pack` · 집 = `tools/town_kit/HouseFit`(Designs 바리에이션) · 마감 = `town_handdrawn.finish(sprite)` — 아래 칸은 옛 CT85 붓) | `tools/paint_town_houses.gd -- --part=<i>/4` 넷 → `--pack`(약 15분) | `tools/town_art/Geo`(면·틀) · `Elev`(벽·박공·지붕·지붕창·굴뚝·시설 앞벽 — Parts·Mat·Buildings._timber·Dress._flower_box·Icons) · `Landmarks`(고딕 신전·원형 도서관 — Buildings2 색유리·장미창·부벽·종·기둥) · `Warp`(옮겨 붙이기·면 빛·잉크) → `assets/town/houses/p<k>.webp` + `index.json` |
+| 도시 동네 지도(2D 3/4 탑뷰 — CT82) | `tools/paint_town.gd`(재질만, 몇 초) — 집·바닥·시설은 실행 중 다각형으로 그린다 | `src/ui/city/TownBrush`(재질 × 꼭짓점 색) · `TownGround`·`TownHouse`·`TownLandmark`·`TownProp` · 색·크기 `render.json city.town` |
+| 귀환 정산 천막(960×540 한 장 — CT58) | `tools/paint_city.gd -- --only=settle`(약 15초) | `tools/city_art/Settle.gd`(광장 공터·먼 회랑·돌 고리 + 천막·계산대·놋쇠 저울·마석 쟁반·장부·꾸러미·길드 직원·앞 탐험가 — 지평선 안개 `_haze`는 천막·사람보다 먼저, 계산대는 아래 대화창 위로 보이게 y 326) + EventKit(하늘·사람·화로·마석 무더기)·Npcs | `assets/city/settle.webp` (render.json `city.plaza.settle_art`) |
+| 몬스터 전투 그림(정면) | `tools/paint_monsters.gd [-- --only=<id,id>]` | `tools/monster_art/` — Clay(3D 덩어리)·Render·Pen(칠·잉크·빗금)·Rig·Anatomy·Face·Hair·Kit·Arms·Extras·Fur·Beast(Head)·Things(2)·Lord·Finish · 설계 Specs·Specs2 | `assets/monsters/<id>.webp` + `index.json`(몸 높이) |
+| 탐험 맵 재질·데칼·소품 | `tools/paint_floor.gd [-- --only=<장소\|style>]` | `tools/floor_art/` — Specs(설계)·Seam(주기 잡음·빛 받은 높이·가장자리 마스크)·Cave(1층 재질 칠·벽 턱)·Decals(데칼)·Props(동굴 요소·포탈 소품)·Marks(기념비·네모 수정) + city_art Paint·Ink | `assets/floor/<장소>/*.webp` (data/tiles.json art · 층 JSON art.decor) |
+| 아이템(가방·장비 인형·전투 드롭 — AM40) | `tools/paint_items.gd [-- --only=<id,id> \| --kind=<종류>]`(359장 약 2분) | `tools/item_art/` — ItemArt(캔버스·소재 색·마감)·Frame(좌표)·Style(소재마다 생김새 — AM41)·Hilt(손잡이·날밑·자루 끝)·Surface(표면 무늬·둘레 장식·빛)·Blades(날붙이)·Hafts(둔기·활·지팡이)·Wear(방패·갑옷)·Wear2(머리·손·발·허리·망토·장신구)·Goods(포션·마석·음식·도구)·RiftGear(균열에서 줍는 물건 덧그림 — 광부 안전모 초·도시락 통·은 술잔·약초 다발·향, RF25)·Junk(균열 잡템 — 동전·썩은/언 고기·이끼·곡괭이 날·항아리 조각·버클, RF19) + monster_art Clay·Render·Finish | `assets/items/<id>.webp`(칸 × 80px) |
+| 여관 요리 그림(960×540, 요리마다 한 장 — CT47) | `tools/paint_meals.gd [-- --only=<id,id>] [--out=<폴더>]`(장당 약 12초, 24장 약 5분) | `tools/meal_art/` — MealArt(탁자·그림자·김·가루·색 보정 — 음식은 채도를 덜 빼고 따뜻하게)·Kit(그릇·접시·도마·잔·초·빵·도구·냅킨 — 3/4 시점 눌린 타원 SQ, 앞일수록 z)·Bits(고기·잎·허브·레몬·낟알·면·알·마늘·고추·꼬치·줄)·Dishes1~3(요리 장면) + monster_art Clay·Render | `assets/city/meals/<id>.webp` (`data/meals.json` art) |
+| 도서관 서적(960×540, 분야마다 한 장 — CT57) | `tools/paint_books.gd [-- --only=<분야>]`(장당 약 11초) | `tools/book_art/` — BookArt(책상·가죽 표지·쪽 묶음·바랜 종이·그을린 가장자리·얼룩, 필사체 글 `script`·낱말 `word`·머리글자·주석·지시선, 펜 그림 `sketch`·둥글리기 `smooth`·겹 빗금 `cross`·원 도표)·Plates·Plates2(분야별 쪽 배치 — 둥근 미궁·층 도표 / 장검·도끼·광석·등급 표 / 사람 몸·약병·약초 / 고블린 머리·정수 구슬·빛깔 고리 / 천막·모닥불·버섯·횃불 / 방패 문장·장부·서명·밀랍 봉인) + city_art Paint·Ink | `assets/city/books/<분야>.webp` (`city.json library.fields` art) |
+| 상태이상 아이콘(96×96, 상태마다 한 장 — UI24) | `tools/paint_status_icons.gd [-- --only=<id,id>]`(90장 약 10초) | `tools/status_art/` — Shapes(받침 판·칠한 도형·막대)·Glyphs(몸·자연 기호: 핏방울·거품·별·눈꽃·유령·송곳니 …)·Glyphs2(물건·표식: 사슬·자물쇠·방패·칼·조준 …)·Icons(상태 → 기호·색 표 MAP) + city_art Paint·Ink | `assets/statuses/<id>.webp` (+ meal·buff·debuff) |
+| 전투 뒷그림(1280×720, 층·균열 챕터마다 한 장 — UI28) | `tools/paint_battlebacks.gd [-- --only=<id>]`(장당 약 30~40초) | `tools/battle_art/` — Room(원근 공간: 픽셀마다 시선을 쏘아 굴·복도 단면 표에 닿는 곳을 찾는다 — 단면 box·vault·cave, 바닥 높이 표(계단), 벽 꼭대기 표(그 위는 트여 하늘 — 바깥 장면))·RoomRender(재질·결 높이로 흔든 법선·점광원·거리 안개로 칠하기, `flat` = 하늘·낭떠러지)·Mats(세계 좌표 재질: 줄 쌓기·막돌 판석·바위·판자·쇠판·피)·Kit(투영한 면·상자·기둥·결정·결정 무리·해골·불꽃·빛·사슬·바닥 그림자·그늘 빗금·붓결·때·마감)·Kit2(하늘·물·낭떠러지·창살·먼 실루엣·영체 빛·반짝이는 가루·톱날·떠다니는 눈)·Scene(Cave·Fortress·Glacier·Mine·Tomb + 챕터 Bf1~4·Gc2~4·Gm2~4·It2~4) + city_art Paint·Ink | `assets/battle/<id>.webp` (층 `art.battleback`) |
+| 아군 전투 그림(뒷모습) | `tools/paint_monsters.gd -- --only=party` | Back(몸 3D 좌표를 돌려 투영)·BackKit(옷)·BackHair·BackGear(갑옷·무기) · 설계 Party | `assets/party/<종족>_back.webp`, `assets/monsters/<id>_back.webp` |
+
+실행은 모두 `godot --headless --path . --script <도구>`. 다 그린 뒤엔 `godot --headless --path . --import`.
+
+## 2. 그림체 규칙(바꾸지 않는 "공식")
+
+- (2026-10-18 기준) **미궁 탐험 1층은 손그림 재질·데칼·소품·랜드마크**(A2·A3), **균열 4종은 손 설계 공간 + 장소별 재질·서 있는 소품·절벽 면(낭떠러지 — AM49)**(A5, §6). 탐험 화면의 몸은 전투 그림에서 만든 맵 그림(A4 — `tools/paint_actors.gd` → `assets/actors/`). `texture_filter` linear. 탐험 맵 그림 작업은 아래 §6과 `docs/plans/map_design.md`를 따른다.
+- **참고 그림체 = 피어 앤 헝거(1·2)**. 손으로 칠한 어두운 일러스트 — 탁하고 채도 낮은 색, 짙은 그늘, 거친 펜 선과 빗금, 때·피. 픽셀아트·평면 도형·매끈한 그러데이션은 쓰지 않는다.
+- **칠하는 순서는 늘 같다**: 형태를 3D 덩어리로 빚기 → 면 방향으로 3~4단 붓 칠(밝은 면 · 적갈색 그늘 `Render.SHADOW_TINT`) → 오목한 골은 어둡게 + 가는 잉크 → 가려진 경계·바깥 윤곽은 굵기가 바뀌는 잉크 선 → 그늘에 형태를 따라 도는 펜 빗금 → 털 붓결(`Fur`) → 피·때·색 보정·그레인(`Finish`). 이 순서는 `Render.render` + `Fur.comb` + `Finish.done`이 맡으니, 새 그림도 **이 셋을 그대로 부른다**(따로 칠하지 않는다).
+- **빛은 왼쪽 위 앞**(`Render.LIGHT`). 도시는 광원(등롱·창·촛불)만 밝히고 나머지는 어둠에 묻는다.
+- **재질은 정해진 종류만**: `Kinds.KINDS` — skin·fur·hair·cloth·leather·metal·bone·stone·wood·slime·glow·eye. 색은 설계에서 고르되 채도를 낮게(예: 가죽 `#5a3e28`, 천 `#4a4236`, 금속 `#70787f`).
+- **색 보정 기본값**: `Finish.done`의 desat 0.18 · 그림자 `#1a1412` · 밝은 쪽 `#e0d2b0`. 그림마다 바꾸지 않는다(계층군주처럼 일부러 진하게 할 때만 spec에서).
+- **모습은 데이터에서 정한다**: 원작 묘사가 없으면 이름·데이터 색·크기에서 모습을 정하고 ASSUMPTIONS(UI8 등)에 적는다. 원작 실명 인물 금지.
+
+## 3. 크기·자르기 규칙
+
+- **몬스터(정면)**: 사람 키 기준 `height` 560px로 그린다. 그림은 둘레만 남겨 자르고(발 = 그림 아래 끝), `index.json`에 **몸 높이**(발~정수리, 치켜든 무기·뿔 제외)를 적는다 — 전투 무대는 이 높이에 맞춰 키를 맞춘다. 네발짐승 = 그림 높이/0.8, 기는 것 /0.7, 덩어리 /0.78, 계층군주 ×0.8(`Specs.body_height`).
+- **덩치는 데이터 `size`가 정한다**(무대 키 = 사람 키 × size). 보스 등급은 크기와 상관없이 무대를 채운다(ASSUMPTIONS UI9).
+- **아군**: 탐험가는 사람 키 540px(`Party.REF_H`), 바바리안은 ×1.14로 크게 그리고 색인은 사람 키 그대로 — 그래서 무대에서도 크다. 뒷모습 `turn` 0, 옆모습 1.1라디안(오른쪽을 본다 — 무대 오른쪽 자리는 좌우 반전).
+- **도시**: 화면 높이 720 기준 "거리 단위". 건물은 더 크게 그려 `building_scale` 0.85로 줄인다. WebP로 저장.
+- **가져오기 압축**(사용자 결정 2026-11-09): 손실 WebP 원본은 Godot도 손실 0.9로(`project.godot` importer_defaults — 새 그림은 저절로), 무손실(VP8L) 원본(동작 시트 · 바닥 타일 · 소품)은 무손실. 무손실 그림을 새로 만들었으면 `python3 tools/texture_compress.py` → `--import`(어긋나면 `test_web`이 잡는다). 웹 꾸러미 198MB → 73MB.
+
+## 4. 새 그림을 넣는 절차
+
+1. **본보기를 고른다** — 비슷한 기존 항목(예: 새 고블린 = `Specs.gd`의 `goblin_*`, 새 네발짐승 = `blade_wolf`, 새 아군 = `Party.gd`의 `soldier_deadman`).
+2. **설계 한 항목을 추가**한다 — 몬스터는 `Specs.gd`/`Specs2.gd`의 id 한 항목(키 뜻은 각 파일 머리말: Figure·Rig·Anatomy·Face·Kit·Arms·Extras·Beast·Things), 아군은 `Party.gd`. 부품이 모자라면 해당 파일에 함수 하나를 더한다(새 재질을 만들지 말고 `Kinds` 안에서).
+3. `--only=<id>`로 그리고, `--import` 후 **반드시 캡처해서 눈으로 본다**: `screenshot.tscn -- --screen=explore --combat --monster=<id>`(아군은 `--mate=종족` · `--ally_summon=id`). 헤드리스 테스트는 그림을 검증하지 못한다.
+4. 여러 장을 비교할 땐 이름을 붙인 모음 그림(스크래치 파이썬 PIL)으로 나란히 본다.
+5. 고칠 점을 적고 설계 값을 바꿔 다시 그린다 — 보통 2~4번 돈다.
+6. `bash tools/check.sh` 통과(몬스터마다 그림·몸 높이가 있는지, 종족마다 아군 그림이 있는지 테스트가 본다) → ASSUMPTIONS에 모습을 정한 이유 → 커밋.
+
+## 5. 겪은 함정
+
+- **전투 뒷그림의 빛나는 것(불꽃·수정·등)은 색 보정(`Kit.finish`) 뒤에 얹는다** — 앞에 칠하면 때·채도 빼기·비네트에 눌려 누런 회색이 된다(처음엔 횃불 속이 푸르스름하게 보였다).
+- **낭떠러지(다리·바위 턱)는 바닥을 아래로 내리고(`floor_h` -40) 다리·턱을 `Kit.face`로 얹는다** — 바닥면을 재질로 '검게' 칠하면 그 아래로 내려가는 벽·건너편 절벽이 가려진다(탄광 2·3장). 내려가는 계단은 눈높이 1.1m에서 보이지 않는다 — 올라가는 계단으로.
+- 뒷그림 빗금은 긴 평행선으로 긋지 않는다 — 어두운 화면에서 비처럼 보인다(`Kit.hatch_dark` = 짧은 빗금 묶음). 붓결(`Kit.brush`)도 짧고 굵게.
+
+- 옷·갑옷은 몸 부위 기록(`cl.tag`)을 부풀려 씌운다(`shell`). **근육 혹·뼈 같은 잔손질도 부위 이름을 붙여야** 옷이 덮는다(이름 없이 빚으면 옷을 뚫고 살이 보인다).
+- 옷 겹의 녹임 폭(k)이 몸보다 작으면 덩어리 이음매(엉덩이 아래·오금)에서 살이 비친다 → 몸과 같은 값(`BackKit.shell`은 그래서 k를 무시한다).
+- 판(slab)이 뼈보다 앞에 있으면 뼈가 묻힌다(날개 막) — 뼈를 막보다 앞(z)으로.
+- 화면 좌표로 그린 옷 단은 상자처럼 잘린다 → 몸 둘레를 따라 휘는 단(`BackKit.hem_poly`).
+- 형태 단위는 `height` 비율로 쓴다(픽셀 숫자를 박지 않는다) — 크기를 바꿔도 같은 그림이 나온다.
+- GDScript: 반복 변수는 타입을 적고(`for s: float in [-1.0, 1.0]`), 도구가 출력 없이 멈추면 `--check-only --script`로 파싱 오류를 찾는다.
+- 사용자가 "되돌려"라고 하면 그림 파일과 그 도구 파일을 같은 커밋으로 함께 되돌린다(`git show <커밋>:<경로>`).
+
+## 6. 탐험 맵 (1층 A0~A4 · 균열 A5 완료, 다듬기 남음 — `docs/PROMPT_ART_MAP.md`, 기획 `docs/plans/map_design.md`)
+
+진행: A0(감사·문서·도구)·A1(렌더 기반 — 층 `art` 설정·시야 경계 감쇠·수정 맥동·입자·품질 설정)·A2(1층 재질 아틀라스 `assets/floor/f1/`)·A3(데칼·벽 밑동/턱·거시 색조·랜드마크·소품)·A4(몸 그림·빛 먼지) 끝. 아래는 A4~A5에서도 지킬 규격이다.
+
+- **균열 장소(A5 — 2026-10-18)**: 공간은 손 설계 지도(`data/maps/rifts/`, `docs/plans/rift_spaces.md`), 그림 계약은 `tools/floor_art/rift/specs.json`(장소 bf·gc·gm·it마다 바닥·벽 style 목록과 소품 순서) → `tools/paint_floor.gd -- --only=<장소>[:atlas|stand|cliff]`(장소당 수 초) → `assets/floor/<장소>/`. 칠은 장소 모듈 `tools/floor_art/rift/<장소>.gd`(`base`·`detail`·`stand` — 계약은 `Common.gd` 머리말), 소품 부품 `Kit.gd`(3/4 상자·원통·기둥·원뿔·그림자·불꽃). **서 있는 소품**(탁자·무기대·광차…) = 벽 종류 타일 + `art.stand {sheet, cell, cols, rows, size [2, 3], under}` — `WallRow`가 칸 아래 가운데에 그림을 세워 캐릭터와 y 정렬, 밑 바닥은 `FloorChunk`가 `under`(없으면 기본 바닥)로. 줄로 늘어서는 물건(탁자·울타리·창살·난간)은 칸 끝까지 그려 이웃과 이어진다. **낭떠러지·구덩이**(void 타일, AM49) = 화면 고정 그림 없이 `VoidChunk` + `abyss.gdshader`가 세계 좌표로: 땅 가장자리를 잡음으로 들쭉날쭉 깎고(`look.art.abyss.jag`), 그 아래 절벽 면 그림(`assets/floor/<장소>/chasm.webp` — 가로로 이어지는 띠, 아래로 갈수록 abyss 색, 칠은 공통 `Cliff.gd` + specs.json `places.<장소>.cliff {kind rock|ice|masonry, top, mid, deep, strata, accent timber|ash|crystal}`)과 깊은 어둠·안개. 나무 발판(`art.void_edge "beam"`)은 들보 면·받침 기둥·난간. 지도 끝 허공은 지도 밖으로 이어 칠한다. **솟은 외곽**(타일 `"rise": true` — 지도 바깥 둘레, AM50) = 위로 솟는 면 `rise_face.webp` + 꼭대기 풍경 `rise_top.webp`(공통 `Rise.gd`, specs.json `places.<장소>.rise {kind castle|ice}`), 땅 남쪽은 꼭대기 가장자리 띠. 가정 AM36~AM37·AM49·AM50.
+- **몸 그림(A4)**: `godot --headless --path . --script res://tools/paint_actors.gd [-- --only=<종족|monsters|id>]`(약 1분). 탐험가 = 전투 그림의 3D 몸을 곧게 세워(큰 머리·마른 몸·붙인 다리·눈구멍 얼굴) 걸음 다섯 장 × 4방향으로 그린 시트(`ActorSheet` 줄 아래·왼·오·위, 칸 걸음A·반걸음A·섬·반걸음B·걸음B — 팔다리는 마디 각도로 돌린다, AM31), 몬스터 = 전투 일러스트를 몸 높이 × size로 줄임(`MonsterView`가 들썩임·반전·뒷모습). 피어 앤 헝거 맵 그림처럼 사람 키 ≈ 1.3칸·약 3.3등신·움푹한 눈구멍(점 눈 금지)·입 없음·붙어 선 다리, 대비 1.3배·1px 잉크 바깥선, 장비는 그리지 않는다(AM27~AM28). 전투 그림을 다시 그렸으면 이것도 다시 돌린다. 캡처: `--screen=explore`, 빛 먼지는 `--combat --monster=<id> --dust=<초>`.
+- **그림 층(A3)**: 데칼 = 층 JSON `art.decor`(규칙 → `FloorDecor` → `DecorChunk`, 시트 줄 순서 = `Specs.DECALS.kinds`), 소품 = 타일 `art.prop {sheet, cell, cols, size}`(시트 칸 순서 = `Props.ORDER`), 거시 색조 = 층 `art.macro`(`FloorTint`). 데칼 자리는 `tools/bake_decor.gd`로 구워 `data/maps/*_decor.json`에서 읽는다(규칙을 바꾸면 다시 굽기).
+- **암벽(2026-10-17 사용자 결정)**: 타일 `art.shape: "smooth"` — 모서리는 사선으로 깎고·메우며(`WallShape`), 바위 덩어리 윗면은 검게 숨기고 남쪽을 향한 앞면만 그린다. 그래서 암벽 아틀라스의 **윗면 줄은 화면에 나오지 않는다**(형식 때문에 남겨 둠). 균열 벽은 `"round"`(자연 암벽 — 같은 둥근 윤곽)·`"bevel"`(지은 벽 — 계단 사선만 곧게)을 쓴다(AM60) — 윗면은 모두 검다(방 사이 검은 거리, AM62). 방 북쪽 벽의 좁은 통로 들머리에는 벽 앞면 그림을 이은 아치(`WallDoors`)가 생긴다. 수정은 암벽 앞면에 박힌 작은 결정(`Cave._gem`)이지 블록이 아니다. 투명 그림은 가장자리를 투명하게 녹이고(`Decals._soft_edge`), 방향이 있는 데칼(물가)은 그림 위쪽 = 바라보는 쪽으로 칠한다. 새 데칼 종류는 Specs·데이터 kinds·Decals 세 곳을 같이 고친다(테스트가 순서를 본다).
+
+- **재질 칸 칠하는 법(A2)**: `Cave.cell` = 가장자리 띠는 모든 변형이 같은 주기 바탕(`Seam.field` — `FastNoiseLite.get_seamless_image`) + 안쪽은 변형마다 다른 시드 바탕과 잔손질, `Seam.mask`로 녹인다. **바탕에 주기가 아닌 칠(붓 자국 `Ink.strokes`, `Paint.nz`, `Paint.vary`)을 넣지 않는다** — 칸 격자가 보인다(잔손질에서만). 덩어리 밝기는 높이장 기울기(`Seam.relief`, 왼쪽 위 빛). 색 보정 → 평균 색을 타일 data 색에 맞춤(`paint_floor._row`). 확인은 스크래치 파이썬으로 아틀라스 확대 + 무작위로 이어 붙인 판을 본 뒤 게임 캡처.
+
+- **렌더 기반(A1)**: 층 JSON `art`(균열 `look.art`) — `palette`(미탐험 순흑·근흑색·색조·기억 색), `post`(채도·비네트·그레인), `pulse`(빛나는 타일의 맥동 빛 번짐 — `GlowChunk` + `crystal_pulse` 셰이더), `particles`(`AmbientParticles`), `ambience`(`audio.json ambience`). 읽는 곳 `src/explore/view/FloorArt.gd`, 검사 `WorldRules.check_art`. 품질 low(`GraphicsSettings`)는 그레인·입자·맥동·횃불 흔들림을 끈다. 시야 경계는 `FloorView.vertex_color`(AM9).
+
+- **도구**: `tools/paint_floor.gd [-- --only=<재질|장소>]` + `tools/floor_art/`(새 폴더) → `assets/floor/`(WebP, 투명이 필요하면 RGBA). 칠은 이미 있는 부품을 **재사용**한다 — `tools/city_art/Paint`(캔버스·붓결)·`Ink`(잉크·빛·색 보정)·`Mat`(재질), `tools/monster_art/Pen`(빗금)·`Finish`(피·때·그레인). 새 칠 방식을 만들지 않는다. 설계(재질·노이즈·변형 수·시드)는 도구의 설계 파일(`Specs` 형식).
+- **게임이 읽는 값은 data에**: 어느 타일이 어느 아틀라스를 쓰는지 = `tiles.json`(`sprite`/새 `art` 키), 층 색조·근흑색·입자 = 층 JSON(새 그림 키), 칸·벽 크기 = `render.json view`. 코드에 색을 박지 않는다.
+- **크기**: 1칸 = 1m = 바닥 32×32px, 벽 앞면 48px(벽 타일 32×80 — 플레이어 키보다 조금 높게, 2026-11-01 AM63 · 그 전 24px), 카메라 1.5배(`render.json view`). 그림은 2배(`view.art_scale` — 64px 칸, 앞면 48px)로 칠해 줄여 쓴다(AM14). `texture_filter` linear(AM15).
+- **아틀라스 형식**: 재질 하나 = 한 줄에 변형 6~8칸(칸 크기 = 바닥 칸 × 그림 배율, 여백 없음). 벽은 윗면 칸 줄 + 앞면 조각 줄(앞면 앵커 = 아래 끝 = 바닥 접점). 소품·데칼은 낱장 또는 시트(앵커 = 발/바닥 가운데). `FloorChunk`·`WallRow`가 아틀라스를 `draw_polygon`(UV + 꼭짓점 색 = `FloorView.vertex_mul`, 셰이더 `floor_tex`)으로 그린다 — **TileMap/TileSet `.tres`로 바꾸지 않는다**.
+- **색**: §2 규칙 그대로(채도 낮게, 그늘 `#1a1412` 쪽, 밝은 쪽 `#e0d2b0`). 예외 신호색 = 피·정수·마석/수정 발광·마법. 순흑은 미탐험 전용, 보이는 곳의 가장 어두운 색은 층 색조가 섞인 근흑색. 바깥 윤곽은 순흑이 아닌 굵기가 바뀌는 잉크 선.
+- **빛**: 타일 그림은 **중립 밝기**로 칠한다(빛은 실행 중 꼭짓점 색 `LightField` + 시야 빛이 곱한다). 그림에 굽는 빛은 재질 자체의 발광(수정·버섯·광물)만.
+- **반복 금지**: 같은 변형이 가로·세로 3칸 이상 이어지지 않게(좌표 해시), 벽 앞면 모양은 구간마다 다르게, 저주파 노이즈로 넓은 영역 변화. 검사 = `FloorArtCheck`(`tools/floor_map.gd` "그림 층 검사", `tests/test_floor_art.gd`).
+- **지형은 그대로**: 1층 고정 지도(`data/maps/f1_crystal_cave.json`)를 다시 굽지 않는다(동굴 요소 좌표가 어긋남). 그림 층은 지도 파일 + 좌표에서 결정적으로 나온다.
+- **성능**: 청크를 만들 때 그 청크만 계산한다(지도 전체를 매 프레임 훑지 않는다). 전후 걸음당 프레임은 `tools/shots/floor1.json`의 `bench`로 같은 PC에서 비교(2026-10-16 기준 이 PC 평균 47~56ms).
+- **확인**: 장면 목록 일괄 캡처 `godot --path . res://tools/screenshot.tscn -- --screen=explore --seed=1 --shots=res://tools/shots/floor1.json --out=res://docs/screens/after` → `docs/screens/before/`와 나란히 본다(그림 작업 전 기준 12장 + `floor1_map.png`).
+- **교체**: ComfyUI 등으로 바꿀 때의 아틀라스 칸 크기·순서·앵커 = `docs/COMFYUI_PROMPTS.md` §0-B.

@@ -1,0 +1,779 @@
+{
+	"banshee": {
+		"cell": [
+			36.0,
+			75.0
+		],
+		"foot": 4.0
+	},
+	"blade_wolf": {
+		"cell": [
+			96.0,
+			69.0
+		],
+		"foot": 4.0
+	},
+	"blood_blade_wolf": {
+		"cell": [
+			96.0,
+			69.0
+		],
+		"foot": 4.0
+	},
+	"bone_gnawer": {
+		"cell": [
+			120.0,
+			65.0
+		],
+		"foot": 4.0
+	},
+	"bone_hyena": {
+		"cell": [
+			96.0,
+			66.0
+		],
+		"foot": 4.0
+	},
+	"bone_knight": {
+		"cell": [
+			56.0,
+			113.0
+		],
+		"foot": 4.0
+	},
+	"bone_mason": {
+		"cell": [
+			46.0,
+			85.0
+		],
+		"foot": 4.0
+	},
+	"bulkar": {
+		"cell": [
+			124.0,
+			84.0
+		],
+		"foot": 4.0
+	},
+	"buried_one": {
+		"cell": [
+			46.0,
+			89.0
+		],
+		"foot": 4.0
+	},
+	"canavaro": {
+		"cell": [
+			48.0,
+			90.0
+		],
+		"foot": 4.0
+	},
+	"canyon_bat": {
+		"cell": [
+			130.0,
+			104.0
+		],
+		"foot": 4.0
+	},
+	"carrion_crow": {
+		"cell": [
+			98.0,
+			80.0
+		],
+		"foot": 4.0
+	},
+	"chimera_wolf": {
+		"cell": [
+			96.0,
+			79.0
+		],
+		"foot": 4.0
+	},
+	"coffin_bearer": {
+		"cell": [
+			54.0,
+			89.0
+		],
+		"foot": 4.0
+	},
+	"copper_golem": {
+		"cell": [
+			74.0,
+			114.0
+		],
+		"foot": 4.0
+	},
+	"corrupted_gnome": {
+		"cell": [
+			68.0,
+			54.0
+		],
+		"foot": 4.0
+	},
+	"deadman": {
+		"cell": [
+			46.0,
+			90.0
+		],
+		"foot": 4.0
+	},
+	"deadman_commander": {
+		"cell": [
+			54.0,
+			104.0
+		],
+		"foot": 4.0
+	},
+	"death_knight": {
+		"cell": [
+			66.0,
+			121.0
+		],
+		"foot": 4.0
+	},
+	"deathfiend": {
+		"cell": [
+			148.0,
+			168.0
+		],
+		"foot": 4.0
+	},
+	"deathworm": {
+		"cell": [
+			132.0,
+			196.0
+		],
+		"foot": 4.0
+	},
+	"desert_vulture": {
+		"cell": [
+			86.0,
+			95.0
+		],
+		"foot": 4.0
+	},
+	"dirouter": {
+		"cell": [
+			44.0,
+			89.0
+		],
+		"foot": 4.0
+	},
+	"dried_pilgrim": {
+		"cell": [
+			48.0,
+			89.0
+		],
+		"foot": 4.0
+	},
+	"drowned": {
+		"cell": [
+			46.0,
+			87.0
+		],
+		"foot": 4.0
+	},
+	"dryad": {
+		"cell": [
+			44.0,
+			92.0
+		],
+		"foot": 4.0
+	},
+	"dullahan": {
+		"cell": [
+			58.0,
+			103.0
+		],
+		"foot": 4.0
+	},
+	"dune_scorpion": {
+		"cell": [
+			76.0,
+			55.0
+		],
+		"foot": 4.0
+	},
+	"elder_ghoul": {
+		"cell": [
+			92.0,
+			95.0
+		],
+		"foot": 4.0
+	},
+	"fairy": {
+		"cell": [
+			106.0,
+			102.0
+		],
+		"foot": 4.0
+	},
+	"forest_wasp": {
+		"cell": [
+			128.0,
+			90.0
+		],
+		"foot": 4.0
+	},
+	"frogman": {
+		"cell": [
+			40.0,
+			71.0
+		],
+		"foot": 4.0
+	},
+	"frost_wolf": {
+		"cell": [
+			100.0,
+			71.0
+		],
+		"foot": 4.0
+	},
+	"gale_wolf": {
+		"cell": [
+			106.0,
+			77.0
+		],
+		"foot": 4.0
+	},
+	"gargoyle_statue": {
+		"cell": [
+			74.0,
+			93.0
+		],
+		"foot": 4.0
+	},
+	"ghoul": {
+		"cell": [
+			64.0,
+			67.0
+		],
+		"foot": 4.0
+	},
+	"ghoul_lord": {
+		"cell": [
+			78.0,
+			87.0
+		],
+		"foot": 4.0
+	},
+	"giant_blade_wolf": {
+		"cell": [
+			146.0,
+			103.0
+		],
+		"foot": 4.0
+	},
+	"gnome": {
+		"cell": [
+			68.0,
+			54.0
+		],
+		"foot": 4.0
+	},
+	"gnomon_guardian": {
+		"cell": [
+			56.0,
+			109.0
+		],
+		"foot": 4.0
+	},
+	"goblin": {
+		"cell": [
+			44.0,
+			68.0
+		],
+		"foot": 4.0
+	},
+	"goblin_archer": {
+		"cell": [
+			40.0,
+			64.0
+		],
+		"foot": 4.0
+	},
+	"goblin_drummer": {
+		"cell": [
+			48.0,
+			74.0
+		],
+		"foot": 4.0
+	},
+	"goblin_hound": {
+		"cell": [
+			80.0,
+			58.0
+		],
+		"foot": 4.0
+	},
+	"goblin_miner": {
+		"cell": [
+			54.0,
+			82.0
+		],
+		"foot": 4.0
+	},
+	"goblin_sapper": {
+		"cell": [
+			52,
+			77
+		],
+		"foot": 4
+	},
+	"goblin_shaman": {
+		"cell": [
+			44.0,
+			72.0
+		],
+		"foot": 4.0
+	},
+	"goblin_swordsman": {
+		"cell": [
+			44.0,
+			69.0
+		],
+		"foot": 4.0
+	},
+	"goblin_thief": {
+		"cell": [
+			40.0,
+			64.0
+		],
+		"foot": 4.0
+	},
+	"goblin_trapper": {
+		"cell": [
+			44.0,
+			70.0
+		],
+		"foot": 4.0
+	},
+	"goblin_venomer": {
+		"cell": [
+			44,
+			73
+		],
+		"foot": 4
+	},
+	"goblin_wolf_rider": {
+		"cell": [
+			58.0,
+			104.0
+		],
+		"foot": 4.0
+	},
+	"grave_keeper": {
+		"cell": [
+			50.0,
+			91.0
+		],
+		"foot": 4.0
+	},
+	"guardian_eye": {
+		"cell": [
+			52.0,
+			44.0
+		],
+		"foot": 4.0
+	},
+	"half_troll": {
+		"cell": [
+			84.0,
+			128.0
+		],
+		"foot": 4.0
+	},
+	"hobgoblin": {
+		"cell": [
+			66.0,
+			106.0
+		],
+		"foot": 4.0
+	},
+	"hobgoblin_miner": {
+		"cell": [
+			62.0,
+			104.0
+		],
+		"foot": 4.0
+	},
+	"homunculus": {
+		"cell": [
+			42.0,
+			81.0
+		],
+		"foot": 4.0
+	},
+	"iantro": {
+		"cell": [
+			66.0,
+			100.0
+		],
+		"foot": 4.0
+	},
+	"ice_golem": {
+		"cell": [
+			74.0,
+			114.0
+		],
+		"foot": 4.0
+	},
+	"ice_orc_shaman": {
+		"cell": [
+			58.0,
+			100.0
+		],
+		"foot": 4.0
+	},
+	"ice_orc_warrior": {
+		"cell": [
+			58.0,
+			104.0
+		],
+		"foot": 4.0
+	},
+	"iron_cavalry": {
+		"cell": [
+			66.0,
+			131.0
+		],
+		"foot": 4.0
+	},
+	"iron_falcon": {
+		"cell": [
+			70.0,
+			78.0
+		],
+		"foot": 4.0
+	},
+	"iron_lizardman": {
+		"cell": [
+			56.0,
+			89.0
+		],
+		"foot": 4.0
+	},
+	"kobold": {
+		"cell": [
+			52.0,
+			76.0
+		],
+		"foot": 4.0
+	},
+	"kobold_shield": {
+		"cell": [
+			58.0,
+			76.0
+		],
+		"foot": 4.0
+	},
+	"kobold_slinger": {
+		"cell": [
+			48.0,
+			73.0
+		],
+		"foot": 4.0
+	},
+	"lizardman": {
+		"cell": [
+			62.0,
+			93.0
+		],
+		"foot": 4.0
+	},
+	"mineral_slime": {
+		"cell": [
+			94.0,
+			55.0
+		],
+		"foot": 4.0
+	},
+	"mire_shade": {
+		"cell": [
+			42.0,
+			86.0
+		],
+		"foot": 4.0
+	},
+	"mole_queen": {
+		"cell": [
+			174.0,
+			110.0
+		],
+		"foot": 4.0
+	},
+	"monolith_soldier": {
+		"cell": [
+			74.0,
+			128.0
+		],
+		"foot": 4.0
+	},
+	"moon_rock_bear": {
+		"cell": [
+			152.0,
+			122.0
+		],
+		"foot": 4.0
+	},
+	"mummy": {
+		"cell": [
+			48.0,
+			90.0
+		],
+		"foot": 4.0
+	},
+	"mutant_spirit": {
+		"cell": [
+			56.0,
+			56.0
+		],
+		"foot": 4.0
+	},
+	"nameless_statue": {
+		"cell": [
+			40.0,
+			69.0
+		],
+		"foot": 4.0
+	},
+	"orc_archer": {
+		"cell": [
+			58.0,
+			100.0
+		],
+		"foot": 4.0
+	},
+	"orc_shaman": {
+		"cell": [
+			58.0,
+			100.0
+		],
+		"foot": 4.0
+	},
+	"orc_warrior": {
+		"cell": [
+			58.0,
+			104.0
+		],
+		"foot": 4.0
+	},
+	"owlbear": {
+		"cell": [
+			130.0,
+			101.0
+		],
+		"foot": 4.0
+	},
+	"riddle_gatekeeper": {
+		"cell": [
+			58.0,
+			110.0
+		],
+		"foot": 4.0
+	},
+	"sabertooth": {
+		"cell": [
+			104.0,
+			73.0
+		],
+		"foot": 4.0
+	},
+	"sand_drift": {
+		"cell": [
+			46.0,
+			89.0
+		],
+		"foot": 4.0
+	},
+	"sandman": {
+		"cell": [
+			48.0,
+			98.0
+		],
+		"foot": 4.0
+	},
+	"sandworm": {
+		"cell": [
+			82.0,
+			107.0
+		],
+		"foot": 4.0
+	},
+	"shade_eater": {
+		"cell": [
+			44.0,
+			89.0
+		],
+		"foot": 4.0
+	},
+	"silvermane_wolf": {
+		"cell": [
+			108.0,
+			78.0
+		],
+		"foot": 4.0
+	},
+	"skeleton": {
+		"cell": [
+			48.0,
+			90.0
+		],
+		"foot": 4.0
+	},
+	"skeleton_archer": {
+		"cell": [
+			46.0,
+			90.0
+		],
+		"foot": 4.0
+	},
+	"skeleton_mage": {
+		"cell": [
+			46.0,
+			90.0
+		],
+		"foot": 4.0
+	},
+	"skeleton_warrior": {
+		"cell": [
+			48.0,
+			92.0
+		],
+		"foot": 4.0
+	},
+	"skull_rat": {
+		"cell": [
+			120.0,
+			64.0
+		],
+		"foot": 4.0
+	},
+	"slime": {
+		"cell": [
+			74.0,
+			44.0
+		],
+		"foot": 4.0
+	},
+	"snetree": {
+		"cell": [
+			112.0,
+			127.0
+		],
+		"foot": 4.0
+	},
+	"soldier_deadman": {
+		"cell": [
+			48.0,
+			91.0
+		],
+		"foot": 4.0
+	},
+	"spine_boar": {
+		"cell": [
+			94.0,
+			71.0
+		],
+		"foot": 4.0
+	},
+	"spore_shroom": {
+		"cell": [
+			58.0,
+			65.0
+		],
+		"foot": 4.0
+	},
+	"steel_hill_guard": {
+		"cell": [
+			66.0,
+			123.0
+		],
+		"foot": 4.0
+	},
+	"stone_golem": {
+		"cell": [
+			88.0,
+			129.0
+		],
+		"foot": 4.0
+	},
+	"thorn_creeper": {
+		"cell": [
+			76.0,
+			88.0
+		],
+		"foot": 4.0
+	},
+	"tunnel_rat": {
+		"cell": [
+			120,
+			65
+		],
+		"foot": 4
+	},
+	"wall_mole": {
+		"cell": [
+			84.0,
+			54.0
+		],
+		"foot": 4.0
+	},
+	"werewolf": {
+		"cell": [
+			82.0,
+			124.0
+		],
+		"foot": 4.0
+	},
+	"witch_lamp": {
+		"cell": [
+			60.0,
+			38.0
+		],
+		"foot": 4.0
+	},
+	"witch_wraith": {
+		"cell": [
+			40.0,
+			81.0
+		],
+		"foot": 4.0
+	},
+	"wolf_king": {
+		"cell": [
+			158.0,
+			114.0
+		],
+		"foot": 4.0
+	},
+	"woodman": {
+		"cell": [
+			48.0,
+			91.0
+		],
+		"foot": 4.0
+	},
+	"wormstone": {
+		"cell": [
+			68.0,
+			81.0
+		],
+		"foot": 4.0
+	},
+	"wraith": {
+		"cell": [
+			44.0,
+			90.0
+		],
+		"foot": 4.0
+	},
+	"yeti": {
+		"cell": [
+			90.0,
+			131.0
+		],
+		"foot": 4.0
+	}
+}
