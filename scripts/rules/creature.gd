@@ -1,0 +1,289 @@
+extends Node
+## 생물(규칙 데이터만). 룰북 8단계 'Godot 구조' — 능력치·상태·자원. 스프라이트와 분리한다.
+## 판정은 Resolver가 하고, 여기는 값과 상태 목록, 그 값에서 바로 나오는 계산만 둔다.
+
+const ABILITIES := ["str", "dex", "con", "int", "wis", "cha"]
+
+var display_name := {"ko": "", "en": ""}
+## 플레이어 캐릭터·동료면 true. 0 HP에서 쓰러져 사망 내성을 굴린다. 몬스터는 즉사(7단계).
+var is_player_character := false
+var abilities := {"str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10}
+var proficiency_bonus := 2
+var save_proficiencies: Array = []
+## 기능 판정 추가 보너스(기능 숙련 계산은 6단계에서 데이터로 옮긴다).
+var skill_bonuses := {}
+var ac_base := 10
+var speed_tiles := 6
+var hp_max := 1
+var hp := 1
+var temp_hp := 0
+var damage_resistances: Array = []
+var damage_vulnerabilities: Array = []
+var damage_immunities: Array = []
+var condition_immunities: Array = []
+## 감각 태그: "darkvision", "see_invisible", "truesight" 등.
+var senses: Array = []
+## 자원: id → {"current": int, "max": int} (주문 슬롯, 클래스 자원 등)
+var resources := {}
+## 걸린 상태: {"id", "turns_left"(-1 = 풀릴 때까지), "source"(생물 또는 문자열), "params"}
+var conditions: Array[Dictionary] = []
+## 상태 밖에서 붙은 수정치(주문 등): {"effect": 효과 Dictionary, "turns_left", "source"}
+var extra_modifiers: Array[Dictionary] = []
+## 유지 중인 집중. 비어 있으면 집중하지 않음. {"id": 주문 ID, ...}
+var concentration := {}
+var death_saves := {"successes": 0, "failures": 0}
+var stable := false
+var dead := false
+
+
+## 여러 값을 한 번에 넣는다(테스트·데이터 로드용).
+func setup(values: Dictionary) -> Node:
+	for key: String in values.keys():
+		if key == "abilities":
+			for a: String in values[key].keys():
+				abilities[a] = values[key][a]
+		else:
+			set(key, values[key])
+	if not values.has("hp"):
+		hp = hp_max
+	return self
+
+
+func label() -> String:
+	if display_name.get("ko", "") != "":
+		return display_name["ko"]
+	if display_name.get("en", "") != "":
+		return display_name["en"]
+	return name
+
+
+# ---------- 능력치 ----------
+
+func ability_mod(ability: String) -> int:
+	return floori((int(abilities.get(ability, 10)) - 10) / 2.0)
+
+
+func save_bonus(ability: String) -> int:
+	return ability_mod(ability) + (proficiency_bonus if save_proficiencies.has(ability) else 0)
+
+
+func ac() -> int:
+	var value := ac_base
+	for m in modifier_entries():
+		var e: Dictionary = m["effect"]
+		if e["type"] == "modify" and e["stat"] == "ac":
+			if e.has("set"):
+				value = e["set"]
+			value += int(e.get("add", 0))
+	return value
+
+
+func speed() -> int:
+	return 0 if has_flag("speed_zero") else speed_tiles
+
+
+# ---------- 상태 ----------
+
+## 지금 효과가 있는 상태 정의 목록. 포함 상태(마비 → 무력화)를 풀고, 억제된 상태(윤곽 → 투명)를 뺀다.
+## 항목: {"id", "def", "instance"}
+func active_conditions() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var seen := {}
+	for inst in conditions:
+		_add_active(inst["id"], inst, out, seen)
+	var suppressed := {}
+	for a in out:
+		for s: String in a["def"].get("suppresses", []):
+			suppressed[s] = true
+	return out.filter(func(a: Dictionary) -> bool: return not suppressed.has(a["id"]))
+
+
+func _add_active(id: String, inst: Dictionary, out: Array[Dictionary], seen: Dictionary) -> void:
+	if seen.has(id):
+		return
+	var def := RulesDB.get_entry("condition", id)
+	if def.is_empty():
+		return
+	seen[id] = true
+	out.append({"id": id, "def": def, "instance": inst})
+	for inc: String in def.get("includes", []):
+		_add_active(inc, inst, out, seen)
+
+
+func has_condition(id: String) -> bool:
+	for a in active_conditions():
+		if a["id"] == id:
+			return true
+	return false
+
+
+## 직접 걸린 상태 인스턴스(포함 상태는 아님). 없으면 빈 Dictionary.
+func condition_instance(id: String) -> Dictionary:
+	for inst in conditions:
+		if inst["id"] == id:
+			return inst
+	return {}
+
+
+func has_flag(flag: String) -> bool:
+	for a in active_conditions():
+		var v: Variant = a["def"].get("flags", {}).get(flag)
+		if v != null and v != false:
+			return true
+	return false
+
+
+func is_incapacitated() -> bool:
+	return has_flag("incapacitated")
+
+
+func auto_fails_save(ability: String) -> bool:
+	for a in active_conditions():
+		if ability in a["def"].get("flags", {}).get("auto_fail_saves", []):
+			return true
+	return false
+
+
+## 이 거리(칸) 안에서 맞으면 치명타가 되는가(마비·무의식).
+func auto_crit_against_within(distance_tiles: int) -> bool:
+	for a in active_conditions():
+		var r: Variant = a["def"].get("flags", {}).get("auto_crit_within_tiles")
+		if r != null and distance_tiles <= int(r):
+			return true
+	return false
+
+
+## 모든 수정치: 상태의 modifiers + extra_modifiers. 항목: {"effect", "condition"(없으면 ""), "instance"}
+func modifier_entries() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for a in active_conditions():
+		for e: Dictionary in a["def"].get("modifiers", []):
+			out.append({"effect": e, "condition": a["id"], "instance": a["instance"]})
+	for m in extra_modifiers:
+		out.append({"effect": m["effect"], "condition": "", "instance": m})
+	return out
+
+
+func is_condition_immune(id: String) -> bool:
+	if condition_immunities.has(id):
+		return true
+	for a in active_conditions():
+		if id in a["def"].get("condition_immunities", []):
+			return true
+	return false
+
+
+## 상태를 건다. 면역이면 false. 같은 상태는 남은 지속시간이 긴 쪽만 남는다(4단계 중첩 규칙 1).
+## turns: -1 = 풀릴 때까지, 0 = 정의의 기본 지속시간(없으면 -1).
+func apply_condition(id: String, turns: int = 0, source: Variant = null, params: Dictionary = {}) -> bool:
+	var def := RulesDB.get_entry("condition", id)
+	if def.is_empty():
+		push_error("모르는 상태 '%s'" % id)
+		return false
+	if dead or is_condition_immune(id):
+		return false
+	if turns == 0:
+		turns = int(def.get("default_duration_turns", -1))
+	for r: String in def.get("removes_on_apply", []):
+		remove_condition(r)
+	var old := condition_instance(id)
+	if not old.is_empty():
+		if _longer(turns, old["turns_left"]):
+			old["turns_left"] = turns
+			old["source"] = source
+			old["params"] = params
+	else:
+		conditions.append({"id": id, "turns_left": turns, "source": source, "params": params})
+	for extra: String in def.get("also_applies", []):
+		apply_condition(extra, -1, source)
+	EventBus.on_condition_applied.emit(self, id)
+	if is_incapacitated() and not concentration.is_empty():
+		break_concentration("무력화")
+	return true
+
+
+func remove_condition(id: String) -> bool:
+	for i in conditions.size():
+		if conditions[i]["id"] == id:
+			conditions.remove_at(i)
+			EventBus.on_condition_removed.emit(self, id)
+			return true
+	return false
+
+
+## 지속시간을 1턴 줄이고 끝난 상태를 푼다. 언제 부를지는 3단계 TurnManager가 정한다.
+func tick_conditions() -> void:
+	for inst in conditions.duplicate():
+		if inst["turns_left"] > 0:
+			inst["turns_left"] -= 1
+			if inst["turns_left"] == 0:
+				remove_condition(inst["id"])
+	for m in extra_modifiers.duplicate():
+		if m.get("turns_left", -1) > 0:
+			m["turns_left"] -= 1
+			if m["turns_left"] == 0:
+				extra_modifiers.erase(m)
+
+
+func _longer(a: int, b: int) -> bool:
+	if b < 0:
+		return false
+	return a < 0 or a > b
+
+
+# ---------- 피해 유형 ----------
+
+func _damage_list(stat: String, base: Array) -> Array:
+	var out := base.duplicate()
+	for m in modifier_entries():
+		var e: Dictionary = m["effect"]
+		if e["type"] == "modify" and e["stat"] == stat:
+			out.append_array(e.get("damage_types", []))
+	return out
+
+
+func resists(damage_type: String) -> bool:
+	var l := _damage_list("damage_resistance", damage_resistances)
+	return l.has(damage_type) or l.has("all")
+
+
+func vulnerable_to(damage_type: String) -> bool:
+	var l := _damage_list("damage_vulnerability", damage_vulnerabilities)
+	return l.has(damage_type) or l.has("all")
+
+
+func immune_to(damage_type: String) -> bool:
+	var l := _damage_list("damage_immunity", damage_immunities)
+	return l.has(damage_type) or l.has("all")
+
+
+# ---------- 집중·자원 ----------
+
+func start_concentration(id: String, data: Dictionary = {}) -> void:
+	if not concentration.is_empty():
+		break_concentration("새 집중")
+	concentration = data.duplicate()
+	concentration["id"] = id
+
+
+func break_concentration(reason: String) -> void:
+	if concentration.is_empty():
+		return
+	Dice.log_text("%s의 집중(%s)이 끝났다: %s" % [label(), concentration.get("id", ""), reason])
+	concentration = {}
+
+
+func resource(id: String) -> int:
+	return int(resources.get(id, {}).get("current", 0))
+
+
+## 자원을 쓴다. 모자라면 false.
+func spend_resource(id: String, amount: int = 1) -> bool:
+	if resource(id) < amount:
+		return false
+	resources[id]["current"] -= amount
+	return true
+
+
+func is_down() -> bool:
+	return hp == 0 and not dead

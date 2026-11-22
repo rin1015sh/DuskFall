@@ -2,7 +2,7 @@ extends "res://tests/test_case.gd"
 ## 저장소의 실제 데이터가 검증을 통과하는지, 그리고 spell 스키마가 틀린 주문을 잡는지.
 
 const DataValidator := preload("res://tools/data_validator.gd")
-const SchemaValidator := preload("res://tools/schema_validator.gd")
+const SchemaValidator := preload("res://scripts/rules/schema_validator.gd")
 
 
 func test_repository_data_passes() -> void:

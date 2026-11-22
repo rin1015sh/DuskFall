@@ -5,6 +5,23 @@ extends SceneTree
 
 const TESTS_DIR := "res://tests"
 
+
+## 테스트 중에 난 스크립트 오류를 센다. 오류로 멈춘 테스트도 실패로 잡기 위해서다.
+class ErrorCounter extends Logger:
+	var count := 0
+	var last := ""
+
+	func _log_error(function: String, file: String, line: int, code: String, rationale: String,
+			_editor_notify: bool, error_type: int, _script_backtraces: Array[ScriptBacktrace]) -> void:
+		if error_type == ERROR_TYPE_WARNING:
+			return
+		count += 1
+		last = "%s (%s:%d %s)" % [rationale if rationale != "" else code, file, line, function]
+
+	func _log_message(_message: String, _error: bool) -> void:
+		pass
+
+
 var _started := false
 
 
@@ -22,6 +39,8 @@ func _run_all() -> int:
 	for arg in OS.get_cmdline_user_args() + OS.get_cmdline_args():
 		if arg.begins_with("--filter="):
 			filter = arg.trim_prefix("--filter=")
+	var errors := ErrorCounter.new()
+	OS.add_logger(errors)
 	var files := _find_tests(TESTS_DIR)
 	var passed := 0
 	var failed := 0
@@ -41,7 +60,12 @@ func _run_all() -> int:
 			t.tree = self
 			if t.has_method("before_each"):
 				t.before_each()
+			var errors_before := errors.count
 			t.call(name)
+			if t.has_method("cleanup"):
+				t.cleanup()
+			if errors.count > errors_before:
+				t.failures.append("스크립트 오류 %d건: %s" % [errors.count - errors_before, errors.last])
 			if t.failures.is_empty():
 				passed += 1
 			else:
@@ -49,6 +73,7 @@ func _run_all() -> int:
 				printerr("[실패] %s :: %s" % [path.get_file(), name])
 				for f in t.failures:
 					printerr("    ", f)
+	OS.remove_logger(errors)
 	print("테스트 %d개 — 통과 %d, 실패 %d" % [passed + failed, passed, failed])
 	return 0 if failed == 0 else 1
 

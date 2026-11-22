@@ -1,0 +1,352 @@
+{
+  "$comment": "상태이상 파일(data/rules/conditions.json) 스키마. 룰북 4단계 상태이상·환경 상태, 8단계 데이터 스키마(넘어짐 예시).",
+  "type": "object",
+  "required": [
+    "schema",
+    "conditions"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "condition_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/condition"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "id_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "ability": {
+      "enum": [
+        "str",
+        "dex",
+        "con",
+        "int",
+        "wis",
+        "cha"
+      ]
+    },
+    "damage_type": {
+      "enum": [
+        "acid",
+        "bludgeoning",
+        "cold",
+        "fire",
+        "force",
+        "lightning",
+        "necrotic",
+        "piercing",
+        "poison",
+        "psychic",
+        "radiant",
+        "slashing",
+        "thunder",
+        "chosen",
+        "all"
+      ]
+    },
+    "modifier": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "roll",
+            "side",
+            "value"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "advantage"
+            },
+            "roll": {
+              "enum": [
+                "attack",
+                "save",
+                "ability_check",
+                "initiative"
+              ]
+            },
+            "side": {
+              "enum": [
+                "self",
+                "against"
+              ]
+            },
+            "value": {
+              "enum": [
+                "advantage",
+                "disadvantage"
+              ]
+            },
+            "range": {
+              "enum": [
+                "adjacent",
+                "far"
+              ]
+            },
+            "ability": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ability"
+              }
+            },
+            "check": {
+              "enum": [
+                "social"
+              ]
+            },
+            "requires": {
+              "enum": [
+                "source_in_sight",
+                "other_is_source"
+              ]
+            },
+            "unless": {
+              "enum": [
+                "other_sees_invisible",
+                "attacker_cannot_see"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stat"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "modify"
+            },
+            "stat": {
+              "enum": [
+                "ac",
+                "speed_tiles",
+                "damage_resistance",
+                "damage_vulnerability",
+                "damage_immunity"
+              ]
+            },
+            "add": {
+              "type": "integer"
+            },
+            "set": {
+              "type": "integer"
+            },
+            "damage_types": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/damage_type"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "hook_effect": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "damage",
+            "heal",
+            "temp_hp",
+            "apply_condition",
+            "remove_condition"
+          ]
+        },
+        "dice": {
+          "type": "string",
+          "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+        },
+        "damage_type": {
+          "$ref": "#/$defs/damage_type"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "requires": {
+          "enum": [
+            "weapon_attack"
+          ]
+        }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "category",
+        "stack",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "object",
+          "required": [
+            "ko",
+            "en"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ko": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "en": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "category": {
+          "enum": [
+            "srd",
+            "environment",
+            "spell"
+          ]
+        },
+        "stack": {
+          "enum": [
+            "keep_longest"
+          ]
+        },
+        "default_duration_turns": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "includes": {
+          "$ref": "#/$defs/id_list"
+        },
+        "also_applies": {
+          "$ref": "#/$defs/id_list"
+        },
+        "condition_immunities": {
+          "$ref": "#/$defs/id_list"
+        },
+        "removes_on_apply": {
+          "$ref": "#/$defs/id_list"
+        },
+        "suppresses": {
+          "$ref": "#/$defs/id_list"
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/modifier"
+          }
+        },
+        "flags": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "incapacitated": {
+              "type": "boolean"
+            },
+            "cannot_speak": {
+              "type": "boolean"
+            },
+            "speed_zero": {
+              "type": "boolean"
+            },
+            "auto_fail_saves": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ability"
+              }
+            },
+            "auto_crit_within_tiles": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "cannot_attack_source": {
+              "type": "boolean"
+            },
+            "cannot_approach_source": {
+              "type": "boolean"
+            },
+            "concealed": {
+              "type": "boolean"
+            },
+            "drops_held": {
+              "type": "boolean"
+            },
+            "fails_sight_checks": {
+              "type": "boolean"
+            },
+            "weight_multiplier": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "movement": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "crawl": {
+              "type": "boolean"
+            },
+            "stand_up_cost": {
+              "enum": [
+                "half_speed"
+              ]
+            }
+          }
+        },
+        "hooks": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^on_[a-z_]+$": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/hook_effect"
+              }
+            }
+          }
+        },
+        "notes_ko": {
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "SRD 5.2.1",
+            "original"
+          ]
+        }
+      }
+    }
+  }
+}

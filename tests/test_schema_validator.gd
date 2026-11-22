@@ -1,7 +1,7 @@
 extends "res://tests/test_case.gd"
 ## tools/schema_validator.gd가 지원 키워드를 제대로 검사하는지.
 
-const SchemaValidator := preload("res://tools/schema_validator.gd")
+const SchemaValidator := preload("res://scripts/rules/schema_validator.gd")
 
 
 func _errs(data: Variant, schema: Dictionary) -> PackedStringArray:

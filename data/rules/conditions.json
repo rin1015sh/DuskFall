@@ -1,0 +1,496 @@
+{
+  "schema": "condition_v1",
+  "note_ko": "룰북 4단계 상태이상 12개 + 환경 상태 4개 + 주문 전용 상태. 중첩 규칙: 같은 상태는 남은 지속시간이 긴 쪽만 남는다(stack keep_longest).",
+  "conditions": [
+    {
+      "id": "blinded",
+      "name": {
+        "ko": "실명",
+        "en": "Blinded"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "flags": {
+        "fails_sight_checks": true
+      },
+      "notes_ko": "시야 원뿔 0(5단계).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "charmed",
+      "name": {
+        "ko": "매혹",
+        "en": "Charmed"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "against",
+          "value": "advantage",
+          "requires": "other_is_source",
+          "check": "social"
+        }
+      ],
+      "flags": {
+        "cannot_attack_source": true
+      },
+      "notes_ko": "매혹한 자를 공격하거나 피해·마법 효과의 대상으로 삼을 수 없다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "frightened",
+      "name": {
+        "ko": "공포",
+        "en": "Frightened"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage",
+          "requires": "source_in_sight"
+        },
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "disadvantage",
+          "requires": "source_in_sight"
+        }
+      ],
+      "flags": {
+        "cannot_approach_source": true
+      },
+      "notes_ko": "원인이 시야 안일 때만 불리. 시야 판정이 생기기 전(2단계)까지는 원인이 늘 보인다고 본다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "incapacitated",
+      "name": {
+        "ko": "무력화",
+        "en": "Incapacitated"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "initiative",
+          "side": "self",
+          "value": "disadvantage"
+        }
+      ],
+      "flags": {
+        "incapacitated": true,
+        "cannot_speak": true
+      },
+      "notes_ko": "행동·보너스 행동·반응 불가, 집중 깨짐.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "invisible",
+      "name": {
+        "ko": "투명",
+        "en": "Invisible"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "initiative",
+          "side": "self",
+          "value": "advantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "advantage",
+          "unless": "other_sees_invisible"
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "disadvantage",
+          "unless": "other_sees_invisible"
+        }
+      ],
+      "flags": {
+        "concealed": true
+      },
+      "notes_ko": "숨기 성공도 이 상태로 나타낸다(원문 Hide, source 'hide'). 젖으면 풀린다(4단계 투명 행). 숨기로 얻은 투명이 젖음에 풀리는지는 5단계에서 다시 정한다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "paralyzed",
+      "name": {
+        "ko": "마비",
+        "en": "Paralyzed"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "includes": [
+        "incapacitated"
+      ],
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "flags": {
+        "speed_zero": true,
+        "auto_fail_saves": [
+          "str",
+          "dex"
+        ],
+        "auto_crit_within_tiles": 1
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "petrified",
+      "name": {
+        "ko": "석화",
+        "en": "Petrified"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "includes": [
+        "incapacitated"
+      ],
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        },
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "all"
+          ]
+        }
+      ],
+      "condition_immunities": [
+        "poisoned"
+      ],
+      "flags": {
+        "speed_zero": true,
+        "auto_fail_saves": [
+          "str",
+          "dex"
+        ],
+        "weight_multiplier": 10
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "poisoned",
+      "name": {
+        "ko": "중독",
+        "en": "Poisoned"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "disadvantage"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "prone",
+      "name": {
+        "ko": "넘어짐",
+        "en": "Prone"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage",
+          "range": "adjacent"
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "disadvantage",
+          "range": "far"
+        }
+      ],
+      "movement": {
+        "crawl": true,
+        "stand_up_cost": "half_speed"
+      },
+      "notes_ko": "일어서기는 3단계. '인접' = 1칸(5피트) 안.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "restrained",
+      "name": {
+        "ko": "속박",
+        "en": "Restrained"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "dex"
+          ]
+        }
+      ],
+      "flags": {
+        "speed_zero": true
+      },
+      "notes_ko": "거미줄과 몬스터 붙잡기 대체에도 쓴다(4단계).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "stunned",
+      "name": {
+        "ko": "기절",
+        "en": "Stunned"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "includes": [
+        "incapacitated"
+      ],
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "flags": {
+        "auto_fail_saves": [
+          "str",
+          "dex"
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "unconscious",
+      "name": {
+        "ko": "무의식",
+        "en": "Unconscious"
+      },
+      "category": "srd",
+      "stack": "keep_longest",
+      "includes": [
+        "incapacitated"
+      ],
+      "also_applies": [
+        "prone"
+      ],
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "flags": {
+        "speed_zero": true,
+        "auto_fail_saves": [
+          "str",
+          "dex"
+        ],
+        "auto_crit_within_tiles": 1,
+        "drops_held": true
+      },
+      "notes_ko": "걸릴 때 넘어짐도 따로 걸린다. 무의식이 풀려도 넘어짐은 남는다(원문).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "wet",
+      "name": {
+        "ko": "젖음",
+        "en": "Wet"
+      },
+      "category": "environment",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "fire"
+          ]
+        },
+        {
+          "type": "modify",
+          "stat": "damage_vulnerability",
+          "damage_types": [
+            "cold",
+            "lightning"
+          ]
+        }
+      ],
+      "condition_immunities": [
+        "burning"
+      ],
+      "removes_on_apply": [
+        "burning",
+        "invisible",
+        "coated_weapon"
+      ],
+      "notes_ko": "물에서 나온 뒤 2턴. 연소와 함께 있을 수 없다(4단계 중첩 규칙 5).",
+      "source": "original"
+    },
+    {
+      "id": "burning",
+      "name": {
+        "ko": "연소",
+        "en": "Burning"
+      },
+      "category": "environment",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "fire"
+          }
+        ]
+      },
+      "notes_ko": "물·젖음으로 풀린다.",
+      "source": "original"
+    },
+    {
+      "id": "acid",
+      "name": {
+        "ko": "산",
+        "en": "Acid"
+      },
+      "category": "environment",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "ac",
+          "add": -2
+        }
+      ],
+      "notes_ko": "표면에서 나온 뒤 2턴.",
+      "source": "original"
+    },
+    {
+      "id": "coated_weapon",
+      "name": {
+        "ko": "무기 담금",
+        "en": "Coated Weapon"
+      },
+      "category": "environment",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "hooks": {
+        "on_hit": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "chosen",
+            "requires": "weapon_attack"
+          }
+        ]
+      },
+      "notes_ko": "담근 표면에 따라 화염 또는 독. 상태를 걸 때 params.damage_type으로 정한다. 젖으면 풀린다.",
+      "source": "original"
+    },
+    {
+      "id": "outlined",
+      "name": {
+        "ko": "윤곽",
+        "en": "Outlined"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage",
+          "unless": "attacker_cannot_see"
+        }
+      ],
+      "suppresses": [
+        "invisible"
+      ],
+      "notes_ko": "Faerie Fire 전용(주문 변환표: 윤곽 — 투명·은신 무효, 공격 유리). 룰북 4단계 상태 목록 밖, 주문 효과를 상태로 나타낸 것.",
+      "source": "SRD 5.2.1"
+    }
+  ]
+}

@@ -6,6 +6,30 @@ var failures: PackedStringArray = []
 ## 실행기가 넣어 준다. 오토로드는 tree.root.get_node("RulesDB")처럼 찾는다.
 var tree: SceneTree
 
+const CreatureScript := preload("res://scripts/rules/creature.gd")
+var _owned: Array[Node] = []
+
+
+## 테스트용 생물을 만든다. 테스트가 끝나면 실행기가 cleanup()으로 지운다.
+func make_creature(values: Dictionary = {}) -> Node:
+	var c: Node = CreatureScript.new()
+	c.setup(values)
+	_owned.append(c)
+	return c
+
+
+## 실행기가 테스트마다 부른다. 같은 시드로 시작해 결과가 늘 같다.
+func before_each() -> void:
+	Dice.set_seed(12345)
+
+
+func cleanup() -> void:
+	Dice.clear_forced()
+	for n in _owned:
+		if is_instance_valid(n):
+			n.free()
+	_owned.clear()
+
 
 func assert_true(cond: bool, msg: String = "") -> void:
 	if not cond:

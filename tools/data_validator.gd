@@ -2,19 +2,17 @@ extends RefCounted
 ## 데이터 검증 본체. tools/validate_data.gd(명령줄)와 tests/가 같이 쓴다.
 ##
 ## 검사 항목
-## 1. data/ 아래 모든 JSON이 읽히고, 최상위 "schema": "<kind>_v<n>"에 맞는
-##    data/schema/<kind>.schema.json을 통과하는가
-## 2. 같은 종류 안에서 ID가 겹치지 않는가
+## 1·2. data/ 아래 모든 JSON이 읽히고 스키마를 통과하며 ID가 겹치지 않는가
+##      (scripts/rules/data_loader.gd — 게임 시작 때 RulesDB도 같은 검사를 한다)
 ## 3. 다른 데이터를 가리키는 ID(클래스·종족·상태·표면)가 실제로 있는가
 ##    대상 종류의 데이터가 아직 하나도 없으면 경고만 내고 건너뛴다.
 ## 4. "script": "<id>"마다 res://scripts/rules/effects/<id>.gd가 있고 컴파일되는가
 ## 5. data/·scenes/·scripts/에 tools/banned_names.txt의 금지어가 없는가
 
-const SchemaValidator := preload("res://tools/schema_validator.gd")
+const DataLoader := preload("res://scripts/rules/data_loader.gd")
 const EventBusScript := preload("res://scripts/rules/event_bus.gd")
 
 const DATA_DIR := "res://data"
-const SCHEMA_DIR := "res://data/schema"
 const EFFECTS_DIR := "res://scripts/rules/effects"
 const BANNED_FILE := "res://tools/banned_names.txt"
 const BANNED_SCAN_DIRS := ["res://data", "res://scenes", "res://scripts"]
@@ -25,6 +23,13 @@ const REFS := {
 	"spell": [
 		["classes[]", "class"],
 		["granted_by[]", "species"],
+	],
+	"condition": [
+		["includes[]", "condition"],
+		["also_applies[]", "condition"],
+		["condition_immunities[]", "condition"],
+		["removes_on_apply[]", "condition"],
+		["suppresses[]", "condition"],
 	],
 }
 ## 효과 종류별로 "id"가 가리키는 종류.
@@ -53,69 +58,15 @@ func run() -> bool:
 	_hooks = bus.hook_names()
 	bus.free()
 
-	var files := _list_files(DATA_DIR, ["json"])
-	var checked := 0
-	for path in files:
-		if path.begins_with(SCHEMA_DIR + "/"):
-			continue
-		if _check_file(path):
-			checked += 1
-	info.append("JSON %d개 검사" % checked)
+	var loader := DataLoader.new()
+	loader.load_dir(DATA_DIR)
+	errors.append_array(loader.errors)
+	entries = loader.entries
+	info.append("JSON %d개 검사" % loader.files_loaded)
 	_check_refs()
 	_check_scripts()
 	_check_banned_names()
 	return errors.is_empty()
-
-
-# ---------- 1·2. 파일·스키마·ID ----------
-
-func _check_file(path: String) -> bool:
-	var text := FileAccess.get_file_as_string(path)
-	var json := JSON.new()
-	if json.parse(text) != OK:
-		errors.append("%s:%d: JSON 문법 오류 — %s" % [path, json.get_error_line(), json.get_error_message()])
-		return false
-	var data: Variant = json.data
-	if typeof(data) != TYPE_DICTIONARY or not data.has("schema"):
-		errors.append("%s: 최상위에 \"schema\": \"<kind>_v<n>\"가 없다" % path)
-		return false
-	var m := RegEx.create_from_string("^([a-z][a-z0-9_]*)_v[0-9]+$").search(str(data["schema"]))
-	if m == null:
-		errors.append("%s: schema 값 '%s'가 <kind>_v<n> 모양이 아니다" % [path, data["schema"]])
-		return false
-	var kind := m.get_string(1)
-	var schema_path := "%s/%s.schema.json" % [SCHEMA_DIR, kind]
-	if not FileAccess.file_exists(schema_path):
-		errors.append("%s: 스키마 파일 %s가 없다" % [path, schema_path])
-		return false
-	var schema: Variant = JSON.parse_string(FileAccess.get_file_as_string(schema_path))
-	if typeof(schema) != TYPE_DICTIONARY:
-		errors.append("%s: 스키마 JSON을 읽을 수 없다" % schema_path)
-		return false
-	for e in SchemaValidator.new().validate(data, schema):
-		errors.append("%s: %s" % [path, e])
-	_collect_entries(kind, data, path)
-	return true
-
-
-## 최상위가 항목 하나("id" 있음)이거나, 최상위 배열에 항목들이 들어 있다.
-func _collect_entries(kind: String, data: Dictionary, path: String) -> void:
-	var items: Array = []
-	if data.has("id"):
-		items.append(data)
-	for key: String in data.keys():
-		if typeof(data[key]) == TYPE_ARRAY:
-			for item: Variant in data[key]:
-				if typeof(item) == TYPE_DICTIONARY and item.has("id"):
-					items.append(item)
-	if not entries.has(kind):
-		entries[kind] = {}
-	for item: Dictionary in items:
-		var id := str(item["id"])
-		if entries[kind].has(id):
-			errors.append("%s: %s ID '%s'가 겹친다(먼저 나온 곳 %s)" % [path, kind, id, entries[kind][id]["file"]])
-		else:
-			entries[kind][id] = {"entry": item, "file": path}
 
 
 # ---------- 3. ID 참조 ----------
@@ -146,12 +97,14 @@ func _check_ref(where: String, field: String, value: String, target_kind: String
 		errors.append("%s: %s가 가리키는 %s '%s'가 없다" % [where, field, target_kind, value])
 
 
-## 데이터의 훅 이름(cast.trigger, hook)이 EventBus 훅 목록에 있는지 본다.
+## 데이터의 훅 이름(cast.trigger, hook, hooks의 키)이 EventBus 훅 목록에 있는지 본다.
 ## 룰북 8단계 훅 표에 없는 이름은 룰북 결정이 필요해 경고로 남긴다.
 func _check_hook(where: String, entry: Dictionary) -> void:
 	var names: Array = []
 	if entry.has("hook"):
 		names.append(entry["hook"])
+	if typeof(entry.get("hooks")) == TYPE_DICTIONARY:
+		names.append_array(entry["hooks"].keys())
 	if typeof(entry.get("cast")) == TYPE_DICTIONARY and entry["cast"].has("trigger"):
 		names.append(entry["cast"]["trigger"])
 	for n: Variant in names:
@@ -267,16 +220,4 @@ func _regex_escape(s: String) -> String:
 # ---------- 공통 ----------
 
 func _list_files(dir: String, exts: Array) -> PackedStringArray:
-	var out := PackedStringArray()
-	var da := DirAccess.open(dir)
-	if da == null:
-		return out
-	for f in da.get_files():
-		if exts.has(f.get_extension().to_lower()):
-			out.append(dir.path_join(f))
-	for d in da.get_directories():
-		if d.begins_with("."):
-			continue
-		out.append_array(_list_files(dir.path_join(d), exts))
-	out.sort()
-	return out
+	return DataLoader.list_files(dir, exts)

@@ -1,0 +1,553 @@
+extends RefCounted
+## 판정기(상태 없음). 룰북 8단계 '판정 순서' 12단계를 그대로 따른다.
+## 생물의 값은 Creature가, 굴림은 Dice가, 훅은 EventBus가 맡는다.
+##
+## 공격 정의(attack):
+##   {"name": 표시 이름, "bonus": 공격 보너스 합계, "kind": "melee"|"ranged",
+##    "weapon": 무기 공격인가, "damage": [{"dice": "1d6+2", "damage_type": "piercing"}],
+##    "extra_if_advantage": [...] (고블린처럼 유리일 때 추가 피해)}
+## 상황(ctx): {"distance_tiles": 칸(기본 1), "height_diff": 공격자 높이 − 대상 높이(단계),
+##    "advantage": [이유], "disadvantage": [이유], "in_combat": bool(기본 true),
+##    "source_in_sight": bool(기본 true, 시야 판정은 2단계)}
+## 훅 리스너는 넘겨받은 결과 Dictionary를 고쳐 판정에 끼어든다
+## (예: on_after_attack_roll에서 res["ac_bonus"] += 5 = Shield).
+
+const DiceExpr := preload("res://scripts/rules/dice_expr.gd")
+
+## 고지: 높이 2단계 이상 차이면 명중 ±2(룰북 4단계).
+const HIGH_GROUND_STEPS := 2
+const HIGH_GROUND_BONUS := 2
+const CONCENTRATION_DC_MIN := 10
+const CONCENTRATION_DC_MAX := 30
+const DEATH_SAVE_DC := 10
+
+
+# ======================================================================
+# 공격
+# ======================================================================
+
+## 1. 선언: 공격할 수 없으면 이유를 돌려준다. 할 수 있으면 "".
+static func can_attack(attacker: Node, target: Node) -> String:
+	if attacker.dead or attacker.is_down():
+		return "공격자가 쓰러졌다"
+	if attacker.is_incapacitated():
+		return "공격자가 무력화 상태다"
+	if target.dead:
+		return "대상이 이미 죽었다"
+	for a in attacker.active_conditions():
+		if a["def"].get("flags", {}).get("cannot_attack_source", false) and a["instance"]["source"] == target:
+			return "매혹한 상대는 공격할 수 없다"
+	return ""
+
+
+## 공격 한 번을 끝까지 처리한다(8단계 판정 순서 1, 3~12).
+static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionary = {}) -> Dictionary:
+	var res := _attack_setup(attacker, target, atk, ctx, false)
+	if not res["valid"]:
+		Dice.log_text("%s → %s 공격 불가: %s" % [attacker.label(), target.label(), res["reason"]])
+		return res
+	# 4. 굴림
+	var d := Dice.d20(res["mode"], "%s 공격" % attacker.label())
+	res["rolls"] = d["rolls"]
+	res["natural"] = d["natural"]
+	res["total"] = res["natural"] + res["attack_bonus"]
+	_decide_hit(res)
+	# 숨기로 얻은 투명은 공격 굴림을 하면 풀린다(원문 Hide, 5단계 은신 공격).
+	var hide: Dictionary = attacker.condition_instance("invisible")
+	if not hide.is_empty() and hide["source"] is String and hide["source"] == "hide":
+		attacker.remove_condition("invisible")
+	# 5. 명중 직후 반응(Shield 등)
+	EventBus.on_after_attack_roll.emit(res)
+	_decide_hit(res)
+	# 6. 명중 결과
+	if res["hit"] and not res["crit"] and target.auto_crit_against_within(res["distance"]):
+		res["crit"] = true
+		res["auto_crit"] = true
+	if res["hit"]:
+		EventBus.on_hit.emit(res)
+		if res["crit"]:
+			EventBus.on_crit.emit(res)
+	else:
+		EventBus.on_miss.emit(res)
+	# 12. 로그(굴림 줄)
+	Dice.log_text("%s → %s %s%s: %d + %d = %d vs AC %d → %s" % [
+		attacker.label(), target.label(), atk.get("name", "공격"), _mode_note(res["mode"], res["rolls"]),
+		res["natural"], res["attack_bonus"], res["total"], res["ac"] + res["ac_bonus"],
+		"치명타" if res["crit"] else ("명중" if res["hit"] else "빗나감")])
+	# 7~11. 피해
+	if res["hit"]:
+		var parts := _attack_damage_parts(attacker, atk, res)
+		var rolled: Array = []
+		for p: Dictionary in parts:
+			var r := Dice.roll(p["dice"], "%s 피해" % atk.get("name", "공격"), res["crit"])
+			rolled.append({"amount": r["total"], "damage_type": p["damage_type"]})
+		res["damage"] = apply_damage(target, rolled, {"crit": res["crit"], "attacker": attacker,
+			"in_combat": ctx.get("in_combat", true)})
+	return res
+
+
+## 굴림 없는 미리보기(8단계 판정 순서 2, 2단계 공통 처리 규칙 2).
+## 결과: {"valid", "reason", "hit_chance", "crit_chance", "mode", "attack_bonus", "ac",
+##        "damage": {"min", "max", "avg"}(명중 시, 저항·취약 반영)}
+static func preview_attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionary = {}) -> Dictionary:
+	var res := _attack_setup(attacker, target, atk, ctx, true)
+	if not res["valid"]:
+		return res
+	var p := hit_probability(target.ac() + res["ac_bonus"], res["attack_bonus"])
+	res["hit_chance"] = apply_mode(p, res["mode"])
+	res["crit_chance"] = apply_mode(0.05, res["mode"])
+	var lo := 0.0
+	var hi := 0.0
+	var avg := 0.0
+	for part: Dictionary in _attack_damage_parts(attacker, atk, res):
+		var s := DiceExpr.stats(part["dice"])
+		var t: String = part["damage_type"]
+		lo += modify_amount(target, maxf(s["min"], 0.0), t, 1.0, true)
+		hi += modify_amount(target, maxf(s["max"], 0.0), t, 1.0, true)
+		avg += modify_amount(target, maxf(s["avg"], 0.0), t, 1.0, false)
+	res["damage"] = {"min": lo, "max": hi, "avg": avg}
+	return res
+
+
+## 명중 확률 p = (21 − (AC − 공격 보너스)) / 20, 5~95%로 자른다(자연 1·20).
+static func hit_probability(ac: int, attack_bonus: int) -> float:
+	return clampf((21.0 - (ac - attack_bonus)) / 20.0, 0.05, 0.95)
+
+
+## 유리면 1 − (1 − p)², 불리면 p².
+static func apply_mode(p: float, mode: int) -> float:
+	if mode > 0:
+		return 1.0 - (1.0 - p) * (1.0 - p)
+	if mode < 0:
+		return p * p
+	return p
+
+
+static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionary, preview: bool) -> Dictionary:
+	var res := {"attacker": attacker, "target": target, "attack": atk, "ctx": ctx, "preview": preview,
+		"valid": true, "reason": "", "distance": int(ctx.get("distance_tiles", 1)),
+		"advantage": [], "disadvantage": [], "attack_bonus": int(atk.get("bonus", 0)),
+		"ac": target.ac(), "ac_bonus": 0, "hit": false, "crit": false, "auto_crit": false,
+		"natural": 0, "total": 0, "rolls": []}
+	var why := can_attack(attacker, target)
+	if why != "":
+		res["valid"] = false
+		res["reason"] = why
+		return res
+	# 3. 유리·불리 수집
+	_collect_attack_mods(attacker, target, res)
+	EventBus.on_before_attack_roll.emit(res)
+	res["mode"] = mode_of(res["advantage"], res["disadvantage"])
+	return res
+
+
+static func _collect_attack_mods(attacker: Node, target: Node, res: Dictionary) -> void:
+	var ctx: Dictionary = res["ctx"]
+	for m in attacker.modifier_entries():
+		_add_adv(m, "attack", "self", attacker, target, res)
+	for m in target.modifier_entries():
+		_add_adv(m, "attack", "against", target, attacker, res)
+	res["advantage"].append_array(ctx.get("advantage", []))
+	res["disadvantage"].append_array(ctx.get("disadvantage", []))
+	var hd := int(ctx.get("height_diff", 0))
+	if hd >= HIGH_GROUND_STEPS:
+		res["attack_bonus"] += HIGH_GROUND_BONUS
+		res["high_ground"] = HIGH_GROUND_BONUS
+	elif hd <= -HIGH_GROUND_STEPS:
+		res["attack_bonus"] -= HIGH_GROUND_BONUS
+		res["high_ground"] = -HIGH_GROUND_BONUS
+
+
+## 수정치 하나가 이 굴림에 적용되면 res의 advantage/disadvantage에 이유를 더한다.
+## owner = 수정치를 가진 생물, other = 상대.
+static func _add_adv(m: Dictionary, roll: String, side: String, owner: Node, other: Node, res: Dictionary,
+		ability: String = "") -> void:
+	var e: Dictionary = m["effect"]
+	if e["type"] != "advantage" or e["roll"] != roll or e["side"] != side:
+		return
+	if e.has("ability") and not ability in e["ability"]:
+		return
+	var dist := int(res.get("distance", 1))
+	match e.get("range", ""):
+		"adjacent":
+			if dist > 1:
+				return
+		"far":
+			if dist <= 1:
+				return
+	var ctx: Dictionary = res.get("ctx", {})
+	match e.get("requires", ""):
+		"source_in_sight":
+			if not ctx.get("source_in_sight", true):
+				return
+		"other_is_source":
+			if m["instance"].get("source") != other:
+				return
+	match e.get("unless", ""):
+		"other_sees_invisible":
+			if other != null and (other.senses.has("see_invisible") or other.senses.has("truesight")):
+				return
+		"attacker_cannot_see":
+			if other != null and other.has_condition("blinded"):
+				return
+	var why: String = m["condition"] if m["condition"] != "" else str(m["instance"].get("source", "효과"))
+	res[e["value"]].append("%s(%s)" % [why, owner.label()])
+
+
+## 유리와 불리가 둘 다 있으면 개수와 상관없이 상쇄한다(원문, 4단계 중첩 규칙 3).
+static func mode_of(advantage: Array, disadvantage: Array) -> int:
+	var a := not advantage.is_empty()
+	var d := not disadvantage.is_empty()
+	if a and not d:
+		return 1
+	if d and not a:
+		return -1
+	return 0
+
+
+static func _decide_hit(res: Dictionary) -> void:
+	var n: int = res["natural"]
+	if n == 20:
+		res["hit"] = true
+		res["crit"] = true
+	elif n == 1:
+		res["hit"] = false
+		res["crit"] = false
+	else:
+		res["hit"] = res["total"] >= res["ac"] + res["ac_bonus"]
+		res["crit"] = false
+
+
+static func _attack_damage_parts(attacker: Node, atk: Dictionary, res: Dictionary) -> Array:
+	var parts: Array = []
+	parts.append_array(atk.get("damage", []))
+	if res.get("mode", 0) > 0:
+		parts.append_array(atk.get("extra_if_advantage", []))
+	# 공격자 상태의 on_hit 피해(무기 담금 등)
+	for a in attacker.active_conditions():
+		for e: Dictionary in a["def"].get("hooks", {}).get("on_hit", []):
+			if e["type"] != "damage":
+				continue
+			if e.get("requires", "") == "weapon_attack" and not atk.get("weapon", false):
+				continue
+			var t: String = e["damage_type"]
+			if t == "chosen":
+				t = a["instance"].get("params", {}).get("damage_type", "fire")
+			parts.append({"dice": e["dice"], "damage_type": t})
+	return parts
+
+
+static func _mode_note(mode: int, rolls: Array) -> String:
+	if mode > 0:
+		return "(유리 %s)" % str(rolls)
+	if mode < 0:
+		return "(불리 %s)" % str(rolls)
+	return ""
+
+
+# ======================================================================
+# 피해·회복 (판정 순서 8~10)
+# ======================================================================
+
+## 피해 수정 한 번: 보너스·배율 → 저항 → 취약(원문 순서). 저항과 취약이 함께 있으면 상쇄(4단계).
+## 면역이면 0. floor_each=true면 정수 피해(절반은 내림), false면 미리보기 평균용 실수.
+static func modify_amount(target: Node, amount: float, damage_type: String, multiplier: float = 1.0,
+		floor_each: bool = true) -> float:
+	if target.immune_to(damage_type):
+		return 0.0
+	var v := maxf(amount * multiplier, 0.0)
+	if floor_each:
+		v = floorf(v)
+	var r: bool = target.resists(damage_type)
+	var w: bool = target.vulnerable_to(damage_type)
+	if r and not w:
+		v = floorf(v / 2.0) if floor_each else v / 2.0
+	elif w and not r:
+		v *= 2.0
+	return v
+
+
+## 피해를 적용한다. parts: [{"amount": int, "damage_type": String, "multiplier": float(선택)}]
+## opts: {"crit": bool, "attacker": Node, "in_combat": bool}
+## 결과: {"total", "by_type", "temp_absorbed", "hp_lost", "dropped", "died", "concentration"}
+static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> Dictionary:
+	var out := {"total": 0, "by_type": {}, "temp_absorbed": 0, "hp_lost": 0, "dropped": false,
+		"died": false, "concentration": {}}
+	if target.dead:
+		return out
+	# 8. 피해 수정(유형별로 모아서 한 번에 — 저항은 한 피해에 한 번만 적용된다)
+	# 배율(내성 성공 절반 등)은 부분마다 먼저 적용하고 내림, 그다음 유형별로 합쳐 저항·취약.
+	var raw := {}
+	for p: Dictionary in parts:
+		var t: String = p["damage_type"]
+		var amount := maxi(floori(int(p["amount"]) * float(p.get("multiplier", 1.0))), 0)
+		raw[t] = raw.get(t, 0) + amount
+	var total := 0
+	for t: String in raw.keys():
+		var v := int(modify_amount(target, raw[t], t, 1.0, true))
+		out["by_type"][t] = v
+		total += v
+	out["total"] = total
+	if total <= 0:
+		return out
+	# 9. 적용: 임시 HP 먼저
+	var was_down: bool = target.hp == 0
+	var absorbed := mini(target.temp_hp, total)
+	target.temp_hp -= absorbed
+	var rest := total - absorbed
+	out["temp_absorbed"] = absorbed
+	var info := {"target": target, "amount": total, "opts": opts, "result": out}
+	if was_down:
+		_damage_while_down(target, total, opts, out)
+	else:
+		var before: int = target.hp
+		target.hp = maxi(before - rest, 0)
+		out["hp_lost"] = before - target.hp
+	Dice.log_text("%s 피해 %d %s → HP %d/%d%s" % [target.label(), total, str(out["by_type"]), target.hp,
+		target.hp_max, " (임시 HP %d 흡수)" % absorbed if absorbed > 0 else ""])
+	EventBus.on_damage_taken.emit(info)
+	# 집중 유지 내성(피해를 받으면 — 임시 HP가 막아도 받은 것이다)
+	if not target.concentration.is_empty() and target.hp > 0:
+		out["concentration"] = concentration_check(target, total)
+	# 10. 0 HP
+	if not was_down and target.hp == 0:
+		_hp_zero(target, rest - out["hp_lost"], opts, out)
+	return out
+
+
+## 0 HP가 되었을 때(on_hp_zero). 리스너가 info["prevented"] = true로 막을 수 있다(끈질긴 인내 등).
+static func _hp_zero(target: Node, remainder: int, opts: Dictionary, out: Dictionary) -> void:
+	var info := {"creature": target, "remainder": remainder, "opts": opts, "prevented": false}
+	EventBus.on_hp_zero.emit(info)
+	if info["prevented"] or target.hp > 0:
+		return
+	if not target.is_player_character:
+		_die(target, "몬스터는 0 HP에서 즉사")
+	elif remainder >= target.hp_max:
+		_die(target, "즉사(남은 피해 %d ≥ 최대 HP %d)" % [remainder, target.hp_max])
+	else:
+		target.death_saves = {"successes": 0, "failures": 0}
+		target.stable = not opts.get("in_combat", true)  # 전투 밖 쓰러짐은 안정 상태(7단계 결정 2)
+		target.apply_condition("unconscious", -1, "hp_zero")
+		out["dropped"] = true
+		Dice.log_text("%s 쓰러짐%s" % [target.label(), "(안정)" if target.stable else ""])
+	out["died"] = target.dead
+
+
+## 0 HP에서 피해: 사망 내성 실패 1회, 치명타면 2회. 최대 HP 이상이면 사망. 안정 상태는 풀린다.
+static func _damage_while_down(target: Node, total: int, opts: Dictionary, out: Dictionary) -> void:
+	target.stable = false
+	if total >= target.hp_max:
+		_die(target, "쓰러진 상태에서 최대 HP 이상 피해")
+	else:
+		_add_death_failures(target, 2 if opts.get("crit", false) else 1)
+	out["died"] = target.dead
+
+
+static func _add_death_failures(target: Node, n: int) -> void:
+	target.death_saves["failures"] += n
+	if target.death_saves["failures"] >= 3:
+		_die(target, "사망 내성 실패 3회")
+
+
+static func _die(target: Node, reason: String) -> void:
+	target.hp = 0
+	target.dead = true
+	target.stable = false
+	target.break_concentration("사망")
+	Dice.log_text("%s 사망: %s" % [target.label(), reason])
+
+
+## 회복. 0 HP였다면 일어난다(무의식 해제, 사망 내성 초기화). 넘어짐은 남는다(원문 무의식).
+## 결과: 실제 회복량.
+static func heal(target: Node, amount: int, source: Variant = null) -> int:
+	if target.dead or amount <= 0:
+		return 0
+	var before: int = target.hp
+	target.hp = mini(target.hp + amount, target.hp_max)
+	var gained: int = target.hp - before
+	if before == 0 and target.hp > 0:
+		target.remove_condition("unconscious")
+		target.death_saves = {"successes": 0, "failures": 0}
+		target.stable = false
+	Dice.log_text("%s 회복 %d → HP %d/%d" % [target.label(), gained, target.hp, target.hp_max])
+	EventBus.on_heal.emit({"target": target, "amount": gained, "source": source})
+	return gained
+
+
+## 임시 HP는 더하지 않고 큰 쪽을 남긴다(원문, 7단계).
+static func grant_temp_hp(target: Node, amount: int) -> void:
+	target.temp_hp = maxi(target.temp_hp, amount)
+
+
+# ======================================================================
+# 내성·능력 판정
+# ======================================================================
+
+## 내성 굴림. opts: {"bonus": int, "advantage": [], "disadvantage": [],
+##   "natural_rules": bool(대화 중 내성·집중 유지 내성만 true — 2단계 결정 1), "source": Node}
+## 결과: {"success", "natural", "total", "dc", "mode", "auto"}
+static func saving_throw(creature: Node, ability: String, dc: int, opts: Dictionary = {}) -> Dictionary:
+	var res := _save_setup(creature, ability, dc, opts)
+	if res["auto"]:
+		Dice.log_text("%s %s 내성 자동 실패 vs DC %d" % [creature.label(), ability, dc])
+		return res
+	EventBus.on_save.emit(res)
+	res["mode"] = mode_of(res["advantage"], res["disadvantage"])
+	var d := Dice.d20(res["mode"], "%s %s 내성" % [creature.label(), ability])
+	res["natural"] = d["natural"]
+	res["total"] = d["natural"] + res["bonus"]
+	res["success"] = res["total"] >= dc
+	if opts.get("natural_rules", false):
+		if d["natural"] == 20:
+			res["success"] = true
+		elif d["natural"] == 1:
+			res["success"] = false
+	res["phase"] = "after"
+	EventBus.on_save.emit(res)
+	Dice.log_text("%s %s 내성%s: %d + %d = %d vs DC %d → %s" % [creature.label(), ability,
+		_mode_note(res["mode"], d["rolls"]), res["natural"], res["bonus"], res["total"], dc,
+		"성공" if res["success"] else "실패"])
+	return res
+
+
+## 내성 실패 확률(굴림 없음). 일반 내성은 자연 20·1이 없어 0~100%(2단계 결정 1).
+static func preview_save_fail(creature: Node, ability: String, dc: int, opts: Dictionary = {}) -> float:
+	var res := _save_setup(creature, ability, dc, opts)
+	if res["auto"]:
+		return 1.0
+	var lo := 0.05 if opts.get("natural_rules", false) else 0.0
+	var p_success := clampf((21.0 - (dc - res["bonus"])) / 20.0, lo, 1.0 - lo)
+	return 1.0 - apply_mode(p_success, mode_of(res["advantage"], res["disadvantage"]))
+
+
+static func _save_setup(creature: Node, ability: String, dc: int, opts: Dictionary) -> Dictionary:
+	var res := {"creature": creature, "ability": ability, "dc": dc, "phase": "before",
+		"bonus": creature.save_bonus(ability) + int(opts.get("bonus", 0)),
+		"advantage": opts.get("advantage", []).duplicate(), "disadvantage": opts.get("disadvantage", []).duplicate(),
+		"auto": false, "success": false, "natural": 0, "total": 0, "mode": 0}
+	if creature.auto_fails_save(ability):
+		res["auto"] = true
+		return res
+	for m in creature.modifier_entries():
+		_add_adv(m, "save", "self", creature, opts.get("source"), res, ability)
+	return res
+
+
+## 집중 유지 내성: 건강, DC = max(10, 피해 절반 내림), 최대 30. 자연 20·1 적용(2단계 결정 1).
+static func concentration_check(creature: Node, damage: int) -> Dictionary:
+	var dc := clampi(maxi(CONCENTRATION_DC_MIN, damage / 2), CONCENTRATION_DC_MIN, CONCENTRATION_DC_MAX)
+	var res := saving_throw(creature, "con", dc, {"natural_rules": true})
+	if not res["success"]:
+		creature.break_concentration("집중 유지 내성 실패")
+	return res
+
+
+## 능력 판정. opts: {"skill": String, "bonus": int, "advantage": [], "disadvantage": [],
+##   "requires_sight": bool, "social": bool, "other": Node}
+## 자연 20 자동 성공, 자연 1 자동 실패(2단계 공통 처리 규칙 1).
+static func ability_check(creature: Node, ability: String, dc: int, opts: Dictionary = {}) -> Dictionary:
+	var res := {"creature": creature, "ability": ability, "dc": dc, "auto": false,
+		"bonus": creature.ability_mod(ability) + int(creature.skill_bonuses.get(opts.get("skill", ""), 0)) + int(opts.get("bonus", 0)),
+		"advantage": opts.get("advantage", []).duplicate(), "disadvantage": opts.get("disadvantage", []).duplicate(),
+		"success": false, "natural": 0, "total": 0, "mode": 0, "ctx": {}}
+	if opts.get("requires_sight", false) and creature.has_flag("fails_sight_checks"):
+		res["auto"] = true
+	else:
+		for m in creature.modifier_entries():
+			_add_adv(m, "ability_check", "self", creature, opts.get("other"), res)
+		var other: Node = opts.get("other")
+		if other != null and opts.get("social", false):
+			for m in other.modifier_entries():
+				if m["effect"].get("check", "") == "social":
+					_add_adv(m, "ability_check", "against", other, creature, res)
+		res["mode"] = mode_of(res["advantage"], res["disadvantage"])
+		var d := Dice.d20(res["mode"], "%s %s 판정" % [creature.label(), ability])
+		res["natural"] = d["natural"]
+		res["total"] = d["natural"] + res["bonus"]
+		res["success"] = d["natural"] == 20 or (d["natural"] != 1 and res["total"] >= dc)
+	Dice.log_text("%s %s 판정: %s vs DC %d → %s" % [creature.label(), ability,
+		"자동 실패" if res["auto"] else "%d + %d = %d" % [res["natural"], res["bonus"], res["total"]],
+		dc, "성공" if res["success"] else "실패"])
+	if not res["success"]:
+		EventBus.on_check_failed.emit(res)
+	return res
+
+
+## 내성을 강요하는 효과(주문 등). 모든 대상의 내성을 먼저 굴리고, 피해 주사위는 모든 대상에
+## 한 번만 굴린다(원문 Damage against Multiple Targets).
+## check: {"ability", "dc"}; fail/success: 효과 목록(damage는 "scale"로 배율, apply_condition).
+## 결과: 대상마다 {"target", "save", "damage"}.
+static func save_effect(targets: Array, check: Dictionary, fail: Array, success: Array = [],
+		opts: Dictionary = {}) -> Array:
+	var rolled := {}
+	var out: Array = []
+	var saves: Array = []
+	for t: Node in targets:
+		saves.append(saving_throw(t, check["ability"], int(check["dc"]), opts))
+	for i in targets.size():
+		var t: Node = targets[i]
+		var s: Dictionary = saves[i]
+		var effects: Array = success if s["success"] else fail
+		var parts: Array = []
+		for e: Dictionary in effects:
+			match e["type"]:
+				"damage":
+					var key: String = e["dice"] + "|" + e["damage_type"]
+					if not rolled.has(key):
+						rolled[key] = Dice.roll(e["dice"], "효과 피해")["total"]
+					parts.append({"amount": rolled[key], "damage_type": e["damage_type"],
+						"multiplier": float(e.get("scale", 1.0))})
+				"apply_condition":
+					t.apply_condition(e["id"], int(e.get("turns", 0)), opts.get("source"))
+		var dmg := apply_damage(t, parts, opts) if not parts.is_empty() else {}
+		out.append({"target": t, "save": s, "damage": dmg})
+	return out
+
+
+# ======================================================================
+# 턴 시작·사망 내성
+# ======================================================================
+
+## 턴 시작 처리(3단계 턴 순서 2): 턴 시작 효과(연소 등) → 사망 내성.
+## 반응 회복과 재충전은 3단계 TurnManager가 맡는다.
+static func start_turn(creature: Node, ctx: Dictionary = {}) -> void:
+	EventBus.on_turn_start.emit(creature)
+	for a in creature.active_conditions():
+		var parts: Array = []
+		for e: Dictionary in a["def"].get("hooks", {}).get("on_turn_start", []):
+			if e["type"] == "damage":
+				var r := Dice.roll(e["dice"], "%s(%s)" % [a["id"], creature.label()])
+				parts.append({"amount": r["total"], "damage_type": e["damage_type"]})
+		if not parts.is_empty():
+			apply_damage(creature, parts, ctx)
+	if creature.is_player_character and creature.is_down() and not creature.stable:
+		death_save(creature, int(ctx.get("death_save_bonus", 0)))
+
+
+## 사망 내성: d20 ≥ 10 성공. 성공 3회 안정, 실패 3회 사망, 자연 20 HP 1, 자연 1 실패 2회(원문, 7단계).
+static func death_save(creature: Node, bonus: int = 0) -> Dictionary:
+	var d := Dice.d20(0, "%s 사망 내성" % creature.label())
+	var n: int = d["natural"]
+	var res := {"natural": n, "total": n + bonus, "result": ""}
+	if n == 20:
+		heal(creature, 1, "death_save")
+		res["result"] = "회복"
+	elif n == 1:
+		_add_death_failures(creature, 2)
+		res["result"] = "실패 2"
+	elif n + bonus >= DEATH_SAVE_DC:
+		creature.death_saves["successes"] += 1
+		res["result"] = "성공"
+		if creature.death_saves["successes"] >= 3:
+			creature.stable = true
+			creature.death_saves = {"successes": 0, "failures": 0}
+			res["result"] = "안정"
+	else:
+		_add_death_failures(creature, 1)
+		res["result"] = "실패"
+	if creature.dead:
+		res["result"] = "사망"
+	Dice.log_text("%s 사망 내성: %d + %d = %d vs DC %d → %s" % [creature.label(), n, bonus, n + bonus,
+		DEATH_SAVE_DC, res["result"]])
+	return res
