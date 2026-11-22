@@ -506,6 +506,39 @@
       },
       "notes_ko": "룰북 3단계 기습(BG3 방식): 전투 시작 때 상대를 감지하지 못한 생물은 첫 턴에 이동·행동·반응 불가. 첫 턴이 끝나면 풀린다.",
       "source": "original"
+    },
+    {
+      "id": "slowed",
+      "name": {
+        "ko": "느려짐",
+        "en": "Slowed"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "Slow 주문 표지(효과는 수정치). 반복 내성용.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "enfeebled",
+      "name": {
+        "ko": "쇠약",
+        "en": "Enfeebled"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "Ray of Enfeeblement 표지(효과는 수정치). 반복 내성용.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sanctuary_ward",
+      "name": {
+        "ko": "성역",
+        "en": "Sanctuary"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "Sanctuary 표지: 공격·시전하면 끝(효과는 수정치).",
+      "source": "SRD 5.2.1"
     }
   ]
 }

@@ -1,3 +1,27 @@
 extends "res://scripts/rules/effect_script.gd"
-## 미구현 — 5단계에서 구현한다.
-## 쓰는 주문: Revivify(included)
+## Revivify(SRD): 죽은 지 10턴(1분) 안의 생물을 HP 1로 되살린다(룰북 7단계). 300gp 다이아몬드 소모는 인벤토리(6단계)에서.
+const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
+const Resolver := preload("res://scripts/rules/resolver.gd")
+const Area := preload("res://scripts/rules/area.gd")
+
+
+func is_implemented() -> bool:
+	return true
+
+
+func apply(ctx: Dictionary) -> Dictionary:
+	var grid: Node = ctx["world"]["grid"]
+	var t: Node = grid.creature_at(ctx["aim"])
+	if t == null or not t.dead:
+		return {"ok": false, "reason": "죽은 생물만"}
+	var tm: Variant = ctx["world"].get("turns")
+	if tm != null and t.has_meta("died_round") and tm.round_number - int(t.get_meta("died_round")) > 10:
+		return {"ok": false, "reason": "죽은 지 10턴이 넘었다"}
+	t.dead = false
+	t.hp = 1
+	t.death_saves = {"successes": 0, "failures": 0}
+	t.stable = false
+	t.remove_condition("unconscious")
+	t.remove_meta("died_round")
+	Dice.log_text("%s 부활(HP 1)" % t.label())
+	return {"ok": true}

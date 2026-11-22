@@ -697,7 +697,8 @@
       "game_status": "included",
       "notes_ko": "귀먹음 삭제(4단계)로 실명만",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "repeat_save": true
     },
     {
       "id": "blink",
@@ -1214,7 +1215,8 @@
       "game_status": "included",
       "notes_ko": "원문 명령 5종(다가와·떨궈·도망쳐·엎드려·멈춰)을 선택지로",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "targets_max": 1
     },
     {
       "id": "comprehend_languages",
@@ -1502,7 +1504,8 @@
       },
       "game_status": "included",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "targets_max": 1
     },
     {
       "id": "dancing_lights",
@@ -3160,6 +3163,14 @@
             "type": "damage",
             "dice": "4d6",
             "damage_type": "radiant"
+          },
+          {
+            "type": "advantage",
+            "roll": "attack",
+            "side": "against",
+            "value": "advantage",
+            "consume": "attacked",
+            "until": "end_of_caster_next_turn"
           }
         ]
       },
@@ -3269,7 +3280,8 @@
       "game_status": "included",
       "notes_ko": "종료 시 1턴 무력화",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "targets_max": 1
     },
     {
       "id": "healing_word",
@@ -3319,7 +3331,8 @@
       },
       "game_status": "included",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "targets_max": 1
     },
     {
       "id": "hellish_rebuke",
@@ -3447,7 +3460,9 @@
       "game_status": "included",
       "notes_ko": "넘어짐 + 무력화",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "repeat_save": true,
+      "targets_max": 1
     },
     {
       "id": "hold_person",
@@ -3507,7 +3522,9 @@
       "game_status": "included",
       "notes_ko": "마비",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "repeat_save": true,
+      "targets_max": 1
     },
     {
       "id": "hypnotic_pattern",
@@ -3816,7 +3833,8 @@
       "game_status": "included",
       "notes_ko": "투명(5단계 은신 연동)",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "targets_max": 1
     },
     {
       "id": "jump",
@@ -4577,7 +4595,8 @@
       },
       "game_status": "included",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "targets_max": 6
     },
     {
       "id": "meld_into_stone",
@@ -5395,7 +5414,8 @@
       "script": "enfeeble",
       "game_status": "included",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "repeat_save": true
     },
     {
       "id": "ray_of_frost",
@@ -5439,6 +5459,12 @@
             "type": "damage",
             "dice": "1d8",
             "damage_type": "cold"
+          },
+          {
+            "type": "modify",
+            "stat": "speed_tiles",
+            "add": -2,
+            "until": "start_of_caster_next_turn"
           }
         ]
       },
@@ -5770,7 +5796,8 @@
       "script": "sanctuary",
       "game_status": "included",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "targets_max": 1
     },
     {
       "id": "scorching_ray",
@@ -6072,7 +6099,8 @@
       },
       "game_status": "included",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "targets_max": 1
     },
     {
       "id": "shocking_grasp",
@@ -6388,7 +6416,9 @@
       "script": "slow",
       "game_status": "included",
       "review": false,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "repeat_save": true,
+      "targets_max": 6
     },
     {
       "id": "spare_the_dying",

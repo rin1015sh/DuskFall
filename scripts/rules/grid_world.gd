@@ -409,13 +409,14 @@ func light_at(c: Vector2i) -> int:
 	for src in light_sources:
 		if level == Light.BRIGHT:
 			break
-		var d: Vector2i = c - src["cell"]
+		var src_cell: Vector2i = cell_of(src["creature"]) if src.get("creature") != null and _placement.has(src["creature"]) else src["cell"]
+		var d: Vector2i = c - src_cell
 		var r2 := d.x * d.x + d.y * d.y
 		var bright: int = src["bright"]
 		var dim: int = bright + int(src.get("dim", 0))
-		if r2 <= bright * bright + bright and has_line_of_sight(src["cell"], c, true):
+		if r2 <= bright * bright + bright and has_line_of_sight(src_cell, c, true):
 			level = Light.BRIGHT
-		elif r2 <= dim * dim + dim and has_line_of_sight(src["cell"], c, true):
+		elif r2 <= dim * dim + dim and has_line_of_sight(src_cell, c, true):
 			level = maxi(level, Light.DIM)
 	return level
 

@@ -52,8 +52,18 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	res["rolls"] = d["rolls"]
 	res["natural"] = d["natural"]
 	res["crit_threshold"] = attacker.crit_threshold if atk.get("weapon", false) else 20
-	res["total"] = res["natural"] + res["attack_bonus"]
+	var bonus_dice := roll_bonus_dice(attacker, "attack_roll")
+	res["bonus_dice"] = bonus_dice
+	res["total"] = res["natural"] + res["attack_bonus"] + bonus_dice
 	_decide_hit(res)
+	# 받는 쪽의 '다음 공격을 받으면 사라지는' 수정치(Guiding Bolt)
+	for m in target.extra_modifiers.duplicate():
+		if m.get("consume_on_attacked", false):
+			target.extra_modifiers.erase(m)
+	# 공격하면 끝나는 상태(Invisibility·Sanctuary — params.ends_on_attack)
+	for cond in attacker.conditions.duplicate():
+		if cond.get("params", {}).get("ends_on_attack", false):
+			attacker.remove_condition(cond["id"])
 	# 다음 공격 한 번에만 붙는 수정치(Sap·Vex 등)는 굴림에 쓰이면 사라진다.
 	for m in attacker.extra_modifiers.duplicate():
 		if m.get("consume_on_attack", false) and (m.get("target_only") == null or m.get("target_only") == target):
@@ -65,6 +75,7 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	# 5. 명중 직후 반응(Shield 등)
 	EventBus.on_after_attack_roll.emit(res)
 	_decide_hit(res)
+	_mirror_image(attacker, target, res)
 	# 6. 명중 결과
 	if res["hit"] and not res["crit"] and target.auto_crit_against_within(res["distance"]):
 		res["crit"] = true
@@ -105,7 +116,7 @@ static func preview_attack(attacker: Node, target: Node, atk: Dictionary, ctx: D
 	var res := _attack_setup(attacker, target, atk, ctx, true)
 	if not res["valid"]:
 		return res
-	var p := hit_probability(target.ac() + res["ac_bonus"], res["attack_bonus"])
+	var p := hit_probability(target.ac() + res["ac_bonus"], res["attack_bonus"] + avg_bonus_dice(attacker, "attack_roll"))
 	res["hit_chance"] = apply_mode(p, res["mode"])
 	res["crit_chance"] = apply_mode(0.05, res["mode"])
 	var lo := 0.0
@@ -122,8 +133,27 @@ static func preview_attack(attacker: Node, target: Node, atk: Dictionary, ctx: D
 
 
 ## 명중 확률 p = (21 − (AC − 공격 보너스)) / 20, 5~95%로 자른다(자연 1·20).
-static func hit_probability(ac: int, attack_bonus: int) -> float:
+static func hit_probability(ac: int, attack_bonus: float) -> float:
 	return clampf((21.0 - (ac - attack_bonus)) / 20.0, 0.05, 0.95)
+
+
+## 굴림에 더하는 주사위 수정치(Bless +1d4, Bane −1d4 — modify stat attack_roll/saving_throw, add가 주사위 식).
+static func roll_bonus_dice(c: Node, stat: String) -> int:
+	var total := 0
+	for m in c.modifier_entries():
+		var e: Dictionary = m["effect"]
+		if e["type"] == "modify" and e["stat"] == stat and typeof(e.get("add")) == TYPE_STRING:
+			total += Dice.roll(e["add"], stat)["total"]
+	return total
+
+
+static func avg_bonus_dice(c: Node, stat: String) -> float:
+	var total := 0.0
+	for m in c.modifier_entries():
+		var e: Dictionary = m["effect"]
+		if e["type"] == "modify" and e["stat"] == stat and typeof(e.get("add")) == TYPE_STRING:
+			total += float(DiceExpr.stats(e["add"]).get("avg", 0.0))
+	return total
 
 
 ## 유리면 1 − (1 − p)², 불리면 p².
@@ -142,6 +172,8 @@ static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Di
 		"ac": target.ac(), "ac_bonus": 0, "hit": false, "crit": false, "auto_crit": false,
 		"natural": 0, "total": 0, "rolls": []}
 	var why := can_attack(attacker, target)
+	if why == "" and not preview:
+		why = _sanctuary(attacker, target)
 	if why != "":
 		res["valid"] = false
 		res["reason"] = why
@@ -284,6 +316,33 @@ static func luck(c: Node, d: Dictionary) -> Dictionary:
 	return d
 
 
+## 성역(Sanctuary): 보호받는 대상을 공격하려면 지혜 내성, 실패하면 그 공격을 잃는다.
+static func _sanctuary(attacker: Node, target: Node) -> String:
+	for m in target.modifier_entries():
+		var e: Dictionary = m["effect"]
+		if e["type"] == "modify" and e["stat"] == "sanctuary":
+			var s := saving_throw(attacker, "wis", int(e["dc"]), {"source": target})
+			if not s["success"]:
+				return "성역: 공격을 잃었다"
+	return ""
+
+
+## 거울 분신(Mirror Image): 명중하면 남은 분신마다 d6, 하나라도 3 이상이면 분신이 대신 맞는다.
+## 공격자가 실명·진시야면 소용없다.
+static func _mirror_image(attacker: Node, target: Node, res: Dictionary) -> void:
+	var n: int = int(target.get_meta("mirror_images", 0))
+	if n <= 0 or not res["hit"] or attacker.has_condition("blinded") or attacker.senses.has("truesight"):
+		return
+	for i in n:
+		if Dice.die(6) >= 3:
+			target.set_meta("mirror_images", n - 1)
+			res["hit"] = false
+			res["crit"] = false
+			res["mirror_image"] = true
+			Dice.log_text("%s의 분신이 대신 맞았다(남은 %d)" % [target.label(), n - 1])
+			return
+
+
 static func _mode_note(mode: int, rolls: Array) -> String:
 	if mode > 0:
 		return "(유리 %s)" % str(rolls)
@@ -356,6 +415,20 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 	Dice.log_text("%s 피해 %d (%s) → HP %d/%d%s" % [target.label(), total, ", ".join(parts_text), target.hp,
 		target.hp_max, " (임시 HP %d 흡수)" % absorbed if absorbed > 0 else ""])
 	EventBus.on_damage_taken.emit(info)
+	# 피해를 받으면 끝나는 상태(Sleep·Hypnotic Pattern — params.ends_on_damage)
+	for cond in target.conditions.duplicate():
+		if cond.get("params", {}).get("ends_on_damage", false):
+			target.remove_condition(cond["id"])
+	# 피해를 받으면 유리로 다시 내성(Hideous Laughter — params.save_on_damage)
+	for cond in target.conditions.duplicate():
+		var sod: Dictionary = cond.get("params", {}).get("save_on_damage", {})
+		if not sod.is_empty() and target.conditions.has(cond) and not target.dead:
+			var s := saving_throw(target, sod["ability"], int(sod["dc"]), {"advantage": ["피해"]})
+			if s["success"]:
+				var id: Variant = cond["params"].get("instance")
+				for other in target.conditions.duplicate():
+					if other.get("params", {}).get("instance") == id:
+						target.remove_condition(other["id"])
 	# 집중 유지 내성(피해를 받으면 — 임시 HP가 막아도 받은 것이다)
 	if not target.concentration.is_empty() and target.hp > 0:
 		out["concentration"] = concentration_check(target, total)
@@ -448,7 +521,7 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 	res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 	var d := luck(creature, Dice.d20(res["mode"], "%s %s 내성" % [creature.label(), ability]))
 	res["natural"] = d["natural"]
-	res["total"] = d["natural"] + res["bonus"]
+	res["total"] = d["natural"] + res["bonus"] + roll_bonus_dice(creature, "saving_throw")
 	res["success"] = res["total"] >= dc
 	if opts.get("natural_rules", false):
 		if d["natural"] == 20:
@@ -469,7 +542,7 @@ static func preview_save_fail(creature: Node, ability: String, dc: int, opts: Di
 	if res["auto"]:
 		return 1.0
 	var lo := 0.05 if opts.get("natural_rules", false) else 0.0
-	var p_success := clampf((21.0 - (dc - res["bonus"])) / 20.0, lo, 1.0 - lo)
+	var p_success := clampf((21.0 - (dc - res["bonus"] - avg_bonus_dice(creature, "saving_throw"))) / 20.0, lo, 1.0 - lo)
 	return 1.0 - apply_mode(p_success, mode_of(res["advantage"], res["disadvantage"]))
 
 
@@ -560,7 +633,8 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 					parts.append({"amount": rolled[key], "damage_type": e["damage_type"],
 						"multiplier": float(e.get("scale", 1.0))})
 				"apply_condition":
-					t.apply_condition(e["id"], int(e.get("turns", 0)), opts.get("source"))
+					t.apply_condition(e["id"], int(e.get("turns", opts.get("duration", 0))), opts.get("source"),
+						opts.get("condition_params", {}))
 		var dmg := apply_damage(t, parts, opts) if not parts.is_empty() else {}
 		out.append({"target": t, "save": s, "damage": dmg})
 	return out
@@ -588,7 +662,10 @@ static func start_turn(creature: Node, ctx: Dictionary = {}) -> void:
 
 ## 사망 내성: d20 ≥ 10 성공. 성공 3회 안정, 실패 3회 사망, 자연 20 HP 1, 자연 1 실패 2회(원문, 7단계).
 static func death_save(creature: Node, bonus: int = 0) -> Dictionary:
-	var d := luck(creature, Dice.d20(0, "%s 사망 내성" % creature.label()))
+	var dres := {"advantage": [], "disadvantage": [], "distance": 1}
+	for m in creature.modifier_entries():
+		_add_adv(m, "death_save", "self", creature, null, dres)
+	var d := luck(creature, Dice.d20(mode_of(dres["advantage"], dres["disadvantage"]), "%s 사망 내성" % creature.label()))
 	var n: int = d["natural"]
 	var res := {"natural": n, "total": n + bonus, "result": ""}
 	if n == 20:

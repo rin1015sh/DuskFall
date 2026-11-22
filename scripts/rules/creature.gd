@@ -132,6 +132,8 @@ func ac() -> int:
 			if e.has("set"):
 				value = e["set"]
 			value += int(e.get("add", 0))
+		elif e["type"] == "modify" and e["stat"] == "ac_base" and str(get_meta("armor", "")) == "":
+			value += 3  # Mage Armor: 갑옷이 없으면 10 + 민첩 → 13 + 민첩
 	return value
 
 
@@ -166,7 +168,12 @@ func refresh_reaction() -> void:
 
 
 func can_react() -> bool:
-	return int(turn.get("reaction", 1)) > 0 and not is_incapacitated() and not has_flag("cannot_act") and not dead
+	if int(turn.get("reaction", 1)) <= 0 or is_incapacitated() or has_flag("cannot_act") or dead:
+		return false
+	for m in modifier_entries():
+		if m["effect"]["type"] == "modify" and m["effect"]["stat"] == "no_reactions":
+			return false  # Slow
+	return true
 
 
 func reaction_setting(id: String) -> String:
@@ -370,7 +377,10 @@ func break_concentration(reason: String) -> void:
 	if concentration.is_empty():
 		return
 	Dice.log_text("%s의 집중(%s)이 끝났다: %s" % [label(), concentration.get("id", ""), reason])
+	var inst: Variant = concentration.get("instance")
 	concentration = {}
+	if inst != null:
+		load("res://scripts/rules/spellcasting.gd").end_instance(inst)
 
 
 func resource(id: String) -> int:

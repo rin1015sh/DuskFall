@@ -1,3 +1,30 @@
 extends "res://scripts/rules/effect_script.gd"
-## 미구현 — 5단계에서 구현한다.
-## 쓰는 주문: Lesser Restoration(included), Remove Curse(included)
+## Lesser Restoration(SRD): 실명·마비·중독 중 하나를 끝낸다(귀먹음은 삭제된 상태). 고를 수 있으면 opts.choice.
+## Remove Curse: 저주(bestow_curse 등 저주 표지)를 끝낸다.
+const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
+const Resolver := preload("res://scripts/rules/resolver.gd")
+const Area := preload("res://scripts/rules/area.gd")
+
+
+func is_implemented() -> bool:
+	return true
+
+
+const LESSER := ["paralyzed", "poisoned", "blinded"]
+
+
+func apply(ctx: Dictionary) -> Dictionary:
+	var t: Node = ctx["world"]["grid"].creature_at(ctx["aim"])
+	if t == null:
+		return {"ok": false, "reason": "대상이 없다"}
+	if ctx["spell"]["id"] == "remove_curse":
+		for cond in t.conditions.duplicate():
+			if cond.get("params", {}).get("curse", false):
+				t.remove_condition(cond["id"])
+		return {"ok": true}
+	var pick: String = ctx["opts"].get("choice", "")
+	for id: String in ([pick] if pick != "" else LESSER):
+		if t.has_condition(id):
+			t.remove_condition(id)
+			return {"ok": true, "removed": id}
+	return {"ok": true, "removed": ""}

@@ -226,11 +226,18 @@ func begin_turn(c: Node) -> void:
 	if not c.has_flag("cannot_act"):
 		c.reset_turn()  # 턴 시작 효과로 바뀐 상태(넘어짐·연소 등)를 반영
 		c.turn["movement"] = c.speed()
+		for m in c.modifier_entries():
+			var e: Dictionary = m["effect"]
+			if e["type"] == "grant_action" and e.get("action", "") == "haste_action" and not c.is_incapacitated():
+				c.turn["action"] = int(c.turn.get("action", 0)) + 1  # Haste: 추가 행동(공격 1회·질주·이탈·숨기·활용)
+				c.turn["surge_actions"] = int(c.turn.get("surge_actions", 0)) + 1
 
 
 ## 턴 끝(3단계 턴 순서 4): 턴 종료 효과 → 상태 지속시간 감소. 기습은 첫 턴이 끝나면 풀린다.
 func end_turn(c: Node) -> void:
 	EventBus.on_turn_end.emit(c)
+	if c.dead and not c.has_meta("died_round"):
+		c.set_meta("died_round", round_number)
 	c.tick_conditions()
 	c.remove_condition("surprised")
 	for m in c.extra_modifiers.duplicate():
@@ -238,6 +245,13 @@ func end_turn(c: Node) -> void:
 			m["turn_ends_left"] -= 1
 			if m["turn_ends_left"] <= 0:
 				c.extra_modifiers.erase(m)
+	for other: Node in world["grid"].creatures():
+		for m in other.extra_modifiers.duplicate():
+			if m.get("expires_after_turn_end_of") == c:
+				m["turn_end_count"] = int(m.get("turn_end_count", 1)) - 1
+				if m["turn_end_count"] <= 0:
+					other.extra_modifiers.erase(m)
+	load("res://scripts/rules/spellcasting.gd").on_turn_end(world, c)
 	_done[c] = true
 	if not in_combat:
 		return

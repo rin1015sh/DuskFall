@@ -18,6 +18,10 @@ func setup(w: Dictionary) -> Node:
 	EventBus.reaction_queue = self
 	if not EventBus.on_after_attack_roll.is_connected(_on_after_attack_roll):
 		EventBus.on_after_attack_roll.connect(_on_after_attack_roll)
+	if not EventBus.on_spell_cast.is_connected(_on_spell_cast):
+		EventBus.on_spell_cast.connect(_on_spell_cast)
+	if not EventBus.on_fall.is_connected(_on_fall):
+		EventBus.on_fall.connect(_on_fall)
 	return self
 
 
@@ -27,6 +31,10 @@ func _notification(what: int) -> void:
 			EventBus.on_after_attack_roll.disconnect(_on_after_attack_roll)
 		if EventBus.reaction_queue == self:
 			EventBus.reaction_queue = null
+		if EventBus.on_spell_cast.is_connected(_on_spell_cast):
+			EventBus.on_spell_cast.disconnect(_on_spell_cast)
+		if EventBus.on_fall.is_connected(_on_fall):
+			EventBus.on_fall.disconnect(_on_fall)
 
 
 ## 반응 창 하나. 쓰기로 하면 action을 실행한다. 쓴 경우 true.
@@ -67,6 +75,47 @@ func _on_after_attack_roll(res: Dictionary) -> void:
 		t.extra_modifiers.append({"effect": {"type": "modify", "stat": "ac", "add": 5}, "source": "shield",
 			"until_turn_start_of": t})
 		Dice.log_text("%s Shield: AC +5" % t.label()), would_miss)
+
+
+# ---------- Counterspell(SRD: 반응, 12칸 안 시전하는 생물, 건강 내성 실패 시 주문이 사라짐) ----------
+
+func _on_spell_cast(ctx: Dictionary) -> void:
+	var caster: Node = ctx["caster"]
+	if ctx.get("countered", false) or ctx.get("spell") == "counterspell" or not world.has("grid"):
+		return
+	var grid: Node = world["grid"]
+	var list: Array = grid.creatures().filter(func(o: Node) -> bool:
+		return o != caster and not o.dead and o.is_hostile_to(caster) and o.spells.has("counterspell") \
+			and o.known_reactions.has("counterspell") and grid.distance_between(o, caster) <= 12 and grid.can_see(o, caster))
+	list.sort_custom(func(a: Node, b: Node) -> bool: return a.initiative > b.initiative)
+	for o: Node in list:
+		if ctx["countered"]:
+			return
+		if lowest_slot(o, 3) == "":
+			continue
+		offer(o, "counterspell", {"cast": ctx}, func() -> void:
+			var Spellcasting: Variant = load("res://scripts/rules/spellcasting.gd")
+			Spellcasting.cast(world, o, "counterspell", grid.cell_of(caster), {"cast_ctx": ctx}))
+
+
+# ---------- Feather Fall(SRD: 반응, 낙하 피해 없음) ----------
+
+func _on_fall(ctx: Dictionary) -> void:
+	if ctx.get("prevented", false) or not world.has("grid"):
+		return
+	var faller: Node = ctx["creature"]
+	var grid: Node = world["grid"]
+	for o: Node in grid.creatures():
+		if o.dead or o.is_hostile_to(faller) or not o.spells.has("feather_fall") or not o.known_reactions.has("feather_fall"):
+			continue
+		if grid.distance_between(o, faller) > 12 or lowest_slot(o, 1) == "":
+			continue
+		if offer(o, "feather_fall", {"fall": ctx}, func() -> void:
+			o.spend_resource(lowest_slot(o, 1))
+			o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+			ctx["prevented"] = true
+			Dice.log_text("%s Feather Fall: %s 낙하 피해 없음" % [o.label(), faller.label()])):
+			return
 
 
 ## min_level 이상에서 가장 낮은 남은 주문 슬롯 자원 ID. 없으면 "".

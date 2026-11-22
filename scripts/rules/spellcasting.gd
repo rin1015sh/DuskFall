@@ -1,12 +1,19 @@
 extends RefCounted
-## 주문 시전(첫 판, 상태 없음). spells.json의 효과 모델을 그대로 읽는다: check(attack|save) → hit/fail/success, apply.
-## 4단계 시험 전투에 필요한 만큼만: 공격·내성 피해, 회복, 상태 걸기, 범위(구·원기둥·원뿔·선·정육면체·발산),
-## 범위 피해의 칸 반응(단일 대상은 칸 반응 없음 — 9단계 충돌 A). 스크립트 효과·업캐스트·집중은 5단계.
+## 주문 시전(룰북 6단계 공통 변환 + 주문 변환표). spells.json의 효과 모델을 읽는다:
+## check(attack | save) → hit / fail / success, 그리고 apply. 표현이 안 되는 주문은 "script"로 넘긴다.
+##
+## 시전 하나 = 주문 인스턴스 하나. 그 시전이 남긴 효과(상태·수정치·표면·구름·광원·값 변경)를 기록해 두었다가
+## 집중이 깨지거나 지속시간이 끝나면 end_instance로 한꺼번에 걷어낸다.
+## 지속: 즉시 = 1턴(상태가 있을 때), N턴, 긴 휴식까지 = -1(7단계 휴식이 끝낸다).
 
 const Resolver := preload("res://scripts/rules/resolver.gd")
 const Area := preload("res://scripts/rules/area.gd")
 const Combat := preload("res://scripts/rules/combat.gd")
-const Physics := preload("res://scripts/rules/physics.gd")
+const DiceExpr := preload("res://scripts/rules/dice_expr.gd")
+
+static var _next_id := 1
+## 인스턴스 ID → {"id", "spell", "caster", "world", "slot", "targets": [], "reverts": [], "auras": []}
+static var instances := {}
 
 
 static func spell_mod(c: Node) -> int:
@@ -21,16 +28,13 @@ static func spell_attack_bonus(c: Node) -> int:
 	return c.proficiency_bonus + spell_mod(c)
 
 
-## 소마법 피해 주사위(5레벨 강화 — cantrip_scaling).
-static func _dice_for(c: Node, spell: Dictionary, dice: String) -> String:
-	var best := dice
-	var scaling: Dictionary = spell.get("upcast", {}).get("cantrip_scaling", {})
-	var best_lv := 0
-	for lv: String in scaling.keys():
-		if c.level >= int(lv) and int(lv) > best_lv:
-			best_lv = int(lv)
-			best = scaling[lv]
-	return best
+static func duration_turns(spell: Dictionary) -> int:
+	match spell["duration"]["type"]:
+		"turns":
+			return int(spell["duration"]["turns"])
+		"instant":
+			return 1
+	return -1
 
 
 static func _cost(spell: Dictionary) -> String:
@@ -39,6 +43,8 @@ static func _cost(spell: Dictionary) -> String:
 			return "bonus"
 		"reaction":
 			return "reaction"
+		"explore":
+			return "explore"
 	return "action"
 
 
@@ -50,6 +56,37 @@ static func range_tiles(spell: Dictionary) -> int:
 			return 1
 	return 0
 
+
+## 소마법 강화(5레벨)와 상위 슬롯(레벨당 dice_add)을 반영한 주사위.
+static func scaled_dice(c: Node, spell: Dictionary, dice: String, slot: int) -> String:
+	var out := dice
+	var cs: Dictionary = spell.get("upcast", {}).get("cantrip_scaling", {})
+	var best_lv := 0
+	for lv: String in cs.keys():
+		if c.level >= int(lv) and int(lv) > best_lv:
+			best_lv = int(lv)
+			out = cs[lv]
+	var psl: Dictionary = spell.get("upcast", {}).get("per_slot_level", {})
+	var extra: int = slot - int(spell["level"])
+	if extra > 0 and psl.has("dice_add") and int(spell["level"]) > 0:
+		var add := DiceExpr.parse(psl["dice_add"])
+		var base := DiceExpr.parse(out)
+		if not add.is_empty() and not base.is_empty() and not base["dice"].is_empty() \
+				and base["dice"][0]["sides"] == add["dice"][0]["sides"]:
+			var n: int = base["dice"][0]["count"] + add["dice"][0]["count"] * extra
+			out = "%dd%d%s" % [n, base["dice"][0]["sides"], ("%+d" % base["flat"]) if base["flat"] != 0 else ""]
+	return out
+
+
+static func max_targets(spell: Dictionary, slot: int) -> int:
+	var n := int(spell.get("targets_max", 1))
+	var extra: int = int(spell.get("upcast", {}).get("per_slot_level", {}).get("extra_targets", 0))
+	return n + extra * maxi(slot - int(spell["level"]), 0)
+
+
+# ======================================================================
+# 범위·대상
+# ======================================================================
 
 ## 범위 칸. 구·원기둥은 조준 칸 중심, 원뿔·선·정육면체는 시전자에서 조준 방향, 발산은 시전자 칸.
 static func area_cells(world: Dictionary, caster: Node, spell: Dictionary, aim: Vector2i) -> Array[Vector2i]:
@@ -78,73 +115,95 @@ static func area_cells(world: Dictionary, caster: Node, spell: Dictionary, aim: 
 	return out
 
 
-## 시전 가능 여부와 이유("" = 가능).
-static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i) -> String:
-	var spell := RulesDB.get_entry("spell", spell_id)
-	if spell.is_empty():
-		return "모르는 주문"
-	if spell.has("script"):
-		return "스크립트 주문은 5단계"
-	if not caster.spells.has(spell_id):
-		return "모르는 주문"
-	if not Combat.can_spend(caster, _cost(spell)):
-		return "비용이 없다"
-	if _cost(spell) == "action" and int(caster.turn.get("action", 0)) <= int(caster.turn.get("surge_actions", 0)):
-		return "행동 연쇄로 얻은 행동은 주문에 쓸 수 없다"
-	if int(spell["level"]) > 0 and _slot(caster, int(spell["level"])) == "":
-		return "주문 슬롯이 없다"
+## 대상: 범위 주문은 범위 안 생물, 아니면 opts.targets(여러 대상) 또는 조준 칸의 생물, '자신'이면 시전자.
+static func targets_for(world: Dictionary, caster: Node, spell: Dictionary, aim: Vector2i, cells: Array, opts: Dictionary, slot: int) -> Array:
 	var grid: Node = world["grid"]
-	var rt := range_tiles(spell)
-	if spell["range"]["type"] != "self" and grid.distance(grid.cell_of(caster), aim) > grid.effective_range(caster, aim, rt):
-		return "사거리 밖"
-	if spell["range"]["type"] != "self" and not grid.has_line_of_sight(grid.cell_of(caster), aim):
-		return "보이지 않는다"
+	if spell.get("area") != null:
+		var hostile_only: bool = spell["effects"].has("check")
+		return Area.creatures_in(grid, cells).filter(func(c: Node) -> bool:
+			return not c.dead and (c != caster or not hostile_only))
+	if spell["range"]["type"] == "self":
+		return [caster]
+	var list: Array = opts.get("targets", [])
+	if list.is_empty():
+		var t: Node = grid.creature_at(aim)
+		if t != null:
+			list = [t]
+	return list.slice(0, max_targets(spell, slot))
+
+
+# ======================================================================
+# 시전 가능·미리보기
+# ======================================================================
+
+static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i, opts: Dictionary = {}) -> String:
+	var spell := RulesDB.get_entry("spell", spell_id)
+	if spell.is_empty() or not caster.spells.has(spell_id):
+		return "모르는 주문"
+	if spell["game_status"] != "included":
+		return "1차 제외 주문"
+	if spell.has("script"):
+		var inst: Object = load("res://scripts/rules/features.gd").script_for(spell["script"])
+		if inst == null or not inst.is_implemented():
+			return "아직 구현하지 않은 주문"
+	var cost := _cost(spell)
+	if cost == "explore":
+		if world.get("turns") != null and world["turns"].in_combat:
+			return "탐험 중에만"
+	elif not Combat.can_spend(caster, cost):
+		return "비용이 없다"
+	if cost == "action" and int(caster.turn.get("action", 0)) <= int(caster.turn.get("surge_actions", 0)):
+		return "행동 연쇄로 얻은 행동은 주문에 쓸 수 없다"
+	if int(spell["level"]) > 0 and not opts.get("no_slot", false) and _slot(caster, int(opts.get("slot", spell["level"]))) == "":
+		return "주문 슬롯이 없다"
+	if caster.has_condition("incapacitated"):
+		return "무력화"
+	var grid: Node = world["grid"]
+	if spell["range"]["type"] in ["tiles", "touch"]:
+		var rt := range_tiles(spell)
+		if grid.distance(grid.cell_of(caster), aim) > grid.effective_range(caster, aim, rt):
+			return "사거리 밖"
+		if not grid.has_line_of_sight(grid.cell_of(caster), aim):
+			return "보이지 않는다"
 	return ""
 
 
 static func _slot(c: Node, level: int) -> String:
-	for lv in range(level, 10):
+	for lv in range(maxi(level, 1), 10):
 		if c.resource("spell_slot_%d" % lv) > 0:
 			return "spell_slot_%d" % lv
 	return ""
 
 
-## 시전 미리보기: 대상별 명중·실패 확률, 범위 칸, 칸 반응 결과, 피해 범위.
-static func preview(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i) -> Dictionary:
+## 미리보기: 대상별 명중·실패 확률, 범위 칸, 칸 반응.
+static func preview(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i, opts: Dictionary = {}) -> Dictionary:
 	var spell := RulesDB.get_entry("spell", spell_id)
-	var why := can_cast(world, caster, spell_id, aim)
-	var out := {"valid": why == "", "reason": why, "cells": area_cells(world, caster, spell, aim), "targets": [],
-		"reactions": []}
+	var why := can_cast(world, caster, spell_id, aim, opts)
+	var out := {"valid": why == "", "reason": why, "cells": [] as Array[Vector2i], "targets": [], "reactions": []}
 	if spell.is_empty():
 		return out
+	out["cells"] = area_cells(world, caster, spell, aim)
+	var slot := int(opts.get("slot", spell["level"]))
 	var check: Dictionary = spell["effects"].get("check", {})
-	for t: Node in _targets(world, caster, spell, aim, out["cells"]):
+	for t: Node in targets_for(world, caster, spell, aim, out["cells"], opts, slot):
 		var row := {"creature": t}
 		if check.get("type") == "attack":
-			row["chance"] = Resolver.preview_attack(caster, t, _spell_attack(caster, spell), world["grid"].attack_context(caster, t)).get("hit_chance", 0.0)
+			row["chance"] = Resolver.preview_attack(caster, t, _spell_attack(caster, spell, slot), world["grid"].attack_context(caster, t)).get("hit_chance", 0.0)
 		elif check.get("type") == "save":
 			row["chance"] = Resolver.preview_save_fail(t, check["ability"], spell_dc(caster))
 		out["targets"].append(row)
 	var dtype := _area_damage_type(spell)
-	if dtype != "" and not out["cells"].is_empty():
+	if dtype != "" and not out["cells"].is_empty() and world.get("surfaces") != null:
 		out["reactions"] = world["surfaces"].preview_tile_damage(out["cells"], dtype)
 	return out
 
 
-static func _targets(world: Dictionary, caster: Node, spell: Dictionary, aim: Vector2i, cells: Array) -> Array:
-	var grid: Node = world["grid"]
-	if spell.get("area") != null:
-		return Area.creatures_in(grid, cells).filter(func(c: Node) -> bool: return not c.dead and c != caster)
-	var t: Node = grid.creature_at(aim)
-	return [] if t == null else [t]
-
-
-static func _spell_attack(caster: Node, spell: Dictionary) -> Dictionary:
+static func _spell_attack(caster: Node, spell: Dictionary, slot: int) -> Dictionary:
 	var hit: Array = []
 	for e: Dictionary in spell["effects"].get("hit", []):
 		if e["type"] == "damage":
-			hit.append({"dice": _dice_for(caster, spell, e["dice"]), "damage_type": e["damage_type"]})
-	return {"name": spell["name"]["en"], "bonus": spell_attack_bonus(caster), "weapon": false,
+			hit.append({"dice": scaled_dice(caster, spell, e["dice"], slot), "damage_type": e["damage_type"]})
+	return {"name": spell["name"]["en"], "bonus": spell_attack_bonus(caster), "weapon": false, "spell": spell["id"],
 		"kind": spell["effects"]["check"].get("kind", "ranged"), "damage": hit}
 
 
@@ -157,91 +216,419 @@ static func _area_damage_type(spell: Dictionary) -> String:
 	return ""
 
 
-## 시전. 결과: {"ok", "reason", "results": [...]}
-static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i) -> Dictionary:
-	var why := can_cast(world, caster, spell_id, aim)
+# ======================================================================
+# 시전
+# ======================================================================
+
+## opts: {"targets": [생물], "slot": 슬롯 레벨, "choice": 선택(피해 유형 등), "mode": ...}
+static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i, opts: Dictionary = {}) -> Dictionary:
+	var why := can_cast(world, caster, spell_id, aim, opts)
 	if why != "":
 		return {"ok": false, "reason": why}
 	var spell := RulesDB.get_entry("spell", spell_id)
-	Combat.spend(caster, _cost(spell))
-	if int(spell["level"]) > 0:
-		caster.spend_resource(_slot(caster, int(spell["level"])))
-	EventBus.on_spell_cast.emit({"caster": caster, "spell": spell_id, "aim": aim})
-	Dice.log_text("%s: %s" % [caster.label(), spell["name"]["en"]])
+	var level := int(spell["level"])
+	var slot_id := _slot(caster, int(opts.get("slot", level))) if level > 0 and not opts.get("no_slot", false) else ""
+	var slot: int = int(slot_id.get_slice("_", 2)) if slot_id != "" else int(opts.get("slot", level))
+	var cost := _cost(spell)
+	if cost != "explore":
+		Combat.spend(caster, cost)
+	# 시전 시작(on_spell_cast): Counterspell 같은 반응이 끊을 수 있다. 끊기면 슬롯은 쓰지 않는다(원문).
+	var cast_ctx := {"caster": caster, "spell": spell_id, "aim": aim, "slot": slot, "countered": false, "world": world}
+	EventBus.on_spell_cast.emit(cast_ctx)
+	_end_on_cast(caster)
+	if cast_ctx["countered"]:
+		Dice.log_text("%s의 %s가 끊겼다" % [caster.label(), spell["name"]["en"]])
+		return {"ok": true, "countered": true}
+	if slot_id != "":
+		caster.spend_resource(slot_id)
+	Dice.log_text("%s: %s%s" % [caster.label(), spell["name"]["en"], " (%d레벨 슬롯)" % slot if slot > level else ""])
+	var inst := new_instance(world, caster, spell, slot)
+	if spell["concentration"]:
+		caster.start_concentration(spell_id, {"instance": inst["id"], "turns_left": duration_turns(spell)})
+	if world.get("turns") != null:
+		world["turns"].notify_hostile_action(caster)
+	var ctx := {"world": world, "self": caster, "spell": spell, "aim": aim, "opts": opts, "instance": inst, "slot": slot}
+	if spell.has("script"):
+		var r: Dictionary = load("res://scripts/rules/features.gd").run(spell["script"], ctx)
+		r["ok"] = r.get("ok", true)
+		_finish_instance(inst)
+		return r
+	var r2 := resolve_effects(ctx)
+	_finish_instance(inst)
+	return r2
+
+
+## 효과 모델 처리(스크립트 주문도 일부를 이 함수로 처리할 수 있다).
+static func resolve_effects(ctx: Dictionary) -> Dictionary:
+	var world: Dictionary = ctx["world"]
+	var caster: Node = ctx["self"]
+	var spell: Dictionary = ctx["spell"]
+	var aim: Vector2i = ctx["aim"]
+	var opts: Dictionary = ctx.get("opts", {})
+	var inst: Dictionary = ctx["instance"]
+	var slot: int = ctx["slot"]
 	var grid: Node = world["grid"]
 	var cells := area_cells(world, caster, spell, aim)
-	var targets := _targets(world, caster, spell, aim, cells)
+	var targets: Array = ctx.get("targets", targets_for(world, caster, spell, aim, cells, opts, slot))
 	var eff: Dictionary = spell["effects"]
 	var check: Dictionary = eff.get("check", {})
 	var results: Array = []
+	var affected: Array = []
 	if check.get("type") == "attack":
 		for t: Node in targets:
-			var atk := _spell_attack(caster, spell)
-			var ctx: Dictionary = grid.attack_context(caster, t)
+			var atk := _spell_attack(caster, spell, slot)
+			var actx: Dictionary = grid.attack_context(caster, t)
 			if atk["kind"] == "ranged" and Combat.is_threatened(world, caster):
-				ctx["disadvantage"].append("근접 위협")
-			var r := Resolver.attack(caster, t, atk, ctx)
-			if not r["hit"] and r["valid"] and int(spell["level"]) == 0 and caster.has_feature("potent_cantrip"):
+				actx["disadvantage"].append("근접 위협")
+			var r := Resolver.attack(caster, t, atk, actx)
+			if r["hit"]:
+				affected.append(t)
+				for e: Dictionary in eff.get("hit", []):
+					if e["type"] != "damage":
+						apply_effect(ctx, t, e)
+			elif r["valid"] and level_of(spell) == 0 and caster.has_feature("potent_cantrip"):
 				# 강력한 소마법(방출학파 3레벨): 빗나가도 절반 피해, 추가 효과 없음
 				var half: Array = []
 				for p: Dictionary in atk["damage"]:
 					half.append({"amount": Dice.roll(p["dice"], "강력한 소마법")["total"], "damage_type": p["damage_type"], "multiplier": 0.5})
 				r["potent"] = Resolver.apply_damage(t, half, {"attacker": caster})
-			if r["hit"]:
-				for e: Dictionary in eff.get("hit", []):
-					if e["type"] == "apply_condition":
-						t.apply_condition(e["id"], int(e.get("turns", 0)), caster)
 			results.append(r)
 	elif check.get("type") == "save":
 		var rolled := {}
-		var fail := _scaled(caster, spell, eff.get("fail", []))
-		var success := _scaled(caster, spell, eff.get("success", []))
-		if int(spell["level"]) == 0 and caster.has_feature("potent_cantrip") and success.is_empty():
-			# 강력한 소마법: 내성에 성공해도 피해 절반(추가 효과 없음)
+		var fail := _scaled(caster, spell, eff.get("fail", []), slot, opts)
+		var success := _scaled(caster, spell, eff.get("success", []), slot, opts)
+		if level_of(spell) == 0 and caster.has_feature("potent_cantrip") and success.is_empty():
 			for e: Dictionary in fail:
 				if e["type"] == "damage":
 					var h := e.duplicate()
 					h["scale"] = 0.5
 					success.append(h)
+		var cparams := {"instance": inst["id"]}
+		if spell.get("repeat_save", false):
+			cparams["repeat_save"] = {"ability": check["ability"], "dc": spell_dc(caster)}
 		results = Resolver.save_effect(targets, {"ability": check["ability"], "dc": spell_dc(caster)},
-			fail, success, {"source": caster, "rolled": rolled})
+			fail, success, {"source": caster, "rolled": rolled, "duration": duration_turns(spell), "condition_params": cparams})
 		for r: Dictionary in results:
+			var t: Node = r["target"]
 			if not r["save"]["success"]:
-				for e: Dictionary in fail:
-					if e["type"] == "push" and not r["target"].dead:
-						Combat._push_up_to(world, caster, r["target"], int(e["tiles"]))
+				affected.append(t)
+			for e: Dictionary in (success if r["save"]["success"] else fail):
+				if not e["type"] in ["damage", "apply_condition"]:
+					apply_effect(ctx, t, e)
 		var dtype := _area_damage_type(spell)
-		if dtype != "" and not cells.is_empty():
+		if dtype != "" and not cells.is_empty() and world.get("surfaces") != null:
 			var amount := 0
 			for k: String in rolled.keys():
 				amount = maxi(amount, int(rolled[k]))
 			world["surfaces"].tile_damage(cells, dtype, amount, caster)
 	for e: Dictionary in eff.get("apply", []):
-		for t: Node in (targets if not targets.is_empty() else [caster]):
-			match e["type"]:
-				"heal":
-					var dice: String = e["dice"]
-					var add: Variant = e.get("add")
-					var amount: int = Dice.roll(dice, spell["name"]["en"])["total"]
-					if add == "spell_mod":
-						amount += spell_mod(caster)
-					if int(spell["level"]) > 0 and caster.has_feature("disciple_of_life"):
-						amount += 2 + int(spell["level"])  # 생명의 제자: 2 + 슬롯 레벨
-					Resolver.heal(t, amount, caster)
-				"temp_hp":
-					Resolver.grant_temp_hp(t, Dice.roll(e["dice"], spell["name"]["en"])["total"])
-				"apply_condition":
-					t.apply_condition(e["id"], int(e.get("turns", 0)), caster)
-	if world.get("turns") != null:
-		world["turns"].notify_hostile_action(caster)
-	return {"ok": true, "results": results, "cells": cells}
+		var who: Array = targets if not targets.is_empty() else [caster]
+		if e["type"] in ["create_surface", "create_cloud", "light", "teleport", "resource", "dialogue_unlock"]:
+			who = [caster]  # 칸·세계에 거는 효과는 한 번만
+		for t: Node in who:
+			apply_effect(ctx, t, e)
+	for t: Node in targets:
+		if not t in inst["targets"]:
+			inst["targets"].append(t)
+	return {"ok": true, "results": results, "cells": cells, "affected": affected}
 
 
-static func _scaled(caster: Node, spell: Dictionary, effects: Array) -> Array:
+static func level_of(spell: Dictionary) -> int:
+	return int(spell["level"])
+
+
+## 효과 하나를 대상에 건다(룰북 8단계 효과 종류).
+static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
+	var world: Dictionary = ctx["world"]
+	var caster: Node = ctx["self"]
+	var spell: Dictionary = ctx["spell"]
+	var inst: Dictionary = ctx["instance"]
+	var slot: int = ctx["slot"]
+	var opts: Dictionary = ctx.get("opts", {})
+	var dur := duration_turns(spell)
+	match e["type"]:
+		"damage":
+			var r := Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])
+			var dtype: String = e["damage_type"] if e["damage_type"] != "chosen" else opts.get("choice", "fire")
+			Resolver.apply_damage(t, [{"amount": r["total"], "damage_type": dtype}], {"attacker": caster})
+		"heal":
+			var amount: int = Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])["total"]
+			if e.get("add") == "spell_mod":
+				amount += spell_mod(caster)
+			if level_of(spell) > 0 and caster.has_feature("disciple_of_life"):
+				amount += 2 + slot  # 생명의 제자: 2 + 슬롯 레벨
+			if has_max_healing(t):
+				amount = _max_heal(caster, spell, e, slot)  # Beacon of Hope
+			Resolver.heal(t, amount, caster)
+		"temp_hp":
+			Resolver.grant_temp_hp(t, Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])["total"])
+		"apply_condition":
+			t.apply_condition(e["id"], int(e.get("turns", dur)), caster, {"instance": inst["id"]})
+		"remove_condition":
+			t.remove_condition(e["id"])
+		"modify", "advantage":
+			_add_modifier(ctx, t, e)
+		"light":
+			var src := {"id": "spell_%d" % inst["id"], "cell": world["grid"].cell_of(t), "creature": t,
+				"bright": int(e.get("bright_tiles", 0)), "dim": int(e.get("dim_tiles", 0)), "instance": inst["id"]}
+			if e.has("dispels"):
+				for c in Area.circle(world["grid"], world["grid"].cell_of(t), int(e.get("bright_tiles", 0))):
+					if world["grid"].cloud_id(c) == e["dispels"]:
+						world["grid"].set_cloud(c, null)
+			world["grid"].light_sources.append(src)
+		"teleport":
+			var grid: Node = world["grid"]
+			var to: Vector2i = ctx["aim"]
+			if grid.distance(grid.cell_of(caster), to) <= int(e["tiles"]) and not grid.blocks_movement(to) \
+					and grid.creature_at(to) == null and grid.has_line_of_sight(grid.cell_of(caster), to):
+				grid.remove(caster)
+				grid.place(caster, to)
+				EventBus.on_enter_tile.emit(caster, to)
+		"create_surface", "create_cloud":
+			var cells: Array = area_cells(world, caster, spell, ctx["aim"])
+			if cells.is_empty():
+				cells = [ctx["aim"]]
+			var sopts := {"turns": dur, "source": "spell_%d" % inst["id"], "dc": spell_dc(caster)}
+			if e["type"] == "create_surface":
+				world["surfaces"].place_surface(cells, e["id"], sopts)
+			else:
+				world["surfaces"].place_cloud(cells, e["id"], sopts)
+		"push":
+			Combat._push_up_to(world, caster, t, int(e["tiles"]))
+		"dialogue_unlock":
+			if not world.has("dialogue_tags"):
+				world["dialogue_tags"] = {}
+			world["dialogue_tags"][e["tag"]] = true
+		"resource":
+			if not world.has("party_resources"):
+				world["party_resources"] = {}
+			world["party_resources"][e["id"]] = int(world["party_resources"].get(e["id"], 0)) + int(e.get("add", 0))
+		"grant_action":
+			_add_modifier(ctx, t, e)
+
+
+static func has_max_healing(t: Node) -> bool:
+	for m in t.modifier_entries():
+		if m["effect"]["type"] == "modify" and m["effect"]["stat"] == "max_healing":
+			return true
+	return false
+
+
+static func _max_heal(caster: Node, spell: Dictionary, e: Dictionary, slot: int) -> int:
+	var s := DiceExpr.stats(scaled_dice(caster, spell, e["dice"], slot))
+	var v := int(s["max"])
+	if e.get("add") == "spell_mod":
+		v += spell_mod(caster)
+	if level_of(spell) > 0 and caster.has_feature("disciple_of_life"):
+		v += 2 + slot
+	return v
+
+
+## 수정치 효과 → 대상의 extra_modifiers(인스턴스·지속 기록). 일부 값은 대상에 바로 바꾸고 되돌릴 값을 기록한다.
+static func _add_modifier(ctx: Dictionary, t: Node, e: Dictionary) -> void:
+	var caster: Node = ctx["self"]
+	var inst: Dictionary = ctx["instance"]
+	var opts: Dictionary = ctx.get("opts", {})
+	var effect := e.duplicate()
+	if effect.get("type") == "modify":
+		match effect["stat"]:
+			"resistance":
+				effect = {"type": "modify", "stat": "damage_resistance",
+					"damage_types": [opts.get("choice", "fire") if e.get("damage_type") == "chosen" else e.get("damage_type", "")]}
+			"hp_max":
+				t.hp_max += int(e["add"])
+				inst["reverts"].append({"creature": t, "field": "hp_max", "add": -int(e["add"])})
+				return
+			"darkvision_tiles":
+				inst["reverts"].append({"creature": t, "field": "darkvision_tiles", "value": t.darkvision_tiles, "senses": t.senses.duplicate()})
+				t.darkvision_tiles = maxi(t.darkvision_tiles, int(e["set"]))
+				if not t.senses.has("darkvision"):
+					t.senses.append("darkvision")
+				return
+			"sees_invisible":
+				inst["reverts"].append({"creature": t, "field": "senses", "value": t.senses.duplicate()})
+				t.senses.append("see_invisible")
+				return
+	var m := {"effect": effect, "source": "spell", "instance": inst["id"], "turns_left": duration_turns(ctx["spell"])}
+	match e.get("until", ""):
+		"start_of_caster_next_turn":
+			m["until_turn_start_of"] = caster
+			m.erase("turns_left")
+		"end_of_caster_next_turn":
+			m["expires_after_turn_end_of"] = caster
+			m["turn_end_count"] = 2
+			m.erase("turns_left")
+		"start_of_next_turn":
+			m["until_turn_start_of"] = t
+			m.erase("turns_left")
+	if e.get("consume", "") == "attacked":
+		m["consume_on_attacked"] = true
+	if e.get("ability", "") == "chosen":
+		effect["ability"] = [opts.get("choice", "str")]
+	t.extra_modifiers.append(m)
+
+
+static func _scaled(caster: Node, spell: Dictionary, effects: Array, slot: int, opts: Dictionary) -> Array:
 	var out: Array = []
 	for e: Dictionary in effects:
 		var c := e.duplicate()
 		if c["type"] == "damage":
-			c["dice"] = _dice_for(caster, spell, c["dice"])
+			c["dice"] = scaled_dice(caster, spell, c["dice"], slot)
+			if c["damage_type"] == "chosen":
+				c["damage_type"] = opts.get("choice", "fire")
 		out.append(c)
 	return out
+
+
+# ======================================================================
+# 인스턴스
+# ======================================================================
+
+static func new_instance(world: Dictionary, caster: Node, spell: Dictionary, slot: int) -> Dictionary:
+	var inst := {"id": _next_id, "spell": spell["id"], "caster": caster, "world": world, "slot": slot,
+		"targets": [], "reverts": [], "auras": [], "concentration": spell.get("concentration", false)}
+	_next_id += 1
+	instances[inst["id"]] = inst
+	return inst
+
+
+## 즉시 주문이고 남은 효과가 없으면 기록을 지운다(집중·지속 주문은 남긴다).
+static func _finish_instance(inst: Dictionary) -> void:
+	var spell := RulesDB.get_entry("spell", inst["spell"])
+	if spell["duration"]["type"] == "instant" and inst["reverts"].is_empty() and inst["auras"].is_empty():
+		var used := false
+		for t: Node in inst["targets"]:
+			if is_instance_valid(t) and _has_instance_effects(t, inst["id"]):
+				used = true
+		if not used:
+			instances.erase(inst["id"])
+
+
+static func _has_instance_effects(t: Node, id: int) -> bool:
+	for c in t.conditions:
+		if c.get("params", {}).get("instance") == id:
+			return true
+	for m in t.extra_modifiers:
+		if m.get("instance") == id:
+			return true
+	return false
+
+
+## 주문 인스턴스를 끝낸다: 상태·수정치·표면·구름·광원·바꾼 값을 걷어낸다.
+static func end_instance(id: int) -> void:
+	if not instances.has(id):
+		return
+	var inst: Dictionary = instances[id]
+	instances.erase(id)
+	var world: Dictionary = inst["world"]
+	var everyone: Array = inst["targets"].duplicate()
+	if world.has("grid"):
+		everyone.append_array(world["grid"].creatures())
+	for t: Node in everyone:
+		if not is_instance_valid(t):
+			continue
+		for c in t.conditions.duplicate():
+			if c.get("params", {}).get("instance") == id:
+				t.remove_condition(c["id"])
+		for m in t.extra_modifiers.duplicate():
+			if m.get("instance") == id:
+				t.extra_modifiers.erase(m)
+	for r: Dictionary in inst["reverts"]:
+		var t: Node = r["creature"]
+		if not is_instance_valid(t):
+			continue
+		match r["field"]:
+			"hp_max":
+				t.hp_max += int(r["add"])
+				t.hp = mini(t.hp, t.hp_max)
+			"darkvision_tiles":
+				t.darkvision_tiles = r["value"]
+				t.senses = r["senses"]
+			"senses":
+				t.senses = r["value"]
+	if world.has("grid"):
+		var grid: Node = world["grid"]
+		var key := "spell_%d" % id
+		for c in grid.all_cells():
+			var s: Variant = grid.surface(c)
+			if s != null and s.get("source") == key:
+				grid.set_surface(c, null)
+			var cl: Variant = grid.cloud(c)
+			if cl != null and cl.get("source") == key:
+				grid.set_cloud(c, null)
+		for src in grid.light_sources.duplicate():
+			if src.get("instance") == id:
+				grid.light_sources.erase(src)
+	if inst.has("on_end"):
+		inst["on_end"].call()
+	Dice.log_text("%s 효과가 끝났다" % RulesDB.get_entry("spell", inst["spell"])["name"]["en"])
+
+
+## 주문을 시전하면 끝나는 상태(Invisibility·Sanctuary — params.ends_on_cast).
+static func _end_on_cast(c: Node) -> void:
+	for cond in c.conditions.duplicate():
+		if cond.get("params", {}).get("ends_on_cast", false):
+			_end_for(c, cond)
+
+
+static func _end_for(t: Node, cond: Dictionary) -> void:
+	var id: Variant = cond.get("params", {}).get("instance")
+	t.remove_condition(cond["id"])
+	if id != null and instances.has(id) and not instances[id]["concentration"]:
+		# 대상 하나만 끝나면 그 대상의 이 인스턴스 효과만 걷는다
+		for m in t.extra_modifiers.duplicate():
+			if m.get("instance") == id:
+				t.extra_modifiers.erase(m)
+
+
+# ======================================================================
+# 턴 처리(TurnManager가 부른다)
+# ======================================================================
+
+## 턴 끝: 반복 내성(성공하면 그 대상에게서 주문이 끝난다 — 원문), 집중 지속시간 감소.
+## 시전자가 사라진(메모리에서 지워진) 인스턴스를 정리한다.
+static func _prune() -> void:
+	for id: Variant in instances.keys():
+		if not is_instance_valid(instances[id]["caster"]):
+			instances.erase(id)
+
+
+static func on_turn_end(world: Dictionary, c: Node) -> void:
+	_prune()
+	for cond in c.conditions.duplicate():
+		var rs: Dictionary = cond.get("params", {}).get("repeat_save", {})
+		if rs.is_empty() or not c.conditions.has(cond):
+			continue
+		var s := Resolver.saving_throw(c, rs["ability"], int(rs["dc"]))
+		if not s["success"] and rs.has("on_fail_apply"):
+			# 두 번째 내성도 실패하면 다음 상태로(Sleep: 무력화 → 무의식)
+			var p: Dictionary = cond["params"].duplicate(true)
+			p.erase("repeat_save")
+			c.apply_condition(rs["on_fail_apply"], int(cond.get("turns_left", -1)), cond.get("source"), p)
+			c.remove_condition(cond["id"])
+			continue
+		if s["success"]:
+			var id: Variant = cond["params"].get("instance")
+			for other in c.conditions.duplicate():
+				if other.get("params", {}).get("instance") == id:
+					c.remove_condition(other["id"])
+			for m in c.extra_modifiers.duplicate():
+				if m.get("instance") == id:
+					c.extra_modifiers.erase(m)
+	if not c.concentration.is_empty() and int(c.concentration.get("turns_left", -1)) > 0:
+		c.concentration["turns_left"] -= 1
+		if c.concentration["turns_left"] <= 0:
+			c.break_concentration("지속시간 끝")
+	for inst: Dictionary in instances.values().duplicate():
+		for aura: Dictionary in inst["auras"]:
+			if aura.has("on_turn_end"):
+				aura["on_turn_end"].call(world, c)
+
+
+## 이동 한 걸음 뒤(오라 진입 등).
+static func on_moved(world: Dictionary, c: Node) -> void:
+	_prune()
+	for inst: Dictionary in instances.values().duplicate():
+		for aura: Dictionary in inst["auras"]:
+			if aura.has("on_enter"):
+				aura["on_enter"].call(world, c)

@@ -230,8 +230,9 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		c.known_reactions.append("shield")
 	if c.has_feature("uncanny_dodge"):
 		c.known_reactions.append("uncanny_dodge")
-	if c.spells.has("hellish_rebuke"):
-		c.known_reactions.append("hellish_rebuke")
+	for r: String in ["hellish_rebuke", "counterspell", "feather_fall"]:
+		if c.spells.has(r):
+			c.known_reactions.append(r)
 	c.set_meta("spec", spec.duplicate(true))
 	c.reset_turn()
 

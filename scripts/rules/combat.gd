@@ -78,10 +78,15 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		dmg_mod = 0
 	if opts.get("no_ability_damage", false) and mod > 0:
 		dmg_mod = 0
-	var expr := dice if dmg_mod == 0 else "%s%+d" % [dice, dmg_mod]
+	var dmg_bonus := 0
+	for m in c.modifier_entries():
+		var me: Dictionary = m["effect"]
+		if me["type"] == "modify" and me["stat"] == "weapon_attack_and_damage":
+			dmg_bonus += int(me.get("add", 0))  # Magic Weapon +1(명중·피해)
+	var expr := dice if dmg_mod + dmg_bonus == 0 else "%s%+d" % [dice, dmg_mod + dmg_bonus]
 	if w["id"] == "unarmed":
 		expr = str(maxi(1 + mod, 0)) if mod != 0 else "1"
-	var hit_bonus := 0
+	var hit_bonus := dmg_bonus
 	if ranged and is_ranged_weapon(w) and c.has_feature("archery"):
 		hit_bonus += 2  # 궁술: 원거리 무기 명중 +2
 	var dis: Array = []
@@ -338,6 +343,7 @@ static func move(world: Dictionary, c: Node, to: Vector2i, opts: Dictionary = {}
 		grid.move_creature(c, nxt)
 		out["moved"] += 1
 		cur = nxt
+		load("res://scripts/rules/spellcasting.gd").on_moved(world, c)
 	return out
 
 
@@ -510,7 +516,12 @@ static func jump(world: Dictionary, c: Node, to: Vector2i) -> Dictionary:
 
 
 static func jump_distance(c: Node) -> int:
-	return 3 + maxi(c.ability_mod("str"), 0) / 2
+	var base := 3 + maxi(c.ability_mod("str"), 0) / 2
+	for m in c.modifier_entries():
+		var e: Dictionary = m["effect"]
+		if e["type"] == "modify" and e["stat"] == "jump_tiles":
+			base = maxi(base, int(e.get("set", 0)))  # Jump 주문: 6칸
+	return base
 
 
 ## 던지기(행동): 즉석 무기 공격(근력, 숙련 없음 — SRD Improvised Weapons). 맞으면 무게 피해.

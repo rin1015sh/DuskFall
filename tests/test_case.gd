@@ -57,6 +57,7 @@ func before_each() -> void:
 
 func cleanup() -> void:
 	Dice.clear_forced()
+	load("res://scripts/rules/spellcasting.gd").instances.clear()
 	for n in _owned:
 		if is_instance_valid(n):
 			n.free()
