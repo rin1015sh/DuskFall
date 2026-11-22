@@ -28,6 +28,9 @@ const TICK_SEC := 6.0
 const Progression := preload("res://scripts/rules/progression.gd")
 const Actions := preload("res://scripts/rules/actions.gd")
 const Hotbar := preload("res://scenes/ui/hotbar.gd")
+const S := preload("res://scenes/ui/ui_style.gd")
+const CharacterSheet := preload("res://scenes/ui/character_sheet.gd")
+const Minimap := preload("res://scenes/ui/minimap.gd")
 ## 상태 → 아이콘(assets/statuses). 없으면 이로운 것 buff, 해로운 것 debuff.
 const CONDITION_ICON := {"blinded": "blind", "charmed": "charm", "frightened": "fear", "paralyzed": "paralysis",
 	"poisoned": "poison", "stunned": "stun", "restrained": "snare", "grappled": "snare", "invisible": "hidden",
@@ -73,12 +76,16 @@ var explore: Node
 var exploring := false
 var _tick_acc := 0.0
 var follow := true
+## 로그: 전투 중에는 보이고, 탐험 중에는 L 키로 켤 때만(BG3처럼 화면을 비움)
+var log_forced := false
 var dlg: RefCounted = null
 var dlg_panel: PanelContainer
 var dlg_text: RichTextLabel
 var dlg_options: VBoxContainer
 var dlg_use_insp: CheckBox
-var hotbar: PanelContainer
+var hotbar: Control
+var sheet: Control
+var minimap: Control
 
 
 class Highlights extends Node2D:
@@ -200,6 +207,8 @@ func _ready() -> void:
 		var gp: PackedStringArray = args["goto"].split(",")
 		explore.move_to(selected, Vector2i(int(gp[0]), int(gp[1])))
 	_refresh()
+	if args.has("sheet"):
+		sheet.show_for(world, selected)
 	if args.has("dialogue"):
 		for o: Node in foes:
 			if o.name == args["dialogue"]:
@@ -265,7 +274,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		if pan.has(event.keycode):
 			follow = false
 			camera.position += pan[event.keycode]
+		elif event.keycode == KEY_I or event.keycode == KEY_C:
+			_toggle_sheet()
+		elif event.keycode == KEY_L:
+			log_forced = not log_forced
+			_refresh()
 		elif event.keycode == KEY_ESCAPE:
+			if sheet.visible:
+				sheet.visible = false
+				return
 			mode = "move"
 			hotbar.selected_key = ""
 			_clear_preview()
@@ -736,8 +753,9 @@ func _open_dialogue(id: String, npc: Node) -> void:
 
 func _show_dialogue() -> void:
 	dlg_panel.visible = true
+	hotbar.visible = false
 	dlg_text.clear()
-	dlg_text.append_text("[b]%s[/b]\n%s\n" % [UiText.name_of(dlg.data["speaker"]), UiText.name_of(dlg.text())])
+	dlg_text.append_text("[font_size=19][color=#c7a35f]%s[/color][/font_size]\n%s\n" % [UiText.name_of(dlg.data["speaker"]), UiText.name_of(dlg.text())])
 	for l: Dictionary in dlg.extra_lines:
 		dlg_text.append_text("[color=#9ad]%s[/color]\n" % UiText.name_of(l))
 	for ch in dlg_options.get_children():
@@ -785,6 +803,7 @@ func _close_dialogue() -> void:
 	dlg = null
 	if dlg_panel != null:
 		dlg_panel.visible = false
+		_refresh()
 
 
 func _execute(cell: Vector2i) -> void:
@@ -831,6 +850,7 @@ func _build_ui() -> void:
 	var root := Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.theme = S.theme()
 	ui.add_child(root)
 	# 위: 라운드와 턴 순서 막대
 	var top := HBoxContainer.new()
@@ -838,15 +858,34 @@ func _build_ui() -> void:
 	top.position = Vector2(-300, 8)
 	top.add_theme_constant_override("separation", 6)
 	root.add_child(top)
-	round_label = Label.new()
+	round_label = S.title("", 18)
+	round_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	round_label.add_theme_constant_override("outline_size", 5)
 	top.add_child(round_label)
 	order_box = HBoxContainer.new()
 	order_box.add_theme_constant_override("separation", 4)
 	top.add_child(order_box)
 	# 왼쪽: 파티 초상
 	party_box = VBoxContainer.new()
-	party_box.position = Vector2(10, 70)
+	party_box.position = Vector2(12, 90)
+	party_box.add_theme_constant_override("separation", 8)
 	root.add_child(party_box)
+	# 왼쪽 위: 캐릭터 창 버튼, 오른쪽 위: 미니맵
+	var sheet_btn := Button.new()
+	sheet_btn.text = UiText.t("character") + " (I)"
+	sheet_btn.position = Vector2(12, 12)
+	sheet_btn.focus_mode = Control.FOCUS_NONE
+	sheet_btn.pressed.connect(_toggle_sheet)
+	root.add_child(sheet_btn)
+	minimap = Minimap.new()
+	minimap.anchor_left = 1.0
+	minimap.anchor_right = 1.0
+	minimap.offset_left = -200
+	minimap.offset_top = 8
+	minimap.offset_right = -10
+	minimap.offset_bottom = 198
+	minimap.grid = world["grid"]
+	root.add_child(minimap)
 	# 아래: 단축 막대(BG3 구조 — scenes/ui/hotbar.gd)
 	var bottom := VBoxContainer.new()
 	bottom.anchor_left = 0.5
@@ -858,6 +897,7 @@ func _build_ui() -> void:
 	bottom.offset_bottom = -6
 	root.add_child(bottom)
 	status_label = Label.new()
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.add_theme_font_size_override("font_size", 13)
 	status_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	status_label.add_theme_constant_override("outline_size", 4)
@@ -870,13 +910,17 @@ func _build_ui() -> void:
 	hotbar.explore_pressed.connect(_on_explore_button)
 	# 오른쪽: 전투 로그
 	log_box = RichTextLabel.new()
-	log_box.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	log_box.position = Vector2(-410, 60)
-	log_box.size = Vector2(400, 300)
+	log_box.anchor_left = 1.0
+	log_box.anchor_right = 1.0
+	log_box.offset_left = -330
+	log_box.offset_right = -10
+	log_box.offset_top = 210
+	log_box.offset_bottom = 420
 	log_box.scroll_following = true
-	log_box.add_theme_font_size_override("normal_font_size", 13)
-	var log_bg := StyleBoxFlat.new()
-	log_bg.bg_color = Color(0, 0, 0, 0.55)
+	log_box.add_theme_font_size_override("normal_font_size", 12)
+	log_box.add_theme_color_override("default_color", S.TEXT_DIM)
+	var log_bg := S.panel(12, S.BRONZE_DARK, Color(0.05, 0.04, 0.035, 0.72), 1)
+	log_bg.shadow_size = 0
 	log_box.add_theme_stylebox_override("normal", log_bg)
 	root.add_child(log_box)
 	tooltip = PanelContainer.new()
@@ -886,8 +930,10 @@ func _build_ui() -> void:
 	tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(tooltip)
 	info_panel = PanelContainer.new()
-	info_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	info_panel.position = Vector2(-410, 370)
+	info_panel.anchor_left = 1.0
+	info_panel.anchor_right = 1.0
+	info_panel.offset_left = -330
+	info_panel.offset_top = 430
 	info_label = Label.new()
 	info_panel.add_child(info_label)
 	info_panel.visible = false
@@ -896,11 +942,8 @@ func _build_ui() -> void:
 	dlg_panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	dlg_panel.position = Vector2(-330, -330)
 	dlg_panel.custom_minimum_size = Vector2(660, 230)
-	var dsb := StyleBoxFlat.new()
-	dsb.bg_color = Color(0.06, 0.05, 0.07, 0.92)
-	dsb.border_color = Color(0.75, 0.62, 0.35)
-	dsb.set_border_width_all(2)
-	dsb.set_content_margin_all(12)
+	var dsb := S.panel(18, S.BRONZE, S.BG_DEEP, 2)
+	dsb.set_content_margin_all(16)
 	dlg_panel.add_theme_stylebox_override("panel", dsb)
 	var dv := VBoxContainer.new()
 	dlg_panel.add_child(dv)
@@ -915,9 +958,12 @@ func _build_ui() -> void:
 	dv.add_child(dlg_use_insp)
 	dlg_panel.visible = false
 	root.add_child(dlg_panel)
-	banner = Label.new()
+	sheet = CharacterSheet.new()
+	root.add_child(sheet)
+	banner = S.title("", 44)
 	banner.set_anchors_preset(Control.PRESET_CENTER)
-	banner.add_theme_font_size_override("font_size", 48)
+	banner.add_theme_color_override("font_outline_color", Color.BLACK)
+	banner.add_theme_constant_override("outline_size", 8)
 	banner.visible = false
 	root.add_child(banner)
 
@@ -940,7 +986,14 @@ func _refresh() -> void:
 		ch.queue_free()
 	for c: Node in party:
 		party_box.add_child(_party_card(c))
-	if selected != null and selected.team == "party" and (exploring or not busy):
+	log_box.visible = log_forced or not exploring
+	minimap.party = party
+	minimap.center_creature = selected if selected != null else (party[0] if not party.is_empty() else null)
+	if sheet.visible and selected != null:
+		sheet.show_for(world, selected)
+	if dlg != null:
+		hotbar.visible = false  # 대화 중에는 단축 막대를 숨긴다(BG3)
+	elif selected != null and selected.team == "party" and (exploring or not busy):
 		hotbar.show_for(world, selected, exploring, _explore_buttons() if exploring else [])
 	else:
 		hotbar.visible = false
@@ -955,110 +1008,104 @@ func _refresh() -> void:
 	map_view.refresh()
 
 
-## 이니셔티브 막대의 초상 하나(파티 초록·적 빨강 테두리, 현재 턴은 금색).
+## 이니셔티브 막대의 초상 하나(BG3: 둥근 틀, 파티 청록·적 붉은 아래띠, 현재 턴은 금빛 테두리).
 func _order_portrait(c: Node, current: bool) -> Control:
 	var p := PanelContainer.new()
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.08, 0.08, 0.1, 0.9)
-	sb.border_color = Color(1, 0.85, 0.2) if current else (Color("3f9d55") if c.team == "party" else Color("b23b33"))
-	sb.set_border_width_all(3 if current else 2)
-	sb.set_corner_radius_all(4)
+	var sb := S.panel(8, S.GOLD if current else S.BRONZE_DARK, S.BG_DEEP, 2 if current else 1)
+	sb.set_content_margin_all(2)
+	sb.shadow_size = 6 if current else 2
+	if current:
+		sb.shadow_color = Color(S.GOLD, 0.35)
 	p.add_theme_stylebox_override("panel", sb)
-	p.custom_minimum_size = Vector2(46, 58) * (1.15 if current else 1.0)
 	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 1)
+	v.add_theme_constant_override("separation", 0)
 	p.add_child(v)
 	var tr := TextureRect.new()
-	tr.texture = _portrait_tex(c)
-	tr.custom_minimum_size = Vector2(40, 44)
+	tr.texture = S.portrait_tex(c)
+	var k := 1.18 if current else 1.0
+	tr.custom_minimum_size = Vector2(42, 46) * k
 	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	v.add_child(tr)
-	var bar := ProgressBar.new()
-	bar.custom_minimum_size = Vector2(40, 5)
-	bar.show_percentage = false
+	var bar := S.bar(S.HP_ALLY if c.team == "party" else S.HP_ENEMY, Vector2(42 * k, 5))
 	bar.max_value = c.hp_max
 	bar.value = c.hp
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color("3f9d55") if c.team == "party" else Color("c0392b")
-	bar.add_theme_stylebox_override("fill", fill)
 	v.add_child(bar)
 	p.tooltip_text = "%s  HP %d/%d  (%d)" % [c.label(), c.hp, c.hp_max, c.initiative]
 	return p
 
 
-## 왼쪽 파티 카드: 초상·이름·HP 막대·상태 아이콘. 누르면 선택.
+## 왼쪽 파티 초상(BG3: 세로 사각 초상, 아래 HP 글자, 옆에 상태 아이콘). 누르면 선택.
 func _party_card(c: Node) -> Control:
-	var b := Button.new()
-	b.custom_minimum_size = Vector2(200, 64)
-	b.toggle_mode = true
-	b.button_pressed = c == selected
-	b.focus_mode = Control.FOCUS_NONE
 	var h := HBoxContainer.new()
-	h.set_anchors_preset(Control.PRESET_FULL_RECT)
-	h.offset_left = 4
-	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	b.add_child(h)
+	h.add_theme_constant_override("separation", 4)
+	var b := Button.new()
+	b.custom_minimum_size = Vector2(70, 86)
+	b.focus_mode = Control.FOCUS_NONE
+	var sel := c == selected
+	var st := S.panel(10, S.GOLD if sel else S.BRONZE, S.BG_SLOT, 2 if sel else 1)
+	st.set_content_margin_all(0)
+	if sel:
+		st.shadow_color = Color(S.GOLD, 0.4)
+	b.add_theme_stylebox_override("normal", st)
+	var hv: StyleBoxFlat = st.duplicate()
+	hv.border_color = S.GOLD_SOFT
+	b.add_theme_stylebox_override("hover", hv)
+	b.add_theme_stylebox_override("pressed", hv)
 	var tr := TextureRect.new()
-	tr.texture = _portrait_tex(c)
-	tr.custom_minimum_size = Vector2(48, 56)
+	tr.texture = S.portrait_tex(c, Rect2(144 + 10, 2, 52, 60))
 	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	tr.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tr.offset_left = 3
+	tr.offset_top = 3
+	tr.offset_right = -3
+	tr.offset_bottom = -3
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if c.dead:
-		tr.modulate = Color(0.4, 0.4, 0.4)
-	h.add_child(tr)
-	var v := VBoxContainer.new()
-	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	v.add_theme_constant_override("separation", 2)
-	h.add_child(v)
-	var nl := Label.new()
-	nl.text = "%s%s%s" % [c.label(), "  ✝" if c.dead else "", "  🔗" if exploring and explore.linked.get(c, false) else ""]
-	nl.add_theme_font_size_override("font_size", 13)
-	v.add_child(nl)
-	var bar := ProgressBar.new()
-	bar.custom_minimum_size = Vector2(130, 9)
-	bar.show_percentage = false
+		tr.modulate = Color(0.35, 0.35, 0.35)
+	elif c.is_down():
+		tr.modulate = Color(0.75, 0.5, 0.5)
+	b.add_child(tr)
+	var bar := S.bar(S.HP, Vector2(64, 5))
 	bar.max_value = c.hp_max
 	bar.value = c.hp
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color("b8312f")
-	bar.add_theme_stylebox_override("fill", fill)
-	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	v.add_child(bar)
-	var icons := HBoxContainer.new()
-	icons.add_theme_constant_override("separation", 1)
-	icons.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	v.add_child(icons)
+	bar.position = Vector2(3, 66)
+	b.add_child(bar)
 	var hpl := Label.new()
-	hpl.text = "%d/%d " % [c.hp, c.hp_max]
-	hpl.add_theme_font_size_override("font_size", 11)
-	icons.add_child(hpl)
-	for inst: Dictionary in c.conditions:
-		var id: String = inst["id"]
-		var path := "res://assets/statuses/%s.webp" % CONDITION_ICON.get(id, "debuff")
+	hpl.text = "%d/%d" % [c.hp, c.hp_max]
+	hpl.add_theme_font_size_override("font_size", 12)
+	hpl.add_theme_color_override("font_outline_color", Color.BLACK)
+	hpl.add_theme_constant_override("outline_size", 4)
+	hpl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hpl.position = Vector2(0, 68)
+	hpl.size = Vector2(70, 16)
+	hpl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(hpl)
+	b.tooltip_text = "%s%s" % [c.label(), "  (%s)" % UiText.t("linked") if exploring and explore.linked.get(c, false) else ""]
+	b.pressed.connect(_select.bind(c))
+	h.add_child(b)
+	var icons := VBoxContainer.new()
+	icons.add_theme_constant_override("separation", 2)
+	for inst: Dictionary in c.conditions.slice(0, 4):
+		var path := "res://assets/statuses/%s.webp" % CONDITION_ICON.get(inst["id"], "debuff")
 		if ResourceLoader.exists(path):
 			var ic := TextureRect.new()
 			ic.texture = load(path)
-			ic.custom_minimum_size = Vector2(16, 16)
+			ic.custom_minimum_size = Vector2(18, 18)
 			ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			ic.tooltip_text = id
-			ic.mouse_filter = Control.MOUSE_FILTER_PASS
+			ic.material = S.icon_material()
+			ic.tooltip_text = inst["id"]
 			icons.add_child(ic)
-	b.pressed.connect(_select.bind(c))
-	return b
+	h.add_child(icons)
+	return h
 
 
-func _portrait_tex(c: Node) -> Texture2D:
-	var art: Dictionary = c.get_meta("art", {})
-	if art.has("sheet") and ResourceLoader.exists(art["sheet"]):
-		var at := AtlasTexture.new()
-		at.atlas = load(art["sheet"])
-		at.region = Rect2(144, 0, 72, 60)
-		return at
-	if art.has("image") and ResourceLoader.exists(art["image"]):
-		return load(art["image"])
-	return null
+func _toggle_sheet() -> void:
+	if sheet.visible:
+		sheet.visible = false
+	elif selected != null:
+		sheet.show_for(world, selected)
 
 
 ## 탐험 탭 버튼(BG3의 은신·묶기·휴식·저장 자리)
