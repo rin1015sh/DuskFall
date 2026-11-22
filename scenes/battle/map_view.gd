@@ -2,13 +2,14 @@ extends Node3D
 ## 3/4 탑뷰 맵 그리기(표현 계층, 3D). GridWorld를 읽어 던전 에셋 키트(assets/dungeon_kit, scenes/kit/dungeon_kit.gd) 그림으로 쌓는다.
 ## 좌표는 view3d.gd(1칸 = 1유닛, 높이 1단계 = 1유닛).
 ## - 바닥: 칸마다 높이에 놓인 네모(키트 바닥 4×4 이어지는 그림). 맵 데이터 art.floors(범례 글자 → 키트 바닥)·재질 기본값.
-##   같은 바닥의 변형 a·b는 floor.gdshader가 불규칙한 얼룩 경계로 섞는다(변형 b는 2칸 밀어 반복이 덜 보이게).
+##   floor.gdshader가 칸 데이터 텍스처(_info_tex·_cells_tex)로 칸마다 바닥을 찾아 그린다: 종류가 다른 바닥 경계는 들쭉날쭉 맞물리고
+##   (같은 높이끼리만), 같은 바닥의 변형 a·b는 불규칙한 얼룩 경계로 섞인다(변형 b는 2칸 밀어 반복이 덜 보이게).
 ## - 벽: 칸마다 기둥(윗면 = 키트 벽 윗면 자동 연결 16가지, 남쪽 면 = 키트 벽면). 벽은 둘레에서 가장 높은 바닥 위에 선다(View3D.wall_base).
 ##   남쪽 칸 윗면이 더 낮으면 그 차이만큼 남쪽 면을 세운다(벽 아래로 더 내려가는 부분·높은 칸은 절벽 면).
 ## - 높은 칸 가장자리: 둘레보다 높은 바닥 윗면의 테두리에 어두운 턱 띠(보이지 않는 동·서·북 면 대신 경계를 읽히게).
 ##   카메라는 남쪽에서만 보므로(회전 없음) 동·서·북 면은 보이지 않아 만들지 않는다.
 ## - 소품: 맵 데이터 art.props(키트 물건 — 서 있는 것은 세운 판, 바닥 무늬는 눕힌 판). 규칙 물체(기름통 등)는 art 키 또는 기본 그림.
-## - 표면·구름: 키트 바닥(물·얼음·진흙)·불꽃 애니메이션·얼룩·안개로 그린다(규칙 상태를 그리기만).
+## - 표면·구름: 키트 바닥(물·얼음·진흙 — overlay.gdshader가 가장자리를 웅덩이처럼 흔듦)·불꽃 애니메이션·얼룩·안개로 그린다(규칙 상태를 그리기만).
 ## - 빛: 규칙의 빛 단계로 정점 색을 어둡게(칸 모서리마다 이웃 평균). 캐릭터를 가리는 앞쪽 벽·절벽은 체크무늬로 비친다.
 
 const V := preload("res://scenes/battle/view3d.gd")
@@ -50,6 +51,10 @@ var _top_mi: MeshInstance3D
 var _face_mi: MeshInstance3D
 var _water_mi: MeshInstance3D
 var _rim_mi: MeshInstance3D
+## 칸 데이터 텍스처(셰이더용): 높이·바닥 있음 / 바닥 조각 / 표면 조각
+var _info_tex: ImageTexture
+var _cells_tex: ImageTexture
+var _surf_tex: ImageTexture
 var _mats := {}  # 이름 → ShaderMaterial
 ## 서 있는 큰 소품(나무·천막 등): 캐릭터를 가리면 반투명
 var _tall_props: Array[Node3D] = []
@@ -292,8 +297,44 @@ func _build_terrain() -> void:
 			_rims(rims, c, top_c, 1.0 - float(dark[c]))
 	_rim_mi.mesh = rims.mesh()
 	_floor_mi.mesh = floors.mesh()
+	_build_cell_textures()
 	_top_mi.mesh = tops.mesh()
 	_face_mi.mesh = faces.mesh()
+
+
+## 셰이더용 칸 데이터: info(RG8: 높이·바닥 있음), cells(RGBA8: 변형 a·b 묶음 첫 조각)
+func _build_cell_textures() -> void:
+	var w: int = grid.size.x
+	var h: int = grid.size.y
+	var info := Image.create(w, h, false, Image.FORMAT_RG8)
+	var cells := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	for c: Vector2i in grid.all_cells():
+		var wall: bool = grid.has_flag(c, "wall")
+		info.set_pixel(c.x, c.y, Color8(clampi(grid.height(c), 0, 255), 0 if wall else 1, 0))
+		if wall:
+			continue
+		var a := _floor_block(c, "a")
+		var vs: PackedStringArray = kit.variants(_floor_id(c))
+		var b := _floor_block(c, "b") if vs.has("a") and vs.has("b") else a
+		cells.set_pixel(c.x, c.y, Color8(a.x, a.y, b.x, b.y))
+	_info_tex = ImageTexture.create_from_image(info)
+	_cells_tex = ImageTexture.create_from_image(cells)
+	var fm: ShaderMaterial = _mats["floors"]
+	fm.set_shader_parameter("cells", _cells_tex)
+	fm.set_shader_parameter("info", _info_tex)
+	fm.set_shader_parameter("map_size", Vector2i(w, h))
+	fm.set_shader_parameter("atlas_px", _sheet_size("floors"))
+	var om: ShaderMaterial = _mats["floors_overlay"]
+	om.set_shader_parameter("info", _info_tex)
+	om.set_shader_parameter("map_size", Vector2i(w, h))
+	om.set_shader_parameter("atlas_px", _sheet_size("floors"))
+
+
+## 칸 바닥 변형의 4×4 묶음 첫 조각(조각 단위)
+func _floor_block(c: Vector2i, variant: String) -> Vector2i:
+	var id := _floor_id(c)
+	var tl: Dictionary = kit.tile_of("%s.%s" % [id, kit._variant_name(id, variant)])
+	return tl.get("base", Vector2i.ZERO)
 
 
 ## 절벽 면: 한 단계(40px)씩 키트 벽면 조각을 아래에서부터 쌓는다(y0 → y1, 맨 위 조각은 남는 높이만큼).
@@ -378,6 +419,9 @@ func _refresh_surfaces() -> void:
 	_surface_nodes.clear()
 	var water := MeshBuilder.new()
 	var fsize := _sheet_size("floors")
+	var surf := Image.create(grid.size.x, grid.size.y, false, Image.FORMAT_RGBA8)
+	var palette: Array[String] = []
+	var water_cells := {}  # 네모를 깔 칸(표면 칸 + 둘레 — 셰이더가 흔든 가장자리를 그린다)
 	for c: Vector2i in grid.all_cells():
 		var sid: String = grid.surface_id(c)
 		var h: float = float(grid.height(c))
@@ -387,10 +431,16 @@ func _refresh_surfaces() -> void:
 			if a[0] == "tile":
 				var info: Dictionary = kit.info(a[1])
 				var f: Array = info.get("variants", {}).values()[0]["frames"][0]
-				var src := Rect2(float(f[0]) + posmod(c.x, 4) * V.T, float(f[1]) + posmod(c.y, 4) * V.T, V.T, V.T)
-				var col: Color = SURFACE_TINT.get(sid, Color(1, 1, 1, 0.92))
-				col = Color(col.r * tint.r, col.g * tint.g, col.b * tint.b, col.a)
-				water.quad(_flat_quad(c.x, c.y, h + V.LIFT), src, fsize, [col, col, col, col])
+				if not sid in palette and palette.size() < 8:
+					palette.append(sid)
+				var pi := palette.find(sid)
+				if pi >= 0:
+					surf.set_pixel(c.x, c.y, Color8(int(f[0]) / V.T, int(f[1]) / V.T, pi + 1, 0))
+					for dy in range(-1, 2):
+						for dx in range(-1, 2):
+							var n := c + Vector2i(dx, dy)
+							if grid.in_bounds(n) and not grid.has_flag(n, "wall"):
+								water_cells[n] = true
 			else:
 				var node: Node3D = Kit3D.make(kit, a[1], a[2])
 				node.position = V.pos(c, h) + Vector3(0, 0.004 if node.rotation.x != 0.0 else 0.0, 0.25)
@@ -416,7 +466,21 @@ func _refresh_surfaces() -> void:
 			Kit3D.tint(on, tint)
 			sorted.add_child(on)
 			_surface_nodes.append(on)
+	var dark := {}
+	for c: Vector2i in grid.all_cells():
+		dark[c] = V.DARK_ALPHA[grid.light_at(c)]
+	for c: Vector2i in water_cells:
+		# 어둠은 바닥과 같게 모서리마다 이웃 평균(칸 경계에 어두운 네모가 생기지 않게)
+		water.quad(_flat_quad(c.x, c.y, float(grid.height(c)) + V.LIFT), Rect2(0, 0, 1, 1), fsize, _corner_cols(dark, c, Color.WHITE))
 	_water_mi.mesh = water.mesh()
+	_surf_tex = ImageTexture.create_from_image(surf)
+	var tints := PackedVector4Array()
+	for i in 8:
+		var tc: Color = SURFACE_TINT.get(palette[i], Color(1, 1, 1, 0.92)) if i < palette.size() else Color.WHITE
+		tints.append(Vector4(tc.r, tc.g, tc.b, tc.a))
+	var om: ShaderMaterial = _mats["floors_overlay"]
+	om.set_shader_parameter("surf", _surf_tex)
+	om.set_shader_parameter("tints", tints)
 
 
 ## 캐릭터를 가리는 앞쪽 벽·절벽은 셰이더가 비춘다(발 위치·크기 배율 목록). 큰 소품은 반투명.

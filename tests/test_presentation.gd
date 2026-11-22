@@ -93,11 +93,37 @@ func test_map_view_builds_terrain() -> void:
 	assert_eq(uv2.size(), uv.size(), "바닥 변형 b 조각(UV2) — 셰이더가 a·b를 섞는다")
 	assert_true(uv2[0] != uv[0], "기본 돌바닥(floor_flag)은 변형 a·b가 다른 조각")
 	assert_true(view._floor_mi.material_override.shader.resource_path.ends_with("floor.gdshader"))
+	# 셰이더용 칸 데이터: 높이·바닥 있음, 바닥 조각(종류 경계 섞기)
+	var info: Image = view._info_tex.get_image()
+	assert_eq(info.get_size(), Vector2i(4, 3))
+	assert_eq(info.get_pixel(2, 1).r8, 2, "칸 높이")
+	assert_eq(info.get_pixel(0, 0).g8, 1, "바닥 있음")
+	var cells: Image = view._cells_tex.get_image()
+	var flag_a: Vector2i = view.kit.tile_of("floor_flag.a")["base"]
+	assert_eq(Vector2i(cells.get_pixel(0, 0).r8, cells.get_pixel(0, 0).g8), flag_a, "변형 a 묶음 첫 조각")
 	var faces: ArrayMesh = view._face_mi.mesh
 	assert_true(faces.get_surface_count() == 1, "높은 칸 남쪽 절벽 면")
 	var fv: PackedVector3Array = faces.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	for v: Vector3 in fv:
 		assert_near(v.z, 2.0, 0.001, "절벽 면은 높은 칸 남쪽 변에 세운다")
+
+
+## 물 표면: 표면 칸과 둘레에 네모(셰이더가 흔든 가장자리를 그림), 칸 데이터에 팔레트 번호
+func test_map_view_water_edges() -> void:
+	var g := make_grid([".....", ".....", "....."])
+	var surfaces: Node = make_surfaces(g)
+	surfaces.place_surface([Vector2i(2, 1)], "water", {"turns": -1})
+	var root: Node3D = own(Node3D.new())
+	var view: Node3D = MapView.new()
+	root.add_child(view)
+	var sorted := Node3D.new()
+	root.add_child(sorted)
+	view.build(g, sorted, {})
+	var verts: PackedVector3Array = view._water_mi.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	assert_eq(verts.size(), 9 * 4, "물 칸 + 둘레 8칸")
+	var surf: Image = view._surf_tex.get_image()
+	assert_eq(surf.get_pixel(2, 1).b8, 1, "물 칸 팔레트 1")
+	assert_eq(surf.get_pixel(0, 0).b8, 0, "표면 없음")
 
 
 func _router() -> Array:
