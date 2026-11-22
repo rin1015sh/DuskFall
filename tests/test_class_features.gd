@@ -36,7 +36,7 @@ func test_second_wind_and_tactical_shift() -> void:
 	assert_true(r["ok"])
 	assert_eq(f.hp, 21, "1d10 + 전사 레벨 5")
 	assert_eq(f.turn["bonus"], 0, "보너스 행동")
-	assert_eq(f.resource("second_wind"), 2)
+	assert_eq(f.resource("second_wind"), 0)
 	assert_eq(f.turn["free_move_no_oa"], 3, "전술적 이동: 속도 절반")
 
 
@@ -55,7 +55,8 @@ func test_tactical_mind() -> void:
 	Dice.force([5, 8])  # 판정 5 + 근력 3 = 8 < 12 → +1d10(8) = 16 성공
 	var r := Resolver.ability_check(f, "str", 12)
 	assert_true(r["success"], "전술적 판단으로 성공")
-	assert_eq(f.resource("second_wind"), 1, "성공했으니 1회 소모")
+	assert_eq(f.resource("second_wind"), 0, "성공했으니 1회 소모")
+	f.resources["second_wind"]["current"] = 1
 	Dice.force([2, 1])  # 2 + 3 = 5 < 12, +1 = 6 → 여전히 실패
 	r = Resolver.ability_check(f, "str", 12)
 	assert_false(r["success"])
@@ -243,7 +244,9 @@ func test_cunning_action_and_steady_aim() -> void:
 	var rogue := _pc("rogue", 3)
 	w["grid"].place(rogue, Vector2i(0, 0))
 	assert_true(Combat.cunning_action(w, rogue, "dash")["ok"])
-	assert_eq(rogue.turn["bonus"], 0, "질주를 보너스 행동으로")
+	assert_eq(rogue.turn["bonus"], 1, "질주를 보너스 행동으로(빠른 손: 보너스 행동 2개 중 1개)")
+	assert_true(Combat.cunning_action(w, rogue, "disengage")["ok"], "빠른 손(BG3식): 보너스 행동 하나 더")
+	assert_false(Combat.cunning_action(w, rogue, "hide")["ok"], "세 번째는 없다")
 	rogue.reset_turn()
 	assert_true(Features.use(w, rogue, "steady_aim")["ok"])
 	assert_eq(rogue.turn["movement"], 0, "속도 0")

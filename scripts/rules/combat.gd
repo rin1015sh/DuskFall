@@ -541,7 +541,14 @@ static func jump(world: Dictionary, c: Node, to: Vector2i) -> Dictionary:
 
 
 static func jump_distance(c: Node) -> int:
-	var base := 3 + maxi(c.ability_mod("str"), 0) / 2
+	var mod: int = c.ability_mod("str")
+	if c.has_feature("second_story_work"):
+		mod = maxi(mod, c.ability_mod("dex"))  # 2층 작업: 민첩으로 도약(원문)
+	var base := 3 + maxi(mod, 0) / 2
+	if c.has_feature("second_story_work"):
+		base += 1  # BG3식 도약 보너스
+	if c.has_feature("remarkable_athlete"):
+		base += 1  # BG3식 도약 보너스(챔피언)
 	for m in c.modifier_entries():
 		var e: Dictionary = m["effect"]
 		if e["type"] == "modify" and e["stat"] == "jump_tiles":
@@ -613,8 +620,6 @@ static func interact(c: Node) -> Dictionary:
 	if int(c.turn.get("interaction", 0)) > 0:
 		c.turn["interaction"] -= 1
 		return {"ok": true, "cost": "free"}
-	if c.has_feature("fast_hands") and spend(c, "bonus"):
-		return {"ok": true, "cost": "bonus"}  # 빠른 손(도둑)
 	if spend(c, "action"):
 		return {"ok": true, "cost": "action"}
 	return _fail("행동이 없다")

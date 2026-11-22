@@ -15,6 +15,9 @@ func apply(ctx: Dictionary) -> Dictionary:
 	var res: Dictionary = ctx["res"]
 	if res.get("attacker") != c or c.turn.get("sneak_used", false):
 		return {"ok": false}
+	# 수동 설정(BG3식)이면 '급소 공격' 행동으로 한 공격에만
+	if c.options.get("sneak_attack", "auto") == "manual" and not c.turn.get("sneak_armed", false):
+		return {"ok": false}
 	var atk: Dictionary = res["attack"]
 	var props: Array = atk.get("properties", [])
 	if not atk.get("weapon", false) or not ("finesse" in props or atk.get("kind", "") == "ranged"):
@@ -26,7 +29,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 	if not ok:
 		return {"ok": false}
 	var count := _dice_count(c)
-	var option: String = c.turn.get("cunning_strike", "")
+	var option: String = c.turn.get("cunning_strike", c.options.get("cunning_strike", ""))
 	if option != "" and c.has_feature("cunning_strike") and count > COST:
 		count -= COST
 		res["cunning_strike"] = option

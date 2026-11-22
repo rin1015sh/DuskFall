@@ -9,6 +9,9 @@ func is_implemented() -> bool:
 
 func apply(ctx: Dictionary) -> Dictionary:
 	var c: Node = ctx["self"]
+	var w: Dictionary = ctx.get("world", {})
+	if w.get("turns") != null and w["turns"].in_combat:
+		return {"ok": false, "reason": "전투 중에는 쓸 수 없다"}  # BG3식: 전투 밖이면 언제나(changes.md)
 	var budget: int = ceili(c.level / 2.0)
 	var got := 0
 	for lv in range(5, 0, -1):

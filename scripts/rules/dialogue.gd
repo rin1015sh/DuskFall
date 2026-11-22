@@ -78,6 +78,15 @@ func options() -> Array:
 	return out
 
 
+## 선택지의 능력 판정({ability, skill, dc}, 없으면 빈 사전) — 화면이 판정 창을 먼저 띄울 때 쓴다.
+func option_check(index: int) -> Dictionary:
+	var o: Dictionary = node()["options"][index]
+	if not o.has("check"):
+		return {}
+	var ck: Dictionary = o["check"]
+	return {"ability": ck["ability"], "skill": ck.get("skill", ""), "dc": dc_of(ck)}
+
+
 func dc_of(ck: Dictionary) -> int:
 	if ck.has("dc"):
 		return int(ck["dc"])
@@ -96,7 +105,7 @@ func choose(index: int, opts: Dictionary = {}) -> Dictionary:
 	var next: String = o.get("goto", "")
 	if o.has("check"):
 		var ck: Dictionary = o["check"]
-		var r := Interact.visible_check(world, speaker, ck["ability"], ck.get("skill", ""), dc_of(ck), opts)
+		var r: Dictionary = Interact.visible_check(world, speaker, ck["ability"], ck.get("skill", ""), dc_of(ck), opts)
 		res["check"] = r
 		next = o["success"] if r["success"] else o["fail"]
 	elif o.has("save"):

@@ -209,6 +209,13 @@ func _ready() -> void:
 	_refresh()
 	if args.has("sheet"):
 		sheet.show_for(world, selected)
+	if args.has("roll"):
+		_visible_roll(selected, "dex", "sleight_of_hand", 15, _skill_name("sleight_of_hand"), func(_r: Dictionary) -> void: pass)
+		if args["roll"] == "fail":
+			Dice.force([2])
+			_roll_ctx["result"] = Interact.visible_check(world, selected, "dex", "sleight_of_hand", 15)
+			world["inspiration"] = 1
+			_draw_roll()
 	if args.has("dialogue"):
 		for o: Node in foes:
 			if o.name == args["dialogue"]:
@@ -671,10 +678,21 @@ func _explore_execute(cell: Vector2i) -> void:
 				_open_dialogue(a["creature"].get_meta("dialogue"), a["creature"])
 		"lock":
 			if _approach(cell):
-				var r := Interact.open_lock(world, selected, cell, {"inspiration": _use_inspiration()})
-				if r.get("success", false) and a["obj"].has("art_open"):
-					a["obj"]["art"] = a["obj"]["art_open"]
-				_notify(r)
+				var lk: Dictionary = a["obj"]["lock"]
+				var c0: Node = selected
+				var open_with := func(res: Dictionary) -> void:
+					var r := Interact.open_lock(world, c0, cell, {} if res.is_empty() else {"result": res})
+					if r.get("success", false) and a["obj"].has("art_open"):
+						a["obj"]["art"] = a["obj"]["art_open"]
+					_notify(r)
+					map_view.refresh()
+					_refresh()
+				if lk.get("key", "") != "" and Interact.count(world, lk["key"]) > 0:
+					open_with.call({})
+				elif Interact.count(world, "thieves_tools") <= 0:
+					_notify({"ok": false, "reason": "도둑 도구가 없다"})
+				else:
+					_visible_roll(c0, "dex", "sleight_of_hand", int(lk["dc"]), UiText.t("pick_lock").get_slice(" DC", 0), open_with)
 		"loot":
 			if _approach(cell):
 				var r := Interact.take_loot(world, selected, cell)
@@ -686,15 +704,30 @@ func _explore_execute(cell: Vector2i) -> void:
 						_open_dialogue(pd["id"], pd["npc"])
 		"disarm":
 			if _approach(cell):
-				_notify(Interact.disarm(world, selected, a["trap"], {"inspiration": _use_inspiration()}))
+				var trap: Dictionary = a["trap"]
+				var c1: Node = selected
+				if Interact.count(world, "trap_disarm_kit") <= 0:
+					_notify({"ok": false, "reason": "함정 해체 도구가 없다"})
+				elif trap.get("retry_blocked", false):
+					_notify({"ok": false, "reason": "이 함정은 다시 시도할 수 없다"})
+				else:
+					_visible_roll(c1, "dex", "sleight_of_hand", int(trap["dc_disarm"]), UiText.t("disarm").get_slice(" DC", 0), func(res: Dictionary) -> void:
+						_notify(Interact.disarm(world, c1, trap, {"result": res}))
+						map_view.refresh()
+						_refresh())
 		"examine":
 			if _approach(cell):
-				var r := Interact.examine(world, selected, a["examine"], {"inspiration": _use_inspiration()})
-				if r.get("ok", false):
-					var txt: Dictionary = r["result"].get("text", {})
-					if not txt.is_empty():
-						Dice.log_text(UiText.name_of(txt))
-				_notify(r)
+				var ex: Dictionary = a["examine"]
+				var c2: Node = selected
+				_visible_roll(c2, ex.get("ability", "int"), ex.get("skill", "investigation"), int(ex["dc"]),
+					UiText.name_of(ex.get("name", {"ko": ex["id"], "en": ex["id"]})), func(res: Dictionary) -> void:
+						var r := Interact.examine(world, c2, ex, {"result": res})
+						if r.get("ok", false):
+							var txt: Dictionary = r["result"].get("text", {})
+							if not txt.is_empty():
+								Dice.log_text(UiText.name_of(txt))
+						_notify(r)
+						_refresh())
 	map_view.refresh()
 	_refresh()
 	_check_combat()
@@ -784,7 +817,17 @@ func _show_dialogue() -> void:
 
 
 func _choose_option(index: int) -> void:
-	var r: Dictionary = dlg.choose(index, {"inspiration": _use_inspiration()})
+	var ck: Dictionary = dlg.option_check(index)
+	if not ck.is_empty():
+		# 보이는 굴림: 판정 창에서 굴리고(실패하면 영감·전술적 판단) 그 결과로 고른다
+		_visible_roll(dlg.speaker, ck["ability"], ck["skill"], int(ck["dc"]), _skill_name(ck["skill"]), func(res: Dictionary) -> void:
+			_finish_choice(index, {"result": res}))
+		return
+	_finish_choice(index, {})
+
+
+func _finish_choice(index: int, opts: Dictionary) -> void:
+	var r: Dictionary = dlg.choose(index, opts)
 	for k: String in ["check", "save"]:
 		if r.has(k):
 			var c: Dictionary = r[k]
@@ -797,6 +840,100 @@ func _choose_option(index: int) -> void:
 		return
 	_show_dialogue()
 	_refresh()
+
+
+# ---------- 판정 창(보이는 굴림 — 2단계, BG3 주사위 창 참고) ----------
+
+var roll_panel: PanelContainer
+var _roll_ctx := {}
+
+
+func _skill_name(skill: String) -> String:
+	var ko := {"sleight_of_hand": "손재주", "persuasion": "설득", "intimidation": "위협", "deception": "기만", "insight": "통찰",
+		"investigation": "조사", "arcana": "비전", "history": "역사", "perception": "지각", "survival": "생존", "athletics": "운동",
+		"acrobatics": "곡예", "stealth": "은신", "religion": "종교", "medicine": "의학", "nature": "자연", "performance": "공연",
+		"animal_handling": "동물 조련"}
+	return ko.get(skill, skill) if UiText.lang == "ko" else skill.capitalize()
+
+
+## 판정 창을 띄운다: DC·보너스·성공 확률을 먼저 보여 주고(굴리기), 실패하면 영감 재굴림·전술적 판단을 고른다.
+## 끝나면 cb(결과)를 부른다.
+func _visible_roll(c: Node, ability: String, skill: String, dc: int, title: String, cb: Callable) -> void:
+	_roll_ctx = {"c": c, "ability": ability, "skill": skill, "dc": dc, "title": title, "cb": cb, "result": {}}
+	_draw_roll()
+
+
+func _draw_roll() -> void:
+	if roll_panel == null:
+		roll_panel = PanelContainer.new()
+		roll_panel.add_theme_stylebox_override("panel", S.panel(18, S.BRONZE, S.BG_DEEP, 2))
+		roll_panel.anchor_left = 0.5
+		roll_panel.anchor_right = 0.5
+		roll_panel.anchor_top = 0.5
+		roll_panel.anchor_bottom = 0.5
+		roll_panel.offset_left = -190
+		roll_panel.offset_right = 190
+		roll_panel.offset_top = -150
+		roll_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+		ui.get_child(0).add_child(roll_panel)
+	for ch in roll_panel.get_children():
+		ch.queue_free()
+	roll_panel.visible = true
+	var c: Node = _roll_ctx["c"]
+	var v := VBoxContainer.new()
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	v.add_theme_constant_override("separation", 8)
+	roll_panel.add_child(v)
+	var t := S.title(UiText.t("roll_title") % _roll_ctx["title"], 20)
+	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(t)
+	var pv := Interact.preview_check(c, _roll_ctx["ability"], _roll_ctx["skill"], _roll_ctx["dc"])
+	var info := Label.new()
+	info.text = "%s · %s  —  DC %d · %+d · %d%%" % [c.label(), _skill_name(_roll_ctx["skill"]), _roll_ctx["dc"], int(pv["bonus"]), roundi(pv["chance"] * 100)]
+	info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	info.add_theme_color_override("font_color", S.TEXT_DIM)
+	v.add_child(info)
+	var res: Dictionary = _roll_ctx["result"]
+	var big := S.title("d20" if res.is_empty() else str(int(res["total"])), 44)
+	big.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if not res.is_empty():
+		big.add_theme_color_override("font_color", S.HP_ALLY.lightened(0.3) if res["success"] else S.HP.lightened(0.3))
+	v.add_child(big)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 6)
+	v.add_child(row)
+	if res.is_empty():
+		var go := Button.new()
+		go.text = UiText.t("roll_go")
+		go.pressed.connect(func() -> void:
+			_roll_ctx["result"] = Interact.visible_check(world, c, _roll_ctx["ability"], _roll_ctx["skill"], _roll_ctx["dc"])
+			_draw_roll())
+		row.add_child(go)
+		return
+	var detail := Label.new()
+	detail.text = "d20 %d %+d%s = %d  →  %s" % [int(res["natural"]), int(res["bonus"]),
+		(" %+d" % int(res["tactical_roll"])) if res.has("tactical_roll") else "", int(res["total"]),
+		UiText.t("success") if res["success"] else UiText.t("failure")]
+	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(detail)
+	v.move_child(detail, 3)
+	for opt: String in Interact.reroll_options(world, c, res):
+		var b := Button.new()
+		b.text = UiText.t("roll_inspiration") % int(world.get("inspiration", 0)) if opt == "inspiration" else UiText.t("roll_tactical") % c.resource("second_wind")
+		b.pressed.connect(func() -> void:
+			_roll_ctx["result"] = Interact.reroll(world, c, res, opt)
+			_draw_roll())
+		row.add_child(b)
+	var ok := Button.new()
+	ok.text = UiText.t("roll_accept")
+	ok.pressed.connect(func() -> void:
+		roll_panel.visible = false
+		var cb: Callable = _roll_ctx["cb"]
+		var final: Dictionary = _roll_ctx["result"]
+		_roll_ctx = {}
+		cb.call(final))
+	row.add_child(ok)
 
 
 func _close_dialogue() -> void:
@@ -908,6 +1045,10 @@ func _build_ui() -> void:
 	hotbar.action_chosen.connect(_on_action)
 	hotbar.end_turn_pressed.connect(_end_turn)
 	hotbar.explore_pressed.connect(_on_explore_button)
+	hotbar.passive_toggled.connect(func(id: String) -> void:
+		if selected != null:
+			Actions.toggle_passive(selected, id)
+			_refresh())
 	# 오른쪽: 전투 로그
 	log_box = RichTextLabel.new()
 	log_box.anchor_left = 1.0
@@ -955,6 +1096,7 @@ func _build_ui() -> void:
 	dlg_options = VBoxContainer.new()
 	dv.add_child(dlg_options)
 	dlg_use_insp = CheckBox.new()
+	dlg_use_insp.visible = false  # 영감 재굴림은 판정 창에서 고른다
 	dv.add_child(dlg_use_insp)
 	dlg_panel.visible = false
 	root.add_child(dlg_panel)

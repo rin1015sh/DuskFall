@@ -32,7 +32,7 @@ func test_free_ability_bonus() -> void:
 func test_fighter_1_to_5() -> void:
 	var l1 := _build("fighter", 1)
 	assert_eq(l1.hp_max, 12, "d10 최대 + 건강 2")
-	assert_eq(l1.resources["second_wind"]["max"], 2)
+	assert_eq(l1.resources["second_wind"]["max"], 1, "BG3: 짧은 휴식마다 1회")
 	assert_false(l1.resources.has("action_surge"), "행동 연쇄는 2레벨")
 	assert_eq(l1.weapon_masteries.size(), 3)
 	assert_eq(l1.ac(), 19, "사슬 갑옷 16 + 방패 2 + 방어 1")
@@ -41,7 +41,7 @@ func test_fighter_1_to_5() -> void:
 	assert_eq(l5.hp_max, 44, "12 + 4 × (6 + 2) — 룰북 예시 전투 3의 HP 44")
 	assert_eq(l5.proficiency_bonus, 3)
 	assert_eq(l5.attacks_per_action, 2, "추가 공격")
-	assert_eq(l5.resources["second_wind"]["max"], 3, "4레벨 3회")
+	assert_eq(l5.resources["second_wind"]["max"], 1, "BG3: 레벨과 상관없이 1회")
 	assert_eq(l5.resources["action_surge"]["max"], 1)
 	assert_eq(l5.weapon_masteries.size(), 4)
 	assert_eq(l5.crit_threshold, 19, "챔피언 향상된 치명타")

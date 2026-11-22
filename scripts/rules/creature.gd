@@ -55,6 +55,8 @@ var features: Array = []
 var known_reactions: Array = ["opportunity_attack"]
 ## 반응 설정: 반응 ID → "ask" | "auto" | "off"(기본 ask, 기회 공격 기본 auto)
 var reaction_settings := {}
+## 상시 발동 설정(BG3 패시브 탭): {"sneak_attack": "auto"|"manual", "cunning_strike": ""|"poison"|"trip"|"withdraw"}
+var options := {}
 ## 재충전 쿨다운: 능력 ID → 남은 턴(2단계 몬스터 재충전)
 var cooldowns := {}
 ## 이번 턴 자원(TurnManager가 턴 시작에 채운다)
@@ -168,7 +170,9 @@ func speed() -> int:
 ## 턴 시작에 행동·보너스 행동·이동·무료 상호작용을 채운다. 반응은 refresh_reaction이 따로 채운다.
 func reset_turn() -> void:
 	var can_act := not is_incapacitated() and not has_flag("cannot_act")
-	turn = {"action": 1 if can_act else 0, "bonus": 1 if can_act else 0, "movement": speed(),
+	# 빠른 손(도둑, BG3식): 보너스 행동 하나 더(changes.md 2026-11-22)
+	var bonus := (2 if has_feature("fast_hands") else 1) if can_act else 0
+	turn = {"action": 1 if can_act else 0, "bonus": bonus, "movement": speed(),
 		"interaction": 1, "attacks_left": 0, "light_attack_done": false, "nick_used": false,
 		"cleave_used": false, "disengaged": false, "reaction": turn.get("reaction", 1),
 		"moved": false, "sneak_used": false, "savage_used": false, "free_move_no_oa": 0}

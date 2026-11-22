@@ -539,6 +539,63 @@
       "stack": "keep_longest",
       "notes_ko": "Sanctuary 표지: 공격·시전하면 끝(효과는 수정치).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "hamstrung",
+      "name": {
+        "ko": "다리 부상",
+        "en": "Hamstrung"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "add": -3
+        }
+      ],
+      "notes_ko": "무기 액션 '다리 베기·다리 쏘기': 속도 −3칸(절반).",
+      "source": "original"
+    },
+    {
+      "id": "staggered",
+      "name": {
+        "ko": "휘청임",
+        "en": "Staggered"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 1,
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "no_reactions"
+        }
+      ],
+      "notes_ko": "무기 액션 '손잡이 치기': 다음 자기 턴이 끝날 때까지 반응 불가.",
+      "source": "original"
+    },
+    {
+      "id": "exposed",
+      "name": {
+        "ko": "노출",
+        "en": "Exposed"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "notes_ko": "무기 액션 '꿰뚫기': 이 생물을 노린 공격 굴림이 유리.",
+      "source": "original"
     }
   ]
 }

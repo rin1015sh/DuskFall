@@ -608,7 +608,8 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		dc, "성공" if res["success"] else "실패"])
 	if not res["success"]:
 		EventBus.on_check_failed.emit(res)
-		Features.hook("on_check_failed", creature, {"res": res})
+		if not opts.get("visible", false):
+			Features.hook("on_check_failed", creature, {"res": res})  # 숨은 판정은 자동(전술적 판단 등)
 	return res
 
 

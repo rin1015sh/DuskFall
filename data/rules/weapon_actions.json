@@ -1,0 +1,139 @@
+{
+  "schema": "weapon_action_v1",
+  "note_ko": "무기 액션(BG3 구조 참고, 이름·설명은 자체). 그 무기에 숙련이 있으면 쓴다. 액션마다 짧은 휴식에 1회. 내성 DC = 8 + 숙련 보너스 + 공격 능력 수정치. 마스터리와 함께 쓴다(사용자 결정 2026-11-22).",
+  "actions": [
+    {
+      "id": "wa_sweep",
+      "name": {
+        "ko": "휩쓸기",
+        "en": "Sweeping Blow"
+      },
+      "desc": {
+        "ko": "대상을 베고, 곁에 있는 다른 적 하나도 이어서 벤다(두 번째는 피해 절반).",
+        "en": "Strike, then carry through to another adjacent foe (half damage)."
+      },
+      "cost": "action",
+      "weapons": [
+        "greatsword",
+        "greataxe",
+        "glaive",
+        "halberd",
+        "battleaxe",
+        "longsword"
+      ],
+      "cleave": true,
+      "icon": "res://assets/statuses/blast_scorched.webp",
+      "source": "original"
+    },
+    {
+      "id": "wa_hamstring",
+      "name": {
+        "ko": "다리 베기",
+        "en": "Hamstring"
+      },
+      "desc": {
+        "ko": "명중하면 대상이 민첩 내성. 실패하면 2턴 동안 속도 절반.",
+        "en": "On hit: DEX save or speed halved for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [
+        "scimitar",
+        "shortsword",
+        "handaxe",
+        "sickle",
+        "whip",
+        "shortbow",
+        "longbow",
+        "hand_crossbow"
+      ],
+      "save": "dex",
+      "condition": "hamstrung",
+      "turns": 2,
+      "icon": "res://assets/statuses/snare.webp",
+      "source": "original"
+    },
+    {
+      "id": "wa_pommel",
+      "name": {
+        "ko": "손잡이 치기",
+        "en": "Pommel Bash"
+      },
+      "desc": {
+        "ko": "보너스 행동으로 손잡이로 친다(1d4 타격). 명중하면 건강 내성, 실패하면 반응 불가.",
+        "en": "Bonus action bash (1d4 bludgeoning). On hit: CON save or no reactions."
+      },
+      "cost": "bonus",
+      "weapons": [
+        "longsword",
+        "shortsword",
+        "rapier",
+        "scimitar",
+        "dagger",
+        "greatsword"
+      ],
+      "damage": "1d4",
+      "damage_type": "bludgeoning",
+      "save": "con",
+      "condition": "staggered",
+      "turns": 1,
+      "icon": "res://assets/statuses/daze.webp",
+      "source": "original"
+    },
+    {
+      "id": "wa_topple",
+      "name": {
+        "ko": "넘어뜨리기 일격",
+        "en": "Toppling Blow"
+      },
+      "desc": {
+        "ko": "명중하면 대상이 근력 내성. 실패하면 넘어진다.",
+        "en": "On hit: STR save or knocked prone."
+      },
+      "cost": "action",
+      "weapons": [
+        "maul",
+        "warhammer",
+        "mace",
+        "club",
+        "quarterstaff",
+        "flail",
+        "greatclub",
+        "light_hammer"
+      ],
+      "save": "str",
+      "condition": "prone",
+      "turns": -1,
+      "icon": "res://assets/statuses/suppress.webp",
+      "source": "original"
+    },
+    {
+      "id": "wa_impale",
+      "name": {
+        "ko": "꿰뚫기",
+        "en": "Impale"
+      },
+      "desc": {
+        "ko": "명중하면 대상이 건강 내성. 실패하면 2턴 동안 노출(이 대상을 노린 공격 유리).",
+        "en": "On hit: CON save or Exposed (attacks against it have advantage) for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [
+        "spear",
+        "pike",
+        "rapier",
+        "trident",
+        "javelin",
+        "lance",
+        "morningstar",
+        "war_pick",
+        "light_crossbow",
+        "heavy_crossbow"
+      ],
+      "save": "con",
+      "condition": "exposed",
+      "turns": 2,
+      "icon": "res://assets/statuses/marked.webp",
+      "source": "original"
+    }
+  ]
+}

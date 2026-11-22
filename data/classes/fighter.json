@@ -53,10 +53,9 @@
         "en": "Second Wind"
       },
       "max": {
-        "1": 2,
-        "4": 3
+        "1": 1
       },
-      "recharge": "short_one"
+      "recharge": "short"
     },
     {
       "id": "action_surge",
@@ -96,7 +95,7 @@
       "kind": "bonus_action",
       "resource": "second_wind",
       "script": "second_wind",
-      "notes_ko": "1d10 + 전사 레벨 회복.",
+      "notes_ko": "[BG3] 보너스 행동, 1d10 + 전사 레벨 회복. 짧은 휴식마다 1회(원문 2024는 2~3회 — 사용자 결정 2026-11-22).",
       "source": "SRD 5.2.1"
     },
     {
@@ -181,7 +180,7 @@
             "en": "Remarkable Athlete"
           },
           "level": 3,
-          "notes_ko": "이니셔티브·근력(운동) 유리, 치명타 직후 속도 절반 이동(기회 공격 없음).",
+          "notes_ko": "이니셔티브·근력(운동) 유리, 치명타 직후 속도 절반 이동(기회 공격 없음). [BG3 추가] 도약 거리 +1칸.",
           "source": "SRD 5.2.1"
         }
       ]

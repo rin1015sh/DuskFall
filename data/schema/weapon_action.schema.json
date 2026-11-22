@@ -1,0 +1,91 @@
+{
+  "$comment": "weapon_action 파일 스키마(무기 액션).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "actions"
+  ],
+  "properties": {
+    "schema": {
+      "const": "weapon_action_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "desc",
+          "cost",
+          "weapons",
+          "icon",
+          "source"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^wa_[a-z0-9_]+$"
+          },
+          "name": {
+            "type": "object"
+          },
+          "desc": {
+            "type": "object"
+          },
+          "cost": {
+            "enum": [
+              "action",
+              "bonus"
+            ]
+          },
+          "weapons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cleave": {
+            "type": "boolean"
+          },
+          "damage": {
+            "type": "string"
+          },
+          "damage_type": {
+            "type": "string"
+          },
+          "save": {
+            "enum": [
+              "str",
+              "dex",
+              "con",
+              "int",
+              "wis",
+              "cha"
+            ]
+          },
+          "condition": {
+            "type": "string"
+          },
+          "turns": {
+            "type": "integer"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "SRD 5.2.1",
+              "original"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

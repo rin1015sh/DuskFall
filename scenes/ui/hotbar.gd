@@ -6,6 +6,7 @@ extends HBoxContainer
 signal action_chosen(key: String)
 signal end_turn_pressed
 signal explore_pressed(id: String)
+signal passive_toggled(id: String)
 
 const Actions := preload("res://scripts/rules/actions.gd")
 const UiText := preload("res://scenes/ui/ui_text.gd")
@@ -15,7 +16,7 @@ const SCHOOL_COLOR := {"evocation": Color("8a4a33"), "abjuration": Color("3f5f80
 	"divination": Color("4f6f7f"), "enchantment": Color("7a4a6a"), "illusion": Color("5d4f82"),
 	"necromancy": Color("4a6648"), "transmutation": Color("7a6146")}
 ## 탭: all = 모든 구역을 구분선으로 나눠 한 줄에
-const TABS := ["all", "common", "class", "spells", "items", "explore"]
+const TABS := ["all", "common", "class", "spells", "items", "passives", "explore"]
 
 var tab := "all"
 var selected_key := ""
@@ -215,7 +216,9 @@ func _draw_tabs(world: Dictionary, c: Node, explore: bool) -> void:
 	for id: String in TABS:
 		if id == "explore" and not explore:
 			continue
-		if id != "explore" and id != "all" and lists.get(id, []).is_empty():
+		if id == "passives" and Actions.passives(c).is_empty():
+			continue
+		if not id in ["explore", "all", "passives"] and lists.get(id, []).is_empty():
 			continue
 		var b := Button.new()
 		b.text = UiText.t("tab_" + id) if id != "class" else UiText.name_of(RulesDB.get_entry("class", c.class_id).get("name", {"ko": UiText.t("tab_class"), "en": UiText.t("tab_class")}))
@@ -233,6 +236,24 @@ func _draw_tabs(world: Dictionary, c: Node, explore: bool) -> void:
 func _draw_sections(world: Dictionary, c: Node, explore: bool) -> void:
 	for ch in sections.get_children():
 		ch.queue_free()
+	if tab == "passives":
+		var pg := GridContainer.new()
+		pg.columns = 3
+		pg.add_theme_constant_override("h_separation", 4)
+		pg.add_theme_constant_override("v_separation", 4)
+		for pv: Dictionary in Actions.passives(c):
+			var b := Button.new()
+			b.text = "%s: %s" % [UiText.name_of(pv["name"]), UiText.name_of(pv["state"])]
+			b.custom_minimum_size = Vector2(150, SLOT.y - 4)
+			b.focus_mode = Control.FOCUS_NONE
+			b.add_theme_font_size_override("font_size", 12)
+			var on: bool = not (pv["state"]["en"] in ["Off", "Manual"])
+			b.add_theme_stylebox_override("normal", S.pill(on))
+			b.tooltip_text = UiText.name_of(pv["desc"])
+			b.pressed.connect(passive_toggled.emit.bind(pv["id"]))
+			pg.add_child(b)
+		sections.add_child(pg)
+		return
 	if tab == "explore":
 		var g := GridContainer.new()
 		g.columns = 4

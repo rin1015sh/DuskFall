@@ -157,13 +157,15 @@
         "ko": "생명 영역",
         "en": "Life Domain"
       },
-      "level": 3,
+      "level": 1,
       "source": "SRD 5.2.1",
       "always_prepared": {
+        "1": [
+          "bless",
+          "cure_wounds"
+        ],
         "3": [
           "aid",
-          "bless",
-          "cure_wounds",
           "lesser_restoration"
         ],
         "5": [
@@ -178,8 +180,8 @@
             "ko": "생명의 제자",
             "en": "Disciple of Life"
           },
-          "level": 3,
-          "notes_ko": "슬롯 주문 회복에 2 + 슬롯 레벨 추가.",
+          "level": 1,
+          "notes_ko": "[BG3] 생명 영역을 1레벨에(원문 2024는 3레벨). 생명의 제자 1레벨, 생명 보존 2레벨(신성 변환과 함께) — 사용자 결정 2026-11-22.",
           "source": "SRD 5.2.1"
         },
         {
@@ -188,7 +190,7 @@
             "ko": "생명 보존",
             "en": "Preserve Life"
           },
-          "level": 3,
+          "level": 2,
           "kind": "action",
           "resource": "channel_divinity",
           "script": "preserve_life",

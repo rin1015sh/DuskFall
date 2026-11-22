@@ -190,18 +190,59 @@ static func examine(world: Dictionary, c: Node, ex: Dictionary, opts: Dictionary
 ## 보이는 굴림(2단계): DC와 보너스를 먼저 보여 주고, 굴리기 전 보조 주사위(Guidance 등), 실패하면 영감으로 재굴림.
 ## 능력 판정이라 자연 20 자동 성공·자연 1 자동 실패.
 static func visible_check(world: Dictionary, c: Node, ability: String, skill: String, dc: int, opts: Dictionary = {}) -> Dictionary:
+	if opts.has("result"):
+		return opts["result"]  # 화면의 판정 창에서 이미 굴리고 고친 결과(판정 실패 창)
 	var assist := 0
 	for dice: String in opts.get("assist", []):
 		assist += Dice.roll(dice, "보조 주사위")["total"]
-	var r := Resolver.ability_check(c, ability, dc, {"skill": skill, "bonus": assist})
+	var r := Resolver.ability_check(c, ability, dc, {"skill": skill, "bonus": assist, "visible": true})
 	r["assist"] = assist
-	if not r["success"] and opts.get("inspiration", false) and int(world.get("inspiration", 0)) > 0:
-		world["inspiration"] = int(world["inspiration"]) - 1
-		Dice.log_text("영감으로 다시 굴림")
-		var again := Resolver.ability_check(c, ability, dc, {"skill": skill, "bonus": assist})
-		again["assist"] = assist
-		again["rerolled"] = true
-		return again
+	r["skill"] = skill
+	if not r["success"] and opts.get("inspiration", false):
+		return reroll(world, c, r, "inspiration")
+	return r
+
+
+## 판정 실패 창(2단계 보이는 굴림, 6단계 전술적 판단): 실패한 보이는 굴림에 쓸 수 있는 것.
+## "inspiration": 공용 영감 1점으로 다시 굴림, "tactical_mind": 재기의 숨결 1회로 +1d10(그래도 실패면 소모 안 함).
+static func reroll_options(world: Dictionary, c: Node, r: Dictionary) -> Array:
+	var out: Array = []
+	if r.get("success", false) or r.get("auto", false):
+		return out
+	if int(world.get("inspiration", 0)) > 0:
+		out.append("inspiration")
+	if c.has_feature("tactical_mind") and c.resource("second_wind") > 0 and int(r.get("natural", 0)) != 1 \
+			and int(r["total"]) + 10 >= int(r["dc"]) and not r.get("tactical_used", false):
+		out.append("tactical_mind")
+	return out
+
+
+static func reroll(world: Dictionary, c: Node, r: Dictionary, kind: String) -> Dictionary:
+	match kind:
+		"inspiration":
+			if int(world.get("inspiration", 0)) <= 0:
+				return r
+			world["inspiration"] = int(world["inspiration"]) - 1
+			Dice.log_text("영감으로 다시 굴림")
+			var again := Resolver.ability_check(c, r["ability"], int(r["dc"]), {"skill": r.get("skill", ""),
+				"bonus": int(r.get("assist", 0)), "visible": true})
+			again["assist"] = r.get("assist", 0)
+			again["skill"] = r.get("skill", "")
+			again["rerolled"] = true
+			return again
+		"tactical_mind":
+			var roll: int = Dice.roll("1d10", "전술적 판단")["total"]
+			var out := r.duplicate()
+			out["total"] = int(r["total"]) + roll
+			out["tactical_used"] = true
+			out["tactical_roll"] = roll
+			if out["total"] >= int(r["dc"]):
+				out["success"] = true
+				c.spend_resource("second_wind")
+				Dice.log_text("%s 전술적 판단 +%d → 성공" % [c.label(), roll])
+			else:
+				Dice.log_text("%s 전술적 판단 +%d → 실패(소모 안 함)" % [c.label(), roll])
+			return out
 	return r
 
 

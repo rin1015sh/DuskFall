@@ -144,7 +144,8 @@
                 "speed_tiles",
                 "damage_resistance",
                 "damage_vulnerability",
-                "damage_immunity"
+                "damage_immunity",
+                "no_reactions"
               ]
             },
             "add": {

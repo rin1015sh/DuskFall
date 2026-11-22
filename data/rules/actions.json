@@ -324,6 +324,40 @@
       "icon": "res://assets/items/greater_potion.webp",
       "explore": true,
       "source": "original"
+    },
+    {
+      "id": "sneak_melee",
+      "name": {
+        "ko": "급소 공격(근접)",
+        "en": "Sneak Attack (Melee)"
+      },
+      "desc": {
+        "ko": "교묘 무기로 공격하고, 명중하면 급소 공격 피해를 더한다(유리하거나 대상 곁에 아군이 있을 때, 턴당 1회).",
+        "en": "Finesse attack that adds Sneak Attack damage on hit."
+      },
+      "cost": "action",
+      "target": "enemy",
+      "tab": "class",
+      "icon": "res://assets/statuses/ambush_hunter.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "sneak_ranged",
+      "name": {
+        "ko": "급소 공격(원거리)",
+        "en": "Sneak Attack (Ranged)"
+      },
+      "desc": {
+        "ko": "원거리 무기로 쏘고, 명중하면 급소 공격 피해를 더한다(턴당 1회).",
+        "en": "Ranged attack that adds Sneak Attack damage on hit."
+      },
+      "cost": "action",
+      "target": "enemy",
+      "tab": "class",
+      "icon": "res://assets/statuses/ambush_hunter_weak.webp",
+      "explore": true,
+      "source": "original"
     }
   ]
 }
