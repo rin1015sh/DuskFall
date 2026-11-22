@@ -94,6 +94,9 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 		return {"ok": false, "reason": why}
 	var grid: Node = world["grid"]
 	# 긴 휴식 = 캠프로 이동. 캠프 불가 판정은 휴식을 부르는 리더의 칸으로 한다(파티는 함께 캠프로 간다).
+	var hut: Dictionary = world.get("tiny_hut", {})
+	if not hut.is_empty() and Spellcasting.instances.has(hut.get("instance", -1)):
+		opts["tiny_hut"] = true  # Tiny Hut이 서 있으면 캠프 불가 구역에서도
 	if not opts.get("tiny_hut", false):
 		var caller: Node = opts.get("caller", world["explore"].leader if world.get("explore") != null else null)
 		if caller == null or caller.dead:
@@ -130,6 +133,10 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 	for c: Node in party if full else []:
 		if not c.dead and c.species_id == "human":
 			add_inspiration(world, 1)
+	for f: Callable in world.get("on_long_rest", []):
+		if f.is_valid():
+			f.call()
+	world["on_long_rest"] = []
 	EventBus.on_long_rest.emit()
 	Dice.log_text("긴 휴식%s" % ("" if full else "(부분)"))
 	return {"ok": true, "partial": not full}

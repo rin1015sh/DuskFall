@@ -97,6 +97,8 @@ static func square(grid: Node, top_left: Vector2i, s: int, origin: Vector2i = Ve
 static func creatures_in(grid: Node, cells: Array[Vector2i]) -> Array:
 	var out: Array = []
 	for cr: Node in grid.creatures():
+		if cr.has_flag("ethereal"):
+			continue  # Blink: 다른 차원
 		for c in grid.occupied_cells(cr):
 			if c in cells:
 				out.append(cr)

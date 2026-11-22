@@ -57,7 +57,10 @@ func before_each() -> void:
 
 func cleanup() -> void:
 	Dice.clear_forced()
-	load("res://scripts/rules/spellcasting.gd").instances.clear()
+	var Sp: Variant = load("res://scripts/rules/spellcasting.gd")
+	for id: Variant in Sp.instances.keys():
+		Sp.end_instance(id)  # 끝날 때 할 일(EventBus 연결 해제 등)을 돌린다
+	Sp.instances.clear()
 	for n in _owned:
 		if is_instance_valid(n):
 			n.free()

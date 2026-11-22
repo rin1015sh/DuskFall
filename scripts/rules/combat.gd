@@ -96,6 +96,8 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		dis.append("무거운 무기")
 	var extra_adv: Array = []
 	for r: Dictionary in c.attack_riders:
+		if r.get("when", "") == "always" and r.has("expr_add"):
+			expr += r["expr_add"]  # Enlarge(+1d4)·Reduce(−1d4)
 		if r.get("when", "") == "advantage":
 			extra_adv.append({"dice": r["dice"], "damage_type": r.get("damage_type", w["damage_type"])})
 	return {"name": w.get("name", {}).get("en", w["id"]) if w.has("name") else w["id"], "weapon_id": w["id"],

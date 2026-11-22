@@ -13,6 +13,19 @@ const Physics := preload("res://scripts/rules/physics.gd")
 const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
 const Features := preload("res://scripts/rules/features.gd")
 const Interact := preload("res://scripts/rules/interact.gd")
+const SpellUtil := preload("res://scripts/rules/spell_util.gd")
+## 소환 존재 조종(주문이 남긴 entity): 원문 비용·거리
+const ENTITY_ACTIONS := {
+	"spiritual_weapon": {"id": "entity:spiritual_weapon", "name": {"ko": "영체 무기 휘두르기", "en": "Spiritual Weapon Strike"},
+		"desc": {"ko": "영체 무기를 4칸까지 옮겨 곁의 적을 친다(1d8 + 주문 수정치 역장).", "en": "Move the weapon up to 4 tiles and strike."},
+		"cost": "bonus", "target": "enemy", "tab": "spells", "icon": "res://assets/statuses/whetted.webp", "explore": false},
+	"flaming_sphere": {"id": "entity:flaming_sphere", "name": {"ko": "불구체 굴리기", "en": "Roll Flaming Sphere"},
+		"desc": {"ko": "불구체를 6칸까지 굴린다. 생물 칸에 닿으면 민첩 내성 2d6 화염, 지나간 가연성 칸에 불이 붙는다.", "en": "Roll the sphere up to 6 tiles."},
+		"cost": "bonus", "target": "cell", "tab": "spells", "icon": "res://assets/statuses/burn.webp", "explore": false},
+	"mage_hand": {"id": "entity:mage_hand", "name": {"ko": "유령 손 쓰기", "en": "Use Mage Hand"},
+		"desc": {"ko": "6칸 안에서 상자를 열어 꺼내 오거나, 찾은 함정을 멀리서 미리 터뜨린다.", "en": "Loot a container or trigger a found trap from afar."},
+		"cost": "action", "target": "cell", "tab": "spells", "icon": "res://assets/statuses/shield_arm.webp", "explore": true},
+}
 
 ## 직접 쓰는 기능의 대상(없으면 자신)
 const FEATURE_TARGET := {"divine_spark": "creature"}
@@ -45,6 +58,9 @@ static func def_of(key: String) -> Dictionary:
 			"cost": COST_NAME.get(str(f.get("kind", "free")), "free"), "target": FEATURE_TARGET.get(fid, "self"), "tab": "class",
 			"icon": "res://assets/" + FEATURE_ICON.get(fid, "statuses/buff.webp"), "explore": fid in ["arcane_recovery", "second_wind"],
 			"resource": f.get("resource", "")}
+	if key.begins_with("entity:"):
+		var kind := key.trim_prefix("entity:")
+		return ENTITY_ACTIONS.get(kind, {}).duplicate(true)
 	if key.begins_with("wa_"):
 		var wa := RulesDB.get_entry("weapon_action", key)
 		if wa.is_empty():
@@ -100,6 +116,9 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 			out["class"].append("feature:" + fid)
 	for wa: String in weapon_actions_for(c):
 		out["class"].append(wa)
+	for kind: String in ENTITY_ACTIONS:
+		if not SpellUtil.find_entity(c, kind).is_empty():
+			out["spells"].append("entity:" + kind)
 	for item: String in world.get("inventory", {}):
 		var e := RulesDB.get_entry("item", item) if item != "gold" else {}
 		if e.get("category", "") == "potion" and Interact.count(world, item) > 0:
@@ -281,6 +300,8 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 		return Features.use(world, c, key.trim_prefix("feature:"), t)
 	if key.begins_with("wa_"):
 		return _weapon_action(world, c, key, t)
+	if key.begins_with("entity:"):
+		return _entity_action(world, c, key.trim_prefix("entity:"), cell, t)
 	var parts := key.split(":")
 	match parts[0]:
 		"attack":
@@ -500,3 +521,60 @@ static func toggle_passive(c: Node, id: String) -> void:
 			if id.begins_with("reaction:"):
 				var r := id.trim_prefix("reaction:")
 				c.reaction_settings[r] = "auto" if c.reaction_setting(r) == "off" else "off"
+
+
+static func _entity_action(world: Dictionary, c: Node, kind: String, cell: Vector2i, t: Node) -> Dictionary:
+	var grid: Node = world["grid"]
+	var inst := SpellUtil.find_entity(c, kind)
+	if inst.is_empty():
+		return {"ok": false, "reason": "주문이 끝났다"}
+	var e: Dictionary = inst["entity"]
+	var cost: String = ENTITY_ACTIONS[kind]["cost"]
+	if not Combat.spend(c, cost):
+		return {"ok": false, "reason": "비용이 없다"}
+	var Summon := load("res://scripts/rules/effects/summon.gd")
+	match kind:
+		"spiritual_weapon":
+			if t == null:
+				return {"ok": false, "reason": "적을 골라야 한다"}
+			var best := Vector2i(-1, -1)
+			for dy in [-1, 0, 1]:
+				for dx in [-1, 0, 1]:
+					var n: Vector2i = grid.cell_of(t) + Vector2i(dx, dy)
+					if grid.in_bounds(n) and grid.distance(n, e["cell"]) <= 4 and (best.x < 0 or grid.distance(n, e["cell"]) < grid.distance(best, e["cell"])):
+						best = n
+			if best.x < 0:
+				return {"ok": false, "reason": "너무 멀다(4칸)"}
+			e["cell"] = best
+			return Summon.strike(world, c, inst, best, t)
+		"flaming_sphere":
+			var path: Array[Vector2i] = []
+			var cur: Vector2i = e["cell"]
+			for i in 6:
+				if cur == cell:
+					break
+				var nxt := cur + Vector2i(signi(cell.x - cur.x), signi(cell.y - cur.y))
+				if grid.blocks_movement(nxt):
+					break
+				cur = nxt
+				path.append(cur)
+				var hit: Node = grid.creature_at(cur)
+				if hit != null and not hit.dead:
+					Summon.sphere_burn(world, hit, inst, Spellcasting.spell_dc(c))
+					break
+			e["cell"] = cur
+			if world.get("surfaces") != null and not path.is_empty():
+				world["surfaces"].tile_damage(path, "fire")
+			return {"ok": true, "path": path}
+		"mage_hand":
+			if grid.distance(grid.cell_of(c), cell) > 6:
+				return {"ok": false, "reason": "6칸 안만"}
+			e["cell"] = cell
+			for tr: Dictionary in world.get("traps", []):
+				if tr["state"] == "armed" and tr.get("found", false) and Vector2i(int(tr["cell"][0]), int(tr["cell"][1])) == cell:
+					Interact.trigger(world, tr)
+					return {"ok": true, "triggered": true}
+			if not grid.object_at(cell).get("loot", {}).is_empty():
+				return Interact.take_loot(world, c, cell)
+			return {"ok": true}
+	return {"ok": false}

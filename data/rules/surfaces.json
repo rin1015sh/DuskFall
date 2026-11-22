@@ -307,6 +307,18 @@
       "blocks_sight": true,
       "source": "SRD 5.2.1",
       "notes_ko": "내성·중독은 주문 효과(5단계)."
+    },
+    {
+      "id": "illusory_image",
+      "layer": "cloud",
+      "name": {
+        "ko": "환영",
+        "en": "Illusory Image"
+      },
+      "duration_turns": -1,
+      "blocks_sight": true,
+      "source": "original",
+      "notes_ko": "Silent Image·Major Image의 벽·물체 환영: 시야를 가린다(통과할 수 있음). 시전 인스턴스가 끝나면 걷힌다."
     }
   ]
 }

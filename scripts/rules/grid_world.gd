@@ -296,7 +296,7 @@ func is_difficult(c: Vector2i) -> bool:
 func can_step_sized(from_anchor: Vector2i, to_anchor: Vector2i, creature_size: int, mover: Node = null,
 		ignore: Array = []) -> bool:
 	var d := to_anchor - from_anchor
-	var climber: bool = mover != null and mover.has_feature("second_story_work")
+	var climber: bool = mover != null and mover.is_climber()
 	for c in footprint(from_anchor, creature_size):
 		if not can_step(c, c + d, climber):
 			return false
@@ -464,11 +464,16 @@ func can_see(observer: Node, target: Node) -> bool:
 
 # ---------- 판정 연결 ----------
 
+## 생물의 높이 = 칸 높이 + 고도(비행·부양).
+func elevation(c: Node) -> int:
+	return height(cell_of(c)) + int(c.altitude)
+
+
 ## Resolver.attack에 넘길 상황(ctx)을 격자에서 계산한다.
 ## 거리, 높이 차, 볼 수 없는 대상·공격자(SRD Unseen Attackers and Targets), 공포 원인 시야.
 func attack_context(attacker: Node, target: Node) -> Dictionary:
 	var ctx := {"distance_tiles": distance_between(attacker, target),
-		"height_diff": height(cell_of(attacker)) - height(cell_of(target)),
+		"height_diff": elevation(attacker) - elevation(target),
 		"advantage": [], "disadvantage": []}
 	if not can_see(attacker, target):
 		ctx["disadvantage"].append("보이지 않는 대상")

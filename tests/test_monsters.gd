@@ -22,7 +22,7 @@ func _world() -> Dictionary:
 
 func test_all_monsters_spawn() -> void:
 	var ids: Array = RulesDB.ids("monster")
-	assert_true(ids.size() >= 15 and ids.size() <= 20, "1차 몬스터 15~20종(%d)" % ids.size())
+	assert_true(ids.size() >= 15 and ids.size() <= 22, "1차 몬스터 15~20종 + 소환 형태(%d)" % ids.size())
 	for id: String in ids:
 		var m := _m(id)
 		assert_true(m.hp_max > 0 and m.ac() > 0, id)

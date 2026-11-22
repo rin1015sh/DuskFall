@@ -124,6 +124,12 @@
                 "other_sees_invisible",
                 "attacker_cannot_see"
               ]
+            },
+            "attacker_types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
@@ -312,6 +318,18 @@
               "minimum": 0
             },
             "cannot_act": {
+              "type": "boolean"
+            },
+            "flying": {
+              "type": "boolean"
+            },
+            "climber": {
+              "type": "boolean"
+            },
+            "ethereal": {
+              "type": "boolean"
+            },
+            "water_walk": {
               "type": "boolean"
             }
           }

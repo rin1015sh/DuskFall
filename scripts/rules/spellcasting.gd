@@ -158,6 +158,9 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 		return "주문 슬롯이 없다"
 	if caster.has_condition("incapacitated"):
 		return "무력화"
+	if spell.get("components", {}).get("verbal", false) and world.has("grid") and world["grid"].creatures().has(caster) \
+			and world["grid"].has_flag(world["grid"].cell_of(caster), "silence"):
+		return "침묵 구역에서는 음성 구성 요소 주문을 쓸 수 없다"
 	var grid: Node = world["grid"]
 	if spell["range"]["type"] in ["tiles", "touch"]:
 		var rt := range_tiles(spell)
@@ -546,6 +549,8 @@ static func end_instance(id: int) -> void:
 				t.senses = r["senses"]
 			"senses":
 				t.senses = r["value"]
+			_:
+				t.set(r["field"], r["value"])  # 고도·편(team)·무게 등 그대로 되돌림
 	if world.has("grid"):
 		var grid: Node = world["grid"]
 		var key := "spell_%d" % id
@@ -561,6 +566,9 @@ static func end_instance(id: int) -> void:
 				grid.light_sources.erase(src)
 	if inst.has("on_end"):
 		inst["on_end"].call()
+	# 람다가 인스턴스를 붙잡는 순환 참조를 끊는다
+	inst.erase("on_end")
+	inst["auras"] = []
 	Dice.log_text("%s 효과가 끝났다" % RulesDB.get_entry("spell", inst["spell"])["name"]["en"])
 
 
@@ -623,6 +631,15 @@ static func on_turn_end(world: Dictionary, c: Node) -> void:
 		for aura: Dictionary in inst["auras"]:
 			if aura.has("on_turn_end"):
 				aura["on_turn_end"].call(world, c)
+
+
+## 턴 시작(Blink 복귀 등).
+static func on_turn_start(world: Dictionary, c: Node) -> void:
+	_prune()
+	for inst: Dictionary in instances.values().duplicate():
+		for aura: Dictionary in inst["auras"]:
+			if aura.has("on_turn_start"):
+				aura["on_turn_start"].call(world, c)
 
 
 ## 이동 한 걸음 뒤(오라 진입 등).

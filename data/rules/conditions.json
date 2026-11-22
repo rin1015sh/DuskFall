@@ -596,6 +596,163 @@
       ],
       "notes_ko": "무기 액션 '꿰뚫기': 이 생물을 노린 공격 굴림이 유리.",
       "source": "original"
+    },
+    {
+      "id": "flying",
+      "name": {
+        "ko": "비행",
+        "en": "Flying"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "flags": {
+        "flying": true,
+        "climber": true
+      },
+      "notes_ko": "Fly·비행 생물: 높이·지형·바닥 표면을 무시하고 움직인다. 고도는 생물 값(altitude).",
+      "source": "original"
+    },
+    {
+      "id": "levitating",
+      "name": {
+        "ko": "공중 부양",
+        "en": "Levitating"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "flags": {
+        "speed_zero": true
+      },
+      "notes_ko": "Levitate: 떠 있어 스스로 걷지 못한다(벽·천장을 밀어야 함 — 1차 생략).",
+      "source": "original"
+    },
+    {
+      "id": "ethereal",
+      "name": {
+        "ko": "에테르",
+        "en": "Ethereal"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "flags": {
+        "ethereal": true
+      },
+      "notes_ko": "Blink: 다른 차원에 있어 공격·범위의 대상이 되지 않는다. 자기 턴 시작에 돌아온다.",
+      "source": "original"
+    },
+    {
+      "id": "spider_climbing",
+      "name": {
+        "ko": "거미 걸음",
+        "en": "Spider Climbing"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "flags": {
+        "climber": true
+      },
+      "notes_ko": "Spider Climb: 오르기 지점이 아닌 벽·높은 칸도 오르내린다.",
+      "source": "original"
+    },
+    {
+      "id": "water_walking",
+      "name": {
+        "ko": "물 위 걷기",
+        "en": "Water Walking"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "flags": {
+        "water_walk": true
+      },
+      "notes_ko": "Water Walk: 물 표면의 효과를 받지 않는다.",
+      "source": "original"
+    },
+    {
+      "id": "water_breathing",
+      "name": {
+        "ko": "수중 호흡",
+        "en": "Water Breathing"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "Water Breathing: 깊은 물 지형 페널티 없음(깊은 물은 1차 맵에 없음).",
+      "source": "original"
+    },
+    {
+      "id": "warded",
+      "name": {
+        "ko": "수호의 결속",
+        "en": "Warded"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "ac",
+          "add": 1
+        },
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "acid",
+            "bludgeoning",
+            "cold",
+            "fire",
+            "force",
+            "lightning",
+            "necrotic",
+            "piercing",
+            "poison",
+            "psychic",
+            "radiant",
+            "slashing",
+            "thunder"
+          ]
+        }
+      ],
+      "notes_ko": "Warding Bond: AC +1, 모든 피해 저항(내성 +1은 스크립트), 받은 피해만큼 시전자도 받는다.",
+      "source": "original"
+    },
+    {
+      "id": "protected_from_types",
+      "name": {
+        "ko": "선악 보호",
+        "en": "Protected"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "disadvantage",
+          "attacker_types": [
+            "aberration",
+            "celestial",
+            "elemental",
+            "fey",
+            "fiend",
+            "undead"
+          ]
+        }
+      ],
+      "notes_ko": "Protection from Evil and Good: 해당 종류 생물의 공격 굴림이 불리.",
+      "source": "original"
+    },
+    {
+      "id": "cursed",
+      "name": {
+        "ko": "저주",
+        "en": "Cursed"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "Bestow Curse: 효과는 시전 인스턴스(선택한 저주)가 붙인다.",
+      "source": "original"
     }
   ]
 }

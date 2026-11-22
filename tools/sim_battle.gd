@@ -113,7 +113,10 @@ func run_once(enc: Dictionary) -> Dictionary:
 				slots_after += int(c.resources[k]["current"])
 	var out := {"win": tm.result == "victory", "rounds": tm.round_number, "downs": downs["n"],
 		"deaths": b["party"].filter(func(c: Node) -> bool: return c.dead).size(), "slots": slots_before - slots_after}
-	load("res://scripts/rules/spellcasting.gd").instances.clear()
+	var Sp: Variant = load("res://scripts/rules/spellcasting.gd")
+	for id: Variant in Sp.instances.keys():
+		Sp.end_instance(id)
+	Sp.instances.clear()
 	for n: Node in [w["grid"], w["surfaces"], w["reactions"], w["turns"]] + b["party"] + foes:
 		if is_instance_valid(n):
 			n.free()

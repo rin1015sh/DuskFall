@@ -105,6 +105,8 @@ var awareness := {}
 var faction := ""
 ## 무기 공격에 붙는 추가 피해(예: 고블린 '유리면 +1d4'): [{"dice", "damage_type"(없으면 무기 유형), "when": "advantage"}]
 var attack_riders: Array = []
+## 고도(공중 높이 단계): Fly·Levitate. 0이면 땅.
+var altitude := 0
 
 
 ## 여러 값을 한 번에 넣는다(테스트·데이터 로드용).
@@ -257,6 +259,11 @@ func has_flag(flag: String) -> bool:
 		if v != null and v != false:
 			return true
 	return false
+
+
+## 오르기 지점 없이 높이 차를 오르내린다(2층 작업·Spider Climb·비행).
+func is_climber() -> bool:
+	return has_feature("second_story_work") or has_flag("climber") or has_flag("flying")
 
 
 func is_incapacitated() -> bool:

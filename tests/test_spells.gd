@@ -298,9 +298,10 @@ func test_slow_penalties() -> void:
 	assert_false(g.can_react(), "반응 불가")
 
 
-func test_script_spells_not_yet_implemented_are_blocked() -> void:
-	var w := _world()
-	var wiz := _pc("wizard", 3)
-	w["grid"].place(wiz, Vector2i(0, 0))
-	wiz.spells.append("suggestion")
-	assert_eq(Spellcasting.can_cast(w, wiz, "suggestion", Vector2i(1, 0)), "아직 구현하지 않은 주문", "대화 주문은 6단계")
+func test_all_script_spells_implemented() -> void:
+	# 모든 스크립트 주문이 구현됐다(구현 어려운 것 묶음 1, 2026-11-22)
+	for e: Dictionary in RulesDB.entries("spell"):
+		if e.has("script") and e["game_status"] == "included":
+			var inst: Object = load("res://scripts/rules/features.gd").script_for(e["script"])
+			assert_true(inst != null and inst.is_implemented(), "%s(%s)" % [e["id"], e["script"]])
+

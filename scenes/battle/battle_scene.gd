@@ -94,6 +94,7 @@ class Highlights extends Node2D:
 	func _draw() -> void:
 		var g: Node = scene.world["grid"]
 		var d: Dictionary = scene.preview_data
+		_entities(g)
 		if scene.exploring:
 			_explore_marks(g)
 		for c: Vector2i in d.get("area", []):
@@ -114,6 +115,21 @@ class Highlights extends Node2D:
 			_cell(g, cell, Color(1, 1, 1, 0.08), col)
 
 	## 탐험 표시: 은신 중이면 적 시야 원뿔(칸 빛 단계별 색 — 5단계), 찾은 함정(붉게), 살펴볼 것(노랗게).
+	## 주문이 남긴 존재(Spiritual Weapon·Flaming Sphere·Mage Hand·환영·침묵·오두막)
+	func _entities(g: Node) -> void:
+		const COL := {"spiritual_weapon": Color(0.75, 0.8, 1.0), "flaming_sphere": Color(1.0, 0.5, 0.15), "mage_hand": Color(0.6, 0.9, 0.8),
+			"illusion": Color(0.75, 0.6, 1.0), "silence": Color(0.6, 0.6, 0.7), "tiny_hut": Color(0.9, 0.8, 0.5)}
+		for inst: Dictionary in preload("res://scripts/rules/spellcasting.gd").instances.values():
+			var e: Dictionary = inst.get("entity", {})
+			if e.is_empty():
+				continue
+			var cell: Vector2i = e["cell"]
+			var p := V.top(cell, g.height(cell)) + Vector2(V.T * 0.5, V.T * 0.4)
+			var col: Color = COL.get(e["kind"], Color.WHITE)
+			var r := 26.0 if e["kind"] in ["silence", "tiny_hut"] else 13.0
+			draw_circle(p + Vector2(0, -18), r, Color(col, 0.35))
+			draw_arc(p + Vector2(0, -18), r, 0, TAU, 32, col, 2.0, true)
+
 	func _explore_marks(g: Node) -> void:
 		var sneaking := false
 		for p: Node in scene.party:
@@ -148,7 +164,7 @@ func _ready() -> void:
 	UiText.lang = args.get("lang", "ko")
 	Dice.set_seed(int(args.get("seed", "7")))
 	var map_id: String = args.get("map", "fallen_watch")
-	var b := Roster.build(map_id)
+	var b := Roster.build(map_id, int(args.get("level", "1")))
 	world = b["world"]
 	party = b["party"]
 	foes = b["foes"]
@@ -332,7 +348,7 @@ func _advance() -> void:
 		if group.is_empty():
 			break
 		var c: Node = group[0]
-		var ai: bool = c.team != "party" or args.has("autoplay") or steps_left > 0
+		var ai: bool = c.team != "party" or c.has_meta("summoner") or args.has("autoplay") or steps_left > 0
 		if not ai:
 			if not group.has(selected):
 				selected = group[0]
@@ -342,6 +358,22 @@ func _advance() -> void:
 				for m: Node in group:
 					if m.name == args["select"]:
 						selected = m
+			if args.has("precast"):
+				# 시험용: --precast=주문@x,y[;주문@x,y]
+				var pc: Node = selected
+				for o: Node in party:
+					if o.name == args.get("select", ""):
+						pc = o
+				for part: String in args["precast"].split(";"):
+					var sp: PackedStringArray = part.split("@")
+					var xy: PackedStringArray = sp[1].split(",")
+					pc.spells.append(sp[0])
+					pc.reset_turn()
+					var pr: Dictionary = Spellcasting.cast(world, pc, sp[0], Vector2i(int(xy[0]), int(xy[1])))
+					if not pr.get("ok", false):
+						print("precast ", sp[0], ": ", pr.get("reason", ""))
+				args.erase("precast")
+				map_view.refresh()
 			if args.has("mode"):
 				mode = args["mode"]
 				if mode.begins_with("act:"):
@@ -1129,6 +1161,12 @@ func _refresh() -> void:
 	for c: Node in party:
 		party_box.add_child(_party_card(c))
 	log_box.visible = log_forced or not exploring
+	for m: Node in world.get("summons", []):
+		if is_instance_valid(m) and not views.has(m) and world["grid"].creatures().has(m):
+			var mv: Node2D = ActorView.new()
+			mv.setup(m, world["grid"])
+			sorted.add_child(mv)
+			views[m] = mv
 	minimap.party = party
 	minimap.center_creature = selected if selected != null else (party[0] if not party.is_empty() else null)
 	if sheet.visible and selected != null:

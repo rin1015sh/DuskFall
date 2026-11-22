@@ -364,6 +364,10 @@ func _apply_layers(creature: Node, c: Vector2i, trigger: String) -> void:
 	for inst: Variant in [grid.surface(c), grid.cloud(c)]:
 		if inst == null or creature.dead:
 			continue
+		if inst == grid.surface(c) and (creature.has_flag("flying") or int(creature.altitude) > 0):
+			continue  # 공중에 있으면 바닥 표면을 밟지 않는다
+		if inst == grid.surface(c) and inst["id"] == "water" and creature.has_flag("water_walk"):
+			continue
 		var def := RulesDB.get_entry("surface", inst["id"])
 		if trigger == "enter":
 			for eff: Dictionary in def.get("on_move", []):

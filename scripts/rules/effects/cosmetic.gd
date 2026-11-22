@@ -1,3 +1,14 @@
 extends "res://scripts/rules/effect_script.gd"
-## 미구현 — 6단계(탐험·휴식)에서 구현한다.
-## 쓰는 주문: Druidcraft(included)
+## Druidcraft(소마법): 연출 전용, 규칙 효과 없음(주문 변환표).
+
+const U := preload("res://scripts/rules/spell_util.gd")
+const Resolver := preload("res://scripts/rules/resolver.gd")
+
+
+func is_implemented() -> bool:
+	return true
+
+
+func apply(ctx: Dictionary) -> Dictionary:
+	Dice.log_text("%s: 작은 자연 현상" % ctx["self"].label())
+	return {"ok": true}

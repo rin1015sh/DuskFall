@@ -35,6 +35,8 @@ static func can_attack(attacker: Node, target: Node) -> String:
 		return "공격자가 무력화 상태다"
 	if target.dead:
 		return "대상이 이미 죽었다"
+	if target.has_flag("ethereal") or attacker.has_flag("ethereal"):
+		return "다른 차원에 있다"  # Blink
 	for a in attacker.active_conditions():
 		if a["def"].get("flags", {}).get("cannot_attack_source", false) and a["instance"]["source"] == target:
 			return "매혹한 상대는 공격할 수 없다"
@@ -211,6 +213,8 @@ static func _add_adv(m: Dictionary, roll: String, side: String, owner: Node, oth
 		return
 	if e.has("ability") and not ability in e["ability"]:
 		return
+	if e.has("attacker_types") and (other == null or not other.creature_type in e["attacker_types"]):
+		return  # Protection from Evil and Good
 	var dist := int(res.get("distance", 1))
 	match e.get("range", ""):
 		"adjacent":

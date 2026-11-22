@@ -113,7 +113,8 @@ func _place_sprite() -> void:
 	if sprite.texture == null:
 		return
 	var size: Vector2 = sprite.texture.get_size() * sprite.scale
-	var lift: float = grid.height(grid.cell_of(creature)) * V.STEP
+	# 비행·부양: 고도만큼 그림을 띄운다(그림자는 바닥에 남는다)
+	var lift: float = (grid.height(grid.cell_of(creature)) + int(creature.altitude)) * V.STEP
 	sprite.position = Vector2(-size.x / 2.0, -size.y + 4 - lift)
 	if _sheet:
 		var col: int = WALK_CYCLE[int(_walk_t * WALK_FPS) % WALK_CYCLE.size()] if not _path.is_empty() else 2
@@ -151,6 +152,7 @@ func screen_rect() -> Rect2:
 func _draw() -> void:
 	var lift: float = grid.height(grid.cell_of(creature)) * V.STEP
 	var foot := Vector2(0, -lift)
+	var air: float = int(creature.altitude) * V.STEP
 	var rad: float = V.T * 0.34 * grid.size_of(creature)
 	# 발밑 그림자
 	draw_set_transform(foot, 0, Vector2(1, 0.45))
@@ -162,7 +164,7 @@ func _draw() -> void:
 	if creature.dead:
 		return
 	var head: float = (sprite.texture.get_size().y * sprite.scale.y if sprite.texture else 60.0)
-	var top := foot + Vector2(0, -head - 6)
+	var top := foot + Vector2(0, -head - 6 - air)
 	var w := 46.0
 	var ratio: float = float(creature.hp) / maxf(creature.hp_max, 1)
 	draw_rect(Rect2(top + Vector2(-w / 2, 0), Vector2(w, 6)), Color(0, 0, 0, 0.7))

@@ -204,8 +204,17 @@ func regroup() -> void:
 			return
 
 
-func _on_enter_tile(c: Object, _cell: Vector2i) -> void:
-	if world.is_empty() or not world["grid"].creatures().has(c) or in_combat():
+func _on_enter_tile(c: Object, cell: Vector2i) -> void:
+	if world.is_empty() or not world["grid"].creatures().has(c):
+		return
+	# 함정 발동: 설치한 편(owner_team)이 있으면 그 반대편이 밟을 때(Glyph of Warding), 맵 함정은 전투 중에도 파티가 밟으면
+	for t: Dictionary in world.get("traps", []):
+		if t["state"] != "armed" or Vector2i(int(t["cell"][0]), int(t["cell"][1])) != cell:
+			continue
+		var owner: String = t.get("owner_team", "")
+		if (owner != "" and c.team != owner) or (owner == "" and c in party and in_combat()):
+			Interact.trigger(world, t, c)
+	if in_combat():
 		return
 	if c in party:
 		Interact.on_party_enter(world, c)

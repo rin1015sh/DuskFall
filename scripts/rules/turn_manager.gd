@@ -213,6 +213,12 @@ func notify_hostile_action(c: Node) -> void:
 		_pending.append(c)
 
 
+## 전투 중 새로 나타난 생물(소환체 등)은 다음 라운드부터 참가한다.
+func add_participant(c: Node) -> void:
+	if in_combat and not c in order and not c in _pending:
+		_pending.append(c)
+
+
 func leave(c: Node) -> void:
 	order.erase(c)
 	for g: Array in groups:
@@ -259,6 +265,7 @@ func begin_turn(c: Node) -> void:
 	if world.get("surfaces") != null:
 		world["surfaces"].creature_turn_start(c)
 	Resolver.start_turn(c, {"in_combat": in_combat})
+	load("res://scripts/rules/spellcasting.gd").on_turn_start(world, c)
 	for k: String in c.cooldowns.keys():
 		c.cooldowns[k] = maxi(int(c.cooldowns[k]) - 1, 0)
 	if not c.has_flag("cannot_act"):

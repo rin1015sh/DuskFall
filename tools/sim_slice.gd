@@ -168,6 +168,8 @@ func play() -> Dictionary:
 			out["bugs"].append("긴 휴식 뒤 HP가 덜 찼다")
 	out["finished"] = out["zones"].size() == ROUTE.size() and out["zones"].values().all(func(z: Dictionary) -> bool: return z["win"] == 1 or z.get("dialogue", 0) == 1)
 	root.get_node("EventBus").on_hp_zero.disconnect(on_zero)
+	for id: Variant in Spellcasting.instances.keys():
+		Spellcasting.end_instance(id)
 	Spellcasting.instances.clear()
 	for n: Node in nodes:
 		if is_instance_valid(n):
