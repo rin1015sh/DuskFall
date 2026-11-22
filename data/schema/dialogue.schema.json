@@ -1,0 +1,91 @@
+{
+  "$comment": "dialogue 파일 스키마(룰북 5단계 대화 판정과 영감, 2단계 보이는 굴림·자동 판정). 파일 하나 = 대화 하나.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "speaker", "attitude", "start", "nodes", "source"],
+  "properties": {
+    "schema": {"const": "dialogue_v1"},
+    "note_ko": {"type": "string"},
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+    "speaker": {"$ref": "#/$defs/text"},
+    "attitude": {"enum": ["friendly", "indifferent", "hostile"]},
+    "start": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+    "nodes": {"type": "array", "items": {"$ref": "#/$defs/node"}},
+    "source": {"enum": ["SRD 5.2.1", "original"]}
+  },
+  "$defs": {
+    "text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ko", "en"],
+      "properties": {"ko": {"type": "string"}, "en": {"type": "string"}}
+    },
+    "ability": {"enum": ["str", "dex", "con", "int", "wis", "cha"]},
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "text"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "text": {"$ref": "#/$defs/text"},
+        "auto": {"type": "array", "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ability", "dc", "tag", "line"],
+          "properties": {
+            "ability": {"$ref": "#/$defs/ability"},
+            "skill": {"type": "string"},
+            "dc": {"type": "integer"},
+            "tag": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+            "line": {"$ref": "#/$defs/text"}
+          }
+        }},
+        "options": {"type": "array", "items": {"$ref": "#/$defs/option"}},
+        "effects": {"type": "array", "items": {"$ref": "#/$defs/effect"}},
+        "end": {"type": "boolean"}
+      }
+    },
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text"],
+      "properties": {
+        "text": {"$ref": "#/$defs/text"},
+        "requires": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}},
+        "goto": {"type": "string"},
+        "check": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ability"],
+          "properties": {
+            "ability": {"$ref": "#/$defs/ability"},
+            "skill": {"type": "string"},
+            "dc": {"type": "integer"}
+          }
+        },
+        "save": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ability", "dc"],
+          "properties": {"ability": {"$ref": "#/$defs/ability"}, "dc": {"type": "integer"}}
+        },
+        "success": {"type": "string"},
+        "fail": {"type": "string"},
+        "effects": {"type": "array", "items": {"$ref": "#/$defs/effect"}}
+      }
+    },
+    "effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {"enum": ["set_flag", "give_item", "gold", "inspiration_goal", "hostile", "end"]},
+        "flag": {"type": "string"},
+        "item": {"type": "string"},
+        "count": {"type": "integer"},
+        "add": {"type": "integer"},
+        "goal": {"type": "string"}
+      }
+    }
+  }
+}

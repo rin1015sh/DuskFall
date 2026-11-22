@@ -145,6 +145,30 @@
         "radius": 1
       },
       "art": "barrel.intact"
+    },
+    {
+      "cell": [
+        13,
+        10
+      ],
+      "id": "chest",
+      "material": "wood",
+      "hp": 12,
+      "ac": 15,
+      "blocks_movement": true,
+      "art": "chest.locked",
+      "art_open": "chest.open",
+      "lock": {
+        "dc": 15,
+        "key": "",
+        "locked": true
+      },
+      "loot": {
+        "potion_of_healing": 2,
+        "gold": 30
+      },
+      "owner": "goblin_warrior",
+      "owner_dialogue": "goblin_toll"
     }
   ],
   "spawns": [
@@ -181,13 +205,22 @@
       "cell": [
         12,
         3
-      ]
+      ],
+      "facing": [
+        0,
+        1
+      ],
+      "dialogue": "goblin_toll"
     },
     {
       "id": "goblin_b",
       "cell": [
         13,
         4
+      ],
+      "facing": [
+        1,
+        0
       ]
     },
     {
@@ -195,6 +228,10 @@
       "cell": [
         11,
         8
+      ],
+      "facing": [
+        1,
+        0
       ]
     },
     {
@@ -202,6 +239,10 @@
       "cell": [
         13,
         9
+      ],
+      "facing": [
+        0,
+        -1
       ]
     }
   ],
@@ -399,5 +440,61 @@
         ]
       }
     ]
-  }
+  },
+  "traps": [
+    {
+      "id": "dart_plate",
+      "cell": [
+        6,
+        7
+      ],
+      "dc_find": 13,
+      "dc_disarm": 13,
+      "save": {
+        "ability": "dex",
+        "dc": 13
+      },
+      "half_on_save": true,
+      "radius": 0,
+      "art": "pressure_plate.up",
+      "effects": [
+        {
+          "type": "damage",
+          "dice": "2d4",
+          "damage_type": "piercing"
+        }
+      ]
+    }
+  ],
+  "examines": [
+    {
+      "id": "old_skeleton",
+      "cell": [
+        5,
+        8
+      ],
+      "ability": "int",
+      "skill": "investigation",
+      "dc": 12,
+      "name": {
+        "ko": "오래된 해골",
+        "en": "Old Skeleton"
+      },
+      "success": {
+        "text": {
+          "ko": "뼈 사이에서 녹슨 도둑 도구를 찾았다.",
+          "en": "You find rusty thieves' tools among the bones."
+        },
+        "items": [
+          "thieves_tools"
+        ]
+      },
+      "fail": {
+        "text": {
+          "ko": "그냥 오래된 해골이다.",
+          "en": "Just an old skeleton."
+        }
+      }
+    }
+  ]
 }

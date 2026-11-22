@@ -1,0 +1,207 @@
+extends RefCounted
+## 휴식·캠프(룰북 7단계). 상태 없음 — 파티 상태는 world에.
+##   world["short_rests_left"]: 긴 휴식 사이 남은 짧은 휴식(기본 2)
+##   world["party_resources"]["camp_supplies"]: 보급품 수치(Create Food and Water 등) + 소지품 음식의 camp_supplies
+##   world["inventory"]["gold"]: 캠프 서비스(부활 200gp·재분배 100gp)
+##   world["inspiration"]: 파티 공용 영감(최대 4)
+
+const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
+const Interact := preload("res://scripts/rules/interact.gd")
+const Stealth := preload("res://scripts/rules/stealth.gd")
+
+const SHORT_RESTS := 2
+const LONG_REST_SUPPLIES := 40
+const SHORT_REST_TURNS := 600  # 1시간 = 600턴: 100턴 이하 지속 효과가 모두 끝난다
+const REVIVE_GP := 200
+const RESPEC_GP := 100
+const INSPIRATION_MAX := 4
+
+
+## 휴식할 수 없는 이유("" = 가능): 전투 중, 적이 의심 단계 이상.
+static func blocked_reason(world: Dictionary, party: Array) -> String:
+	if world.get("turns") != null and world["turns"].in_combat:
+		return "전투 중에는 쉴 수 없다"
+	for o: Node in world["grid"].creatures():
+		if o.dead or o.team == "party":
+			continue
+		for p: Node in party:
+			if o.awareness.get(p, {}).get("state", "") != "":
+				return "적이 경계하고 있다"
+	return ""
+
+
+# ---------- 짧은 휴식 ----------
+
+## 짧은 휴식: 긴 휴식 사이 2회, 활성 파티원 HP를 최대치 절반만큼 회복, 짧은 휴식 자원 회복, 1시간 경과.
+static func short_rest(world: Dictionary, party: Array) -> Dictionary:
+	var why := blocked_reason(world, party)
+	if why == "" and int(world.get("short_rests_left", SHORT_RESTS)) <= 0:
+		why = "짧은 휴식을 모두 썼다"
+	if why != "":
+		return {"ok": false, "reason": why}
+	world["short_rests_left"] = int(world.get("short_rests_left", SHORT_RESTS)) - 1
+	pass_time(world, SHORT_REST_TURNS)
+	for c: Node in party:
+		if c.dead:
+			continue
+		_heal_to(c, mini(c.hp_max, c.hp + c.hp_max / 2))
+		for id: String in c.resources:
+			var r: Dictionary = c.resources[id]
+			match r.get("recharge", ""):
+				"short":
+					r["current"] = r["max"]
+				"short_one":
+					r["current"] = mini(r["max"], r["current"] + 1)
+	EventBus.on_short_rest.emit()
+	Dice.log_text("짧은 휴식(남은 %d회)" % world["short_rests_left"])
+	return {"ok": true}
+
+
+# ---------- 긴 휴식 ----------
+
+static func supplies(world: Dictionary) -> int:
+	var total := int(world.get("party_resources", {}).get("camp_supplies", 0))
+	for item: String in world.get("inventory", {}):
+		var e := RulesDB.get_entry("item", item) if item != "gold" else {}
+		total += int(e.get("camp_supplies", 0)) * Interact.count(world, item)
+	return total
+
+
+## 보급품을 쓴다: 주문으로 만든 보급품 → 음식(값이 작은 것부터).
+static func _spend_supplies(world: Dictionary, need: int) -> void:
+	var pr: Dictionary = world.get("party_resources", {})
+	var from_pool := mini(need, int(pr.get("camp_supplies", 0)))
+	if from_pool > 0:
+		pr["camp_supplies"] = int(pr["camp_supplies"]) - from_pool
+		need -= from_pool
+	var foods: Array = []
+	for item: String in world.get("inventory", {}):
+		var e := RulesDB.get_entry("item", item) if item != "gold" else {}
+		if int(e.get("camp_supplies", 0)) > 0:
+			foods.append([int(e["camp_supplies"]), item])
+	foods.sort()
+	for f: Array in foods:
+		while need > 0 and Interact.take(world, f[1]):
+			need -= int(f[0])
+
+
+## 긴 휴식: 캠프 불가 구역이 아니어야 한다(Tiny Hut이면 가능). 보급품 40이면 전부 회복,
+## 모자라면 부분 휴식(HP·슬롯 최대치 절반까지, 짧은 휴식 충전 없음). 쉬는 동료(roster)도 긴 휴식은 받는다.
+## opts: {"tiny_hut": bool, "partial": bool(보급품이 있어도 부분 휴식을 고름), "roster": [쉬는 동료]}
+static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) -> Dictionary:
+	var why := blocked_reason(world, party)
+	if why != "":
+		return {"ok": false, "reason": why}
+	var grid: Node = world["grid"]
+	if not opts.get("tiny_hut", false):
+		for p: Node in party:
+			if not p.dead and grid.has_flag(grid.cell_of(p), "no_camp"):
+				return {"ok": false, "reason": "여기서는 캠프를 칠 수 없다"}
+	var full: bool = supplies(world) >= LONG_REST_SUPPLIES and not opts.get("partial", false)
+	if full:
+		_spend_supplies(world, LONG_REST_SUPPLIES)
+	pass_time(world, -1)
+	var everyone: Array = party.duplicate()
+	everyone.append_array(opts.get("roster", []))
+	for c: Node in everyone:
+		if c.dead:
+			continue
+		c.temp_hp = 0
+		c.death_saves = {"successes": 0, "failures": 0}
+		if full:
+			_heal_to(c, c.hp_max)
+			for id: String in c.resources:
+				c.resources[id]["current"] = c.resources[id]["max"]
+		else:
+			_heal_to(c, maxi(c.hp, c.hp_max / 2))
+			for id: String in c.resources:
+				var r: Dictionary = c.resources[id]
+				if id.begins_with("spell_slot_"):
+					r["current"] = maxi(r["current"], int(r["max"]) / 2)
+	if full:
+		world["short_rests_left"] = SHORT_RESTS
+	# 인간 '기지': 긴 휴식 때 공용 영감 +1(5단계)
+	for c: Node in party:
+		if not c.dead and c.species_id == "human":
+			add_inspiration(world, 1)
+	EventBus.on_long_rest.emit()
+	Dice.log_text("긴 휴식%s" % ("" if full else "(부분)"))
+	return {"ok": true, "partial": not full}
+
+
+static func _heal_to(c: Node, value: int) -> void:
+	if value > c.hp:
+		c.hp = value
+		c.stable = false
+		c.death_saves = {"successes": 0, "failures": 0}
+		c.remove_condition("unconscious")
+
+
+# ---------- 시간 경과 ----------
+
+## turns만큼 시간이 흐른다(-1 = 긴 휴식까지). 그 안에 끝나는 상태·수정치·집중·주문을 걷어낸다.
+## '긴 휴식까지' 주문은 긴 휴식에서만, '영구'는 끝나지 않는다.
+static func pass_time(world: Dictionary, turns: int) -> void:
+	for id: int in Spellcasting.instances.keys():
+		var inst: Dictionary = Spellcasting.instances[id]
+		if inst["world"] != world:
+			continue
+		var spell := RulesDB.get_entry("spell", inst["spell"])
+		var t: String = spell.get("duration", {}).get("type", "instant")
+		var ends := t == "turns" or t == "instant" or (turns < 0 and t == "until_long_rest")
+		if t == "turns" and turns >= 0:
+			ends = int(spell["duration"]["turns"]) <= turns
+		if ends:
+			Spellcasting.end_instance(id)
+	for c: Node in world["grid"].creatures():
+		for cond in c.conditions.duplicate():
+			var left: int = int(cond["turns_left"])
+			if (left > 0 and (turns < 0 or left <= turns)) or (turns < 0 and cond.get("until_long_rest", false)):
+				c.remove_condition(cond["id"])
+		for m in c.extra_modifiers.duplicate():
+			var left: int = int(m.get("turns_left", -1))
+			if (left > 0 and (turns < 0 or left <= turns)) or (turns < 0 and m.get("until_long_rest", false)):
+				c.extra_modifiers.erase(m)
+		if not c.concentration.is_empty():
+			var left: int = int(c.concentration.get("turns_left", -1))
+			if turns < 0 or (left > 0 and left <= turns):
+				c.break_concentration("시간 경과")
+	if world.get("surfaces") != null and turns != 0:
+		world["surfaces"].expire_timed(turns)
+
+
+# ---------- 영감 ----------
+
+## 공용 영감(최대 4). 이미 가득이면 넘친 만큼 돌려준다(경험치로 바꿀 몫).
+static func add_inspiration(world: Dictionary, n: int) -> int:
+	var cur := int(world.get("inspiration", 0))
+	var after := mini(INSPIRATION_MAX, cur + n)
+	world["inspiration"] = after
+	return n - (after - cur)
+
+
+# ---------- 캠프 서비스 ----------
+
+static func gold(world: Dictionary) -> int:
+	return Interact.count(world, "gold")
+
+
+## 캠프 부활(200gp, 시간 제한 없음): HP 1로 되살린다.
+static func camp_revive(world: Dictionary, c: Node) -> Dictionary:
+	if not c.dead:
+		return {"ok": false, "reason": "죽지 않았다"}
+	if not Interact.take(world, "gold", REVIVE_GP):
+		return {"ok": false, "reason": "골드가 모자란다"}
+	c.dead = false
+	c.hp = 1
+	c.stable = false
+	c.death_saves = {"successes": 0, "failures": 0}
+	c.remove_condition("unconscious")
+	return {"ok": true}
+
+
+## 재분배(100gp): 값을 치르고 캐릭터 만들기 화면을 다시 연다(화면 쪽에서).
+static func pay_respec(world: Dictionary) -> Dictionary:
+	if not Interact.take(world, "gold", RESPEC_GP):
+		return {"ok": false, "reason": "골드가 모자란다"}
+	return {"ok": true}

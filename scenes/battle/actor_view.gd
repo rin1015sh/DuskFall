@@ -25,6 +25,7 @@ var _walk_t := 0.0
 var _flash := 0.0
 var _last_hp := -1
 var _cell := Vector2i(-1, -1)
+var _last_facing := Vector2i.ZERO
 
 
 func setup(c: Node, g: Node) -> void:
@@ -64,6 +65,10 @@ func sync() -> void:
 		_face(d)
 		_path.append(_foot(cell))
 		_cell = cell
+	if creature.facing != _last_facing:
+		# 규칙 쪽에서 바라보는 쪽을 바꿨다(의심해 돌아봄 등)
+		_last_facing = creature.facing
+		_face(creature.facing)
 	if creature.hp < _last_hp:
 		_flash = 0.35
 	_last_hp = creature.hp
@@ -78,6 +83,15 @@ func sync() -> void:
 	sprite.rotation = deg_to_rad(-80) if (creature.is_down() or creature.dead) else 0.0
 	_place_sprite()
 	queue_redraw()
+
+
+## 불러오기 등으로 칸이 순간 바뀌었을 때 걷지 않고 바로 놓는다.
+func snap() -> void:
+	_path.clear()
+	_cell = grid.cell_of(creature)
+	position = _foot(_cell)
+	_last_hp = creature.hp
+	sync()
 
 
 ## 바라보는 쪽(공격 대상 등)
@@ -154,5 +168,17 @@ func _draw() -> void:
 	draw_rect(Rect2(top + Vector2(-w / 2, 0), Vector2(w, 6)), Color(0, 0, 0, 0.7))
 	var col2 := Color(0.3, 0.85, 0.35) if creature.team == "party" else Color(0.9, 0.3, 0.25)
 	draw_rect(Rect2(top + Vector2(-w / 2 + 1, 1), Vector2((w - 2) * ratio, 4)), col2)
+	# 알아챔 표시(5단계): 의심·수색 = ?, 발견 = !
+	var mark := ""
+	for k in creature.awareness:
+		var st: String = creature.awareness[k].get("state", "")
+		if st == "alerted":
+			mark = "!"
+		elif st != "" and mark == "":
+			mark = "?"
+	if mark != "":
+		var f := ThemeDB.fallback_font
+		draw_string(f, top + Vector2(-6, -8), mark, HORIZONTAL_ALIGNMENT_LEFT, -1, 26,
+			Color(1, 0.25, 0.2) if mark == "!" else Color(1, 0.85, 0.2))
 	if creature.temp_hp > 0:
 		draw_rect(Rect2(top + Vector2(-w / 2, -3), Vector2(minf(w, creature.temp_hp * 4.0), 2)), Color(0.6, 0.8, 1.0))

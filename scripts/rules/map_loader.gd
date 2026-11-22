@@ -5,7 +5,8 @@ extends RefCounted
 const LIGHT := {"bright": 2, "dim": 1, "dark": 0}
 
 
-## 결과: {"spawns": {spawn id: Vector2i}}
+## 결과: {"spawns": {spawn id: Vector2i}, "spawn_info": {spawn id: {"facing", "dialogue", "team"}},
+##        "traps": [...], "examines": [...]} — 함정·살펴보기는 world["traps"]·world["examines"]에 넣는다(Interact).
 static func load_into(grid: Node, surfaces: Node, map: Dictionary) -> Dictionary:
 	var rows: Array = map["rows"]
 	var w: int = rows[0].length()
@@ -43,9 +44,22 @@ static func load_into(grid: Node, surfaces: Node, map: Dictionary) -> Dictionary
 		obj.erase("cell")
 		grid.place_object(_cell(o["cell"]), obj)
 	var spawns := {}
+	var info := {}
 	for s: Dictionary in map.get("spawns", []):
 		spawns[s["id"]] = _cell(s["cell"])
-	return {"spawns": spawns}
+		var i := {}
+		if s.has("facing"):
+			i["facing"] = _cell(s["facing"])
+		for k: String in ["dialogue", "team"]:
+			if s.has(k):
+				i[k] = s[k]
+		info[s["id"]] = i
+	var traps: Array = []
+	for t: Dictionary in map.get("traps", []):
+		var tt := t.duplicate(true)
+		tt["state"] = "armed"
+		traps.append(tt)
+	return {"spawns": spawns, "spawn_info": info, "traps": traps, "examines": map.get("examines", []).duplicate(true)}
 
 
 static func load_map(id: String) -> Dictionary:

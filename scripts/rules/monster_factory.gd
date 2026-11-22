@@ -54,6 +54,8 @@ static func spawn(id: String, team: String = "enemy") -> Node:
 	c.attacks_per_action = int(m.get("multiattack", {}).get("count", 1))
 	c.weapon_sets = {"melee": {"main": "", "off": ""}, "ranged": {"main": ""}}
 	c.known_reactions = ["opportunity_attack"]
+	c.sight_tiles = int(m.get("sight_cone_tiles", 8))
+	c.faction = id
 	c.reset_turn()
 	return c
 

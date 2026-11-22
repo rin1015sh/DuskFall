@@ -90,6 +90,17 @@ var save_advantage_abilities: Array = []
 var creature_type := "humanoid"
 ## 크기: "small" | "medium" | "large"
 var size := "medium"
+# ---------- 탐험(5단계) ----------
+## 바라보는 방향(8방향 단위 벡터). 시야 원뿔이 이 방향으로 열린다.
+var facing := Vector2i(0, 1)
+## 시야 원뿔 길이(칸). 몬스터 데이터 sight_cone_tiles(기본 8).
+var sight_tiles := 8
+## 탐험 중 은신 켜짐(비용 없이 켜고 끔 — 5단계)
+var sneaking := false
+## 적이 이 생물을 얼마나 알아챘나: {대상 생물 → {"state": "suspicious"|"searching"|"alerted", "last": 칸}}
+var awareness := {}
+## 소유자 ID(절도·목격 — 이 생물이 무엇의 주인인가는 물체의 owner)
+var faction := ""
 ## 무기 공격에 붙는 추가 피해(예: 고블린 '유리면 +1d4'): [{"dice", "damage_type"(없으면 무기 유형), "when": "advantage"}]
 var attack_riders: Array = []
 

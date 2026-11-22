@@ -113,6 +113,46 @@
         ]
       },
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "thieves_tools",
+      "name": {
+        "ko": "도둑 도구",
+        "en": "Thieves' Tools"
+      },
+      "category": "tool",
+      "rarity": "common",
+      "weight_kg": 0.45,
+      "price_gp": 25,
+      "material": "metal",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "trap_disarm_kit",
+      "name": {
+        "ko": "함정 해체 도구",
+        "en": "Trap Disarm Kit"
+      },
+      "category": "tool",
+      "rarity": "common",
+      "weight_kg": 0.45,
+      "price_gp": 25,
+      "material": "metal",
+      "source": "original"
+    },
+    {
+      "id": "rations",
+      "name": {
+        "ko": "식량",
+        "en": "Rations"
+      },
+      "category": "food",
+      "rarity": "common",
+      "weight_kg": 0.9,
+      "price_gp": 0.5,
+      "material": "cloth",
+      "camp_supplies": 10,
+      "source": "SRD 5.2.1"
     }
   ]
 }

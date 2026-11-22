@@ -1,0 +1,42 @@
+{
+  "schema": "dialogue_v1",
+  "note_ko": "예시 대화: 통행세를 요구하는 고블린 두목. 설득·위협·통찰 자동 판정·주문 해금 분기·적대 전환.",
+  "id": "goblin_toll",
+  "speaker": {"ko": "고블린 두목", "en": "Goblin Boss"},
+  "attitude": "hostile",
+  "start": "greet",
+  "source": "original",
+  "nodes": [
+    {
+      "id": "greet",
+      "text": {"ko": "멈춰! 이 길은 우리 거다. 지나가려면 금화 20닢을 내라.", "en": "Halt! This road is ours. Twenty gold to pass."},
+      "auto": [
+        {"ability": "wis", "skill": "insight", "dc": 12, "tag": "goblin_bluffing",
+          "line": {"ko": "(통찰) 목소리가 떨린다. 수가 적은 모양이다.", "en": "(Insight) Its voice wavers. They are few."}}
+      ],
+      "options": [
+        {"text": {"ko": "[설득] 우리끼리 싸워 봐야 손해다. 그냥 보내 줘.", "en": "[Persuasion] Fighting costs us both. Let us pass."},
+          "check": {"ability": "cha", "skill": "persuasion"}, "success": "let_pass", "fail": "angry"},
+        {"text": {"ko": "[위협] 너희 수가 적은 걸 안다. 비켜.", "en": "[Intimidation] I know you are few. Move."},
+          "requires": ["goblin_bluffing"], "check": {"ability": "cha", "skill": "intimidation", "dc": 12},
+          "success": "flee", "fail": "angry", "effects": [{"type": "inspiration_goal", "goal": "intimidate_foe"}]},
+        {"text": {"ko": "(속마음 읽기) 네가 정말 원하는 게 뭐지?", "en": "(Detect Thoughts) What do you really want?"},
+          "requires": ["thoughts"], "goto": "secret"},
+        {"text": {"ko": "여기 있다. (금화 20닢)", "en": "Here. (20 gold)"}, "goto": "paid"},
+        {"text": {"ko": "칼로 대답하지.", "en": "Steel is my answer."}, "goto": "fight"}
+      ]
+    },
+    {"id": "let_pass", "text": {"ko": "...좋아. 오늘만이다.", "en": "...Fine. Just today."},
+      "effects": [{"type": "set_flag", "flag": "goblin_toll_passed"}], "end": true},
+    {"id": "flee", "text": {"ko": "고블린들이 슬금슬금 물러난다.", "en": "The goblins slink away."},
+      "effects": [{"type": "set_flag", "flag": "goblin_toll_passed"}], "end": true},
+    {"id": "secret", "text": {"ko": "(배가 고프다... 동굴 안 상자에 먹을 게 있는데 열쇠를 잃어버렸다.)", "en": "(So hungry... food in the cave chest, but the key is lost.)"},
+      "effects": [{"type": "set_flag", "flag": "knows_cave_chest"}],
+      "options": [{"text": {"ko": "돌아간다.", "en": "Back."}, "goto": "greet"}]},
+    {"id": "paid", "text": {"ko": "히히, 지나가라.", "en": "Heh, go on."},
+      "effects": [{"type": "gold", "add": -20}, {"type": "set_flag", "flag": "goblin_toll_passed"}], "end": true},
+    {"id": "angry", "text": {"ko": "말이 많군! 놈들을 쳐라!", "en": "Too much talk! Get them!"},
+      "effects": [{"type": "hostile"}]},
+    {"id": "fight", "text": {"ko": "덤벼라!", "en": "Come on, then!"}, "effects": [{"type": "hostile"}]}
+  ]
+}

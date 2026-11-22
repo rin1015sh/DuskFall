@@ -268,6 +268,22 @@ func _tick_layer(c: Vector2i, ground: bool) -> void:
 		grid.set_cloud(c, null)
 
 
+## 긴 시간이 흐름(휴식): 시간 제한 표면·구름이 turns 안에 끝나면 걷어낸다(-1 = 전부). 번짐은 따지지 않는다.
+## 끝나며 바뀌는 표면(expires_to)은 바뀐 뒤 남은 시간도 따져 한 번 더 걷는다.
+func expire_timed(turns: int) -> void:
+	for c in grid.all_cells():
+		for ground: bool in [true, false]:
+			for _i in 2:
+				var inst: Variant = grid.surface(c) if ground else grid.cloud(c)
+				if inst == null or inst["turns_left"] < 0:
+					break
+				if turns >= 0 and inst["turns_left"] > turns:
+					inst["turns_left"] -= turns
+					break
+				inst["turns_left"] = 1
+				_tick_layer(c, ground)
+
+
 ## 다음 라운드 끝에 불이 번질 칸: 화염 표면의 직교 인접 가연성 칸(재질 또는 기름·거미줄 같은 가연성 표면).
 func preview_spread() -> Array[Vector2i]:
 	var out: Array[Vector2i] = []

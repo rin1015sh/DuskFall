@@ -39,6 +39,7 @@ res://
   data/classes/   <class>.json
   data/monsters/  <monster>.json
   data/maps/      <map>.json
+  data/dialogues/ <dialogue>.json (대화 노드·판정·효과)
   data/schema/    <kind>.schema.json
   scripts/rules/  엔진 코드, effects/ 스크립트 효과
   scenes/         표현(맵 씬, UI, 캐릭터). scenes/kit = 에셋 키트 창구(dungeon_kit.gd)

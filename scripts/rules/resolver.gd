@@ -625,7 +625,8 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 	so["against_conditions"] = fail.filter(func(e: Dictionary) -> bool: return e["type"] == "apply_condition").map(
 		func(e: Dictionary) -> String: return e["id"])
 	for t: Node in targets:
-		saves.append(saving_throw(t, check["ability"], int(check["dc"]), so))
+		# 내성 없는 효과(함정 등): check가 비면 굴리지 않고 실패로 친다
+		saves.append({"success": false, "auto": true} if check.is_empty() else saving_throw(t, check["ability"], int(check["dc"]), so))
 	for i in targets.size():
 		var t: Node = targets[i]
 		var s: Dictionary = saves[i]

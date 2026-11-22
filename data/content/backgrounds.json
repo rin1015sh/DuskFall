@@ -18,7 +18,10 @@
         "robe"
       ],
       "gold": 8,
-      "inspiration_goals": [],
+      "inspiration_goals": [
+        "show_mercy",
+        "uphold_faith"
+      ],
       "source": "SRD 5.2.1"
     },
     {
@@ -37,7 +40,10 @@
         "dagger"
       ],
       "gold": 16,
-      "inspiration_goals": [],
+      "inspiration_goals": [
+        "pick_lock",
+        "steal_unseen"
+      ],
       "source": "SRD 5.2.1"
     },
     {
@@ -56,7 +62,10 @@
         "robe"
       ],
       "gold": 8,
-      "inspiration_goals": [],
+      "inspiration_goals": [
+        "decipher_text",
+        "learn_secret"
+      ],
       "source": "SRD 5.2.1"
     },
     {
@@ -76,7 +85,10 @@
         "potion_of_healing"
       ],
       "gold": 14,
-      "inspiration_goals": [],
+      "inspiration_goals": [
+        "protect_ally",
+        "intimidate_foe"
+      ],
       "source": "SRD 5.2.1"
     }
   ]

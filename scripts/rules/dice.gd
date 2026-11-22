@@ -22,6 +22,15 @@ func set_seed(value: int) -> void:
 	_forced.clear()
 
 
+## 난수 상태(저장·불러오기). 같은 상태로 돌리면 다음 굴림이 같다(9단계 '불러오기로 다시 굴리기' 옵션).
+func get_state() -> int:
+	return _rng.state
+
+
+func set_state(value: int) -> void:
+	_rng.state = value
+
+
 ## 다음에 굴릴 주사위 눈을 차례로 정한다(테스트용). d20과 피해 주사위 모두 이 순서대로 쓴다.
 func force(values: Array) -> void:
 	for v: int in values:

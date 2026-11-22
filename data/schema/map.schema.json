@@ -228,6 +228,46 @@
           },
           "art": {
             "type": "string"
+          },
+          "lock": {
+            "type": "object",
+            "required": [
+              "dc",
+              "locked"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "dc": {
+                "enum": [
+                  10,
+                  15,
+                  20,
+                  25
+                ]
+              },
+              "key": {
+                "type": "string"
+              },
+              "locked": {
+                "type": "boolean"
+              }
+            }
+          },
+          "loot": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "owner": {
+            "type": "string"
+          },
+          "owner_dialogue": {
+            "type": "string"
+          },
+          "art_open": {
+            "type": "string"
           }
         }
       }
@@ -253,6 +293,26 @@
               "type": "integer",
               "minimum": 0
             }
+          },
+          "facing": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": -1,
+              "maximum": 1
+            }
+          },
+          "dialogue": {
+            "type": "string"
+          },
+          "team": {
+            "enum": [
+              "party",
+              "enemy",
+              "neutral"
+            ]
           }
         }
       }
@@ -265,6 +325,217 @@
     },
     "art": {
       "type": "object"
+    },
+    "traps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "cell",
+          "dc_find",
+          "dc_disarm",
+          "effects"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cell": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "dc_find": {
+            "type": "integer"
+          },
+          "dc_disarm": {
+            "type": "integer"
+          },
+          "save": {
+            "type": "object",
+            "required": [
+              "ability",
+              "dc"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ability": {
+                "enum": [
+                  "str",
+                  "dex",
+                  "con",
+                  "int",
+                  "wis",
+                  "cha"
+                ]
+              },
+              "dc": {
+                "type": "integer"
+              }
+            }
+          },
+          "half_on_save": {
+            "type": "boolean"
+          },
+          "radius": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "art": {
+            "type": "string"
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "damage",
+                    "apply_condition",
+                    "create_surface"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "examines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "cell",
+          "dc"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cell": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "ability": {
+            "enum": [
+              "str",
+              "dex",
+              "con",
+              "int",
+              "wis",
+              "cha"
+            ]
+          },
+          "skill": {
+            "type": "string"
+          },
+          "dc": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ko": {
+                "type": "string"
+              },
+              "en": {
+                "type": "string"
+              }
+            }
+          },
+          "success": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "type": "object",
+                "required": [
+                  "ko",
+                  "en"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "ko": {
+                    "type": "string"
+                  },
+                  "en": {
+                    "type": "string"
+                  }
+                }
+              },
+              "unlock": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "fail": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "type": "object",
+                "required": [
+                  "ko",
+                  "en"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "ko": {
+                    "type": "string"
+                  },
+                  "en": {
+                    "type": "string"
+                  }
+                }
+              },
+              "unlock": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

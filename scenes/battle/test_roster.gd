@@ -36,6 +36,20 @@ static func build(map_id: String = "test_arena", level: int = 1, monster: String
 			c = Builder.build(spec)["creature"]
 			c.set_meta("art", {"sheet": PARTY_ART.get(sid, "")})
 		c.name = sid
+		var info: Dictionary = loaded["spawn_info"].get(sid, {})
+		if info.has("facing"):
+			c.facing = info["facing"]
+		if info.has("team"):
+			c.team = info["team"]
+		if info.has("dialogue"):
+			c.set_meta("dialogue", info["dialogue"])
 		grid.place(c, loaded["spawns"][sid], int(c.get_meta("cells", 1)))
 		(party if c.team == "party" else foes).append(c)
+	world["traps"] = loaded["traps"]
+	world["examines"] = loaded["examines"]
+	world["map_id"] = map_id
+	# 시작 소지품(시험용): 도둑 도구·함정 해체 도구·식량·골드
+	world["inventory"] = {"thieves_tools": 1, "trap_disarm_kit": 1, "rations": 4, "gold": 40}
+	world["inspiration"] = 0
+	world["party"] = party
 	return {"world": world, "party": party, "foes": foes, "nodes": [grid, surfaces, rq, tm] + party + foes}
