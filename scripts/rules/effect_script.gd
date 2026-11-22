@@ -9,6 +9,8 @@ func is_implemented() -> bool:
 	return false
 
 
-## 효과를 적용한다. ctx 모양은 판정 엔진(1단계 이후)과 함께 정한다.
-func apply(_ctx: Dictionary) -> void:
+## 효과를 적용한다. ctx: {"world", "self"(기능을 가진 생물), "target", "opts", 훅이면 "res"(판정 결과)}
+## 결과 Dictionary를 돌려준다({"ok": bool, ...}).
+func apply(_ctx: Dictionary) -> Dictionary:
 	push_error("미구현 스크립트 효과: %s" % get_script().resource_path)
+	return {"ok": false, "reason": "미구현"}

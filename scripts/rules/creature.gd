@@ -64,6 +64,30 @@ var initiative := 0
 var level := 1
 var spellcasting_ability := ""
 var spells := []
+## 캐릭터 출신·클래스(캐릭터 생성기가 채운다)
+var class_id := ""
+var subclass_id := ""
+var species_id := ""
+var lineage_id := ""
+var background_id := ""
+## 기능 데이터: 기능 ID → 기능 Dictionary(클래스·종족 데이터의 features 항목)
+var feature_data := {}
+## 훅 → [스크립트 ID] (Features.hook이 부른다)
+var feature_hooks := {}
+## 치명타가 되는 최소 자연 굴림(챔피언 19)
+var crit_threshold := 20
+## 이니셔티브 추가 보너스(경계 재주)
+var initiative_bonus := 0
+## 암시야 거리(칸). 0이면 없음. senses의 "darkvision"과 함께 쓴다.
+var darkvision_tiles := 0
+## 이 상태를 피하는 내성에 유리(드워프 중독, 엘프 매혹, 하플링 공포)
+var save_advantage_vs: Array = []
+## 이 능력치 내성에 유리(노움)
+var save_advantage_abilities: Array = []
+## 생물 종류(언데드 퇴치 등): "humanoid", "undead", "beast" ...
+var creature_type := "humanoid"
+## 크기: "small" | "medium" | "large"
+var size := "medium"
 ## 무기 공격에 붙는 추가 피해(예: 고블린 '유리면 +1d4'): [{"dice", "damage_type"(없으면 무기 유형), "when": "advantage"}]
 var attack_riders: Array = []
 
@@ -129,7 +153,12 @@ func reset_turn() -> void:
 	var can_act := not is_incapacitated() and not has_flag("cannot_act")
 	turn = {"action": 1 if can_act else 0, "bonus": 1 if can_act else 0, "movement": speed(),
 		"interaction": 1, "attacks_left": 0, "light_attack_done": false, "nick_used": false,
-		"cleave_used": false, "disengaged": false, "reaction": turn.get("reaction", 1)}
+		"cleave_used": false, "disengaged": false, "reaction": turn.get("reaction", 1),
+		"moved": false, "sneak_used": false, "savage_used": false, "free_move_no_oa": 0}
+
+
+func has_feature(id: String) -> bool:
+	return features.has(id) or feature_data.has(id)
 
 
 func refresh_reaction() -> void:

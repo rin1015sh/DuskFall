@@ -1,0 +1,405 @@
+{
+  "$comment": "클래스 파일 스키마(룰북 6단계). 파일 하나 = 클래스 하나.",
+  "$defs": {
+    "feature": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "object",
+          "required": [
+            "ko",
+            "en"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ko": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "en": {
+              "type": "string"
+            }
+          }
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "kind": {
+          "enum": [
+            "passive",
+            "action",
+            "bonus_action",
+            "reaction",
+            "free"
+          ]
+        },
+        "hook": {
+          "type": "string"
+        },
+        "resource": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "damage",
+                  "heal",
+                  "temp_hp",
+                  "apply_condition",
+                  "remove_condition",
+                  "create_surface",
+                  "create_cloud",
+                  "push",
+                  "teleport",
+                  "summon",
+                  "modify",
+                  "advantage",
+                  "reroll",
+                  "grant_action",
+                  "resource",
+                  "light",
+                  "dialogue_unlock"
+                ]
+              },
+              "dice": {
+                "type": "string",
+                "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+              }
+            }
+          }
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "damage",
+                  "heal",
+                  "temp_hp",
+                  "apply_condition",
+                  "remove_condition",
+                  "create_surface",
+                  "create_cloud",
+                  "push",
+                  "teleport",
+                  "summon",
+                  "modify",
+                  "advantage",
+                  "reroll",
+                  "grant_action",
+                  "resource",
+                  "light",
+                  "dialogue_unlock"
+                ]
+              },
+              "dice": {
+                "type": "string",
+                "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+              }
+            }
+          }
+        },
+        "script": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "choices": {
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "deferred"
+          ]
+        },
+        "notes_ko": {
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "SRD 5.2.1",
+            "original"
+          ]
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "name",
+    "hit_die",
+    "saves",
+    "skills",
+    "weapon_training",
+    "armor_training",
+    "features",
+    "subclasses",
+    "proficiency_bonus",
+    "source"
+  ],
+  "properties": {
+    "schema": {
+      "const": "class_v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "name": {
+      "type": "object",
+      "required": [
+        "ko",
+        "en"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ko": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "en": {
+          "type": "string"
+        }
+      }
+    },
+    "hit_die": {
+      "enum": [
+        6,
+        8,
+        10,
+        12
+      ]
+    },
+    "primary": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      }
+    },
+    "saves": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      }
+    },
+    "skills": {
+      "type": "object",
+      "required": [
+        "choose",
+        "from"
+      ]
+    },
+    "weapon_training": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "armor_training": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "weapon_mastery": {
+      "type": "object"
+    },
+    "asi_levels": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "expertise": {
+      "type": "object"
+    },
+    "spellcasting": {
+      "type": "object",
+      "required": [
+        "ability",
+        "type",
+        "list",
+        "cantrips",
+        "prepared",
+        "slots"
+      ]
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "max",
+          "recharge"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "max": {
+            "type": [
+              "integer",
+              "string",
+              "object"
+            ]
+          },
+          "recharge": {
+            "enum": [
+              "short",
+              "short_one",
+              "long"
+            ]
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ko": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "en": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/feature"
+      }
+    },
+    "subclasses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "level",
+          "features",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ko": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "en": {
+                "type": "string"
+              }
+            }
+          },
+          "level": {
+            "type": "integer"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/feature"
+            }
+          },
+          "always_prepared": {
+            "type": "object"
+          },
+          "source": {
+            "enum": [
+              "SRD 5.2.1",
+              "original"
+            ]
+          }
+        }
+      }
+    },
+    "sneak_attack_dice": {
+      "type": "object"
+    },
+    "starting_equipment": {
+      "type": "object"
+    },
+    "sprite_parts": {
+      "type": "array"
+    },
+    "proficiency_bonus": {
+      "type": "object"
+    },
+    "source": {
+      "enum": [
+        "SRD 5.2.1",
+        "original"
+      ]
+    }
+  }
+}

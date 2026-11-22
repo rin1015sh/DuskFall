@@ -1,0 +1,252 @@
+{
+  "$comment": "feat 파일 스키마(룰북 6단계).",
+  "type": "object",
+  "required": [
+    "schema",
+    "feats"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "feat_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "feats": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/item"
+      }
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "category",
+        "source"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "object",
+          "required": [
+            "ko",
+            "en"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ko": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "en": {
+              "type": "string"
+            }
+          }
+        },
+        "category": {
+          "enum": [
+            "origin",
+            "general",
+            "fighting_style"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "effects_ko": {
+          "type": "string"
+        },
+        "spell_list": {
+          "enum": [
+            "cleric",
+            "wizard"
+          ]
+        },
+        "cantrips": {
+          "type": "integer"
+        },
+        "level1_spells": {
+          "type": "integer"
+        },
+        "skill_choices": {
+          "type": "integer"
+        },
+        "min_level": {
+          "type": "integer"
+        },
+        "ability_increase": {
+          "type": "object"
+        },
+        "source": {
+          "enum": [
+            "SRD 5.2.1",
+            "original"
+          ]
+        }
+      }
+    },
+    "feature": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "object",
+          "required": [
+            "ko",
+            "en"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ko": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "en": {
+              "type": "string"
+            }
+          }
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "kind": {
+          "enum": [
+            "passive",
+            "action",
+            "bonus_action",
+            "reaction",
+            "free"
+          ]
+        },
+        "hook": {
+          "type": "string"
+        },
+        "resource": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "damage",
+                  "heal",
+                  "temp_hp",
+                  "apply_condition",
+                  "remove_condition",
+                  "create_surface",
+                  "create_cloud",
+                  "push",
+                  "teleport",
+                  "summon",
+                  "modify",
+                  "advantage",
+                  "reroll",
+                  "grant_action",
+                  "resource",
+                  "light",
+                  "dialogue_unlock"
+                ]
+              },
+              "dice": {
+                "type": "string",
+                "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+              }
+            }
+          }
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "damage",
+                  "heal",
+                  "temp_hp",
+                  "apply_condition",
+                  "remove_condition",
+                  "create_surface",
+                  "create_cloud",
+                  "push",
+                  "teleport",
+                  "summon",
+                  "modify",
+                  "advantage",
+                  "reroll",
+                  "grant_action",
+                  "resource",
+                  "light",
+                  "dialogue_unlock"
+                ]
+              },
+              "dice": {
+                "type": "string",
+                "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+              }
+            }
+          }
+        },
+        "script": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "choices": {
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "deferred"
+          ]
+        },
+        "notes_ko": {
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "SRD 5.2.1",
+            "original"
+          ]
+        }
+      }
+    }
+  }
+}

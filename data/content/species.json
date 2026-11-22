@@ -1,0 +1,524 @@
+{
+  "schema": "species_v1",
+  "note_ko": "룰북 6단계 종족 7종(드래곤본·골리앗 없음)과 혈통. 칸 단위(암시야 60피트 = 12칸). 혈통 3·5레벨 주문은 긴 휴식마다 슬롯 없이 1회. 체형 틀 body: medium / small / dwarf(1단계).",
+  "species": [
+    {
+      "id": "dwarf",
+      "name": {
+        "ko": "드워프",
+        "en": "Dwarf"
+      },
+      "size": "medium",
+      "body": "dwarf",
+      "speed_tiles": 6,
+      "darkvision_tiles": 24,
+      "resistances": [
+        "poison"
+      ],
+      "save_advantage_vs": [
+        "poisoned"
+      ],
+      "hp_per_level": 1,
+      "features": [
+        {
+          "id": "stonecunning",
+          "name": {
+            "ko": "돌의 감각",
+            "en": "Stonecunning"
+          },
+          "kind": "bonus_action",
+          "resource": "stonecunning",
+          "status": "deferred",
+          "notes_ko": "12칸 안 은신·투명 생물 위치 표시 100턴, 돌 재질 칸에서만(6단계 종족 표). 감지 시스템은 6단계(탐험).",
+          "source": "SRD 5.2.1"
+        }
+      ],
+      "resources": [
+        {
+          "id": "stonecunning",
+          "max": "proficiency_bonus",
+          "recharge": "long"
+        }
+      ],
+      "art": {
+        "skin": [
+          "#c8a07a",
+          "#a8784e",
+          "#7a5236"
+        ],
+        "extras": [
+          "beard"
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "elf",
+      "name": {
+        "ko": "엘프",
+        "en": "Elf"
+      },
+      "size": "medium",
+      "body": "medium",
+      "speed_tiles": 6,
+      "darkvision_tiles": 12,
+      "save_advantage_vs": [
+        "charmed"
+      ],
+      "condition_immunities": [
+        "sleep_magic"
+      ],
+      "skill_choice": {
+        "choose": 1,
+        "from": [
+          "insight",
+          "perception",
+          "survival"
+        ]
+      },
+      "lineage_required": true,
+      "art": {
+        "skin": [
+          "#f0d6b8",
+          "#c89a72",
+          "#8a5a3c"
+        ],
+        "extras": [
+          "pointed_ears"
+        ]
+      },
+      "features": [
+        {
+          "id": "trance",
+          "name": {
+            "ko": "트랜스",
+            "en": "Trance"
+          },
+          "notes_ko": "수면 면역만 남김(6단계).",
+          "source": "SRD 5.2.1"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "gnome",
+      "name": {
+        "ko": "노움",
+        "en": "Gnome"
+      },
+      "size": "small",
+      "body": "small",
+      "speed_tiles": 6,
+      "darkvision_tiles": 12,
+      "save_advantage_abilities": [
+        "int",
+        "wis",
+        "cha"
+      ],
+      "lineage_required": true,
+      "art": {
+        "skin": [
+          "#f0d6b8",
+          "#c89a72"
+        ],
+        "extras": [
+          "big_nose"
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "halfling",
+      "name": {
+        "ko": "하플링",
+        "en": "Halfling"
+      },
+      "size": "small",
+      "body": "small",
+      "speed_tiles": 6,
+      "darkvision_tiles": 0,
+      "save_advantage_vs": [
+        "frightened"
+      ],
+      "features": [
+        {
+          "id": "halfling_luck",
+          "name": {
+            "ko": "행운",
+            "en": "Luck"
+          },
+          "notes_ko": "d20 테스트에서 자연 1이면 다시 굴려 새 값을 쓴다(숨은 굴림 자동).",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "halfling_nimbleness",
+          "name": {
+            "ko": "날렵함",
+            "en": "Halfling Nimbleness"
+          },
+          "status": "deferred",
+          "notes_ko": "한 단계 큰 생물 칸 통과. 이동은 3단계 아군 통과 규칙에 더한다.",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "naturally_stealthy",
+          "name": {
+            "ko": "타고난 은신",
+            "en": "Naturally Stealthy"
+          },
+          "status": "deferred",
+          "notes_ko": "큰 생물에 가려져도 숨기(5단계).",
+          "source": "SRD 5.2.1"
+        }
+      ],
+      "art": {
+        "skin": [
+          "#f0d6b8",
+          "#c89a72",
+          "#8a5a3c"
+        ],
+        "extras": [
+          "curly_hair"
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "human",
+      "name": {
+        "ko": "인간",
+        "en": "Human"
+      },
+      "size": "medium",
+      "size_choice": [
+        "medium",
+        "small"
+      ],
+      "body": "medium",
+      "speed_tiles": 6,
+      "darkvision_tiles": 0,
+      "skill_choice": {
+        "choose": 1,
+        "from": "any"
+      },
+      "origin_feat_choice": true,
+      "features": [
+        {
+          "id": "resourceful",
+          "name": {
+            "ko": "기지",
+            "en": "Resourceful"
+          },
+          "status": "deferred",
+          "notes_ko": "긴 휴식 때 공용 영감 +1(5단계 영감, 7단계 휴식).",
+          "source": "SRD 5.2.1"
+        }
+      ],
+      "art": {
+        "skin": [
+          "#f0d6b8",
+          "#c89a72",
+          "#8a5a3c",
+          "#5a3a24"
+        ],
+        "extras": []
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "orc",
+      "name": {
+        "ko": "오크",
+        "en": "Orc"
+      },
+      "size": "medium",
+      "body": "medium",
+      "speed_tiles": 6,
+      "darkvision_tiles": 24,
+      "features": [
+        {
+          "id": "adrenaline_rush",
+          "name": {
+            "ko": "아드레날린",
+            "en": "Adrenaline Rush"
+          },
+          "kind": "bonus_action",
+          "resource": "adrenaline_rush",
+          "script": "adrenaline_rush",
+          "notes_ko": "보너스 행동 질주 + 임시 HP(숙련 보너스).",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "relentless_endurance",
+          "name": {
+            "ko": "끈질긴 인내",
+            "en": "Relentless Endurance"
+          },
+          "hook": "on_hp_zero",
+          "resource": "relentless_endurance",
+          "script": "relentless_endurance",
+          "notes_ko": "즉사가 아니면 HP 1로 버틴다, 긴 휴식 1회.",
+          "source": "SRD 5.2.1"
+        }
+      ],
+      "resources": [
+        {
+          "id": "adrenaline_rush",
+          "max": "proficiency_bonus",
+          "recharge": "short"
+        },
+        {
+          "id": "relentless_endurance",
+          "max": 1,
+          "recharge": "long"
+        }
+      ],
+      "art": {
+        "skin": [
+          "#7a9a6a",
+          "#5a7a4a",
+          "#8a8a6a"
+        ],
+        "extras": [
+          "tusks"
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "tiefling",
+      "name": {
+        "ko": "티플링",
+        "en": "Tiefling"
+      },
+      "size": "medium",
+      "size_choice": [
+        "medium",
+        "small"
+      ],
+      "body": "medium",
+      "speed_tiles": 6,
+      "darkvision_tiles": 12,
+      "lineage_required": true,
+      "spells": [
+        {
+          "level": 1,
+          "spell": "thaumaturgy",
+          "cantrip": true
+        }
+      ],
+      "art": {
+        "skin": [
+          "#b85a4a",
+          "#8a4a6a",
+          "#c8a07a"
+        ],
+        "extras": [
+          "horns",
+          "tail"
+        ]
+      },
+      "source": "SRD 5.2.1"
+    }
+  ],
+  "lineages": [
+    {
+      "id": "elf_drow",
+      "parent": "elf",
+      "name": {
+        "ko": "드로우",
+        "en": "Drow"
+      },
+      "darkvision_tiles": 24,
+      "spells": [
+        {
+          "level": 1,
+          "spell": "dancing_lights",
+          "cantrip": true
+        },
+        {
+          "level": 3,
+          "spell": "faerie_fire"
+        },
+        {
+          "level": 5,
+          "spell": "darkness"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "elf_high",
+      "parent": "elf",
+      "name": {
+        "ko": "하이 엘프",
+        "en": "High Elf"
+      },
+      "spells": [
+        {
+          "level": 1,
+          "spell": "prestidigitation",
+          "cantrip": true
+        },
+        {
+          "level": 3,
+          "spell": "detect_magic"
+        },
+        {
+          "level": 5,
+          "spell": "misty_step"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "elf_wood",
+      "parent": "elf",
+      "name": {
+        "ko": "우드 엘프",
+        "en": "Wood Elf"
+      },
+      "speed_tiles": 7,
+      "spells": [
+        {
+          "level": 1,
+          "spell": "druidcraft",
+          "cantrip": true
+        },
+        {
+          "level": 3,
+          "spell": "longstrider"
+        },
+        {
+          "level": 5,
+          "spell": "pass_without_trace"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "gnome_forest",
+      "parent": "gnome",
+      "name": {
+        "ko": "숲 노움",
+        "en": "Forest Gnome"
+      },
+      "spells": [
+        {
+          "level": 1,
+          "spell": "minor_illusion",
+          "cantrip": true
+        },
+        {
+          "level": 1,
+          "spell": "speak_with_animals",
+          "uses": "proficiency_bonus"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "gnome_rock",
+      "parent": "gnome",
+      "name": {
+        "ko": "바위 노움",
+        "en": "Rock Gnome"
+      },
+      "spells": [
+        {
+          "level": 1,
+          "spell": "mending",
+          "cantrip": true
+        },
+        {
+          "level": 1,
+          "spell": "prestidigitation",
+          "cantrip": true
+        }
+      ],
+      "notes_ko": "태엽 장치는 1차 제외(6단계).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "tiefling_abyssal",
+      "parent": "tiefling",
+      "name": {
+        "ko": "심연 유산",
+        "en": "Abyssal"
+      },
+      "resistances": [
+        "poison"
+      ],
+      "spells": [
+        {
+          "level": 1,
+          "spell": "poison_spray",
+          "cantrip": true
+        },
+        {
+          "level": 3,
+          "spell": "ray_of_sickness"
+        },
+        {
+          "level": 5,
+          "spell": "hold_person"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "tiefling_chthonic",
+      "parent": "tiefling",
+      "name": {
+        "ko": "명계 유산",
+        "en": "Chthonic"
+      },
+      "resistances": [
+        "necrotic"
+      ],
+      "spells": [
+        {
+          "level": 1,
+          "spell": "chill_touch",
+          "cantrip": true
+        },
+        {
+          "level": 3,
+          "spell": "false_life"
+        },
+        {
+          "level": 5,
+          "spell": "ray_of_enfeeblement"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "tiefling_infernal",
+      "parent": "tiefling",
+      "name": {
+        "ko": "지옥 유산",
+        "en": "Infernal"
+      },
+      "resistances": [
+        "fire"
+      ],
+      "spells": [
+        {
+          "level": 1,
+          "spell": "fire_bolt",
+          "cantrip": true
+        },
+        {
+          "level": 3,
+          "spell": "hellish_rebuke"
+        },
+        {
+          "level": 5,
+          "spell": "darkness"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    }
+  ]
+}

@@ -3,6 +3,9 @@ extends Node
 ## 데이터의 "hook" 필드는 아래 시그널 이름을 그대로 쓴다.
 ## 0단계: 시그널 선언만 있다. 인자 모양은 1단계 이후 판정 엔진과 함께 다듬는다.
 
+## 지금 전투의 반응 대기열(ReactionQueue). 기능 스크립트가 반응 설정(매번 묻기·자동·끄기)을 따르려고 쓴다.
+var reaction_queue: Node = null
+
 ## 전투 구역 진입, 적대 행동
 signal on_combat_start()
 ## 라운드 시작(탐험 중에는 6초 틱)

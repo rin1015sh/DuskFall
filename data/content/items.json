@@ -1,0 +1,118 @@
+{
+  "schema": "item_v1",
+  "note_ko": "소모품. 치유 물약 수치는 SRD 5.2.1(룰북 7단계 자원 경제). 마시기 보너스 행동, 먹이기 행동, 던지기는 착지 칸 + 직교 4칸에 전체 효과 + 연소 해제(9단계).",
+  "items": [
+    {
+      "id": "potion_of_healing",
+      "name": {
+        "ko": "치유 물약",
+        "en": "Potion of Healing"
+      },
+      "category": "potion",
+      "rarity": "common",
+      "weight_kg": 0.23,
+      "price_gp": 50,
+      "material": "glass",
+      "effects": [
+        {
+          "type": "heal",
+          "dice": "2d4+2"
+        }
+      ],
+      "drink_cost": "bonus_action",
+      "feed_cost": "action",
+      "throwable": true,
+      "throw": {
+        "area": "cross",
+        "removes": [
+          "burning"
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "potion_of_greater_healing",
+      "name": {
+        "ko": "상급 치유 물약",
+        "en": "Potion of Greater Healing"
+      },
+      "category": "potion",
+      "rarity": "uncommon",
+      "weight_kg": 0.23,
+      "price_gp": 100,
+      "material": "glass",
+      "effects": [
+        {
+          "type": "heal",
+          "dice": "4d4+4"
+        }
+      ],
+      "drink_cost": "bonus_action",
+      "feed_cost": "action",
+      "throwable": true,
+      "throw": {
+        "area": "cross",
+        "removes": [
+          "burning"
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "potion_of_superior_healing",
+      "name": {
+        "ko": "최상급 치유 물약",
+        "en": "Potion of Superior Healing"
+      },
+      "category": "potion",
+      "rarity": "rare",
+      "weight_kg": 0.23,
+      "price_gp": 500,
+      "material": "glass",
+      "effects": [
+        {
+          "type": "heal",
+          "dice": "8d4+8"
+        }
+      ],
+      "drink_cost": "bonus_action",
+      "feed_cost": "action",
+      "throwable": true,
+      "throw": {
+        "area": "cross",
+        "removes": [
+          "burning"
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "potion_of_supreme_healing",
+      "name": {
+        "ko": "궁극 치유 물약",
+        "en": "Potion of Supreme Healing"
+      },
+      "category": "potion",
+      "rarity": "very_rare",
+      "weight_kg": 0.23,
+      "price_gp": 5000,
+      "material": "glass",
+      "effects": [
+        {
+          "type": "heal",
+          "dice": "10d4+20"
+        }
+      ],
+      "drink_cost": "bonus_action",
+      "feed_cost": "action",
+      "throwable": true,
+      "throw": {
+        "area": "cross",
+        "removes": [
+          "burning"
+        ]
+      },
+      "source": "SRD 5.2.1"
+    }
+  ]
+}

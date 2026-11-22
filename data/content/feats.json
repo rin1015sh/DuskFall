@@ -1,0 +1,133 @@
+{
+  "schema": "feat_v1",
+  "note_ko": "룰북 6단계: 출신 4(마법 입문은 목록별로 나눔), 일반 = 능력치 향상(Grappler 삭제), 전투 방식 4. 자체 재주는 콘텐츠 작업에서.",
+  "feats": [
+    {
+      "id": "alert",
+      "name": {
+        "ko": "경계",
+        "en": "Alert"
+      },
+      "category": "origin",
+      "effects_ko": "이니셔티브에 숙련 보너스. 이니셔티브 교환은 1차 제외(공유 턴이 있어 쓸모가 적음).",
+      "tags": [
+        "initiative_proficiency"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "magic_initiate_cleric",
+      "name": {
+        "ko": "마법 입문(클레릭)",
+        "en": "Magic Initiate (Cleric)"
+      },
+      "category": "origin",
+      "spell_list": "cleric",
+      "cantrips": 2,
+      "level1_spells": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "magic_initiate_wizard",
+      "name": {
+        "ko": "마법 입문(위저드)",
+        "en": "Magic Initiate (Wizard)"
+      },
+      "category": "origin",
+      "spell_list": "wizard",
+      "cantrips": 2,
+      "level1_spells": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "savage_attacker",
+      "name": {
+        "ko": "야만적 공격",
+        "en": "Savage Attacker"
+      },
+      "category": "origin",
+      "tags": [
+        "savage_attacker"
+      ],
+      "effects_ko": "턴당 1회 무기 피해 주사위를 두 번 굴려 큰 쪽(자동).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "skilled",
+      "name": {
+        "ko": "숙련",
+        "en": "Skilled"
+      },
+      "category": "origin",
+      "skill_choices": 3,
+      "effects_ko": "기능 3개 숙련(도구 숙련 삭제).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "ability_score_improvement",
+      "name": {
+        "ko": "능력치 향상",
+        "en": "Ability Score Improvement"
+      },
+      "category": "general",
+      "min_level": 4,
+      "ability_increase": {
+        "total": 2,
+        "max": 20
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "archery",
+      "name": {
+        "ko": "궁술",
+        "en": "Archery"
+      },
+      "category": "fighting_style",
+      "tags": [
+        "archery"
+      ],
+      "effects_ko": "원거리 무기 명중 +2.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "defense",
+      "name": {
+        "ko": "방어",
+        "en": "Defense"
+      },
+      "category": "fighting_style",
+      "tags": [
+        "defense"
+      ],
+      "effects_ko": "갑옷을 입으면 AC +1.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "great_weapon_fighting",
+      "name": {
+        "ko": "대형 무기 전투",
+        "en": "Great Weapon Fighting"
+      },
+      "category": "fighting_style",
+      "tags": [
+        "great_weapon_fighting"
+      ],
+      "effects_ko": "양손으로 든 양손·다용도 근접 무기 피해 주사위 1·2를 3으로.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "two_weapon_fighting",
+      "name": {
+        "ko": "쌍수 전투",
+        "en": "Two-Weapon Fighting"
+      },
+      "category": "fighting_style",
+      "tags": [
+        "two_weapon_fighting"
+      ],
+      "effects_ko": "가벼운 무기 보조 공격 피해에 능력 수정치.",
+      "source": "SRD 5.2.1"
+    }
+  ]
+}

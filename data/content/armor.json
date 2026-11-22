@@ -1,0 +1,253 @@
+{
+  "schema": "armor_v1",
+  "note_ko": "SRD 5.2.1 갑옷표. dex_cap null = 제한 없음, 0 = 민첩 더하지 않음. 방패 ac_base는 더하는 값. 전투 중 갑옷 교체 불가(3단계).",
+  "armor": [
+    {
+      "id": "padded_armor",
+      "name": {
+        "ko": "누비 갑옷",
+        "en": "Padded Armor"
+      },
+      "category": "light",
+      "ac_base": 11,
+      "dex_cap": null,
+      "str_required": 0,
+      "stealth_disadvantage": true,
+      "weight_kg": 3.63,
+      "price_gp": 5,
+      "material": "cloth",
+      "sprite_parts": [
+        "armor_padded_armor"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "leather_armor",
+      "name": {
+        "ko": "가죽 갑옷",
+        "en": "Leather Armor"
+      },
+      "category": "light",
+      "ac_base": 11,
+      "dex_cap": null,
+      "str_required": 0,
+      "stealth_disadvantage": false,
+      "weight_kg": 4.54,
+      "price_gp": 10,
+      "material": "cloth",
+      "sprite_parts": [
+        "armor_leather_armor"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "studded_leather_armor",
+      "name": {
+        "ko": "징 박은 가죽 갑옷",
+        "en": "Studded Leather Armor"
+      },
+      "category": "light",
+      "ac_base": 12,
+      "dex_cap": null,
+      "str_required": 0,
+      "stealth_disadvantage": false,
+      "weight_kg": 5.9,
+      "price_gp": 45,
+      "material": "cloth",
+      "sprite_parts": [
+        "armor_studded_leather_armor"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "hide_armor",
+      "name": {
+        "ko": "생가죽 갑옷",
+        "en": "Hide Armor"
+      },
+      "category": "medium",
+      "ac_base": 12,
+      "dex_cap": 2,
+      "str_required": 0,
+      "stealth_disadvantage": false,
+      "weight_kg": 5.44,
+      "price_gp": 10,
+      "material": "cloth",
+      "sprite_parts": [
+        "armor_hide_armor"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "chain_shirt",
+      "name": {
+        "ko": "사슬 셔츠",
+        "en": "Chain Shirt"
+      },
+      "category": "medium",
+      "ac_base": 13,
+      "dex_cap": 2,
+      "str_required": 0,
+      "stealth_disadvantage": false,
+      "weight_kg": 9.07,
+      "price_gp": 50,
+      "material": "metal",
+      "sprite_parts": [
+        "armor_chain_shirt"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "scale_mail",
+      "name": {
+        "ko": "비늘 갑옷",
+        "en": "Scale Mail"
+      },
+      "category": "medium",
+      "ac_base": 14,
+      "dex_cap": 2,
+      "str_required": 0,
+      "stealth_disadvantage": true,
+      "weight_kg": 20.41,
+      "price_gp": 50,
+      "material": "metal",
+      "sprite_parts": [
+        "armor_scale_mail"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "breastplate",
+      "name": {
+        "ko": "흉갑",
+        "en": "Breastplate"
+      },
+      "category": "medium",
+      "ac_base": 14,
+      "dex_cap": 2,
+      "str_required": 0,
+      "stealth_disadvantage": false,
+      "weight_kg": 9.07,
+      "price_gp": 400,
+      "material": "metal",
+      "sprite_parts": [
+        "armor_breastplate"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "half_plate_armor",
+      "name": {
+        "ko": "반판금 갑옷",
+        "en": "Half Plate Armor"
+      },
+      "category": "medium",
+      "ac_base": 15,
+      "dex_cap": 2,
+      "str_required": 0,
+      "stealth_disadvantage": true,
+      "weight_kg": 18.14,
+      "price_gp": 750,
+      "material": "metal",
+      "sprite_parts": [
+        "armor_half_plate_armor"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "ring_mail",
+      "name": {
+        "ko": "고리 갑옷",
+        "en": "Ring Mail"
+      },
+      "category": "heavy",
+      "ac_base": 14,
+      "dex_cap": 0,
+      "str_required": 0,
+      "stealth_disadvantage": true,
+      "weight_kg": 18.14,
+      "price_gp": 30,
+      "material": "metal",
+      "sprite_parts": [
+        "armor_ring_mail"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "chain_mail",
+      "name": {
+        "ko": "사슬 갑옷",
+        "en": "Chain Mail"
+      },
+      "category": "heavy",
+      "ac_base": 16,
+      "dex_cap": 0,
+      "str_required": 13,
+      "stealth_disadvantage": true,
+      "weight_kg": 24.95,
+      "price_gp": 75,
+      "material": "metal",
+      "sprite_parts": [
+        "armor_chain_mail"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "splint_armor",
+      "name": {
+        "ko": "부목 갑옷",
+        "en": "Splint Armor"
+      },
+      "category": "heavy",
+      "ac_base": 17,
+      "dex_cap": 0,
+      "str_required": 15,
+      "stealth_disadvantage": true,
+      "weight_kg": 27.22,
+      "price_gp": 200,
+      "material": "metal",
+      "sprite_parts": [
+        "armor_splint_armor"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "plate_armor",
+      "name": {
+        "ko": "판금 갑옷",
+        "en": "Plate Armor"
+      },
+      "category": "heavy",
+      "ac_base": 18,
+      "dex_cap": 0,
+      "str_required": 15,
+      "stealth_disadvantage": true,
+      "weight_kg": 29.48,
+      "price_gp": 1500,
+      "material": "metal",
+      "sprite_parts": [
+        "armor_plate_armor"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shield",
+      "name": {
+        "ko": "방패",
+        "en": "Shield"
+      },
+      "category": "shield",
+      "ac_base": 2,
+      "dex_cap": null,
+      "str_required": 0,
+      "stealth_disadvantage": false,
+      "weight_kg": 2.72,
+      "price_gp": 10,
+      "material": "wood",
+      "sprite_parts": [
+        "armor_shield"
+      ],
+      "source": "SRD 5.2.1"
+    }
+  ]
+}

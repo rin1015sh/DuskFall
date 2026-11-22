@@ -15,14 +15,18 @@ var history: Array[Dictionary] = []
 func setup(w: Dictionary) -> Node:
 	world = w
 	world["reactions"] = self
+	EventBus.reaction_queue = self
 	if not EventBus.on_after_attack_roll.is_connected(_on_after_attack_roll):
 		EventBus.on_after_attack_roll.connect(_on_after_attack_roll)
 	return self
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_PREDELETE and EventBus.on_after_attack_roll.is_connected(_on_after_attack_roll):
-		EventBus.on_after_attack_roll.disconnect(_on_after_attack_roll)
+	if what == NOTIFICATION_PREDELETE:
+		if EventBus.on_after_attack_roll.is_connected(_on_after_attack_roll):
+			EventBus.on_after_attack_roll.disconnect(_on_after_attack_roll)
+		if EventBus.reaction_queue == self:
+			EventBus.reaction_queue = null
 
 
 ## 반응 창 하나. 쓰기로 하면 action을 실행한다. 쓴 경우 true.

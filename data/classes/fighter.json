@@ -1,0 +1,217 @@
+{
+  "schema": "class_v1",
+  "id": "fighter",
+  "name": {
+    "ko": "전사",
+    "en": "Fighter"
+  },
+  "hit_die": 10,
+  "primary": [
+    "str",
+    "dex"
+  ],
+  "saves": [
+    "str",
+    "con"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "acrobatics",
+      "animal_handling",
+      "athletics",
+      "history",
+      "insight",
+      "intimidation",
+      "persuasion",
+      "perception",
+      "survival"
+    ]
+  },
+  "weapon_training": [
+    "simple",
+    "martial"
+  ],
+  "armor_training": [
+    "light",
+    "medium",
+    "heavy",
+    "shield"
+  ],
+  "weapon_mastery": {
+    "1": 3,
+    "4": 4
+  },
+  "asi_levels": [
+    4
+  ],
+  "resources": [
+    {
+      "id": "second_wind",
+      "name": {
+        "ko": "재기의 숨결",
+        "en": "Second Wind"
+      },
+      "max": {
+        "1": 2,
+        "4": 3
+      },
+      "recharge": "short_one"
+    },
+    {
+      "id": "action_surge",
+      "name": {
+        "ko": "행동 연쇄",
+        "en": "Action Surge"
+      },
+      "max": {
+        "2": 1
+      },
+      "recharge": "short"
+    }
+  ],
+  "features": [
+    {
+      "id": "fighting_style",
+      "name": {
+        "ko": "전투 방식",
+        "en": "Fighting Style"
+      },
+      "level": 1,
+      "choices": [
+        "archery",
+        "defense",
+        "great_weapon_fighting",
+        "two_weapon_fighting"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "second_wind",
+      "name": {
+        "ko": "재기의 숨결",
+        "en": "Second Wind"
+      },
+      "level": 1,
+      "kind": "bonus_action",
+      "resource": "second_wind",
+      "script": "second_wind",
+      "notes_ko": "1d10 + 전사 레벨 회복.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "weapon_mastery",
+      "name": {
+        "ko": "무기 마스터리",
+        "en": "Weapon Mastery"
+      },
+      "level": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "action_surge",
+      "name": {
+        "ko": "행동 연쇄",
+        "en": "Action Surge"
+      },
+      "level": 2,
+      "kind": "free",
+      "resource": "action_surge",
+      "script": "action_surge",
+      "notes_ko": "추가 행동 1회(마법 행동 제외).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "tactical_mind",
+      "name": {
+        "ko": "전술적 판단",
+        "en": "Tactical Mind"
+      },
+      "level": 2,
+      "hook": "on_check_failed",
+      "resource": "second_wind",
+      "script": "tactical_mind",
+      "notes_ko": "능력 판정 실패 시 재기의 숨결 1회로 +1d10, 그래도 실패면 소모 안 함. 숨은 판정에는 자동.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "extra_attack",
+      "name": {
+        "ko": "추가 공격",
+        "en": "Extra Attack"
+      },
+      "level": 5,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "tactical_shift",
+      "name": {
+        "ko": "전술적 이동",
+        "en": "Tactical Shift"
+      },
+      "level": 5,
+      "notes_ko": "재기의 숨결 보너스 행동 사용 시 속도 절반 이동, 기회 공격 없음.",
+      "source": "SRD 5.2.1"
+    }
+  ],
+  "subclasses": [
+    {
+      "id": "champion",
+      "name": {
+        "ko": "챔피언",
+        "en": "Champion"
+      },
+      "level": 3,
+      "source": "SRD 5.2.1",
+      "features": [
+        {
+          "id": "improved_critical",
+          "name": {
+            "ko": "향상된 치명타",
+            "en": "Improved Critical"
+          },
+          "level": 3,
+          "notes_ko": "무기·비무장 공격 치명타 19~20.",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "remarkable_athlete",
+          "name": {
+            "ko": "뛰어난 운동선수",
+            "en": "Remarkable Athlete"
+          },
+          "level": 3,
+          "notes_ko": "이니셔티브·근력(운동) 유리, 치명타 직후 속도 절반 이동(기회 공격 없음).",
+          "source": "SRD 5.2.1"
+        }
+      ]
+    }
+  ],
+  "starting_equipment": {
+    "armor": "chain_mail",
+    "shield": false,
+    "melee": {
+      "main": "greatsword",
+      "off": ""
+    },
+    "ranged": {
+      "main": "javelin"
+    },
+    "items": [
+      "potion_of_healing"
+    ]
+  },
+  "sprite_parts": [
+    "body_medium",
+    "armor_chain_mail",
+    "weapon_2h_sword"
+  ],
+  "proficiency_bonus": {
+    "1": 2,
+    "2": 2,
+    "3": 2,
+    "4": 2,
+    "5": 3
+  },
+  "source": "SRD 5.2.1"
+}

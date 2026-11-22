@@ -1,0 +1,380 @@
+{
+  "$comment": "species 파일 스키마(룰북 6단계).",
+  "type": "object",
+  "required": [
+    "schema",
+    "species"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "species_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "species": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/item"
+      }
+    },
+    "lineages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/item"
+      }
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "source"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "object",
+          "required": [
+            "ko",
+            "en"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ko": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "en": {
+              "type": "string"
+            }
+          }
+        },
+        "parent": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "size": {
+          "enum": [
+            "small",
+            "medium"
+          ]
+        },
+        "size_choice": {
+          "type": "array"
+        },
+        "body": {
+          "enum": [
+            "medium",
+            "small",
+            "dwarf"
+          ]
+        },
+        "speed_tiles": {
+          "type": "integer"
+        },
+        "darkvision_tiles": {
+          "type": "integer"
+        },
+        "resistances": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "save_advantage_vs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "save_advantage_abilities": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "str",
+              "dex",
+              "con",
+              "int",
+              "wis",
+              "cha"
+            ]
+          }
+        },
+        "condition_immunities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hp_per_level": {
+          "type": "integer"
+        },
+        "skill_choice": {
+          "type": "object"
+        },
+        "origin_feat_choice": {
+          "type": "boolean"
+        },
+        "lineage_required": {
+          "type": "boolean"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/feature"
+          }
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "max",
+              "recharge"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "max": {
+                "type": [
+                  "integer",
+                  "string",
+                  "object"
+                ]
+              },
+              "recharge": {
+                "enum": [
+                  "short",
+                  "short_one",
+                  "long"
+                ]
+              },
+              "name": {
+                "type": "object",
+                "required": [
+                  "ko",
+                  "en"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "ko": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "en": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "spells": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "level",
+              "spell"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "level": {
+                "type": "integer"
+              },
+              "spell": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "cantrip": {
+                "type": "boolean"
+              },
+              "uses": {
+                "type": [
+                  "integer",
+                  "string"
+                ]
+              }
+            }
+          }
+        },
+        "art": {
+          "type": "object"
+        },
+        "notes_ko": {
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "SRD 5.2.1",
+            "original"
+          ]
+        }
+      }
+    },
+    "feature": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "object",
+          "required": [
+            "ko",
+            "en"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ko": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "en": {
+              "type": "string"
+            }
+          }
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "kind": {
+          "enum": [
+            "passive",
+            "action",
+            "bonus_action",
+            "reaction",
+            "free"
+          ]
+        },
+        "hook": {
+          "type": "string"
+        },
+        "resource": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "damage",
+                  "heal",
+                  "temp_hp",
+                  "apply_condition",
+                  "remove_condition",
+                  "create_surface",
+                  "create_cloud",
+                  "push",
+                  "teleport",
+                  "summon",
+                  "modify",
+                  "advantage",
+                  "reroll",
+                  "grant_action",
+                  "resource",
+                  "light",
+                  "dialogue_unlock"
+                ]
+              },
+              "dice": {
+                "type": "string",
+                "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+              }
+            }
+          }
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "damage",
+                  "heal",
+                  "temp_hp",
+                  "apply_condition",
+                  "remove_condition",
+                  "create_surface",
+                  "create_cloud",
+                  "push",
+                  "teleport",
+                  "summon",
+                  "modify",
+                  "advantage",
+                  "reroll",
+                  "grant_action",
+                  "resource",
+                  "light",
+                  "dialogue_unlock"
+                ]
+              },
+              "dice": {
+                "type": "string",
+                "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+              }
+            }
+          }
+        },
+        "script": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "choices": {
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "deferred"
+          ]
+        },
+        "notes_ko": {
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "SRD 5.2.1",
+            "original"
+          ]
+        }
+      }
+    }
+  }
+}

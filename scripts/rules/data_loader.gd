@@ -65,12 +65,9 @@ func _schema(schema_dir: String, kind: String) -> Dictionary:
 func _collect(kind: String, data: Dictionary, path: String) -> void:
 	var items: Array = []
 	if data.has("id"):
-		items.append(data)
-	for key: String in data.keys():
-		if typeof(data[key]) == TYPE_ARRAY:
-			for item: Variant in data[key]:
-				if typeof(item) == TYPE_DICTIONARY and item.has("id"):
-					items.append(item)
+		items.append(data)  # 파일 하나 = 항목 하나(클래스·몬스터·맵). 안쪽 배열은 그 항목의 일부다.
+	else:
+		_collect_arrays(data, items)
 	if not entries.has(kind):
 		entries[kind] = {}
 	for item: Dictionary in items:
@@ -79,6 +76,14 @@ func _collect(kind: String, data: Dictionary, path: String) -> void:
 			errors.append("%s: %s ID '%s'가 겹친다(먼저 나온 곳 %s)" % [path, kind, id, entries[kind][id]["file"]])
 		else:
 			entries[kind][id] = {"entry": item, "file": path}
+
+
+func _collect_arrays(data: Dictionary, items: Array) -> void:
+	for key: String in data.keys():
+		if typeof(data[key]) == TYPE_ARRAY:
+			for item: Variant in data[key]:
+				if typeof(item) == TYPE_DICTIONARY and item.has("id"):
+					items.append(item)
 
 
 static func list_files(dir: String, exts: Array) -> PackedStringArray:

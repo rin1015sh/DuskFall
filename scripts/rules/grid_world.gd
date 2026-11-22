@@ -433,7 +433,8 @@ func obscurity_for(observer: Node, c: Vector2i) -> int:
 			level = 2
 		Light.DIM:
 			level = 1
-	if level > 0 and observer.senses.has("darkvision") and distance(cell_of(observer), c) <= DARKVISION_TILES:
+	var dv: int = observer.darkvision_tiles if observer.darkvision_tiles > 0 else DARKVISION_TILES
+	if level > 0 and observer.senses.has("darkvision") and distance(cell_of(observer), c) <= dv:
 		level -= 1
 	match cdef.get("obscurity", ""):
 		"heavy":

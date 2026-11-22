@@ -81,6 +81,9 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	var expr := dice if dmg_mod == 0 else "%s%+d" % [dice, dmg_mod]
 	if w["id"] == "unarmed":
 		expr = str(maxi(1 + mod, 0)) if mod != 0 else "1"
+	var hit_bonus := 0
+	if ranged and is_ranged_weapon(w) and c.has_feature("archery"):
+		hit_bonus += 2  # 궁술: 원거리 무기 명중 +2
 	var dis: Array = []
 	if "heavy" in props and ((not ranged and c.abilities["str"] < 13) or (ranged and c.abilities["dex"] < 13)):
 		dis.append("무거운 무기")
@@ -90,7 +93,8 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 			extra_adv.append({"dice": r["dice"], "damage_type": r.get("damage_type", w["damage_type"])})
 	return {"name": w.get("name", {}).get("en", w["id"]) if w.has("name") else w["id"], "weapon_id": w["id"],
 		"extra_if_advantage": extra_adv,
-		"bonus": mod + (c.proficiency_bonus if proficient else 0), "ability": ability, "ability_mod": mod,
+		"bonus": mod + (c.proficiency_bonus if proficient else 0) + hit_bonus, "ability": ability, "ability_mod": mod,
+		"two_handed": opts.get("two_handed", false) or "two_handed" in props,
 		"kind": "ranged" if ranged else "melee", "weapon": true, "properties": props,
 		"mastery": w.get("mastery", "") if c.weapon_masteries.has(w["id"]) else "",
 		"damage": [{"dice": expr, "damage_type": w["damage_type"]}], "extra_disadvantage": dis,
@@ -148,7 +152,18 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 	if "light" in atk["properties"]:
 		attacker.turn["light_attack_done"] = true
 	apply_mastery(world, attacker, target, atk, res, opts)
+	_after_attack_features(world, attacker, target, res)
+	if world.get("turns") != null:
+		world["turns"].notify_hostile_action(attacker)
 	return res
+
+
+## 공격 뒤 기능: 교활한 일격(급소 공격이 정해 둔 효과).
+static func _after_attack_features(world: Dictionary, attacker: Node, target: Node, res: Dictionary) -> void:
+	if res.get("cunning_strike", "") != "":
+		var Features := preload("res://scripts/rules/features.gd")
+		Features.run("cunning_strike", {"world": world, "self": attacker, "target": target, "res": res,
+			"opts": {"option": res["cunning_strike"]}})
 
 
 ## 가벼운 무기 보조 공격(보너스 행동). 같은 턴 공격 행동에서 가벼운 무기로 공격했어야 한다.
@@ -293,19 +308,22 @@ static func _push_up_to(world: Dictionary, from: Node, target: Node, n: int) -> 
 ## 이동: 경로를 따라 한 칸씩. 적의 도달을 벗어날 때 기회 공격 창을 연다(이탈하면 없음).
 ## 아군 칸은 지나갈 수 있지만 멈출 수 없다(SRD Moving Around Other Creatures).
 ## 결과: {"ok", "moved": 칸 수, "cost", "stopped": 이유}
-static func move(world: Dictionary, c: Node, to: Vector2i) -> Dictionary:
+## opts: {"free": true} = 기회 공격 없는 이동력(free_move_no_oa — 전술적 이동, 물러나기, 챔피언)을 쓴다.
+static func move(world: Dictionary, c: Node, to: Vector2i, opts: Dictionary = {}) -> Dictionary:
 	var grid: Node = world["grid"]
+	var free: bool = opts.get("free", false)
+	var budget_key := "free_move_no_oa" if free else "movement"
 	var other: Node = grid.creature_at(to)
 	if other != null and other != c:
 		return _fail("다른 생물이 있는 칸에는 멈출 수 없다")
 	var allies: Array = grid.creatures().filter(func(o: Node) -> bool: return o != c and not o.is_hostile_to(c))
-	var p: Dictionary = grid.find_path(c, to, int(c.turn.get("movement", 0)), allies)
+	var p: Dictionary = grid.find_path(c, to, int(c.turn.get(budget_key, 0)), allies)
 	if p.is_empty():
-		return _fail("갈 수 없다(이동력 %d)" % int(c.turn.get("movement", 0)))
+		return _fail("갈 수 없다(이동력 %d)" % int(c.turn.get(budget_key, 0)))
 	var out := {"ok": true, "moved": 0, "cost": 0, "stopped": ""}
 	var cur: Vector2i = grid.cell_of(c)
 	for nxt: Vector2i in p["path"]:
-		if not c.turn.get("disengaged", false):
+		if not c.turn.get("disengaged", false) and not free:
 			_opportunity_attacks(world, c, cur, nxt)
 		if c.dead or c.is_down() or c.speed() == 0:
 			out["stopped"] = "이동 중 쓰러지거나 멈춤"
@@ -313,7 +331,9 @@ static func move(world: Dictionary, c: Node, to: Vector2i) -> Dictionary:
 		var step: int = 0
 		for fc in grid.footprint(nxt, grid.size_of(c)):
 			step = maxi(step, grid.step_cost(fc - (nxt - cur), fc))
-		c.turn["movement"] = int(c.turn["movement"]) - step
+		c.turn[budget_key] = int(c.turn[budget_key]) - step
+		if not free:
+			c.turn["moved"] = true
 		out["cost"] += step
 		grid.move_creature(c, nxt)
 		out["moved"] += 1
@@ -394,15 +414,29 @@ static func stand_up(c: Node) -> Dictionary:
 	return {"ok": true, "cost": cost}
 
 
-static func dash(c: Node) -> Dictionary:
-	if not spend(c, "action"):
+## 교활한 행동(로그 2레벨): 질주·이탈·숨기를 보너스 행동으로.
+static func cunning_action(world: Dictionary, c: Node, which: String) -> Dictionary:
+	if not c.has_feature("cunning_action"):
+		return _fail("교활한 행동이 없다")
+	match which:
+		"dash":
+			return dash(c, "bonus")
+		"disengage":
+			return disengage(c, "bonus")
+		"hide":
+			return hide(world, c, "bonus")
+	return _fail("모르는 행동")
+
+
+static func dash(c: Node, cost: String = "action") -> Dictionary:
+	if not spend(c, cost):
 		return _fail("행동이 없다")
 	c.turn["movement"] = int(c.turn.get("movement", 0)) + c.speed()
 	return {"ok": true}
 
 
-static func disengage(c: Node) -> Dictionary:
-	if not spend(c, "action"):
+static func disengage(c: Node, cost: String = "action") -> Dictionary:
+	if not spend(c, cost):
 		return _fail("행동이 없다")
 	c.turn["disengaged"] = true
 	return {"ok": true}
@@ -543,6 +577,8 @@ static func interact(c: Node) -> Dictionary:
 	if int(c.turn.get("interaction", 0)) > 0:
 		c.turn["interaction"] -= 1
 		return {"ok": true, "cost": "free"}
+	if c.has_feature("fast_hands") and spend(c, "bonus"):
+		return {"ok": true, "cost": "bonus"}  # 빠른 손(도둑)
 	if spend(c, "action"):
 		return {"ok": true, "cost": "action"}
 	return _fail("행동이 없다")

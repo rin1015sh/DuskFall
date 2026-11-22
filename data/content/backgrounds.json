@@ -1,0 +1,83 @@
+{
+  "schema": "background_v1",
+  "note_ko": "룰북 6단계: SRD 배경 4개. 능력치 보너스는 배경과 무관하게 자유 배분. 도구 숙련 삭제, 장비는 A 꾸러미 고정(도구 제외, 치료사 키트는 치유 물약으로 — 7단계 치료사 키트 삭제). 영감 목표는 6단계(대화)에서 채운다.",
+  "backgrounds": [
+    {
+      "id": "acolyte",
+      "name": {
+        "ko": "사제 수련생",
+        "en": "Acolyte"
+      },
+      "skills": [
+        "insight",
+        "religion"
+      ],
+      "feat": "magic_initiate_cleric",
+      "equipment": [
+        "holy_symbol",
+        "robe"
+      ],
+      "gold": 8,
+      "inspiration_goals": [],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "criminal",
+      "name": {
+        "ko": "범죄자",
+        "en": "Criminal"
+      },
+      "skills": [
+        "sleight_of_hand",
+        "stealth"
+      ],
+      "feat": "alert",
+      "equipment": [
+        "dagger",
+        "dagger"
+      ],
+      "gold": 16,
+      "inspiration_goals": [],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sage",
+      "name": {
+        "ko": "현자",
+        "en": "Sage"
+      },
+      "skills": [
+        "arcana",
+        "history"
+      ],
+      "feat": "magic_initiate_wizard",
+      "equipment": [
+        "quarterstaff",
+        "robe"
+      ],
+      "gold": 8,
+      "inspiration_goals": [],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "soldier",
+      "name": {
+        "ko": "병사",
+        "en": "Soldier"
+      },
+      "skills": [
+        "athletics",
+        "intimidation"
+      ],
+      "feat": "savage_attacker",
+      "equipment": [
+        "spear",
+        "shortbow",
+        "potion_of_healing"
+      ],
+      "gold": 14,
+      "inspiration_goals": [],
+      "source": "SRD 5.2.1"
+    }
+  ]
+}

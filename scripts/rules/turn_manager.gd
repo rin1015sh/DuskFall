@@ -47,7 +47,7 @@ func roll_initiative(c: Node) -> int:
 	for m in c.modifier_entries():
 		Resolver._add_adv(m, "initiative", "self", c, null, res)
 	var d := Dice.d20(Resolver.mode_of(res["advantage"], res["disadvantage"]), "%s 이니셔티브" % c.label())
-	c.initiative = d["natural"] + c.ability_mod("dex")
+	c.initiative = d["natural"] + c.ability_mod("dex") + c.initiative_bonus
 	_tiebreak[c] = Dice.die(1000)
 	return c.initiative
 

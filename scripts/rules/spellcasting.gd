@@ -89,6 +89,8 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 		return "모르는 주문"
 	if not Combat.can_spend(caster, _cost(spell)):
 		return "비용이 없다"
+	if _cost(spell) == "action" and int(caster.turn.get("action", 0)) <= int(caster.turn.get("surge_actions", 0)):
+		return "행동 연쇄로 얻은 행동은 주문에 쓸 수 없다"
 	if int(spell["level"]) > 0 and _slot(caster, int(spell["level"])) == "":
 		return "주문 슬롯이 없다"
 	var grid: Node = world["grid"]
@@ -179,6 +181,12 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 			if atk["kind"] == "ranged" and Combat.is_threatened(world, caster):
 				ctx["disadvantage"].append("근접 위협")
 			var r := Resolver.attack(caster, t, atk, ctx)
+			if not r["hit"] and r["valid"] and int(spell["level"]) == 0 and caster.has_feature("potent_cantrip"):
+				# 강력한 소마법(방출학파 3레벨): 빗나가도 절반 피해, 추가 효과 없음
+				var half: Array = []
+				for p: Dictionary in atk["damage"]:
+					half.append({"amount": Dice.roll(p["dice"], "강력한 소마법")["total"], "damage_type": p["damage_type"], "multiplier": 0.5})
+				r["potent"] = Resolver.apply_damage(t, half, {"attacker": caster})
 			if r["hit"]:
 				for e: Dictionary in eff.get("hit", []):
 					if e["type"] == "apply_condition":
@@ -188,6 +196,13 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 		var rolled := {}
 		var fail := _scaled(caster, spell, eff.get("fail", []))
 		var success := _scaled(caster, spell, eff.get("success", []))
+		if int(spell["level"]) == 0 and caster.has_feature("potent_cantrip") and success.is_empty():
+			# 강력한 소마법: 내성에 성공해도 피해 절반(추가 효과 없음)
+			for e: Dictionary in fail:
+				if e["type"] == "damage":
+					var h := e.duplicate()
+					h["scale"] = 0.5
+					success.append(h)
 		results = Resolver.save_effect(targets, {"ability": check["ability"], "dc": spell_dc(caster)},
 			fail, success, {"source": caster, "rolled": rolled})
 		for r: Dictionary in results:
@@ -210,6 +225,8 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 					var amount: int = Dice.roll(dice, spell["name"]["en"])["total"]
 					if add == "spell_mod":
 						amount += spell_mod(caster)
+					if int(spell["level"]) > 0 and caster.has_feature("disciple_of_life"):
+						amount += 2 + int(spell["level"])  # 생명의 제자: 2 + 슬롯 레벨
 					Resolver.heal(t, amount, caster)
 				"temp_hp":
 					Resolver.grant_temp_hp(t, Dice.roll(e["dice"], spell["name"]["en"])["total"])
