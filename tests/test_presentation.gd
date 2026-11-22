@@ -125,6 +125,6 @@ func test_touch_long_press_drag_and_pinch() -> void:
 func test_all_scene_scripts_compile() -> void:
 	for path: String in ["res://scenes/battle/battle_scene.gd", "res://scenes/battle/actor_view.gd", "res://scenes/battle/map_view.gd",
 			"res://scenes/battle/input_router.gd", "res://scenes/ui/character_creation.gd", "res://scenes/battle/test_roster.gd",
-			"res://scenes/ui/hotbar.gd", "res://scenes/ui/ui_style.gd", "res://scenes/ui/character_sheet.gd", "res://scenes/ui/minimap.gd"]:
+			"res://scenes/ui/hotbar.gd", "res://scenes/ui/ui_style.gd", "res://scenes/ui/character_sheet.gd", "res://scenes/ui/minimap.gd", "res://scenes/battle/vfx.gd", "res://scenes/ui/action_icons.gd"]:
 		var s: Script = load(path)
 		assert_true(s != null and s.can_instantiate(), "%s 컴파일 실패" % path)

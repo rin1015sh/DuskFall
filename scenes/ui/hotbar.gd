@@ -11,6 +11,7 @@ signal passive_toggled(id: String)
 const Actions := preload("res://scripts/rules/actions.gd")
 const UiText := preload("res://scenes/ui/ui_text.gd")
 const S := preload("res://scenes/ui/ui_style.gd")
+const ActionIcons := preload("res://scenes/ui/action_icons.gd")
 const SLOT := Vector2(46, 46)
 const SCHOOL_COLOR := {"evocation": Color("8a4a33"), "abjuration": Color("3f5f80"), "conjuration": Color("7d6a3a"),
 	"divination": Color("4f6f7f"), "enchantment": Color("7a4a6a"), "illusion": Color("5d4f82"),
@@ -351,6 +352,11 @@ func _slot(world: Dictionary, c: Node, key: String, explore: bool) -> Control:
 
 ## 행동 아이콘: 그림이 있으면 차분하게 바꾼 그림, 주문은 학파 색 원 + 첫 글자.
 func _icon_for(key: String, d: Dictionary, dim: bool) -> Control:
+	if ActionIcons.has_icon(key):
+		var ic: Control = ActionIcons.new()
+		ic.kind = key
+		ic.dim = dim
+		return ic
 	var path: String = d.get("icon", "")
 	if path != "" and ResourceLoader.exists(path):
 		var tr := TextureRect.new()

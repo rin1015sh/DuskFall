@@ -31,6 +31,8 @@ var kit: RefCounted
 var sorted: Node2D
 var _floors := {}  # 높이 → TileMapLayer
 var _blocks: Array[Node2D] = []
+## 서 있는 큰 소품(나무·천막 등): 캐릭터를 가리면 반투명
+var _tall_props: Array[Node2D] = []
 var _surface_nodes: Array[Node] = []
 var _decals: Node2D
 var _shade: Node2D
@@ -206,6 +208,8 @@ func _build_static() -> void:
 				node.z_index = 30
 			else:
 				node.z_index = 0
+				if String(p["id"]).begins_with("tree") or p["id"] in ["tent", "pillar", "gibbet", "statue"]:
+					_tall_props.append(node)
 			sorted.add_child(node)
 
 
@@ -288,3 +292,13 @@ func update_occlusion(actor_rects: Array) -> void:
 				faded = true
 				break
 		b.modulate.a = 0.4 if faded else 1.0
+	for p in _tall_props:
+		if not is_instance_valid(p):
+			continue
+		var r := Rect2(p.position + Vector2(-V.T * 1.2, -V.T * 3.2), Vector2(V.T * 2.4, V.T * 3.2))
+		var hide := false
+		for ar: Array in actor_rects:
+			if p.position.y > ar[1] + 4 and r.intersects(ar[0]):
+				hide = true
+				break
+		p.modulate.a = lerpf(p.modulate.a, 0.35 if hide else 1.0, 0.25)

@@ -33,6 +33,7 @@ const Hotbar := preload("res://scenes/ui/hotbar.gd")
 const S := preload("res://scenes/ui/ui_style.gd")
 const CharacterSheet := preload("res://scenes/ui/character_sheet.gd")
 const Minimap := preload("res://scenes/ui/minimap.gd")
+const Vfx := preload("res://scenes/battle/vfx.gd")
 ## 상태 → 아이콘(assets/statuses). 없으면 이로운 것 buff, 해로운 것 debuff.
 const CONDITION_ICON := {"blinded": "blind", "charmed": "charm", "frightened": "fear", "paralyzed": "paralysis",
 	"poisoned": "poison", "stunned": "stun", "restrained": "snare", "grappled": "snare", "invisible": "hidden",
@@ -88,6 +89,7 @@ var dlg_use_insp: CheckBox
 var hotbar: Control
 var sheet: Control
 var minimap: Control
+var vfx: Node2D
 
 
 class Highlights extends Node2D:
@@ -188,6 +190,9 @@ func _ready() -> void:
 	highlights.z_index = 50
 	_setup_world(b, map_id)
 	add_child(highlights)
+	vfx = Vfx.new()
+	vfx.scene = self
+	add_child(vfx)
 	# 반응: 파티 기본은 자동(매번 묻기 팝업은 반응 대기 구조와 함께 다음 단계)
 	for c: Node in party:
 		for r: String in c.known_reactions:
@@ -903,6 +908,14 @@ func _open_dialogue(id: String, npc: Node) -> void:
 	dlg = Dialogue.start(world, id, selected, npc)
 	if dlg == null:
 		return
+	# 대화 카메라(BG3 참고): 두 사람 사이로 다가가 확대, 닫으면 되돌린다
+	if npc != null and views.has(npc) and views.has(selected):
+		_cam_before = {"pos": camera.position, "zoom": camera.zoom, "follow": follow}
+		follow = false
+		var mid: Vector2 = (views[npc].position + views[selected].position) / 2.0 + Vector2(0, 70)
+		var tw := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+		tw.tween_property(camera, "position", mid, 0.45)
+		tw.tween_property(camera, "zoom", Vector2(1.35, 1.35), 0.45)
 	if npc != null and npc.team == "enemy":
 		npc.set_meta("dialogue_done", true)
 	if npc != null:
@@ -1137,8 +1150,16 @@ func _draw_roll() -> void:
 	row.add_child(ok)
 
 
+var _cam_before := {}
+
+
 func _close_dialogue() -> void:
 	dlg = null
+	if not _cam_before.is_empty() and camera != null:
+		var tw := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+		tw.tween_property(camera, "zoom", _cam_before["zoom"], 0.35)
+		follow = _cam_before["follow"]
+		_cam_before = {}
 	if dlg_panel != null:
 		dlg_panel.visible = false
 		_refresh()
@@ -1355,6 +1376,8 @@ func _refresh() -> void:
 		status_label.text = ""
 	_update_log()
 	map_view.refresh()
+	if vfx != null:
+		vfx.sync_surfaces()
 
 
 ## 이니셔티브 막대의 초상 하나(BG3: 둥근 틀, 파티 청록·적 붉은 아래띠, 현재 턴은 금빛 테두리).
