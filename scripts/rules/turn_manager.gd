@@ -29,12 +29,40 @@ func setup(w: Dictionary) -> Node:
 	world["turns"] = self
 	if not EventBus.on_enter_tile.is_connected(_on_enter_tile):
 		EventBus.on_enter_tile.connect(_on_enter_tile)
+	if not EventBus.on_after_attack_roll.is_connected(_on_attacked):
+		EventBus.on_after_attack_roll.connect(_on_attacked)
+	if not EventBus.on_damage_taken.is_connected(_on_damaged):
+		EventBus.on_damage_taken.connect(_on_damaged)
 	return self
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_PREDELETE and EventBus.on_enter_tile.is_connected(_on_enter_tile):
-		EventBus.on_enter_tile.disconnect(_on_enter_tile)
+	if what == NOTIFICATION_PREDELETE:
+		if EventBus.on_enter_tile.is_connected(_on_enter_tile):
+			EventBus.on_enter_tile.disconnect(_on_enter_tile)
+		if EventBus.on_after_attack_roll.is_connected(_on_attacked):
+			EventBus.on_after_attack_roll.disconnect(_on_attacked)
+		if EventBus.on_damage_taken.is_connected(_on_damaged):
+			EventBus.on_damage_taken.disconnect(_on_damaged)
+
+
+## 참가자에게 공격받거나 피해를 입은 구역 밖 생물은 다음 라운드에 합류한다
+## (구역 밖으로 쫓아 나간 적에게 맞는 파티원이 턴을 못 받던 문제 — changes.md).
+func _on_attacked(res: Dictionary) -> void:
+	if res.get("preview", false):
+		return
+	_join_if_hit(res.get("attacker"), res.get("target"))
+
+
+func _on_damaged(info: Dictionary) -> void:
+	_join_if_hit(info.get("opts", {}).get("attacker"), info.get("target"))
+
+
+func _join_if_hit(attacker: Variant, target: Variant) -> void:
+	if mode != "combat" or not (attacker is Node) or not (target is Node):
+		return
+	if attacker in order and not target in order and not target in _pending and not target.dead:
+		_pending.append(target)
 
 
 # ======================================================================
@@ -75,16 +103,18 @@ func _sort_order() -> void:
 # ======================================================================
 
 ## 전투 시작: 전투 구역 안의 생물만 참가한다. surprised = 상대를 감지하지 못한 생물(첫 턴 이동·행동·반응 불가).
-func start_combat(zone_id: String, surprised: Array = []) -> void:
+## extra: 구역 밖이어도 참가하는 생물(발견된 캐릭터, 구역 밖에서 적대 행동을 한 공격자 — 3단계 전투 시작·참가).
+func start_combat(zone_id: String, surprised: Array = [], extra: Array = []) -> void:
 	zone = zone_id
 	in_combat = true
+	EventBus.realtime = false
 	mode = "combat"
 	round_number = 1
 	order.clear()
 	_pending.clear()
 	var grid: Node = world["grid"]
 	for c: Node in grid.creatures():
-		if not c.dead and _in_zone(c):
+		if not c.dead and (_in_zone(c) or c in extra):
 			order.append(c)
 	for c: Node in order:
 		roll_initiative(c)
@@ -116,6 +146,7 @@ func end_combat(outcome: String = "victory") -> void:
 	in_combat = false
 	mode = "realtime"
 	result = outcome
+	EventBus.realtime = world.get("explore") != null
 	# 이기면 쓰러진 캐릭터는 안정 상태로 HP 1이 되어 일어난다(7단계 안정 상태·전투 밖 쓰러짐).
 	# 전멸이면 게임 오버라 일으키지 않는다.
 	for c: Node in order:
@@ -123,6 +154,8 @@ func end_combat(outcome: String = "victory") -> void:
 			c.stable = true
 			Resolver.heal(c, 1, "combat_end")
 		c.remove_condition("surprised")
+	if outcome == "victory" and world.has("xp"):
+		load("res://scripts/rules/progression.gd").award_defeated(world, order)
 	order.clear()
 	groups.clear()
 	EventBus.on_round_end.emit()
@@ -141,6 +174,10 @@ func check_end() -> bool:
 			party_alive = true
 		elif c.team == "enemy":
 			foes_alive = true
+	# 전멸은 활성 파티 전원이 죽거나 쓰러졌을 때(7단계). 구역 밖 파티원이 서 있으면 전투가 이어진다.
+	for c: Node in world.get("party", []):
+		if not c.dead and not c.is_down():
+			party_alive = true
 	if not party_alive:
 		end_combat("defeat")
 		return true
@@ -163,7 +200,8 @@ func _on_enter_tile(c: Object, _cell: Vector2i) -> void:
 	if mode != "combat" or not world["grid"].creatures().has(c):
 		return
 	if c in order:
-		if c.team == "enemy" and not _in_zone(c):
+		# 이탈은 도주하는 적만(메타 fleeing). 쫓아 나가는 적은 구역 밖에서도 참가자다(9단계 악용 5).
+		if c.team == "enemy" and c.get_meta("fleeing", false) and not _in_zone(c):
 			leave(c)
 	elif _in_zone(c) and c.team == "party" and not c in _pending:
 		_pending.append(c)

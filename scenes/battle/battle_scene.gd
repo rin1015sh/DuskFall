@@ -25,6 +25,7 @@ const Rest := preload("res://scripts/rules/rest.gd")
 const Dialogue := preload("res://scripts/rules/dialogue.gd")
 const SaveGame := preload("res://scripts/rules/save_game.gd")
 const TICK_SEC := 6.0
+const Progression := preload("res://scripts/rules/progression.gd")
 
 var world: Dictionary
 var party: Array = []
@@ -62,6 +63,7 @@ var _frames := 0
 var explore: Node
 var exploring := false
 var _tick_acc := 0.0
+var follow := true
 var dlg: RefCounted = null
 var dlg_panel: PanelContainer
 var dlg_text: RichTextLabel
@@ -128,7 +130,8 @@ func _ready() -> void:
 	_parse_args()
 	UiText.lang = args.get("lang", "ko")
 	Dice.set_seed(int(args.get("seed", "7")))
-	var b := Roster.build()
+	var map_id: String = args.get("map", "fallen_watch")
+	var b := Roster.build(map_id)
 	world = b["world"]
 	party = b["party"]
 	foes = b["foes"]
@@ -145,7 +148,7 @@ func _ready() -> void:
 	map_view = MapView.new()
 	add_child(map_view)
 	add_child(sorted)
-	map_view.build(world["grid"], sorted, MapLoader.load_map("test_arena"))
+	map_view.build(world["grid"], sorted, MapLoader.load_map(map_id))
 	for c: Node in party + foes:
 		var v: Node2D = ActorView.new()
 		v.setup(c, world["grid"])
@@ -165,7 +168,9 @@ func _ready() -> void:
 	router.preview.connect(_on_preview)
 	router.confirm.connect(_on_confirm)
 	router.info.connect(_on_info)
-	router.pan.connect(func(delta: Vector2) -> void: camera.position -= delta / camera.zoom.x)
+	router.pan.connect(func(delta: Vector2) -> void:
+		follow = false
+		camera.position -= delta / camera.zoom.x)
 	router.zoom.connect(_on_zoom)
 	EventBus.on_enter_tile.connect(func(c: Object, _cell: Vector2i) -> void:
 		if views.has(c):
@@ -198,7 +203,13 @@ func _ready() -> void:
 func _begin_battle() -> void:
 	exploring = false
 	if not world["turns"].in_combat:
-		world["turns"].start_combat("arena")
+		var zone_id: String = args.get("zone", "")
+		if zone_id == "":
+			for c in world["grid"].all_cells():
+				if not world["grid"].zones(c).is_empty():
+					zone_id = world["grid"].zones(c)[0]
+					break
+		world["turns"].start_combat(zone_id)
 	selected = null
 	_refresh()
 	_advance()
@@ -206,6 +217,13 @@ func _begin_battle() -> void:
 
 ## 탐험 중 전투가 시작됐으면(발견·적대 행동) 턴제로 넘어간다.
 func _check_combat() -> void:
+	if exploring and world.has("pending_dialogue") and dlg == null and not world["turns"].in_combat:
+		var pd: Dictionary = world["pending_dialogue"]
+		world.erase("pending_dialogue")
+		if pd.get("speaker") != null and pd["speaker"] in party:
+			selected = pd["speaker"]
+		if pd["id"] != "":
+			_open_dialogue(pd["id"], pd["npc"])
 	if exploring and world["turns"].in_combat:
 		_close_dialogue()
 		banner.text = UiText.t("combat_start")
@@ -235,6 +253,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		var pan := {KEY_LEFT: Vector2(-40, 0), KEY_RIGHT: Vector2(40, 0), KEY_UP: Vector2(0, -40), KEY_DOWN: Vector2(0, 40)}
 		if pan.has(event.keycode):
+			follow = false
 			camera.position += pan[event.keycode]
 		elif event.keycode == KEY_ESCAPE:
 			_clear_preview()
@@ -251,6 +270,8 @@ func _process(delta: float) -> void:
 			explore.tick()
 			_refresh()
 			_check_combat()
+	if follow and selected != null and views.has(selected):
+		camera.position = camera.position.lerp(views[selected].position - Vector2(0, 40), minf(1.0, delta * 4.0))
 	var rects: Array = []
 	for c: Node in views.keys():
 		if not c.dead:
@@ -314,8 +335,9 @@ func _advance() -> void:
 		banner.text = UiText.t("victory") if tm.result == "victory" else UiText.t("defeat")
 		banner.visible = true
 		if tm.result == "victory" and not args.has("autoplay"):
-			# 이기면 탐험으로 돌아간다
+			# 이기면 탐험으로 돌아간다(경험치·구역 보상)
 			exploring = true
+			explore.check_zone_rewards()
 			selected = party.filter(func(p: Node) -> bool: return not p.dead)[0]
 			explore.leader = selected
 			mode = "move"
@@ -332,6 +354,7 @@ func _end_turn() -> void:
 
 
 func _select(c: Node) -> void:
+	follow = true
 	if exploring:
 		if c.dead:
 			return
@@ -496,7 +519,7 @@ func _explore_action(cell: Vector2i) -> Dictionary:
 	var g: Node = world["grid"]
 	var target: Node = g.creature_at(cell)
 	if target != null and target != selected:
-		if target.has_meta("dialogue") and not target.dead and target.team != "party":
+		if target.has_meta("dialogue") and not target.dead and target.team != "party" and not target.get_meta("dialogue_done", false):
 			var aware: bool = target.awareness.values().any(func(a: Dictionary) -> bool: return a.get("state", "") == "alerted")
 			if not aware:
 				return {"kind": "talk", "creature": target}
@@ -528,8 +551,16 @@ func _explore_preview(cell: Vector2i) -> Dictionary:
 				return {"valid": false}
 			var p: Dictionary = g.find_path(selected, cell, -1, party)
 			if p.is_empty():
-				return {"valid": false, "text": UiText.t("blocked") % "-"}
-			out["path"] = p["path"]
+				var land: Vector2i = explore._jump_spot(selected, cell, party)
+				if land.x < 0:
+					return {"valid": false, "text": UiText.t("blocked") % "-"}
+				out["path"] = [land, cell]
+				var drop: int = g.height(g.cell_of(selected)) - g.height(land)
+				lines.append(UiText.t("jump"))
+				if drop >= 2:
+					lines.append(UiText.t("fall") % drop)
+			else:
+				out["path"] = p["path"]
 			if selected.sneaking:
 				lines.append(UiText.t("sneaking"))
 		"attack":
@@ -583,6 +614,7 @@ func _approach(cell: Vector2i) -> bool:
 
 
 func _explore_execute(cell: Vector2i) -> void:
+	follow = true
 	var a := _explore_action(cell)
 	_clear_preview()
 	match a.get("kind", ""):
@@ -668,6 +700,8 @@ func _open_dialogue(id: String, npc: Node) -> void:
 	dlg = Dialogue.start(world, id, selected, npc)
 	if dlg == null:
 		return
+	if npc != null and npc.team == "enemy":
+		npc.set_meta("dialogue_done", true)
 	if npc != null:
 		Stealth.face_toward(world["grid"], npc, world["grid"].cell_of(selected))
 		views[npc].face_toward(world["grid"].cell_of(selected))
@@ -852,6 +886,7 @@ func _build_ui() -> void:
 
 func _refresh() -> void:
 	var tm: Node = world["turns"]
+	party = world.get("party", party)
 	for v in views.values():
 		v.current = v.creature in tm.current_group()
 		v.selected = v.creature == selected
@@ -893,11 +928,16 @@ func _refresh() -> void:
 		_action_button(UiText.t("sneak_on") if selected.sneaking else UiText.t("sneak_off"), _toggle_sneak, selected.sneaking)
 		var linked: bool = explore.linked.get(selected, false)
 		_action_button(UiText.t("linked") if linked else UiText.t("unlinked"), func() -> void: explore.link(selected, not linked); _refresh(), linked)
+		_action_button(UiText.t("regroup"), func() -> void: explore.regroup(); _refresh(); _check_combat())
 		_action_button(UiText.t("short_rest") % int(world.get("short_rests_left", Rest.SHORT_RESTS)), _rest.bind("short"))
 		_action_button(UiText.t("long_rest") % Rest.supplies(world), _rest.bind("long"))
+		if Progression.can_level_up(world, selected):
+			_action_button(UiText.t("level_up") % (selected.level + 1), func() -> void:
+				Progression.level_up(world, selected)
+				_refresh())
 		_action_button(UiText.t("save"), _save)
 		_action_button(UiText.t("load"), _load)
-		status_label.text = UiText.t("explore_status") % [selected.label(), int(world.get("inspiration", 0)),
+		status_label.text = UiText.t("explore_status") % [selected.label(), selected.level, int(world.get("xp", 0)), int(world.get("inspiration", 0)),
 			Interact.count(world, "gold"), Interact.count(world, "thieves_tools"), Interact.count(world, "trap_disarm_kit")]
 	elif selected != null and selected.team == "party" and not busy:
 		for m: String in ["move", "attack", "shove", "jump"]:

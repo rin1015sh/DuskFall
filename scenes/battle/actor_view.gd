@@ -166,7 +166,7 @@ func _draw() -> void:
 	var w := 46.0
 	var ratio: float = float(creature.hp) / maxf(creature.hp_max, 1)
 	draw_rect(Rect2(top + Vector2(-w / 2, 0), Vector2(w, 6)), Color(0, 0, 0, 0.7))
-	var col2 := Color(0.3, 0.85, 0.35) if creature.team == "party" else Color(0.9, 0.3, 0.25)
+	var col2: Color = {"party": Color(0.3, 0.85, 0.35), "enemy": Color(0.9, 0.3, 0.25)}.get(creature.team, Color(0.9, 0.75, 0.3))
 	draw_rect(Rect2(top + Vector2(-w / 2 + 1, 1), Vector2((w - 2) * ratio, 4)), col2)
 	# 알아챔 표시(5단계): 의심·수색 = ?, 발견 = !
 	var mark := ""

@@ -147,7 +147,11 @@ func test_enemy_leaving_zone_flees() -> void:
 	Dice.force([20, 1, 2, 1])
 	w["turns"].start_combat("camp")
 	w["grid"].move_creature(e, Vector2i(6, 0))
-	assert_false(w["turns"].in_combat, "구역을 벗어나면 이탈 → 전투 끝")
+	assert_true(w["turns"].in_combat, "쫓아 나간 적은 계속 참가한다")
+	w["grid"].move_creature(e, Vector2i(5, 0))
+	e.set_meta("fleeing", true)
+	w["grid"].move_creature(e, Vector2i(6, 0))
+	assert_false(w["turns"].in_combat, "도주하는 적이 구역을 벗어나면 이탈 → 전투 끝")
 
 
 func test_realtime_tick_runs_turn_effects() -> void:
@@ -186,3 +190,17 @@ func test_party_wipe_is_defeat() -> void:
 	assert_false(w["turns"].in_combat)
 	assert_eq(w["turns"].result, "defeat", "활성 파티 전원이 쓰러지면 게임 오버(7단계)")
 	assert_eq(p.hp, 0, "일으키지 않는다")
+
+
+func test_attacked_outsider_joins_next_round() -> void:
+	var w := _zone_world()
+	var p := _pc(10)
+	var e := _foe(10)
+	var outsider := _pc(10)
+	w["grid"].place(p, Vector2i(0, 0))
+	w["grid"].place(e, Vector2i(5, 0))
+	w["turns"].start_combat("camp")
+	w["grid"].place(outsider, Vector2i(7, 0))
+	assert_false(outsider in w["turns"].order)
+	EventBus.on_after_attack_roll.emit({"attacker": e, "target": outsider})
+	assert_true(outsider in w["turns"]._pending, "참가자에게 공격받으면 다음 라운드에 합류")

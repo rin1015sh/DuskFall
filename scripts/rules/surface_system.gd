@@ -215,6 +215,9 @@ func break_object(c: Vector2i, depth: int = 1, queue: Variant = null) -> void:
 	if obj.is_empty():
 		return
 	grid.remove_object(c)
+	# 부서진 상자의 전리품은 바닥에 남는다(5단계 자물쇠의 다른 해법: 부수기)
+	if not obj.get("loot", {}).is_empty():
+		grid.place_object(c, {"id": "loot_pile", "material": "cloth", "hp": 1, "art": "sack.pile", "loot": obj["loot"]})
 	_changed += 1
 	history.append({"cell": c, "reaction": "break:" + str(obj.get("id", "")), "depth": depth})
 	var contents: Dictionary = obj.get("contents", {})
@@ -394,4 +397,4 @@ func _apply_effect(creature: Node, eff: Dictionary) -> void:
 			creature.remove_condition(eff["id"])
 		"damage":
 			var r := Dice.roll(eff["dice"], "표면 피해")
-			Resolver.apply_damage(creature, [{"amount": r["total"], "damage_type": eff["damage_type"]}])
+			Resolver.apply_damage(creature, [{"amount": r["total"], "damage_type": eff["damage_type"]}], {"in_combat": not EventBus.realtime})

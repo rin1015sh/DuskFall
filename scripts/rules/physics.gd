@@ -111,7 +111,7 @@ static func fall(creature: Node, levels: int) -> Dictionary:
 	if ctx["prevented"] or dice <= 0:
 		return out
 	var r := Dice.roll("%dd6" % dice, "%s 낙하" % creature.label())
-	var dmg := Resolver.apply_damage(creature, [{"amount": r["total"], "damage_type": "bludgeoning"}])
+	var dmg := Resolver.apply_damage(creature, [{"amount": r["total"], "damage_type": "bludgeoning"}], {"in_combat": not EventBus.realtime})
 	out["damage"] = dmg["total"]
 	if dmg["total"] > 0 and not creature.dead:
 		creature.apply_condition("prone", -1)

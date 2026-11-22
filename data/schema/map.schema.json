@@ -313,6 +313,55 @@
               "enemy",
               "neutral"
             ]
+          },
+          "monster": {
+            "type": "string"
+          },
+          "faction": {
+            "type": "string"
+          },
+          "light": {
+            "type": "object",
+            "required": [
+              "bright"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "bright": {
+                "type": "integer"
+              },
+              "dim": {
+                "type": "integer"
+              }
+            }
+          },
+          "companion": {
+            "type": "object",
+            "required": [
+              "class",
+              "name"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "class": {
+                "type": "string"
+              },
+              "name": {
+                "type": "object",
+                "required": [
+                  "ko",
+                  "en"
+                ],
+                "properties": {
+                  "ko": {
+                    "type": "string"
+                  },
+                  "en": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -497,6 +546,9 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "goal": {
+                "type": "string"
               }
             }
           },
@@ -531,8 +583,88 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "goal": {
+                "type": "string"
               }
             }
+          }
+        }
+      }
+    },
+    "light_rects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "rect",
+          "light"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "rect": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "light": {
+            "enum": [
+              "bright",
+              "dim",
+              "dark"
+            ]
+          }
+        }
+      }
+    },
+    "flag_rects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "rect",
+          "flags"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "rect": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "zone_rewards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "zone",
+          "xp"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "zone": {
+            "type": "string"
+          },
+          "xp": {
+            "type": "integer",
+            "minimum": 0
           }
         }
       }

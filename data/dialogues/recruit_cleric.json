@@ -1,0 +1,36 @@
+{
+  "schema": "dialogue_v1",
+  "note_ko": "영입 동료 1: 길가 사당을 지키던 클레릭. 우호적, 영입 + 짧은 배경 대화.",
+  "id": "recruit_cleric",
+  "speaker": {"ko": "브리엔 하솔", "en": "Brien Hasol"},
+  "attitude": "friendly",
+  "start": "greet",
+  "source": "original",
+  "nodes": [
+    {
+      "id": "greet",
+      "text": {"ko": "여행자로군요. 저는 길가 사당을 돌보는 브리엔입니다. 동굴에 자리 잡은 고블린들이 순례자를 덮쳐서… 혼자서는 감당이 안 됩니다.", "en": "Travelers. I am Brien, keeper of the roadside shrine. Goblins in the cave have been ambushing pilgrims... I cannot face them alone."},
+      "auto": [
+        {"ability": "wis", "skill": "insight", "dc": 10, "tag": "brien_guilt",
+          "line": {"ko": "(통찰) 다친 팔을 감춘다. 이미 한 번 혼자 갔다가 돌아온 모양이다.", "en": "(Insight) She hides a hurt arm. She already tried once, alone."}}
+      ],
+      "options": [
+        {"text": {"ko": "같이 갑시다.", "en": "Come with us."}, "goto": "joined"},
+        {"text": {"ko": "혼자 갔었군요. 그 팔은 어쩌다?", "en": "You went alone. What happened to that arm?"}, "requires": ["brien_guilt"], "goto": "confess"},
+        {"text": {"ko": "[설득] 사당에 남은 물자를 나눠 주시겠소?", "en": "[Persuasion] Could the shrine spare some supplies?"},
+          "check": {"ability": "cha", "skill": "persuasion"}, "success": "supplies", "fail": "no_supplies"},
+        {"text": {"ko": "나중에 다시 오겠소.", "en": "We'll come back later."}, "goto": "later"}
+      ]
+    },
+    {"id": "confess", "text": {"ko": "바위 턱 위에 숨은 놈들이 있어요. 어둠 속이라 보이지도 않았습니다. 빛이 필요해요.", "en": "Some hide up on the ledge, in the dark. I never saw them. We need light."},
+      "effects": [{"type": "set_flag", "flag": "knows_cave_ledge"}, {"type": "inspiration_goal", "goal": "show_mercy"}],
+      "options": [{"text": {"ko": "같이 갑시다.", "en": "Come with us."}, "goto": "joined"}]},
+    {"id": "supplies", "text": {"ko": "순례자 몫이지만… 고블린을 몰아내 준다면야.", "en": "They were meant for pilgrims... but if you drive the goblins out."},
+      "effects": [{"type": "give_item", "item": "rations", "count": 2}],
+      "options": [{"text": {"ko": "같이 갑시다.", "en": "Come with us."}, "goto": "joined"}]},
+    {"id": "no_supplies", "text": {"ko": "미안하지만 그건 안 됩니다.", "en": "I'm sorry, I can't."},
+      "options": [{"text": {"ko": "알겠소. 같이 갑시다.", "en": "Understood. Come with us."}, "goto": "joined"}, {"text": {"ko": "나중에.", "en": "Later."}, "goto": "later"}]},
+    {"id": "joined", "text": {"ko": "신께서 우리 발걸음을 지켜 주시길.", "en": "May the gods guard our steps."}, "effects": [{"type": "recruit"}], "end": true},
+    {"id": "later", "text": {"ko": "여기서 기다리겠습니다.", "en": "I'll wait here."}, "end": true}
+  ]
+}

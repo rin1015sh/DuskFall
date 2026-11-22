@@ -88,7 +88,10 @@ static func observe(grid: Node, observer: Node, target: Node) -> String:
 	var r := Resolver.ability_check(target, "dex", passive_perception(observer), {"skill": "stealth",
 		"bonus": stealth_bonus(target) - target.ability_mod("dex") - int(target.skill_bonuses.get("stealth", 0))})
 	target.set_meta("stealth_total", r["total"])
-	if r["success"]:
+	# 은신 합계가 찾는 쪽의 DC다: 수동 지각 ≥ 합계면 발견(SRD Hide). 자연 20·1은 능력 판정 규칙대로.
+	var nat := int(r["natural"])
+	var hidden: bool = nat == 20 or (nat != 1 and int(r["total"]) > passive_perception(observer))
+	if hidden:
 		return ""
 	return _mark(observer, target, "suspicious" if state == "" else "alerted", grid)
 

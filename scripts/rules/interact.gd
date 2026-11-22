@@ -78,9 +78,9 @@ static func trigger(world: Dictionary, t: Dictionary, by: Node = null) -> void:
 			h["scale"] = 0.5
 			success.append(h)
 	if save.is_empty():
-		Resolver.save_effect(targets, {}, fail, [], {"in_combat": false})
+		Resolver.save_effect(targets, {}, fail, [], {"in_combat": not EventBus.realtime})
 	else:
-		Resolver.save_effect(targets, {"ability": save["ability"], "dc": int(save["dc"])}, fail, success, {"in_combat": false})
+		Resolver.save_effect(targets, {"ability": save["ability"], "dc": int(save["dc"])}, fail, success, {"in_combat": not EventBus.realtime})
 	for e: Dictionary in fail:
 		if e["type"] == "create_surface" and world.get("surfaces") != null:
 			world["surfaces"].place_surface(cells, e["id"])
@@ -177,6 +177,8 @@ static func examine(world: Dictionary, c: Node, ex: Dictionary, opts: Dictionary
 		world["dialogue_tags"][tag] = true
 	for item: String in out.get("items", []):
 		give(world, item)
+	if out.has("goal"):
+		Goals.complete(world, out["goal"])
 	return {"ok": true, "success": r["success"], "check": r, "result": out}
 
 

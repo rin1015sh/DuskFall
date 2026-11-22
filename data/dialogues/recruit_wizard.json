@@ -1,0 +1,40 @@
+{
+  "schema": "dialogue_v1",
+  "note_ko": "영입 동료 2: 무너진 초소의 옛 기록을 찾는 위저드. 무관심 — 지식 판정으로 마음을 얻거나 그냥 영입.",
+  "id": "recruit_wizard",
+  "speaker": {"ko": "오렌 멜로", "en": "Oren Mello"},
+  "attitude": "indifferent",
+  "start": "greet",
+  "source": "original",
+  "nodes": [
+    {
+      "id": "greet",
+      "text": {"ko": "방해하지 마시오. 이 초소의 옛 경고문을 옮겨 적는 중이니까. …동굴 안에 더 오래된 글이 있다던데, 고블린 때문에 들어갈 수가 없군.", "en": "Don't interrupt. I'm copying the old watch warnings. ...There's an older inscription in the cave, but the goblins keep me out."},
+      "auto": [
+        {"ability": "int", "skill": "history", "dc": 12, "tag": "watch_history",
+          "line": {"ko": "(지식) 이 초소는 절벽 길의 약탈자를 막으려고 세운 곳이다.", "en": "(History) This watch was built against raiders on the cliff road."}}
+      ],
+      "options": [
+        {"text": {"ko": "우리가 길을 열어 주지. 함께 가겠소?", "en": "We'll clear the way. Join us?"}, "goto": "doubt"},
+        {"text": {"ko": "절벽 길 약탈자를 막던 초소였지요.", "en": "This watch held back the cliff raiders."}, "requires": ["watch_history"], "goto": "impressed"},
+        {"text": {"ko": "그럼 수고하시오.", "en": "Good luck, then."}, "goto": "later"}
+      ]
+    },
+    {"id": "doubt", "text": {"ko": "칼 휘두르는 사람들과? 글자를 읽을 줄은 아시오?", "en": "With sword-swingers? Can you even read?"},
+      "options": [
+        {"text": {"ko": "[설득] 글은 당신이 읽고, 칼은 우리가 휘두르면 되지.", "en": "[Persuasion] You read, we swing."},
+          "check": {"ability": "cha", "skill": "persuasion"}, "success": "joined", "fail": "pay"},
+        {"text": {"ko": "됐소.", "en": "Forget it."}, "goto": "later"}
+      ]},
+    {"id": "impressed", "text": {"ko": "오, 아는 사람이로군! 좋소, 동행하지.", "en": "Oh, someone who knows! Very well, I'll come."},
+      "effects": [{"type": "inspiration_goal", "goal": "learn_secret"}],
+      "options": [{"text": {"ko": "가지.", "en": "Let's go."}, "goto": "joined"}]},
+    {"id": "pay", "text": {"ko": "호위비라도 받아야겠소. 금화 10닢이면 따라가지.", "en": "Then I'd want an escort fee. Ten gold and I'll come."},
+      "options": [
+        {"text": {"ko": "여기 있소. (금화 10닢)", "en": "Here. (10 gold)"}, "cost_gold": 10, "effects": [{"type": "gold", "add": -10}], "goto": "joined"},
+        {"text": {"ko": "됐소.", "en": "Forget it."}, "goto": "later"}
+      ]},
+    {"id": "joined", "text": {"ko": "주문서 챙기고 바로 가겠소.", "en": "Let me grab my spellbook."}, "effects": [{"type": "recruit"}], "end": true},
+    {"id": "later", "text": {"ko": "…", "en": "..."}, "end": true}
+  ]
+}

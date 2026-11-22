@@ -111,6 +111,7 @@ func test_dialogue_check_auto_insight_and_tags() -> void:
 	var c := _hero({"abilities": {"cha": 14, "wis": 14}, "background_id": "soldier"})
 	w["grid"].place(c, Vector2i(0, 0))
 	w["party"] = [c]
+	w["inventory"] = {"gold": 20}
 	Dice.force([15])  # 자동 통찰 15 + 2 ≥ 12
 	var d: RefCounted = Dialogue.start(w, "goblin_toll", c)
 	assert_true(d != null)
@@ -139,6 +140,7 @@ func test_dialogue_spell_unlock_and_hostile() -> void:
 	for cell in w["grid"].all_cells():
 		w["grid"].add_zone(cell, "road")
 	w["dialogue_tags"] = {"thoughts": true}
+	w["inventory"] = {"gold": 20}
 	Dice.force([2])  # 통찰 실패
 	var d: RefCounted = Dialogue.start(w, "goblin_toll", c, npc)
 	assert_eq(d.options().size(), 4, "통찰 실패: 위협 숨김, 속마음 읽기 보임")
@@ -151,6 +153,15 @@ func test_dialogue_spell_unlock_and_hostile() -> void:
 	assert_eq(d.outcome, "hostile")
 	assert_eq(npc.team, "enemy")
 	assert_eq(buddy.team, "enemy", "같은 세력도 적대")
+
+
+func test_gold_option_hidden_without_gold() -> void:
+	var w := make_world(["...."])
+	var c := _hero()
+	w["grid"].place(c, Vector2i(0, 0))
+	Dice.force([2])
+	var d: RefCounted = Dialogue.start(w, "goblin_toll", c)
+	assert_false(d.options().any(func(o: Dictionary) -> bool: return o["text"]["en"].contains("20 gold")), "금화가 모자라면 내는 선택지가 숨는다")
 
 
 func test_dialogue_not_in_combat() -> void:

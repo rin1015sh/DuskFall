@@ -8,8 +8,10 @@ const VERSION := 1
 const SAVE_DIR := "user://saves"
 ## 세계에서 그대로 저장하는 값
 const WORLD_KEYS := ["inventory", "inspiration", "short_rests_left", "party_resources", "dialogue_tags", "flags",
-	"goals_done", "xp", "options", "map_id", "traps", "examines"]
-const CREATURE_KEYS := ["hp", "hp_max", "temp_hp", "dead", "stable", "death_saves", "team", "sneaking", "level"]
+	"goals_done", "xp", "options", "map_id", "traps", "examines", "zones_cleared"]
+const CREATURE_KEYS := ["hp", "hp_max", "temp_hp", "dead", "stable", "death_saves", "team", "sneaking", "level", "faction"]
+## 생물 메타 중 저장하는 것(대화를 이미 했는지, 경험치를 이미 줬는지, 레벨 업 명세)
+const CREATURE_METAS := ["dialogue_done", "xp_given", "spec"]
 
 
 static func can_save(world: Dictionary) -> bool:
@@ -34,7 +36,19 @@ static func snapshot(world: Dictionary) -> Dictionary:
 		e["resources"] = res
 		e["conditions"] = c.conditions.map(func(x: Dictionary) -> Dictionary: return _plain_effect(x))
 		e["modifiers"] = c.extra_modifiers.map(func(x: Dictionary) -> Dictionary: return _plain_effect(x))
+		var metas := {}
+		for m: String in CREATURE_METAS:
+			if c.has_meta(m):
+				metas[m] = _plain(c.get_meta(m))
+		e["metas"] = metas
+		var aw := {}
+		for k in c.awareness:
+			if k is Node and is_instance_valid(k):
+				aw[str(k.name)] = {"state": c.awareness[k].get("state", ""), "last": _plain(c.awareness[k].get("last", Vector2i.ZERO))}
+		e["awareness"] = aw
 		out["creatures"][str(c.name)] = e
+	out["party"] = world.get("party", []).map(func(c: Node) -> String: return str(c.name))
+	out["roster"] = world.get("roster", []).map(func(c: Node) -> String: return str(c.name))
 	for cell in grid.all_cells():
 		var obj: Dictionary = grid.object_at(cell)
 		if not obj.is_empty():
@@ -58,6 +72,10 @@ static func restore(world: Dictionary, snap: Dictionary) -> bool:
 		if c == null:
 			continue
 		var e: Dictionary = snap["creatures"][n]
+		# 레벨이 다르면(새로 만든 세계에 불러오기) 저장된 명세로 캐릭터를 다시 만든다
+		var spec: Variant = e.get("metas", {}).get("spec")
+		if spec is Dictionary and int(spec.get("level", 1)) != c.level:
+			load("res://scripts/rules/character_builder.gd").apply(c, spec)
 		for k: String in CREATURE_KEYS:
 			if e.has(k):
 				c.set(k, _typed(c.get(k), e[k]))
@@ -77,6 +95,18 @@ static func restore(world: Dictionary, snap: Dictionary) -> bool:
 				x["turns_left"] = int(x["turns_left"])
 			c.extra_modifiers.append(x)
 		c.concentration = {}
+		for m: String in e.get("metas", {}):
+			c.set_meta(m, e["metas"][m])
+		c.awareness.clear()
+		for n2: String in e.get("awareness", {}):
+			if by_name.has(n2):
+				var a: Dictionary = e["awareness"][n2]
+				c.awareness[by_name[n2]] = {"state": a["state"], "last": Vector2i(int(a["last"][0]), int(a["last"][1]))}
+	if snap.has("party"):
+		world["party"] = snap["party"].filter(func(n3: String) -> bool: return by_name.has(n3)).map(func(n3: String) -> Node: return by_name[n3])
+		world["roster"] = snap.get("roster", []).filter(func(n3: String) -> bool: return by_name.has(n3)).map(func(n3: String) -> Node: return by_name[n3])
+		if world.get("explore") != null:
+			world["explore"].party = world["party"].duplicate()
 	for cell in grid.all_cells():
 		if not grid.object_at(cell).is_empty():
 			grid.remove_object(cell)

@@ -39,8 +39,8 @@ func _notification(what: int) -> void:
 
 ## 반응 창 하나. 쓰기로 하면 action을 실행한다. 쓴 경우 true.
 func offer(c: Node, reaction_id: String, info: Dictionary, action: Callable, auto_yes: bool = true) -> bool:
-	if not c.known_reactions.has(reaction_id) or not c.can_react():
-		return false
+	if not c.known_reactions.has(reaction_id) or not c.can_react() or EventBus.realtime:
+		return false  # 실시간에서는 반응이 발동하지 않는다(5단계 실시간 규칙)
 	var setting: String = c.reaction_setting(reaction_id)
 	var use := false
 	match setting:

@@ -93,16 +93,22 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 	if why != "":
 		return {"ok": false, "reason": why}
 	var grid: Node = world["grid"]
+	# 긴 휴식 = 캠프로 이동. 캠프 불가 판정은 휴식을 부르는 리더의 칸으로 한다(파티는 함께 캠프로 간다).
 	if not opts.get("tiny_hut", false):
-		for p: Node in party:
-			if not p.dead and grid.has_flag(grid.cell_of(p), "no_camp"):
-				return {"ok": false, "reason": "여기서는 캠프를 칠 수 없다"}
+		var caller: Node = opts.get("caller", world["explore"].leader if world.get("explore") != null else null)
+		if caller == null or caller.dead:
+			for p: Node in party:
+				if not p.dead:
+					caller = p
+					break
+		if caller != null and grid.has_flag(grid.cell_of(caller), "no_camp"):
+			return {"ok": false, "reason": "여기서는 캠프를 칠 수 없다"}
 	var full: bool = supplies(world) >= LONG_REST_SUPPLIES and not opts.get("partial", false)
 	if full:
 		_spend_supplies(world, LONG_REST_SUPPLIES)
 	pass_time(world, -1)
 	var everyone: Array = party.duplicate()
-	everyone.append_array(opts.get("roster", []))
+	everyone.append_array(opts.get("roster", world.get("roster", [])))  # 쉬는 동료도 긴 휴식은 받는다(7단계)
 	for c: Node in everyone:
 		if c.dead:
 			continue

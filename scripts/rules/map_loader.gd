@@ -32,6 +32,13 @@ static func load_into(grid: Node, surfaces: Node, map: Dictionary) -> Dictionary
 	for f: Dictionary in map.get("flags", []):
 		for flag: String in f["flags"]:
 			grid.set_flag(_cell(f["cell"]), flag)
+	for lr: Dictionary in map.get("light_rects", []):
+		for c in _rect(lr["rect"]):
+			grid.set_base_light(c, LIGHT[lr["light"]])
+	for fr: Dictionary in map.get("flag_rects", []):
+		for c in _rect(fr["rect"]):
+			for flag: String in fr["flags"]:
+				grid.set_flag(c, flag)
 	for z: Dictionary in map.get("zones", []):
 		var r: Array = z["rect"]
 		for y in range(r[1], r[1] + r[3]):
@@ -50,7 +57,7 @@ static func load_into(grid: Node, surfaces: Node, map: Dictionary) -> Dictionary
 		var i := {}
 		if s.has("facing"):
 			i["facing"] = _cell(s["facing"])
-		for k: String in ["dialogue", "team"]:
+		for k: String in ["dialogue", "team", "monster", "faction", "light", "companion"]:
 			if s.has(k):
 				i[k] = s[k]
 		info[s["id"]] = i
@@ -59,7 +66,18 @@ static func load_into(grid: Node, surfaces: Node, map: Dictionary) -> Dictionary
 		var tt := t.duplicate(true)
 		tt["state"] = "armed"
 		traps.append(tt)
-	return {"spawns": spawns, "spawn_info": info, "traps": traps, "examines": map.get("examines", []).duplicate(true)}
+	var rewards := {}
+	for r: Dictionary in map.get("zone_rewards", []):
+		rewards[r["zone"]] = int(r["xp"])
+	return {"spawns": spawns, "spawn_info": info, "zone_rewards": rewards, "traps": traps, "examines": map.get("examines", []).duplicate(true)}
+
+
+static func _rect(r: Array) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for y in range(int(r[1]), int(r[1]) + int(r[3])):
+		for x in range(int(r[0]), int(r[0]) + int(r[2])):
+			out.append(Vector2i(x, y))
+	return out
 
 
 static func load_map(id: String) -> Dictionary:

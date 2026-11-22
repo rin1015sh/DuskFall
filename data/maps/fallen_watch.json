@@ -1,0 +1,1045 @@
+{
+  "schema": "map_v1",
+  "id": "fallen_watch",
+  "name": {
+    "ko": "무너진 초소",
+    "en": "Fallen Watch"
+  },
+  "note_ko": "7단계 수직 슬라이스 구역: 입구 캠프 + 전투 구역 3곳(룰북 9단계 예시 전투 1·2·3). 동굴은 어둠, 바깥은 낮(고정 조명).",
+  "legend": {
+    "#": {
+      "flags": [
+        "wall"
+      ]
+    },
+    ".": {
+      "material": "stone"
+    },
+    ":": {
+      "material": "earth"
+    },
+    ",": {
+      "material": "grass"
+    },
+    "~": {
+      "material": "stone",
+      "surface": "water"
+    },
+    "2": {
+      "material": "stone",
+      "height": 2
+    },
+    "3": {
+      "material": "stone",
+      "height": 3
+    },
+    "1": {
+      "material": "earth",
+      "height": 1
+    }
+  },
+  "rows": [
+    "##############################################",
+    "#::::::::::##...........222222.#1111:::::::::#",
+    "#::::::::::##...........222222.#1111:::::::::#",
+    "#::::::::::##........#..222222.#1111:::33333:#",
+    "#::::::::::##...#.......222222.#1111:::33333:#",
+    "#::::::::::##..................#:::::::33333:#",
+    "#::::::::::::..................#:::::::33333:#",
+    "#::::::::::::..................#:::::::33333:#",
+    "#::::::::::##....~~~~.....#....#:::::::::::::#",
+    "#::::::::::##....~~~~..........#:::::::::::::#",
+    "#::::::::::##....~~~~..........#:::::::::::::#",
+    "#::::::::::##.........#........#:::::::::::::#",
+    "#::::::::::##..................#:::::::::::::#",
+    "####::##########################:::::::::::::#",
+    "####::##########################:::::::::::::#",
+    "####::##########################:::::::::::::#",
+    "#::::::::::::::::::::::::#######:::::::::::::#",
+    "#::::::::::::::::::::::::#######:::::::::::::#",
+    "#:::::::,,,,,,,,,,,::::::#######:::::::::::::#",
+    "#:::::::,,,,,,,,,,,::::::#######:::::::::::::#",
+    "#:::::::,,,,,,,,,,,::::::#######:::::::::::::#",
+    "#:::::::,,,,,,,,,,,::::::::::::::::::::::::::#",
+    "#:::::::,,,,,,,,,,,::::::::::::::::::::::::::#",
+    "#:::::::,,,,,,,,,,,::::::#######:::::::::::::#",
+    "#:::::::,,,,,,,,,,,::::::#######:::::::::::::#",
+    "#:,,,,,:,,,,,,,,,,,::::::#######:::::::::::::#",
+    "#:,,,,,:,,,,,,,,,,,::::::#######:::::::::::::#",
+    "#:,,,,,::::::::::::::::::#######:::::::::::::#",
+    "#::::::::::::::::::::::::#####################",
+    "##############################################"
+  ],
+  "light": "bright",
+  "light_rects": [
+    {
+      "rect": [
+        13,
+        1,
+        18,
+        12
+      ],
+      "light": "dark"
+    }
+  ],
+  "light_sources": [
+    {
+      "id": "cave_glow",
+      "cell": [
+        19,
+        7
+      ],
+      "bright": 0,
+      "dim": 3
+    },
+    {
+      "id": "camp_fire",
+      "cell": [
+        6,
+        4
+      ],
+      "bright": 4,
+      "dim": 4
+    }
+  ],
+  "flags": [
+    {
+      "cell": [
+        1,
+        1
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        10,
+        1
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        1,
+        12
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        10,
+        12
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        2,
+        17
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        22,
+        17
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        23,
+        27
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        1,
+        22
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        20,
+        27
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        44,
+        27
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        32,
+        27
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        44,
+        12
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        24,
+        5
+      ],
+      "flags": [
+        "climb"
+      ]
+    },
+    {
+      "cell": [
+        38,
+        5
+      ],
+      "flags": [
+        "climb"
+      ]
+    }
+  ],
+  "flag_rects": [
+    {
+      "rect": [
+        13,
+        1,
+        18,
+        12
+      ],
+      "flags": [
+        "no_camp"
+      ]
+    },
+    {
+      "rect": [
+        1,
+        16,
+        24,
+        13
+      ],
+      "flags": [
+        "no_camp"
+      ]
+    },
+    {
+      "rect": [
+        32,
+        1,
+        13,
+        28
+      ],
+      "flags": [
+        "no_camp"
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "id": "cave",
+      "rect": [
+        13,
+        1,
+        18,
+        12
+      ]
+    },
+    {
+      "id": "clearing",
+      "rect": [
+        1,
+        16,
+        24,
+        13
+      ]
+    },
+    {
+      "id": "cliff",
+      "rect": [
+        32,
+        1,
+        13,
+        28
+      ]
+    }
+  ],
+  "zone_rewards": [
+    {
+      "zone": "cave",
+      "xp": 700
+    },
+    {
+      "zone": "clearing",
+      "xp": 5250
+    },
+    {
+      "zone": "cliff",
+      "xp": 0
+    }
+  ],
+  "objects": [
+    {
+      "cell": [
+        2,
+        2
+      ],
+      "id": "supply_crate",
+      "material": "wood",
+      "hp": 8,
+      "ac": 15,
+      "blocks_movement": true,
+      "art": "crate.intact",
+      "loot": {
+        "rations": 2
+      }
+    },
+    {
+      "cell": [
+        28,
+        10
+      ],
+      "id": "cave_chest",
+      "material": "wood",
+      "hp": 12,
+      "ac": 15,
+      "blocks_movement": true,
+      "art": "chest.locked",
+      "art_open": "chest.open",
+      "lock": {
+        "dc": 15,
+        "key": "",
+        "locked": true
+      },
+      "loot": {
+        "rations": 3,
+        "potion_of_healing": 1,
+        "gold": 50
+      }
+    },
+    {
+      "cell": [
+        15,
+        21
+      ],
+      "id": "oil_barrel",
+      "material": "wood",
+      "hp": 4,
+      "ac": 15,
+      "weight_kg": 60,
+      "art": "barrel.intact",
+      "contents": {
+        "surface": "oil",
+        "radius": 1
+      }
+    },
+    {
+      "cell": [
+        12,
+        23
+      ],
+      "id": "oil_barrel",
+      "material": "wood",
+      "hp": 4,
+      "ac": 15,
+      "weight_kg": 60,
+      "art": "barrel.intact",
+      "contents": {
+        "surface": "oil",
+        "radius": 1
+      }
+    },
+    {
+      "cell": [
+        18,
+        19
+      ],
+      "id": "goblin_stash",
+      "material": "wood",
+      "hp": 12,
+      "ac": 15,
+      "blocks_movement": true,
+      "art": "chest.closed",
+      "art_open": "chest.open",
+      "loot": {
+        "rations": 2,
+        "potion_of_greater_healing": 1,
+        "gold": 80
+      }
+    },
+    {
+      "cell": [
+        43,
+        2
+      ],
+      "id": "raider_chest",
+      "material": "wood",
+      "hp": 12,
+      "ac": 15,
+      "blocks_movement": true,
+      "art": "chest.locked",
+      "art_open": "chest.open",
+      "lock": {
+        "dc": 20,
+        "key": "raider_key",
+        "locked": true
+      },
+      "loot": {
+        "potion_of_superior_healing": 1,
+        "gold": 200
+      }
+    }
+  ],
+  "traps": [
+    {
+      "id": "cave_dart_plate",
+      "cell": [
+        14,
+        6
+      ],
+      "dc_find": 13,
+      "dc_disarm": 13,
+      "save": {
+        "ability": "dex",
+        "dc": 13
+      },
+      "half_on_save": true,
+      "radius": 0,
+      "art": "pressure_plate.up",
+      "effects": [
+        {
+          "type": "damage",
+          "dice": "2d4",
+          "damage_type": "piercing"
+        }
+      ]
+    },
+    {
+      "id": "cliff_rockfall",
+      "cell": [
+        33,
+        6
+      ],
+      "dc_find": 15,
+      "dc_disarm": 15,
+      "save": {
+        "ability": "dex",
+        "dc": 13
+      },
+      "half_on_save": true,
+      "radius": 1,
+      "art": "pressure_plate.rune",
+      "effects": [
+        {
+          "type": "damage",
+          "dice": "2d10",
+          "damage_type": "bludgeoning"
+        }
+      ]
+    }
+  ],
+  "examines": [
+    {
+      "id": "cave_runes",
+      "cell": [
+        15,
+        2
+      ],
+      "ability": "int",
+      "skill": "arcana",
+      "dc": 13,
+      "name": {
+        "ko": "벽의 낡은 문자",
+        "en": "Worn Runes"
+      },
+      "success": {
+        "text": {
+          "ko": "옛 초소의 경고문이다: '절벽 위 큰 놈은 열쇠를 목에 건다.'",
+          "en": "An old watch warning: 'The big one on the cliff wears the key.'"
+        },
+        "unlock": [
+          "raider_key_hint"
+        ],
+        "goal": "decipher_text"
+      },
+      "fail": {
+        "text": {
+          "ko": "닳아서 읽을 수 없다.",
+          "en": "Too worn to read."
+        }
+      }
+    },
+    {
+      "id": "clearing_tracks",
+      "cell": [
+        6,
+        20
+      ],
+      "ability": "wis",
+      "skill": "survival",
+      "dc": 12,
+      "name": {
+        "ko": "발자국",
+        "en": "Tracks"
+      },
+      "success": {
+        "text": {
+          "ko": "고블린 넷, 그중 하나는 무겁다. 동쪽 풀숲으로 돌아가면 눈에 덜 띈다.",
+          "en": "Four goblins, one heavy. Circling east through the grass keeps you hidden."
+        }
+      },
+      "fail": {
+        "text": {
+          "ko": "발자국이 엉켜 있다.",
+          "en": "The tracks are a mess."
+        }
+      }
+    }
+  ],
+  "spawns": [
+    {
+      "id": "fighter",
+      "cell": [
+        6,
+        6
+      ],
+      "light": {
+        "bright": 4,
+        "dim": 4
+      }
+    },
+    {
+      "id": "rogue",
+      "cell": [
+        5,
+        7
+      ]
+    },
+    {
+      "id": "comp_cleric",
+      "cell": [
+        3,
+        4
+      ],
+      "team": "neutral",
+      "facing": [
+        1,
+        0
+      ],
+      "dialogue": "recruit_cleric",
+      "companion": {
+        "class": "cleric",
+        "name": {
+          "ko": "브리엔 하솔",
+          "en": "Brien Hasol"
+        }
+      }
+    },
+    {
+      "id": "comp_wizard",
+      "cell": [
+        8,
+        10
+      ],
+      "team": "neutral",
+      "facing": [
+        -1,
+        0
+      ],
+      "dialogue": "recruit_wizard",
+      "companion": {
+        "class": "wizard",
+        "name": {
+          "ko": "오렌 멜로",
+          "en": "Oren Mello"
+        }
+      }
+    },
+    {
+      "id": "cave_gob_a",
+      "cell": [
+        25,
+        2
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        -1,
+        1
+      ],
+      "faction": "cave_goblins"
+    },
+    {
+      "id": "cave_gob_b",
+      "cell": [
+        27,
+        4
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        -1,
+        0
+      ],
+      "faction": "cave_goblins"
+    },
+    {
+      "id": "cave_gob_c",
+      "cell": [
+        17,
+        7
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        -1,
+        0
+      ],
+      "faction": "cave_goblins"
+    },
+    {
+      "id": "cave_gob_d",
+      "cell": [
+        21,
+        9
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        -1,
+        -1
+      ],
+      "faction": "cave_goblins"
+    },
+    {
+      "id": "camp_boss",
+      "cell": [
+        14,
+        22
+      ],
+      "monster": "goblin_boss",
+      "facing": [
+        0,
+        -1
+      ],
+      "faction": "clearing_goblins",
+      "dialogue": "goblin_toll"
+    },
+    {
+      "id": "camp_gob_a",
+      "cell": [
+        12,
+        20
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        -1,
+        0
+      ],
+      "faction": "clearing_goblins"
+    },
+    {
+      "id": "camp_gob_b",
+      "cell": [
+        16,
+        24
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        1,
+        0
+      ],
+      "faction": "clearing_goblins"
+    },
+    {
+      "id": "camp_gob_c",
+      "cell": [
+        10,
+        24
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        0,
+        1
+      ],
+      "faction": "clearing_goblins"
+    },
+    {
+      "id": "cliff_ogre_a",
+      "cell": [
+        40,
+        4
+      ],
+      "monster": "ogre",
+      "facing": [
+        -1,
+        0
+      ],
+      "faction": "cliff_raiders"
+    },
+    {
+      "id": "cliff_ogre_b",
+      "cell": [
+        35,
+        13
+      ],
+      "monster": "ogre",
+      "facing": [
+        -1,
+        1
+      ],
+      "faction": "cliff_raiders"
+    },
+    {
+      "id": "cliff_gob_a",
+      "cell": [
+        34,
+        10
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        -1,
+        1
+      ],
+      "faction": "cliff_raiders"
+    },
+    {
+      "id": "cliff_gob_b",
+      "cell": [
+        38,
+        11
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        -1,
+        0
+      ],
+      "faction": "cliff_raiders"
+    },
+    {
+      "id": "cliff_gob_c",
+      "cell": [
+        33,
+        17
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        -1,
+        0
+      ],
+      "faction": "cliff_raiders"
+    },
+    {
+      "id": "cliff_gob_d",
+      "cell": [
+        37,
+        18
+      ],
+      "monster": "goblin_warrior",
+      "facing": [
+        -1,
+        -1
+      ],
+      "faction": "cliff_raiders"
+    }
+  ],
+  "source": "original",
+  "art": {
+    "wall": "stone",
+    "wall_top": "a",
+    "cliff": "cave",
+    "floors": {
+      ".": "floor_cobble",
+      ":": "ground_meadow",
+      ",": "ground_grass",
+      "~": "floor_wet",
+      "2": "ground_rock",
+      "3": "ground_rock",
+      "1": "ground_hardpan"
+    },
+    "props": [
+      {
+        "id": "tree_broadleaf",
+        "v": "a",
+        "at": [
+          1,
+          1
+        ]
+      },
+      {
+        "id": "tree_broadleaf",
+        "v": "a",
+        "at": [
+          10,
+          1
+        ]
+      },
+      {
+        "id": "tree_broadleaf",
+        "v": "a",
+        "at": [
+          1,
+          12
+        ]
+      },
+      {
+        "id": "tree_broadleaf",
+        "v": "a",
+        "at": [
+          10,
+          12
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "a",
+        "at": [
+          2,
+          17
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "a",
+        "at": [
+          22,
+          17
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "a",
+        "at": [
+          23,
+          27
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "a",
+        "at": [
+          1,
+          22
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "a",
+        "at": [
+          20,
+          27
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "a",
+        "at": [
+          44,
+          27
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "a",
+        "at": [
+          32,
+          27
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "a",
+        "at": [
+          44,
+          12
+        ]
+      },
+      {
+        "id": "firepit",
+        "v": "lit",
+        "at": [
+          6,
+          4
+        ]
+      },
+      {
+        "id": "tent",
+        "v": "canvas",
+        "at": [
+          2,
+          8
+        ]
+      },
+      {
+        "id": "bedroll",
+        "v": "out",
+        "at": [
+          7,
+          3
+        ]
+      },
+      {
+        "id": "glow_crack",
+        "v": "blue",
+        "at": [
+          19,
+          7
+        ]
+      },
+      {
+        "id": "mushroom",
+        "v": "pale",
+        "at": [
+          20,
+          7
+        ]
+      },
+      {
+        "id": "mushroom",
+        "v": "cluster_a",
+        "at": [
+          14,
+          11
+        ]
+      },
+      {
+        "id": "skeleton",
+        "v": "lying",
+        "at": [
+          23,
+          10
+        ]
+      },
+      {
+        "id": "rubble",
+        "v": "scatter",
+        "at": [
+          29,
+          7
+        ]
+      },
+      {
+        "id": "glow_rune",
+        "v": "a_blue",
+        "at": [
+          15,
+          2
+        ]
+      },
+      {
+        "id": "tent",
+        "v": "hide",
+        "at": [
+          20,
+          21
+        ]
+      },
+      {
+        "id": "tent",
+        "v": "hide",
+        "at": [
+          8,
+          17
+        ]
+      },
+      {
+        "id": "firepit",
+        "v": "embers",
+        "at": [
+          14,
+          20
+        ]
+      },
+      {
+        "id": "log",
+        "v": "a",
+        "at": [
+          5,
+          23
+        ]
+      },
+      {
+        "id": "bush",
+        "v": "dry",
+        "at": [
+          19,
+          25
+        ]
+      },
+      {
+        "id": "stump",
+        "v": "a",
+        "at": [
+          3,
+          19
+        ]
+      },
+      {
+        "id": "bush",
+        "v": "a",
+        "at": [
+          22,
+          19
+        ]
+      },
+      {
+        "id": "rock",
+        "v": "large_a",
+        "at": [
+          36,
+          22
+        ]
+      },
+      {
+        "id": "rock",
+        "v": "medium_b",
+        "at": [
+          42,
+          14
+        ]
+      },
+      {
+        "id": "bones",
+        "v": "ribcage",
+        "at": [
+          34,
+          24
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "dead",
+        "at": [
+          44,
+          20
+        ]
+      }
+    ]
+  }
+}

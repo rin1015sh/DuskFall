@@ -11,6 +11,7 @@ extends RefCounted
 const Interact := preload("res://scripts/rules/interact.gd")
 const Resolver := preload("res://scripts/rules/resolver.gd")
 const Goals := preload("res://scripts/rules/goals.gd")
+const Progression := preload("res://scripts/rules/progression.gd")
 
 const ATTITUDE_DC := {"friendly": -5, "indifferent": 0, "hostile": 5}
 const BASE_DC := 15
@@ -60,7 +61,7 @@ func options() -> Array:
 	var opts: Array = node().get("options", [])
 	for i in opts.size():
 		var o: Dictionary = opts[i]
-		if not _has_all(o.get("requires", [])):
+		if not _has_all(o.get("requires", [])) or Interact.count(world, "gold") < int(o.get("cost_gold", 0)):
 			continue
 		var row := {"index": i, "text": o["text"], "kind": "goto"}
 		if o.has("check"):
@@ -103,7 +104,10 @@ func choose(index: int, opts: Dictionary = {}) -> Dictionary:
 		var r := Resolver.saving_throw(speaker, sv["ability"], int(sv["dc"]), {"natural_rules": true})
 		res["save"] = r
 		next = o["success"] if r["success"] else o["fail"]
-	_apply(o.get("effects", []))
+	# 판정·내성 선택지의 효과는 성공했을 때만(영감 목표 '달성' — 5단계)
+	var passed: bool = res.get("check", res.get("save", {"success": true}))["success"]
+	if passed:
+		_apply(o.get("effects", []))
 	if next == "" or finished:
 		finished = true
 	else:
@@ -145,7 +149,7 @@ func _apply(effects: Array) -> void:
 			"give_item":
 				Interact.give(world, e["item"], int(e.get("count", 1)))
 			"gold":
-				Interact.give(world, "gold", int(e["add"]))
+				Interact.give(world, "gold", maxi(int(e["add"]), -Interact.count(world, "gold")))
 			"inspiration_goal":
 				Goals.complete(world, e["goal"])
 			"hostile":
@@ -158,6 +162,18 @@ func _apply(effects: Array) -> void:
 							o.team = "enemy"
 					if world.get("explore") != null:
 						world["explore"].hostile_action(speaker, npc)
+			"pacify":
+				# 평화 해결: 상대 세력 전원이 중립이 된다(구역 보상은 적이 남지 않으면 받는다)
+				if npc != null:
+					for o: Node in world["grid"].creatures():
+						if o == npc or (npc.faction != "" and o.faction == npc.faction):
+							o.team = "neutral"
+							o.awareness.clear()
+			"recruit":
+				if npc != null:
+					Progression.recruit(world, npc)
+			"xp":
+				Progression.award(world, int(e["add"]), "대화")
 			"end":
 				finished = true
 
