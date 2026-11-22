@@ -5,7 +5,7 @@
     "ko": "시험 동굴",
     "en": "Test Cave"
   },
-  "note_ko": "4단계 최소 화면 시험 맵. 풀밭(가연성)·물웅덩이·2단계 바위 턱(오르기 지점)·기름통.",
+  "note_ko": "4단계 최소 화면 시험 맵(3/4 탑뷰). 풀밭(가연성)·물웅덩이·2단계 바위 턱(오르기 지점)·기름통·화로. 그림은 던전 에셋 키트.",
   "legend": {
     "#": {
       "flags": [
@@ -41,7 +41,7 @@
     "#..............#",
     "################"
   ],
-  "light": "dim",
+  "light": "dark",
   "light_sources": [
     {
       "id": "brazier",
@@ -50,6 +50,24 @@
         6
       ],
       "bright": 3,
+      "dim": 3
+    },
+    {
+      "id": "torch_w",
+      "cell": [
+        3,
+        1
+      ],
+      "bright": 2,
+      "dim": 3
+    },
+    {
+      "id": "torch_e",
+      "cell": [
+        11,
+        1
+      ],
+      "bright": 2,
       "dim": 3
     }
   ],
@@ -61,6 +79,42 @@
       ],
       "flags": [
         "climb"
+      ]
+    },
+    {
+      "cell": [
+        7,
+        6
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        1,
+        1
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        14,
+        10
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        4,
+        10
+      ],
+      "flags": [
+        "impassable"
       ]
     }
   ],
@@ -89,7 +143,8 @@
       "contents": {
         "surface": "oil",
         "radius": 1
-      }
+      },
+      "art": "barrel.intact"
     }
   ],
   "spawns": [
@@ -150,5 +205,199 @@
       ]
     }
   ],
-  "source": "original"
+  "source": "original",
+  "art": {
+    "wall": "stone",
+    "wall_top": "a",
+    "cliff": "cave",
+    "floors": {
+      ".": "floor_cobble",
+      ",": "ground_grass",
+      "~": "floor_wet",
+      "2": "ground_rock"
+    },
+    "props": [
+      {
+        "id": "brazier",
+        "v": "lit",
+        "at": [
+          7,
+          6
+        ]
+      },
+      {
+        "id": "torch_wall",
+        "v": "lit",
+        "at": [
+          3,
+          0
+        ],
+        "dy": 12
+      },
+      {
+        "id": "torch_wall",
+        "v": "lit",
+        "at": [
+          11,
+          0
+        ],
+        "dy": 12
+      },
+      {
+        "id": "wall_moss",
+        "v": "base_a",
+        "at": [
+          6,
+          0
+        ],
+        "dy": 12
+      },
+      {
+        "id": "cobweb",
+        "v": "corner_l",
+        "at": [
+          1,
+          0
+        ],
+        "dy": 12
+      },
+      {
+        "id": "vines",
+        "v": "hang_mid",
+        "at": [
+          9,
+          0
+        ],
+        "dy": 12
+      },
+      {
+        "id": "stalagmite",
+        "v": "cluster",
+        "at": [
+          1,
+          1
+        ]
+      },
+      {
+        "id": "rock",
+        "v": "large_a",
+        "at": [
+          14,
+          10
+        ]
+      },
+      {
+        "id": "crate",
+        "v": "stack",
+        "at": [
+          4,
+          10
+        ]
+      },
+      {
+        "id": "skeleton",
+        "v": "lying",
+        "at": [
+          5,
+          8
+        ]
+      },
+      {
+        "id": "bones",
+        "v": "scatter_a",
+        "at": [
+          9,
+          2
+        ]
+      },
+      {
+        "id": "skull",
+        "v": "single",
+        "at": [
+          13,
+          7
+        ]
+      },
+      {
+        "id": "mushroom",
+        "v": "cluster_a",
+        "at": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "toadstool",
+        "v": "glow_b",
+        "at": [
+          14,
+          1
+        ]
+      },
+      {
+        "id": "rubble",
+        "v": "scatter",
+        "at": [
+          10,
+          9
+        ]
+      },
+      {
+        "id": "broken_weapon",
+        "v": "sword",
+        "at": [
+          8,
+          9
+        ]
+      },
+      {
+        "id": "blood_splat",
+        "v": "a",
+        "at": [
+          6,
+          8
+        ]
+      },
+      {
+        "id": "moss_patch",
+        "v": "a",
+        "at": [
+          3,
+          9
+        ]
+      },
+      {
+        "id": "gravel",
+        "v": "a",
+        "at": [
+          9,
+          7
+        ]
+      },
+      {
+        "id": "ground_crack",
+        "v": "a",
+        "at": [
+          5,
+          6
+        ]
+      },
+      {
+        "id": "puddle",
+        "v": "small",
+        "at": [
+          10,
+          6
+        ]
+      },
+      {
+        "id": "stalactite",
+        "v": "cluster",
+        "at": [
+          8,
+          1
+        ]
+      }
+    ]
+  }
 }

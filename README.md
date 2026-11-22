@@ -5,7 +5,7 @@
 ## 여는 법
 
 Godot 4.7을 켜고 프로젝트 관리자에서 **가져오기(Import)** → 이 폴더의 `project.godot`를 고른다. 처음 열 때 그림을 가져오느라 몇 분 걸린다.
-실행하면 4단계 시험 전투(`scenes/battle/battle_scene.tscn`)가 열린다 — 4인 파티 대 고블린 전사 4. 조작: 마우스 올리기 = 미리보기, 클릭 = 실행, 휠 = 확대, 오른쪽 끌기 = 화면 이동(터치는 `docs/WEB_EXPORT.md`).
+실행하면 시험 전투(`scenes/battle/battle_scene.tscn`, 3/4 탑뷰 · 던전 에셋 키트 그림)가 열린다 — 4인 파티 대 고블린 전사 4. 캐릭터 생성 화면은 `scenes/ui/character_creation.tscn`. 조작: 마우스 올리기 = 미리보기, 클릭 = 실행, 휠 = 확대, 오른쪽 끌기 = 화면 이동(터치는 `docs/WEB_EXPORT.md`).
 
 ## 들어 있는 것
 

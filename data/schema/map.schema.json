@@ -225,6 +225,9 @@
                 "minimum": 0
               }
             }
+          },
+          "art": {
+            "type": "string"
           }
         }
       }
@@ -259,6 +262,9 @@
         "SRD 5.2.1",
         "original"
       ]
+    },
+    "art": {
+      "type": "object"
     }
   }
 }

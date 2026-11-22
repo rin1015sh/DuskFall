@@ -7,7 +7,8 @@ extends Node2D
 ##   --select=<생물 이름> --mode=<move|attack|shove|jump|spell:<id>> --preview=x,y 또는 생물 이름(캡처할 미리보기)
 
 const Roster := preload("res://scenes/battle/test_roster.gd")
-const Iso := preload("res://scenes/battle/iso.gd")
+const V := preload("res://scenes/battle/view3q.gd")
+const MapLoader := preload("res://scripts/rules/map_loader.gd")
 const MapView := preload("res://scenes/battle/map_view.gd")
 const ActorView := preload("res://scenes/battle/actor_view.gd")
 const InputRouter := preload("res://scenes/battle/input_router.gd")
@@ -66,7 +67,7 @@ class Highlights extends Node2D:
 		for c: Vector2i in d.get("spread", []):
 			_cell(g, c, Color(1, 0.3, 0.0, 0.15), Color(1, 0.3, 0.0, 0.9))
 		for c: Vector2i in d.get("oa", []):
-			var p := Iso.top(c, g.height(c))
+			var p := V.top(c, g.height(c))
 			draw_line(p + Vector2(-10, -10), p + Vector2(10, 10), Color.RED, 4)
 			draw_line(p + Vector2(10, -10), p + Vector2(-10, 10), Color.RED, 4)
 		var cell: Vector2i = scene.preview_cell
@@ -75,10 +76,9 @@ class Highlights extends Node2D:
 			_cell(g, cell, Color(1, 1, 1, 0.08), col)
 
 	func _cell(g: Node, c: Vector2i, fill: Color, line: Color) -> void:
-		var h: int = g.height(c) + (3 if g.has_flag(c, "wall") else 0)
-		var dm := Iso.diamond(Iso.top(c, h))
-		draw_colored_polygon(dm, fill)
-		draw_polyline(PackedVector2Array([dm[0], dm[1], dm[2], dm[3], dm[0]]), line, 2.0)
+		var r: Rect2 = V.top_rect(g, c).grow(-2)
+		draw_rect(r, fill)
+		draw_rect(r, line, false, 2.0)
 
 
 func _ready() -> void:
@@ -102,7 +102,7 @@ func _ready() -> void:
 	map_view = MapView.new()
 	add_child(map_view)
 	add_child(sorted)
-	map_view.build(world["grid"], sorted)
+	map_view.build(world["grid"], sorted, MapLoader.load_map("test_arena"))
 	for c: Node in party + foes:
 		var v: Node2D = ActorView.new()
 		v.setup(c, world["grid"])
@@ -113,11 +113,12 @@ func _ready() -> void:
 	highlights.z_index = 50
 	add_child(highlights)
 	camera = Camera2D.new()
-	camera.position = Iso.ground(world["grid"].size / 2)
-	camera.zoom = Vector2(0.95, 0.95)
+	camera.position = V.ground(world["grid"].size / 2) - Vector2(0, 40)
+	camera.zoom = Vector2(0.92, 0.92)
+	RenderingServer.set_default_clear_color(Color("0c0b0e"))
 	add_child(camera)
 	router = InputRouter.new()
-	router.cell_at = func(pos: Vector2) -> Vector2i: return Iso.pick(world["grid"], _to_world(pos))
+	router.cell_at = func(pos: Vector2) -> Vector2i: return V.pick(world["grid"], _to_world(pos))
 	router.preview.connect(_on_preview)
 	router.confirm.connect(_on_confirm)
 	router.info.connect(_on_info)
@@ -254,7 +255,7 @@ func _set_mode(m: String) -> void:
 func _on_preview(pos: Vector2) -> void:
 	if busy or selected == null:
 		return
-	_show_preview(Iso.pick(world["grid"], _to_world(pos)))
+	_show_preview(V.pick(world["grid"], _to_world(pos)))
 
 
 func _show_preview(cell: Vector2i) -> void:
@@ -265,7 +266,7 @@ func _show_preview(cell: Vector2i) -> void:
 	var text: String = preview_data.get("text", "")
 	tooltip.visible = text != ""
 	tooltip_label.text = text
-	var screen := get_canvas_transform() * Iso.top(cell, world["grid"].height(cell))
+	var screen := get_canvas_transform() * V.top(cell, world["grid"].height(cell))
 	tooltip.position = screen + Vector2(24, -60)
 
 
@@ -356,7 +357,7 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 func _on_confirm(pos: Vector2) -> void:
 	if busy or selected == null:
 		return
-	var cell := Iso.pick(world["grid"], _to_world(pos))
+	var cell := V.pick(world["grid"], _to_world(pos))
 	if not preview_data.get("valid", false) or cell != preview_cell:
 		return
 	_execute(cell)
@@ -369,6 +370,7 @@ func _execute(cell: Vector2i) -> void:
 	if mode == "move" and target == null:
 		Combat.move(world, c, cell)
 	elif (mode == "move" or mode == "attack") and target != null and c.is_hostile_to(target):
+		views[c].face_toward(cell)
 		Combat.attack(world, c, target)
 	elif mode == "shove" and target != null:
 		Combat.shove(world, c, target)
@@ -384,7 +386,7 @@ func _execute(cell: Vector2i) -> void:
 
 
 func _on_info(pos: Vector2) -> void:
-	var cell := Iso.pick(world["grid"], _to_world(pos))
+	var cell := V.pick(world["grid"], _to_world(pos))
 	var c: Node = world["grid"].creature_at(cell)
 	if c == null:
 		info_panel.visible = false

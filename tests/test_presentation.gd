@@ -1,29 +1,39 @@
 extends "res://tests/test_case.gd"
 ## 4단계 표현 계층: 쿼터뷰 좌표, 바닥 타일맵 정렬, 입력 상태기계(마우스·터치 같은 의미 신호).
 
-const Iso := preload("res://scenes/battle/iso.gd")
+const V := preload("res://scenes/battle/view3q.gd")
 const InputRouter := preload("res://scenes/battle/input_router.gd")
 const MapView := preload("res://scenes/battle/map_view.gd")
+const DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
 
 
-func test_iso_ground_and_pick() -> void:
-	assert_eq(Iso.ground(Vector2i(0, 0)), Vector2.ZERO)
-	assert_eq(Iso.ground(Vector2i(1, 0)), Vector2(48, 24))
-	assert_eq(Iso.ground(Vector2i(0, 1)), Vector2(-48, 24))
+func test_view3q_ground_and_pick() -> void:
+	assert_eq(V.ground(Vector2i(0, 0)), Vector2(32, 32), "칸 중심")
+	assert_eq(V.ground(Vector2i(2, 1)), Vector2(160, 96))
 	var g := make_grid(["....", "..2.", "...."])
-	assert_eq(Iso.pick(g, Iso.ground(Vector2i(1, 2))), Vector2i(1, 2))
-	assert_eq(Iso.pick(g, Iso.top(Vector2i(2, 1), 2)), Vector2i(2, 1), "높은 칸은 윗면으로 고른다")
+	assert_eq(V.pick(g, V.ground(Vector2i(1, 2))), Vector2i(1, 2))
+	assert_eq(V.pick(g, V.top(Vector2i(2, 1), 2)), Vector2i(2, 1), "높은 칸은 올라간 윗면으로 고른다")
+	var w := make_grid(["...", ".#.", "..."])
+	assert_eq(V.pick(w, V.ground(Vector2i(1, 1)) - Vector2(0, V.WALL_H)), Vector2i(1, 1), "벽은 꼭대기로 고른다")
 
 
-func test_floor_tilemap_aligned_with_iso() -> void:
+func test_dungeon_kit_loads() -> void:
+	var kit: RefCounted = DungeonKit.open()
+	assert_eq(kit.px, 64, "키트 한 칸 64px")
+	assert_true(kit.has("floor_flag") and kit.has("wall_stone") and kit.has("brazier"))
+	assert_true(kit.texture("brazier", "lit") != null, "키트 그림")
+
+
+func test_floor_tilemap_aligned_with_view() -> void:
 	var g := make_grid(["....", "...."])
 	var view: Node2D = own(MapView.new())
 	var sorted: Node2D = own(Node2D.new())
 	view.add_child(sorted)
-	view.build(g, sorted)
+	view.build(g, sorted, {})
+	var layer: TileMapLayer = view._floors[0]
 	for c in [Vector2i(0, 0), Vector2i(3, 1)]:
-		var p: Vector2 = view.ground.position + view.ground.map_to_local(c)
-		assert_eq(p, Iso.ground(c), "바닥 타일 중심 = Iso 칸 중심 %s" % str(c))
+		assert_eq(layer.position + layer.map_to_local(c), V.ground(c), "바닥 타일 중심 = 칸 중심 %s" % str(c))
+		assert_true(layer.get_cell_source_id(c) >= 0, "바닥 타일이 깔렸다")
 
 
 func _router() -> Array:

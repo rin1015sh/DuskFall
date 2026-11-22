@@ -1,6 +1,6 @@
 # 프로젝트: SRD 5.2 쿼터뷰 파티 RPG (Godot 4)
 
-BG3류 CRPG. 타일 격자 + 2D 일러스트 쿼터뷰(카메라 회전 없음), 실시간 탐험 + 4인 파티 턴제 전투.
+BG3류 CRPG. 타일 격자 + 2D 일러스트 3/4 탑뷰(위에서 살짝 비스듬히 내려다보는 시점, 카메라 회전 없음), 실시간 탐험 + 4인 파티 턴제 전투.
 규칙은 SRD 5.2.1을 BG3식으로 개편한 룰북을 따른다.
 
 ## 규칙의 원천 (가장 중요)
@@ -41,8 +41,8 @@ res://
   data/maps/      <map>.json
   data/schema/    <kind>.schema.json
   scripts/rules/  엔진 코드, effects/ 스크립트 효과
-  scenes/         표현(맵 씬, UI, 캐릭터)
-  assets/         그림·소리·글꼴(던전 앤 스톤에서 옮김, 스프라이트 부위도 여기에)
+  scenes/         표현(맵 씬, UI, 캐릭터). scenes/kit = 에셋 키트 창구(dungeon_kit.gd)
+  assets/         그림·소리·글꼴(던전 앤 스톤에서 옮김). assets/dungeon_kit = 던전 에셋 키트(바닥·벽·소품 583종)
   tests/          헤드리스 테스트
   tools/          검증·변환 도구
   docs/           rules/ 룰북, srd/ 원문
@@ -66,7 +66,9 @@ res://
 
 ## 그래픽·입력 (데이터와 맞물리는 부분)
 
-- 2D 일러스트 컷아웃(Skeleton2D). 앞·뒤 대각선 2방향을 그리고 좌우 반전으로 4방향.
+- 시점: 3/4 탑뷰(scenes/battle/view3q.gd — 칸 64px 정사각형, 높이 1단계 = 화면 위로 40px, 벽 112px). 맵 그림은 던전 에셋 키트로 그린다:
+  맵 데이터 `art`(wall·wall_top·cliff·floors[범례 글자 → 키트 바닥]·props[키트 물건 at/id/v]). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`·`asset_library/`.
+- 캐릭터 그림(지금): assets/actors 걷기 시트 4방향(아래·왼·오른·위). 최종은 2D 일러스트 컷아웃(Skeleton2D) — 룰북 1단계.
 - 체형 틀: 보통(인간·엘프·티플링·오크), 작은(하플링·노움), 드워프는 작은 체형 변형. 드래곤본·골리앗은 없다.
 - 장비는 `sprite_parts`로 부위를 바꿔 끼우고, 재질·등급은 색 바꾸기 셰이더로 표현한다.
 - 입력은 '미리보기 → 확정' 상태기계 하나로 처리한다. 마우스는 올리기 = 미리보기, 클릭 = 실행. 터치는 첫 탭 = 미리보기, 같은 곳 두 번째 탭 = 실행, 길게 누르기 = 정보, 드래그 = 화면 이동, 핀치 = 확대.

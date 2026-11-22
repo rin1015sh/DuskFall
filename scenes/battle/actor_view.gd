@@ -1,17 +1,30 @@
 extends Node2D
-## 캐릭터 한 명의 그림(표현 계층). Creature의 값을 읽어 그리기만 한다. 임시 그림: assets/actors 걷기 시트.
-## 시트: 칸 72×108, 줄 = 아래·왼·오른·위, 칸 5 = 걸음 A·반걸음 A·섬·반걸음 B·걸음 B, 원점 = 발.
+## 캐릭터 한 명의 그림(표현 계층, 3/4 탑뷰). Creature 값을 읽어 그리기만 한다.
+## 탐험가: assets/actors 걷기 시트(칸 72×108, 줄 = 아래·왼·오른·위, 칸 5 = 걸음A·반걸음A·섬·반걸음B·걸음B, 원점 = 발).
+## 몬스터: assets/actors/monsters 한 장 그림(크기에 맞춰 키 맞춤, 좌우 반전으로 방향).
+## 규칙 엔진이 칸을 옮기면(on_enter_tile) 칸 사이를 걸어서 따라간다.
 
-const Iso := preload("res://scenes/battle/iso.gd")
+const V := preload("res://scenes/battle/view3q.gd")
 const FRAME := Vector2i(72, 108)
+const WALK_CYCLE := [2, 1, 0, 1, 2, 3, 4, 3]
+const WALK_FPS := 9.0
+const STEP_SEC := 0.16
+## 그림 키(px): 사람 = 84(1.3칸), 몬스터는 크기 배율
+const BODY_PX := 84.0
+const SIZE_K := {"tiny": 0.5, "small": 0.8, "medium": 1.0, "large": 1.7}
 
 var creature: Node
 var grid: Node
 var selected := false
 var current := false
 var sprite: Sprite2D
+var facing := 0  # 줄: 0 아래, 1 왼, 2 오른, 3 위
+var _sheet := false
+var _path: Array[Vector2] = []
+var _walk_t := 0.0
 var _flash := 0.0
 var _last_hp := -1
+var _cell := Vector2i(-1, -1)
 
 
 func setup(c: Node, g: Node) -> void:
@@ -25,37 +38,85 @@ func setup(c: Node, g: Node) -> void:
 		at.atlas = load(art["sheet"])
 		at.region = Rect2(Vector2(FRAME.x * 2, 0), Vector2(FRAME))
 		sprite.texture = at
-		sprite.scale = Vector2(0.85, 0.85)
+		_sheet = true
 	elif art.has("image") and ResourceLoader.exists(art["image"]):
 		sprite.texture = load(art["image"])
-		sprite.scale = Vector2(1.4, 1.4)
-	if sprite.texture != null:
-		var size: Vector2 = sprite.texture.get_size() * sprite.scale
-		sprite.position = Vector2(-size.x / 2.0, -size.y + 4)
+		var tex_h: float = sprite.texture.get_size().y
+		var k: float = BODY_PX * float(SIZE_K.get(c.size, 1.0)) / maxf(tex_h, 1.0)
+		sprite.scale = Vector2(k, k)
 	add_child(sprite)
 	_last_hp = c.hp
+	_cell = grid.cell_of(c)
+	position = _foot(_cell)
 	sync()
 
 
-## 위치·상태를 규칙 데이터에 맞춘다.
+## 칸의 발 위치(y 정렬 기준 = 바닥 높이 0 기준, 그림은 높이만큼 올린다)
+func _foot(cell: Vector2i) -> Vector2:
+	var sz: int = grid.size_of(creature)
+	return V.ground(cell) + Vector2((sz - 1) * V.T * 0.5, (sz - 1) * V.T * 0.5 + V.T * 0.18)
+
+
 func sync() -> void:
 	var cell: Vector2i = grid.cell_of(creature)
-	position = Iso.ground(cell) + Vector2(0, 1)
-	sprite.position.y = -(sprite.texture.get_size().y * sprite.scale.y) + 4 - grid.height(cell) * Iso.STEP if sprite.texture else 0.0
+	if cell != _cell:
+		var d := cell - _cell
+		_face(d)
+		_path.append(_foot(cell))
+		_cell = cell
 	if creature.hp < _last_hp:
 		_flash = 0.35
 	_last_hp = creature.hp
 	if creature.dead:
-		modulate = Color(0.5, 0.5, 0.5, 0.35)
+		modulate = Color(0.45, 0.45, 0.45, 0.45)
 	elif creature.is_down() or creature.has_condition("prone"):
 		modulate = Color(0.8, 0.7, 0.7, 1.0)
+	elif creature.has_condition("invisible"):
+		modulate = Color(1, 1, 1, 0.45)
 	else:
 		modulate = Color.WHITE
-	sprite.rotation = deg_to_rad(80) if (creature.is_down() or creature.dead) else 0.0
+	sprite.rotation = deg_to_rad(-80) if (creature.is_down() or creature.dead) else 0.0
+	_place_sprite()
 	queue_redraw()
 
 
+## 바라보는 쪽(공격 대상 등)
+func face_toward(cell: Vector2i) -> void:
+	_face(cell - grid.cell_of(creature))
+	_place_sprite()
+
+
+func _face(d: Vector2i) -> void:
+	if d == Vector2i.ZERO:
+		return
+	if absi(d.x) > absi(d.y):
+		facing = 2 if d.x > 0 else 1
+	else:
+		facing = 0 if d.y > 0 else 3
+
+
+func _place_sprite() -> void:
+	if sprite.texture == null:
+		return
+	var size: Vector2 = sprite.texture.get_size() * sprite.scale
+	var lift: float = grid.height(grid.cell_of(creature)) * V.STEP
+	sprite.position = Vector2(-size.x / 2.0, -size.y + 4 - lift)
+	if _sheet:
+		var col: int = WALK_CYCLE[int(_walk_t * WALK_FPS) % WALK_CYCLE.size()] if not _path.is_empty() else 2
+		(sprite.texture as AtlasTexture).region = Rect2(Vector2(FRAME.x * col, FRAME.y * facing), Vector2(FRAME))
+	else:
+		sprite.flip_h = facing == 1
+
+
 func _process(delta: float) -> void:
+	if not _path.is_empty():
+		_walk_t += delta
+		var target: Vector2 = _path[0]
+		var speed: float = V.T / STEP_SEC * (1.0 + _path.size() * 0.15)
+		position = position.move_toward(target, speed * delta)
+		if position.distance_to(target) < 0.5:
+			_path.pop_front()
+		_place_sprite()
 	if _flash > 0.0:
 		_flash -= delta
 		sprite.modulate = Color(1, 0.4, 0.4) if fmod(_flash, 0.12) > 0.06 else Color.WHITE
@@ -63,7 +124,10 @@ func _process(delta: float) -> void:
 			sprite.modulate = Color.WHITE
 
 
-## 화면에서 차지하는 네모(가림 판정용).
+func is_moving() -> bool:
+	return not _path.is_empty()
+
+
 func screen_rect() -> Rect2:
 	if sprite.texture == null:
 		return Rect2(position, Vector2.ONE)
@@ -71,20 +135,24 @@ func screen_rect() -> Rect2:
 
 
 func _draw() -> void:
-	var h: int = grid.height(grid.cell_of(creature))
-	var foot := Vector2(0, -h * Iso.STEP)
+	var lift: float = grid.height(grid.cell_of(creature)) * V.STEP
+	var foot := Vector2(0, -lift)
+	var rad: float = V.T * 0.34 * grid.size_of(creature)
+	# 발밑 그림자
+	draw_set_transform(foot, 0, Vector2(1, 0.45))
+	draw_circle(Vector2.ZERO, rad, Color(0, 0, 0, 0.35))
 	if current or selected:
-		var d := Iso.diamond(foot)
 		var col := Color(1, 0.85, 0.2) if current else Color(0.4, 0.8, 1.0)
-		draw_polyline(PackedVector2Array([d[0], d[1], d[2], d[3], d[0]]), col, 3.0)
+		draw_arc(Vector2.ZERO, rad + 2, 0, TAU, 32, col, 3.0)
+	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 	if creature.dead:
 		return
-	# HP 막대
-	var top := foot + Vector2(0, -100)
+	var head: float = (sprite.texture.get_size().y * sprite.scale.y if sprite.texture else 60.0)
+	var top := foot + Vector2(0, -head - 6)
 	var w := 46.0
 	var ratio: float = float(creature.hp) / maxf(creature.hp_max, 1)
 	draw_rect(Rect2(top + Vector2(-w / 2, 0), Vector2(w, 6)), Color(0, 0, 0, 0.7))
-	var col := Color(0.3, 0.85, 0.35) if creature.team == "party" else Color(0.9, 0.3, 0.25)
-	draw_rect(Rect2(top + Vector2(-w / 2 + 1, 1), Vector2((w - 2) * ratio, 4)), col)
+	var col2 := Color(0.3, 0.85, 0.35) if creature.team == "party" else Color(0.9, 0.3, 0.25)
+	draw_rect(Rect2(top + Vector2(-w / 2 + 1, 1), Vector2((w - 2) * ratio, 4)), col2)
 	if creature.temp_hp > 0:
 		draw_rect(Rect2(top + Vector2(-w / 2, -3), Vector2(minf(w, creature.temp_hp * 4.0), 2)), Color(0.6, 0.8, 1.0))
