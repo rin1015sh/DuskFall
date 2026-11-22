@@ -601,8 +601,8 @@
     {
       "id": "cave_gob_b",
       "cell": [
-        27,
-        4
+        16,
+        8
       ],
       "monster": "goblin_warrior",
       "facing": [

@@ -40,6 +40,11 @@ func has_entry(kind: String, id: String) -> bool:
 
 
 ## 한 종류의 ID 목록(정렬).
+## 한 종류의 항목 전부(불러온 순서).
+func entries(kind: String) -> Array:
+	return ids(kind).map(func(id: String) -> Dictionary: return get_entry(kind, id))
+
+
 func ids(kind: String) -> Array:
 	var out: Array = _entries.get(kind, {}).keys()
 	out.sort()

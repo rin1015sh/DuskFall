@@ -1,0 +1,108 @@
+{
+  "$comment": "action 파일 스키마(공용 행동 목록 — 이름·설명·비용·대상).",
+  "type": "object",
+  "required": [
+    "schema",
+    "actions"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "action_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "desc",
+          "cost",
+          "target",
+          "tab",
+          "icon",
+          "explore",
+          "source"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "properties": {
+              "ko": {
+                "type": "string"
+              },
+              "en": {
+                "type": "string"
+              }
+            }
+          },
+          "desc": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "properties": {
+              "ko": {
+                "type": "string"
+              },
+              "en": {
+                "type": "string"
+              }
+            }
+          },
+          "cost": {
+            "enum": [
+              "action",
+              "bonus",
+              "reaction",
+              "free"
+            ]
+          },
+          "target": {
+            "enum": [
+              "self",
+              "cell",
+              "enemy",
+              "ally",
+              "ally_down",
+              "creature"
+            ]
+          },
+          "tab": {
+            "enum": [
+              "common",
+              "class",
+              "items"
+            ]
+          },
+          "icon": {
+            "type": "string"
+          },
+          "explore": {
+            "type": "boolean"
+          },
+          "source": {
+            "enum": [
+              "SRD 5.2.1",
+              "original"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

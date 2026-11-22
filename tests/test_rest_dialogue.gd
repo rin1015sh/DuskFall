@@ -62,13 +62,14 @@ func test_long_rest_supplies_and_partial() -> void:
 	assert_eq(c.hp, 10, "HP 최대치 절반까지")
 	assert_eq(c.resource("spell_slot_1"), 2, "슬롯 절반까지")
 	assert_eq(w["short_rests_left"], 0, "짧은 휴식 충전 없음")
-	assert_eq(w["inspiration"], 1, "인간 기지: 공용 영감 +1")
+	assert_eq(int(w.get("inspiration", 0)), 0, "부분 휴식에는 인간 기지 영감이 없다")
 	w["party_resources"] = {"camp_supplies": 15}
 	r = Rest.long_rest(w, [c])
 	assert_false(r["partial"])
 	assert_eq(c.hp, 20)
 	assert_eq(c.resource("spell_slot_1"), 4)
 	assert_eq(w["short_rests_left"], 2)
+	assert_eq(w["inspiration"], 1, "인간 기지: 긴 휴식에 공용 영감 +1")
 	assert_eq(w["party_resources"]["camp_supplies"], 0, "주문 보급품을 먼저 쓴다")
 	assert_eq(Interact.count(w, "rations"), 0, "15 + 식량 3개 = 45 ≥ 40")
 

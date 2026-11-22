@@ -1,0 +1,329 @@
+{
+  "schema": "action_v1",
+  "note_ko": "공용 행동(룰북 3단계 행동 경제, BG3 Common Actions 구조 참고). 실행은 scripts/rules/actions.gd. explore = 탐험 중(비용 없이) 쓸 수 있는가.",
+  "actions": [
+    {
+      "id": "attack",
+      "name": {
+        "ko": "주 무기 공격",
+        "en": "Main Hand Attack"
+      },
+      "desc": {
+        "ko": "쥔 근접 무기로 공격한다. 추가 공격이 있으면 행동 하나로 여러 번.",
+        "en": "Attack with your melee weapon."
+      },
+      "cost": "action",
+      "target": "enemy",
+      "tab": "common",
+      "icon": "res://assets/items/fortress_knight_sword.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "ranged_attack",
+      "name": {
+        "ko": "원거리 공격",
+        "en": "Ranged Attack"
+      },
+      "desc": {
+        "ko": "원거리 무기 세트로 바꿔 쏜다. 적이 근접에 있으면 불리.",
+        "en": "Swap to your ranged set and shoot."
+      },
+      "cost": "action",
+      "target": "enemy",
+      "tab": "common",
+      "icon": "res://assets/items/hunting_bow.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "offhand_attack",
+      "name": {
+        "ko": "보조 무기 공격",
+        "en": "Off-Hand Attack"
+      },
+      "desc": {
+        "ko": "가벼운 무기 두 자루: 공격 행동 뒤 보조 손으로 한 번 더(피해에 능력 수정치 없음).",
+        "en": "Light weapons: extra off-hand attack."
+      },
+      "cost": "bonus",
+      "target": "enemy",
+      "tab": "common",
+      "icon": "res://assets/items/beast_bone_dagger.webp",
+      "explore": false,
+      "source": "original"
+    },
+    {
+      "id": "jump",
+      "name": {
+        "ko": "도약",
+        "en": "Jump"
+      },
+      "desc": {
+        "ko": "3칸 + 근력 수정치 2당 1칸을 뛴다. 기회 공격을 부르지 않는다. 이동 2칸을 쓴다.",
+        "en": "Leap without provoking. Costs 2 movement."
+      },
+      "cost": "bonus",
+      "target": "cell",
+      "tab": "common",
+      "icon": "res://assets/statuses/high_ground.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "shove",
+      "name": {
+        "ko": "밀치기",
+        "en": "Shove"
+      },
+      "desc": {
+        "ko": "인접한 대상을 민다(무게 한계 = 근력 × 12kg). 아군은 판정 없이.",
+        "en": "Push an adjacent creature."
+      },
+      "cost": "bonus",
+      "target": "creature",
+      "tab": "common",
+      "icon": "res://assets/statuses/suppress.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "throw",
+      "name": {
+        "ko": "던지기",
+        "en": "Throw"
+      },
+      "desc": {
+        "ko": "옆에 있는 물체(통·상자 등)를 집어 대상에게 던진다. 무게만큼 피해.",
+        "en": "Throw a nearby object at a target."
+      },
+      "cost": "action",
+      "target": "enemy",
+      "tab": "common",
+      "icon": "res://assets/statuses/blast_scorched.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "dash",
+      "name": {
+        "ko": "질주",
+        "en": "Dash"
+      },
+      "desc": {
+        "ko": "이번 턴 이동력이 속도만큼 늘어난다.",
+        "en": "Gain extra movement equal to your speed."
+      },
+      "cost": "action",
+      "target": "self",
+      "tab": "common",
+      "icon": "res://assets/statuses/haste.webp",
+      "explore": false,
+      "source": "original"
+    },
+    {
+      "id": "disengage",
+      "name": {
+        "ko": "이탈",
+        "en": "Disengage"
+      },
+      "desc": {
+        "ko": "이번 턴 이동해도 기회 공격을 부르지 않는다.",
+        "en": "Your movement doesn't provoke this turn."
+      },
+      "cost": "action",
+      "target": "self",
+      "tab": "common",
+      "icon": "res://assets/statuses/shield_arm.webp",
+      "explore": false,
+      "source": "original"
+    },
+    {
+      "id": "hide",
+      "name": {
+        "ko": "숨기",
+        "en": "Hide"
+      },
+      "desc": {
+        "ko": "적 누구에게도 보이지 않을 때 민첩(은신) DC 15. 성공하면 숨은 상태.",
+        "en": "Stealth check while unseen."
+      },
+      "cost": "action",
+      "target": "self",
+      "tab": "common",
+      "icon": "res://assets/statuses/hidden.webp",
+      "explore": false,
+      "source": "original"
+    },
+    {
+      "id": "help",
+      "name": {
+        "ko": "돕기",
+        "en": "Help"
+      },
+      "desc": {
+        "ko": "인접한 쓰러진 아군을 HP 1로 일으킨다.",
+        "en": "Revive an adjacent downed ally at 1 HP."
+      },
+      "cost": "action",
+      "target": "ally_down",
+      "tab": "common",
+      "icon": "res://assets/statuses/rally.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "dip",
+      "name": {
+        "ko": "담그기",
+        "en": "Dip"
+      },
+      "desc": {
+        "ko": "옆 칸의 화염·독 표면에 무기를 담가 다음 공격에 그 피해를 더한다.",
+        "en": "Coat your weapon in a nearby surface."
+      },
+      "cost": "bonus",
+      "target": "self",
+      "tab": "common",
+      "icon": "res://assets/statuses/venom_weapon.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "stand_up",
+      "name": {
+        "ko": "일어서기",
+        "en": "Stand Up"
+      },
+      "desc": {
+        "ko": "넘어진 상태에서 일어난다(이동력 절반).",
+        "en": "Stand up (half movement)."
+      },
+      "cost": "free",
+      "target": "self",
+      "tab": "common",
+      "icon": "res://assets/statuses/roused.webp",
+      "explore": false,
+      "source": "original"
+    },
+    {
+      "id": "switch_weapons",
+      "name": {
+        "ko": "무기 전환",
+        "en": "Swap Weapons"
+      },
+      "desc": {
+        "ko": "근접·원거리 무기 세트를 바꾼다(무료).",
+        "en": "Swap melee/ranged sets (free)."
+      },
+      "cost": "free",
+      "target": "self",
+      "tab": "common",
+      "icon": "res://assets/items/ironwood_bow.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "cunning_dash",
+      "name": {
+        "ko": "교활한 질주",
+        "en": "Cunning Dash"
+      },
+      "desc": {
+        "ko": "교활한 행동: 보너스 행동으로 질주.",
+        "en": "Cunning Action: Dash as a bonus action."
+      },
+      "cost": "bonus",
+      "target": "self",
+      "tab": "class",
+      "icon": "res://assets/statuses/haste.webp",
+      "explore": false,
+      "source": "original"
+    },
+    {
+      "id": "cunning_disengage",
+      "name": {
+        "ko": "교활한 이탈",
+        "en": "Cunning Disengage"
+      },
+      "desc": {
+        "ko": "교활한 행동: 보너스 행동으로 이탈.",
+        "en": "Cunning Action: Disengage as a bonus action."
+      },
+      "cost": "bonus",
+      "target": "self",
+      "tab": "class",
+      "icon": "res://assets/statuses/shield_arm.webp",
+      "explore": false,
+      "source": "original"
+    },
+    {
+      "id": "cunning_hide",
+      "name": {
+        "ko": "교활한 숨기",
+        "en": "Cunning Hide"
+      },
+      "desc": {
+        "ko": "교활한 행동: 보너스 행동으로 숨기.",
+        "en": "Cunning Action: Hide as a bonus action."
+      },
+      "cost": "bonus",
+      "target": "self",
+      "tab": "class",
+      "icon": "res://assets/statuses/lurk.webp",
+      "explore": false,
+      "source": "original"
+    },
+    {
+      "id": "drink",
+      "name": {
+        "ko": "마시기",
+        "en": "Drink"
+      },
+      "desc": {
+        "ko": "물약을 마신다.",
+        "en": "Drink a potion."
+      },
+      "cost": "bonus",
+      "target": "self",
+      "tab": "items",
+      "icon": "res://assets/items/minor_potion.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "feed",
+      "name": {
+        "ko": "먹이기",
+        "en": "Feed"
+      },
+      "desc": {
+        "ko": "인접한 아군에게 물약을 먹인다(쓰러진 아군도).",
+        "en": "Feed a potion to an adjacent ally."
+      },
+      "cost": "action",
+      "target": "ally",
+      "tab": "items",
+      "icon": "res://assets/items/medium_potion.webp",
+      "explore": true,
+      "source": "original"
+    },
+    {
+      "id": "throw_potion",
+      "name": {
+        "ko": "물약 던지기",
+        "en": "Throw Potion"
+      },
+      "desc": {
+        "ko": "물약을 던져 착지 칸과 십자 4칸의 모두에게 효과(연소 해제).",
+        "en": "Throw a potion: affects the landing tile and 4 neighbours."
+      },
+      "cost": "action",
+      "target": "cell",
+      "tab": "items",
+      "icon": "res://assets/items/greater_potion.webp",
+      "explore": true,
+      "source": "original"
+    }
+  ]
+}

@@ -240,3 +240,31 @@ func test_explore_jumps_down_from_ledge() -> void:
 	assert_true(ex.move_to(c, Vector2i(4, 1)) > 0, "바위 턱에서 점프로 내려가 목적지까지 간다")
 	assert_eq(w["grid"].cell_of(c), Vector2i(4, 1))
 	assert_true(c.hp < 30, "2단계 낙하 피해")
+
+
+func test_decisions_awareness_decay_feather_fall_disarmer() -> void:
+	const Interact := preload("res://scripts/rules/interact.gd")
+	var w := make_world([".........."])
+	var g: Node = w["grid"]
+	var p := make_creature({"team": "party", "is_player_character": true, "hp_max": 30})
+	var o := make_creature({"team": "enemy"})
+	o.facing = Vector2i(0, 1)
+	g.place(p, Vector2i(0, 0))
+	g.place(o, Vector2i(9, 0))
+	var ex: Node = own(ExplorationScript.new().setup(w, [p]))
+	o.awareness[p] = {"state": "suspicious", "last": Vector2i(0, 0)}
+	for i in 10:
+		ex.tick()
+	assert_false(o.awareness.has(p), "의심은 10턴(1분) 뒤 풀린다")
+	# Feather Fall은 실시간에도
+	assert_true(EventBus.realtime)
+	var wiz := make_creature({"team": "party", "known_reactions": ["opportunity_attack", "feather_fall"]})
+	assert_true(w["reactions"].offer(wiz, "feather_fall", {}, func() -> void: pass), "Feather Fall은 실시간 예외")
+	assert_false(w["reactions"].offer(wiz, "opportunity_attack", {}, func() -> void: pass), "다른 반응은 실시간에 없다")
+	# 해제 실패: 옆 칸 해제자도 맞는다
+	var trap := {"id": "dart", "cell": [1, 0], "dc_find": 12, "dc_disarm": 15, "found": true, "radius": 0,
+		"effects": [{"type": "damage", "dice": "1d4", "damage_type": "piercing"}], "state": "armed"}
+	Interact.give(w, "trap_disarm_kit", 1)
+	Dice.force([2, 4])
+	Interact.disarm(w, p, trap)
+	assert_eq(p.hp, 26, "해제 실패로 터진 함정에 해제자가 맞는다")

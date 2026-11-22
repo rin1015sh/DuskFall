@@ -102,8 +102,7 @@ static func search(grid: Node, observer: Node, target: Node) -> String:
 	if aw.is_empty() or aw["state"] == "alerted":
 		return ""
 	if grid.distance_between(observer, target) > SEARCH_TILES:
-		observer.awareness[target]["state"] = "searching"
-		return ""
+		return ""  # 멀면 마지막 위치 쪽을 바라보기만 한다(의심 유지)
 	var dc: int = int(target.get_meta("stealth_total", 10 + stealth_bonus(target)))
 	var r := Resolver.ability_check(observer, "wis", dc, {"skill": "perception"})
 	if r["success"]:

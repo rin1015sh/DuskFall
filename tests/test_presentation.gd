@@ -124,6 +124,7 @@ func test_touch_long_press_drag_and_pinch() -> void:
 ## 표현 계층 스크립트가 모두 컴파일되는지(화면을 띄우지 않는 테스트에서 놓치기 쉽다).
 func test_all_scene_scripts_compile() -> void:
 	for path: String in ["res://scenes/battle/battle_scene.gd", "res://scenes/battle/actor_view.gd", "res://scenes/battle/map_view.gd",
-			"res://scenes/battle/input_router.gd", "res://scenes/ui/character_creation.gd", "res://scenes/battle/test_roster.gd"]:
+			"res://scenes/battle/input_router.gd", "res://scenes/ui/character_creation.gd", "res://scenes/battle/test_roster.gd",
+			"res://scenes/ui/hotbar.gd"]:
 		var s: Script = load(path)
 		assert_true(s != null and s.can_instantiate(), "%s 컴파일 실패" % path)

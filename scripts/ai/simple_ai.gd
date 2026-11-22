@@ -36,6 +36,7 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 	if c.resource("action_surge") > 0 and _foes(world, c).size() >= 2:
 		Features.use(world, c, "action_surge")
 	_cast_best_area(world, c)
+	_light_up(world, c)
 	# 2. 공격 행동
 	var guard := 0
 	while guard < 6 and not c.dead and not c.is_down():
@@ -198,6 +199,21 @@ static func monster_turn(world: Dictionary, m: Node) -> void:
 
 static func _foes(world: Dictionary, c: Node) -> Array:
 	return world["grid"].creatures().filter(func(o: Node) -> bool: return not o.dead and not o.is_down() and c.is_hostile_to(o))
+
+
+## 빛 주문: 파티 누구도 보지 못하는 적이 있으면 Dancing Lights(없으면 Light)로 그 자리를 밝힌다(예시 전투 1).
+static func _light_up(world: Dictionary, c: Node) -> void:
+	if int(c.turn.get("action", 0)) <= 0:
+		return
+	var grid: Node = world["grid"]
+	var allies: Array = _allies(world, c) + [c]
+	for f: Node in _foes(world, c):
+		if allies.any(func(a: Node) -> bool: return grid.can_see(a, f)):
+			continue
+		var cell: Vector2i = grid.cell_of(f)
+		if c.spells.has("dancing_lights") and Spellcasting.can_cast(world, c, "dancing_lights", cell) == "":
+			Spellcasting.cast(world, c, "dancing_lights", cell)
+			return
 
 
 ## 범위 주문: 아군을 맞히지 않고 적을 둘 이상 맞히는 조준을 찾는다(높은 레벨 주문부터).

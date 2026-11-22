@@ -357,7 +357,7 @@ static func default_spec(class_id: String, level: int = 1) -> Dictionary:
 			base.merge({"class": "wizard", "subclass": "evoker", "species": "elf", "lineage": "elf_high", "background": "sage",
 				"scores": {"str": 8, "dex": 14, "con": 13, "int": 15, "wis": 12, "cha": 10}, "bonus": {"int": 2, "dex": 1},
 				"skills": ["investigation", "insight"], "species_skill": "perception", "scholar": "arcana",
-				"cantrips": ["fire_bolt", "ray_of_frost", "shocking_grasp", "light"],
+				"cantrips": ["fire_bolt", "dancing_lights", "ray_of_frost", "light"],
 				"spells": ["magic_missile", "shield", "burning_hands", "sleep", "scorching_ray", "misty_step", "fireball", "counterspell", "haste"],
 				"asi": {"4": {"int": 2}}, "armor": "",
 				"weapons": {"melee": {"main": "quarterstaff", "off": ""}, "ranged": {"main": "dagger"}}})

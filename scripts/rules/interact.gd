@@ -60,7 +60,8 @@ static func on_party_enter(world: Dictionary, c: Node) -> void:
 
 
 ## 함정 발동: 내성 효과를 범위(반경) 안 생물에게. 물건을 던지거나 공격으로 일부러 발동시킬 수도 있다.
-static func trigger(world: Dictionary, t: Dictionary, by: Node = null) -> void:
+## include_by: 일으킨 생물을 범위 밖이어도 대상에 넣는다(해제 실패 — 해제자가 맞는다).
+static func trigger(world: Dictionary, t: Dictionary, by: Node = null, include_by: bool = false) -> void:
 	if t["state"] != "armed":
 		return
 	t["state"] = "spent"
@@ -68,6 +69,8 @@ static func trigger(world: Dictionary, t: Dictionary, by: Node = null) -> void:
 	var cell := Vector2i(int(t["cell"][0]), int(t["cell"][1]))
 	var cells := Area.circle(grid, cell, int(t.get("radius", 0)))
 	var targets := Area.creatures_in(grid, cells)
+	if include_by and by != null and not by in targets:
+		targets.append(by)
 	Dice.log_text("함정 발동: %s" % t.get("id", ""))
 	var save: Dictionary = t.get("save", {})
 	var fail: Array = t.get("effects", [])
@@ -102,7 +105,7 @@ static func disarm(world: Dictionary, c: Node, t: Dictionary, opts: Dictionary =
 	else:
 		take(world, DISARM_KIT)
 		t["retry_blocked"] = true
-		trigger(world, t, c)
+		trigger(world, t, c, true)
 	return {"ok": true, "success": r["success"], "check": r}
 
 

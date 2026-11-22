@@ -309,6 +309,7 @@ func tick() -> void:
 	if world.get("turns") != null:
 		world["turns"].tick()
 	check_zone_rewards()
+	_decay_awareness()
 	var grid: Node = world["grid"]
 	for o: Node in grid.creatures():
 		if o.dead or o.team == "party":
@@ -323,6 +324,26 @@ func tick() -> void:
 					continue
 			if Stealth.in_cone(grid, o, p):
 				_observe(o, p, true)
+
+
+## 알아챔이 시간이 지나면 풀린다: 의심 10턴(1분), 수색 100턴(10분). 발견은 전투로 이어지므로 그대로(changes.md).
+const SUSPICIOUS_TURNS := 10
+const SEARCHING_TURNS := 100
+
+
+func _decay_awareness() -> void:
+	for o: Node in world["grid"].creatures():
+		if o.dead or o.team == "party":
+			continue
+		for k in o.awareness.keys():
+			var a: Dictionary = o.awareness[k]
+			var st: String = a.get("state", "")
+			if st != "suspicious" and st != "searching":
+				continue
+			a["turns"] = int(a.get("turns", 0)) + 1
+			if a["turns"] >= (SUSPICIOUS_TURNS if st == "suspicious" else SEARCHING_TURNS):
+				o.awareness.erase(k)
+				Dice.log_text("%s: 경계를 푼다" % o.label())
 
 
 # ---------- 구역 보상 ----------

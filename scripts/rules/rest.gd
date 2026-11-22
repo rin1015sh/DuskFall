@@ -127,7 +127,7 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 	if full:
 		world["short_rests_left"] = SHORT_RESTS
 	# 인간 '기지': 긴 휴식 때 공용 영감 +1(5단계)
-	for c: Node in party:
+	for c: Node in party if full else []:
 		if not c.dead and c.species_id == "human":
 			add_inspiration(world, 1)
 	EventBus.on_long_rest.emit()

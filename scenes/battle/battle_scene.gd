@@ -26,6 +26,15 @@ const Dialogue := preload("res://scripts/rules/dialogue.gd")
 const SaveGame := preload("res://scripts/rules/save_game.gd")
 const TICK_SEC := 6.0
 const Progression := preload("res://scripts/rules/progression.gd")
+const Actions := preload("res://scripts/rules/actions.gd")
+const Hotbar := preload("res://scenes/ui/hotbar.gd")
+## 상태 → 아이콘(assets/statuses). 없으면 이로운 것 buff, 해로운 것 debuff.
+const CONDITION_ICON := {"blinded": "blind", "charmed": "charm", "frightened": "fear", "paralyzed": "paralysis",
+	"poisoned": "poison", "stunned": "stun", "restrained": "snare", "grappled": "snare", "invisible": "hidden",
+	"prone": "daze", "wet": "soaked", "burning": "burn", "surprised": "telegraphed", "unconscious": "stamina_depleted",
+	"incapacitated": "daze", "slowed": "lethargy", "outlined": "marked", "coated_weapon": "venom_weapon",
+	"enfeebled": "debuff", "sanctuary_ward": "guarding", "acid": "acid_corrosion", "deafened": "f3_auditory",
+	"petrified": "petrify", "exhaustion": "exhaustion", "hasted": "haste"}
 
 var world: Dictionary
 var party: Array = []
@@ -69,6 +78,7 @@ var dlg_panel: PanelContainer
 var dlg_text: RichTextLabel
 var dlg_options: VBoxContainer
 var dlg_use_insp: CheckBox
+var hotbar: PanelContainer
 
 
 class Highlights extends Node2D:
@@ -256,7 +266,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			follow = false
 			camera.position += pan[event.keycode]
 		elif event.keycode == KEY_ESCAPE:
+			mode = "move"
+			hotbar.selected_key = ""
 			_clear_preview()
+			_refresh()
 		return
 	router.handle(event, Time.get_ticks_msec())
 
@@ -307,6 +320,9 @@ func _advance() -> void:
 						selected = m
 			if args.has("mode"):
 				mode = args["mode"]
+				if mode.begins_with("act:"):
+					hotbar.selected_key = mode.trim_prefix("act:")
+					hotbar.tab = "spells" if mode.begins_with("act:spell:") else hotbar.tab
 			_refresh()
 			if args.has("preview"):
 				var p: PackedStringArray = args["preview"].split(",")
@@ -411,6 +427,14 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 	var c := selected
 	if not g.in_bounds(cell):
 		return {}
+	if mode.begins_with("act:"):
+		var ap: Dictionary = Actions.preview(world, c, mode.trim_prefix("act:"), cell, exploring)
+		var ao := {"valid": ap.get("valid", false), "text": "\n".join(PackedStringArray(ap.get("lines", [])))}
+		if ap.has("path"):
+			ao["path"] = ap["path"]
+		if ap.has("area"):
+			ao["area"] = ap["area"]
+		return ao
 	if exploring:
 		return _explore_preview(cell)
 	var target: Node = g.creature_at(cell)
@@ -490,7 +514,9 @@ func _on_confirm(pos: Vector2) -> void:
 	var cell := V.pick(world["grid"], _to_world(pos))
 	if not preview_data.get("valid", false) or cell != preview_cell:
 		return
-	if exploring:
+	if mode.begins_with("act:"):
+		_act_execute(mode.trim_prefix("act:"), cell)
+	elif exploring:
 		_explore_execute(cell)
 	else:
 		_execute(cell)
@@ -821,15 +847,27 @@ func _build_ui() -> void:
 	party_box = VBoxContainer.new()
 	party_box.position = Vector2(10, 70)
 	root.add_child(party_box)
-	# 아래: 행동 막대와 자원
+	# 아래: 단축 막대(BG3 구조 — scenes/ui/hotbar.gd)
 	var bottom := VBoxContainer.new()
-	bottom.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	bottom.position = Vector2(-430, -86)
+	bottom.anchor_left = 0.5
+	bottom.anchor_right = 0.5
+	bottom.anchor_top = 1.0
+	bottom.anchor_bottom = 1.0
+	bottom.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	bottom.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	bottom.offset_bottom = -6
 	root.add_child(bottom)
 	status_label = Label.new()
+	status_label.add_theme_font_size_override("font_size", 13)
+	status_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	status_label.add_theme_constant_override("outline_size", 4)
 	bottom.add_child(status_label)
 	action_box = HBoxContainer.new()
-	bottom.add_child(action_box)
+	hotbar = Hotbar.new()
+	bottom.add_child(hotbar)
+	hotbar.action_chosen.connect(_on_action)
+	hotbar.end_turn_pressed.connect(_end_turn)
+	hotbar.explore_pressed.connect(_on_explore_button)
 	# 오른쪽: 전투 로그
 	log_box = RichTextLabel.new()
 	log_box.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -897,68 +935,201 @@ func _refresh() -> void:
 	for c: Node in tm.order:
 		if c.dead:
 			continue
-		var l := Label.new()
-		l.text = " %s %d " % [c.label(), c.hp]
-		var sb := StyleBoxFlat.new()
-		sb.bg_color = (Color(0.15, 0.35, 0.2) if c.team == "party" else Color(0.45, 0.15, 0.12))
-		if c in tm.current_group():
-			sb.border_color = Color(1, 0.85, 0.2)
-			sb.set_border_width_all(2)
-		l.add_theme_stylebox_override("normal", sb)
-		order_box.add_child(l)
+		order_box.add_child(_order_portrait(c, c in tm.current_group()))
 	for ch in party_box.get_children():
 		ch.queue_free()
 	for c: Node in party:
-		var btn := Button.new()
-		btn.text = "%s  %s%s" % [c.label(), UiText.t("hp") % [c.hp, c.hp_max], "  ✝" if c.dead else ""]
-		btn.custom_minimum_size = Vector2(190, 44)
-		btn.toggle_mode = true
-		btn.button_pressed = c == selected
-		var art: Dictionary = c.get_meta("art", {})
-		if art.has("sheet"):
-			var at := AtlasTexture.new()
-			at.atlas = load(art["sheet"])
-			at.region = Rect2(144, 0, 72, 54)
-			btn.icon = at
-		btn.pressed.connect(_select.bind(c))
-		party_box.add_child(btn)
-	for ch in action_box.get_children():
-		ch.queue_free()
+		party_box.add_child(_party_card(c))
+	if selected != null and selected.team == "party" and (exploring or not busy):
+		hotbar.show_for(world, selected, exploring, _explore_buttons() if exploring else [])
+	else:
+		hotbar.visible = false
 	if exploring and selected != null:
-		_action_button(UiText.t("sneak_on") if selected.sneaking else UiText.t("sneak_off"), _toggle_sneak, selected.sneaking)
-		var linked: bool = explore.linked.get(selected, false)
-		_action_button(UiText.t("linked") if linked else UiText.t("unlinked"), func() -> void: explore.link(selected, not linked); _refresh(), linked)
-		_action_button(UiText.t("regroup"), func() -> void: explore.regroup(); _refresh(); _check_combat())
-		_action_button(UiText.t("short_rest") % int(world.get("short_rests_left", Rest.SHORT_RESTS)), _rest.bind("short"))
-		_action_button(UiText.t("long_rest") % Rest.supplies(world), _rest.bind("long"))
-		if Progression.can_level_up(world, selected):
-			_action_button(UiText.t("level_up") % (selected.level + 1), func() -> void:
-				Progression.level_up(world, selected)
-				_refresh())
-		_action_button(UiText.t("save"), _save)
-		_action_button(UiText.t("load"), _load)
 		status_label.text = UiText.t("explore_status") % [selected.label(), selected.level, int(world.get("xp", 0)), int(world.get("inspiration", 0)),
 			Interact.count(world, "gold"), Interact.count(world, "thieves_tools"), Interact.count(world, "trap_disarm_kit")]
-	elif selected != null and selected.team == "party" and not busy:
-		for m: String in ["move", "attack", "shove", "jump"]:
-			_action_button(UiText.t(m), func() -> void: _set_mode(m), mode == m)
-		for sid: String in selected.spells:
-			var sp := RulesDB.get_entry("spell", sid)
-			if not sp.is_empty():
-				_action_button(UiText.name_of(sp["name"]), func() -> void: _set_mode("spell:" + sid), mode == "spell:" + sid)
-		_action_button(UiText.t("dash"), func() -> void: Combat.dash(selected); _refresh())
-		_action_button(UiText.t("disengage"), func() -> void: Combat.disengage(selected); _refresh())
-		_action_button(UiText.t("hide"), func() -> void: Combat.hide(world, selected); _refresh())
-		_action_button(UiText.t("stand"), func() -> void: Combat.stand_up(selected); _refresh())
-		_action_button(UiText.t("switch"), func() -> void: Combat.switch_weapon_set(selected); _refresh())
-		_action_button(UiText.t("end_turn"), _end_turn)
-		var t: Dictionary = selected.turn
-		status_label.text = "%s — %s" % [selected.label(), UiText.t("actions") % [int(t.get("action", 0)),
-			int(t.get("bonus", 0)), int(t.get("reaction", 0)), int(t.get("movement", 0))]]
+	elif busy:
+		status_label.text = UiText.t("enemy_turn")
 	else:
-		status_label.text = UiText.t("enemy_turn") if busy else ""
+		status_label.text = ""
 	_update_log()
 	map_view.refresh()
+
+
+## 이니셔티브 막대의 초상 하나(파티 초록·적 빨강 테두리, 현재 턴은 금색).
+func _order_portrait(c: Node, current: bool) -> Control:
+	var p := PanelContainer.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.08, 0.08, 0.1, 0.9)
+	sb.border_color = Color(1, 0.85, 0.2) if current else (Color("3f9d55") if c.team == "party" else Color("b23b33"))
+	sb.set_border_width_all(3 if current else 2)
+	sb.set_corner_radius_all(4)
+	p.add_theme_stylebox_override("panel", sb)
+	p.custom_minimum_size = Vector2(46, 58) * (1.15 if current else 1.0)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 1)
+	p.add_child(v)
+	var tr := TextureRect.new()
+	tr.texture = _portrait_tex(c)
+	tr.custom_minimum_size = Vector2(40, 44)
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	v.add_child(tr)
+	var bar := ProgressBar.new()
+	bar.custom_minimum_size = Vector2(40, 5)
+	bar.show_percentage = false
+	bar.max_value = c.hp_max
+	bar.value = c.hp
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color("3f9d55") if c.team == "party" else Color("c0392b")
+	bar.add_theme_stylebox_override("fill", fill)
+	v.add_child(bar)
+	p.tooltip_text = "%s  HP %d/%d  (%d)" % [c.label(), c.hp, c.hp_max, c.initiative]
+	return p
+
+
+## 왼쪽 파티 카드: 초상·이름·HP 막대·상태 아이콘. 누르면 선택.
+func _party_card(c: Node) -> Control:
+	var b := Button.new()
+	b.custom_minimum_size = Vector2(200, 64)
+	b.toggle_mode = true
+	b.button_pressed = c == selected
+	b.focus_mode = Control.FOCUS_NONE
+	var h := HBoxContainer.new()
+	h.set_anchors_preset(Control.PRESET_FULL_RECT)
+	h.offset_left = 4
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(h)
+	var tr := TextureRect.new()
+	tr.texture = _portrait_tex(c)
+	tr.custom_minimum_size = Vector2(48, 56)
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if c.dead:
+		tr.modulate = Color(0.4, 0.4, 0.4)
+	h.add_child(tr)
+	var v := VBoxContainer.new()
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_theme_constant_override("separation", 2)
+	h.add_child(v)
+	var nl := Label.new()
+	nl.text = "%s%s%s" % [c.label(), "  ✝" if c.dead else "", "  🔗" if exploring and explore.linked.get(c, false) else ""]
+	nl.add_theme_font_size_override("font_size", 13)
+	v.add_child(nl)
+	var bar := ProgressBar.new()
+	bar.custom_minimum_size = Vector2(130, 9)
+	bar.show_percentage = false
+	bar.max_value = c.hp_max
+	bar.value = c.hp
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color("b8312f")
+	bar.add_theme_stylebox_override("fill", fill)
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(bar)
+	var icons := HBoxContainer.new()
+	icons.add_theme_constant_override("separation", 1)
+	icons.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(icons)
+	var hpl := Label.new()
+	hpl.text = "%d/%d " % [c.hp, c.hp_max]
+	hpl.add_theme_font_size_override("font_size", 11)
+	icons.add_child(hpl)
+	for inst: Dictionary in c.conditions:
+		var id: String = inst["id"]
+		var path := "res://assets/statuses/%s.webp" % CONDITION_ICON.get(id, "debuff")
+		if ResourceLoader.exists(path):
+			var ic := TextureRect.new()
+			ic.texture = load(path)
+			ic.custom_minimum_size = Vector2(16, 16)
+			ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			ic.tooltip_text = id
+			ic.mouse_filter = Control.MOUSE_FILTER_PASS
+			icons.add_child(ic)
+	b.pressed.connect(_select.bind(c))
+	return b
+
+
+func _portrait_tex(c: Node) -> Texture2D:
+	var art: Dictionary = c.get_meta("art", {})
+	if art.has("sheet") and ResourceLoader.exists(art["sheet"]):
+		var at := AtlasTexture.new()
+		at.atlas = load(art["sheet"])
+		at.region = Rect2(144, 0, 72, 60)
+		return at
+	if art.has("image") and ResourceLoader.exists(art["image"]):
+		return load(art["image"])
+	return null
+
+
+## 탐험 탭 버튼(BG3의 은신·묶기·휴식·저장 자리)
+func _explore_buttons() -> Array:
+	var out: Array = []
+	var linked: bool = explore.linked.get(selected, false)
+	out.append({"id": "link", "text": UiText.t("linked") if linked else UiText.t("unlinked"), "pressed": linked})
+	out.append({"id": "regroup", "text": UiText.t("regroup")})
+	out.append({"id": "short_rest", "text": UiText.t("short_rest") % int(world.get("short_rests_left", Rest.SHORT_RESTS))})
+	out.append({"id": "long_rest", "text": UiText.t("long_rest") % Rest.supplies(world)})
+	if Progression.can_level_up(world, selected):
+		out.append({"id": "level_up", "text": UiText.t("level_up") % (selected.level + 1)})
+	out.append({"id": "save", "text": UiText.t("save")})
+	out.append({"id": "load", "text": UiText.t("load")})
+	return out
+
+
+func _on_explore_button(id: String) -> void:
+	match id:
+		"sneak":
+			_toggle_sneak()
+		"link":
+			explore.link(selected, not explore.linked.get(selected, false))
+			_refresh()
+		"regroup":
+			explore.regroup()
+			_refresh()
+			_check_combat()
+		"short_rest":
+			_rest("short")
+		"long_rest":
+			_rest("long")
+		"level_up":
+			Progression.level_up(world, selected)
+			_refresh()
+		"save":
+			_save()
+		"load":
+			_load()
+
+
+## 단축 막대에서 행동을 골랐다: 자신 대상이면 바로 실행, 아니면 대상 고르기(미리보기 → 확정).
+func _on_action(key: String) -> void:
+	if selected == null or (busy and not exploring):
+		return
+	if not exploring and not world["turns"].is_current(selected):
+		return
+	var d := Actions.def_of(key)
+	if d.get("target", "self") == "self":
+		_act_execute(key, world["grid"].cell_of(selected))
+		return
+	mode = "act:" + key
+	hotbar.selected_key = key
+	_clear_preview()
+	_refresh()
+
+
+func _act_execute(key: String, cell: Vector2i) -> void:
+	var r: Dictionary = Actions.execute(world, selected, key, cell, exploring)
+	_notify(r)
+	if r.get("ok", false) and world["grid"].creature_at(cell) != null and cell != world["grid"].cell_of(selected):
+		views[selected].face_toward(cell)
+	mode = "move"
+	hotbar.selected_key = ""
+	map_view.refresh()
+	_clear_preview()
+	_refresh()
+	if exploring:
+		_check_combat()
+	elif world["turns"].check_end():
+		_advance()
 
 
 func _action_button(text: String, cb: Callable, pressed: bool = false) -> void:
