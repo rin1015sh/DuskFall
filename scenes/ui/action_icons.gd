@@ -1,123 +1,382 @@
 extends Control
-## 통일된 행동 아이콘(BG3의 금색 선화 아이콘 느낌, 그림 에셋 없이 _draw로): 어두운 바탕 + 금색 선.
-## kind = 행동 키(attack, jump, drink ...). 없는 종류는 has_icon()이 false — 단축 막대가 그림으로 대신한다.
+## 행동·주문 아이콘(표현 계층): 검은 바탕 위에 빛나는 두꺼운 붓획 문양(BG3 주문 아이콘 화풍 참고, 문양은 자체).
+## 색은 계열별로 통일한다 — 공용 행동 호박, 교활한 행동 보라, 무기 액션 은청, 물약 다홍, 클래스 기능은 클래스 색,
+## 주문은 피해 종류 색(불·냉기·번개·산·독·사령·광휘·역장·정신·천둥·물리), 피해가 없으면 회복 초록 또는 학파 색.
+## kind = 행동 키(attack, wa_sweep, feature:second_wind, spell:fireball, drink:potion_of_healing ...).
 
 const S := preload("res://scenes/ui/ui_style.gd")
-const KINDS := ["attack", "ranged_attack", "offhand_attack", "jump", "shove", "throw", "dash", "disengage", "hide", "help",
-	"dip", "stand_up", "switch_weapons", "cunning_dash", "cunning_disengage", "cunning_hide", "sneak_melee", "sneak_ranged",
-	"drink", "feed", "throw_potion", "wa_sweep", "wa_hamstring", "wa_pommel", "wa_topple", "wa_impale"]
+
+## 계열 색
+const FAM := {
+	"common": Color(1.0, 0.74, 0.32), "cunning": Color(0.74, 0.52, 1.0), "weapon": Color(0.62, 0.82, 0.98), "item": Color(1.0, 0.45, 0.42),
+	"fighter": Color(1.0, 0.5, 0.26), "rogue": Color(0.74, 0.52, 1.0), "cleric": Color(1.0, 0.88, 0.5), "wizard": Color(0.45, 0.7, 1.0),
+	"fire": Color(1.0, 0.52, 0.18), "cold": Color(0.5, 0.88, 1.0), "lightning": Color(0.6, 0.62, 1.0), "acid": Color(0.72, 0.95, 0.25),
+	"poison": Color(0.45, 0.9, 0.4), "necrotic": Color(0.35, 0.95, 0.7), "radiant": Color(1.0, 0.9, 0.45), "force": Color(0.85, 0.5, 1.0),
+	"psychic": Color(1.0, 0.5, 0.82), "thunder": Color(0.55, 0.55, 1.0), "physical": Color(0.82, 0.84, 0.88), "heal": Color(0.45, 1.0, 0.6),
+	"abjuration": Color(0.4, 0.72, 1.0), "conjuration": Color(1.0, 0.75, 0.35), "divination": Color(0.6, 0.95, 1.0),
+	"enchantment": Color(1.0, 0.55, 0.78), "evocation": Color(1.0, 0.82, 0.6), "illusion": Color(0.68, 0.5, 1.0),
+	"necromancy": Color(0.5, 0.9, 0.55), "transmutation": Color(1.0, 0.65, 0.4),
+}
+
+## 공용·무기·아이템·기능·존재 행동: [문양, 계열]
+const ACTIONS := {
+	"attack": ["sword", "common"], "ranged_attack": ["bow", "common"], "offhand_attack": ["dagger", "common"], "jump": ["jump", "common"],
+	"shove": ["shove", "common"], "throw": ["throw", "common"], "dash": ["chevrons", "common"], "disengage": ["shield", "common"],
+	"hide": ["eye_slash", "common"], "help": ["plus", "common"], "dip": ["drop", "common"], "stand_up": ["up_arrow", "common"],
+	"switch_weapons": ["swap", "common"],
+	"cunning_dash": ["chevrons", "cunning"], "cunning_disengage": ["shield", "cunning"], "cunning_hide": ["eye_slash", "cunning"],
+	"sneak_melee": ["dagger_eye", "cunning"], "sneak_ranged": ["bow_eye", "cunning"],
+	"drink": ["flask", "item"], "feed": ["flask_hand", "item"], "throw_potion": ["flask_arc", "item"],
+	"wa_sweep": ["sweep", "weapon"], "wa_hamstring": ["hamstring", "weapon"], "wa_pommel": ["pommel", "weapon"],
+	"wa_topple": ["topple", "weapon"], "wa_impale": ["spear", "weapon"],
+	"feature:second_wind": ["breath", "fighter"], "feature:action_surge": ["surge", "fighter"], "feature:steady_aim": ["crosshair", "rogue"],
+	"feature:divine_spark": ["sparkle", "cleric"], "feature:turn_undead": ["skull_rays", "cleric"], "feature:preserve_life": ["heart", "cleric"],
+	"feature:arcane_recovery": ["swirl", "wizard"],
+	"entity:spiritual_weapon": ["sword", "force"], "entity:flaming_sphere": ["orb", "fire"], "entity:mage_hand": ["hand", "conjuration"],
+}
+
+## 주문: [문양, 계열]
+const SPELLS := {
+	"acid_arrow": ["arrow", "acid"], "acid_splash": ["drops", "acid"], "aid": ["heart_plus", "heal"], "animate_dead": ["skull", "necromancy"],
+	"arcane_lock": ["lock", "abjuration"], "augury": ["eye", "divination"], "bane": ["down_arrows", "enchantment"],
+	"beacon_of_hope": ["sun", "radiant"], "bestow_curse": ["skull", "necrotic"], "bless": ["up_arrows", "radiant"],
+	"blindness_deafness": ["eye_slash", "necromancy"], "blink": ["swirl", "transmutation"], "blur": ["mask", "illusion"],
+	"burning_hands": ["flame_cone", "fire"], "calm_emotions": ["heart", "enchantment"], "charm_person": ["heart", "enchantment"],
+	"chill_touch": ["hand", "necrotic"], "chromatic_orb": ["orb", "force"], "color_spray": ["sparkle", "illusion"],
+	"command": ["voice", "enchantment"], "comprehend_languages": ["book", "divination"], "continual_flame": ["flame", "radiant"],
+	"counterspell": ["counter", "abjuration"], "create_food_and_water": ["drop", "conjuration"], "create_or_destroy_water": ["drop", "transmutation"],
+	"cure_wounds": ["heal_cross", "heal"], "dancing_lights": ["sparkle", "radiant"], "darkness": ["moon", "illusion"],
+	"darkvision": ["eye", "transmutation"], "daylight": ["sun", "radiant"], "detect_evil_and_good": ["eye", "divination"],
+	"detect_magic": ["eye", "divination"], "detect_poison_and_disease": ["eye", "poison"], "detect_thoughts": ["spiral", "psychic"],
+	"disguise_self": ["mask", "illusion"], "dispel_magic": ["counter", "abjuration"], "dragon_s_breath": ["flame_cone", "fire"],
+	"druidcraft": ["leaf", "transmutation"], "elementalism": ["sparkle", "transmutation"], "enhance_ability": ["up_arrows", "transmutation"],
+	"enlarge_reduce": ["resize", "transmutation"], "expeditious_retreat": ["chevrons", "transmutation"], "faerie_fire": ["sparkle", "radiant"],
+	"false_life": ["heart", "necrotic"], "fear": ["skull", "illusion"], "feather_fall": ["feather", "transmutation"],
+	"find_familiar": ["wing", "conjuration"], "find_traps": ["eye", "divination"], "fire_bolt": ["flame", "fire"],
+	"fireball": ["fireball", "fire"], "flaming_sphere": ["orb", "fire"], "fly": ["wing", "transmutation"], "fog_cloud": ["cloud", "conjuration"],
+	"glyph_of_warding": ["rune", "abjuration"], "grease": ["drops", "conjuration"], "guidance": ["star", "divination"],
+	"guiding_bolt": ["star", "radiant"], "gust_of_wind": ["wind", "physical"], "haste": ["chevrons", "transmutation"],
+	"healing_word": ["heal_cross", "heal"], "hellish_rebuke": ["flame", "fire"], "hideous_laughter": ["spiral", "enchantment"],
+	"hold_person": ["chains", "enchantment"], "hypnotic_pattern": ["spiral", "illusion"], "ice_knife": ["shard", "cold"],
+	"inflict_wounds": ["hand", "necrotic"], "invisibility": ["eye_slash", "illusion"], "jump": ["jump", "transmutation"],
+	"knock": ["key", "transmutation"], "lesser_restoration": ["heal_cross", "heal"], "levitate": ["feather", "transmutation"],
+	"light": ["sun", "radiant"], "lightning_bolt": ["bolt", "lightning"], "locate_object": ["eye", "divination"],
+	"longstrider": ["chevrons", "transmutation"], "mage_armor": ["shield", "abjuration"], "mage_hand": ["hand", "conjuration"],
+	"magic_missile": ["darts", "force"], "magic_weapon": ["sword", "transmutation"], "major_image": ["mask", "illusion"],
+	"mass_healing_word": ["heal_cross", "heal"], "mending": ["mend", "transmutation"], "mind_spike": ["spike", "psychic"],
+	"minor_illusion": ["mask", "illusion"], "mirror_image": ["mask", "illusion"], "misty_step": ["swirl", "conjuration"],
+	"pass_without_trace": ["eye_slash", "abjuration"], "poison_spray": ["drops", "poison"], "prayer_of_healing": ["heal_cross", "heal"],
+	"prestidigitation": ["sparkle", "transmutation"], "protection_from_energy": ["shield", "abjuration"],
+	"protection_from_evil_and_good": ["shield", "abjuration"], "protection_from_poison": ["shield", "poison"],
+	"ray_of_enfeeblement": ["down_arrows", "necrotic"], "ray_of_frost": ["snowflake", "cold"], "ray_of_sickness": ["drops", "poison"],
+	"remove_curse": ["counter", "abjuration"], "resistance": ["shield", "abjuration"], "revivify": ["heart", "heal"],
+	"sacred_flame": ["flame", "radiant"], "sanctuary": ["shield", "abjuration"], "scorching_ray": ["rays", "fire"],
+	"see_invisibility": ["eye", "divination"], "shatter": ["waves", "thunder"], "shield": ["shield", "abjuration"],
+	"shield_of_faith": ["shield", "radiant"], "shocking_grasp": ["bolt", "lightning"], "silence": ["voice_slash", "illusion"],
+	"silent_image": ["mask", "illusion"], "sleep": ["moon", "enchantment"], "sleet_storm": ["snowflake", "cold"],
+	"slow": ["down_arrows", "transmutation"], "spare_the_dying": ["heart", "heal"], "speak_with_animals": ["voice", "divination"],
+	"speak_with_dead": ["skull", "necromancy"], "spider_climb": ["web", "transmutation"], "spirit_guardians": ["wing", "radiant"],
+	"spiritual_weapon": ["sword", "force"], "stinking_cloud": ["cloud", "poison"], "suggestion": ["voice", "enchantment"],
+	"thaumaturgy": ["sparkle", "transmutation"], "thunderwave": ["waves", "thunder"], "tiny_hut": ["dome", "evocation"],
+	"tongues": ["voice", "divination"], "true_strike": ["crosshair", "divination"], "vampiric_touch": ["hand", "necrotic"],
+	"warding_bond": ["chains", "abjuration"], "water_breathing": ["drop", "transmutation"], "water_walk": ["drop", "transmutation"],
+	"web": ["web", "conjuration"], "zone_of_truth": ["eye", "enchantment"],
+}
 
 var kind := ""
 var dim := false
+var _c := Vector2.ZERO
+var _k := 1.0
+var _col := Color.WHITE
 
 
-static func has_icon(key: String) -> bool:
-	return key.get_slice(":", 0) in KINDS
+static func has_icon(_key: String) -> bool:
+	return true  # 모든 행동·주문(모르는 것은 계열 색 별 문양)
+
+
+## 행동 키 → [문양, 색]
+static func spec(key: String) -> Array:
+	if ACTIONS.has(key):
+		return [ACTIONS[key][0], FAM[ACTIONS[key][1]]]
+	var base := key.get_slice(":", 0)
+	if ACTIONS.has(base):
+		return [ACTIONS[base][0], FAM[ACTIONS[base][1]]]
+	if key.begins_with("spell:"):
+		var sid := key.trim_prefix("spell:")
+		if SPELLS.has(sid):
+			return [SPELLS[sid][0], FAM[SPELLS[sid][1]]]
+		var sp := RulesDB.get_entry("spell", sid)
+		return ["star", FAM.get(sp.get("school", ""), FAM["evocation"])]
+	if key.begins_with("feature:"):
+		return ["sparkle", FAM["common"]]
+	return ["star", FAM["common"]]
 
 
 func _draw() -> void:
-	var w := size.x
-	var c := size / 2.0
-	var k := w / 40.0
-	var col := Color(S.GOLD, 0.35) if dim else S.GOLD
-	var thin := 1.6 * k
-	var thick := 2.4 * k
-	# 바탕: 어두운 원 + 가는 금테
-	draw_circle(c, w * 0.47, Color(0.09, 0.075, 0.06))
-	draw_arc(c, w * 0.47, 0, TAU, 40, Color(col, 0.5), 1.0, true)
-	var P := func(x: float, y: float) -> Vector2: return c + Vector2(x, y) * k
-	var base: String = kind.get_slice(":", 0)
-	match base:
-		"attack", "wa_sweep", "wa_topple":
-			_sword(P, col, thick)
-			if base == "wa_sweep":
-				draw_arc(c, 13 * k, -2.6, -0.4, 16, col, thin, true)
-			elif base == "wa_topple":
-				draw_line(P.call(-10, 12), P.call(10, 12), col, thick, true)
-		"ranged_attack", "sneak_ranged", "wa_hamstring":
-			draw_arc(P.call(-4, 0), 13 * k, -1.2, 1.2, 20, col, thick, true)
-			draw_line(P.call(1, -12), P.call(1, 12), Color(col, 0.7), thin, true)
-			draw_line(P.call(-8, 0), P.call(13, 0), col, thin, true)
-			draw_colored_polygon(PackedVector2Array([P.call(13, 0), P.call(8, -3), P.call(8, 3)]), col)
-			if base == "sneak_ranged":
-				_eye(P, col, thin, Vector2(-9, 9), 0.45)
-		"offhand_attack", "sneak_melee", "wa_pommel", "wa_impale":
-			draw_line(P.call(-9, 9), P.call(9, -9), col, thick, true)
-			draw_line(P.call(-12, 6), P.call(-6, 12), col, thick, true)
-			if base == "sneak_melee":
-				_eye(P, col, thin, Vector2(7, 8), 0.45)
-			elif base == "wa_pommel":
-				draw_circle(P.call(-11, 11), 3.5 * k, col)
-			elif base == "wa_impale":
-				draw_colored_polygon(PackedVector2Array([P.call(13, -13), P.call(6, -10), P.call(10, -6)]), col)
+	var sp := spec(kind)
+	_c = size / 2.0
+	_k = minf(size.x, size.y) / 40.0
+	_col = sp[1]
+	if dim:
+		_col = Color(_col.lerp(Color(0.5, 0.5, 0.5), 0.6), 0.45)
+	# 바탕: 검은 원 + 아주 옅은 계열 색 안개
+	draw_circle(_c, 19.5 * _k, Color(0.02, 0.02, 0.025))
+	draw_circle(_c, 15.0 * _k, Color(_col, 0.07))
+	_motif(sp[0])
+
+
+# ---------- 붓획 도구(빛 번짐 3겹 + 심) ----------
+
+func _p(x: float, y: float) -> Vector2:
+	return _c + Vector2(x, y) * _k
+
+
+func L(pts: Array, w: float = 1.0) -> void:
+	var pv := PackedVector2Array()
+	for q: Vector2 in pts:
+		pv.append(_p(q.x, q.y))
+	var base := 2.7 * _k * w
+	draw_polyline(pv, Color(_col, 0.10 * _col.a), base * 3.4, true)
+	draw_polyline(pv, Color(_col, 0.22 * _col.a), base * 2.0, true)
+	draw_polyline(pv, _col, base, true)
+	draw_polyline(pv, Color(_col.lightened(0.65), 0.85 * _col.a), base * 0.38, true)
+	# 붓끝: 끝점을 둥글게
+	for q: Vector2 in [pts[0], pts[pts.size() - 1]]:
+		draw_circle(_p(q.x, q.y), base * 0.5, _col)
+
+
+func A(x: float, y: float, r: float, a0: float, a1: float, w: float = 1.0) -> void:
+	var pts: Array = []
+	var n := maxi(8, int(absf(a1 - a0) * 8))
+	for i in n + 1:
+		var a := lerpf(a0, a1, float(i) / n)
+		pts.append(Vector2(x + cos(a) * r, y + sin(a) * r))
+	L(pts, w)
+
+
+func D(x: float, y: float, r: float) -> void:
+	draw_circle(_p(x, y), r * _k * 2.2, Color(_col, 0.15 * _col.a))
+	draw_circle(_p(x, y), r * _k, _col)
+	draw_circle(_p(x, y), r * _k * 0.45, Color(_col.lightened(0.7), _col.a))
+
+
+func V2(x: float, y: float) -> Vector2:
+	return Vector2(x, y)
+
+
+# ---------- 문양 ----------
+
+func _motif(m: String) -> void:
+	match m:
+		"sword":
+			L([V2(-11, 11), V2(10, -10)]); L([V2(-13, 5), V2(-5, 13)]); L([V2(-14, 14), V2(-10, 10)], 1.2)
+		"bow":
+			A(-4, 0, 13, -1.25, 1.25); L([V2(0, -12), V2(0, 12)], 0.5); L([V2(-9, 0), V2(13, 0)], 0.8); L([V2(9, -4), V2(13, 0), V2(9, 4)], 0.8)
+		"dagger":
+			L([V2(-8, 8), V2(9, -9)]); L([V2(-11, 4), V2(-4, 11)]); D(-11, 11, 1.6)
+		"dagger_eye":
+			L([V2(-10, 10), V2(6, -6)]); L([V2(-12, 6), V2(-6, 12)]); _eye(6, -6, 0.55)
+		"bow_eye":
+			A(-6, 0, 12, -1.2, 1.2); L([V2(-10, 0), V2(9, 0)], 0.8); _eye(8, 8, 0.5)
 		"jump":
-			draw_arc(P.call(0, 8), 13 * k, PI + 0.3, TAU - 0.3, 24, col, thick, true)
-			draw_colored_polygon(PackedVector2Array([P.call(13, 5), P.call(8, 1), P.call(14, -1)]), col)
-			draw_line(P.call(-14, 12), P.call(14, 12), Color(col, 0.6), thin, true)
+			A(0, 9, 13, PI + 0.35, TAU - 0.35); L([V2(8, 1), V2(12, 5), V2(15, -1)], 0.8); L([V2(-14, 13), V2(14, 13)], 0.5)
 		"shove":
 			for y: float in [-6.0, 0.0, 6.0]:
-				draw_line(P.call(-12, y), P.call(6, y), col, thin, true)
-			draw_colored_polygon(PackedVector2Array([P.call(12, 0), P.call(5, -8), P.call(5, 8)]), col)
-		"throw", "throw_potion":
-			draw_arc(P.call(0, 10), 14 * k, PI + 0.4, TAU - 0.6, 20, Color(col, 0.7), thin, true)
-			if base == "throw_potion":
-				_flask(P, col, thin, Vector2(9, -2), 0.6)
-			else:
-				draw_circle(P.call(10, -4), 4 * k, col)
-		"dash", "cunning_dash":
-			for x: float in [-8.0, 0.0]:
-				draw_polyline(PackedVector2Array([P.call(x, -9), P.call(x + 8, 0), P.call(x, 9)]), col, thick, true)
-		"disengage", "cunning_disengage":
-			var sh := PackedVector2Array([P.call(0, -13), P.call(11, -8), P.call(9, 6), P.call(0, 13), P.call(-9, 6), P.call(-11, -8), P.call(0, -13)])
-			draw_polyline(sh, col, thick, true)
-			draw_line(P.call(-5, 0), P.call(5, 0), col, thin, true)
-		"hide", "cunning_hide":
-			_eye(P, col, thin, Vector2.ZERO, 1.0)
-			draw_line(P.call(-12, 10), P.call(12, -10), col, thin, true)
-		"help":
-			draw_line(P.call(0, -11), P.call(0, 11), col, thick, true)
-			draw_line(P.call(-11, 0), P.call(11, 0), col, thick, true)
-		"dip":
-			var drop := PackedVector2Array([P.call(0, -13), P.call(8, 3), P.call(6, 9), P.call(0, 12), P.call(-6, 9), P.call(-8, 3), P.call(0, -13)])
-			draw_polyline(drop, col, thick, true)
-		"stand_up":
-			draw_line(P.call(0, 12), P.call(0, -8), col, thick, true)
-			draw_colored_polygon(PackedVector2Array([P.call(0, -13), P.call(-7, -5), P.call(7, -5)]), col)
-		"switch_weapons":
-			draw_line(P.call(-11, -5), P.call(9, -5), col, thin, true)
-			draw_colored_polygon(PackedVector2Array([P.call(12, -5), P.call(7, -9), P.call(7, -1)]), col)
-			draw_line(P.call(11, 5), P.call(-9, 5), col, thin, true)
-			draw_colored_polygon(PackedVector2Array([P.call(-12, 5), P.call(-7, 1), P.call(-7, 9)]), col)
-		"drink", "feed":
-			_flask(P, col, thick, Vector2.ZERO, 1.0)
-			if base == "feed":
-				draw_line(P.call(8, 10), P.call(14, 10), col, thin, true)
-	if kind.begins_with("cunning_"):
-		draw_circle(P.call(12, -12), 3 * k, Color(S.BONUS, 0.9))
+				L([V2(-13, y), V2(3, y)], 0.7)
+			L([V2(3, -11), V2(13, 0), V2(3, 11)])
+		"throw":
+			A(0, 11, 14, PI + 0.45, TAU - 0.7, 0.7); D(10, -5, 3.2)
+		"chevrons":
+			L([V2(-12, -10), V2(-3, 0), V2(-12, 10)]); L([V2(-1, -10), V2(8, 0), V2(-1, 10)]); L([V2(9, -6), V2(13, 0), V2(9, 6)], 0.6)
+		"shield":
+			L([V2(0, -14), V2(11, -9), V2(9, 5), V2(0, 14), V2(-9, 5), V2(-11, -9), V2(0, -14)]); L([V2(0, -8), V2(0, 8)], 0.6)
+		"eye":
+			_eye(0, 0, 1.0)
+		"eye_slash":
+			_eye(0, 0, 1.0); L([V2(-13, 11), V2(13, -11)], 0.8)
+		"plus":
+			L([V2(0, -12), V2(0, 12)]); L([V2(-12, 0), V2(12, 0)])
+		"drop":
+			L([V2(0, -14), V2(8, 2), V2(7, 8), V2(0, 12), V2(-7, 8), V2(-8, 2), V2(0, -14)])
+		"drops":
+			for q: Vector2 in [V2(-7, -4), V2(6, -7), V2(0, 7)]:
+				L([q + V2(0, -6), q + V2(4, 1), q + V2(0, 4), q + V2(-4, 1), q + V2(0, -6)], 0.75)
+		"up_arrow":
+			L([V2(0, 13), V2(0, -10)]); L([V2(-8, -3), V2(0, -12), V2(8, -3)])
+		"swap":
+			L([V2(-12, -5), V2(10, -5)], 0.8); L([V2(6, -10), V2(12, -5), V2(6, 0)], 0.8)
+			L([V2(12, 6), V2(-10, 6)], 0.8); L([V2(-6, 1), V2(-12, 6), V2(-6, 11)], 0.8)
+		"flask", "flask_hand", "flask_arc":
+			var s := 0.65 if m == "flask_arc" else 1.0
+			var o := V2(6, -3) if m == "flask_arc" else V2(0, 0)
+			L([o + V2(-3, -12) * s, o + V2(-3, -4) * s, o + V2(-10, 6) * s, o + V2(-6, 12) * s, o + V2(6, 12) * s, o + V2(10, 6) * s, o + V2(3, -4) * s, o + V2(3, -12) * s])
+			L([o + V2(-7, 5) * s, o + V2(7, 5) * s], 0.6)
+			if m == "flask_hand":
+				A(0, 14, 9, PI + 0.3, TAU - 0.3, 0.6)
+			elif m == "flask_arc":
+				A(-4, 12, 12, PI + 0.6, TAU - 1.1, 0.6)
+		"sweep":
+			L([V2(-9, 9), V2(9, -9)]); A(0, 0, 14, -2.8, -0.2, 0.8)
+		"hamstring":
+			L([V2(-12, -2), V2(10, -2)]); L([V2(-6, 4), V2(-2, 10), V2(2, 4)], 0.7); L([V2(4, 4), V2(8, 10), V2(12, 4)], 0.7)
+		"pommel":
+			D(0, 0, 4.0)
+			for i in 8:
+				var a := TAU * i / 8.0
+				L([V2(cos(a) * 8, sin(a) * 8), V2(cos(a) * 13, sin(a) * 13)], 0.6)
+		"topple":
+			L([V2(-11, -11), V2(6, 6)]); L([V2(-12, 12), V2(12, 12)], 0.8); L([V2(6, 0), V2(6, 6), V2(0, 6)], 0.8)
+		"spear":
+			L([V2(-13, 13), V2(9, -9)]); L([V2(6, -13), V2(13, -13), V2(13, -6)]); L([V2(7, -7), V2(13, -13)], 0.6)
+		"breath":
+			A(-3, -2, 8, -0.5, 4.2); A(5, 4, 6, 2.6, 7.0, 0.8); D(-11, 10, 2.0)
+		"surge":
+			L([V2(-12, 12), V2(-4, 2), V2(-8, 2), V2(2, -12)]); L([V2(3, 12), V2(9, 3), V2(6, 3), V2(13, -8)], 0.7)
+		"crosshair":
+			A(0, 0, 10, 0, TAU, 0.8); L([V2(0, -15), V2(0, -6)], 0.7); L([V2(0, 6), V2(0, 15)], 0.7)
+			L([V2(-15, 0), V2(-6, 0)], 0.7); L([V2(6, 0), V2(15, 0)], 0.7); D(0, 0, 1.6)
+		"sparkle":
+			L([V2(0, -14), V2(0, 14)], 0.7); L([V2(-14, 0), V2(14, 0)], 0.7)
+			L([V2(-8, -8), V2(8, 8)], 0.5); L([V2(8, -8), V2(-8, 8)], 0.5); D(0, 0, 2.5)
+		"skull", "skull_rays":
+			A(0, -2, 9, PI * 0.85, PI * 2.15)
+			L([V2(-7, 4), V2(-5, 11), V2(5, 11), V2(7, 4)], 0.8)
+			D(-4, -2, 2.2); D(4, -2, 2.2)
+			if m == "skull_rays":
+				for i in 5:
+					var a := -PI * 0.9 + i * 0.45
+					L([V2(cos(a) * 13, sin(a) * 13 - 2), V2(cos(a) * 17, sin(a) * 17 - 2)], 0.5)
+		"heart", "heart_plus":
+			L([V2(0, 12), V2(-11, 1), V2(-11, -6), V2(-6, -11), V2(0, -6), V2(6, -11), V2(11, -6), V2(11, 1), V2(0, 12)])
+			if m == "heart_plus":
+				L([V2(0, -4), V2(0, 5)], 0.6); L([V2(-4, 0), V2(4, 0)], 0.6)
+		"heal_cross":
+			L([V2(-4, -13), V2(4, -13), V2(4, -4), V2(13, -4), V2(13, 4), V2(4, 4), V2(4, 13), V2(-4, 13), V2(-4, 4), V2(-13, 4), V2(-13, -4), V2(-4, -4), V2(-4, -13)], 0.8)
+		"up_arrows", "down_arrows":
+			var d := 1.0 if m == "down_arrows" else -1.0
+			for x: float in [-7.0, 7.0]:
+				L([V2(x, -10 * d), V2(x, 9 * d)], 0.7); L([V2(x - 5, 4 * d), V2(x, 10 * d), V2(x + 5, 4 * d)], 0.7)
+		"moon":
+			A(0, 0, 12, 0.6, 5.7); A(5, -2, 9, 1.2, 5.1, 0.7)
+		"spiral":
+			var pts: Array = []
+			for i in 40:
+				var a := i * 0.4
+				pts.append(V2(cos(a) * (2 + i * 0.32), sin(a) * (2 + i * 0.32)))
+			L(pts, 0.75)
+		"mask":
+			L([V2(-14, -6), V2(14, -6), V2(12, 4), V2(4, 7), V2(0, 3), V2(-4, 7), V2(-12, 4), V2(-14, -6)], 0.85)
+			D(-6, -1, 2.0); D(6, -1, 2.0)
+		"chains":
+			for q: Vector2 in [V2(-7, -7), V2(0, 0), V2(7, 7)]:
+				A(q.x, q.y, 5, 0, TAU, 0.6)
+		"lock":
+			A(0, -5, 6, PI, TAU, 0.8); L([V2(-9, -3), V2(9, -3), V2(9, 12), V2(-9, 12), V2(-9, -3)]); D(0, 5, 1.8)
+		"key":
+			A(-6, -6, 6, 0, TAU, 0.8); L([V2(-2, -2), V2(12, 12)]); L([V2(8, 8), V2(12, 4)], 0.7); L([V2(5, 5), V2(9, 1)], 0.7)
+		"counter":
+			A(0, 0, 12, 0, TAU, 0.9); L([V2(-9, 9), V2(9, -9)])
+		"rune":
+			L([V2(0, -13), V2(0, 13)]); L([V2(0, -6), V2(8, -12)], 0.7); L([V2(0, 2), V2(-8, -4)], 0.7); L([V2(0, 8), V2(8, 13)], 0.7)
+			A(0, 0, 16, 0, TAU, 0.4)
+		"wing":
+			L([V2(-13, 8), V2(-6, -4), V2(4, -11), V2(13, -12)])
+			L([V2(-10, 9), V2(-2, 2), V2(9, -3)], 0.7); L([V2(-7, 11), V2(1, 8), V2(8, 6)], 0.6)
+		"feather":
+			L([V2(-12, 13), V2(10, -11)], 0.7)
+			for i in 5:
+				var t := -6.0 + i * 3.5
+				L([V2(t, -t), V2(t - 7 + i, -t - 3 - i)], 0.5)
+				L([V2(t, -t), V2(t + 3 + i, -t + 7 - i)], 0.5)
+		"swirl":
+			A(0, 0, 11, 0.3, 5.0); A(0, 0, 6, 3.4, 7.8, 0.7); D(0, 0, 1.6)
+		"cloud":
+			A(-6, 2, 6, 1.6, 4.9); A(1, -3, 7, 3.4, 6.2); A(8, 2, 5, 4.4, 7.9); L([V2(-6, 8), V2(9, 8)], 0.8)
+		"wind":
+			for y: float in [-7.0, 0.0, 7.0]:
+				L([V2(-13, y), V2(6, y)], 0.7)
+				A(6, y - 3, 3, -PI / 2, PI / 2, 0.6)
+		"waves":
+			for r: float in [5.0, 10.0, 15.0]:
+				A(-8, 0, r, -0.9, 0.9, 0.8)
+		"web":
+			for i in 6:
+				var a := TAU * i / 6.0
+				L([V2(0, 0), V2(cos(a) * 14, sin(a) * 14)], 0.5)
+			A(0, 0, 6, 0, TAU, 0.5); A(0, 0, 11, 0, TAU, 0.5)
+		"voice":
+			L([V2(-12, -4), V2(-6, -4), V2(0, -10), V2(0, 10), V2(-6, 4), V2(-12, 4), V2(-12, -4)], 0.8)
+			A(2, 0, 6, -0.8, 0.8, 0.6); A(2, 0, 11, -0.8, 0.8, 0.6)
+		"voice_slash":
+			L([V2(-12, -4), V2(-6, -4), V2(0, -10), V2(0, 10), V2(-6, 4), V2(-12, 4), V2(-12, -4)], 0.8); L([V2(-14, 12), V2(14, -12)], 0.7)
+		"hand":
+			L([V2(-6, 13), V2(-8, 0), V2(-8, -8)], 0.8); L([V2(-3, -1), V2(-3, -13)], 0.7); L([V2(2, -1), V2(2, -14)], 0.7)
+			L([V2(7, 0), V2(7, -11)], 0.7); L([V2(8, 4), V2(12, -3)], 0.7); L([V2(-6, 13), V2(6, 13), V2(9, 5)], 0.8)
+		"book":
+			L([V2(0, -9), V2(-12, -12), V2(-12, 10), V2(0, 13), V2(12, 10), V2(12, -12), V2(0, -9), V2(0, 13)], 0.8)
+		"resize":
+			L([V2(-12, -12), V2(12, 12)], 0.7); L([V2(-12, -4), V2(-12, -12), V2(-4, -12)], 0.7); L([V2(12, 4), V2(12, 12), V2(4, 12)], 0.7)
+		"spike":
+			L([V2(-12, 12), V2(10, -10)]); L([V2(5, -12), V2(12, -12), V2(12, -5)], 0.8); A(-4, 4, 5, 0, TAU, 0.5)
+		"arrow":
+			L([V2(-12, 12), V2(11, -11)]); L([V2(4, -12), V2(12, -12), V2(12, -4)]); L([V2(-12, 6), V2(-9, 9), V2(-6, 12)], 0.6)
+		"leaf":
+			L([V2(-11, 12), V2(-4, 0), V2(4, -8), V2(12, -12)], 0.6); A(4, 4, 11, -2.4, -0.2, 0.9); A(-4, -4, 11, 0.7, 2.9, 0.9)
+		"mend":
+			L([V2(-12, 12), V2(12, -12)], 0.8); L([V2(-12, -12), V2(12, 12)], 0.8); A(0, 0, 5, 0, TAU, 0.6)
+		"dome":
+			A(0, 6, 13, PI, TAU); L([V2(-15, 6), V2(15, 6)], 0.8); D(0, 2, 2.0)
+		"sun":
+			A(0, 0, 6, 0, TAU, 0.9)
+			for i in 8:
+				var a := TAU * i / 8.0
+				L([V2(cos(a) * 10, sin(a) * 10), V2(cos(a) * 14, sin(a) * 14)], 0.6)
+		"star":
+			L([V2(0, -14), V2(4, -4), V2(14, 0), V2(4, 4), V2(0, 14), V2(-4, 4), V2(-14, 0), V2(-4, -4), V2(0, -14)], 0.8)
+		"flame":
+			L([V2(0, 13), V2(-9, 4), V2(-7, -4), V2(-2, -1), V2(-3, -13), V2(6, -5), V2(9, 4), V2(0, 13)])
+			L([V2(0, 10), V2(-3, 4), V2(0, -1), V2(3, 4), V2(0, 10)], 0.6)
+		"flame_cone":
+			# 손에서 부채꼴로 뻗는 불꽃 혀 셋
+			for a: float in [-1.15, -0.7, -0.25]:
+				var d := V2(cos(a), sin(a))
+				var n := V2(-d.y, d.x)
+				var b := V2(-12, 11)
+				L([b, b + d * 9 + n * 3, b + d * 14 - n * 2, b + d * 22], 0.7)
+		"fireball":
+			A(2, -2, 8, 0, TAU, 1.0); L([V2(-4, 4), V2(-13, 13)], 0.8); L([V2(-2, 8), V2(-9, 14)], 0.5); L([V2(-8, 0), V2(-14, 6)], 0.5)
+		"orb":
+			A(0, 0, 9, 0, TAU, 1.0); A(0, 0, 14, 0.5, 2.0, 0.5); A(0, 0, 14, 3.6, 5.1, 0.5); D(-3, -3, 2.0)
+		"snowflake":
+			for i in 3:
+				var a := PI * i / 3.0
+				L([V2(cos(a) * 13, sin(a) * 13), V2(-cos(a) * 13, -sin(a) * 13)], 0.7)
+			for i in 6:
+				var a := TAU * i / 6.0
+				var tip := V2(cos(a) * 9, sin(a) * 9)
+				L([tip + V2(cos(a + 2.4) * 4, sin(a + 2.4) * 4), tip, tip + V2(cos(a - 2.4) * 4, sin(a - 2.4) * 4)], 0.5)
+		"shard":
+			L([V2(-12, 12), V2(-4, -2), V2(8, -13), V2(4, 2), V2(-12, 12)], 0.85); L([V2(-4, -2), V2(4, 2)], 0.5)
+		"bolt":
+			L([V2(3, -14), V2(-6, 1), V2(2, 1), V2(-4, 14)]); L([V2(8, -6), V2(4, 0), V2(9, 0), V2(5, 7)], 0.6)
+		"darts":
+			for y: float in [-8.0, 0.0, 8.0]:
+				L([V2(-12, y + 4), V2(10, y - 3)], 0.7)
+				D(10, y - 3, 1.7)
+		"rays":
+			for y: float in [-8.0, 0.0, 8.0]:
+				L([V2(-13, y + 6), V2(13, y - 6)], 0.7)
+		_:
+			L([V2(0, -14), V2(4, -4), V2(14, 0), V2(4, 4), V2(0, 14), V2(-4, 4), V2(-14, 0), V2(-4, -4), V2(0, -14)], 0.8)
 
 
-func _sword(P: Callable, col: Color, t: float) -> void:
-	draw_line(P.call(-10, 10), P.call(11, -11), col, t, true)
-	draw_line(P.call(-12, 4), P.call(-4, 12), col, t, true)
-	draw_line(P.call(-13, 13), P.call(-9, 9), col, t * 1.3, true)
-
-
-func _eye(P: Callable, col: Color, t: float, at: Vector2, s: float) -> void:
-	var pts := PackedVector2Array()
+func _eye(x: float, y: float, s: float) -> void:
+	var pts: Array = []
 	for i in 13:
 		var a := i / 12.0
-		pts.append(P.call(at.x + lerpf(-12, 12, a) * s, at.y - sin(a * PI) * 7 * s))
+		pts.append(V2(x + lerpf(-13, 13, a) * s, y - sin(a * PI) * 8 * s))
 	for i in 13:
 		var a := 1.0 - i / 12.0
-		pts.append(P.call(at.x + lerpf(-12, 12, a) * s, at.y + sin(a * PI) * 7 * s))
-	draw_polyline(pts, col, t, true)
-	draw_circle(P.call(at.x, at.y), 3 * s * size.x / 40.0, col)
-
-
-func _flask(P: Callable, col: Color, t: float, at: Vector2, s: float) -> void:
-	var o := at
-	var pts := PackedVector2Array([P.call(o.x - 3 * s, o.y - 12 * s), P.call(o.x - 3 * s, o.y - 4 * s), P.call(o.x - 10 * s, o.y + 6 * s),
-		P.call(o.x - 6 * s, o.y + 12 * s), P.call(o.x + 6 * s, o.y + 12 * s), P.call(o.x + 10 * s, o.y + 6 * s),
-		P.call(o.x + 3 * s, o.y - 4 * s), P.call(o.x + 3 * s, o.y - 12 * s)])
-	draw_polyline(pts, col, t, true)
-	draw_line(P.call(o.x - 7 * s, o.y + 4 * s), P.call(o.x + 7 * s, o.y + 4 * s), Color(S.HP.lightened(0.2), 0.9), t, true)
+		pts.append(V2(x + lerpf(-13, 13, a) * s, y + sin(a * PI) * 8 * s))
+	L(pts, 0.8 if s >= 1.0 else 0.55)
+	D(x, y, 3.0 * s)
