@@ -1,0 +1,28 @@
+# BG3·포가튼 렐름 고유명. 게임 데이터·텍스트에 나오면 안 된다(docs/rules의 비교 열은 예외).
+# 필요하면 계속 추가한다. 대소문자 무시, 단어 단위로 검사한다.
+Baldur's Gate
+Faerun
+Faerûn
+Forgotten Realms
+Sword Coast
+Waterdeep
+Withers
+Astarion
+Shadowheart
+Lae'zel
+Karlach
+Halsin
+Minthara
+Jaheira
+Minsc
+Gortash
+Ketheric
+Raphael
+Bhaal
+Myrkul
+Githyanki
+Illithid
+Mind Flayer
+Emerald Grove
+Moonrise
+Beholder

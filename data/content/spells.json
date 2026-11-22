@@ -1,0 +1,7375 @@
+{
+  "schema": "spell_v1",
+  "note_ko": "6단계 주문 변환표와 8단계 스키마 기준. ko 이름은 현지화 때 채움. review=true는 효과를 사람이 확인해야 하는 항목.",
+  "attribution": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.",
+  "spells": [
+    {
+      "id": "acid_arrow",
+      "name": {
+        "ko": null,
+        "en": "Acid Arrow"
+      },
+      "level": 2,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 18
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "4d4",
+            "damage_type": "acid"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d4"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "acid_splash",
+      "name": {
+        "ko": null,
+        "en": "Acid Splash"
+      },
+      "level": 0,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 1,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "acid"
+          }
+        ],
+        "success": []
+      },
+      "upcast": {
+        "cantrip_scaling": {
+          "5": "2d6"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "aid",
+      "name": {
+        "ko": null,
+        "en": "Aid"
+      },
+      "level": 2,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "targets_max": 3,
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "hp_max",
+            "add": 5
+          },
+          {
+            "type": "heal",
+            "dice": "5"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "en": "Each target's Hit Points increase by 5 for each spell slot level above 2.",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "최대 HP +5",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "alarm",
+      "name": {
+        "ko": null,
+        "en": "Alarm"
+      },
+      "level": 1,
+      "school": "abjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": true,
+        "explore_only": true
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 4
+      },
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외(캠프 기습 없음, 7단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "alter_self",
+      "name": {
+        "ko": null,
+        "en": "Alter Self"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "candidate_exclusion",
+      "notes_ko": "1차 제외 후보",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "animate_dead",
+      "name": {
+        "ko": null,
+        "en": "Animate Dead"
+      },
+      "level": 3,
+      "school": "necromancy",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": false,
+        "explore_only": true
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 2
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "summon",
+      "upcast": {
+        "per_slot_level": {
+          "en": "You animate or reassert control over two additional Undead creatures for each spell slot level above 3. Each of the creatures must come from a different corpse ",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "소환체(언데드), 긴 휴식까지 유지",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "arcane_lock",
+      "name": {
+        "ko": null,
+        "en": "Arcane Lock"
+      },
+      "level": 2,
+      "school": "abjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "permanent"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 25,
+        "consumed": true
+      },
+      "effects": {},
+      "script": "lock",
+      "game_status": "included",
+      "notes_ko": "자물쇠 DC +10",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "arcanist_s_magic_aura",
+      "name": {
+        "ko": null,
+        "en": "Arcanist's Magic Aura"
+      },
+      "level": 2,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "augury",
+      "name": {
+        "ko": null,
+        "en": "Augury"
+      },
+      "level": 2,
+      "school": "divination",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": true,
+        "explore_only": true
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 25,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "dialogue_unlock",
+            "tag": "omen"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "다음 선택의 길흉을 미리 보여 주는 대화 힌트 [자체]",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "bane",
+      "name": {
+        "ko": null,
+        "en": "Bane"
+      },
+      "level": 1,
+      "school": "enchantment",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "targets_max": 3,
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "cha",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "modify",
+            "stat": "attack_roll",
+            "add": "-1d4"
+          },
+          {
+            "type": "modify",
+            "stat": "saving_throw",
+            "add": "-1d4"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "beacon_of_hope",
+      "name": {
+        "ko": null,
+        "en": "Beacon of Hope"
+      },
+      "level": 3,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        }
+      },
+      "script": "beacon",
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "bestow_curse",
+      "name": {
+        "ko": null,
+        "en": "Bestow Curse"
+      },
+      "level": 3,
+      "school": "necromancy",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "1d8",
+            "damage_type": "necrotic"
+          }
+        ],
+        "success": []
+      },
+      "script": "curse_choice",
+      "upcast": {
+        "per_slot_level": {
+          "en": "If you cast this spell using a level 4 spell slot, you can maintain Concentration on it for up to 10 minutes. If you use a level 5+ spell slot, the spell doesn'",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "저주 옵션 선택 UI",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "bless",
+      "name": {
+        "ko": null,
+        "en": "Bless"
+      },
+      "level": 1,
+      "school": "enchantment",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 5,
+        "consumed": false
+      },
+      "targets_max": 3,
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "attack_roll",
+            "add": "1d4"
+          },
+          {
+            "type": "modify",
+            "stat": "saving_throw",
+            "add": "1d4"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "blindness_deafness",
+      "name": {
+        "ko": null,
+        "en": "Blindness/Deafness"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "blinded"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "귀먹음 삭제(4단계)로 실명만",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "blink",
+      "name": {
+        "ko": null,
+        "en": "Blink"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "blink",
+      "game_status": "included",
+      "notes_ko": "턴 종료마다 숨은 굴림으로 사라짐",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "blur",
+      "name": {
+        "ko": null,
+        "en": "Blur"
+      },
+      "level": 2,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "advantage",
+            "roll": "attack",
+            "side": "against",
+            "value": "disadvantage"
+          }
+        ]
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "burning_hands",
+      "name": {
+        "ko": null,
+        "en": "Burning Hands"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "cone",
+        "length_tiles": 3
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "tiles": [
+        {
+          "type": "tile_damage",
+          "damage_type": "fire"
+        }
+      ],
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "3d6",
+            "damage_type": "fire"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "3d6",
+            "damage_type": "fire",
+            "scale": 0.5
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d6"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "calm_emotions",
+      "name": {
+        "ko": null,
+        "en": "Calm Emotions"
+      },
+      "level": 2,
+      "school": "enchantment",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "cha",
+          "dc": "spell"
+        }
+      },
+      "script": "calm",
+      "game_status": "included",
+      "notes_ko": "공포·매혹 해제, 또는 적대를 무관심으로(대화 진입)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "charm_person",
+      "name": {
+        "ko": null,
+        "en": "Charm Person"
+      },
+      "level": 1,
+      "school": "enchantment",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "charmed"
+          }
+        ],
+        "success": []
+      },
+      "script": "charm",
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "매혹 + 대화 분기, 피해를 받으면 해제",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "chill_touch",
+      "name": {
+        "ko": null,
+        "en": "Chill Touch"
+      },
+      "level": 0,
+      "school": "necromancy",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "tiefling_chthonic"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "melee"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "1d10",
+            "damage_type": "necrotic"
+          }
+        ]
+      },
+      "upcast": {
+        "cantrip_scaling": {
+          "5": "2d10"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "맞은 대상은 다음 턴까지 회복 불가",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "chromatic_orb",
+      "name": {
+        "ko": null,
+        "en": "Chromatic Orb"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 18
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 50,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        }
+      },
+      "script": "damage_type_choice",
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d8"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "피해 유형 선택(산·냉기·화염·번개·독·천둥) → 표면 반응 연동",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "clairvoyance",
+      "name": {
+        "ko": null,
+        "en": "Clairvoyance"
+      },
+      "level": 3,
+      "school": "divination",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": false,
+        "explore_only": true
+      },
+      "range": {
+        "type": "map"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 100,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "candidate_exclusion",
+      "notes_ko": "1차 제외 후보",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "color_spray",
+      "name": {
+        "ko": null,
+        "en": "Color Spray"
+      },
+      "level": 1,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "cone",
+        "length_tiles": 3
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "blinded"
+          }
+        ],
+        "success": []
+      },
+      "game_status": "included",
+      "notes_ko": "실명",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "command",
+      "name": {
+        "ko": null,
+        "en": "Command"
+      },
+      "level": 1,
+      "school": "enchantment",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "prone"
+          }
+        ],
+        "success": []
+      },
+      "script": "command_choice",
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "원문 명령 5종(다가와·떨궈·도망쳐·엎드려·멈춰)을 선택지로",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "comprehend_languages",
+      "name": {
+        "ko": null,
+        "en": "Comprehend Languages"
+      },
+      "level": 1,
+      "school": "divination",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "dialogue_unlock",
+            "tag": "ancient_text"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "언어 삭제에 따라 고대 문자·이국 문서 해독 대화 분기 해금",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "continual_flame",
+      "name": {
+        "ko": null,
+        "en": "Continual Flame"
+      },
+      "level": 2,
+      "school": "evocation",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "permanent"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 50,
+        "consumed": true
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "light",
+            "bright_tiles": 4,
+            "dim_tiles": 4,
+            "permanent": true
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "영구 광원 아이템",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "counterspell",
+      "name": {
+        "ko": null,
+        "en": "Counterspell"
+      },
+      "level": 3,
+      "school": "abjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "reaction",
+        "ritual": false,
+        "explore_only": false,
+        "trigger_en": "when you see a creature within 60 feet of yourself casting a spell with Verbal, Somatic, or Material components",
+        "trigger": "on_spell_cast"
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": false,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        }
+      },
+      "script": "counterspell",
+      "game_status": "included",
+      "notes_ko": "반응 설정 대상",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "create_food_and_water",
+      "name": {
+        "ko": null,
+        "en": "Create Food and Water"
+      },
+      "level": 3,
+      "school": "conjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "resource",
+            "id": "camp_supplies",
+            "add": 40
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "보급품 40 생성, 긴 휴식 1회분(7단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "create_or_destroy_water",
+      "name": {
+        "ko": null,
+        "en": "Create or Destroy Water"
+      },
+      "level": 1,
+      "school": "transmutation",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 6
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "create_surface",
+            "id": "water",
+            "alt": "remove_water_or_fire"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "en": "You create or destroy 10 additional gallons of water, or the size of the Cube increases by 5 feet, for each spell slot level above 1.",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "물 표면 생성 또는 물·화염 표면 제거(4단계 반응표)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "cure_wounds",
+      "name": {
+        "ko": null,
+        "en": "Cure Wounds"
+      },
+      "level": 1,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "heal",
+            "dice": "2d8",
+            "add": "spell_mod"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "2d8"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dancing_lights",
+      "name": {
+        "ko": null,
+        "en": "Dancing Lights"
+      },
+      "level": 0,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "elf_drow"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "light",
+            "count": 4,
+            "dim_tiles": 2
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "광원 4개, 각각 반경 2칸 어스름(4단계 빛)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "darkness",
+      "name": {
+        "ko": null,
+        "en": "Darkness"
+      },
+      "level": 2,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "elf_drow",
+        "tiefling_infernal"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 3,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "create_cloud",
+            "id": "magical_darkness"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "어둠 구름 반경 3칸(4단계), 시야·투사체 차단",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "darkvision",
+      "name": {
+        "ko": null,
+        "en": "Darkvision"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "darkvision_tiles",
+            "set": 30
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "암시야 부여",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "daylight",
+      "name": {
+        "ko": null,
+        "en": "Daylight"
+      },
+      "level": 3,
+      "school": "evocation",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 12,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "light",
+            "bright_tiles": 12,
+            "dim_tiles": 12,
+            "dispels": "magical_darkness"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "광원: 반경 12칸 밝음 + 12칸 어스름, 마법 어둠 해제",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "detect_evil_and_good",
+      "name": {
+        "ko": null,
+        "en": "Detect Evil and Good"
+      },
+      "level": 1,
+      "school": "divination",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "reveal",
+      "game_status": "included",
+      "notes_ko": "감지: 6칸 안 해당 생물 윤곽선",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "detect_magic",
+      "name": {
+        "ko": null,
+        "en": "Detect Magic"
+      },
+      "level": 1,
+      "school": "divination",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [
+        "elf_high"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "reveal",
+      "game_status": "included",
+      "notes_ko": "감지: 6칸 안 마법 물체·마법 함정 윤곽선",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "detect_poison_and_disease",
+      "name": {
+        "ko": null,
+        "en": "Detect Poison and Disease"
+      },
+      "level": 1,
+      "school": "divination",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "reveal",
+      "game_status": "included",
+      "notes_ko": "감지: 6칸 안 독·병 대상 윤곽선",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "detect_thoughts",
+      "name": {
+        "ko": null,
+        "en": "Detect Thoughts"
+      },
+      "level": 2,
+      "school": "divination",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "apply": [
+          {
+            "type": "dialogue_unlock",
+            "tag": "thoughts"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "대화 분기(속마음 읽기)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "disguise_self",
+      "name": {
+        "ko": null,
+        "en": "Disguise Self"
+      },
+      "level": 1,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "disguise",
+      "game_status": "included",
+      "notes_ko": "변장: 대화 분기·절도 목격 우회",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dispel_magic",
+      "name": {
+        "ko": null,
+        "en": "Dispel Magic"
+      },
+      "level": 3,
+      "school": "abjuration",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "dispel",
+      "upcast": {
+        "per_slot_level": {
+          "en": "You automatically end a spell on the target if the spell's level is equal to or less than the level of the spell slot you use.",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dragon_s_breath",
+      "name": {
+        "ko": null,
+        "en": "Dragon's Breath"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": {
+        "shape": "cone",
+        "length_tiles": 3
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        }
+      },
+      "script": "damage_type_choice",
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d6"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "피해 유형 선택 → 표면 반응 연동",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "druidcraft",
+      "name": {
+        "ko": null,
+        "en": "Druidcraft"
+      },
+      "level": 0,
+      "school": "transmutation",
+      "classes": [],
+      "granted_by": [
+        "elf_wood"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 1
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "cosmetic",
+      "game_status": "included",
+      "notes_ko": "연출 전용, 규칙 효과 없음",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "elementalism",
+      "name": {
+        "ko": null,
+        "en": "Elementalism"
+      },
+      "level": 0,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 1
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "elementalism",
+      "game_status": "included",
+      "notes_ko": "횃불·촛불 켜기·끄기, 1칸 젖음, 1칸 먼지(가벼운 가림) 등 환경 조작용 [자체]",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "enhance_ability",
+      "name": {
+        "ko": null,
+        "en": "Enhance Ability"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "advantage",
+            "roll": "ability_check",
+            "ability": "chosen",
+            "value": "advantage"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "고른 능력 판정 유리",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "enlarge_reduce",
+      "name": {
+        "ko": null,
+        "en": "Enlarge/Reduce"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        }
+      },
+      "script": "size_change",
+      "game_status": "included",
+      "notes_ko": "밀치기·던지기 무게 한계 배수 변경(4단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "expeditious_retreat",
+      "name": {
+        "ko": null,
+        "en": "Expeditious Retreat"
+      },
+      "level": 1,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "grant_action",
+            "action": "dash",
+            "cost": "bonus_action"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "질주를 보너스 행동으로",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "faerie_fire",
+      "name": {
+        "ko": null,
+        "en": "Faerie Fire"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [],
+      "granted_by": [
+        "elf_drow"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 4
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "outlined"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "윤곽: 투명·은신 무효, 공격 유리",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "false_life",
+      "name": {
+        "ko": null,
+        "en": "False Life"
+      },
+      "level": 1,
+      "school": "necromancy",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "tiefling_chthonic"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "temp_hp",
+            "dice": "2d4+4"
+          },
+          {
+            "type": "temp_hp",
+            "dice": "2d4+4"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "en": "You gain 5 additional Temporary Hit Points for each spell slot level above 1.",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "임시 HP",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "fear",
+      "name": {
+        "ko": null,
+        "en": "Fear"
+      },
+      "level": 3,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "cone",
+        "length_tiles": 6
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "frightened"
+          }
+        ],
+        "success": []
+      },
+      "script": "fear_drop",
+      "game_status": "included",
+      "notes_ko": "공포 + 들고 있던 무기 떨어뜨림",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "feather_fall",
+      "name": {
+        "ko": null,
+        "en": "Feather Fall"
+      },
+      "level": 1,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "reaction",
+        "ritual": false,
+        "explore_only": false,
+        "trigger_en": "when you or a creature you can see within 60 feet of you falls",
+        "trigger": "on_fall"
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "fall_damage",
+            "set": 0
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "반응 설정 대상. 낙하 피해 무효(4단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "find_familiar",
+      "name": {
+        "ko": null,
+        "en": "Find Familiar"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": true,
+        "explore_only": true
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 2
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 10,
+        "consumed": true
+      },
+      "effects": {},
+      "script": "summon",
+      "game_status": "included",
+      "notes_ko": "소환체(사역마): 정찰·돕기 행동, 긴 휴식까지 유지",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "find_traps",
+      "name": {
+        "ko": null,
+        "en": "Find Traps"
+      },
+      "level": 2,
+      "school": "divination",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "reveal",
+      "game_status": "included",
+      "notes_ko": "사거리 안 함정 위치 표시(해제 DC는 그대로)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "fire_bolt",
+      "name": {
+        "ko": null,
+        "en": "Fire Bolt"
+      },
+      "level": 0,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "tiefling_infernal"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "tiles": [
+        {
+          "type": "ignite_flammable_object"
+        }
+      ],
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "1d10",
+            "damage_type": "fire"
+          }
+        ]
+      },
+      "upcast": {
+        "cantrip_scaling": {
+          "5": "2d10"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "fireball",
+      "name": {
+        "ko": null,
+        "en": "Fireball"
+      },
+      "level": 3,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 30
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "tiles": [
+        {
+          "type": "tile_damage",
+          "damage_type": "fire"
+        },
+        {
+          "type": "ignite_flammable_object"
+        }
+      ],
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "8d6",
+            "damage_type": "fire"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "8d6",
+            "damage_type": "fire",
+            "scale": 0.5
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d6"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "가연성 물체 점화",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "flaming_sphere",
+      "name": {
+        "ko": null,
+        "en": "Flaming Sphere"
+      },
+      "level": 2,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "2d6",
+            "damage_type": "fire"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "2d6",
+            "damage_type": "fire",
+            "scale": 0.5
+          }
+        ]
+      },
+      "script": "summon",
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d6"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "소환체(불구체), 지나간 가연성 칸 점화",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "floating_disk",
+      "name": {
+        "ko": null,
+        "en": "Floating Disk"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "fly",
+      "name": {
+        "ko": null,
+        "en": "Fly"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "fly",
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "비행: 높이·지형 무시 이동(그림자로 높이 표시)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "fog_cloud",
+      "name": {
+        "ko": null,
+        "en": "Fog Cloud"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "create_cloud",
+            "id": "fog"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "en": "The fog's radius increases by 20 feet for each spell slot level above 1.",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "안개 구름(4단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "gaseous_form",
+      "name": {
+        "ko": null,
+        "en": "Gaseous Form"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        }
+      },
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "candidate_exclusion",
+      "notes_ko": "1차 제외 후보",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "gentle_repose",
+      "name": {
+        "ko": null,
+        "en": "Gentle Repose"
+      },
+      "level": 2,
+      "school": "necromancy",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "glyph_of_warding",
+      "name": {
+        "ko": null,
+        "en": "Glyph of Warding"
+      },
+      "level": 3,
+      "school": "abjuration",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": false,
+        "explore_only": true
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "permanent"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 200,
+        "consumed": true
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        }
+      },
+      "script": "place_trap",
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d8"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "플레이어가 설치하는 함정(5단계 함정 시스템 재사용)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "grease",
+      "name": {
+        "ko": null,
+        "en": "Grease"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "square",
+        "size_tiles": 2
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "prone"
+          }
+        ],
+        "success": [],
+        "apply": [
+          {
+            "type": "create_surface",
+            "id": "oil"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "기름 표면 2×2칸(4단계), 가연성",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "guidance",
+      "name": {
+        "ko": null,
+        "en": "Guidance"
+      },
+      "level": 0,
+      "school": "divination",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "skill_check",
+            "skill": "chosen",
+            "add": "1d4"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "굴리기 전 보조(5단계 굴림 창), 고른 기능 판정 +1d4",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "guiding_bolt",
+      "name": {
+        "ko": null,
+        "en": "Guiding Bolt"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 1
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "4d6",
+            "damage_type": "radiant"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d6"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "맞은 대상에게 다음 공격 유리",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "gust_of_wind",
+      "name": {
+        "ko": null,
+        "en": "Gust of Wind"
+      },
+      "level": 2,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "str",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "push",
+            "tiles": 3
+          }
+        ],
+        "success": []
+      },
+      "script": "gust",
+      "game_status": "included",
+      "notes_ko": "선 6칸 밀어내기 2칸, 구름 제거, 불꽃 광원 끔",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "haste",
+      "name": {
+        "ko": null,
+        "en": "Haste"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        }
+      },
+      "script": "haste",
+      "game_status": "included",
+      "notes_ko": "종료 시 1턴 무력화",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "healing_word",
+      "name": {
+        "ko": null,
+        "en": "Healing Word"
+      },
+      "level": 1,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "heal",
+            "dice": "2d4",
+            "add": "spell_mod"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "2d4"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "hellish_rebuke",
+      "name": {
+        "ko": null,
+        "en": "Hellish Rebuke"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [],
+      "granted_by": [
+        "tiefling_infernal"
+      ],
+      "cast": {
+        "cost": "reaction",
+        "ritual": false,
+        "explore_only": false,
+        "trigger_en": "in response to taking damage from a creature that you can see within 60 feet of yourself",
+        "trigger": "on_damage_taken"
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "2d10",
+            "damage_type": "fire"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "2d10",
+            "damage_type": "fire",
+            "scale": 0.5
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d10"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "반응 설정 대상",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "hideous_laughter",
+      "name": {
+        "ko": null,
+        "en": "Hideous Laughter"
+      },
+      "level": 1,
+      "school": "enchantment",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "prone"
+          },
+          {
+            "type": "apply_condition",
+            "id": "incapacitated"
+          }
+        ],
+        "success": []
+      },
+      "script": "laughter",
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "넘어짐 + 무력화",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "hold_person",
+      "name": {
+        "ko": null,
+        "en": "Hold Person"
+      },
+      "level": 2,
+      "school": "enchantment",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [
+        "tiefling_abyssal"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "paralyzed"
+          }
+        ],
+        "success": []
+      },
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "마비",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "hypnotic_pattern",
+      "name": {
+        "ko": null,
+        "en": "Hypnotic Pattern"
+      },
+      "level": 3,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 6
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": false,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "charmed"
+          },
+          {
+            "type": "apply_condition",
+            "id": "incapacitated"
+          }
+        ],
+        "success": []
+      },
+      "script": "hypnotic",
+      "game_status": "included",
+      "notes_ko": "밀치기·피해로 깨움",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "ice_knife",
+      "name": {
+        "ko": null,
+        "en": "Ice Knife"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": false,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "tiles": [
+        {
+          "type": "tile_damage",
+          "damage_type": "cold",
+          "radius_tiles": 1
+        }
+      ],
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "1d10",
+            "damage_type": "piercing"
+          }
+        ]
+      },
+      "script": "ice_knife",
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d6"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "폭발(반경 1칸 냉기)이 물을 얼림(4단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "identify",
+      "name": {
+        "ko": null,
+        "en": "Identify"
+      },
+      "level": 1,
+      "school": "divination",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": true,
+        "explore_only": true
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 100,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "candidate_exclusion",
+      "notes_ko": "아이템 식별 제도가 없으면 1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "illusory_script",
+      "name": {
+        "ko": null,
+        "en": "Illusory Script"
+      },
+      "level": 1,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": true,
+        "explore_only": true
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": false,
+        "somatic": true,
+        "material_cost_gp": 10,
+        "consumed": true
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "inflict_wounds",
+      "name": {
+        "ko": null,
+        "en": "Inflict Wounds"
+      },
+      "level": 1,
+      "school": "necromancy",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "2d10",
+            "damage_type": "necrotic"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "2d10",
+            "damage_type": "necrotic",
+            "scale": 0.5
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d10"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "invisibility",
+      "name": {
+        "ko": null,
+        "en": "Invisibility"
+      },
+      "level": 2,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "invisible"
+          }
+        ]
+      },
+      "script": "invisibility",
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "투명(5단계 은신 연동)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "jump",
+      "name": {
+        "ko": null,
+        "en": "Jump"
+      },
+      "level": 1,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "jump_tiles",
+            "set": 6
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "점프 거리 6칸(3단계 점프 규칙 대체)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "knock",
+      "name": {
+        "ko": null,
+        "en": "Knock"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "unlock",
+      "game_status": "included",
+      "notes_ko": "자물쇠 자동 해제, 큰 소리 → 주변 NPC 의심(5단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "lesser_restoration",
+      "name": {
+        "ko": null,
+        "en": "Lesser Restoration"
+      },
+      "level": 2,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "cleanse",
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "levitate",
+      "name": {
+        "ko": null,
+        "en": "Levitate"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        }
+      },
+      "script": "levitate",
+      "game_status": "included",
+      "notes_ko": "공중 부양: 높이 단계 이동",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "light",
+      "name": {
+        "ko": null,
+        "en": "Light"
+      },
+      "level": 0,
+      "school": "evocation",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "light",
+            "bright_tiles": 4,
+            "dim_tiles": 4
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "광원: 반경 4칸 밝음 + 4칸 어스름",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "lightning_bolt",
+      "name": {
+        "ko": null,
+        "en": "Lightning Bolt"
+      },
+      "level": 3,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "line",
+        "length_tiles": 20,
+        "width_tiles": 1
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "tiles": [
+        {
+          "type": "tile_damage",
+          "damage_type": "lightning"
+        }
+      ],
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "8d6",
+            "damage_type": "lightning"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "8d6",
+            "damage_type": "lightning",
+            "scale": 0.5
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d6"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "물 표면 전기화(4단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "locate_object",
+      "name": {
+        "ko": null,
+        "en": "Locate Object"
+      },
+      "level": 2,
+      "school": "divination",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "reveal",
+      "game_status": "included",
+      "notes_ko": "퀘스트 물건 방향 표시",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "longstrider",
+      "name": {
+        "ko": null,
+        "en": "Longstrider"
+      },
+      "level": 1,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "elf_wood"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "speed_tiles",
+            "add": 2
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "속도 +2칸",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mage_armor",
+      "name": {
+        "ko": null,
+        "en": "Mage Armor"
+      },
+      "level": 1,
+      "school": "abjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "ac_base",
+            "set": "13+dex",
+            "requires": "no_armor"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "AC 13 + 민첩",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mage_hand",
+      "name": {
+        "ko": null,
+        "en": "Mage Hand"
+      },
+      "level": 0,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "summon",
+      "game_status": "included",
+      "notes_ko": "소환체(손): 물체 집기·레버·문 조작·가벼운 물체 던지기, 공격 불가",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "magic_circle",
+      "name": {
+        "ko": null,
+        "en": "Magic Circle"
+      },
+      "level": 3,
+      "school": "abjuration",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": false,
+        "explore_only": true
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 2
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 100,
+        "consumed": true
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "cha",
+          "dc": "spell"
+        }
+      },
+      "upcast": {
+        "per_slot_level": {
+          "en": "The duration increases by 1 hour for each spell slot level above 3.",
+          "script": true
+        }
+      },
+      "game_status": "candidate_exclusion",
+      "notes_ko": "1차 제외 후보",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "magic_missile",
+      "name": {
+        "ko": null,
+        "en": "Magic Missile"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "damage",
+            "dice": "1d4+1",
+            "damage_type": "force"
+          }
+        ]
+      },
+      "script": "split_darts",
+      "upcast": {
+        "per_slot_level": {
+          "en": "The spell creates one more dart for each spell slot level above 1.",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "자동 명중 화살 3개, 대상 분배 UI",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "magic_mouth",
+      "name": {
+        "ko": null,
+        "en": "Magic Mouth"
+      },
+      "level": 2,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": true,
+        "explore_only": true
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "permanent"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 10,
+        "consumed": true
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "magic_weapon",
+      "name": {
+        "ko": null,
+        "en": "Magic Weapon"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "weapon_attack_and_damage",
+            "add": 1
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "en": "The bonus increases to +2 with a level 3–5 spell slot. The bonus increases to +3 with a level 6+ spell slot.",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "major_image",
+      "name": {
+        "ko": null,
+        "en": "Major Image"
+      },
+      "level": 3,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 4
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "lure",
+      "upcast": {
+        "per_slot_level": {
+          "en": "The spell lasts until dispelled, without requiring Concentration, if cast with a level 4+ spell slot.",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "미끼·시야 차단 환영",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mass_healing_word",
+      "name": {
+        "ko": null,
+        "en": "Mass Healing Word"
+      },
+      "level": 3,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "heal",
+            "dice": "2d4",
+            "add": "spell_mod"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d4"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "meld_into_stone",
+      "name": {
+        "ko": null,
+        "en": "Meld into Stone"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "damage",
+            "dice": "6d6",
+            "damage_type": "force"
+          },
+          {
+            "type": "apply_condition",
+            "id": "prone"
+          }
+        ]
+      },
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mending",
+      "name": {
+        "ko": null,
+        "en": "Mending"
+      },
+      "level": 0,
+      "school": "transmutation",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [
+        "gnome_rock"
+      ],
+      "cast": {
+        "cost": "explore",
+        "ritual": false,
+        "explore_only": true
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "repair",
+      "game_status": "included",
+      "notes_ko": "부서진 장치·다리 같은 퍼즐 오브젝트 수리",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "message",
+      "name": {
+        "ko": null,
+        "en": "Message"
+      },
+      "level": 0,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 1
+      },
+      "concentration": false,
+      "components": {
+        "verbal": false,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외(파티 대화 기능 불필요)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mind_spike",
+      "name": {
+        "ko": null,
+        "en": "Mind Spike"
+      },
+      "level": 2,
+      "school": "divination",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": false,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "3d8",
+            "damage_type": "psychic"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "3d8",
+            "damage_type": "psychic",
+            "scale": 0.5
+          }
+        ]
+      },
+      "script": "track",
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d8"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "대상 위치 추적(투명·은신 무효)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "minor_illusion",
+      "name": {
+        "ko": null,
+        "en": "Minor Illusion"
+      },
+      "level": 0,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "gnome_forest"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 1
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": false,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "lure",
+      "game_status": "included",
+      "notes_ko": "미끼: 적의 시야 원뿔을 그 칸으로 끌어당김(5단계 감지 연동)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mirror_image",
+      "name": {
+        "ko": null,
+        "en": "Mirror Image"
+      },
+      "level": 2,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "blinded"
+          }
+        ]
+      },
+      "script": "mirror_image",
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "misty_step",
+      "name": {
+        "ko": null,
+        "en": "Misty Step"
+      },
+      "level": 2,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "elf_high"
+      ],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "teleport",
+            "tiles": 6
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "순간이동 6칸, 기회 공격 없음",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "nondetection",
+      "name": {
+        "ko": null,
+        "en": "Nondetection"
+      },
+      "level": 3,
+      "school": "abjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 25,
+        "consumed": true
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "pass_without_trace",
+      "name": {
+        "ko": null,
+        "en": "Pass without Trace"
+      },
+      "level": 2,
+      "school": "abjuration",
+      "classes": [],
+      "granted_by": [
+        "elf_wood"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "emanation",
+        "radius_tiles": 6,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "stealth",
+            "add": 10,
+            "scope": "allies_in_area"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "파티 은신 +10",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "phantom_steed",
+      "name": {
+        "ko": null,
+        "en": "Phantom Steed"
+      },
+      "level": 3,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": true,
+        "explore_only": true
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "poison_spray",
+      "name": {
+        "ko": null,
+        "en": "Poison Spray"
+      },
+      "level": 0,
+      "school": "necromancy",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "tiefling_abyssal"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "1d12",
+            "damage_type": "poison"
+          }
+        ]
+      },
+      "upcast": {
+        "cantrip_scaling": {
+          "5": "2d12"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "prayer_of_healing",
+      "name": {
+        "ko": null,
+        "en": "Prayer of Healing"
+      },
+      "level": 2,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": false,
+        "explore_only": true
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "extra_short_rest",
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d8"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "짧은 휴식 횟수를 쓰지 않는 추가 짧은 휴식 1회 + 2d8, 대상마다 긴 휴식당 1회(7단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "prestidigitation",
+      "name": {
+        "ko": null,
+        "en": "Prestidigitation"
+      },
+      "level": 0,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "elf_high",
+        "gnome_rock"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 2
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "light_toggle",
+      "game_status": "included",
+      "notes_ko": "연출 전용 + 촛불·횃불 켜기·끄기",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "protection_from_energy",
+      "name": {
+        "ko": null,
+        "en": "Protection from Energy"
+      },
+      "level": 3,
+      "school": "abjuration",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "resistance",
+            "damage_type": "chosen"
+          }
+        ]
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "protection_from_evil_and_good",
+      "name": {
+        "ko": null,
+        "en": "Protection from Evil and Good"
+      },
+      "level": 1,
+      "school": "abjuration",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 25,
+        "consumed": true
+      },
+      "effects": {},
+      "script": "protection_from_types",
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "protection_from_poison",
+      "name": {
+        "ko": null,
+        "en": "Protection from Poison"
+      },
+      "level": 2,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "remove_condition",
+            "id": "poisoned"
+          },
+          {
+            "type": "modify",
+            "stat": "resistance",
+            "damage_type": "poison"
+          }
+        ]
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "purify_food_and_drink",
+      "name": {
+        "ko": null,
+        "en": "Purify Food and Drink"
+      },
+      "level": 1,
+      "school": "transmutation",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 2
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 1,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "ray_of_enfeeblement",
+      "name": {
+        "ko": null,
+        "en": "Ray of Enfeeblement"
+      },
+      "level": 2,
+      "school": "necromancy",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "tiefling_chthonic"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        }
+      },
+      "script": "enfeeble",
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "ray_of_frost",
+      "name": {
+        "ko": null,
+        "en": "Ray of Frost"
+      },
+      "level": 0,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "1d8",
+            "damage_type": "cold"
+          }
+        ]
+      },
+      "upcast": {
+        "cantrip_scaling": {
+          "5": "2d8"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "ray_of_sickness",
+      "name": {
+        "ko": null,
+        "en": "Ray of Sickness"
+      },
+      "level": 1,
+      "school": "necromancy",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [
+        "tiefling_abyssal"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "2d8",
+            "damage_type": "poison"
+          },
+          {
+            "type": "apply_condition",
+            "id": "poisoned"
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d8"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "remove_curse",
+      "name": {
+        "ko": null,
+        "en": "Remove Curse"
+      },
+      "level": 3,
+      "school": "abjuration",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "cleanse",
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "resistance",
+      "name": {
+        "ko": null,
+        "en": "Resistance"
+      },
+      "level": 0,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "damage_taken",
+            "damage_type": "chosen",
+            "add": "-1d4",
+            "once_per": "turn"
+          }
+        ]
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "revivify",
+      "name": {
+        "ko": null,
+        "en": "Revivify"
+      },
+      "level": 3,
+      "school": "necromancy",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 300,
+        "consumed": true
+      },
+      "effects": {},
+      "script": "revive",
+      "game_status": "included",
+      "notes_ko": "죽은 지 10턴 안, 7단계 사망·부활 규칙",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "rope_trick",
+      "name": {
+        "ko": null,
+        "en": "Rope Trick"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "candidate_exclusion",
+      "notes_ko": "1차 제외 후보(은신처)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sacred_flame",
+      "name": {
+        "ko": null,
+        "en": "Sacred Flame"
+      },
+      "level": 0,
+      "school": "evocation",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "1d8",
+            "damage_type": "radiant"
+          }
+        ],
+        "success": []
+      },
+      "upcast": {
+        "cantrip_scaling": {
+          "5": "2d8"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sanctuary",
+      "name": {
+        "ko": null,
+        "en": "Sanctuary"
+      },
+      "level": 1,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        }
+      },
+      "script": "sanctuary",
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "scorching_ray",
+      "name": {
+        "ko": null,
+        "en": "Scorching Ray"
+      },
+      "level": 2,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "2d6",
+            "damage_type": "fire"
+          }
+        ]
+      },
+      "script": "split_rays",
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "광선 3개 분배 UI",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "see_invisibility",
+      "name": {
+        "ko": null,
+        "en": "See Invisibility"
+      },
+      "level": 2,
+      "school": "divination",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "sees_invisible",
+            "set": true
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "투명 무시",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sending",
+      "name": {
+        "ko": null,
+        "en": "Sending"
+      },
+      "level": 3,
+      "school": "divination",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "unlimited"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shatter",
+      "name": {
+        "ko": null,
+        "en": "Shatter"
+      },
+      "level": 2,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 2,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "3d8",
+            "damage_type": "thunder"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "3d8",
+            "damage_type": "thunder",
+            "scale": 0.5
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d8"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "깨짐 재질 물체 파괴(4단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shield",
+      "name": {
+        "ko": null,
+        "en": "Shield"
+      },
+      "level": 1,
+      "school": "abjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "reaction",
+        "ritual": false,
+        "explore_only": false,
+        "trigger_en": "when you are hit by an attack roll or targeted by the *Magic Missile* spell",
+        "trigger": "on_after_attack_roll"
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 1
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "ac",
+            "add": 5,
+            "until": "start_of_next_turn"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "반응 설정 대상. AC +5",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shield_of_faith",
+      "name": {
+        "ko": null,
+        "en": "Shield of Faith"
+      },
+      "level": 1,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "ac",
+            "add": 2
+          }
+        ]
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shocking_grasp",
+      "name": {
+        "ko": null,
+        "en": "Shocking Grasp"
+      },
+      "level": 0,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "melee"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "1d8",
+            "damage_type": "lightning"
+          }
+        ]
+      },
+      "upcast": {
+        "cantrip_scaling": {
+          "5": "2d8"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "silence",
+      "name": {
+        "ko": null,
+        "en": "Silence"
+      },
+      "level": 2,
+      "school": "illusion",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": []
+      },
+      "script": "zone_silence",
+      "game_status": "included",
+      "notes_ko": "'침묵' 구역 태그: 음성 구성요소 주문 시전 불가, 천둥 피해 면역",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "silent_image",
+      "name": {
+        "ko": null,
+        "en": "Silent Image"
+      },
+      "level": 1,
+      "school": "illusion",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 3
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "lure",
+      "game_status": "included",
+      "notes_ko": "미끼(원뿔 끌기) 또는 벽 환영으로 시야 차단",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sleep",
+      "name": {
+        "ko": null,
+        "en": "Sleep"
+      },
+      "level": 1,
+      "school": "enchantment",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 1,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "incapacitated"
+          },
+          {
+            "type": "apply_condition",
+            "id": "unconscious"
+          }
+        ],
+        "success": []
+      },
+      "script": "sleep",
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sleet_storm",
+      "name": {
+        "ko": null,
+        "en": "Sleet Storm"
+      },
+      "level": 3,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 30
+      },
+      "area": {
+        "shape": "cylinder",
+        "radius_tiles": 4,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "prone"
+          }
+        ],
+        "success": [],
+        "apply": [
+          {
+            "type": "create_surface",
+            "id": "ice"
+          },
+          {
+            "type": "create_cloud",
+            "id": "sleet"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "얼음 표면 + 화염 소멸 + 가벼운 가림(4단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "slow",
+      "name": {
+        "ko": null,
+        "en": "Slow"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 8
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        }
+      },
+      "script": "slow",
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "spare_the_dying",
+      "name": {
+        "ko": null,
+        "en": "Spare the Dying"
+      },
+      "level": 0,
+      "school": "necromancy",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 3
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "revive_at_range",
+      "game_status": "included",
+      "notes_ko": "3칸 밖에서 쓰는 돕기: 쓰러진 아군을 HP 1로 일으킴(7단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "speak_with_animals",
+      "name": {
+        "ko": null,
+        "en": "Speak with Animals"
+      },
+      "level": 1,
+      "school": "divination",
+      "classes": [],
+      "granted_by": [
+        "gnome_forest"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "dialogue_unlock",
+            "tag": "animals"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "동물 대화 분기 해금",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "speak_with_dead",
+      "name": {
+        "ko": null,
+        "en": "Speak with Dead"
+      },
+      "level": 3,
+      "school": "necromancy",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 2
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "dialogue_unlock",
+            "tag": "corpse"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "시체와 대화 분기",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "spider_climb",
+      "name": {
+        "ko": null,
+        "en": "Spider Climb"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "climb_walls",
+      "upcast": {
+        "per_slot_level": {
+          "extra_targets": 1
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "오르기 지점이 아닌 벽도 오르기",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "spirit_guardians",
+      "name": {
+        "ko": null,
+        "en": "Spirit Guardians"
+      },
+      "level": 3,
+      "school": "conjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "emanation",
+        "radius_tiles": 3,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "3d8",
+            "damage_type": "radiant"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "3d8",
+            "damage_type": "radiant",
+            "scale": 0.5
+          }
+        ]
+      },
+      "script": "aura_emanation",
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d8"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "시전자를 따라 움직이는 발산",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "spiritual_weapon",
+      "name": {
+        "ko": null,
+        "en": "Spiritual Weapon"
+      },
+      "level": 2,
+      "school": "evocation",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "melee"
+        }
+      },
+      "script": "summon",
+      "upcast": {
+        "per_slot_level": {
+          "en": "The damage increases by 1d8 for every slot level above 2.",
+          "script": true
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "소환체(무기)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "stinking_cloud",
+      "name": {
+        "ko": null,
+        "en": "Stinking Cloud"
+      },
+      "level": 3,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 18
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "poisoned"
+          }
+        ],
+        "success": [],
+        "apply": [
+          {
+            "type": "create_cloud",
+            "id": "stinking_cloud"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "악취 구름(구름 층, 심하게 가려짐)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "suggestion",
+      "name": {
+        "ko": null,
+        "en": "Suggestion"
+      },
+      "level": 2,
+      "school": "enchantment",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "charmed"
+          }
+        ],
+        "success": []
+      },
+      "script": "suggestion",
+      "game_status": "included",
+      "notes_ko": "1차는 대화 분기 전용",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "thaumaturgy",
+      "name": {
+        "ko": null,
+        "en": "Thaumaturgy"
+      },
+      "level": 0,
+      "school": "transmutation",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [
+        "tiefling"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "advantage",
+            "roll": "skill_check",
+            "skill": "intimidation",
+            "value": "advantage",
+            "context": "dialogue"
+          }
+        ]
+      },
+      "script": "cosmetic_plus",
+      "game_status": "included",
+      "notes_ko": "대화에서 위협 판정 유리(BG3식, 확신 낮음)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "thunderwave",
+      "name": {
+        "ko": null,
+        "en": "Thunderwave"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 3
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "2d8",
+            "damage_type": "thunder"
+          },
+          {
+            "type": "push",
+            "tiles": 2
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "2d8",
+            "damage_type": "thunder",
+            "scale": 0.5
+          }
+        ]
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d8"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "2칸 밀어냄(낙하·표면 연계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "tiny_hut",
+      "name": {
+        "ko": null,
+        "en": "Tiny Hut"
+      },
+      "level": 3,
+      "school": "evocation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": true,
+        "explore_only": true
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "emanation",
+        "radius_tiles": 2,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "camp_anywhere",
+      "game_status": "included",
+      "notes_ko": "캠프 불가 구역에서도 긴 휴식 가능(7단계)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "tongues",
+      "name": {
+        "ko": null,
+        "en": "Tongues"
+      },
+      "level": 3,
+      "school": "divination",
+      "classes": [
+        "cleric",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "dialogue_unlock",
+            "tag": "any_creature"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "언어 삭제에 따라 이종족 대화 분기 해금",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "true_strike",
+      "name": {
+        "ko": null,
+        "en": "True Strike"
+      },
+      "level": 0,
+      "school": "divination",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": false,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "weapon_cantrip",
+      "upcast": {
+        "cantrip_scaling": {
+          "5": "1d6"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "unseen_servant",
+      "name": {
+        "ko": null,
+        "en": "Unseen Servant"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "notes_ko": "1차 제외",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "vampiric_touch",
+      "name": {
+        "ko": null,
+        "en": "Vampiric Touch"
+      },
+      "level": 3,
+      "school": "necromancy",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "melee"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "3d6",
+            "damage_type": "necrotic"
+          }
+        ]
+      },
+      "script": "drain",
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d6"
+        }
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "warding_bond",
+      "name": {
+        "ko": null,
+        "en": "Warding Bond"
+      },
+      "level": 2,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 50,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "warding_bond",
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "water_breathing",
+      "name": {
+        "ko": null,
+        "en": "Water Breathing"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "water_breathing",
+      "game_status": "included",
+      "notes_ko": "깊은 물 지형 페널티 제거",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "water_walk",
+      "name": {
+        "ko": null,
+        "en": "Water Walk"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": true,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "script": "water_walk",
+      "game_status": "included",
+      "notes_ko": "물·깊은 물 위를 걸음",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "web",
+      "name": {
+        "ko": null,
+        "en": "Web"
+      },
+      "level": 2,
+      "school": "conjuration",
+      "classes": [
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "cube",
+        "size_tiles": 4
+      },
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "restrained"
+          }
+        ],
+        "apply": [
+          {
+            "type": "create_surface",
+            "id": "web"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "거미줄 표면(4단계), 가연성",
+      "review": false,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "zone_of_truth",
+      "name": {
+        "ko": null,
+        "en": "Zone of Truth"
+      },
+      "level": 2,
+      "school": "enchantment",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 3,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "cha",
+          "dc": "spell"
+        },
+        "apply": [
+          {
+            "type": "dialogue_unlock",
+            "tag": "truth"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "대화 분기(거짓말 불가)",
+      "review": false,
+      "source": "SRD 5.2.1"
+    }
+  ]
+}
