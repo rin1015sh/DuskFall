@@ -1,0 +1,86 @@
+extends Node
+## 훅 시그널 중계(오토로드). 룰북 8단계 '이벤트 훅' 표.
+## 데이터의 "hook" 필드는 아래 시그널 이름을 그대로 쓴다.
+## 0단계: 시그널 선언만 있다. 인자 모양은 1단계 이후 판정 엔진과 함께 다듬는다.
+
+## 전투 구역 진입, 적대 행동
+signal on_combat_start()
+## 라운드 시작(탐험 중에는 6초 틱)
+signal on_round_start()
+## 라운드 끝(탐험 중에는 6초 틱)
+signal on_round_end()
+## 생물의 턴 시작
+signal on_turn_start(creature: Object)
+## 생물의 턴 끝
+signal on_turn_end(creature: Object)
+## 이동·강제 이동으로 칸에 들어감
+signal on_enter_tile(creature: Object, cell: Vector2i)
+## 이동·강제 이동으로 칸을 떠남
+signal on_leave_tile(creature: Object, cell: Vector2i)
+## 공격 굴림 직전
+signal on_before_attack_roll(ctx: Dictionary)
+## 굴림 뒤 명중 확정 전
+signal on_after_attack_roll(ctx: Dictionary)
+## 명중 확정
+signal on_hit(ctx: Dictionary)
+## 빗나감 확정
+signal on_miss(ctx: Dictionary)
+## 치명타 확정
+signal on_crit(ctx: Dictionary)
+## 피해 적용 직후
+signal on_damage_taken(ctx: Dictionary)
+## HP가 0이 될 때
+signal on_hp_zero(ctx: Dictionary)
+## 회복될 때
+signal on_heal(ctx: Dictionary)
+## 내성 굴림 전후
+signal on_save(ctx: Dictionary)
+## 능력 판정 실패 직후
+signal on_check_failed(ctx: Dictionary)
+## 시전 시작
+signal on_spell_cast(ctx: Dictionary)
+## 상태가 붙음
+signal on_condition_applied(creature: Object, condition_id: String)
+## 상태가 풀림
+signal on_condition_removed(creature: Object, condition_id: String)
+## 칸이 피해 유형을 받을 때
+signal on_tile_damage_type(cell: Vector2i, damage_type: String)
+## 숨긴 물체·함정의 반경에 들어갈 때
+signal on_detect_radius(creature: Object, target: Object)
+## NPC 시야 원뿔 안에서 절도가 일어날 때
+signal on_witness(witness: Object, thief: Object)
+## 짧은 휴식
+signal on_short_rest()
+## 긴 휴식
+signal on_long_rest()
+
+
+## 훅 이름 목록(데이터 검증에서 쓴다).
+func hook_names() -> PackedStringArray:
+	return PackedStringArray([
+		"on_combat_start",
+		"on_round_start",
+		"on_round_end",
+		"on_turn_start",
+		"on_turn_end",
+		"on_enter_tile",
+		"on_leave_tile",
+		"on_before_attack_roll",
+		"on_after_attack_roll",
+		"on_hit",
+		"on_miss",
+		"on_crit",
+		"on_damage_taken",
+		"on_hp_zero",
+		"on_heal",
+		"on_save",
+		"on_check_failed",
+		"on_spell_cast",
+		"on_condition_applied",
+		"on_condition_removed",
+		"on_tile_damage_type",
+		"on_detect_radius",
+		"on_witness",
+		"on_short_rest",
+		"on_long_rest",
+	])

@@ -42,7 +42,7 @@ res://
   data/schema/    <kind>.schema.json
   scripts/rules/  엔진 코드, effects/ 스크립트 효과
   scenes/         표현(맵 씬, UI, 캐릭터)
-  art/            스프라이트 부위
+  assets/         그림·소리·글꼴(던전 앤 스톤에서 옮김, 스프라이트 부위도 여기에)
   tests/          헤드리스 테스트
   tools/          검증·변환 도구
   docs/           rules/ 룰북, srd/ 원문

@@ -33,3 +33,9 @@ texture={
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+
+[autoload]
+
+RulesDB="*res://scripts/rules/rules_db.gd"
+Dice="*res://scripts/rules/dice.gd"
+EventBus="*res://scripts/rules/event_bus.gd"
