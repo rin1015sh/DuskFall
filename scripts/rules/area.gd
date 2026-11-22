@@ -4,6 +4,94 @@ extends RefCounted
 ## grid를 null로 주면 벽 판정 없이 모양만 낸다.
 
 
+# ======================================================================
+# 매끄러운 도형(changes.md 2026-11-22): 실제 원·원뿔·선으로 칸마다 덮인 비율을 잰다.
+#   덮인 비율 ≥ FULL → 완전히 포함, PARTIAL 이상 → 포함하되 '걸침'(절반 엄폐: 민첩 내성 +2), 그 아래 → 제외.
+#   칸을 SAMPLES×SAMPLES로 나눠 표본점이 도형 안에 드는 비율을 센다. 칸 좌표의 칸 중심 = 칸 + 0.5.
+#   시작점에서 벽으로 막힌 칸은 빠진다(기존 템플릿과 같음).
+# ======================================================================
+
+const FULL := 0.75
+const PARTIAL := 0.25
+const SAMPLES := 4
+## 원뿔 반각: SRD 원뿔은 길이만큼 끝 너비가 넓어진다 → atan(1/2)
+const CONE_HALF := 0.4636476
+
+
+## 구·원기둥·발산: 중심 칸의 가운데에서 반지름 N + 0.5칸(칸 가장자리까지 닿게)
+static func cov_circle(grid: Node, center: Vector2i, n: int) -> Dictionary:
+	var c := Vector2(center) + Vector2(0.5, 0.5)
+	var r := n + 0.5
+	return _cover(grid, center, Rect2i(center - Vector2i(n + 1, n + 1), Vector2i(2 * n + 3, 2 * n + 3)),
+		func(p: Vector2) -> bool: return p.distance_squared_to(c) <= r * r)
+
+
+## 원뿔: 시작 칸 가운데에서 조준점 쪽으로 길이 N + 0.5칸, 반각 half(기본 SRD). 시작 칸은 빠진다.
+static func cov_cone(grid: Node, origin: Vector2i, toward: Vector2, n: int, half: float = CONE_HALF) -> Dictionary:
+	var o := Vector2(origin) + Vector2(0.5, 0.5)
+	var d := (toward - o)
+	if d.length() < 0.01:
+		return {}
+	d = d.normalized()
+	var length := n + 0.5
+	var cos_h := cos(half)
+	var out := _cover(grid, origin, Rect2i(origin - Vector2i(n + 1, n + 1), Vector2i(2 * n + 3, 2 * n + 3)),
+		func(p: Vector2) -> bool:
+			var v := p - o
+			var l := v.length()
+			return l > 0.001 and l <= length and v.dot(d) / l >= cos_h)
+	out.erase(origin)
+	return out
+
+
+## 선: 시작 칸 가운데에서 조준점 쪽으로 길이 N + 0.5칸, 너비 2·half_w칸(5피트 선 = 1칸)
+static func cov_line(grid: Node, origin: Vector2i, toward: Vector2, n: int, half_w: float = 0.5) -> Dictionary:
+	var o := Vector2(origin) + Vector2(0.5, 0.5)
+	var d := (toward - o)
+	if d.length() < 0.01:
+		return {}
+	d = d.normalized()
+	var length := n + 0.5
+	var out := _cover(grid, origin, Rect2i(origin - Vector2i(n + 1, n + 1), Vector2i(2 * n + 3, 2 * n + 3)),
+		func(p: Vector2) -> bool:
+			var v := p - o
+			var along := v.dot(d)
+			return along > 0.0 and along <= length and absf(v.dot(Vector2(-d.y, d.x))) <= half_w)
+	out.erase(origin)
+	return out
+
+
+## 칸 → 덮인 비율(PARTIAL 미만은 넣지 않는다)
+static func _cover(grid: Node, origin: Vector2i, box: Rect2i, inside: Callable) -> Dictionary:
+	var out := {}
+	var step := 1.0 / SAMPLES
+	for y in range(box.position.y, box.end.y):
+		for x in range(box.position.x, box.end.x):
+			var cell := Vector2i(x, y)
+			if grid != null and (not grid.in_bounds(cell) or grid.has_flag(cell, "wall")):
+				continue
+			var hit := 0
+			for sy in SAMPLES:
+				for sx in SAMPLES:
+					if inside.call(Vector2(x + (sx + 0.5) * step, y + (sy + 0.5) * step)):
+						hit += 1
+			var f := float(hit) / (SAMPLES * SAMPLES)
+			if f < PARTIAL:
+				continue
+			if grid != null and cell != origin and not grid.has_line_of_sight(origin, cell, true):
+				continue
+			out[cell] = f
+	return out
+
+
+## 생물이 범위에 덮인 정도: 점유 칸 중 가장 많이 덮인 비율(0이면 밖)
+static func creature_cover(grid: Node, cov: Dictionary, c: Node) -> float:
+	var best := 0.0
+	for cell in grid.occupied_cells(c):
+		best = maxf(best, float(cov.get(cell, 0.0)))
+	return best
+
+
 ## 원형 마스크: 중심 칸에서 dx² + dy² ≤ N² + N(구·원기둥·발산). 반경 4 → 69칸.
 static func circle(grid: Node, center: Vector2i, n: int) -> Array[Vector2i]:
 	var out: Array[Vector2i] = []

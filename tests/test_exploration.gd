@@ -220,3 +220,19 @@ func test_visible_check_assist_and_inspiration() -> void:
 	assert_eq(w["inspiration"], 0)
 	var pv := Interact.preview_check(p, "int", "investigation", 13)
 	assert_eq(pv["chance"], 0.4)
+
+
+func test_cone_edge_gives_stealth_check_even_in_bright() -> void:
+	var g := make_grid(["..........", "..........", "..........", ".........."])
+	var o := _guard(Vector2i(1, 0))
+	var p := _sneak()
+	g.place(o, Vector2i(0, 0))
+	var cov: Dictionary = Stealth.cone_coverage(g, o)
+	var edge := Vector2i(-1, -1)
+	for c: Vector2i in cov:
+		if float(cov[c]) < 0.75:
+			edge = c
+			break
+	assert_true(edge.x >= 0, "원뿔 가장자리에 걸친 칸이 있다")
+	g.place(p, edge)
+	assert_eq(Stealth.sight_of(g, o, p), "dim", "밝아도 가장자리는 곁눈(은신 판정)")

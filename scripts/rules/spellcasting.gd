@@ -89,23 +89,63 @@ static func max_targets(spell: Dictionary, slot: int) -> int:
 # ======================================================================
 
 ## 범위 칸. 구·원기둥은 조준 칸 중심, 원뿔·선·정육면체는 시전자에서 조준 방향, 발산은 시전자 칸.
+## 범위 칸: 매끄러운 도형에 PARTIAL 이상 덮인 칸(걸친 칸 포함 — 걸친 칸의 생물은 절반 엄폐).
 static func area_cells(world: Dictionary, caster: Node, spell: Dictionary, aim: Vector2i) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for c: Vector2i in area_coverage(world, caster, spell, aim):
+		out.append(c)
+	return out
+
+
+## 칸 → 덮인 비율(원·원뿔·선은 매끄러운 도형, 정육면체·정사각형은 칸 그대로 1.0)
+static func area_coverage(world: Dictionary, caster: Node, spell: Dictionary, aim: Vector2i) -> Dictionary:
+	var grid: Node = world["grid"]
+	var a: Variant = spell.get("area")
+	if a == null:
+		return {}
+	var from: Vector2i = grid.cell_of(caster)
+	var aim_pt := Vector2(aim) + Vector2(0.5, 0.5)
+	match a["shape"]:
+		"sphere", "cylinder":
+			return Area.cov_circle(grid, aim, int(a["radius_tiles"]))
+		"emanation":
+			return Area.cov_circle(grid, from, int(a["radius_tiles"]))
+		"cone":
+			return Area.cov_cone(grid, from, aim_pt, int(a["length_tiles"]))
+		"line":
+			return Area.cov_line(grid, from, aim_pt, int(a["length_tiles"]), 0.5 * int(a.get("width_tiles", 1)))
+	var out := {}
+	for c: Vector2i in _area_cells_grid(world, caster, spell, aim):
+		out[c] = 1.0
+	return out
+
+
+## 미리보기용 도형(화면이 매끄러운 윤곽을 그린다). 칸 좌표(칸 가운데 = +0.5).
+static func area_shape(world: Dictionary, caster: Node, spell: Dictionary, aim: Vector2i) -> Dictionary:
+	var a: Variant = spell.get("area")
+	if a == null:
+		return {}
+	var from := Vector2(world["grid"].cell_of(caster)) + Vector2(0.5, 0.5)
+	var aim_pt := Vector2(aim) + Vector2(0.5, 0.5)
+	match a["shape"]:
+		"sphere", "cylinder":
+			return {"type": "circle", "center": aim_pt, "r": int(a["radius_tiles"]) + 0.5}
+		"emanation":
+			return {"type": "circle", "center": from, "r": int(a["radius_tiles"]) + 0.5}
+		"cone":
+			return {"type": "cone", "apex": from, "dir": (aim_pt - from).normalized(), "len": int(a["length_tiles"]) + 0.5, "half": Area.CONE_HALF}
+		"line":
+			return {"type": "line", "a": from, "dir": (aim_pt - from).normalized(), "len": int(a["length_tiles"]) + 0.5, "half_w": 0.5 * int(a.get("width_tiles", 1))}
+	return {}
+
+
+static func _area_cells_grid(world: Dictionary, caster: Node, spell: Dictionary, aim: Vector2i) -> Array[Vector2i]:
 	var grid: Node = world["grid"]
 	var a: Variant = spell.get("area")
 	var out: Array[Vector2i] = []
-	if a == null:
-		return out
 	var from: Vector2i = grid.cell_of(caster)
 	var dir := Vector2i(signi(aim.x - from.x), signi(aim.y - from.y))
 	match a["shape"]:
-		"sphere", "cylinder":
-			return Area.circle(grid, aim, int(a["radius_tiles"]))
-		"emanation":
-			return Area.circle(grid, from, int(a["radius_tiles"]))
-		"cone":
-			return Area.cone(grid, from, dir, int(a["length_tiles"]))
-		"line":
-			return Area.line(grid, from, aim, int(a["length_tiles"]))
 		"cube":
 			if spell["range"]["type"] == "self":
 				return Area.cube_from(grid, from, dir, int(a["size_tiles"]))
@@ -187,15 +227,21 @@ static func preview(world: Dictionary, caster: Node, spell_id: String, aim: Vect
 	var out := {"valid": why == "", "reason": why, "cells": [] as Array[Vector2i], "targets": [], "reactions": []}
 	if spell.is_empty():
 		return out
+	var cov := area_coverage(world, caster, spell, aim)
 	out["cells"] = area_cells(world, caster, spell, aim)
+	out["partial"] = cov.keys().filter(func(c: Vector2i) -> bool: return float(cov[c]) < Area.FULL)
+	out["shape"] = area_shape(world, caster, spell, aim)
 	var slot := int(opts.get("slot", spell["level"]))
 	var check: Dictionary = spell["effects"].get("check", {})
 	for t: Node in targets_for(world, caster, spell, aim, out["cells"], opts, slot):
 		var row := {"creature": t}
+		if spell.get("area") != null and Area.creature_cover(world["grid"], cov, t) < Area.FULL:
+			row["cover"] = 2
 		if check.get("type") == "attack":
 			row["chance"] = Resolver.preview_attack(caster, t, _spell_attack(caster, spell, slot), world["grid"].attack_context(caster, t)).get("hit_chance", 0.0)
 		elif check.get("type") == "save":
-			row["chance"] = Resolver.preview_save_fail(t, check["ability"], spell_dc(caster))
+			row["chance"] = Resolver.preview_save_fail(t, check["ability"], spell_dc(caster),
+				{"bonus": int(row.get("cover", 0))} if check["ability"] == "dex" else {})
 		out["targets"].append(row)
 	var dtype := _area_damage_type(spell)
 	if dtype != "" and not out["cells"].is_empty() and world.get("surfaces") != null:
@@ -311,8 +357,14 @@ static func resolve_effects(ctx: Dictionary) -> Dictionary:
 		var cparams := {"instance": inst["id"]}
 		if spell.get("repeat_save", false):
 			cparams["repeat_save"] = {"ability": check["ability"], "dc": spell_dc(caster)}
+		var cover := {}
+		if spell.get("area") != null and check["ability"] == "dex":
+			var cov := area_coverage(world, caster, spell, ctx["aim"])
+			for t: Node in targets:
+				if Area.creature_cover(world["grid"], cov, t) < Area.FULL:
+					cover[t] = 2  # 범위에 걸친 칸: 절반 엄폐(SRD Half Cover, 민첩 내성 +2)
 		results = Resolver.save_effect(targets, {"ability": check["ability"], "dc": spell_dc(caster)},
-			fail, success, {"source": caster, "rolled": rolled, "duration": duration_turns(spell), "condition_params": cparams})
+			fail, success, {"source": caster, "rolled": rolled, "duration": duration_turns(spell), "condition_params": cparams, "cover": cover})
 		for r: Dictionary in results:
 			var t: Node = r["target"]
 			if not r["save"]["success"]:

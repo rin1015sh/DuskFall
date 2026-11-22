@@ -13,33 +13,39 @@ const Resolver := preload("res://scripts/rules/resolver.gd")
 const SEARCH_TILES := 2
 
 
-## 시야 원뿔 칸. 관찰자 칸에서 바라보는 쪽으로 90°(앞 거리 ≥ 옆 거리), 길이 안, 시야선이 닿는 칸.
+const Area := preload("res://scripts/rules/area.gd")
+## 시야 원뿔 반각 45°(90° 원뿔 — changes.md)
+const CONE_HALF := PI / 4
+
+
+## 시야 원뿔: 관찰자 칸 가운데에서 바라보는 쪽으로 반각 45°, 길이 sight_tiles + 0.5의 매끄러운 원뿔.
+## 칸 → 덮인 비율(Area.cov_cone, 벽에 막힌 칸 제외). 시야를 끊는 구름은 시야선으로 따로 본다.
+static func cone_coverage(grid: Node, observer: Node) -> Dictionary:
+	var o: Vector2i = grid.cell_of(observer)
+	var f := Vector2(observer.facing).normalized()
+	if f == Vector2.ZERO:
+		f = Vector2(0, 1)
+	var cov := Area.cov_cone(grid, o, Vector2(o) + Vector2(0.5, 0.5) + f, int(observer.sight_tiles), CONE_HALF)
+	for c: Vector2i in cov.keys():
+		if not grid.has_line_of_sight(o, c):
+			cov.erase(c)
+	return cov
+
+
 static func cone_cells(grid: Node, observer: Node) -> Array[Vector2i]:
 	var out: Array[Vector2i] = []
-	var o: Vector2i = grid.cell_of(observer)
-	var f: Vector2 = Vector2(observer.facing).normalized()
-	var n: int = observer.sight_tiles
-	for dy in range(-n, n + 1):
-		for dx in range(-n, n + 1):
-			if dx == 0 and dy == 0:
-				continue
-			var c := o + Vector2i(dx, dy)
-			if not grid.in_bounds(c) or grid.distance(o, c) > n:
-				continue
-			var v := Vector2(dx, dy)
-			if v.normalized().dot(f) < 0.70:  # 반각 45°
-				continue
-			if grid.has_line_of_sight(o, c):
-				out.append(c)
+	for c: Vector2i in cone_coverage(grid, observer):
+		out.append(c)
 	return out
 
 
+## 대상이 원뿔에 덮인 정도(0이면 밖, FULL 미만이면 원뿔 가장자리에 걸침)
+static func cone_fraction(grid: Node, observer: Node, target: Node) -> float:
+	return Area.creature_cover(grid, cone_coverage(grid, observer), target)
+
+
 static func in_cone(grid: Node, observer: Node, target: Node) -> bool:
-	var cells := cone_cells(grid, observer)
-	for c in grid.occupied_cells(target):
-		if c in cells:
-			return true
-	return false
+	return cone_fraction(grid, observer, target) > 0.0
 
 
 ## 수동 지각 = 10 + 지혜 수정치 + 지각 기능 보너스(SRD).
@@ -65,6 +71,8 @@ static func sight_of(grid: Node, observer: Node, target: Node) -> String:
 		best = mini(best, grid.obscurity_for(observer, c))
 	if target.has_condition("invisible") and not (observer.senses.has("see_invisible") or observer.senses.has("truesight")):
 		best = 2
+	if best == 0 and cone_fraction(grid, observer, target) < Area.FULL:
+		best = 1  # 원뿔 가장자리에 걸침: 밝아도 곁눈 — 은신 판정을 준다(changes.md)
 	return ["bright", "dim", "dark"][best]
 
 

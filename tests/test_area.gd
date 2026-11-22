@@ -65,3 +65,38 @@ func test_emanation_and_large_creature() -> void:
 	var cells := Area.emanation(g, cleric, 3)
 	assert_true(Vector2i(1, 1) in cells, "발산 중심은 시전자 칸")
 	assert_eq(Area.creatures_in(g, cells).size(), 2, "큰 생물은 점유 칸 하나만 걸려도 포함")
+
+
+# ---------- 매끄러운 도형(2026-11-22) ----------
+
+func test_smooth_circle_full_and_partial() -> void:
+	var cov: Dictionary = Area.cov_circle(null, Vector2i.ZERO, 4)
+	assert_true(float(cov[Vector2i(4, 0)]) >= Area.FULL, "축 방향 끝 칸은 완전히")
+	assert_true(cov.has(Vector2i(4, 2)) and float(cov[Vector2i(4, 2)]) < Area.FULL, "둥근 가장자리는 걸침")
+	assert_false(cov.has(Vector2i(4, 4)), "멀리 모서리는 밖")
+
+
+func test_smooth_cone_any_angle() -> void:
+	var cov: Dictionary = Area.cov_cone(null, Vector2i.ZERO, Vector2(4.5, 2.5), 3)
+	assert_false(cov.has(Vector2i.ZERO), "시전 칸은 빠진다")
+	assert_true(cov.has(Vector2i(2, 1)), "조준 방향(비스듬한 각도)으로 뻗는다")
+	assert_false(cov.has(Vector2i(0, 3)), "옆은 밖")
+
+
+func test_area_partial_cover_gives_dex_bonus() -> void:
+	var w := make_world(["............", "............", "............", "............", "............", "............"])
+	var Sp := preload("res://scripts/rules/spellcasting.gd")
+	var wz: Node = own(preload("res://scripts/rules/character_builder.gd").build(preload("res://scripts/rules/character_builder.gd").default_spec("wizard", 5))["creature"])
+	var a := make_creature({"team": "enemy", "hp_max": 99})
+	var b := make_creature({"team": "enemy", "hp_max": 99})
+	w["grid"].place(wz, Vector2i(0, 0))
+	w["grid"].place(a, Vector2i(6, 2))
+	w["grid"].place(b, Vector2i(10, 4))
+	wz.reset_turn()
+	var p: Dictionary = Sp.preview(w, wz, "fireball", Vector2i(6, 2))
+	var rows := {}
+	for r: Dictionary in p["targets"]:
+		rows[r["creature"]] = r
+	assert_false(rows[a].has("cover"), "중심은 엄폐 없음")
+	assert_true(rows.has(b) and rows[b].get("cover", 0) == 2, "가장자리에 걸치면 절반 엄폐 +2")
+	assert_true(not p["partial"].is_empty())

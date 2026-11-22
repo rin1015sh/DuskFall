@@ -101,8 +101,13 @@ class Highlights extends Node2D:
 		_entities(g)
 		if scene.exploring:
 			_explore_marks(g)
+		var partial: Array = d.get("partial", [])
 		for c: Vector2i in d.get("area", []):
-			_cell(g, c, Color(1, 0.55, 0.1, 0.35), Color(1, 0.6, 0.2, 0.9))
+			if c in partial:
+				_cell(g, c, Color(1, 0.55, 0.1, 0.14), Color(1, 0.6, 0.2, 0.35))  # 걸친 칸(절반 엄폐)
+			else:
+				_cell(g, c, Color(1, 0.55, 0.1, 0.33), Color(1, 0.6, 0.2, 0.0))
+		_shape_outline(d.get("shape", {}), Color(1, 0.75, 0.35, 0.95))
 		for c: Vector2i in d.get("path", []):
 			_cell(g, c, Color(0.3, 0.6, 1.0, 0.3), Color(0.4, 0.7, 1.0, 0.8))
 		for c: Vector2i in d.get("reaction_cells", []):
@@ -142,12 +147,17 @@ class Highlights extends Node2D:
 			for o: Node in g.creatures():
 				if o.dead or o.team == "party" or o.is_incapacitated():
 					continue
-				for c in Stealth.cone_cells(g, o):
+				var cov: Dictionary = Stealth.cone_coverage(g, o)
+				for c: Vector2i in cov:
 					var l: int = g.light_at(c)
+					var k := 1.0 if float(cov[c]) >= 0.75 else 0.45  # 가장자리에 걸친 칸은 옅게(밝아도 은신 판정)
 					if l == 2:
-						_cell(g, c, Color(1, 0.15, 0.1, 0.30), Color(1, 0.2, 0.1, 0.0))
+						_cell(g, c, Color(1, 0.15, 0.1, 0.30 * k), Color(1, 0.2, 0.1, 0.0))
 					elif l == 1:
-						_cell(g, c, Color(1, 0.55, 0.1, 0.18), Color(1, 0.5, 0.1, 0.0))
+						_cell(g, c, Color(1, 0.55, 0.1, 0.18 * k), Color(1, 0.5, 0.1, 0.0))
+				var f := Vector2(o.facing).normalized()
+				var apex := Vector2(g.cell_of(o)) + Vector2(0.5, 0.5)
+				_shape_outline({"type": "cone", "apex": apex, "dir": f, "len": o.sight_tiles + 0.5, "half": PI / 4}, Color(1, 0.35, 0.25, 0.6))
 		for t: Dictionary in scene.world.get("traps", []):
 			if t.get("found", false) and t["state"] == "armed":
 				var tc := Vector2i(int(t["cell"][0]), int(t["cell"][1]))
@@ -156,6 +166,34 @@ class Highlights extends Node2D:
 			if not e.get("done", false):
 				var ec := Vector2i(int(e["cell"][0]), int(e["cell"][1]))
 				_cell(g, ec, Color(1, 0.9, 0.3, 0.06), Color(1, 0.9, 0.3, 0.7))
+
+	## 매끄러운 범위 윤곽(칸 좌표 → 화면: 바닥 기준)
+	func _shape_outline(sh: Dictionary, col: Color) -> void:
+		if sh.is_empty():
+			return
+		var T: float = V.T
+		var pts := PackedVector2Array()
+		match sh["type"]:
+			"circle":
+				for i in 49:
+					var a := TAU * i / 48.0
+					pts.append((sh["center"] + Vector2(cos(a), sin(a)) * sh["r"]) * T)
+			"cone":
+				var apex: Vector2 = sh["apex"]
+				var base: float = sh["dir"].angle()
+				pts.append(apex * T)
+				for i in 17:
+					var a: float = base - sh["half"] + 2.0 * sh["half"] * i / 16.0
+					pts.append((apex + Vector2(cos(a), sin(a)) * sh["len"]) * T)
+				pts.append(apex * T)
+			"line":
+				var a: Vector2 = sh["a"]
+				var dv: Vector2 = sh["dir"]
+				var n: Vector2 = Vector2(-dv.y, dv.x) * float(sh["half_w"])
+				var b: Vector2 = a + dv * sh["len"]
+				pts = PackedVector2Array([(a + n) * T, (b + n) * T, (b - n) * T, (a - n) * T, (a + n) * T])
+		draw_polyline(pts, Color(col, col.a * 0.35), 6.0, true)
+		draw_polyline(pts, col, 2.0, true)
 
 	func _cell(g: Node, c: Vector2i, fill: Color, line: Color) -> void:
 		var r: Rect2 = V.top_rect(g, c).grow(-2)
@@ -428,7 +466,8 @@ func _advance() -> void:
 			busy = false
 			_refresh()
 			if args.has("select"):
-				for m: Node in group:
+				# 캡처용: --shot이면 차례가 아니어도 그 캐릭터를 고른다
+				for m: Node in (party if args.has("shot") else group):
 					if m.name == args["select"]:
 						selected = m
 			if args.has("precast"):
@@ -575,6 +614,8 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 			ao["path"] = ap["path"]
 		if ap.has("area"):
 			ao["area"] = ap["area"]
+			ao["partial"] = ap.get("partial", [])
+			ao["shape"] = ap.get("shape", {})
 		return ao
 	if exploring:
 		return _explore_preview(cell)
@@ -624,6 +665,8 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 		var p := Spellcasting.preview(world, c, sid, cell)
 		out["valid"] = p["valid"]
 		out["area"] = p["cells"]
+		out["partial"] = p.get("partial", [])
+		out["shape"] = p.get("shape", {})
 		lines.append(UiText.name_of(RulesDB.get_entry("spell", sid)["name"]))
 		if not p["valid"]:
 			lines.append(UiText.t("blocked") % p["reason"])
