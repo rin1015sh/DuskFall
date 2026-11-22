@@ -87,6 +87,12 @@ func test_map_view_builds_terrain() -> void:
 	var verts: PackedVector3Array = floors.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	assert_eq(verts.size(), 12 * 4, "칸마다 네모 하나")
 	assert_true(verts.has(Vector3(2, 2, 1)) and verts.has(Vector3(3, 2, 2)), "높은 칸 바닥은 높이 2에")
+	var arrs: Array = floors.surface_get_arrays(0)
+	var uv: PackedVector2Array = arrs[Mesh.ARRAY_TEX_UV]
+	var uv2: PackedVector2Array = arrs[Mesh.ARRAY_TEX_UV2]
+	assert_eq(uv2.size(), uv.size(), "바닥 변형 b 조각(UV2) — 셰이더가 a·b를 섞는다")
+	assert_true(uv2[0] != uv[0], "기본 돌바닥(floor_flag)은 변형 a·b가 다른 조각")
+	assert_true(view._floor_mi.material_override.shader.resource_path.ends_with("floor.gdshader"))
 	var faces: ArrayMesh = view._face_mi.mesh
 	assert_true(faces.get_surface_count() == 1, "높은 칸 남쪽 절벽 면")
 	var fv: PackedVector3Array = faces.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]

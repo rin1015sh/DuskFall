@@ -2,6 +2,7 @@ extends Node3D
 ## 3/4 탑뷰 맵 그리기(표현 계층, 3D). GridWorld를 읽어 던전 에셋 키트(assets/dungeon_kit, scenes/kit/dungeon_kit.gd) 그림으로 쌓는다.
 ## 좌표는 view3d.gd(1칸 = 1유닛, 높이 1단계 = 1유닛).
 ## - 바닥: 칸마다 높이에 놓인 네모(키트 바닥 4×4 이어지는 그림). 맵 데이터 art.floors(범례 글자 → 키트 바닥)·재질 기본값.
+##   같은 바닥의 변형 a·b는 floor.gdshader가 불규칙한 얼룩 경계로 섞는다(변형 b는 2칸 밀어 반복이 덜 보이게).
 ## - 벽: 칸마다 기둥(윗면 = 키트 벽 윗면 자동 연결 16가지, 남쪽 면 = 키트 벽면). 벽은 둘레에서 가장 높은 바닥 위에 선다(View3D.wall_base).
 ##   남쪽 칸 윗면이 더 낮으면 그 차이만큼 남쪽 면을 세운다(벽 아래로 더 내려가는 부분·높은 칸은 절벽 면).
 ## - 높은 칸 가장자리: 둘레보다 높은 바닥 윗면의 테두리에 어두운 턱 띠(보이지 않는 동·서·북 면 대신 경계를 읽히게).
@@ -15,6 +16,7 @@ const DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
 const Kit3D := preload("res://scenes/kit/kit3d.gd")
 const TERRAIN_SHADER := preload("res://scenes/battle/terrain.gdshader")
 const OVERLAY_SHADER := preload("res://scenes/battle/overlay.gdshader")
+const FLOOR_SHADER := preload("res://scenes/battle/floor.gdshader")
 
 const MATERIAL_FLOORS := {"stone": "floor_flag", "earth": "floor_dirt", "grass": "ground_grass", "brush": "ground_thicket",
 	"wood": "room_wood", "burnt_ground": "ground_ash", "metal": "floor_brick", "glass": "floor_flag", "cloth": "floor_old"}
@@ -62,21 +64,29 @@ var _terrain_key := ""
 class MeshBuilder:
 	var verts := PackedVector3Array()
 	var uvs := PackedVector2Array()
+	var uv2s := PackedVector2Array()
 	var cols := PackedColorArray()
 	var idx := PackedInt32Array()
 
 	## p: 네 모서리(왼위·오른위·오른아래·왼아래 — 그림 기준), uv: 그림 네모(px), size: 그림 판 크기(px), c: 네 모서리 색
-	func quad(p: Array, src: Rect2, size: Vector2, c: Array) -> void:
+	## src2: 두 번째 그림 조각(바닥 변형 b). 쓰면 모든 네모에 준다.
+	func quad(p: Array, src: Rect2, size: Vector2, c: Array, src2 := Rect2()) -> void:
 		var n := verts.size()
-		var inset := Vector2(0.25, 0.25)
-		var a := (src.position + inset) / size
-		var b := (src.end - inset) / size
-		var uv := [a, Vector2(b.x, a.y), b, Vector2(a.x, b.y)]
+		var uv := _corners(src, size)
+		var uv2 := _corners(src2, size) if src2.size.x > 0.0 else []
 		for i in 4:
 			verts.append(p[i])
 			uvs.append(uv[i])
+			if not uv2.is_empty():
+				uv2s.append(uv2[i])
 			cols.append(c[i])
 		idx.append_array(PackedInt32Array([n, n + 1, n + 2, n, n + 2, n + 3]))
+
+	func _corners(src: Rect2, size: Vector2) -> Array:
+		var inset := Vector2(0.25, 0.25)
+		var a := (src.position + inset) / size
+		var b := (src.end - inset) / size
+		return [a, Vector2(b.x, a.y), b, Vector2(a.x, b.y)]
 
 	func mesh() -> ArrayMesh:
 		var m := ArrayMesh.new()
@@ -86,6 +96,8 @@ class MeshBuilder:
 		arr.resize(Mesh.ARRAY_MAX)
 		arr[Mesh.ARRAY_VERTEX] = verts
 		arr[Mesh.ARRAY_TEX_UV] = uvs
+		if uv2s.size() == verts.size():
+			arr[Mesh.ARRAY_TEX_UV2] = uv2s
 		arr[Mesh.ARRAY_COLOR] = cols
 		arr[Mesh.ARRAY_INDEX] = idx
 		m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
@@ -98,7 +110,7 @@ func build(g: Node, sorted_layer: Node3D, map_data: Dictionary = {}) -> void:
 	sorted = sorted_layer
 	kit = DungeonKit.open()
 	kit.tileset()
-	_floor_mi = _mesh_node("floors", TERRAIN_SHADER, false)
+	_floor_mi = _mesh_node("floors", FLOOR_SHADER, false)
 	_top_mi = _mesh_node("wall_tops", TERRAIN_SHADER, true)
 	_face_mi = _mesh_node("wall_faces", TERRAIN_SHADER, true)
 	_water_mi = _mesh_node("floors", OVERLAY_SHADER, false, "floors_overlay")
@@ -269,9 +281,12 @@ func _build_terrain() -> void:
 				if top_s < base:
 					_cliff(faces, cliff_frame, wsize, x0, z0 + 1.0, top_s, base, k, false)
 		else:
-			var fsrc := _floor_src(c)
+			var fsrc := _floor_src(c, "a")
 			if fsrc.size.x > 0.0:
-				floors.quad(_flat_quad(x0, z0, top_c), fsrc, fsize, _corner_cols(dark, c, Color.WHITE))
+				# 변형 a·b가 모두 있을 때만 섞는다(하나뿐이면 같은 조각 — 섞임 없음)
+				var vs: PackedStringArray = kit.variants(_floor_id(c))
+				var fsrc2 := _floor_src(c, "b", Vector2i(2, 2)) if vs.has("a") and vs.has("b") else fsrc
+				floors.quad(_flat_quad(x0, z0, top_c), fsrc, fsize, _corner_cols(dark, c, Color.WHITE), fsrc2)
 			if has_south and top_s < top_c:
 				_cliff(faces, cliff_frame, wsize, x0, z0 + 1.0, top_s, top_c, k, not grid.has_flag(south, "wall"))
 			_rims(rims, c, top_c, 1.0 - float(dark[c]))
@@ -345,14 +360,14 @@ func _face(mb: MeshBuilder, x0: float, z: float, y0: float, y1: float, src: Rect
 
 
 ## 칸의 키트 바닥 그림 네모(px). 넓은 그림(span 4)은 칸 좌표를 나눈 나머지 조각 — 이웃 칸과 이어진다.
-func _floor_src(c: Vector2i) -> Rect2:
+## variant가 없으면 첫 변형. shift: 조각을 밀어 고른다(변형 b의 반복 위치를 a와 어긋나게).
+func _floor_src(c: Vector2i, variant: String, shift := Vector2i.ZERO) -> Rect2:
 	var id := _floor_id(c)
-	var variant := "a" if posmod(c.x / 4 + c.y / 4, 2) == 0 else "b"
 	var tl: Dictionary = kit.tile_of("%s.%s" % [id, kit._variant_name(id, variant)])
 	if tl.is_empty():
 		return Rect2()
 	var span: Vector2i = tl["span"]
-	var at: Vector2i = (tl["base"] as Vector2i) + Vector2i(posmod(c.x, span.x), posmod(c.y, span.y))
+	var at: Vector2i = (tl["base"] as Vector2i) + Vector2i(posmod(c.x + shift.x, span.x), posmod(c.y + shift.y, span.y))
 	return Rect2(Vector2(at) * V.T, Vector2(V.T, V.T))
 
 
