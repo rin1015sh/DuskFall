@@ -1,0 +1,102 @@
+{
+  "$comment": "반응표 스키마(룰북 4단계 원인 × 대상 반응표).",
+  "type": "object",
+  "required": [
+    "schema",
+    "reactions"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "reaction_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "reactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "cause",
+          "target",
+          "result",
+          "basis"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "cause": {
+            "type": "string",
+            "pattern": "^(damage:[a-z]+|water|surface:[a-z_]+)$"
+          },
+          "target": {
+            "type": "string",
+            "pattern": "^(surface:[a-z_]+|material:flammable)$"
+          },
+          "result": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "replace_surface": {
+                "type": "string"
+              },
+              "remove_surface": {
+                "type": "boolean"
+              },
+              "create_surface": {
+                "type": "string"
+              },
+              "create_cloud": {
+                "type": "string"
+              },
+              "block": {
+                "type": "boolean"
+              },
+              "keep": {
+                "type": "boolean"
+              },
+              "creatures": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "damage",
+                        "apply_condition",
+                        "remove_condition"
+                      ]
+                    },
+                    "dice": {
+                      "type": "string",
+                      "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+                    },
+                    "damage_type": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "basis": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

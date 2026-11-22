@@ -14,6 +14,8 @@ var save_proficiencies: Array = []
 var skill_bonuses := {}
 var ac_base := 10
 var speed_tiles := 6
+## 무게(kg). 밀치기·던지기에 쓴다(3·4단계). 기본값은 보통 체형 인간 정도.
+var weight_kg := 70.0
 var hp_max := 1
 var hp := 1
 var temp_hp := 0

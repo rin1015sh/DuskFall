@@ -45,6 +45,8 @@ signal on_condition_applied(creature: Object, condition_id: String)
 signal on_condition_removed(creature: Object, condition_id: String)
 ## 칸이 피해 유형을 받을 때
 signal on_tile_damage_type(cell: Vector2i, damage_type: String)
+## 낙하 시작, 피해 굴림 전(changes.md 2026-11-22). ctx["prevented"] = true로 피해를 막는다.
+signal on_fall(ctx: Dictionary)
 ## 숨긴 물체·함정의 반경에 들어갈 때
 signal on_detect_radius(creature: Object, target: Object)
 ## NPC 시야 원뿔 안에서 절도가 일어날 때
@@ -79,6 +81,7 @@ func hook_names() -> PackedStringArray:
 		"on_condition_applied",
 		"on_condition_removed",
 		"on_tile_damage_type",
+		"on_fall",
 		"on_detect_radius",
 		"on_witness",
 		"on_short_rest",

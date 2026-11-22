@@ -1,0 +1,166 @@
+{
+  "schema": "reaction_v1",
+  "note_ko": "룰북 4단계 원인 × 대상 반응표. 표에 없는 조합은 반응하지 않는다(새 표면이면 덮어쓴다). 생물 쪽 반응(젖음·연소)은 conditions.json이 맡는다.",
+  "reactions": [
+    {
+      "id": "water_fire",
+      "cause": "damage:fire",
+      "target": "surface:water",
+      "result": {
+        "remove_surface": true,
+        "create_cloud": "steam"
+      },
+      "basis": "BG3"
+    },
+    {
+      "id": "water_cold",
+      "cause": "damage:cold",
+      "target": "surface:water",
+      "result": {
+        "replace_surface": "ice"
+      },
+      "basis": "BG3"
+    },
+    {
+      "id": "water_lightning",
+      "cause": "damage:lightning",
+      "target": "surface:water",
+      "result": {
+        "replace_surface": "electrified_water"
+      },
+      "basis": "BG3"
+    },
+    {
+      "id": "ice_fire",
+      "cause": "damage:fire",
+      "target": "surface:ice",
+      "result": {
+        "replace_surface": "water"
+      },
+      "basis": "BG3"
+    },
+    {
+      "id": "oil_fire",
+      "cause": "damage:fire",
+      "target": "surface:oil",
+      "result": {
+        "replace_surface": "fire",
+        "creatures": [
+          {
+            "type": "apply_condition",
+            "id": "burning"
+          }
+        ]
+      },
+      "basis": "BG3"
+    },
+    {
+      "id": "blood_fire",
+      "cause": "damage:fire",
+      "target": "surface:blood",
+      "result": {
+        "block": true
+      },
+      "basis": "BG3: 불을 끔(화염 표면이 되지 않음)"
+    },
+    {
+      "id": "blood_cold",
+      "cause": "damage:cold",
+      "target": "surface:blood",
+      "result": {
+        "replace_surface": "ice"
+      },
+      "basis": "BG3"
+    },
+    {
+      "id": "ewater_fire",
+      "cause": "damage:fire",
+      "target": "surface:electrified_water",
+      "result": {
+        "remove_surface": true,
+        "create_cloud": "steam"
+      },
+      "basis": "BG3·자체"
+    },
+    {
+      "id": "ewater_cold",
+      "cause": "damage:cold",
+      "target": "surface:electrified_water",
+      "result": {
+        "replace_surface": "ice"
+      },
+      "basis": "BG3·자체"
+    },
+    {
+      "id": "fire_cold",
+      "cause": "damage:cold",
+      "target": "surface:fire",
+      "result": {
+        "remove_surface": true
+      },
+      "basis": "자체"
+    },
+    {
+      "id": "fire_water",
+      "cause": "water",
+      "target": "surface:fire",
+      "result": {
+        "remove_surface": true,
+        "create_cloud": "steam"
+      },
+      "basis": "자체"
+    },
+    {
+      "id": "web_fire",
+      "cause": "damage:fire",
+      "target": "surface:web",
+      "result": {
+        "replace_surface": "burning_web"
+      },
+      "basis": "SRD Web"
+    },
+    {
+      "id": "flammable_fire",
+      "cause": "damage:fire",
+      "target": "material:flammable",
+      "result": {
+        "create_surface": "fire"
+      },
+      "basis": "BG3·자체"
+    },
+    {
+      "id": "oil_onto_fire",
+      "cause": "surface:oil",
+      "target": "surface:fire",
+      "result": {
+        "replace_surface": "fire",
+        "creatures": [
+          {
+            "type": "apply_condition",
+            "id": "burning"
+          }
+        ]
+      },
+      "basis": "BG3: 기름이 불에 닿으면 점화"
+    },
+    {
+      "id": "water_onto_fire",
+      "cause": "surface:water",
+      "target": "surface:fire",
+      "result": {
+        "remove_surface": true,
+        "create_cloud": "steam"
+      },
+      "basis": "반응표 화염 표면 × 물"
+    },
+    {
+      "id": "web_onto_fire",
+      "cause": "surface:web",
+      "target": "surface:fire",
+      "result": {
+        "keep": true
+      },
+      "basis": "거미줄은 불 위에 생기지 않는다(타 버림)"
+    }
+  ]
+}

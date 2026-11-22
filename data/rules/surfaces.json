@@ -1,0 +1,312 @@
+{
+  "schema": "surface_v1",
+  "note_ko": "룰북 4단계 표면 12종(+타는 거미줄)과 구름. 칸마다 표면 1개, 구름 1개. duration_turns -1 = 영구 또는 만든 효과가 정함.",
+  "surfaces": [
+    {
+      "id": "water",
+      "layer": "ground",
+      "name": {
+        "ko": "물",
+        "en": "Water"
+      },
+      "duration_turns": 10,
+      "map_permanent": true,
+      "on_enter_or_turn_start": [
+        {
+          "type": "apply_condition",
+          "id": "wet"
+        }
+      ],
+      "source": "original",
+      "notes_ko": "맵 배치는 영구, 생성된 것은 10턴."
+    },
+    {
+      "id": "deep_water",
+      "layer": "ground",
+      "name": {
+        "ko": "깊은 물",
+        "en": "Deep Water"
+      },
+      "duration_turns": -1,
+      "difficult": true,
+      "on_enter_or_turn_start": [
+        {
+          "type": "apply_condition",
+          "id": "wet"
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "ice",
+      "layer": "ground",
+      "name": {
+        "ko": "얼음",
+        "en": "Ice"
+      },
+      "duration_turns": 10,
+      "expires_to": "water",
+      "difficult": true,
+      "save": {
+        "ability": "dex",
+        "on_fail": [
+          {
+            "type": "apply_condition",
+            "id": "prone"
+          }
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "oil",
+      "layer": "ground",
+      "name": {
+        "ko": "기름",
+        "en": "Oil"
+      },
+      "duration_turns": 10,
+      "difficult": true,
+      "flammable": true,
+      "save": {
+        "ability": "dex",
+        "on_fail": [
+          {
+            "type": "apply_condition",
+            "id": "prone"
+          }
+        ]
+      },
+      "source": "original",
+      "notes_ko": "미끄러운 기름과 합침, SRD Grease와 같은 효과."
+    },
+    {
+      "id": "fire",
+      "layer": "ground",
+      "name": {
+        "ko": "화염",
+        "en": "Fire"
+      },
+      "duration_turns": 3,
+      "spreads": true,
+      "on_enter_or_turn_start": [
+        {
+          "type": "apply_condition",
+          "id": "burning"
+        }
+      ],
+      "object_damage": {
+        "dice": "1d4",
+        "damage_type": "fire"
+      },
+      "source": "original",
+      "notes_ko": "라운드 끝에 직교 인접 가연성 칸으로 1칸 번진다. 칸의 물체도 1d4 화염 피해(SRD Burning)."
+    },
+    {
+      "id": "acid",
+      "layer": "ground",
+      "name": {
+        "ko": "산",
+        "en": "Acid"
+      },
+      "duration_turns": 3,
+      "on_enter_or_turn_start": [
+        {
+          "type": "apply_condition",
+          "id": "acid"
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "poison",
+      "layer": "ground",
+      "name": {
+        "ko": "독",
+        "en": "Poison"
+      },
+      "duration_turns": 3,
+      "on_enter_or_turn_start": [
+        {
+          "type": "damage",
+          "dice": "1d4",
+          "damage_type": "poison"
+        }
+      ],
+      "coats": "poison",
+      "source": "original"
+    },
+    {
+      "id": "electrified_water",
+      "layer": "ground",
+      "name": {
+        "ko": "전기 물",
+        "en": "Electrified Water"
+      },
+      "duration_turns": 2,
+      "expires_to": "water",
+      "on_enter_or_turn_start": [
+        {
+          "type": "apply_condition",
+          "id": "wet"
+        },
+        {
+          "type": "damage",
+          "dice": "1d4",
+          "damage_type": "lightning"
+        }
+      ],
+      "source": "original",
+      "notes_ko": "젖음을 먼저 걸어 번개 피해가 2배가 된다."
+    },
+    {
+      "id": "blood",
+      "layer": "ground",
+      "name": {
+        "ko": "피",
+        "en": "Blood"
+      },
+      "duration_turns": -1,
+      "source": "original"
+    },
+    {
+      "id": "mud",
+      "layer": "ground",
+      "name": {
+        "ko": "진흙",
+        "en": "Mud"
+      },
+      "duration_turns": -1,
+      "difficult": true,
+      "source": "original"
+    },
+    {
+      "id": "web",
+      "layer": "ground",
+      "name": {
+        "ko": "거미줄",
+        "en": "Web"
+      },
+      "duration_turns": -1,
+      "difficult": true,
+      "save": {
+        "ability": "dex",
+        "on_enter_only": true,
+        "on_fail": [
+          {
+            "type": "apply_condition",
+            "id": "restrained"
+          }
+        ]
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "지속은 주문을 따른다. 화염을 받으면 타는 거미줄이 된다."
+    },
+    {
+      "id": "burning_web",
+      "layer": "ground",
+      "name": {
+        "ko": "타는 거미줄",
+        "en": "Burning Web"
+      },
+      "duration_turns": 1,
+      "on_turn_start": [
+        {
+          "type": "damage",
+          "dice": "2d4",
+          "damage_type": "fire"
+        }
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "SRD Web: 1라운드 뒤 타서 사라지고, 그동안 그 안에서 턴을 시작하면 2d4 화염."
+    },
+    {
+      "id": "thorns",
+      "layer": "ground",
+      "name": {
+        "ko": "가시",
+        "en": "Thorns"
+      },
+      "duration_turns": -1,
+      "difficult": true,
+      "on_move": [
+        {
+          "type": "damage",
+          "dice": "2d4",
+          "damage_type": "piercing"
+        }
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "1칸 이동마다 2d4 관통(SRD Spike Growth)."
+    },
+    {
+      "id": "fog",
+      "layer": "cloud",
+      "name": {
+        "ko": "안개",
+        "en": "Fog"
+      },
+      "duration_turns": -1,
+      "obscurity": "heavy",
+      "blocks_sight": true,
+      "source": "original"
+    },
+    {
+      "id": "magical_darkness",
+      "layer": "cloud",
+      "name": {
+        "ko": "어둠",
+        "en": "Darkness"
+      },
+      "duration_turns": -1,
+      "obscurity": "heavy",
+      "blocks_sight": true,
+      "ignores_darkvision": true,
+      "source": "SRD 5.2.1",
+      "notes_ko": "암시야로 볼 수 없다(SRD Darkness)."
+    },
+    {
+      "id": "steam",
+      "layer": "cloud",
+      "name": {
+        "ko": "증기",
+        "en": "Steam"
+      },
+      "duration_turns": 3,
+      "obscurity": "light",
+      "on_enter_or_turn_start": [
+        {
+          "type": "apply_condition",
+          "id": "wet"
+        }
+      ],
+      "source": "original",
+      "notes_ko": "지속 3턴(changes.md 2026-11-22)."
+    },
+    {
+      "id": "sleet",
+      "layer": "cloud",
+      "name": {
+        "ko": "진눈깨비",
+        "en": "Sleet"
+      },
+      "duration_turns": -1,
+      "obscurity": "light",
+      "source": "SRD 5.2.1",
+      "notes_ko": "Sleet Storm. 얼음 표면·화염 소멸은 주문 효과가 따로 만든다."
+    },
+    {
+      "id": "stinking_cloud",
+      "layer": "cloud",
+      "name": {
+        "ko": "악취 구름",
+        "en": "Stinking Cloud"
+      },
+      "duration_turns": -1,
+      "obscurity": "heavy",
+      "blocks_sight": true,
+      "source": "SRD 5.2.1",
+      "notes_ko": "내성·중독은 주문 효과(5단계)."
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "$comment": "표면·구름 파일 스키마(룰북 4단계 표면 규칙).",
+  "type": "object",
+  "required": [
+    "schema",
+    "surfaces"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "surface_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "surfaces": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/surface"
+      }
+    }
+  },
+  "$defs": {
+    "effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "enum": [
+              "damage",
+              "apply_condition",
+              "remove_condition"
+            ]
+          },
+          "dice": {
+            "type": "string",
+            "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+          },
+          "damage_type": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        }
+      }
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "surface": {
+      "type": "object",
+      "required": [
+        "id",
+        "layer",
+        "name",
+        "duration_turns",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "layer": {
+          "enum": [
+            "ground",
+            "cloud"
+          ]
+        },
+        "name": {
+          "type": "object",
+          "required": [
+            "ko",
+            "en"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ko": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "en": {
+              "type": "string"
+            }
+          }
+        },
+        "duration_turns": {
+          "type": "integer",
+          "minimum": -1
+        },
+        "map_permanent": {
+          "type": "boolean"
+        },
+        "expires_to": {
+          "$ref": "#/$defs/id"
+        },
+        "difficult": {
+          "type": "boolean"
+        },
+        "flammable": {
+          "type": "boolean"
+        },
+        "spreads": {
+          "type": "boolean"
+        },
+        "obscurity": {
+          "enum": [
+            "light",
+            "heavy"
+          ]
+        },
+        "blocks_sight": {
+          "type": "boolean"
+        },
+        "ignores_darkvision": {
+          "type": "boolean"
+        },
+        "coats": {
+          "enum": [
+            "fire",
+            "poison"
+          ]
+        },
+        "on_enter_or_turn_start": {
+          "$ref": "#/$defs/effects"
+        },
+        "on_turn_start": {
+          "$ref": "#/$defs/effects"
+        },
+        "on_move": {
+          "$ref": "#/$defs/effects"
+        },
+        "save": {
+          "type": "object",
+          "required": [
+            "ability",
+            "on_fail"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ability": {
+              "enum": [
+                "str",
+                "dex",
+                "con",
+                "int",
+                "wis",
+                "cha"
+              ]
+            },
+            "on_enter_only": {
+              "type": "boolean"
+            },
+            "on_fail": {
+              "$ref": "#/$defs/effects"
+            }
+          }
+        },
+        "object_damage": {
+          "type": "object",
+          "required": [
+            "dice",
+            "damage_type"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "dice": {
+              "type": "string"
+            },
+            "damage_type": {
+              "type": "string"
+            }
+          }
+        },
+        "notes_ko": {
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "SRD 5.2.1",
+            "original"
+          ]
+        }
+      }
+    }
+  }
+}

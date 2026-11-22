@@ -18,6 +18,25 @@ func make_creature(values: Dictionary = {}) -> Node:
 	return c
 
 
+const GridWorldScript := preload("res://scripts/rules/grid_world.gd")
+const SurfaceSystemScript := preload("res://scripts/rules/surface_system.gd")
+
+
+## 테스트가 끝나면 지울 노드로 등록한다.
+func own(n: Node) -> Node:
+	_owned.append(n)
+	return n
+
+
+## 글자 지도로 격자를 만든다('#' 벽, 숫자 = 높이).
+func make_grid(rows: Array, material: String = "stone") -> Node:
+	return own(GridWorldScript.new().setup_from_rows(rows, material))
+
+
+func make_surfaces(grid: Node) -> Node:
+	return own(SurfaceSystemScript.new().setup(grid))
+
+
 ## 실행기가 테스트마다 부른다. 같은 시드로 시작해 결과가 늘 같다.
 func before_each() -> void:
 	Dice.set_seed(12345)

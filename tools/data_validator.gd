@@ -31,6 +31,19 @@ const REFS := {
 		["removes_on_apply[]", "condition"],
 		["suppresses[]", "condition"],
 	],
+	"surface": [
+		["expires_to", "surface"],
+	],
+	"material": [
+		["burns_to", "material"],
+	],
+	"reaction": [
+		["result.replace_surface", "surface"],
+		["result.create_surface", "surface"],
+		["result.create_cloud", "surface"],
+		["target@surface:", "surface"],
+		["cause@surface:", "surface"],
+	],
 }
 ## 효과 종류별로 "id"가 가리키는 종류.
 const EFFECT_ID_REFS := {
@@ -112,14 +125,26 @@ func _check_hook(where: String, entry: Dictionary) -> void:
 			warnings.append("%s: 훅 '%s'가 룰북 8단계 훅 표(EventBus)에 없다" % [where, n])
 
 
+## 필드 경로의 값들. "a.b"는 중첩, "a[]"는 배열 원소, "a@접두어"는 접두어로 시작하는 문자열에서 접두어를 뗀 값.
 func _values_at(entry: Dictionary, field: String) -> Array:
-	var key := field.trim_suffix("[]")
-	var value: Variant = entry.get(key)
-	if value == null:
-		return []
-	if field.ends_with("[]"):
-		return value if typeof(value) == TYPE_ARRAY else []
-	return [value]
+	var prefix := ""
+	if field.contains("@"):
+		prefix = field.get_slice("@", 1)
+		field = field.get_slice("@", 0)
+	var is_array := field.ends_with("[]")
+	var node: Variant = entry
+	for part in field.trim_suffix("[]").split("."):
+		if typeof(node) != TYPE_DICTIONARY or not node.has(part):
+			return []
+		node = node[part]
+	var values: Array = (node if typeof(node) == TYPE_ARRAY else []) if is_array else [node]
+	if prefix == "":
+		return values
+	var out: Array = []
+	for v: Variant in values:
+		if typeof(v) == TYPE_STRING and v.begins_with(prefix):
+			out.append(v.trim_prefix(prefix))
+	return out
 
 
 ## 항목 안의 모든 효과({"type": ...}를 가진 Dictionary)를 찾는다.

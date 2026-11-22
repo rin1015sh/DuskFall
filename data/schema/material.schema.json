@@ -1,0 +1,76 @@
+{
+  "$comment": "재질 파일 스키마(룰북 4단계 태그 목록).",
+  "type": "object",
+  "required": [
+    "schema",
+    "materials"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "material_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "flammable",
+          "fragile",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ko": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "en": {
+                "type": "string"
+              }
+            }
+          },
+          "flammable": {
+            "type": "boolean"
+          },
+          "fragile": {
+            "type": "boolean"
+          },
+          "object_ac": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "burns_to": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "source": {
+            "enum": [
+              "SRD 5.2.1",
+              "original"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

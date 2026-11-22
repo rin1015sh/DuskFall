@@ -1,0 +1,105 @@
+{
+  "schema": "material_v1",
+  "note_ko": "룰북 4단계 재질 태그. 물체 AC는 SRD 5.2.1 Object Armor Class. 탄 땅은 changes.md 2026-11-22.",
+  "materials": [
+    {
+      "id": "stone",
+      "name": {
+        "ko": "돌",
+        "en": "Stone"
+      },
+      "flammable": false,
+      "fragile": false,
+      "object_ac": 17,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "earth",
+      "name": {
+        "ko": "흙",
+        "en": "Earth"
+      },
+      "flammable": false,
+      "fragile": false,
+      "source": "original"
+    },
+    {
+      "id": "metal",
+      "name": {
+        "ko": "금속",
+        "en": "Metal"
+      },
+      "flammable": false,
+      "fragile": false,
+      "object_ac": 19,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "wood",
+      "name": {
+        "ko": "나무",
+        "en": "Wood"
+      },
+      "flammable": true,
+      "fragile": false,
+      "object_ac": 15,
+      "burns_to": "burnt_ground",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "grass",
+      "name": {
+        "ko": "풀",
+        "en": "Grass"
+      },
+      "flammable": true,
+      "fragile": false,
+      "burns_to": "burnt_ground",
+      "source": "original"
+    },
+    {
+      "id": "brush",
+      "name": {
+        "ko": "덤불",
+        "en": "Brush"
+      },
+      "flammable": true,
+      "fragile": false,
+      "burns_to": "burnt_ground",
+      "source": "original"
+    },
+    {
+      "id": "cloth",
+      "name": {
+        "ko": "천",
+        "en": "Cloth"
+      },
+      "flammable": true,
+      "fragile": false,
+      "object_ac": 11,
+      "burns_to": "burnt_ground",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "glass",
+      "name": {
+        "ko": "유리",
+        "en": "Glass"
+      },
+      "flammable": false,
+      "fragile": true,
+      "object_ac": 13,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "burnt_ground",
+      "name": {
+        "ko": "탄 땅",
+        "en": "Burnt Ground"
+      },
+      "flammable": false,
+      "fragile": false,
+      "source": "original"
+    }
+  ]
+}
