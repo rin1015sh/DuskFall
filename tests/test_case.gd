@@ -37,6 +37,19 @@ func make_surfaces(grid: Node) -> Node:
 	return own(SurfaceSystemScript.new().setup(grid))
 
 
+const ReactionQueueScript := preload("res://scripts/rules/reaction_queue.gd")
+const TurnManagerScript := preload("res://scripts/rules/turn_manager.gd")
+
+
+## 전투용 세계: {"grid", "surfaces", "reactions", "turns"}
+func make_world(rows: Array, material: String = "stone") -> Dictionary:
+	var g := make_grid(rows, material)
+	var w := {"grid": g, "surfaces": make_surfaces(g)}
+	own(ReactionQueueScript.new().setup(w))
+	own(TurnManagerScript.new().setup(w))
+	return w
+
+
 ## 실행기가 테스트마다 부른다. 같은 시드로 시작해 결과가 늘 같다.
 func before_each() -> void:
 	Dice.set_seed(12345)

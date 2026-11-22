@@ -9,8 +9,8 @@ func test_loaded_without_errors() -> void:
 func test_spells_and_conditions_loaded() -> void:
 	assert_eq(RulesDB.ids("spell").size(), 150)
 	assert_eq(RulesDB.get_entry("spell", "fireball")["level"], 3.0)
-	# 4단계: SRD 상태 12 + 환경 4, 그리고 주문 전용 '윤곽'
-	assert_eq(RulesDB.ids("condition").size(), 17)
+	# 4단계: SRD 상태 12 + 환경 4, 주문 전용 윤곽, 3단계 기습
+	assert_eq(RulesDB.ids("condition").size(), 18)
 	for id in ["blinded", "charmed", "frightened", "incapacitated", "invisible", "paralyzed",
 			"petrified", "poisoned", "prone", "restrained", "stunned", "unconscious",
 			"wet", "burning", "acid", "coated_weapon"]:

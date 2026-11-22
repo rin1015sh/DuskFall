@@ -52,6 +52,10 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	res["natural"] = d["natural"]
 	res["total"] = res["natural"] + res["attack_bonus"]
 	_decide_hit(res)
+	# 다음 공격 한 번에만 붙는 수정치(Sap·Vex 등)는 굴림에 쓰이면 사라진다.
+	for m in attacker.extra_modifiers.duplicate():
+		if m.get("consume_on_attack", false) and (m.get("target_only") == null or m.get("target_only") == target):
+			attacker.extra_modifiers.erase(m)
 	# 숨기로 얻은 투명은 공격 굴림을 하면 풀린다(원문 Hide, 5단계 은신 공격).
 	var hide: Dictionary = attacker.condition_instance("invisible")
 	if not hide.is_empty() and hide["source"] is String and hide["source"] == "hide":
@@ -175,6 +179,9 @@ static func _add_adv(m: Dictionary, roll: String, side: String, owner: Node, oth
 		"far":
 			if dist <= 1:
 				return
+	var only: Variant = m["instance"].get("target_only")
+	if only != null and only != other:
+		return
 	var ctx: Dictionary = res.get("ctx", {})
 	match e.get("requires", ""):
 		"source_in_sight":

@@ -37,6 +37,30 @@ var death_saves := {"successes": 0, "failures": 0}
 var stable := false
 var dead := false
 
+# ---------- 전투(3단계) ----------
+## 편: "party", "enemy", "neutral". 다른 편끼리 적대.
+var team := "neutral"
+## 무기 세트(근접·원거리 2세트, 전환 무료): {"melee": {"main", "off"}, "ranged": {"main"}} — 무기 ID
+var weapon_sets := {"melee": {"main": "", "off": ""}, "ranged": {"main": ""}}
+var active_set := "melee"
+## 숙련 무기 분류: "simple", "martial" 또는 무기 ID
+var weapon_proficiencies: Array = ["simple"]
+## 마스터리를 쓸 수 있는 무기 ID(6단계 무기 마스터리 기능)
+var weapon_masteries: Array = []
+## 공격 행동 한 번의 공격 횟수(추가 공격이면 2)
+var attacks_per_action := 1
+## 재주·기능 태그: "two_weapon_fighting" 등
+var features: Array = []
+## 알고 있는 반응: "opportunity_attack"(누구나), "shield" 등
+var known_reactions: Array = ["opportunity_attack"]
+## 반응 설정: 반응 ID → "ask" | "auto" | "off"(기본 ask, 기회 공격 기본 auto)
+var reaction_settings := {}
+## 재충전 쿨다운: 능력 ID → 남은 턴(2단계 몬스터 재충전)
+var cooldowns := {}
+## 이번 턴 자원(TurnManager가 턴 시작에 채운다)
+var turn := {}
+var initiative := 0
+
 
 ## 여러 값을 한 번에 넣는다(테스트·데이터 로드용).
 func setup(values: Dictionary) -> Node:
@@ -48,6 +72,7 @@ func setup(values: Dictionary) -> Node:
 			set(key, values[key])
 	if not values.has("hp"):
 		hp = hp_max
+	reset_turn()
 	return self
 
 
@@ -81,7 +106,45 @@ func ac() -> int:
 
 
 func speed() -> int:
-	return 0 if has_flag("speed_zero") else speed_tiles
+	if has_flag("speed_zero"):
+		return 0
+	var value := speed_tiles
+	for m in modifier_entries():
+		var e: Dictionary = m["effect"]
+		if e["type"] == "modify" and e["stat"] == "speed_tiles":
+			value += int(e.get("add", 0))
+	return maxi(value, 0)
+
+
+# ---------- 턴 자원 ----------
+
+## 턴 시작에 행동·보너스 행동·이동·무료 상호작용을 채운다. 반응은 refresh_reaction이 따로 채운다.
+func reset_turn() -> void:
+	var can_act := not is_incapacitated() and not has_flag("cannot_act")
+	turn = {"action": 1 if can_act else 0, "bonus": 1 if can_act else 0, "movement": speed(),
+		"interaction": 1, "attacks_left": 0, "light_attack_done": false, "nick_used": false,
+		"cleave_used": false, "disengaged": false, "reaction": turn.get("reaction", 1)}
+
+
+func refresh_reaction() -> void:
+	turn["reaction"] = 1
+
+
+func can_react() -> bool:
+	return int(turn.get("reaction", 1)) > 0 and not is_incapacitated() and not has_flag("cannot_act") and not dead
+
+
+func reaction_setting(id: String) -> String:
+	return reaction_settings.get(id, "auto" if id == "opportunity_attack" else "ask")
+
+
+## 지금 쥔 무기 ID(main 또는 off). 없으면 "".
+func weapon(hand: String = "main") -> String:
+	return weapon_sets.get(active_set, {}).get(hand, "")
+
+
+func is_hostile_to(other: Node) -> bool:
+	return team != other.team and team != "neutral" and other.team != "neutral"
 
 
 # ---------- 상태 ----------

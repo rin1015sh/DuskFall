@@ -491,6 +491,21 @@
       ],
       "notes_ko": "Faerie Fire 전용(주문 변환표: 윤곽 — 투명·은신 무효, 공격 유리). 룰북 4단계 상태 목록 밖, 주문 효과를 상태로 나타낸 것.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "surprised",
+      "name": {
+        "ko": "기습당함",
+        "en": "Surprised"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "flags": {
+        "cannot_act": true,
+        "speed_zero": true
+      },
+      "notes_ko": "룰북 3단계 기습(BG3 방식): 전투 시작 때 상대를 감지하지 못한 생물은 첫 턴에 이동·행동·반응 불가. 첫 턴이 끝나면 풀린다.",
+      "source": "original"
     }
   ]
 }

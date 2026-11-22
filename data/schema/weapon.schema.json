@@ -1,0 +1,148 @@
+{
+  "$comment": "무기 파일 스키마(룰북 8단계 무기 예시, SRD 5.2.1 Weapons).",
+  "type": "object",
+  "required": [
+    "schema",
+    "weapons"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "weapon_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "weapons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "category",
+          "damage",
+          "damage_type",
+          "properties",
+          "mastery",
+          "weight_kg",
+          "price_gp",
+          "source"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ko": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "en": {
+                "type": "string"
+              }
+            }
+          },
+          "category": {
+            "enum": [
+              "simple_melee",
+              "simple_ranged",
+              "martial_melee",
+              "martial_ranged"
+            ]
+          },
+          "damage": {
+            "type": "string",
+            "pattern": "^([0-9]+d[0-9]+|[0-9]+)$"
+          },
+          "damage_type": {
+            "enum": [
+              "bludgeoning",
+              "piercing",
+              "slashing"
+            ]
+          },
+          "properties": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "ammunition",
+                "finesse",
+                "heavy",
+                "light",
+                "loading",
+                "reach",
+                "thrown",
+                "two_handed",
+                "versatile"
+              ]
+            }
+          },
+          "versatile_damage": {
+            "type": "string",
+            "pattern": "^[0-9]+d[0-9]+$"
+          },
+          "range_tiles": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "ammunition": {
+            "type": "string"
+          },
+          "mastery": {
+            "enum": [
+              "cleave",
+              "graze",
+              "nick",
+              "push",
+              "sap",
+              "slow",
+              "topple",
+              "vex"
+            ]
+          },
+          "weight_kg": {
+            "type": "number",
+            "minimum": 0
+          },
+          "price_gp": {
+            "type": "number",
+            "minimum": 0
+          },
+          "material": {
+            "type": "string"
+          },
+          "sprite_parts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source": {
+            "enum": [
+              "SRD 5.2.1",
+              "original"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

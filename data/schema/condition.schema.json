@@ -234,7 +234,8 @@
           "enum": [
             "srd",
             "environment",
-            "spell"
+            "spell",
+            "combat"
           ]
         },
         "stack": {
@@ -308,6 +309,9 @@
             "weight_multiplier": {
               "type": "number",
               "minimum": 0
+            },
+            "cannot_act": {
+              "type": "boolean"
             }
           }
         },

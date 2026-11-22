@@ -1,0 +1,761 @@
+{
+  "schema": "weapon_v1",
+  "note_ko": "SRD 5.2.1 무기표. 사거리는 칸(5피트 = 1칸), 무게는 kg(1lb = 0.4536kg). 한국어 이름은 현지화 때.",
+  "weapons": [
+    {
+      "id": "club",
+      "name": {
+        "ko": null,
+        "en": "Club"
+      },
+      "category": "simple_melee",
+      "damage": "1d4",
+      "damage_type": "bludgeoning",
+      "properties": [
+        "light"
+      ],
+      "mastery": "slow",
+      "weight_kg": 0.91,
+      "price_gp": 0.1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dagger",
+      "name": {
+        "ko": null,
+        "en": "Dagger"
+      },
+      "category": "simple_melee",
+      "damage": "1d4",
+      "damage_type": "piercing",
+      "properties": [
+        "finesse",
+        "light",
+        "thrown"
+      ],
+      "mastery": "nick",
+      "range_tiles": [
+        4,
+        12
+      ],
+      "weight_kg": 0.45,
+      "price_gp": 2,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "greatclub",
+      "name": {
+        "ko": null,
+        "en": "Greatclub"
+      },
+      "category": "simple_melee",
+      "damage": "1d8",
+      "damage_type": "bludgeoning",
+      "properties": [
+        "two_handed"
+      ],
+      "mastery": "push",
+      "weight_kg": 4.54,
+      "price_gp": 0.2,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "handaxe",
+      "name": {
+        "ko": null,
+        "en": "Handaxe"
+      },
+      "category": "simple_melee",
+      "damage": "1d6",
+      "damage_type": "slashing",
+      "properties": [
+        "light",
+        "thrown"
+      ],
+      "mastery": "vex",
+      "range_tiles": [
+        4,
+        12
+      ],
+      "weight_kg": 0.91,
+      "price_gp": 5,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "javelin",
+      "name": {
+        "ko": null,
+        "en": "Javelin"
+      },
+      "category": "simple_melee",
+      "damage": "1d6",
+      "damage_type": "piercing",
+      "properties": [
+        "thrown"
+      ],
+      "mastery": "slow",
+      "range_tiles": [
+        6,
+        24
+      ],
+      "weight_kg": 0.91,
+      "price_gp": 0.5,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "light_hammer",
+      "name": {
+        "ko": null,
+        "en": "Light Hammer"
+      },
+      "category": "simple_melee",
+      "damage": "1d4",
+      "damage_type": "bludgeoning",
+      "properties": [
+        "light",
+        "thrown"
+      ],
+      "mastery": "nick",
+      "range_tiles": [
+        4,
+        12
+      ],
+      "weight_kg": 0.91,
+      "price_gp": 2,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mace",
+      "name": {
+        "ko": null,
+        "en": "Mace"
+      },
+      "category": "simple_melee",
+      "damage": "1d6",
+      "damage_type": "bludgeoning",
+      "properties": [],
+      "mastery": "sap",
+      "weight_kg": 1.81,
+      "price_gp": 5,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "quarterstaff",
+      "name": {
+        "ko": null,
+        "en": "Quarterstaff"
+      },
+      "category": "simple_melee",
+      "damage": "1d6",
+      "damage_type": "bludgeoning",
+      "properties": [
+        "versatile"
+      ],
+      "mastery": "topple",
+      "versatile_damage": "1d8",
+      "weight_kg": 1.81,
+      "price_gp": 0.2,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sickle",
+      "name": {
+        "ko": null,
+        "en": "Sickle"
+      },
+      "category": "simple_melee",
+      "damage": "1d4",
+      "damage_type": "slashing",
+      "properties": [
+        "light"
+      ],
+      "mastery": "nick",
+      "weight_kg": 0.91,
+      "price_gp": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "spear",
+      "name": {
+        "ko": null,
+        "en": "Spear"
+      },
+      "category": "simple_melee",
+      "damage": "1d6",
+      "damage_type": "piercing",
+      "properties": [
+        "thrown",
+        "versatile"
+      ],
+      "mastery": "sap",
+      "range_tiles": [
+        4,
+        12
+      ],
+      "versatile_damage": "1d8",
+      "weight_kg": 1.36,
+      "price_gp": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dart",
+      "name": {
+        "ko": null,
+        "en": "Dart"
+      },
+      "category": "simple_ranged",
+      "damage": "1d4",
+      "damage_type": "piercing",
+      "properties": [
+        "finesse",
+        "thrown"
+      ],
+      "mastery": "vex",
+      "range_tiles": [
+        4,
+        12
+      ],
+      "weight_kg": 0.11,
+      "price_gp": 0.05,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "light_crossbow",
+      "name": {
+        "ko": null,
+        "en": "Light Crossbow"
+      },
+      "category": "simple_ranged",
+      "damage": "1d8",
+      "damage_type": "piercing",
+      "properties": [
+        "ammunition",
+        "loading",
+        "two_handed"
+      ],
+      "mastery": "slow",
+      "range_tiles": [
+        16,
+        64
+      ],
+      "ammunition": "bolt",
+      "weight_kg": 2.27,
+      "price_gp": 25,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shortbow",
+      "name": {
+        "ko": null,
+        "en": "Shortbow"
+      },
+      "category": "simple_ranged",
+      "damage": "1d6",
+      "damage_type": "piercing",
+      "properties": [
+        "ammunition",
+        "two_handed"
+      ],
+      "mastery": "vex",
+      "range_tiles": [
+        16,
+        64
+      ],
+      "ammunition": "arrow",
+      "weight_kg": 0.91,
+      "price_gp": 25,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sling",
+      "name": {
+        "ko": null,
+        "en": "Sling"
+      },
+      "category": "simple_ranged",
+      "damage": "1d4",
+      "damage_type": "bludgeoning",
+      "properties": [
+        "ammunition"
+      ],
+      "mastery": "slow",
+      "range_tiles": [
+        6,
+        24
+      ],
+      "ammunition": "bullet",
+      "weight_kg": 0.0,
+      "price_gp": 0.1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "battleaxe",
+      "name": {
+        "ko": null,
+        "en": "Battleaxe"
+      },
+      "category": "martial_melee",
+      "damage": "1d8",
+      "damage_type": "slashing",
+      "properties": [
+        "versatile"
+      ],
+      "mastery": "topple",
+      "versatile_damage": "1d10",
+      "weight_kg": 1.81,
+      "price_gp": 10,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "flail",
+      "name": {
+        "ko": null,
+        "en": "Flail"
+      },
+      "category": "martial_melee",
+      "damage": "1d8",
+      "damage_type": "bludgeoning",
+      "properties": [],
+      "mastery": "sap",
+      "weight_kg": 0.91,
+      "price_gp": 10,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "glaive",
+      "name": {
+        "ko": null,
+        "en": "Glaive"
+      },
+      "category": "martial_melee",
+      "damage": "1d10",
+      "damage_type": "slashing",
+      "properties": [
+        "heavy",
+        "reach",
+        "two_handed"
+      ],
+      "mastery": "graze",
+      "weight_kg": 2.72,
+      "price_gp": 20,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "greataxe",
+      "name": {
+        "ko": null,
+        "en": "Greataxe"
+      },
+      "category": "martial_melee",
+      "damage": "1d12",
+      "damage_type": "slashing",
+      "properties": [
+        "heavy",
+        "two_handed"
+      ],
+      "mastery": "cleave",
+      "weight_kg": 3.18,
+      "price_gp": 30,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "greatsword",
+      "name": {
+        "ko": null,
+        "en": "Greatsword"
+      },
+      "category": "martial_melee",
+      "damage": "2d6",
+      "damage_type": "slashing",
+      "properties": [
+        "heavy",
+        "two_handed"
+      ],
+      "mastery": "graze",
+      "weight_kg": 2.72,
+      "price_gp": 50,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "halberd",
+      "name": {
+        "ko": null,
+        "en": "Halberd"
+      },
+      "category": "martial_melee",
+      "damage": "1d10",
+      "damage_type": "slashing",
+      "properties": [
+        "heavy",
+        "reach",
+        "two_handed"
+      ],
+      "mastery": "cleave",
+      "weight_kg": 2.72,
+      "price_gp": 20,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "lance",
+      "name": {
+        "ko": null,
+        "en": "Lance"
+      },
+      "category": "martial_melee",
+      "damage": "1d10",
+      "damage_type": "piercing",
+      "properties": [
+        "heavy",
+        "reach",
+        "two_handed"
+      ],
+      "mastery": "topple",
+      "weight_kg": 2.72,
+      "price_gp": 10,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "longsword",
+      "name": {
+        "ko": null,
+        "en": "Longsword"
+      },
+      "category": "martial_melee",
+      "damage": "1d8",
+      "damage_type": "slashing",
+      "properties": [
+        "versatile"
+      ],
+      "mastery": "sap",
+      "versatile_damage": "1d10",
+      "weight_kg": 1.36,
+      "price_gp": 15,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "maul",
+      "name": {
+        "ko": null,
+        "en": "Maul"
+      },
+      "category": "martial_melee",
+      "damage": "2d6",
+      "damage_type": "bludgeoning",
+      "properties": [
+        "heavy",
+        "two_handed"
+      ],
+      "mastery": "topple",
+      "weight_kg": 4.54,
+      "price_gp": 10,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "morningstar",
+      "name": {
+        "ko": null,
+        "en": "Morningstar"
+      },
+      "category": "martial_melee",
+      "damage": "1d8",
+      "damage_type": "piercing",
+      "properties": [],
+      "mastery": "sap",
+      "weight_kg": 1.81,
+      "price_gp": 15,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "pike",
+      "name": {
+        "ko": null,
+        "en": "Pike"
+      },
+      "category": "martial_melee",
+      "damage": "1d10",
+      "damage_type": "piercing",
+      "properties": [
+        "heavy",
+        "reach",
+        "two_handed"
+      ],
+      "mastery": "push",
+      "weight_kg": 8.16,
+      "price_gp": 5,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "rapier",
+      "name": {
+        "ko": null,
+        "en": "Rapier"
+      },
+      "category": "martial_melee",
+      "damage": "1d8",
+      "damage_type": "piercing",
+      "properties": [
+        "finesse"
+      ],
+      "mastery": "vex",
+      "weight_kg": 0.91,
+      "price_gp": 25,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "scimitar",
+      "name": {
+        "ko": null,
+        "en": "Scimitar"
+      },
+      "category": "martial_melee",
+      "damage": "1d6",
+      "damage_type": "slashing",
+      "properties": [
+        "finesse",
+        "light"
+      ],
+      "mastery": "nick",
+      "weight_kg": 1.36,
+      "price_gp": 25,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shortsword",
+      "name": {
+        "ko": null,
+        "en": "Shortsword"
+      },
+      "category": "martial_melee",
+      "damage": "1d6",
+      "damage_type": "piercing",
+      "properties": [
+        "finesse",
+        "light"
+      ],
+      "mastery": "vex",
+      "weight_kg": 0.91,
+      "price_gp": 10,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "trident",
+      "name": {
+        "ko": null,
+        "en": "Trident"
+      },
+      "category": "martial_melee",
+      "damage": "1d8",
+      "damage_type": "piercing",
+      "properties": [
+        "thrown",
+        "versatile"
+      ],
+      "mastery": "topple",
+      "range_tiles": [
+        4,
+        12
+      ],
+      "versatile_damage": "1d10",
+      "weight_kg": 1.81,
+      "price_gp": 5,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "warhammer",
+      "name": {
+        "ko": null,
+        "en": "Warhammer"
+      },
+      "category": "martial_melee",
+      "damage": "1d8",
+      "damage_type": "bludgeoning",
+      "properties": [
+        "versatile"
+      ],
+      "mastery": "push",
+      "versatile_damage": "1d10",
+      "weight_kg": 2.27,
+      "price_gp": 15,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "war_pick",
+      "name": {
+        "ko": null,
+        "en": "War Pick"
+      },
+      "category": "martial_melee",
+      "damage": "1d8",
+      "damage_type": "piercing",
+      "properties": [
+        "versatile"
+      ],
+      "mastery": "sap",
+      "versatile_damage": "1d10",
+      "weight_kg": 0.91,
+      "price_gp": 5,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "whip",
+      "name": {
+        "ko": null,
+        "en": "Whip"
+      },
+      "category": "martial_melee",
+      "damage": "1d4",
+      "damage_type": "slashing",
+      "properties": [
+        "finesse",
+        "reach"
+      ],
+      "mastery": "slow",
+      "weight_kg": 1.36,
+      "price_gp": 2,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "blowgun",
+      "name": {
+        "ko": null,
+        "en": "Blowgun"
+      },
+      "category": "martial_ranged",
+      "damage": "1",
+      "damage_type": "piercing",
+      "properties": [
+        "ammunition",
+        "loading"
+      ],
+      "mastery": "vex",
+      "range_tiles": [
+        5,
+        20
+      ],
+      "ammunition": "needle",
+      "weight_kg": 0.45,
+      "price_gp": 10,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "hand_crossbow",
+      "name": {
+        "ko": null,
+        "en": "Hand Crossbow"
+      },
+      "category": "martial_ranged",
+      "damage": "1d6",
+      "damage_type": "piercing",
+      "properties": [
+        "ammunition",
+        "light",
+        "loading"
+      ],
+      "mastery": "vex",
+      "range_tiles": [
+        6,
+        24
+      ],
+      "ammunition": "bolt",
+      "weight_kg": 1.36,
+      "price_gp": 75,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "heavy_crossbow",
+      "name": {
+        "ko": null,
+        "en": "Heavy Crossbow"
+      },
+      "category": "martial_ranged",
+      "damage": "1d10",
+      "damage_type": "piercing",
+      "properties": [
+        "ammunition",
+        "heavy",
+        "loading",
+        "two_handed"
+      ],
+      "mastery": "push",
+      "range_tiles": [
+        20,
+        80
+      ],
+      "ammunition": "bolt",
+      "weight_kg": 8.16,
+      "price_gp": 50,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "longbow",
+      "name": {
+        "ko": null,
+        "en": "Longbow"
+      },
+      "category": "martial_ranged",
+      "damage": "1d8",
+      "damage_type": "piercing",
+      "properties": [
+        "ammunition",
+        "heavy",
+        "two_handed"
+      ],
+      "mastery": "slow",
+      "range_tiles": [
+        30,
+        120
+      ],
+      "ammunition": "arrow",
+      "weight_kg": 0.91,
+      "price_gp": 50,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "musket",
+      "name": {
+        "ko": null,
+        "en": "Musket"
+      },
+      "category": "martial_ranged",
+      "damage": "1d12",
+      "damage_type": "piercing",
+      "properties": [
+        "ammunition",
+        "loading",
+        "two_handed"
+      ],
+      "mastery": "slow",
+      "range_tiles": [
+        8,
+        24
+      ],
+      "ammunition": "bullet",
+      "weight_kg": 4.54,
+      "price_gp": 500,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "pistol",
+      "name": {
+        "ko": null,
+        "en": "Pistol"
+      },
+      "category": "martial_ranged",
+      "damage": "1d10",
+      "damage_type": "piercing",
+      "properties": [
+        "ammunition",
+        "loading"
+      ],
+      "mastery": "vex",
+      "range_tiles": [
+        6,
+        18
+      ],
+      "ammunition": "bullet",
+      "weight_kg": 1.36,
+      "price_gp": 250,
+      "source": "SRD 5.2.1"
+    }
+  ]
+}
