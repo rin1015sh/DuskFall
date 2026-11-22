@@ -73,6 +73,6 @@ res://
 
 ## Godot
 
-- Godot 4.3 이상. 실행 파일: `godot` (다르면 여기를 고친다)
+- Godot 4.7(GL Compatibility). 실행 파일: `godot` (다르면 여기를 고친다)
 - 데이터 검증: `godot --headless --path . -s res://tools/validate_data.gd`
 - 테스트: `godot --headless --path . -s res://tests/run_all.gd`
