@@ -171,3 +171,18 @@ func test_manual_turn_mode_party_only() -> void:
 	w["turns"].start_manual([p1, p2])
 	assert_eq(w["turns"].mode, "manual")
 	assert_eq(w["turns"].current_group().size(), 2)
+
+
+func test_party_wipe_is_defeat() -> void:
+	var w := _zone_world()
+	var p := _pc(10)
+	var e := _foe(10)
+	w["grid"].place(p, Vector2i(0, 0))
+	w["grid"].place(e, Vector2i(3, 0))
+	Dice.force([2, 1, 20, 1])
+	w["turns"].start_combat("camp")
+	preload("res://scripts/rules/resolver.gd").apply_damage(p, [{"amount": 20, "damage_type": "slashing"}])
+	w["turns"].end_turn(e)
+	assert_false(w["turns"].in_combat)
+	assert_eq(w["turns"].result, "defeat", "활성 파티 전원이 쓰러지면 게임 오버(7단계)")
+	assert_eq(p.hp, 0, "일으키지 않는다")

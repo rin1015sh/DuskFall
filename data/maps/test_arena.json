@@ -1,0 +1,154 @@
+{
+  "schema": "map_v1",
+  "id": "test_arena",
+  "name": {
+    "ko": "시험 동굴",
+    "en": "Test Cave"
+  },
+  "note_ko": "4단계 최소 화면 시험 맵. 풀밭(가연성)·물웅덩이·2단계 바위 턱(오르기 지점)·기름통.",
+  "legend": {
+    "#": {
+      "flags": [
+        "wall"
+      ]
+    },
+    ".": {
+      "material": "stone"
+    },
+    ",": {
+      "material": "grass"
+    },
+    "~": {
+      "material": "stone",
+      "surface": "water"
+    },
+    "2": {
+      "material": "stone",
+      "height": 2
+    }
+  },
+  "rows": [
+    "################",
+    "#..............#",
+    "#..,,,,,....22.#",
+    "#..,,,,,...222.#",
+    "#..,,,,....222.#",
+    "#.....##...222.#",
+    "#..........~~..#",
+    "#..,,,.....~~..#",
+    "#..,,,,........#",
+    "#...........#..#",
+    "#..............#",
+    "################"
+  ],
+  "light": "dim",
+  "light_sources": [
+    {
+      "id": "brazier",
+      "cell": [
+        7,
+        6
+      ],
+      "bright": 3,
+      "dim": 3
+    }
+  ],
+  "flags": [
+    {
+      "cell": [
+        10,
+        4
+      ],
+      "flags": [
+        "climb"
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "id": "arena",
+      "rect": [
+        1,
+        1,
+        14,
+        10
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "cell": [
+        8,
+        3
+      ],
+      "id": "oil_barrel",
+      "material": "wood",
+      "hp": 4,
+      "ac": 15,
+      "weight_kg": 60,
+      "contents": {
+        "surface": "oil",
+        "radius": 1
+      }
+    }
+  ],
+  "spawns": [
+    {
+      "id": "fighter",
+      "cell": [
+        3,
+        8
+      ]
+    },
+    {
+      "id": "rogue",
+      "cell": [
+        2,
+        7
+      ]
+    },
+    {
+      "id": "cleric",
+      "cell": [
+        2,
+        9
+      ]
+    },
+    {
+      "id": "wizard",
+      "cell": [
+        1,
+        8
+      ]
+    },
+    {
+      "id": "goblin_a",
+      "cell": [
+        12,
+        3
+      ]
+    },
+    {
+      "id": "goblin_b",
+      "cell": [
+        13,
+        4
+      ]
+    },
+    {
+      "id": "goblin_c",
+      "cell": [
+        11,
+        8
+      ]
+    },
+    {
+      "id": "goblin_d",
+      "cell": [
+        13,
+        9
+      ]
+    }
+  ],
+  "source": "original"
+}

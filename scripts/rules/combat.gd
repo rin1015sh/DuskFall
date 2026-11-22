@@ -84,7 +84,12 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	var dis: Array = []
 	if "heavy" in props and ((not ranged and c.abilities["str"] < 13) or (ranged and c.abilities["dex"] < 13)):
 		dis.append("무거운 무기")
+	var extra_adv: Array = []
+	for r: Dictionary in c.attack_riders:
+		if r.get("when", "") == "advantage":
+			extra_adv.append({"dice": r["dice"], "damage_type": r.get("damage_type", w["damage_type"])})
 	return {"name": w.get("name", {}).get("en", w["id"]) if w.has("name") else w["id"], "weapon_id": w["id"],
+		"extra_if_advantage": extra_adv,
 		"bonus": mod + (c.proficiency_bonus if proficient else 0), "ability": ability, "ability_mod": mod,
 		"kind": "ranged" if ranged else "melee", "weapon": true, "properties": props,
 		"mastery": w.get("mastery", "") if c.weapon_masteries.has(w["id"]) else "",
@@ -376,6 +381,18 @@ static func _opportunity_attacks(world: Dictionary, mover: Node, cur: Vector2i, 
 # ======================================================================
 # 공통 행동
 # ======================================================================
+
+## 넘어짐에서 일어서기: 속도의 절반(내림) 소모. 속도가 0이면 못 일어선다(SRD Prone, 3단계).
+static func stand_up(c: Node) -> Dictionary:
+	if not c.has_condition("prone"):
+		return _fail("넘어지지 않았다")
+	var cost: int = c.speed() / 2
+	if c.speed() == 0 or int(c.turn.get("movement", 0)) < cost:
+		return _fail("이동력이 모자란다")
+	c.turn["movement"] = int(c.turn["movement"]) - cost
+	c.remove_condition("prone")
+	return {"ok": true, "cost": cost}
+
 
 static func dash(c: Node) -> Dictionary:
 	if not spend(c, "action"):

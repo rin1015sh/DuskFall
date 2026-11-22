@@ -20,6 +20,8 @@ var group_index := 0
 var _done := {}
 var _pending: Array = []
 var _tiebreak := {}
+## 마지막 전투 결과: "" | "victory" | "defeat"(활성 파티 전원이 죽거나 쓰러짐 — 7단계 게임 오버) | "fled"
+var result := ""
 
 
 func setup(w: Dictionary) -> Node:
@@ -110,12 +112,14 @@ func start_manual(party: Array) -> void:
 	_begin_group()
 
 
-func end_combat() -> void:
+func end_combat(outcome: String = "victory") -> void:
 	in_combat = false
 	mode = "realtime"
-	# 쓰러진 캐릭터는 전투가 끝나면 안정 상태로 HP 1이 되어 일어난다(7단계 안정 상태·전투 밖 쓰러짐).
+	result = outcome
+	# 이기면 쓰러진 캐릭터는 안정 상태로 HP 1이 되어 일어난다(7단계 안정 상태·전투 밖 쓰러짐).
+	# 전멸이면 게임 오버라 일으키지 않는다.
 	for c: Node in order:
-		if c.is_player_character and c.is_down():
+		if outcome != "defeat" and c.is_player_character and c.is_down():
 			c.stable = true
 			Resolver.heal(c, 1, "combat_end")
 		c.remove_condition("surprised")
@@ -137,8 +141,11 @@ func check_end() -> bool:
 			party_alive = true
 		elif c.team == "enemy":
 			foes_alive = true
-	if not foes_alive or not party_alive:
-		end_combat()
+	if not party_alive:
+		end_combat("defeat")
+		return true
+	if not foes_alive:
+		end_combat("victory")
 		return true
 	return false
 

@@ -60,6 +60,12 @@ var cooldowns := {}
 ## 이번 턴 자원(TurnManager가 턴 시작에 채운다)
 var turn := {}
 var initiative := 0
+## 캐릭터 레벨(소마법 강화 등), 주문 시전 능력, 쓸 수 있는 주문 ID
+var level := 1
+var spellcasting_ability := ""
+var spells := []
+## 무기 공격에 붙는 추가 피해(예: 고블린 '유리면 +1d4'): [{"dice", "damage_type"(없으면 무기 유형), "when": "advantage"}]
+var attack_riders: Array = []
 
 
 ## 여러 값을 한 번에 넣는다(테스트·데이터 로드용).

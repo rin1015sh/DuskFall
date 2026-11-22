@@ -310,7 +310,10 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 		var before: int = target.hp
 		target.hp = maxi(before - rest, 0)
 		out["hp_lost"] = before - target.hp
-	Dice.log_text("%s 피해 %d %s → HP %d/%d%s" % [target.label(), total, str(out["by_type"]), target.hp,
+	var parts_text: PackedStringArray = []
+	for t: String in out["by_type"].keys():
+		parts_text.append("%s %d" % [t, out["by_type"][t]])
+	Dice.log_text("%s 피해 %d (%s) → HP %d/%d%s" % [target.label(), total, ", ".join(parts_text), target.hp,
 		target.hp_max, " (임시 HP %d 흡수)" % absorbed if absorbed > 0 else ""])
 	EventBus.on_damage_taken.emit(info)
 	# 집중 유지 내성(피해를 받으면 — 임시 HP가 막아도 받은 것이다)
@@ -487,7 +490,7 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 ## 결과: 대상마다 {"target", "save", "damage"}.
 static func save_effect(targets: Array, check: Dictionary, fail: Array, success: Array = [],
 		opts: Dictionary = {}) -> Array:
-	var rolled := {}
+	var rolled: Dictionary = opts.get("rolled", {})  # 바깥에서 굴린 값을 함께 쓰려면 넘긴다(칸 반응 등)
 	var out: Array = []
 	var saves: Array = []
 	for t: Node in targets:

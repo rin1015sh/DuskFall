@@ -204,3 +204,11 @@ func test_throw_object() -> void:
 	assert_true(r["hit"])
 	assert_eq(r["throw"]["damage"]["total"], 3, "10~50kg → 1d4")
 	assert_true(r["throw"]["pushed"], "대상 무게 절반 초과 → 1칸")
+
+
+func test_stand_up_costs_half_speed() -> void:
+	var f := _fighter()
+	f.apply_condition("prone", -1)
+	assert_true(Combat.stand_up(f)["ok"])
+	assert_eq(f.turn["movement"], 3, "속도 6의 절반")
+	assert_false(f.has_condition("prone"))

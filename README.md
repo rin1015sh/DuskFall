@@ -1,11 +1,11 @@
 # DuskFall
 
-2D 3/4 쿼터뷰 격자 턴제 파티 던전 크롤러 (Godot 4.7, GL Compatibility). 규칙은 D&D 5판 SRD 5.2 예정.
+쿼터뷰 격자 파티 RPG (Godot 4.7, GL Compatibility). 규칙은 SRD 5.2.1을 BG3식으로 개편한 룰북(`docs/rules/rulebook.md`), 작업 안내는 `CLAUDE.md`.
 
 ## 여는 법
 
 Godot 4.7을 켜고 프로젝트 관리자에서 **가져오기(Import)** → 이 폴더의 `project.godot`를 고른다. 처음 열 때 그림을 가져오느라 몇 분 걸린다.
-아직 코드 · 메인 씬은 없다(실행 버튼을 누르면 메인 씬을 고르라고 한다).
+실행하면 4단계 시험 전투(`scenes/battle/battle_scene.tscn`)가 열린다 — 4인 파티 대 고블린 전사 4. 조작: 마우스 올리기 = 미리보기, 클릭 = 실행, 휠 = 확대, 오른쪽 끌기 = 화면 이동(터치는 `docs/WEB_EXPORT.md`).
 
 ## 들어 있는 것
 
