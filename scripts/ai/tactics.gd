@@ -1,7 +1,7 @@
 extends RefCounted
 ## 전술 AI(구현 어려운 것 묶음 2): 단순 AI 앞에서 한 번 '좋은 수'를 찾아 쓴다. 규칙은 Combat·Physics·Spellcasting이 처리한다.
 ##   1. 목표 고르기: 가깝고, HP 비율이 낮고, 집중 중인 시전자를 먼저(쓰러진 적은 노리지 않음 — 보통 난이도).
-##   2. 위험 지형 밀치기: 인접 적을 2단계 이상 낙하나 피해 표면으로 밀 수 있으면(성공 확률 35% 이상) 보너스 행동으로 민다.
+##   2. 위험 지형 밀치기(파티 AI만 — 적은 밀치기를 쓰지 않음): 인접 적을 2단계 이상 낙하나 피해 표면으로 밀 수 있으면(성공 확률 35% 이상) 보너스 행동으로 민다.
 ##   3. 폭발물: 내용물이 있는 물체(기름통 등) 반경 안에 적이 둘 이상이고 아군이 없으면 그 물체를 쏜다.
 ##   4. 고지: 원거리 공격자는 이동력 안에서 2단계 이상 높고, 목표가 사거리·시야 안이며, 적과 붙지 않는 칸으로 먼저 간다.
 ##   5. 물약: 파티원은 HP 30% 이하이고 물약이 있으면 보너스 행동으로 마신다.
@@ -70,7 +70,8 @@ static func _hazard(grid: Node, cell: Vector2i) -> bool:
 
 
 static func _shove_hazard(world: Dictionary, c: Node) -> bool:
-	if int(c.turn.get("bonus", 0)) <= 0:
+	# 적은 밀치기를 쓰지 않는다(사용자 결정 2026-11-22). 파티 AI(자동 전투)만 쓴다.
+	if c.team != "party" or c.has_meta("monster") or int(c.turn.get("bonus", 0)) <= 0:
 		return false
 	var grid: Node = world["grid"]
 	for o: Node in grid.creatures():

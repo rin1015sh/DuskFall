@@ -91,3 +91,14 @@ func test_searching_enemy_walks_to_last_position() -> void:
 	p.sneaking = true
 	ex.tick()
 	assert_eq(w["grid"].cell_of(o), Vector2i(6, 0), "마지막 위치 쪽으로 3칸")
+
+
+func test_enemies_never_shove() -> void:
+	var w := make_world(["220000"])
+	var e := _foe({"abilities": {"str": 18, "dex": 10}})
+	var p := make_creature({"team": "party", "hp_max": 20, "weight_kg": 30.0, "abilities": {"str": 3, "dex": 3}})
+	w["grid"].place(e, Vector2i(0, 0))
+	w["grid"].place(p, Vector2i(1, 0))
+	Tactics.pre_turn(w, e)
+	assert_eq(w["grid"].cell_of(p), Vector2i(1, 0), "적은 밀치기를 쓰지 않는다")
+	assert_eq(int(e.turn["bonus"]), 1)
