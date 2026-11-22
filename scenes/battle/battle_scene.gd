@@ -103,10 +103,7 @@ class Highlights extends Node2D:
 			_explore_marks(g)
 		var partial: Array = d.get("partial", [])
 		for c: Vector2i in d.get("area", []):
-			if c in partial:
-				_cell(g, c, Color(1, 0.55, 0.1, 0.14), Color(1, 0.6, 0.2, 0.35))  # 걸친 칸(절반 엄폐)
-			else:
-				_cell(g, c, Color(1, 0.55, 0.1, 0.33), Color(1, 0.6, 0.2, 0.0))
+			_cell(g, c, Color(1, 0.55, 0.1, 0.33), Color(1, 0.6, 0.2, 0.0))  # 걸친 칸도 똑같이 맞는다
 		_shape_outline(d.get("shape", {}), Color(1, 0.75, 0.35, 0.95))
 		for c: Vector2i in d.get("path", []):
 			_cell(g, c, Color(0.3, 0.6, 1.0, 0.3), Color(0.4, 0.7, 1.0, 0.8))
@@ -150,7 +147,7 @@ class Highlights extends Node2D:
 				var cov: Dictionary = Stealth.cone_coverage(g, o)
 				for c: Vector2i in cov:
 					var l: int = g.light_at(c)
-					var k := 1.0 if float(cov[c]) >= 0.75 else 0.45  # 가장자리에 걸친 칸은 옅게(밝아도 은신 판정)
+					var k := 1.0  # 걸친 칸도 시야 안(완전히 벗어난 칸만 안전)
 					if l == 2:
 						_cell(g, c, Color(1, 0.15, 0.1, 0.30 * k), Color(1, 0.2, 0.1, 0.0))
 					elif l == 1:

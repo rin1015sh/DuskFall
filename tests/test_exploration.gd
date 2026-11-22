@@ -222,7 +222,7 @@ func test_visible_check_assist_and_inspiration() -> void:
 	assert_eq(pv["chance"], 0.4)
 
 
-func test_cone_edge_gives_stealth_check_even_in_bright() -> void:
+func test_cone_edge_counts_as_in_sight() -> void:
 	var g := make_grid(["..........", "..........", "..........", ".........."])
 	var o := _guard(Vector2i(1, 0))
 	var p := _sneak()
@@ -235,4 +235,4 @@ func test_cone_edge_gives_stealth_check_even_in_bright() -> void:
 			break
 	assert_true(edge.x >= 0, "원뿔 가장자리에 걸친 칸이 있다")
 	g.place(p, edge)
-	assert_eq(Stealth.sight_of(g, o, p), "dim", "밝아도 가장자리는 곁눈(은신 판정)")
+	assert_eq(Stealth.sight_of(g, o, p), "bright", "걸친 칸도 시야 안: 밝으면 발견(완전히 벗어나야 안전)")

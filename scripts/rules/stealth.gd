@@ -71,8 +71,6 @@ static func sight_of(grid: Node, observer: Node, target: Node) -> String:
 		best = mini(best, grid.obscurity_for(observer, c))
 	if target.has_condition("invisible") and not (observer.senses.has("see_invisible") or observer.senses.has("truesight")):
 		best = 2
-	if best == 0 and cone_fraction(grid, observer, target) < Area.FULL:
-		best = 1  # 원뿔 가장자리에 걸침: 밝아도 곁눈 — 은신 판정을 준다(changes.md)
 	return ["bright", "dim", "dark"][best]
 
 

@@ -265,9 +265,6 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 				out["area"] = p["cells"]
 				out["partial"] = p.get("partial", [])
 				out["shape"] = p.get("shape", {})
-				for row: Dictionary in p["targets"]:
-					if row.has("cover"):
-						out["lines"].append("%s: 범위에 걸침 — 절반 엄폐 +2" % row["creature"].label())
 				if not p["valid"]:
 					out["lines"].append(p["reason"])
 				for row: Dictionary in p["targets"]:
