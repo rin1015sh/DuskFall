@@ -1,0 +1,70 @@
+{
+  "$comment": "shop 파일 스키마(상점: 재고·되팔기 비율).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "shops"
+  ],
+  "properties": {
+    "schema": {
+      "const": "shop_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "shops": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "stock",
+          "sell_rate",
+          "source"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "object"
+          },
+          "stock": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "item",
+                "count"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "item": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "price_mult": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "sell_rate": {
+            "type": "number"
+          },
+          "source": {
+            "enum": [
+              "SRD 5.2.1",
+              "original"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

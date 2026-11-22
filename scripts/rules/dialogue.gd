@@ -171,6 +171,13 @@ func _apply(effects: Array) -> void:
 							o.team = "enemy"
 					if world.get("explore") != null:
 						world["explore"].hostile_action(speaker, npc)
+			"open_shop":
+				world["pending_ui"] = {"shop": e["shop"]}
+			"camp_revive":
+				var Rest: Variant = load("res://scripts/rules/rest.gd")
+				for c: Node in world.get("party", []) + world.get("roster", []):
+					if c.dead:
+						Rest.camp_revive(world, c)
 			"pacify":
 				# 평화 해결: 상대 세력 전원이 중립이 된다(구역 보상은 적이 남지 않으면 받는다)
 				if npc != null:

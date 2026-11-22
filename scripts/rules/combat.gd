@@ -186,6 +186,34 @@ static func _after_attack_features(world: Dictionary, attacker: Node, target: No
 			"opts": {"option": res["cunning_strike"]}})
 
 
+## 물체 공격(4단계 물체 AC·HP): 쥔 무기 세트로 칸의 물체를 친다. 맞으면 무기 피해를 칸 피해로(재질 반응·파괴·내용물).
+static func attack_object(world: Dictionary, attacker: Node, cell: Vector2i, opts: Dictionary = {}) -> Dictionary:
+	var grid: Node = world["grid"]
+	var obj: Dictionary = grid.object_at(cell)
+	if obj.is_empty():
+		return _fail("물체가 없다")
+	var wid: String = opts.get("weapon", attacker.weapon("main"))
+	var atk := build_weapon_attack(attacker, wid, opts)
+	var reach: int = atk["range_tiles"][1] if atk["kind"] == "ranged" else reach_of(attacker)
+	if grid.distance(grid.cell_of(attacker), cell) > reach:
+		return _fail("닿지 않는다")
+	if int(attacker.turn.get("attacks_left", 0)) <= 0:
+		if not spend(attacker, "action"):
+			return _fail("행동이 없다")
+		attacker.turn["attacks_left"] = attacker.attacks_per_action
+	attacker.turn["attacks_left"] -= 1
+	var d := Dice.d20(0, "%s → 물체" % attacker.label())
+	var total: int = d["natural"] + int(atk["bonus"])
+	var hit: bool = d["natural"] == 20 or (d["natural"] != 1 and total >= int(obj.get("ac", 10)))
+	Dice.log_text("%s → %s: %d vs AC %d → %s" % [attacker.label(), obj.get("id", "물체"), total, int(obj.get("ac", 10)), "명중" if hit else "빗나감"])
+	if hit and world.get("surfaces") != null:
+		var dmg: int = Dice.roll(atk["damage"][0]["dice"], "물체 피해")["total"]
+		world["surfaces"].tile_damage([cell], atk["damage"][0]["damage_type"], maxi(dmg, 1), attacker)
+	if world.get("turns") != null:
+		world["turns"].notify_hostile_action(attacker)
+	return {"ok": true, "hit": hit}
+
+
 ## 가벼운 무기 보조 공격(보너스 행동). 같은 턴 공격 행동에서 가벼운 무기로 공격했어야 한다.
 ## 다른 가벼운 무기로, 피해에 능력 수정치 없음. Nick 마스터리면 보너스 행동 대신 공격 행동의 일부(턴당 1회).
 static func offhand_attack(world: Dictionary, attacker: Node, target: Node) -> Dictionary:

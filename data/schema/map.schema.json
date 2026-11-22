@@ -668,6 +668,54 @@
           }
         }
       }
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "cell",
+          "to",
+          "spawn",
+          "name"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "cell": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "to": {
+            "type": "string"
+          },
+          "spawn": {
+            "type": "string"
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "properties": {
+              "ko": {
+                "type": "string"
+              },
+              "en": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "camp": {
+      "type": "boolean"
     }
   }
 }

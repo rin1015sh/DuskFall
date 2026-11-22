@@ -17,6 +17,9 @@ var linked := {}
 ## 전투 시작 알림: [{"zone", "surprised", "reason"}]
 var combat_requests: Array = []
 var _moving := false
+## 전투 중 구역 밖 파티원의 실시간 이동력(라운드마다 속도만큼, 직접 움직인 파티원은 자동 따라오기에서 뺀다)
+var rt_budget := {}
+var rt_manual := {}
 
 
 func setup(w: Dictionary, p: Array) -> Node:
@@ -216,6 +219,10 @@ func _on_enter_tile(c: Object, cell: Vector2i) -> void:
 			Interact.trigger(world, t, c)
 	if in_combat():
 		return
+	if c == leader:
+		for tr: Dictionary in world.get("transitions", []):
+			if Vector2i(int(tr["cell"][0]), int(tr["cell"][1])) == cell:
+				world["pending_travel"] = {"to": tr["to"], "spawn": tr["spawn"]}  # 화면이 맵을 바꾼다
 	if c in party:
 		Interact.on_party_enter(world, c)
 		_check_cones_for(c)
@@ -269,9 +276,35 @@ func _talker_of(o: Node) -> Node:
 
 ## 전투 중 구역 밖 파티원: 실시간으로 계속 움직여(라운드마다 속도만큼) 전투 중인 파티원 쪽으로 간다.
 ## 구역에 들어오면 TurnManager가 다음 라운드에 합류시킨다(3단계 전투 참가).
+## 전투 중 구역 밖 파티원을 직접 옮긴다(실시간, 라운드마다 속도만큼). 결과: 옮긴 칸 수.
+func realtime_move(c: Node, to: Vector2i) -> int:
+	if not in_combat() or c in world["turns"].order or c in world["turns"]._pending:
+		return 0
+	var grid: Node = world["grid"]
+	var p: Dictionary = grid.find_path(c, to, -1, party)
+	if p.is_empty():
+		return 0
+	rt_manual[c] = true
+	var budget: int = int(rt_budget.get(c, c.speed()))
+	var steps := 0
+	for nxt: Vector2i in p["path"]:
+		if steps >= budget or grid.creature_at(nxt) != null:
+			break
+		c.facing = Vector2i(signi(nxt.x - grid.cell_of(c).x), signi(nxt.y - grid.cell_of(c).y))
+		grid.move_creature(c, nxt)
+		steps += 1
+		if c in world["turns"]._pending:
+			break  # 구역에 들어왔다 — 다음 라운드에 합류
+	rt_budget[c] = budget - steps
+	return steps
+
+
 func _on_round_end() -> void:
 	if not in_combat() or world.is_empty():
 		return
+	var manual := rt_manual.duplicate()
+	rt_budget.clear()
+	rt_manual.clear()
 	var tm: Node = world["turns"]
 	var grid: Node = world["grid"]
 	var fighting: Array = party.filter(func(o: Node) -> bool: return o in tm.order and not o.dead)
@@ -279,7 +312,7 @@ func _on_round_end() -> void:
 		return
 	var anchor: Node = fighting[0]
 	for o: Node in party:
-		if o in tm.order or o.dead or o.is_down() or not linked.get(o, false) or not grid.creatures().has(o):
+		if o in tm.order or o.dead or o.is_down() or not linked.get(o, false) or not grid.creatures().has(o) or manual.has(o):
 			continue
 		var best := {}
 		for dy in [-1, 0, 1]:
@@ -327,12 +360,31 @@ func tick() -> void:
 			if in_combat():
 				return
 			var aw: Dictionary = o.awareness.get(p, {})
+			if aw.get("state", "") == "searching" and aw.has("last"):
+				_walk_toward(o, aw["last"], 3)  # 수색: 마지막 위치 쪽으로(5단계 '수색은 마지막 위치 주변')
 			if aw.get("state", "") in ["suspicious", "searching"]:
 				if Stealth.search(grid, o, p) == "alerted":
 					_request_combat(o, [], "수색", [p])
 					continue
 			if Stealth.in_cone(grid, o, p):
 				_observe(o, p, true)
+
+
+## 실시간 적 이동: 칸 쪽으로 최대 n칸(틱 6초 — 걸음 반)
+func _walk_toward(o: Node, cell: Vector2i, n: int) -> void:
+	var grid: Node = world["grid"]
+	if o.speed() <= 0 or grid.distance(grid.cell_of(o), cell) <= 1:
+		return
+	var p: Dictionary = grid.find_path(o, cell, -1, [])
+	if p.is_empty():
+		return
+	var steps := 0
+	for nxt: Vector2i in p["path"]:
+		if steps >= n or grid.creature_at(nxt) != null or in_combat():
+			break
+		o.facing = Vector2i(signi(nxt.x - grid.cell_of(o).x), signi(nxt.y - grid.cell_of(o).y))
+		grid.move_creature(o, nxt)
+		steps += 1
 
 
 ## 알아챔이 시간이 지나면 풀린다: 의심 10턴(1분), 수색 100턴(10분). 발견은 전투로 이어지므로 그대로(changes.md).

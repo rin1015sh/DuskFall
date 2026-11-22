@@ -7,6 +7,8 @@ const Combat := preload("res://scripts/rules/combat.gd")
 const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
 
 
+const Tactics := preload("res://scripts/ai/tactics.gd")
+
 static func take_turn(world: Dictionary, c: Node) -> void:
 	if c.dead or c.is_down() or c.has_flag("cannot_act"):
 		return
@@ -35,13 +37,14 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 		Features.use(world, c, "second_wind")
 	if c.resource("action_surge") > 0 and _foes(world, c).size() >= 2:
 		Features.use(world, c, "action_surge")
+	Tactics.pre_turn(world, c)
 	_cast_best_area(world, c)
 	_light_up(world, c)
 	# 2. 공격 행동
 	var guard := 0
 	while guard < 6 and not c.dead and not c.is_down():
 		guard += 1
-		var foe := _nearest_foe(world, c)
+		var foe := Tactics.pick_target(world, c)
 		if foe == null:
 			return
 		if int(c.turn.get("action", 0)) <= 0 and int(c.turn.get("attacks_left", 0)) <= 0:
@@ -146,10 +149,11 @@ static func monster_turn(world: Dictionary, m: Node) -> void:
 	if m.has_condition("restrained") and m.condition_instance("restrained").get("params", {}).has("escape_dc"):
 		Combat.escape(world, m)
 		return
+	Tactics.pre_turn(world, m)
 	var guard := 0
 	while guard < 8 and not m.dead and not m.is_down():
 		guard += 1
-		var foe := _nearest_foe(world, m)
+		var foe := Tactics.pick_target(world, m)
 		if foe == null:
 			return
 		if int(m.turn.get("action", 0)) <= 0 and int(m.turn.get("attacks_left", 0)) <= 0:

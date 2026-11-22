@@ -188,6 +188,9 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 	var out := {"valid": true, "lines": []}
 	match d.get("target", "self"):
 		"enemy":
+			if t == null and key in ["attack", "ranged_attack"] and not grid.object_at(cell).is_empty():
+				var obj: Dictionary = grid.object_at(cell)
+				return {"valid": true, "lines": ["%s 공격(AC %d, HP %d)" % [obj.get("id", "물체"), int(obj.get("ac", 10)), int(obj.get("hp", 1))]], "object": true}
 			if t == null or not c.is_hostile_to(t) or t.dead:
 				return {"valid": false, "lines": ["적을 골라야 한다"]}
 		"ally", "ally_down":
@@ -307,10 +310,14 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 		"attack":
 			if c.active_set != "melee":
 				Combat.switch_weapon_set(c)
+			if t == null:
+				return Combat.attack_object(world, c, cell)
 			return Combat.attack(world, c, t)
 		"ranged_attack":
 			if c.active_set != "ranged":
 				Combat.switch_weapon_set(c)
+			if t == null:
+				return Combat.attack_object(world, c, cell)
 			return Combat.attack(world, c, t)
 		"offhand_attack":
 			return Combat.offhand_attack(world, c, t)

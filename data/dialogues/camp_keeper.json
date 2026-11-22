@@ -1,0 +1,88 @@
+{
+  "schema": "dialogue_v1",
+  "note_ko": "캠프지기(자체 NPC): 부활(200gp)·보급관 상점·떠나기. 재분배(100gp)는 캐릭터 만들기 화면 연결 뒤.",
+  "id": "camp_keeper",
+  "speaker": {
+    "ko": "캠프지기 마렌",
+    "en": "Maren the Campkeeper"
+  },
+  "attitude": "friendly",
+  "start": "greet",
+  "source": "original",
+  "nodes": [
+    {
+      "id": "greet",
+      "text": {
+        "ko": "불 꺼지기 전에 와서 다행이군. 뭐가 필요하지?",
+        "en": "Glad you made it before the fire died. What do you need?"
+      },
+      "options": [
+        {
+          "text": {
+            "ko": "쓰러진 동료를 살려 줘. (한 명에 금화 200닢)",
+            "en": "Bring back our fallen. (200 gold each)"
+          },
+          "cost_gold": 200,
+          "goto": "revived",
+          "effects": [
+            {
+              "type": "camp_revive"
+            }
+          ]
+        },
+        {
+          "text": {
+            "ko": "물건을 보고 싶다.",
+            "en": "Show me your wares."
+          },
+          "goto": "shop",
+          "effects": [
+            {
+              "type": "open_shop",
+              "shop": "camp_quartermaster"
+            }
+          ]
+        },
+        {
+          "text": {
+            "ko": "이제 가 보겠다.",
+            "en": "We'll be going."
+          },
+          "goto": "bye"
+        }
+      ]
+    },
+    {
+      "id": "revived",
+      "text": {
+        "ko": "…숨이 돌아왔다. 다음엔 조심하게.",
+        "en": "...Breath returns. Be careful next time."
+      },
+      "options": [
+        {
+          "text": {
+            "ko": "고맙다.",
+            "en": "Thanks."
+          },
+          "goto": "greet"
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "text": {
+        "ko": "골라 보게.",
+        "en": "Take a look."
+      },
+      "end": true
+    },
+    {
+      "id": "bye",
+      "text": {
+        "ko": "불은 켜 두지.",
+        "en": "I'll keep the fire going."
+      },
+      "end": true
+    }
+  ]
+}

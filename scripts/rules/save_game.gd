@@ -53,23 +53,49 @@ static func snapshot(world: Dictionary) -> Dictionary:
 		var obj: Dictionary = grid.object_at(cell)
 		if not obj.is_empty():
 			out["objects"].append({"cell": [cell.x, cell.y], "obj": _plain(obj)})
+	out["spells"] = _snapshot_spells(world)
 	if world.get("options", {}).get("seed_lock", false):
 		out["dice_state"] = str(Dice.get_state())
 	return out
 
 
-static func restore(world: Dictionary, snap: Dictionary) -> bool:
+## 다시 걸 수 있는 지속 주문: 내성·공격 판정이 없는(이로운) 주문. 시전자·조준 칸·슬롯·남은 집중 시간.
+## 이런 주문이 건 상태·수정치는 따로 저장하지 않고(불러올 때 다시 걸림), 나머지는 '긴 휴식까지'로 남긴다.
+static func _snapshot_spells(world: Dictionary) -> Array:
+	var Sp: Variant = load("res://scripts/rules/spellcasting.gd")
+	var grid: Node = world["grid"]
+	var out: Array = []
+	for inst: Dictionary in Sp.instances.values():
+		if inst["world"] != world or not recastable(inst["spell"]) or not is_instance_valid(inst["caster"]):
+			continue
+		var c: Node = inst["caster"]
+		var aim: Vector2i = inst.get("entity", {}).get("cell", grid.cell_of(c) if grid.creatures().has(c) else Vector2i.ZERO)
+		if not inst["targets"].is_empty() and is_instance_valid(inst["targets"][0]) and grid.creatures().has(inst["targets"][0]):
+			aim = grid.cell_of(inst["targets"][0])
+		out.append({"spell": inst["spell"], "caster": str(c.name), "aim": [aim.x, aim.y], "slot": int(inst.get("slot", 0)),
+			"conc": int(c.concentration.get("turns_left", -1)) if c.concentration.get("instance") == inst["id"] else -2})
+	return out
+
+
+static func recastable(spell_id: String) -> bool:
+	var sp := RulesDB.get_entry("spell", spell_id)
+	return not sp.is_empty() and not sp.get("effects", {}).has("check") and not spell_id in ["find_familiar", "animate_dead", "glyph_of_warding"]
+
+
+## opts.skip: 되살리지 않을 생물 이름(맵 이동 때 데리고 다니는 파티)
+static func restore(world: Dictionary, snap: Dictionary, opts: Dictionary = {}) -> bool:
 	if int(snap.get("version", 0)) != VERSION:
 		return false
 	for k: String in snap["world"]:
-		world[k] = snap["world"][k]
+		if opts.get("skip", []).is_empty() or k in ["traps", "examines", "zones_cleared", "map_id"]:
+			world[k] = snap["world"][k]  # 맵 이동이면 맵 고유 값만(소지품 등은 들고 온 값)
 	var grid: Node = world["grid"]
 	var by_name := {}
 	for c: Node in grid.creatures():
 		by_name[str(c.name)] = c
 	for n: String in snap["creatures"]:
 		var c: Node = by_name.get(n)
-		if c == null:
+		if c == null or n in opts.get("skip", []):
 			continue
 		var e: Dictionary = snap["creatures"][n]
 		# 레벨이 다르면(새로 만든 세계에 불러오기) 저장된 명세로 캐릭터를 다시 만든다
@@ -86,11 +112,15 @@ static func restore(world: Dictionary, snap: Dictionary) -> bool:
 				c.resources[id]["current"] = int(e["resources"][id])
 		c.conditions.clear()
 		for x: Dictionary in e.get("conditions", []):
+			if x.get("recast", false):
+				continue
 			x["turns_left"] = int(x["turns_left"])
 			x["source"] = null  # 근원 생물 참조는 저장하지 않는다
 			c.conditions.append(x)
 		c.extra_modifiers.clear()
 		for x: Dictionary in e.get("modifiers", []):
+			if x.get("recast", false):
+				continue
 			if x.has("turns_left"):
 				x["turns_left"] = int(x["turns_left"])
 			c.extra_modifiers.append(x)
@@ -102,7 +132,7 @@ static func restore(world: Dictionary, snap: Dictionary) -> bool:
 			if by_name.has(n2):
 				var a: Dictionary = e["awareness"][n2]
 				c.awareness[by_name[n2]] = {"state": a["state"], "last": Vector2i(int(a["last"][0]), int(a["last"][1]))}
-	if snap.has("party"):
+	if snap.has("party") and opts.get("skip", []).is_empty():
 		world["party"] = snap["party"].filter(func(n3: String) -> bool: return by_name.has(n3)).map(func(n3: String) -> Node: return by_name[n3])
 		world["roster"] = snap.get("roster", []).filter(func(n3: String) -> bool: return by_name.has(n3)).map(func(n3: String) -> Node: return by_name[n3])
 		if world.get("explore") != null:
@@ -112,6 +142,18 @@ static func restore(world: Dictionary, snap: Dictionary) -> bool:
 			grid.remove_object(cell)
 	for o: Dictionary in snap.get("objects", []):
 		grid.place_object(Vector2i(int(o["cell"][0]), int(o["cell"][1])), o["obj"])
+	# 지속 주문 다시 걸기(비용 없이, 남은 집중 시간 이어서)
+	var Sp: Variant = load("res://scripts/rules/spellcasting.gd")
+	for id: Variant in Sp.instances.keys():
+		if Sp.instances[id]["world"] == world:
+			Sp.end_instance(id)
+	for sp: Dictionary in snap.get("spells", []):
+		var caster: Node = by_name.get(sp["caster"])
+		if caster == null or caster.dead:
+			continue
+		var r: Dictionary = Sp.cast(world, caster, sp["spell"], Vector2i(int(sp["aim"][0]), int(sp["aim"][1])), {"free": true, "slot": int(sp["slot"])})
+		if r.get("ok", false) and int(sp["conc"]) > 0 and not caster.concentration.is_empty():
+			caster.concentration["turns_left"] = int(sp["conc"])
 	if snap.has("dice_state"):
 		Dice.set_state(int(snap["dice_state"]))
 	return true
@@ -152,7 +194,10 @@ static func _typed(old: Variant, v: Variant) -> Variant:
 static func _plain_effect(x: Dictionary) -> Dictionary:
 	var y: Dictionary = _plain(x)
 	var params: Dictionary = y.get("params", {})
-	if params.has("instance") or y.has("instance"):
+	var inst_id: Variant = params.get("instance", y.get("instance"))
+	var Sp: Variant = load("res://scripts/rules/spellcasting.gd")
+	if inst_id != null and Sp.instances.has(inst_id) and recastable(Sp.instances[inst_id]["spell"]):
+		y["recast"] = true  # 불러올 때 주문을 다시 거므로 이 항목은 버린다
 		params.erase("instance")
 		y.erase("instance")
 		y["until_long_rest"] = true

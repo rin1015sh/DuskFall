@@ -26,6 +26,8 @@ const Dialogue := preload("res://scripts/rules/dialogue.gd")
 const SaveGame := preload("res://scripts/rules/save_game.gd")
 const TICK_SEC := 6.0
 const Progression := preload("res://scripts/rules/progression.gd")
+const Travel := preload("res://scripts/rules/travel.gd")
+const Shop := preload("res://scripts/rules/shop.gd")
 const Actions := preload("res://scripts/rules/actions.gd")
 const Hotbar := preload("res://scenes/ui/hotbar.gd")
 const S := preload("res://scenes/ui/ui_style.gd")
@@ -165,34 +167,7 @@ func _ready() -> void:
 	Dice.set_seed(int(args.get("seed", "7")))
 	var map_id: String = args.get("map", "fallen_watch")
 	var b := Roster.build(map_id, int(args.get("level", "1")))
-	world = b["world"]
-	party = b["party"]
-	foes = b["foes"]
-	for n: Node in [world["grid"], world["surfaces"], world["reactions"], world["turns"]]:
-		add_child(n)
-	for c: Node in party + foes:
-		add_child(c)
-	# 반응: 파티 기본은 자동(매번 묻기 팝업은 반응 대기 구조와 함께 다음 단계)
-	for c: Node in party:
-		for r: String in c.known_reactions:
-			c.reaction_settings[r] = "auto"
-	sorted = Node2D.new()
-	sorted.y_sort_enabled = true
-	map_view = MapView.new()
-	add_child(map_view)
-	add_child(sorted)
-	map_view.build(world["grid"], sorted, MapLoader.load_map(map_id))
-	for c: Node in party + foes:
-		var v: Node2D = ActorView.new()
-		v.setup(c, world["grid"])
-		sorted.add_child(v)
-		views[c] = v
-	highlights = Highlights.new()
-	highlights.scene = self
-	highlights.z_index = 50
-	add_child(highlights)
 	camera = Camera2D.new()
-	camera.position = V.ground(world["grid"].size / 2) - Vector2(0, 40)
 	camera.zoom = Vector2(0.92, 0.92)
 	RenderingServer.set_default_clear_color(Color("0c0b0e"))
 	add_child(camera)
@@ -208,9 +183,15 @@ func _ready() -> void:
 	EventBus.on_enter_tile.connect(func(c: Object, _cell: Vector2i) -> void:
 		if views.has(c):
 			views[c].sync())
-	explore = Exploration.new()
-	add_child(explore)
-	explore.setup(world, party)
+	highlights = Highlights.new()
+	highlights.scene = self
+	highlights.z_index = 50
+	_setup_world(b, map_id)
+	add_child(highlights)
+	# 반응: 파티 기본은 자동(매번 묻기 팝업은 반응 대기 구조와 함께 다음 단계)
+	for c: Node in party:
+		for r: String in c.known_reactions:
+			c.reaction_settings[r] = "auto"
 	_build_ui()
 	if args.has("combat") or args.has("autoplay"):
 		_begin_battle()
@@ -225,6 +206,10 @@ func _ready() -> void:
 	_refresh()
 	if args.has("sheet"):
 		sheet.show_for(world, selected)
+	if args.has("camp"):
+		_go_camp()
+	if args.has("shop"):
+		_open_shop(args["shop"])
 	if args.has("roll"):
 		_visible_roll(selected, "dex", "sleight_of_hand", 15, _skill_name("sleight_of_hand"), func(_r: Dictionary) -> void: pass)
 		if args["roll"] == "fail":
@@ -240,6 +225,79 @@ func _ready() -> void:
 		var pp: PackedStringArray = args["preview"].split(",")
 		_show_preview(Vector2i(int(pp[0]), int(pp[1])))
 	_check_combat()
+
+
+## 맵 하나를 화면에 올린다(처음 시작·맵 이동 공용).
+func _setup_world(b: Dictionary, map_id: String) -> void:
+	world = b["world"]
+	party = b["party"]
+	foes = b["foes"]
+	for n: Node in [world["grid"], world["surfaces"], world["reactions"], world["turns"]]:
+		add_child(n)
+	for c: Node in party + foes:
+		if c.get_parent() == null:
+			add_child(c)
+		Roster.add_art(c)
+	sorted = Node2D.new()
+	sorted.y_sort_enabled = true
+	map_view = MapView.new()
+	add_child(map_view)
+	add_child(sorted)
+	if highlights != null and highlights.get_parent() == self:
+		move_child(highlights, -1)
+	map_view.build(world["grid"], sorted, MapLoader.load_map(map_id))
+	for c: Node in party + foes + world.get("roster", []):
+		if world["grid"].creatures().has(c) and not views.has(c):
+			var v: Node2D = ActorView.new()
+			v.setup(c, world["grid"])
+			sorted.add_child(v)
+			views[c] = v
+	camera.position = V.ground(world["grid"].cell_of(party[0]) if not party.is_empty() else world["grid"].size / 2) - Vector2(0, 40)
+	explore = Exploration.new()
+	add_child(explore)
+	explore.setup(world, party)
+	if minimap != null:
+		minimap.grid = world["grid"]
+
+
+## 다른 맵으로(맵 이동·캠프). 지금 맵 상태를 맡겨 두고 파티만 데려간다.
+func _travel(to: String, spawn: String) -> void:
+	world.erase("pending_travel")
+	_close_dialogue()
+	var carry := Travel.leave(world)
+	var grid: Node = world["grid"]
+	var keep: Array = party + world.get("roster", [])
+	for c: Node in keep:
+		if grid.creatures().has(c):
+			grid.remove(c)
+	for v in views.values():
+		v.queue_free()
+	views.clear()
+	for n: Node in [world["grid"], world["surfaces"], world["reactions"], world["turns"], explore, map_view, sorted] + foes + world.get("summons", []):
+		if is_instance_valid(n) and not n in keep:
+			n.queue_free()
+	var Sp: Variant = Spellcasting
+	for id: Variant in Sp.instances.keys():
+		Sp.end_instance(id)
+	var b := Travel.enter(to, party, carry, spawn)
+	_setup_world(b, to)
+	exploring = true
+	mode = "move"
+	selected = party[0]
+	world["at_camp"] = RulesDB.get_entry("map", to).get("camp", false)
+	if world["at_camp"]:
+		var r := Rest.long_rest(world, party, {"tiny_hut": true})  # 캠프에 오면 긴 휴식(보급품이 모자라면 부분 휴식)
+		Dice.log_text(UiText.t("camp_rested") % (UiText.t("partial") if r.get("partial", false) else ""))
+	_refresh()
+
+
+func _go_camp() -> void:
+	var why := Travel.can_go_camp(world, selected)
+	if why != "":
+		_notify({"ok": false, "reason": why})
+		return
+	world["return_to"] = {"map": world["map_id"], "cell": [world["grid"].cell_of(selected).x, world["grid"].cell_of(selected).y]}
+	call_deferred("_travel", "camp", "camp_entry")
 
 
 func _begin_battle() -> void:
@@ -259,6 +317,16 @@ func _begin_battle() -> void:
 
 ## 탐험 중 전투가 시작됐으면(발견·적대 행동) 턴제로 넘어간다.
 func _check_combat() -> void:
+	if exploring and world.has("pending_travel") and not world["turns"].in_combat:
+		var pt: Dictionary = world["pending_travel"]
+		world.erase("pending_travel")
+		call_deferred("_travel", pt["to"], pt["spawn"])
+		return
+	if world.has("pending_ui") and dlg == null:
+		var pu: Dictionary = world["pending_ui"]
+		world.erase("pending_ui")
+		if pu.has("shop"):
+			_open_shop(pu["shop"])
 	if exploring and world.has("pending_dialogue") and dlg == null and not world["turns"].in_combat:
 		var pd: Dictionary = world["pending_dialogue"]
 		world.erase("pending_dialogue")
@@ -435,6 +503,13 @@ func _select(c: Node) -> void:
 		_clear_preview()
 		_refresh()
 		return
+	if not world["turns"].in_combat or not c in world["turns"].order:
+		# 전투에 끼지 않은 파티원: 실시간으로 직접 옮길 수 있다
+		selected = c
+		mode = "rt_move"
+		_clear_preview()
+		_refresh()
+		return
 	if busy or not world["turns"].is_current(c):
 		return
 	selected = c
@@ -453,7 +528,7 @@ func _set_mode(m: String) -> void:
 # ======================================================================
 
 func _on_preview(pos: Vector2) -> void:
-	if busy or selected == null or dlg != null:
+	if (busy and mode != "rt_move") or selected == null or dlg != null:
 		return
 	_show_preview(V.pick(world["grid"], _to_world(pos)))
 
@@ -483,6 +558,11 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 	var c := selected
 	if not g.in_bounds(cell):
 		return {}
+	if mode == "rt_move":
+		var rp: Dictionary = g.find_path(c, cell, -1, party)
+		if rp.is_empty():
+			return {"valid": false}
+		return {"valid": true, "path": rp["path"].slice(0, int(explore.rt_budget.get(c, c.speed()))), "text": UiText.t("rt_move") % int(explore.rt_budget.get(c, c.speed()))}
 	if mode.begins_with("act:"):
 		var ap: Dictionary = Actions.preview(world, c, mode.trim_prefix("act:"), cell, exploring)
 		var ao := {"valid": ap.get("valid", false), "text": "\n".join(PackedStringArray(ap.get("lines", [])))}
@@ -565,12 +645,16 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 
 
 func _on_confirm(pos: Vector2) -> void:
-	if busy or selected == null or dlg != null:
+	if (busy and mode != "rt_move") or selected == null or dlg != null:
 		return
 	var cell := V.pick(world["grid"], _to_world(pos))
 	if not preview_data.get("valid", false) or cell != preview_cell:
 		return
-	if mode.begins_with("act:"):
+	if mode == "rt_move":
+		explore.realtime_move(selected, cell)
+		_clear_preview()
+		_refresh()
+	elif mode.begins_with("act:"):
 		_act_execute(mode.trim_prefix("act:"), cell)
 	elif exploring:
 		_explore_execute(cell)
@@ -601,6 +685,8 @@ func _explore_action(cell: Vector2i) -> Dictionary:
 	var g: Node = world["grid"]
 	var target: Node = g.creature_at(cell)
 	if target != null and target != selected:
+		if world.get("at_camp", false) and target in world.get("roster", []):
+			return {"kind": "swap", "creature": target}
 		if target.has_meta("dialogue") and not target.dead and target.team != "party" and not target.get_meta("dialogue_done", false):
 			var aware: bool = target.awareness.values().any(func(a: Dictionary) -> bool: return a.get("state", "") == "alerted")
 			if not aware:
@@ -651,6 +737,8 @@ func _explore_preview(cell: Vector2i) -> Dictionary:
 				lines.append(UiText.t("surprise_hint"))
 		"talk":
 			lines.append(UiText.t("talk") % a["creature"].label())
+		"swap":
+			lines.append(UiText.t("swap") % [selected.label(), a["creature"].label()])
 		"lock":
 			var lk: Dictionary = a["obj"]["lock"]
 			var pv := Interact.preview_check(selected, "dex", "sleight_of_hand", int(lk["dc"]))
@@ -708,6 +796,13 @@ func _explore_execute(cell: Vector2i) -> void:
 		"talk":
 			if _approach(cell):
 				_open_dialogue(a["creature"].get_meta("dialogue"), a["creature"])
+		"swap":
+			var other: Node = a["creature"]
+			if Progression.swap(world, selected, other):
+				party = world["party"]
+				explore.party = party.duplicate()
+				explore.leader = other
+				selected = other
 		"lock":
 			if _approach(cell):
 				var lk: Dictionary = a["obj"]["lock"]
@@ -860,6 +955,10 @@ func _choose_option(index: int) -> void:
 
 func _finish_choice(index: int, opts: Dictionary) -> void:
 	var r: Dictionary = dlg.choose(index, opts)
+	if world.has("pending_ui"):
+		_close_dialogue()
+		_check_combat()
+		return
 	for k: String in ["check", "save"]:
 		if r.has(k):
 			var c: Dictionary = r[k]
@@ -872,6 +971,76 @@ func _finish_choice(index: int, opts: Dictionary) -> void:
 		return
 	_show_dialogue()
 	_refresh()
+
+
+# ---------- 상점 창 ----------
+
+var shop_panel: PanelContainer
+
+
+func _open_shop(shop_id: String) -> void:
+	if shop_panel == null:
+		shop_panel = PanelContainer.new()
+		shop_panel.add_theme_stylebox_override("panel", S.panel(18, S.BRONZE, S.BG_DEEP, 2))
+		shop_panel.anchor_left = 0.5
+		shop_panel.anchor_right = 0.5
+		shop_panel.anchor_top = 0.5
+		shop_panel.anchor_bottom = 0.5
+		shop_panel.offset_left = -330
+		shop_panel.offset_right = 330
+		shop_panel.offset_top = -220
+		shop_panel.offset_bottom = 200
+		ui.get_child(0).add_child(shop_panel)
+	for ch in shop_panel.get_children():
+		ch.queue_free()
+	shop_panel.visible = true
+	var shop := RulesDB.get_entry("shop", shop_id)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 6)
+	shop_panel.add_child(v)
+	var head := HBoxContainer.new()
+	head.add_child(S.title(UiText.name_of(shop.get("name", {"ko": shop_id, "en": shop_id})), 20))
+	var gold := Label.new()
+	gold.text = "   %s %d" % [UiText.t("gold"), Interact.count(world, "gold")]
+	gold.add_theme_color_override("font_color", S.GOLD)
+	head.add_child(gold)
+	v.add_child(head)
+	var cols := HBoxContainer.new()
+	cols.add_theme_constant_override("separation", 20)
+	v.add_child(cols)
+	var buy := VBoxContainer.new()
+	buy.custom_minimum_size = Vector2(300, 0)
+	buy.add_child(S.title(UiText.t("buy"), 15))
+	for row: Dictionary in Shop.stock(world, shop_id):
+		var b := Button.new()
+		b.text = "%s ×%d — %dgp" % [UiText.name_of(RulesDB.get_entry("item", row["item"]).get("name", {})), int(row["count"]), int(row["price"])]
+		b.disabled = int(row["count"]) <= 0 or Interact.count(world, "gold") < int(row["price"])
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.pressed.connect(func() -> void:
+			_notify(Shop.buy(world, shop_id, row["item"]))
+			_open_shop(shop_id))
+		buy.add_child(b)
+	cols.add_child(buy)
+	var sell := VBoxContainer.new()
+	sell.custom_minimum_size = Vector2(300, 0)
+	sell.add_child(S.title(UiText.t("sell"), 15))
+	for item: String in world.get("inventory", {}):
+		if item == "gold" or Interact.count(world, item) <= 0 or RulesDB.get_entry("item", item).is_empty():
+			continue
+		var b := Button.new()
+		b.text = "%s ×%d — %dgp" % [UiText.name_of(RulesDB.get_entry("item", item).get("name", {})), Interact.count(world, item), Shop.sell_price(shop_id, item)]
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.pressed.connect(func() -> void:
+			_notify(Shop.sell(world, shop_id, item))
+			_open_shop(shop_id))
+		sell.add_child(b)
+	cols.add_child(sell)
+	var close := Button.new()
+	close.text = UiText.t("close")
+	close.pressed.connect(func() -> void:
+		shop_panel.visible = false
+		_refresh())
+	v.add_child(close)
 
 
 # ---------- 판정 창(보이는 굴림 — 2단계, BG3 주사위 창 참고) ----------
@@ -1317,7 +1486,7 @@ func _on_explore_button(id: String) -> void:
 		"short_rest":
 			_rest("short")
 		"long_rest":
-			_rest("long")
+			_go_camp()
 		"level_up":
 			Progression.level_up(world, selected)
 			_refresh()

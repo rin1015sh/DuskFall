@@ -147,14 +147,16 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 		if inst == null or not inst.is_implemented():
 			return "아직 구현하지 않은 주문"
 	var cost := _cost(spell)
-	if cost == "explore":
+	if opts.get("free", false):
+		pass  # 불러오기로 다시 거는 주문(저장된 지속 주문) — 비용·슬롯 없음
+	elif cost == "explore":
 		if world.get("turns") != null and world["turns"].in_combat:
 			return "탐험 중에만"
 	elif not Combat.can_spend(caster, cost):
 		return "비용이 없다"
-	if cost == "action" and int(caster.turn.get("action", 0)) <= int(caster.turn.get("surge_actions", 0)):
+	if cost == "action" and not opts.get("free", false) and int(caster.turn.get("action", 0)) <= int(caster.turn.get("surge_actions", 0)):
 		return "행동 연쇄로 얻은 행동은 주문에 쓸 수 없다"
-	if int(spell["level"]) > 0 and not opts.get("no_slot", false) and _slot(caster, int(opts.get("slot", spell["level"]))) == "":
+	if int(spell["level"]) > 0 and not opts.get("no_slot", false) and not opts.get("free", false) and _slot(caster, int(opts.get("slot", spell["level"]))) == "":
 		return "주문 슬롯이 없다"
 	if caster.has_condition("incapacitated"):
 		return "무력화"
@@ -230,10 +232,10 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 		return {"ok": false, "reason": why}
 	var spell := RulesDB.get_entry("spell", spell_id)
 	var level := int(spell["level"])
-	var slot_id := _slot(caster, int(opts.get("slot", level))) if level > 0 and not opts.get("no_slot", false) else ""
+	var slot_id := _slot(caster, int(opts.get("slot", level))) if level > 0 and not opts.get("no_slot", false) and not opts.get("free", false) else ""
 	var slot: int = int(slot_id.get_slice("_", 2)) if slot_id != "" else int(opts.get("slot", level))
 	var cost := _cost(spell)
-	if cost != "explore":
+	if cost != "explore" and not opts.get("free", false):
 		Combat.spend(caster, cost)
 	# 시전 시작(on_spell_cast): Counterspell 같은 반응이 끊을 수 있다. 끊기면 슬롯은 쓰지 않는다(원문).
 	var cast_ctx := {"caster": caster, "spell": spell_id, "aim": aim, "slot": slot, "countered": false, "world": world}

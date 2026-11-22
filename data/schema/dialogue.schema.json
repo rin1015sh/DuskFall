@@ -228,7 +228,10 @@
             "end",
             "recruit",
             "xp",
-            "pacify"
+            "pacify",
+            "open_shop",
+            "camp_revive",
+            "leave_camp"
           ]
         },
         "flag": {
@@ -244,6 +247,9 @@
           "type": "integer"
         },
         "goal": {
+          "type": "string"
+        },
+        "shop": {
           "type": "string"
         }
       }

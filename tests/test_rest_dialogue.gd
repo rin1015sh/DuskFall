@@ -221,3 +221,24 @@ func test_save_and_restore() -> void:
 	assert_true(g.object_at(Vector2i(3, 0))["lock"]["locked"])
 	assert_true(c.has_condition("prone"))
 	assert_eq(Dice.roll("1d20")["total"], a, "시드 고정 옵션: 불러와도 같은 굴림")
+
+
+func test_save_recasts_lasting_buffs() -> void:
+	var w := make_world(["....."])
+	var g: Node = w["grid"]
+	var wz: Node = own(preload("res://scripts/rules/character_builder.gd").build(preload("res://scripts/rules/character_builder.gd").default_spec("wizard", 5))["creature"])
+	wz.name = "wiz"
+	g.place(wz, Vector2i(0, 0))
+	wz.spells.append("fly")
+	wz.reset_turn()
+	assert_true(preload("res://scripts/rules/spellcasting.gd").cast(w, wz, "fly", Vector2i(0, 0))["ok"])
+	wz.concentration["turns_left"] = 40
+	var slots: int = wz.resource("spell_slot_3")
+	var snap: Dictionary = JSON.parse_string(JSON.stringify(SaveGame.snapshot(w)))
+	wz.break_concentration("시험")
+	assert_false(wz.has_condition("flying"))
+	assert_true(SaveGame.restore(w, snap))
+	assert_true(wz.has_condition("flying"), "지속 주문을 다시 건다")
+	assert_eq(wz.altitude, 2)
+	assert_eq(int(wz.concentration.get("turns_left", 0)), 40, "남은 집중 시간 이어서")
+	assert_eq(wz.resource("spell_slot_3"), slots, "슬롯을 쓰지 않는다")

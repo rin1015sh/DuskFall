@@ -268,3 +268,24 @@ func test_decisions_awareness_decay_feather_fall_disarmer() -> void:
 	Dice.force([2, 4])
 	Interact.disarm(w, p, trap)
 	assert_eq(p.hp, 26, "해제 실패로 터진 함정에 해제자가 맞는다")
+
+
+func test_realtime_move_outsider_during_combat() -> void:
+	var w := make_world(["............", "............"])
+	var g: Node = w["grid"]
+	for x in range(6, 12):
+		g.add_zone(Vector2i(x, 0), "room")
+		g.add_zone(Vector2i(x, 1), "room")
+	var a := make_creature({"team": "party", "is_player_character": true, "hp_max": 10})
+	var b := make_creature({"team": "party", "is_player_character": true, "hp_max": 10})
+	var e := make_creature({"team": "enemy", "hp_max": 10})
+	g.place(a, Vector2i(6, 1))
+	g.place(b, Vector2i(0, 0))
+	g.place(e, Vector2i(10, 0))
+	w["party"] = [a, b]
+	var ex: Node = own(ExplorationScript.new().setup(w, [a, b]))
+	w["turns"].start_combat("room")
+	assert_false(b in w["turns"].order)
+	assert_eq(ex.realtime_move(b, Vector2i(9, 0)), 6, "라운드마다 속도만큼")
+	assert_true(b in w["turns"]._pending, "구역에 들어오면 다음 라운드에 합류")
+	assert_eq(ex.realtime_move(b, Vector2i(9, 0)), 0, "이미 합류 대기")

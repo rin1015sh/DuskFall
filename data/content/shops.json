@@ -1,0 +1,38 @@
+{
+  "schema": "shop_v1",
+  "note_ko": "상점. 사는 값 = 아이템 price_gp × price_mult(기본 1), 파는 값 = price_gp × sell_rate. 보급품은 재고를 제한한다(9단계 악용 2).",
+  "shops": [
+    {
+      "id": "camp_quartermaster",
+      "name": {
+        "ko": "캠프 보급관",
+        "en": "Camp Quartermaster"
+      },
+      "sell_rate": 0.5,
+      "source": "original",
+      "stock": [
+        {
+          "item": "potion_of_healing",
+          "count": 4
+        },
+        {
+          "item": "potion_of_greater_healing",
+          "count": 1
+        },
+        {
+          "item": "rations",
+          "count": 4,
+          "price_mult": 2
+        },
+        {
+          "item": "thieves_tools",
+          "count": 2
+        },
+        {
+          "item": "trap_disarm_kit",
+          "count": 2
+        }
+      ]
+    }
+  ]
+}

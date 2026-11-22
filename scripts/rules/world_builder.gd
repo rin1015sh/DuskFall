@@ -24,7 +24,11 @@ static func build(map_id: String, opts: Dictionary = {}) -> Dictionary:
 	var tm: Node = TurnManagerScript.new().setup(world)
 	var party: Array = []
 	var others: Array = []
+	var spawn_cells := {}
 	for sid: String in loaded["spawns"].keys():
+		spawn_cells[sid] = loaded["spawns"][sid]
+		if sid in opts.get("skip", []) or sid.ends_with("_entry") or sid == "return":
+			continue  # 이미 있는 파티·동료(맵 이동), 들어오는 자리 표시
 		var info: Dictionary = loaded["spawn_info"].get(sid, {})
 		var c: Node
 		var mid: String = info.get("monster", "")
@@ -57,6 +61,8 @@ static func build(map_id: String, opts: Dictionary = {}) -> Dictionary:
 			grid.light_sources.append({"id": "carried_" + sid, "cell": loaded["spawns"][sid], "creature": c,
 				"bright": int(info["light"]["bright"]), "dim": int(info["light"].get("dim", 0))})
 		(party if c.team == "party" else others).append(c)
+	world["spawn_cells"] = spawn_cells
+	world["transitions"] = RulesDB.get_entry("map", map_id).get("transitions", []).duplicate(true)
 	world["traps"] = loaded["traps"]
 	world["examines"] = loaded["examines"]
 	world["zone_rewards"] = loaded.get("zone_rewards", {})

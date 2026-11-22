@@ -1,0 +1,198 @@
+{
+  "schema": "map_v1",
+  "id": "camp",
+  "name": {
+    "ko": "캠프",
+    "en": "Camp"
+  },
+  "camp": true,
+  "note_ko": "긴 휴식 장소(룰북 7단계 캠프: 별도 장면). 들어오면 긴 휴식, 쉬는 동료와 교체, 캠프지기(부활 200gp·보급관 상점). 아래 출구로 떠난다.",
+  "legend": {
+    "#": {
+      "flags": [
+        "wall"
+      ]
+    },
+    ":": {
+      "material": "earth"
+    }
+  },
+  "rows": [
+    "############",
+    "#::::::::::#",
+    "#::::::::::#",
+    "#::::::::::#",
+    "#::::::::::#",
+    "#::::::::::#",
+    "#::::::::::#",
+    "#::::::::::#",
+    "#####::#####"
+  ],
+  "light": "dim",
+  "light_sources": [
+    {
+      "id": "campfire",
+      "cell": [
+        5,
+        4
+      ],
+      "bright": 3,
+      "dim": 4
+    }
+  ],
+  "flags": [
+    {
+      "cell": [
+        5,
+        4
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        2,
+        2
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        9,
+        2
+      ],
+      "flags": [
+        "impassable"
+      ]
+    }
+  ],
+  "zones": [],
+  "objects": [],
+  "spawns": [
+    {
+      "id": "camp_keeper",
+      "cell": [
+        8,
+        5
+      ],
+      "team": "neutral",
+      "facing": [
+        -1,
+        0
+      ],
+      "dialogue": "camp_keeper",
+      "monster": "bandit_captain"
+    },
+    {
+      "id": "camp_entry",
+      "cell": [
+        5,
+        7
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "cell": [
+        5,
+        8
+      ],
+      "to": "fallen_watch",
+      "spawn": "return",
+      "name": {
+        "ko": "캠프 떠나기",
+        "en": "Leave Camp"
+      }
+    },
+    {
+      "cell": [
+        6,
+        8
+      ],
+      "to": "fallen_watch",
+      "spawn": "return",
+      "name": {
+        "ko": "캠프 떠나기",
+        "en": "Leave Camp"
+      }
+    }
+  ],
+  "source": "original",
+  "art": {
+    "wall": "stone",
+    "wall_top": "a",
+    "cliff": "cave",
+    "floors": {
+      ":": "ground_meadow"
+    },
+    "props": [
+      {
+        "id": "firepit",
+        "v": "lit",
+        "at": [
+          5,
+          4
+        ]
+      },
+      {
+        "id": "tent",
+        "v": "canvas",
+        "at": [
+          2,
+          2
+        ]
+      },
+      {
+        "id": "tent",
+        "v": "hide",
+        "at": [
+          9,
+          2
+        ]
+      },
+      {
+        "id": "bedroll",
+        "v": "out",
+        "at": [
+          3,
+          4
+        ]
+      },
+      {
+        "id": "bedroll",
+        "v": "used",
+        "at": [
+          7,
+          3
+        ]
+      },
+      {
+        "id": "crate",
+        "v": "stack",
+        "at": [
+          9,
+          6
+        ]
+      },
+      {
+        "id": "sack",
+        "v": "full",
+        "at": [
+          2,
+          6
+        ]
+      },
+      {
+        "id": "lantern",
+        "v": "lit",
+        "at": [
+          8,
+          6
+        ]
+      }
+    ]
+  }
+}
