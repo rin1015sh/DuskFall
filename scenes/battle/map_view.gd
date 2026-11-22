@@ -2,7 +2,9 @@ extends Node3D
 ## 3/4 탑뷰 맵 그리기(표현 계층, 3D). GridWorld를 읽어 던전 에셋 키트(assets/dungeon_kit, scenes/kit/dungeon_kit.gd) 그림으로 쌓는다.
 ## 좌표는 view3d.gd(1칸 = 1유닛, 높이 1단계 = 1유닛).
 ## - 바닥: 칸마다 높이에 놓인 네모(키트 바닥 4×4 이어지는 그림). 맵 데이터 art.floors(범례 글자 → 키트 바닥)·재질 기본값.
-## - 벽: 칸마다 기둥(윗면 = 키트 벽 윗면 자동 연결 16가지, 남쪽 면 = 키트 벽면). 높은 칸 남쪽은 절벽 면.
+## - 벽: 칸마다 기둥(윗면 = 키트 벽 윗면 자동 연결 16가지, 남쪽 면 = 키트 벽면). 벽은 둘레에서 가장 높은 바닥 위에 선다(View3D.wall_base).
+##   남쪽 칸 윗면이 더 낮으면 그 차이만큼 남쪽 면을 세운다(벽 아래로 더 내려가는 부분·높은 칸은 절벽 면).
+## - 높은 칸 가장자리: 둘레보다 높은 바닥 윗면의 테두리에 어두운 턱 띠(보이지 않는 동·서·북 면 대신 경계를 읽히게).
 ##   카메라는 남쪽에서만 보므로(회전 없음) 동·서·북 면은 보이지 않아 만들지 않는다.
 ## - 소품: 맵 데이터 art.props(키트 물건 — 서 있는 것은 세운 판, 바닥 무늬는 눕힌 판). 규칙 물체(기름통 등)는 art 키 또는 기본 그림.
 ## - 표면·구름: 키트 바닥(물·얼음·진흙)·불꽃 애니메이션·얼룩·안개로 그린다(규칙 상태를 그리기만).
@@ -32,6 +34,9 @@ const CLIFF_SHADE := 0.8
 ## 벽 밑동 그늘 띠(유닛)·밝기
 const FOOT_H := 0.15
 const FOOT_SHADE := 0.65
+## 높은 칸 턱 띠 너비(유닛)·가장자리 진하기
+const RIM_W := 0.12
+const RIM_ALPHA := 0.7
 
 var grid: Node
 var map: Dictionary = {}
@@ -42,6 +47,7 @@ var _floor_mi: MeshInstance3D
 var _top_mi: MeshInstance3D
 var _face_mi: MeshInstance3D
 var _water_mi: MeshInstance3D
+var _rim_mi: MeshInstance3D
 var _mats := {}  # 이름 → ShaderMaterial
 ## 서 있는 큰 소품(나무·천막 등): 캐릭터를 가리면 반투명
 var _tall_props: Array[Node3D] = []
@@ -96,6 +102,16 @@ func build(g: Node, sorted_layer: Node3D, map_data: Dictionary = {}) -> void:
 	_top_mi = _mesh_node("wall_tops", TERRAIN_SHADER, true)
 	_face_mi = _mesh_node("wall_faces", TERRAIN_SHADER, true)
 	_water_mi = _mesh_node("floors", OVERLAY_SHADER, false, "floors_overlay")
+	var rim_mat := StandardMaterial3D.new()
+	rim_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	rim_mat.vertex_color_use_as_albedo = true
+	rim_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	rim_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	rim_mat.render_priority = 1
+	_rim_mi = MeshInstance3D.new()
+	_rim_mi.material_override = rim_mat
+	_rim_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_rim_mi)
 	_build_props()
 	refresh()
 
@@ -161,7 +177,7 @@ func _prop_pos(cell: Vector2i, dx: float, dy: float) -> Vector3:
 	var x := cell.x + 0.5 + dx / V.T
 	if grid.in_bounds(cell) and grid.has_flag(cell, "wall"):
 		var south := cell + Vector2i.DOWN
-		var base: float = float(grid.height(south)) if grid.in_bounds(south) and not grid.has_flag(south, "wall") else 0.0
+		var base: float = maxf(V.wall_base(grid, cell), float(grid.height(south)) if grid.in_bounds(south) and not grid.has_flag(south, "wall") else 0.0)
 		# 옛 2D: 발이 벽면 아래 끝에서 (0.2칸 − dy)px 위
 		return Vector3(x, base + maxf(0.0, (V.T * 0.2 - dy) / V.STEP_PX), cell.y + 1.02)
 	return Vector3(x, float(grid.height(cell)) if grid.in_bounds(cell) else 0.0, cell.y + 0.8 + dy / V.T)
@@ -224,41 +240,90 @@ func _build_terrain() -> void:
 	var top_frame: Array = top_info.get("variants", {}).get(top_kind, top_info.get("variants", {}).get("a", {"frames": [[0, 0, 256, 256, 0, 0]]}))["frames"][0]
 	var cliff_frame: Array = kit.info("wall_%s" % art().get("cliff", wall_kind)).get("variants", {}).get("clean", {"frames": [face_frame]})["frames"][0]
 	var t := float(V.T)
+	var rims := MeshBuilder.new()
 	for c: Vector2i in grid.all_cells():
 		var x0 := float(c.x)
 		var z0 := float(c.y)
+		var top_c: float = V.cell_top(grid, c)
+		var south := c + Vector2i.DOWN
+		var has_south: bool = grid.in_bounds(south)
+		var top_s: float = V.cell_top(grid, south) if has_south else top_c
+		# 남쪽 면 밝기: 남쪽이 열린 바닥이면 그 칸(면이 보는 쪽), 아니면 자기 칸
+		var k := 1.0 - float(dark.get(south, dark[c]) if has_south and not grid.has_flag(south, "wall") else dark[c])
 		if grid.has_flag(c, "wall"):
-			var wall_h: float = V.cell_top(grid, c)
 			var mask := 0
 			for bit: Array in [[1, Vector2i.UP], [2, Vector2i.RIGHT], [4, Vector2i.DOWN], [8, Vector2i.LEFT]]:
 				var n: Vector2i = c + (bit[1] as Vector2i)
 				if not grid.in_bounds(n) or grid.has_flag(n, "wall"):
 					mask |= int(bit[0])
 			var tsrc := Rect2(float(top_frame[0]) + (mask % 4) * t, float(top_frame[1]) + (mask / 4) * t, t, t)
-			tops.quad(_flat_quad(x0, z0, wall_h), tsrc, tsize, _corner_cols(dark, c, Color(TOP_SHADE, TOP_SHADE, TOP_SHADE)))
-			var south := c + Vector2i.DOWN
-			if grid.in_bounds(south) and not grid.has_flag(south, "wall"):
+			tops.quad(_flat_quad(x0, z0, top_c), tsrc, tsize, _corner_cols(dark, c, Color(TOP_SHADE, TOP_SHADE, TOP_SHADE)))
+			if has_south and top_s < top_c:
+				var base: float = V.wall_base(grid, c)
+				var y0 := maxf(top_s, base)
 				var state: String = ["clean", "cracked", "mossy", "damaged"][posmod(c.x * 7 + c.y * 13, 4)]
 				var ff: Array = face_info.get("variants", {}).get(state, {"frames": [face_frame]})["frames"][0]
-				var src := Rect2(float(ff[0]) + posmod(c.x, 4) * t, float(ff[1]) + float(ff[3]) - V.WALL_H * V.STEP_PX, t, V.WALL_H * V.STEP_PX)
-				_face(faces, x0, z0 + 1.0, 0.0, wall_h, src, wsize, FACE_SHADE, 1.0 - float(dark[c]), true)
+				var px := minf((top_c - y0) * V.STEP_PX, float(ff[3]))
+				var src := Rect2(float(ff[0]) + posmod(c.x, 4) * t, float(ff[1]) + float(ff[3]) - px, t, px)
+				_face(faces, x0, z0 + 1.0, y0, top_c, src, wsize, FACE_SHADE, k, not grid.has_flag(south, "wall"))
+				if top_s < base:
+					_cliff(faces, cliff_frame, wsize, x0, z0 + 1.0, top_s, base, k, false)
 		else:
-			var h: int = grid.height(c)
 			var fsrc := _floor_src(c)
 			if fsrc.size.x > 0.0:
-				floors.quad(_flat_quad(x0, z0, float(h)), fsrc, fsize, _corner_cols(dark, c, Color.WHITE))
-			var south := c + Vector2i.DOWN
-			var hs: int = grid.height(south) if grid.in_bounds(south) and not grid.has_flag(south, "wall") else h
-			if h > hs:
-				# 절벽 면: 한 단계(40px)씩 키트 벽면 조각을 아래에서부터 쌓는다. 밝기는 면이 보는 남쪽 칸(옛 2D와 같다).
-				var k := 1.0 - float(dark.get(south, dark[c]))
-				for j in h - hs:
-					var sy := float(cliff_frame[1]) + float(cliff_frame[3]) - V.STEP_PX * (posmod(j, 4) + 1)
-					var src := Rect2(float(cliff_frame[0]) + posmod(c.x, 4) * t, sy, t, V.STEP_PX)
-					_face(faces, x0, z0 + 1.0, float(hs + j), float(hs + j + 1), src, wsize, FACE_SHADE * CLIFF_SHADE, k, j == 0)
+				floors.quad(_flat_quad(x0, z0, top_c), fsrc, fsize, _corner_cols(dark, c, Color.WHITE))
+			if has_south and top_s < top_c:
+				_cliff(faces, cliff_frame, wsize, x0, z0 + 1.0, top_s, top_c, k, not grid.has_flag(south, "wall"))
+			_rims(rims, c, top_c, 1.0 - float(dark[c]))
+	_rim_mi.mesh = rims.mesh()
 	_floor_mi.mesh = floors.mesh()
 	_top_mi.mesh = tops.mesh()
 	_face_mi.mesh = faces.mesh()
+
+
+## 절벽 면: 한 단계(40px)씩 키트 벽면 조각을 아래에서부터 쌓는다(y0 → y1, 맨 위 조각은 남는 높이만큼).
+func _cliff(mb: MeshBuilder, frame: Array, size: Vector2, x0: float, z: float, y0: float, y1: float, k: float, foot: bool) -> void:
+	var t := float(V.T)
+	var j := 0
+	var y := y0
+	while y < y1 - 0.001:
+		var y_next := minf(y + 1.0, y1)
+		var px := (y_next - y) * V.STEP_PX
+		var sy := float(frame[1]) + float(frame[3]) - V.STEP_PX * posmod(j, 4) - px
+		var src := Rect2(float(frame[0]) + posmod(int(x0), 4) * t, sy, t, px)
+		_face(mb, x0, z, y, y_next, src, size, FACE_SHADE * CLIFF_SHADE, k, foot and j == 0)
+		y = y_next
+		j += 1
+
+
+## 높은 칸 턱 띠: 이웃 윗면이 더 낮은 변마다 윗면 가장자리를 어둡게(가장자리 진하고 안쪽으로 옅어짐)
+func _rims(mb: MeshBuilder, c: Vector2i, top_c: float, k: float) -> void:
+	var y := top_c + V.LIFT * 0.5
+	var x0 := float(c.x)
+	var z0 := float(c.y)
+	var edge := Color(0, 0, 0, RIM_ALPHA * clampf(k + 0.3, 0.0, 1.0))
+	var fade := Color(0, 0, 0, 0)
+	var w := RIM_W
+	for d: Vector2i in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+		var n := c + d
+		if not grid.in_bounds(n) or grid.has_flag(n, "wall") or float(grid.height(n)) >= top_c:
+			continue
+		var p: Array
+		var cols: Array
+		match d:
+			Vector2i.UP:
+				p = [Vector3(x0, y, z0), Vector3(x0 + 1, y, z0), Vector3(x0 + 1, y, z0 + w), Vector3(x0, y, z0 + w)]
+				cols = [edge, edge, fade, fade]
+			Vector2i.DOWN:
+				p = [Vector3(x0, y, z0 + 1 - w), Vector3(x0 + 1, y, z0 + 1 - w), Vector3(x0 + 1, y, z0 + 1), Vector3(x0, y, z0 + 1)]
+				cols = [fade, fade, edge, edge]
+			Vector2i.LEFT:
+				p = [Vector3(x0, y, z0), Vector3(x0 + w, y, z0), Vector3(x0 + w, y, z0 + 1), Vector3(x0, y, z0 + 1)]
+				cols = [edge, fade, fade, edge]
+			_:
+				p = [Vector3(x0 + 1 - w, y, z0), Vector3(x0 + 1, y, z0), Vector3(x0 + 1, y, z0 + 1), Vector3(x0 + 1 - w, y, z0 + 1)]
+				cols = [fade, edge, edge, fade]
+		mb.quad(p, Rect2(0, 0, 1, 1), Vector2.ONE, cols)
 
 
 ## 수평 네모(그림 위 = 북쪽)

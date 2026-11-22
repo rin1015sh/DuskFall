@@ -55,10 +55,24 @@ static func is_low_wall(grid: Node, c: Vector2i) -> bool:
 	return not open_south and grid.in_bounds(north) and not grid.has_flag(north, "wall")
 
 
-## 칸 윗면 높이(유닛). 벽은 보이는 꼭대기.
+## 벽이 서는 바닥 높이: 남쪽(화면 앞)이 바닥이면 그 칸 높이, 아니면 동·서·북 바닥 중 가장 높은 것(없으면 자기 높이).
+## 고지대 앞뒤의 벽이 땅에 묻히거나 떠 보이지 않게 한다.
+static func wall_base(grid: Node, c: Vector2i) -> float:
+	var south := c + Vector2i.DOWN
+	if grid.in_bounds(south) and not grid.has_flag(south, "wall"):
+		return float(grid.height(south))
+	var h: int = grid.height(c)
+	for d: Vector2i in [Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT]:
+		var n := c + d
+		if grid.in_bounds(n) and not grid.has_flag(n, "wall"):
+			h = maxi(h, grid.height(n))
+	return float(h)
+
+
+## 칸 윗면 높이(유닛). 벽은 보이는 꼭대기(서는 바닥 + 벽 높이).
 static func cell_top(grid: Node, c: Vector2i) -> float:
 	if grid.has_flag(c, "wall"):
-		return LOW_WALL_H if is_low_wall(grid, c) else WALL_H
+		return wall_base(grid, c) + (LOW_WALL_H if is_low_wall(grid, c) else WALL_H)
 	return float(grid.height(c))
 
 

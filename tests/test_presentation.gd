@@ -27,6 +27,10 @@ func test_view3d_coords_and_pick() -> void:
 	assert_eq(V.cell_top(room, Vector2i(1, 1)), V.LOW_WALL_H)
 	r = V.ray_through(V.pos(Vector2i(1, 0)))
 	assert_eq(V.pick(room, r[0], r[1]), Vector2i(1, 0), "낮은 벽 뒤 바닥 칸도 고를 수 있다")
+	var hill := make_grid(["###", "1..", "..."])
+	assert_eq(V.wall_base(hill, Vector2i(0, 0)), 1.0, "고지대 앞 벽은 고지대 바닥 위에 선다")
+	assert_eq(V.cell_top(hill, Vector2i(0, 0)), 1.0 + V.WALL_H)
+	assert_eq(V.wall_base(hill, Vector2i(1, 0)), 0.0, "옆 벽은 제 앞 바닥 높이")
 
 
 func test_camera_matches_view3d() -> void:
