@@ -68,9 +68,12 @@ res://
 
 ## 그래픽·입력 (데이터와 맞물리는 부분)
 
-- 시점: 3/4 탑뷰(scenes/battle/view3q.gd — 칸 64px 정사각형, 높이 1단계 = 화면 위로 40px, 벽 112px). 맵 그림은 던전 에셋 키트로 그린다:
+- 시점: 3/4 탑뷰, 표현 계층은 3D(scenes/battle/view3d.gd — 1칸 = 1유닛, 높이 1단계 = 1유닛, 직교 카메라가 남쪽 위 51.3°에서 내려다봄, 회전 없음).
+  확대 1에서 가로 1칸 = 64px, 높이 1단계 = 40px, 바닥 세로 1칸 ≈ 50px. 벽 2.8유닛(방 남쪽 벽은 0.5로 잘라 냄). 칸 고르기는 카메라 광선(view3d.pick).
+  바닥·벽·절벽은 그물(map_view.gd, terrain.gdshader — 캐릭터 앞 벽은 체크무늬로 비침), 캐릭터·소품은 세운 판(Sprite3D, 세로 1.6배 — scenes/kit/kit3d.gd), 바닥 무늬는 눕힌 판.
+  캡처: `--shot=<png> --frames=<n>`, 카메라 고정 `--cam=x,y --zoom=<배율>`. 맵 그림은 던전 에셋 키트로 그린다:
   맵 데이터 `art`(wall·wall_top·cliff·floors[범례 글자 → 키트 바닥]·props[키트 물건 at/id/v]). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`·`asset_library/`.
-- 캐릭터 그림(지금): assets/actors 걷기 시트 4방향(아래·왼·오른·위). 최종은 2D 일러스트 컷아웃(Skeleton2D) — 룰북 1단계.
+- 캐릭터 그림(지금): assets/actors 걷기 시트 4방향(아래·왼·오른·위). 최종은 2D 일러스트 컷아웃(Skeleton2D를 SubViewport로 그려 세운 판에 입힘) — 룰북 1단계.
 - 체형 틀: 보통(인간·엘프·티플링·오크), 작은(하플링·노움), 드워프는 작은 체형 변형. 드래곤본·골리앗은 없다.
 - 장비는 `sprite_parts`로 부위를 바꿔 끼우고, 재질·등급은 색 바꾸기 셰이더로 표현한다.
 - 화면 UI는 BG3 배치를 참고한다: 하단 단축 막대(scenes/ui/hotbar.gd), 왼쪽 세로 파티 초상, 위 이니셔티브 초상 줄, 오른쪽 위 원형 미니맵, 캐릭터·소지품 창(I).

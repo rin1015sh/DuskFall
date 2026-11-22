@@ -1,20 +1,66 @@
 extends "res://tests/test_case.gd"
 ## 4단계 표현 계층: 쿼터뷰 좌표, 바닥 타일맵 정렬, 입력 상태기계(마우스·터치 같은 의미 신호).
 
-const V := preload("res://scenes/battle/view3q.gd")
+const V := preload("res://scenes/battle/view3d.gd")
 const InputRouter := preload("res://scenes/battle/input_router.gd")
 const MapView := preload("res://scenes/battle/map_view.gd")
 const DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
 
 
-func test_view3q_ground_and_pick() -> void:
-	assert_eq(V.ground(Vector2i(0, 0)), Vector2(32, 32), "칸 중심")
-	assert_eq(V.ground(Vector2i(2, 1)), Vector2(160, 96))
+func test_view3d_coords_and_pick() -> void:
+	assert_eq(V.pos(Vector2i(0, 0)), Vector3(0.5, 0, 0.5), "칸 가운데")
+	assert_eq(V.pos(Vector2i(2, 1), 2), Vector3(2.5, 2, 1.5), "높이 1단계 = 1유닛")
+	assert_near(cos(V.PITCH) * V.T, V.STEP_PX, 0.01, "높이 1단계는 화면 40px(옛 2D와 같다)")
 	var g := make_grid(["....", "..2.", "...."])
-	assert_eq(V.pick(g, V.ground(Vector2i(1, 2))), Vector2i(1, 2))
-	assert_eq(V.pick(g, V.top(Vector2i(2, 1), 2)), Vector2i(2, 1), "높은 칸은 올라간 윗면으로 고른다")
+	var r: Array = V.ray_through(V.pos(Vector2i(1, 2)))
+	assert_eq(V.pick(g, r[0], r[1]), Vector2i(1, 2), "바닥 칸")
+	r = V.ray_through(V.pos(Vector2i(2, 1), 2))
+	assert_eq(V.pick(g, r[0], r[1]), Vector2i(2, 1), "높은 칸은 올라간 윗면으로 고른다")
+	# 높은 칸 앞면(절벽)을 누르면 뒤 칸이 아니라 그 높은 칸
+	r = V.ray_through(Vector3(2.5, 1.0, 2.0))
+	assert_eq(V.pick(g, r[0], r[1]), Vector2i(2, 1), "절벽 면은 그 높은 칸")
 	var w := make_grid(["...", ".#.", "..."])
-	assert_eq(V.pick(w, V.ground(Vector2i(1, 1)) - Vector2(0, V.WALL_H)), Vector2i(1, 1), "벽은 꼭대기로 고른다")
+	r = V.ray_through(V.pos(Vector2i(1, 1), V.WALL_H))
+	assert_eq(V.pick(w, r[0], r[1]), Vector2i(1, 1), "벽은 꼭대기로 고른다")
+	var room := make_grid(["...", "###"])
+	assert_true(V.is_low_wall(room, Vector2i(1, 1)), "방 남쪽 벽은 낮게 자른다")
+	assert_eq(V.cell_top(room, Vector2i(1, 1)), V.LOW_WALL_H)
+	r = V.ray_through(V.pos(Vector2i(1, 0)))
+	assert_eq(V.pick(room, r[0], r[1]), Vector2i(1, 0), "낮은 벽 뒤 바닥 칸도 고를 수 있다")
+
+
+func test_camera_matches_view3d() -> void:
+	var cam: Camera3D = own(Camera3D.new())
+	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
+	var target := Vector3(5, 0, 5)
+	cam.transform = V.camera_transform(target)
+	assert_true(cam.transform.basis.z.y > 0.7 and cam.transform.basis.z.z > 0.5, "남쪽 위에서 내려다본다")
+	assert_near((-cam.transform.basis.z).angle_to(Vector3(0, 0, -1)), V.PITCH, 0.001, "내려다보는 각")
+	assert_near(V.pan_delta(Vector2(64, 0), 1.0).x, 1.0, 0.001, "가로 64px = 1칸")
+
+
+## 실제 카메라로: 칸 윗면 가운데를 화면에 투영한 점을 누르면 그 칸(가려진 칸 — 높은 칸 바로 북쪽 — 은 뺀다)
+func test_camera_pick_round_trip() -> void:
+	var g := make_grid(["......", "..22..", "..22..", "......", ".#....", "......"])
+	var cam: Camera3D = own(Camera3D.new())
+	tree.root.add_child(cam)
+	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
+	cam.near = 1.0
+	cam.far = V.CAM_DIST * 2.0
+	cam.transform = V.camera_transform(Vector3(3, 0, 3))
+	cam.size = V.ortho_size(cam.get_viewport().get_visible_rect().size.y, 0.92)
+	cam.make_current()
+	var hidden := [Vector2i(2, 0), Vector2i(3, 0), Vector2i(1, 2), Vector2i(1, 3)]  # 높은 칸·벽(2.8) 바로 북쪽
+	for c: Vector2i in g.all_cells():
+		if c in hidden:
+			continue
+		var sp := cam.unproject_position(V.top(g, c))
+		assert_eq(V.pick(g, cam.project_ray_origin(sp), cam.project_ray_normal(sp)), c, "왕복 %s" % str(c))
+	# 높이 1단계 = 화면 40px(확대 1)
+	cam.size = V.ortho_size(cam.get_viewport().get_visible_rect().size.y, 1.0)
+	var a := cam.unproject_position(V.pos(Vector2i(0, 5), 0))
+	var b := cam.unproject_position(V.pos(Vector2i(0, 5), 1))
+	assert_near(a.y - b.y, V.STEP_PX, 0.5, "높이 1단계 = 40px")
 
 
 func test_dungeon_kit_loads() -> void:
@@ -24,16 +70,24 @@ func test_dungeon_kit_loads() -> void:
 	assert_true(kit.texture("brazier", "lit") != null, "키트 그림")
 
 
-func test_floor_tilemap_aligned_with_view() -> void:
-	var g := make_grid(["....", "...."])
-	var view: Node2D = own(MapView.new())
-	var sorted: Node2D = own(Node2D.new())
-	view.add_child(sorted)
+func test_map_view_builds_terrain() -> void:
+	var g := make_grid(["....", "..2.", "...."])
+	var root: Node3D = own(Node3D.new())
+	var view: Node3D = MapView.new()
+	root.add_child(view)
+	var sorted := Node3D.new()
+	root.add_child(sorted)
 	view.build(g, sorted, {})
-	var layer: TileMapLayer = view._floors[0]
-	for c in [Vector2i(0, 0), Vector2i(3, 1)]:
-		assert_eq(layer.position + layer.map_to_local(c), V.ground(c), "바닥 타일 중심 = 칸 중심 %s" % str(c))
-		assert_true(layer.get_cell_source_id(c) >= 0, "바닥 타일이 깔렸다")
+	var floors: ArrayMesh = view._floor_mi.mesh
+	assert_true(floors.get_surface_count() == 1, "바닥 그물")
+	var verts: PackedVector3Array = floors.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	assert_eq(verts.size(), 12 * 4, "칸마다 네모 하나")
+	assert_true(verts.has(Vector3(2, 2, 1)) and verts.has(Vector3(3, 2, 2)), "높은 칸 바닥은 높이 2에")
+	var faces: ArrayMesh = view._face_mi.mesh
+	assert_true(faces.get_surface_count() == 1, "높은 칸 남쪽 절벽 면")
+	var fv: PackedVector3Array = faces.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	for v: Vector3 in fv:
+		assert_near(v.z, 2.0, 0.001, "절벽 면은 높은 칸 남쪽 변에 세운다")
 
 
 func _router() -> Array:
@@ -125,6 +179,7 @@ func test_touch_long_press_drag_and_pinch() -> void:
 func test_all_scene_scripts_compile() -> void:
 	for path: String in ["res://scenes/battle/battle_scene.gd", "res://scenes/battle/actor_view.gd", "res://scenes/battle/map_view.gd",
 			"res://scenes/battle/input_router.gd", "res://scenes/ui/character_creation.gd", "res://scenes/battle/test_roster.gd",
-			"res://scenes/ui/hotbar.gd", "res://scenes/ui/ui_style.gd", "res://scenes/ui/character_sheet.gd", "res://scenes/ui/minimap.gd", "res://scenes/battle/vfx.gd", "res://scenes/ui/action_icons.gd"]:
+			"res://scenes/ui/hotbar.gd", "res://scenes/ui/ui_style.gd", "res://scenes/ui/character_sheet.gd", "res://scenes/ui/minimap.gd", "res://scenes/battle/vfx.gd", "res://scenes/ui/action_icons.gd",
+			"res://scenes/battle/view3d.gd", "res://scenes/kit/kit3d.gd"]:
 		var s: Script = load(path)
 		assert_true(s != null and s.can_instantiate(), "%s 컴파일 실패" % path)

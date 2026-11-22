@@ -623,7 +623,7 @@ SRD 5.2의 배경은 Acolyte·Criminal·Sage·Soldier 4개, 재주는 출신 4·
 | Creature | 노드 | 능력치·상태·자원. 스프라이트와 분리 |
 | Presentation | 씬 | 스프라이트·이펙트·UI. 규칙 결과를 구독만 함 |
 
-GridWorld는 화면 좌표를 모른다. 2D 쿼터뷰의 TileMapLayer는 GridWorld를 그리는 표현일 뿐이라, 높이·시야 판정은 항상 데이터상의 칸에서 한다(1단계).
+GridWorld는 화면 좌표를 모른다. 쿼터뷰 3D 표현 계층(scenes/battle — 바닥·벽 그물, 세운 그림 판)은 GridWorld를 그리는 표현일 뿐이라, 높이·시야 판정은 항상 데이터상의 칸에서 한다(1단계).
 
 ```text
 res://

@@ -1,13 +1,18 @@
-extends Node2D
-## 3/4 탑뷰 맵 그리기(표현 계층). GridWorld를 읽어 던전 에셋 키트(assets/dungeon_kit, scenes/kit/dungeon_kit.gd) 그림으로 그린다.
-## - 바닥: 높이마다 TileMapLayer(키트 바닥 4×4 이어지는 그림). 맵 데이터 art.floors(범례 글자 → 키트 바닥)·재질 기본값.
-## - 벽: 칸마다 블록(윗면 = 키트 벽 윗면 자동 연결 16가지, 남쪽 면 = 키트 벽면). 높은 칸 남쪽은 절벽 면.
-## - 소품: 맵 데이터 art.props(키트 물건). 규칙 물체(기름통 등)는 art 키 또는 기본 그림.
+extends Node3D
+## 3/4 탑뷰 맵 그리기(표현 계층, 3D). GridWorld를 읽어 던전 에셋 키트(assets/dungeon_kit, scenes/kit/dungeon_kit.gd) 그림으로 쌓는다.
+## 좌표는 view3d.gd(1칸 = 1유닛, 높이 1단계 = 1유닛).
+## - 바닥: 칸마다 높이에 놓인 네모(키트 바닥 4×4 이어지는 그림). 맵 데이터 art.floors(범례 글자 → 키트 바닥)·재질 기본값.
+## - 벽: 칸마다 기둥(윗면 = 키트 벽 윗면 자동 연결 16가지, 남쪽 면 = 키트 벽면). 높은 칸 남쪽은 절벽 면.
+##   카메라는 남쪽에서만 보므로(회전 없음) 동·서·북 면은 보이지 않아 만들지 않는다.
+## - 소품: 맵 데이터 art.props(키트 물건 — 서 있는 것은 세운 판, 바닥 무늬는 눕힌 판). 규칙 물체(기름통 등)는 art 키 또는 기본 그림.
 ## - 표면·구름: 키트 바닥(물·얼음·진흙)·불꽃 애니메이션·얼룩·안개로 그린다(규칙 상태를 그리기만).
-## - 빛: 규칙의 빛 단계로 어둠을 덮는다. 캐릭터를 가리는 앞쪽 블록은 반투명.
+## - 빛: 규칙의 빛 단계로 정점 색을 어둡게(칸 모서리마다 이웃 평균). 캐릭터를 가리는 앞쪽 벽·절벽은 체크무늬로 비친다.
 
-const V := preload("res://scenes/battle/view3q.gd")
+const V := preload("res://scenes/battle/view3d.gd")
 const DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
+const Kit3D := preload("res://scenes/kit/kit3d.gd")
+const TERRAIN_SHADER := preload("res://scenes/battle/terrain.gdshader")
+const OVERLAY_SHADER := preload("res://scenes/battle/overlay.gdshader")
 
 const MATERIAL_FLOORS := {"stone": "floor_flag", "earth": "floor_dirt", "grass": "ground_grass", "brush": "ground_thicket",
 	"wood": "room_wood", "burnt_ground": "ground_ash", "metal": "floor_brick", "glass": "floor_flag", "cloth": "floor_old"}
@@ -20,99 +25,95 @@ const SURFACE_ART := {
 	"thorns": ["prop", "weeds", "dead_bush"]}
 const SURFACE_TINT := {"electrified_water": Color(0.6, 0.85, 1.4), "acid": Color(0.8, 1.2, 0.6)}
 const CLOUD_ART := {"steam": "grey", "fog": "grey", "magical_darkness": "black", "sleet": "blue", "stinking_cloud": "violet"}
-## 빛 단계별 어둠 덮개 불투명도(어둠·어스름·밝음)
-const DARK_ALPHA := [0.82, 0.5, 0.06]
-## 방 남쪽 벽의 잘린 높이
-const LOW_WALL_H := 20.0
+## 벽 윗면·벽면·절벽 면 밝기(옛 2D와 같다)
+const TOP_SHADE := 0.32
+const FACE_SHADE := Color(0.78, 0.78, 0.74)
+const CLIFF_SHADE := 0.8
+## 벽 밑동 그늘 띠(유닛)·밝기
+const FOOT_H := 0.15
+const FOOT_SHADE := 0.65
 
 var grid: Node
 var map: Dictionary = {}
 var kit: RefCounted
-var sorted: Node2D
-var _floors := {}  # 높이 → TileMapLayer
-var _blocks: Array[Node2D] = []
+var sorted: Node3D
+## 지형 그물(바닥·벽윗면·벽면) 하나씩
+var _floor_mi: MeshInstance3D
+var _top_mi: MeshInstance3D
+var _face_mi: MeshInstance3D
+var _water_mi: MeshInstance3D
+var _mats := {}  # 이름 → ShaderMaterial
 ## 서 있는 큰 소품(나무·천막 등): 캐릭터를 가리면 반투명
-var _tall_props: Array[Node2D] = []
+var _tall_props: Array[Node3D] = []
+## 소품 → 칸(빛 단계 색)
+var _prop_cells := {}
 var _surface_nodes: Array[Node] = []
-var _decals: Node2D
-var _shade: Node2D
-var _overlay: Node2D
+## 같은 칸 정보면 지형을 다시 쌓지 않는다
+var _terrain_key := ""
 
 
-class Block extends Node2D:
-	## 벽 블록 또는 높은 칸의 절벽 면. 위치 = 칸 아랫변(y 정렬 기준).
-	var tex: Texture2D
-	var top_src := Rect2()
-	var face_src := Rect2()
-	var face_h := 0.0
-	var top_lift := 0.0
-	var has_top := false
-	var shade := 1.0
-	var top_shade := 0.32
+## 정점·UV·색을 모아 ArrayMesh로
+class MeshBuilder:
+	var verts := PackedVector3Array()
+	var uvs := PackedVector2Array()
+	var cols := PackedColorArray()
+	var idx := PackedInt32Array()
 
-	func _draw() -> void:
-		var t := float(V.T)
-		if face_h > 0.0 and tex != null:
-			draw_texture_rect_region(tex, Rect2(0, -face_h, t, face_h), face_src, Color(shade * 0.78, shade * 0.78, shade * 0.74))
-			# 벽 밑동 그늘(바닥과 만나는 선)
-			draw_rect(Rect2(0, -6, t, 6), Color(0, 0, 0, 0.35))
-		if has_top and tex != null:
-			draw_texture_rect_region(tex, Rect2(0, -t - top_lift, t, t), top_src, Color(top_shade, top_shade, top_shade))
+	## p: 네 모서리(왼위·오른위·오른아래·왼아래 — 그림 기준), uv: 그림 네모(px), size: 그림 판 크기(px), c: 네 모서리 색
+	func quad(p: Array, src: Rect2, size: Vector2, c: Array) -> void:
+		var n := verts.size()
+		var inset := Vector2(0.25, 0.25)
+		var a := (src.position + inset) / size
+		var b := (src.end - inset) / size
+		var uv := [a, Vector2(b.x, a.y), b, Vector2(a.x, b.y)]
+		for i in 4:
+			verts.append(p[i])
+			uvs.append(uv[i])
+			cols.append(c[i])
+		idx.append_array(PackedInt32Array([n, n + 1, n + 2, n, n + 2, n + 3]))
 
-
-class TileOverlay extends Node2D:
-	## 표면 바닥 그림(물·얼음·진흙) 칸마다
-	var items: Array = []  # [rect, texture, src, color]
-
-	func _draw() -> void:
-		for it: Array in items:
-			draw_texture_rect_region(it[1], it[0], it[2], it[3])
-
-
-class Shade extends Node2D:
-	## 어둠 덮개: 칸 모서리마다 이웃 평균 불투명도(부드럽게)
-	var view: Node
-
-	func _draw() -> void:
-		var g: Node = view.grid
-		var alpha := {}
-		for c: Vector2i in g.all_cells():
-			alpha[c] = view.DARK_ALPHA[g.light_at(c)]
-		for c: Vector2i in g.all_cells():
-			var r: Rect2 = V.top_rect(g, c)
-			var cols := PackedColorArray()
-			for d: Vector2i in [Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 1)]:
-				var s := 0.0
-				var n := 0
-				for o: Vector2i in [Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 0)]:
-					var k: Vector2i = c + d + o
-					if alpha.has(k):
-						s += alpha[k]
-						n += 1
-				cols.append(Color(0.02, 0.02, 0.05, s / maxi(n, 1)))
-			if g.has_flag(c, "wall"):
-				# 벽은 윗면과 앞면까지 덮는다
-				r = Rect2(r.position, Vector2(r.size.x, r.size.y + V.WALL_H))
-			draw_polygon(V.corners(r), cols)
+	func mesh() -> ArrayMesh:
+		var m := ArrayMesh.new()
+		if verts.is_empty():
+			return m
+		var arr := []
+		arr.resize(Mesh.ARRAY_MAX)
+		arr[Mesh.ARRAY_VERTEX] = verts
+		arr[Mesh.ARRAY_TEX_UV] = uvs
+		arr[Mesh.ARRAY_COLOR] = cols
+		arr[Mesh.ARRAY_INDEX] = idx
+		m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+		return m
 
 
-func build(g: Node, sorted_layer: Node2D, map_data: Dictionary = {}) -> void:
+func build(g: Node, sorted_layer: Node3D, map_data: Dictionary = {}) -> void:
 	grid = g
 	map = map_data
 	sorted = sorted_layer
 	kit = DungeonKit.open()
-	_decals = Node2D.new()
-	_decals.z_index = 1
-	add_child(_decals)
-	_overlay = Node2D.new()
-	_overlay.z_index = 2
-	add_child(_overlay)
-	_shade = Shade.new()
-	_shade.view = self
-	_shade.z_index = 40
-	add_child(_shade)
-	_build_static()
+	kit.tileset()
+	_floor_mi = _mesh_node("floors", TERRAIN_SHADER, false)
+	_top_mi = _mesh_node("wall_tops", TERRAIN_SHADER, true)
+	_face_mi = _mesh_node("wall_faces", TERRAIN_SHADER, true)
+	_water_mi = _mesh_node("floors", OVERLAY_SHADER, false, "floors_overlay")
+	_build_props()
 	refresh()
+
+
+func _mesh_node(sheet: String, shader: Shader, cutaway: bool, key: String = "") -> MeshInstance3D:
+	var mat := ShaderMaterial.new()
+	mat.shader = shader
+	mat.set_shader_parameter("tex", kit._sheet(sheet))
+	if cutaway:
+		mat.set_shader_parameter("cutaway", true)
+	if shader == OVERLAY_SHADER:
+		mat.render_priority = 1
+	_mats[key if key != "" else sheet] = mat
+	var mi := MeshInstance3D.new()
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mi)
+	return mi
 
 
 func art() -> Dictionary:
@@ -137,101 +138,157 @@ func _legend_char(c: Vector2i) -> String:
 	return ""
 
 
-## 한 번만: 벽 블록·소품·조명
-func _build_static() -> void:
+func _sheet_size(sheet: String) -> Vector2:
+	var t: Texture2D = kit._sheet(sheet)
+	return t.get_size() if t != null else Vector2.ONE
+
+
+## 한 번만: 소품(맵 데이터 art.props)
+func _build_props() -> void:
+	for p: Dictionary in art().get("props", []):
+		var cell := Vector2i(int(p["at"][0]), int(p["at"][1]))
+		var node: Node3D = Kit3D.make(kit, p["id"], p.get("v", ""), {"flip": p.get("flip", false), "up": p.get("up", 0.0), "scale": float(p.get("scale", 1.0))})
+		node.position = _prop_pos(cell, float(p.get("dx", 0.0)), float(p.get("dy", 0.0)))
+		sorted.add_child(node)
+		_prop_cells[node] = cell
+		if String(node.get_meta("kit_layer", "stand")) == "stand" and (String(p["id"]).begins_with("tree") or p["id"] in ["tent", "pillar", "gibbet", "statue"]):
+			_tall_props.append(node)
+
+
+## 소품 발 위치. 옛 2D 배치(칸 가운데 + 아래로 0.3칸 + dx·dy px)를 바닥 위 위치로 옮긴다.
+## 벽 칸의 소품(횃불·이끼·거미줄 등)은 벽 남쪽 면 바로 앞에 붙인다(dy px만큼 화면 위아래).
+func _prop_pos(cell: Vector2i, dx: float, dy: float) -> Vector3:
+	var x := cell.x + 0.5 + dx / V.T
+	if grid.in_bounds(cell) and grid.has_flag(cell, "wall"):
+		var south := cell + Vector2i.DOWN
+		var base: float = float(grid.height(south)) if grid.in_bounds(south) and not grid.has_flag(south, "wall") else 0.0
+		# 옛 2D: 발이 벽면 아래 끝에서 (0.2칸 − dy)px 위
+		return Vector3(x, base + maxf(0.0, (V.T * 0.2 - dy) / V.STEP_PX), cell.y + 1.02)
+	return Vector3(x, float(grid.height(cell)) if grid.in_bounds(cell) else 0.0, cell.y + 0.8 + dy / V.T)
+
+
+## 칸 데이터가 바뀌면(표면·재질·빛) 다시 그린다.
+func refresh() -> void:
+	var key := _make_terrain_key()
+	if key != _terrain_key:
+		_terrain_key = key
+		_build_terrain()
+	_refresh_surfaces()
+	for n: Node3D in _prop_cells:
+		if is_instance_valid(n):
+			Kit3D.tint(n, V.light_tint(grid, _prop_cells[n]))
+
+
+func _make_terrain_key() -> String:
+	var parts := PackedStringArray()
+	for c: Vector2i in grid.all_cells():
+		parts.append("%d%s%d" % [grid.light_at(c), grid.material(c), grid.height(c)])
+	return "".join(parts)
+
+
+## 칸 모서리(왼위 기준 d)의 어둠 = 둘레 네 칸 평균
+func _corner_dark(dark: Dictionary, c: Vector2i, d: Vector2i) -> float:
+	var s := 0.0
+	var n := 0
+	for o: Vector2i in [Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 0)]:
+		var k: Vector2i = c + d + o
+		if dark.has(k):
+			s += dark[k]
+			n += 1
+	return s / maxi(n, 1)
+
+
+func _corner_cols(dark: Dictionary, c: Vector2i, base: Color) -> Array:
+	var out := []
+	for d: Vector2i in [Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 1)]:
+		var k := 1.0 - _corner_dark(dark, c, d)
+		out.append(Color(base.r * k, base.g * k, base.b * k, base.a))
+	return out
+
+
+func _build_terrain() -> void:
+	var dark := {}
+	for c: Vector2i in grid.all_cells():
+		dark[c] = V.DARK_ALPHA[grid.light_at(c)]
+	var floors := MeshBuilder.new()
+	var tops := MeshBuilder.new()
+	var faces := MeshBuilder.new()
+	var fsize := _sheet_size("floors")
+	var tsize := _sheet_size("wall_tops")
+	var wsize := _sheet_size("wall_faces")
 	var wall_kind: String = art().get("wall", "cave")
 	var top_kind: String = art().get("wall_top", wall_kind)
 	var face_info: Dictionary = kit.info("wall_%s" % wall_kind)
 	var top_info: Dictionary = kit.info("wall_top")
-	var tex: Texture2D = kit._sheet("wall_faces")
-	var top_tex: Texture2D = kit._sheet("wall_tops")
 	var face_frame: Array = face_info.get("variants", {}).get("clean", {"frames": [[0, 0, 256, 160, 0, 0]]})["frames"][0]
 	var top_frame: Array = top_info.get("variants", {}).get(top_kind, top_info.get("variants", {}).get("a", {"frames": [[0, 0, 256, 256, 0, 0]]}))["frames"][0]
+	var cliff_frame: Array = kit.info("wall_%s" % art().get("cliff", wall_kind)).get("variants", {}).get("clean", {"frames": [face_frame]})["frames"][0]
+	var t := float(V.T)
 	for c: Vector2i in grid.all_cells():
+		var x0 := float(c.x)
+		var z0 := float(c.y)
 		if grid.has_flag(c, "wall"):
-			var b := Block.new()
-			b.position = Vector2(c.x * V.T, (c.y + 1) * V.T)
-			b.tex = tex
+			var wall_h: float = V.cell_top(grid, c)
 			var mask := 0
 			for bit: Array in [[1, Vector2i.UP], [2, Vector2i.RIGHT], [4, Vector2i.DOWN], [8, Vector2i.LEFT]]:
 				var n: Vector2i = c + (bit[1] as Vector2i)
 				if not grid.in_bounds(n) or grid.has_flag(n, "wall"):
 					mask |= int(bit[0])
+			var tsrc := Rect2(float(top_frame[0]) + (mask % 4) * t, float(top_frame[1]) + (mask / 4) * t, t, t)
+			tops.quad(_flat_quad(x0, z0, wall_h), tsrc, tsize, _corner_cols(dark, c, Color(TOP_SHADE, TOP_SHADE, TOP_SHADE)))
 			var south := c + Vector2i.DOWN
-			var north := c + Vector2i.UP
-			var open_south: bool = grid.in_bounds(south) and not grid.has_flag(south, "wall")
-			# 방의 남쪽 벽(북쪽이 바닥이고 남쪽이 막힘)은 방 안을 가리지 않게 낮게 자른다(이전 게임 규칙)
-			var low: bool = not open_south and grid.in_bounds(north) and not grid.has_flag(north, "wall")
-			var wall_h: float = LOW_WALL_H if low else V.WALL_H
-			b.face_h = V.WALL_H if open_south else 0.0
-			var state: String = ["clean", "cracked", "mossy", "damaged"][posmod(c.x * 7 + c.y * 13, 4)] if open_south else "clean"
-			var ff: Array = face_info.get("variants", {}).get(state, {"frames": [face_frame]})["frames"][0]
-			b.face_src = Rect2(float(ff[0]) + posmod(c.x, 4) * V.T, float(ff[1]) + float(ff[3]) - V.WALL_H, V.T, V.WALL_H)
-			b.has_top = true
-			b.top_src = Rect2(float(top_frame[0]) + (mask % 4) * V.T, float(top_frame[1]) + (mask / 4) * V.T, V.T, V.T)
-			# 윗면은 다른 그림(벽 윗면 시트)
-			var tb := Block.new()
-			tb.tex = top_tex
-			tb.has_top = true
-			tb.top_src = b.top_src
-			tb.top_lift = wall_h
-			b.add_child(tb)
-			b.has_top = false
-			sorted.add_child(b)
-			_blocks.append(b)
+			if grid.in_bounds(south) and not grid.has_flag(south, "wall"):
+				var state: String = ["clean", "cracked", "mossy", "damaged"][posmod(c.x * 7 + c.y * 13, 4)]
+				var ff: Array = face_info.get("variants", {}).get(state, {"frames": [face_frame]})["frames"][0]
+				var src := Rect2(float(ff[0]) + posmod(c.x, 4) * t, float(ff[1]) + float(ff[3]) - V.WALL_H * V.STEP_PX, t, V.WALL_H * V.STEP_PX)
+				_face(faces, x0, z0 + 1.0, 0.0, wall_h, src, wsize, FACE_SHADE, 1.0 - float(dark[c]), true)
 		else:
 			var h: int = grid.height(c)
+			var fsrc := _floor_src(c)
+			if fsrc.size.x > 0.0:
+				floors.quad(_flat_quad(x0, z0, float(h)), fsrc, fsize, _corner_cols(dark, c, Color.WHITE))
 			var south := c + Vector2i.DOWN
 			var hs: int = grid.height(south) if grid.in_bounds(south) and not grid.has_flag(south, "wall") else h
 			if h > hs:
-				var cb := Block.new()
-				cb.position = Vector2(c.x * V.T, (c.y + 1) * V.T - hs * V.STEP)
-				cb.tex = tex
-				cb.face_h = (h - hs) * V.STEP
-				var cf: Array = kit.info("wall_%s" % art().get("cliff", wall_kind)).get("variants", {}).get("clean", {"frames": [face_frame]})["frames"][0]
-				cb.face_src = Rect2(float(cf[0]) + posmod(c.x, 4) * V.T, float(cf[1]) + float(cf[3]) - cb.face_h, V.T, cb.face_h)
-				cb.shade = 0.8
-				sorted.add_child(cb)
-				_blocks.append(cb)
-	# 소품
-	for p: Dictionary in art().get("props", []):
-		var cell := Vector2i(int(p["at"][0]), int(p["at"][1]))
-		var node: Node2D = kit.make(p["id"], p.get("v", ""), {"collision": false, "flip": p.get("flip", false), "up": p.get("up", 0.0)})
-		node.position = V.top(cell, grid.height(cell)) + Vector2(float(p.get("dx", 0.0)), float(p.get("dy", 0.0)) + V.T * 0.3)
-		node.scale = Vector2.ONE * float(p.get("scale", 1.0))
-		var layer := String(node.get_meta("kit_layer", "stand"))
-		if layer == "decal":
-			node.z_index = 0
-			_decals.add_child(node)
-		else:
-			if layer == "over":
-				node.z_index = 30
-			else:
-				node.z_index = 0
-				if String(p["id"]).begins_with("tree") or p["id"] in ["tent", "pillar", "gibbet", "statue"]:
-					_tall_props.append(node)
-			sorted.add_child(node)
+				# 절벽 면: 한 단계(40px)씩 키트 벽면 조각을 아래에서부터 쌓는다. 밝기는 면이 보는 남쪽 칸(옛 2D와 같다).
+				var k := 1.0 - float(dark.get(south, dark[c]))
+				for j in h - hs:
+					var sy := float(cliff_frame[1]) + float(cliff_frame[3]) - V.STEP_PX * (posmod(j, 4) + 1)
+					var src := Rect2(float(cliff_frame[0]) + posmod(c.x, 4) * t, sy, t, V.STEP_PX)
+					_face(faces, x0, z0 + 1.0, float(hs + j), float(hs + j + 1), src, wsize, FACE_SHADE * CLIFF_SHADE, k, j == 0)
+	_floor_mi.mesh = floors.mesh()
+	_top_mi.mesh = tops.mesh()
+	_face_mi.mesh = faces.mesh()
 
 
-## 칸 데이터가 바뀌면(표면·재질·빛) 다시 그린다.
-func refresh() -> void:
-	for h: int in _floors.keys():
-		_floors[h].clear()
-	for c: Vector2i in grid.all_cells():
-		if grid.has_flag(c, "wall"):
-			continue
-		var h: int = grid.height(c)
-		if not _floors.has(h):
-			var tl := TileMapLayer.new()
-			tl.tile_set = kit.tileset()
-			tl.collision_enabled = false
-			tl.position = -tl.map_to_local(Vector2i.ZERO) + V.ground(Vector2i.ZERO) - Vector2(0, h * V.STEP)
-			tl.z_index = -10 + h
-			add_child(tl)
-			_floors[h] = tl
-		kit.put_floor(_floors[h], c, _floor_id(c), "a" if posmod(c.x / 4 + c.y / 4, 2) == 0 else "b")
-	_refresh_surfaces()
-	_shade.queue_redraw()
+## 수평 네모(그림 위 = 북쪽)
+func _flat_quad(x0: float, z0: float, y: float) -> Array:
+	return [Vector3(x0, y, z0), Vector3(x0 + 1, y, z0), Vector3(x0 + 1, y, z0 + 1), Vector3(x0, y, z0 + 1)]
+
+
+## 남쪽을 보는 세운 면(z 고정, y0 → y1). foot이면 밑동 그늘 띠를 따로 어둡게.
+func _face(mb: MeshBuilder, x0: float, z: float, y0: float, y1: float, src: Rect2, size: Vector2, shade: Color, k: float, foot: bool) -> void:
+	var col := Color(shade.r * k, shade.g * k, shade.b * k)
+	var split := y0 + FOOT_H if foot and y1 - y0 > FOOT_H * 2.0 else y0
+	if split > y0:
+		var fy := src.end.y - (split - y0) / (y1 - y0) * src.size.y
+		var dim := Color(col.r * FOOT_SHADE, col.g * FOOT_SHADE, col.b * FOOT_SHADE)
+		mb.quad([Vector3(x0, split, z), Vector3(x0 + 1, split, z), Vector3(x0 + 1, y0, z), Vector3(x0, y0, z)],
+			Rect2(src.position.x, fy, src.size.x, src.end.y - fy), size, [col, col, dim, dim])
+		src = Rect2(src.position, Vector2(src.size.x, fy - src.position.y))
+	mb.quad([Vector3(x0, y1, z), Vector3(x0 + 1, y1, z), Vector3(x0 + 1, split, z), Vector3(x0, split, z)], src, size, [col, col, col, col])
+
+
+## 칸의 키트 바닥 그림 네모(px). 넓은 그림(span 4)은 칸 좌표를 나눈 나머지 조각 — 이웃 칸과 이어진다.
+func _floor_src(c: Vector2i) -> Rect2:
+	var id := _floor_id(c)
+	var variant := "a" if posmod(c.x / 4 + c.y / 4, 2) == 0 else "b"
+	var tl: Dictionary = kit.tile_of("%s.%s" % [id, kit._variant_name(id, variant)])
+	if tl.is_empty():
+		return Rect2()
+	var span: Vector2i = tl["span"]
+	var at: Vector2i = (tl["base"] as Vector2i) + Vector2i(posmod(c.x, span.x), posmod(c.y, span.y))
+	return Rect2(Vector2(at) * V.T, Vector2(V.T, V.T))
 
 
 func _refresh_surfaces() -> void:
@@ -239,13 +296,12 @@ func _refresh_surfaces() -> void:
 		if is_instance_valid(n):
 			n.queue_free()
 	_surface_nodes.clear()
-	var tiles := TileOverlay.new()
-	tiles.z_index = 1
-	_overlay.add_child(tiles)
-	_surface_nodes.append(tiles)
+	var water := MeshBuilder.new()
+	var fsize := _sheet_size("floors")
 	for c: Vector2i in grid.all_cells():
 		var sid: String = grid.surface_id(c)
-		var h: int = grid.height(c)
+		var h: float = float(grid.height(c))
+		var tint := V.light_tint(grid, c)
 		if sid != "" and SURFACE_ART.has(sid):
 			var a: Array = SURFACE_ART[sid]
 			if a[0] == "tile":
@@ -253,52 +309,61 @@ func _refresh_surfaces() -> void:
 				var f: Array = info.get("variants", {}).values()[0]["frames"][0]
 				var src := Rect2(float(f[0]) + posmod(c.x, 4) * V.T, float(f[1]) + posmod(c.y, 4) * V.T, V.T, V.T)
 				var col: Color = SURFACE_TINT.get(sid, Color(1, 1, 1, 0.92))
-				tiles.items.append([V.top_rect(grid, c), kit._sheet(String(info["sheet"])), src, col])
+				col = Color(col.r * tint.r, col.g * tint.g, col.b * tint.b, col.a)
+				water.quad(_flat_quad(c.x, c.y, h + V.LIFT), src, fsize, [col, col, col, col])
 			else:
-				var node: Node2D = kit.make(a[1], a[2], {"collision": false})
-				node.position = V.top(c, h) + Vector2(0, V.T * 0.25)
-				if SURFACE_TINT.has(sid):
-					node.modulate = SURFACE_TINT[sid]
-				if a[1] == "flame" or a[1] == "weeds":
-					sorted.add_child(node)
-				else:
-					_overlay.add_child(node)
+				var node: Node3D = Kit3D.make(kit, a[1], a[2])
+				node.position = V.pos(c, h) + Vector3(0, 0.004 if node.rotation.x != 0.0 else 0.0, 0.25)
+				var col: Color = SURFACE_TINT.get(sid, Color.WHITE)
+				Kit3D.tint(node, Color(col.r * tint.r, col.g * tint.g, col.b * tint.b))
+				sorted.add_child(node)
 				_surface_nodes.append(node)
 		var cid: String = grid.cloud_id(c)
 		if cid != "" and posmod(c.x + c.y, 2) == 0:
-			var m: Node2D = kit.make("mist", CLOUD_ART.get(cid, "grey"), {"collision": false})
-			m.position = V.top(c, h) + Vector2(V.T * 0.5, V.T * 0.4)
-			m.z_index = 30
-			m.modulate.a = 0.85
+			var m: Node3D = Kit3D.make(kit, "mist", CLOUD_ART.get(cid, "grey"))
+			m.position = V.pos(c, h) + Vector3(0, 0, 0.4)
+			var ms: Variant = m.get_meta("sprite", null)
+			if ms is SpriteBase3D:
+				(ms as SpriteBase3D).alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED
+				(ms as SpriteBase3D).modulate = Color(tint.r, tint.g, tint.b, 0.85)
 			add_child(m)
 			_surface_nodes.append(m)
 		var obj: Dictionary = grid.object_at(c)
 		if not obj.is_empty():
 			var ref: String = obj.get("art", "barrel.intact")
-			var on: Node2D = kit.make(ref.get_slice(".", 0), ref.get_slice(".", 1), {"collision": false})
-			on.position = V.top(c, h) + Vector2(0, V.T * 0.3)
+			var on: Node3D = Kit3D.make(kit, ref.get_slice(".", 0), ref.get_slice(".", 1))
+			on.position = V.pos(c, h) + Vector3(0, 0, 0.3)
+			Kit3D.tint(on, tint)
 			sorted.add_child(on)
 			_surface_nodes.append(on)
-	tiles.queue_redraw()
+	_water_mi.mesh = water.mesh()
 
 
-## 캐릭터를 가리는 블록(앞쪽이고 화면에서 겹침)을 반투명하게.
-func update_occlusion(actor_rects: Array) -> void:
-	for b in _blocks:
-		var faded := false
-		var rect := Rect2(b.position + Vector2(0, -V.WALL_H - V.T), Vector2(V.T, V.WALL_H + V.T))
-		for ar: Array in actor_rects:
-			if b.position.y > ar[1] + 8 and rect.intersects(ar[0]):
-				faded = true
-				break
-		b.modulate.a = 0.4 if faded else 1.0
+## 캐릭터를 가리는 앞쪽 벽·절벽은 셰이더가 비춘다(발 위치·크기 배율 목록). 큰 소품은 반투명.
+## actors: [[발 위치 Vector3, 크기 배율 float], ...]
+func update_occlusion(actors: Array) -> void:
+	var arr := PackedVector4Array()
+	for a: Array in actors.slice(0, 24):
+		var p: Vector3 = a[0]
+		arr.append(Vector4(p.x, p.y, p.z, float(a[1])))
+	var count := arr.size()
+	arr.resize(24)
+	for key: String in ["wall_tops", "wall_faces"]:
+		var mat: ShaderMaterial = _mats[key]
+		mat.set_shader_parameter("actors", arr)
+		mat.set_shader_parameter("actor_count", count)
 	for p in _tall_props:
 		if not is_instance_valid(p):
 			continue
-		var r := Rect2(p.position + Vector2(-V.T * 1.2, -V.T * 3.2), Vector2(V.T * 2.4, V.T * 3.2))
 		var hide := false
-		for ar: Array in actor_rects:
-			if p.position.y > ar[1] + 4 and r.intersects(ar[0]):
+		for a: Array in actors:
+			var ap: Vector3 = a[0]
+			if p.position.z > ap.z + 0.1 and p.position.z - ap.z < 3.0 and absf(p.position.x - ap.x) < 1.2:
 				hide = true
 				break
-		p.modulate.a = lerpf(p.modulate.a, 0.35 if hide else 1.0, 0.25)
+		var s: Variant = p.get_meta("sprite", null)
+		if s is SpriteBase3D:
+			var sp := s as SpriteBase3D
+			var target := 0.35 if hide else 1.0
+			sp.modulate.a = lerpf(sp.modulate.a, target, 0.25)
+			sp.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED if sp.modulate.a < 0.99 else SpriteBase3D.ALPHA_CUT_OPAQUE_PREPASS

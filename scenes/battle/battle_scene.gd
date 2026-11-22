@@ -1,14 +1,14 @@
-extends Node2D
+extends Node3D
 ## 시험 맵 화면: 탐험(6단계, 실시간) → 발견·적대 행동이면 전투(4단계 최소 화면, 턴제).
 ## 규칙은 scripts/rules가 처리하고, 이 씬은 판정 결과를 그리고 입력을 '미리보기 → 확정'으로 넘긴다.
 ##
 ## 실행 인자(-- 뒤): --combat(탐험 없이 바로 전투), --autoplay(파티도 AI, 바로 전투), --seed=<n>, --lang=en, --fast(지연 없음),
 ##   --sneak(탐험: 은신 켜고 시작), --dialogue=<생물 이름>(탐험: 그 생물과 대화를 열고 시작), --goto=x,y(탐험: 리더 이동),
-##   --shot=<png 경로> --frames=<n>(n프레임 뒤 캡처하고 끝), --steps=<n>(캡처 전 n턴 진행),
+##   --shot=<png 경로> --frames=<n>(n프레임 뒤 캡처하고 끝), --steps=<n>(캡처 전 n턴 진행), --cam=x,y --zoom=<배율>(카메라 고정),
 ##   --select=<생물 이름> --mode=<move|attack|shove|jump|spell:<id>> --preview=x,y 또는 생물 이름(캡처할 미리보기)
 
 const Roster := preload("res://scenes/battle/test_roster.gd")
-const V := preload("res://scenes/battle/view3q.gd")
+const V := preload("res://scenes/battle/view3d.gd")
 const MapLoader := preload("res://scripts/rules/map_loader.gd")
 const MapView := preload("res://scenes/battle/map_view.gd")
 const ActorView := preload("res://scenes/battle/actor_view.gd")
@@ -25,6 +25,8 @@ const Rest := preload("res://scripts/rules/rest.gd")
 const Dialogue := preload("res://scripts/rules/dialogue.gd")
 const SaveGame := preload("res://scripts/rules/save_game.gd")
 const TICK_SEC := 6.0
+## 따라가는 카메라는 발보다 화면 40px(1단계) 위를 본다
+const FOLLOW_UP := Vector3(0, 1, 0)
 const Progression := preload("res://scripts/rules/progression.gd")
 const Travel := preload("res://scripts/rules/travel.gd")
 const Shop := preload("res://scripts/rules/shop.gd")
@@ -45,12 +47,15 @@ const CONDITION_ICON := {"blinded": "blind", "charmed": "charm", "frightened": "
 var world: Dictionary
 var party: Array = []
 var foes: Array = []
-var map_view: Node2D
-var sorted: Node2D
+var map_view: Node3D
+var sorted: Node3D
 var views := {}  # creature → ActorView
-var camera: Camera2D
+var camera: Camera3D
+## 카메라가 바라보는 점(세계)·확대(1 = 1칸 64px). 직교 투영, 회전 없음(view3d.gd).
+var cam_target := Vector3.ZERO
+var cam_zoom := 0.92
 var router: RefCounted
-var highlights: Node2D
+var highlights: Node3D
 
 var selected: Node = null
 var mode := "move"
@@ -92,11 +97,82 @@ var minimap: Control
 var vfx: Node2D
 
 
-class Highlights extends Node2D:
+class Highlights extends Node3D:
+	## 바닥 위 표시(이동 경로·범위·미리보기 칸·시야 원뿔 등): 칸 윗면 높이에 얇게 깐 판(ImmediateMesh).
 	var scene: Node
+	var _im := ImmediateMesh.new()
+	var _mi := MeshInstance3D.new()
+	var _dirty := true
+	var _g: Node
+
+	func _ready() -> void:
+		var m := StandardMaterial3D.new()
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.vertex_color_use_as_albedo = true
+		m.cull_mode = BaseMaterial3D.CULL_DISABLED
+		m.render_priority = 3
+		_mi.mesh = _im
+		_mi.material_override = m
+		_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(_mi)
+
+	func queue_redraw() -> void:
+		_dirty = true
+
+	func _process(_delta: float) -> void:
+		if not _dirty:
+			return
+		_dirty = false
+		_im.clear_surfaces()
+		_im.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+		# 빈 표면은 만들 수 없어 보이지 않는 삼각형 하나로 연다
+		_tri(Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, Color(0, 0, 0, 0))
+		_draw()
+		_im.surface_end()
+
+	func _tri(a: Vector3, b: Vector3, c: Vector3, col: Color) -> void:
+		for p: Vector3 in [a, b, c]:
+			_im.surface_set_color(col)
+			_im.surface_add_vertex(p)
+
+	func _quad(a: Vector3, b: Vector3, c: Vector3, d: Vector3, col: Color) -> void:
+		_tri(a, b, c, col)
+		_tri(a, c, d, col)
+
+	## 칸 평면 점(칸 단위) → 그 자리 칸 윗면 위
+	func _at(p: Vector2) -> Vector3:
+		var c := Vector2i(floori(p.x), floori(p.y))
+		var h: float = V.cell_top(_g, c) if _g.in_bounds(c) else 0.0
+		return V.flat(p, h + V.LIFT * 2.0)
+
+	## 바닥 위 선(굵기 w 유닛). 점마다 그 칸 높이.
+	func _line(pts: Array, w: float, col: Color) -> void:
+		for i in pts.size() - 1:
+			var a: Vector3 = _at(pts[i])
+			var b: Vector3 = _at(pts[i + 1])
+			var dv := b - a
+			var n := Vector3(-dv.z, 0, dv.x).normalized() * (w * 0.5)
+			if n == Vector3.ZERO:
+				continue
+			_quad(a + n, b + n, b - n, a - n, col)
+
+	## 바닥 위 원(채움 + 테두리)
+	func _disc(center: Vector2, r: float, fill: Color, line: Color) -> void:
+		var c: Vector3 = _at(center)
+		var pts := []
+		for i in 33:
+			var a := TAU * i / 32.0
+			pts.append(center + Vector2(cos(a), sin(a)) * r)
+		for i in 32:
+			var p0: Vector3 = V.flat(pts[i], c.y)
+			var p1: Vector3 = V.flat(pts[i + 1], c.y)
+			_tri(c, p0, p1, fill)
+		_line(pts, 2.0 / V.T, line)
 
 	func _draw() -> void:
 		var g: Node = scene.world["grid"]
+		_g = g
 		var d: Dictionary = scene.preview_data
 		_entities(g)
 		if scene.exploring:
@@ -112,9 +188,10 @@ class Highlights extends Node2D:
 		for c: Vector2i in d.get("spread", []):
 			_cell(g, c, Color(1, 0.3, 0.0, 0.15), Color(1, 0.3, 0.0, 0.9))
 		for c: Vector2i in d.get("oa", []):
-			var p := V.top(c, g.height(c))
-			draw_line(p + Vector2(-10, -10), p + Vector2(10, 10), Color.RED, 4)
-			draw_line(p + Vector2(10, -10), p + Vector2(-10, 10), Color.RED, 4)
+			var m := Vector2(c) + Vector2(0.5, 0.5)
+			var k := 10.0 / V.T
+			_line([m + Vector2(-k, -k), m + Vector2(k, k)], 4.0 / V.T, Color.RED)
+			_line([m + Vector2(k, -k), m + Vector2(-k, k)], 4.0 / V.T, Color.RED)
 		var cell: Vector2i = scene.preview_cell
 		if g.in_bounds(cell):
 			var col := Color(1, 1, 1, 0.9) if d.get("valid", true) else Color(1, 0.2, 0.2, 0.9)
@@ -130,11 +207,9 @@ class Highlights extends Node2D:
 			if e.is_empty():
 				continue
 			var cell: Vector2i = e["cell"]
-			var p := V.top(cell, g.height(cell)) + Vector2(V.T * 0.5, V.T * 0.4)
 			var col: Color = COL.get(e["kind"], Color.WHITE)
 			var r := 26.0 if e["kind"] in ["silence", "tiny_hut"] else 13.0
-			draw_circle(p + Vector2(0, -18), r, Color(col, 0.35))
-			draw_arc(p + Vector2(0, -18), r, 0, TAU, 32, col, 2.0, true)
+			_disc(Vector2(cell) + Vector2(0.5, 0.5), r / V.T, Color(col, 0.35), col)
 
 	func _explore_marks(g: Node) -> void:
 		var sneaking := false
@@ -168,34 +243,45 @@ class Highlights extends Node2D:
 	func _shape_outline(sh: Dictionary, col: Color) -> void:
 		if sh.is_empty():
 			return
-		var T: float = V.T
-		var pts := PackedVector2Array()
+		var pts := []
 		match sh["type"]:
 			"circle":
 				for i in 49:
 					var a := TAU * i / 48.0
-					pts.append((sh["center"] + Vector2(cos(a), sin(a)) * sh["r"]) * T)
+					pts.append(sh["center"] + Vector2(cos(a), sin(a)) * sh["r"])
 			"cone":
 				var apex: Vector2 = sh["apex"]
 				var base: float = sh["dir"].angle()
-				pts.append(apex * T)
+				pts.append(apex)
 				for i in 17:
 					var a: float = base - sh["half"] + 2.0 * sh["half"] * i / 16.0
-					pts.append((apex + Vector2(cos(a), sin(a)) * sh["len"]) * T)
-				pts.append(apex * T)
+					pts.append(apex + Vector2(cos(a), sin(a)) * sh["len"])
+				pts.append(apex)
 			"line":
 				var a: Vector2 = sh["a"]
 				var dv: Vector2 = sh["dir"]
 				var n: Vector2 = Vector2(-dv.y, dv.x) * float(sh["half_w"])
 				var b: Vector2 = a + dv * sh["len"]
-				pts = PackedVector2Array([(a + n) * T, (b + n) * T, (b - n) * T, (a - n) * T, (a + n) * T])
-		draw_polyline(pts, Color(col, col.a * 0.35), 6.0, true)
-		draw_polyline(pts, col, 2.0, true)
+				pts = [a + n, b + n, b - n, a - n, a + n]
+		_line(pts, 6.0 / V.T, Color(col, col.a * 0.35))
+		_line(pts, 2.0 / V.T, col)
 
+	## 칸 하나: 윗면 채움 + 테두리(2px 안쪽)
 	func _cell(g: Node, c: Vector2i, fill: Color, line: Color) -> void:
-		var r: Rect2 = V.top_rect(g, c).grow(-2)
-		draw_rect(r, fill)
-		draw_rect(r, line, false, 2.0)
+		var y: float = V.cell_top(g, c) + V.LIFT * 2.0
+		var i := 2.0 / V.T
+		var x0 := c.x + i
+		var z0 := c.y + i
+		var x1 := c.x + 1 - i
+		var z1 := c.y + 1 - i
+		if fill.a > 0.0:
+			_quad(Vector3(x0, y, z0), Vector3(x1, y, z0), Vector3(x1, y, z1), Vector3(x0, y, z1), fill)
+		if line.a > 0.0:
+			var w := 2.0 / V.T
+			_quad(Vector3(x0, y, z0), Vector3(x1, y, z0), Vector3(x1, y, z0 + w), Vector3(x0, y, z0 + w), line)
+			_quad(Vector3(x0, y, z1 - w), Vector3(x1, y, z1 - w), Vector3(x1, y, z1), Vector3(x0, y, z1), line)
+			_quad(Vector3(x0, y, z0), Vector3(x0 + w, y, z0), Vector3(x0 + w, y, z1), Vector3(x0, y, z1), line)
+			_quad(Vector3(x1 - w, y, z0), Vector3(x1, y, z0), Vector3(x1, y, z1), Vector3(x1 - w, y, z1), line)
 
 
 func _ready() -> void:
@@ -204,25 +290,27 @@ func _ready() -> void:
 	Dice.set_seed(int(args.get("seed", "7")))
 	var map_id: String = args.get("map", "fallen_watch")
 	var b := Roster.build(map_id, int(args.get("level", "1")))
-	camera = Camera2D.new()
-	camera.zoom = Vector2(0.92, 0.92)
+	camera = Camera3D.new()
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	camera.near = 1.0
+	camera.far = V.CAM_DIST * 2.0
 	RenderingServer.set_default_clear_color(Color("0c0b0e"))
 	add_child(camera)
+	camera.make_current()
 	router = InputRouter.new()
-	router.cell_at = func(pos: Vector2) -> Vector2i: return V.pick(world["grid"], _to_world(pos))
+	router.cell_at = func(pos: Vector2) -> Vector2i: return _pick(pos)
 	router.preview.connect(_on_preview)
 	router.confirm.connect(_on_confirm)
 	router.info.connect(_on_info)
 	router.pan.connect(func(delta: Vector2) -> void:
 		follow = false
-		camera.position -= delta / camera.zoom.x)
+		cam_target -= V.pan_delta(delta, cam_zoom))
 	router.zoom.connect(_on_zoom)
 	EventBus.on_enter_tile.connect(func(c: Object, _cell: Vector2i) -> void:
 		if views.has(c):
 			views[c].sync())
 	highlights = Highlights.new()
 	highlights.scene = self
-	highlights.z_index = 50
 	_setup_world(b, map_id)
 	add_child(highlights)
 	vfx = Vfx.new()
@@ -264,6 +352,7 @@ func _ready() -> void:
 	if args.has("preview"):
 		var pp: PackedStringArray = args["preview"].split(",")
 		_show_preview(Vector2i(int(pp[0]), int(pp[1])))
+	_apply_cam_arg()
 	_check_combat()
 
 
@@ -278,8 +367,7 @@ func _setup_world(b: Dictionary, map_id: String) -> void:
 		if c.get_parent() == null:
 			add_child(c)
 		Roster.add_art(c)
-	sorted = Node2D.new()
-	sorted.y_sort_enabled = true
+	sorted = Node3D.new()
 	map_view = MapView.new()
 	add_child(map_view)
 	add_child(sorted)
@@ -288,11 +376,13 @@ func _setup_world(b: Dictionary, map_id: String) -> void:
 	map_view.build(world["grid"], sorted, MapLoader.load_map(map_id))
 	for c: Node in party + foes + world.get("roster", []):
 		if world["grid"].creatures().has(c) and not views.has(c):
-			var v: Node2D = ActorView.new()
+			var v: Node3D = ActorView.new()
 			v.setup(c, world["grid"])
 			sorted.add_child(v)
 			views[c] = v
-	camera.position = V.ground(world["grid"].cell_of(party[0]) if not party.is_empty() else world["grid"].size / 2) - Vector2(0, 40)
+	var start_cell: Vector2i = world["grid"].cell_of(party[0]) if not party.is_empty() else world["grid"].size / 2
+	cam_target = V.pos(start_cell, world["grid"].height(start_cell)) + FOLLOW_UP
+	_apply_camera()
 	explore = Exploration.new()
 	add_child(explore)
 	explore.setup(world, party)
@@ -341,6 +431,7 @@ func _go_camp() -> void:
 
 
 func _begin_battle() -> void:
+	_apply_cam_arg()
 	exploring = false
 	if not world["turns"].in_combat:
 		var zone_id: String = args.get("zone", "")
@@ -390,13 +481,32 @@ func _parse_args() -> void:
 		args[kv[0]] = kv[1] if kv.size() > 1 else "true"
 
 
-func _to_world(screen: Vector2) -> Vector2:
-	return get_canvas_transform().affine_inverse() * screen
+## 캡처용: --cam=x,y면 그 칸을 보고 따라가지 않는다(--zoom=배율)
+func _apply_cam_arg() -> void:
+	if args.has("zoom"):
+		cam_zoom = float(args["zoom"])
+	if args.has("cam"):
+		var cp: PackedStringArray = args["cam"].split(",")
+		var cc := Vector2i(int(cp[0]), int(cp[1]))
+		follow = false
+		cam_target = V.pos(cc, world["grid"].height(cc))
+		_apply_camera()
+
+
+## 화면 점 → 칸(카메라 광선이 처음 닿는 칸 기둥)
+func _pick(screen: Vector2) -> Vector2i:
+	_apply_camera()
+	return V.pick(world["grid"], camera.project_ray_origin(screen), camera.project_ray_normal(screen))
+
+
+## 카메라 자세·직교 크기를 cam_target·cam_zoom에 맞춘다.
+func _apply_camera() -> void:
+	camera.transform = V.camera_transform(cam_target)
+	camera.size = V.ortho_size(get_viewport().get_visible_rect().size.y, cam_zoom)
 
 
 func _on_zoom(factor: float, _at: Vector2) -> void:
-	var z := clampf(camera.zoom.x * factor, 0.4, 2.2)
-	camera.zoom = Vector2(z, z)
+	cam_zoom = clampf(cam_zoom * factor, 0.4, 2.2)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -404,7 +514,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		var pan := {KEY_LEFT: Vector2(-40, 0), KEY_RIGHT: Vector2(40, 0), KEY_UP: Vector2(0, -40), KEY_DOWN: Vector2(0, 40)}
 		if pan.has(event.keycode):
 			follow = false
-			camera.position += pan[event.keycode]
+			cam_target += V.pan_delta(pan[event.keycode], cam_zoom)
 		elif event.keycode == KEY_I or event.keycode == KEY_C:
 			_toggle_sheet()
 		elif event.keycode == KEY_L:
@@ -432,12 +542,13 @@ func _process(delta: float) -> void:
 			_refresh()
 			_check_combat()
 	if follow and selected != null and views.has(selected):
-		camera.position = camera.position.lerp(views[selected].position - Vector2(0, 40), minf(1.0, delta * 4.0))
-	var rects: Array = []
+		cam_target = cam_target.lerp(views[selected].position + FOLLOW_UP, minf(1.0, delta * 4.0))
+	_apply_camera()
+	var occ: Array = []
 	for c: Node in views.keys():
 		if not c.dead:
-			rects.append([views[c].screen_rect(), views[c].position.y])
-	map_view.update_occlusion(rects)
+			occ.append(views[c].occlusion_info())
+	map_view.update_occlusion(occ)
 	_frames += 1
 	if args.has("shot") and _frames == int(args.get("frames", "30")):
 		get_viewport().get_texture().get_image().save_png(args["shot"])
@@ -571,7 +682,7 @@ func _set_mode(m: String) -> void:
 func _on_preview(pos: Vector2) -> void:
 	if (busy and mode != "rt_move") or selected == null or dlg != null:
 		return
-	_show_preview(V.pick(world["grid"], _to_world(pos)))
+	_show_preview(_pick(pos))
 
 
 func _show_preview(cell: Vector2i) -> void:
@@ -582,7 +693,7 @@ func _show_preview(cell: Vector2i) -> void:
 	var text: String = preview_data.get("text", "")
 	tooltip.visible = text != ""
 	tooltip_label.text = text
-	var screen := get_canvas_transform() * V.top(cell, world["grid"].height(cell))
+	var screen := camera.unproject_position(V.top(world["grid"], cell)) if world["grid"].in_bounds(cell) else Vector2.ZERO
 	tooltip.position = screen + Vector2(24, -60)
 
 
@@ -692,7 +803,7 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 func _on_confirm(pos: Vector2) -> void:
 	if (busy and mode != "rt_move") or selected == null or dlg != null:
 		return
-	var cell := V.pick(world["grid"], _to_world(pos))
+	var cell := _pick(pos)
 	if not preview_data.get("valid", false) or cell != preview_cell:
 		return
 	if mode == "rt_move":
@@ -950,12 +1061,13 @@ func _open_dialogue(id: String, npc: Node) -> void:
 		return
 	# 대화 카메라(BG3 참고): 두 사람 사이로 다가가 확대, 닫으면 되돌린다
 	if npc != null and views.has(npc) and views.has(selected):
-		_cam_before = {"pos": camera.position, "zoom": camera.zoom, "follow": follow}
+		_cam_before = {"pos": cam_target, "zoom": cam_zoom, "follow": follow}
 		follow = false
-		var mid: Vector2 = (views[npc].position + views[selected].position) / 2.0 + Vector2(0, 70)
+		# 두 사람 가운데에서 화면 70px 아래를 본다(대화창 자리만큼 인물이 위로)
+		var mid: Vector3 = (views[npc].position + views[selected].position) / 2.0 - Vector3(0, 70.0 / V.STEP_PX, 0)
 		var tw := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
-		tw.tween_property(camera, "position", mid, 0.45)
-		tw.tween_property(camera, "zoom", Vector2(1.35, 1.35), 0.45)
+		tw.tween_property(self, "cam_target", mid, 0.45)
+		tw.tween_property(self, "cam_zoom", 1.35, 0.45)
 	if npc != null and npc.team == "enemy":
 		npc.set_meta("dialogue_done", true)
 	if npc != null:
@@ -1197,7 +1309,7 @@ func _close_dialogue() -> void:
 	dlg = null
 	if not _cam_before.is_empty() and camera != null:
 		var tw := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
-		tw.tween_property(camera, "zoom", _cam_before["zoom"], 0.35)
+		tw.tween_property(self, "cam_zoom", _cam_before["zoom"], 0.35)
 		follow = _cam_before["follow"]
 		_cam_before = {}
 	if dlg_panel != null:
@@ -1228,7 +1340,7 @@ func _execute(cell: Vector2i) -> void:
 
 
 func _on_info(pos: Vector2) -> void:
-	var cell := V.pick(world["grid"], _to_world(pos))
+	var cell := _pick(pos)
 	var c: Node = world["grid"].creature_at(cell)
 	if c == null:
 		info_panel.visible = false
@@ -1393,7 +1505,7 @@ func _refresh() -> void:
 	log_box.visible = log_forced or not exploring
 	for m: Node in world.get("summons", []):
 		if is_instance_valid(m) and not views.has(m) and world["grid"].creatures().has(m):
-			var mv: Node2D = ActorView.new()
+			var mv: Node3D = ActorView.new()
 			mv.setup(m, world["grid"])
 			sorted.add_child(mv)
 			views[m] = mv
