@@ -1,0 +1,85 @@
+{
+  "schema": "monster_v1",
+  "id": "goblin_minion",
+  "name": {
+    "ko": "고블린 졸개",
+    "en": "Goblin Minion"
+  },
+  "size": "small",
+  "creature_type": "fey",
+  "cr": 0.125,
+  "xp": 25,
+  "proficiency_bonus": 2,
+  "ac": 12,
+  "hp": 7,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 8,
+    "dex": 15,
+    "con": 10,
+    "int": 10,
+    "wis": 8,
+    "cha": 8
+  },
+  "saves": {
+    "str": -1,
+    "dex": 2,
+    "con": 0,
+    "int": 0,
+    "wis": -1,
+    "cha": -1
+  },
+  "actions": [
+    {
+      "id": "dagger",
+      "name": {
+        "ko": "단검",
+        "en": "Dagger"
+      },
+      "type": "attack",
+      "kind": "both",
+      "bonus": 4,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d4+2",
+          "damage_type": "piercing"
+        }
+      ],
+      "range_tiles": [
+        4,
+        12
+      ]
+    }
+  ],
+  "weight_kg": 20,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/goblin.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "skills": {
+    "stealth": 4
+  },
+  "bonus_actions": [
+    {
+      "id": "nimble_escape",
+      "name": {
+        "ko": "날렵한 탈출",
+        "en": "Nimble Escape"
+      },
+      "kind": "bonus_action",
+      "options": [
+        "disengage",
+        "hide"
+      ]
+    }
+  ],
+  "ai": {
+    "style": "skirmisher"
+  }
+}

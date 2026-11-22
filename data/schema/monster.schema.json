@@ -1,0 +1,335 @@
+{
+  "$comment": "몬스터 파일 스키마(/add-monster 변환 규칙: 칸·무게·재충전 쿨다운·붙잡기→속박). 파일 하나 = 몬스터 하나.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "name",
+    "size",
+    "creature_type",
+    "cr",
+    "xp",
+    "proficiency_bonus",
+    "ac",
+    "hp",
+    "speed_tiles",
+    "abilities",
+    "saves",
+    "actions",
+    "weight_kg",
+    "source"
+  ],
+  "properties": {
+    "schema": {
+      "const": "monster_v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "name": {
+      "type": "object",
+      "required": [
+        "ko",
+        "en"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ko": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "en": {
+          "type": "string"
+        }
+      }
+    },
+    "size": {
+      "enum": [
+        "tiny",
+        "small",
+        "medium",
+        "large"
+      ]
+    },
+    "creature_type": {
+      "type": "string"
+    },
+    "cr": {
+      "type": "number",
+      "minimum": 0
+    },
+    "xp": {
+      "type": "integer"
+    },
+    "proficiency_bonus": {
+      "type": "integer"
+    },
+    "ac": {
+      "type": "integer"
+    },
+    "hp": {
+      "type": "integer"
+    },
+    "speed_tiles": {
+      "type": "integer"
+    },
+    "abilities": {
+      "type": "object",
+      "required": [
+        "str",
+        "dex",
+        "con",
+        "int",
+        "wis",
+        "cha"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(str|dex|con|int|wis|cha)$": {
+          "type": "integer"
+        }
+      }
+    },
+    "saves": {
+      "type": "object",
+      "required": [
+        "str",
+        "dex",
+        "con",
+        "int",
+        "wis",
+        "cha"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(str|dex|con|int|wis|cha)$": {
+          "type": "integer"
+        }
+      }
+    },
+    "skills": {
+      "type": "object"
+    },
+    "senses": {
+      "type": "object"
+    },
+    "resistances": {
+      "type": "array"
+    },
+    "vulnerabilities": {
+      "type": "array"
+    },
+    "immunities": {
+      "type": "array"
+    },
+    "condition_immunities": {
+      "type": "array"
+    },
+    "traits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ]
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "type"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ko": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "en": {
+                "type": "string"
+              }
+            }
+          },
+          "type": {
+            "enum": [
+              "attack",
+              "save"
+            ]
+          },
+          "kind": {
+            "enum": [
+              "melee",
+              "ranged",
+              "both"
+            ]
+          },
+          "bonus": {
+            "type": "integer"
+          },
+          "reach_tiles": {
+            "type": "integer"
+          },
+          "range_tiles": {
+            "type": [
+              "array",
+              "integer"
+            ]
+          },
+          "damage": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "dice",
+                "damage_type"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "dice": {
+                  "type": "string",
+                  "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+                },
+                "damage_type": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "extra_if_advantage": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "dice",
+                "damage_type"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "dice": {
+                  "type": "string",
+                  "pattern": "^-?([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$"
+                },
+                "damage_type": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "on_hit": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "type"
+              ]
+            }
+          },
+          "ability": {
+            "enum": [
+              "str",
+              "dex",
+              "con",
+              "int",
+              "wis",
+              "cha"
+            ]
+          },
+          "dc": {
+            "type": "integer"
+          },
+          "targets": {
+            "type": "integer"
+          },
+          "fail": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "type"
+              ]
+            }
+          },
+          "success": {
+            "type": "array"
+          },
+          "recharge": {
+            "enum": [
+              "5-6",
+              "6"
+            ]
+          },
+          "replaces_attack": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "bonus_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ]
+      }
+    },
+    "multiattack": {
+      "type": "object",
+      "required": [
+        "count",
+        "actions"
+      ]
+    },
+    "weight_kg": {
+      "type": "number"
+    },
+    "weight_note_ko": {
+      "type": "string"
+    },
+    "push_immune": {
+      "type": "boolean"
+    },
+    "sight_cone_tiles": {
+      "type": "integer"
+    },
+    "ai": {
+      "type": "object"
+    },
+    "art": {
+      "type": "object"
+    },
+    "notes_ko": {
+      "type": "string"
+    },
+    "source": {
+      "enum": [
+        "SRD 5.2.1",
+        "original"
+      ]
+    }
+  }
+}

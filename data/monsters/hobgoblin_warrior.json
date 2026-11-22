@@ -1,0 +1,98 @@
+{
+  "schema": "monster_v1",
+  "id": "hobgoblin_warrior",
+  "name": {
+    "ko": "홉고블린 전사",
+    "en": "Hobgoblin Warrior"
+  },
+  "size": "medium",
+  "creature_type": "fey",
+  "cr": 0.5,
+  "xp": 100,
+  "proficiency_bonus": 2,
+  "ac": 18,
+  "hp": 11,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 13,
+    "dex": 12,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 9
+  },
+  "saves": {
+    "str": 1,
+    "dex": 1,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": -1
+  },
+  "actions": [
+    {
+      "id": "longsword",
+      "name": {
+        "ko": "장검",
+        "en": "Longsword"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 3,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "2d10+1",
+          "damage_type": "slashing"
+        }
+      ]
+    },
+    {
+      "id": "longbow",
+      "name": {
+        "ko": "장궁",
+        "en": "Longbow"
+      },
+      "type": "attack",
+      "kind": "ranged",
+      "bonus": 3,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d8+1",
+          "damage_type": "piercing"
+        },
+        {
+          "dice": "3d4",
+          "damage_type": "poison"
+        }
+      ],
+      "range_tiles": [
+        30,
+        120
+      ]
+    }
+  ],
+  "weight_kg": 80,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/hobgoblin.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "traits": [
+    {
+      "id": "pack_tactics",
+      "name": {
+        "ko": "무리 전술",
+        "en": "Pack Tactics"
+      }
+    }
+  ],
+  "ai": {
+    "style": "melee"
+  }
+}

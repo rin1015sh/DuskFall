@@ -1,0 +1,117 @@
+{
+  "schema": "monster_v1",
+  "id": "ghoul",
+  "name": {
+    "ko": "구울",
+    "en": "Ghoul"
+  },
+  "size": "medium",
+  "creature_type": "undead",
+  "cr": 1,
+  "xp": 200,
+  "proficiency_bonus": 2,
+  "ac": 12,
+  "hp": 22,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 13,
+    "dex": 15,
+    "con": 10,
+    "int": 7,
+    "wis": 10,
+    "cha": 6
+  },
+  "saves": {
+    "str": 1,
+    "dex": 2,
+    "con": 0,
+    "int": -2,
+    "wis": 0,
+    "cha": -2
+  },
+  "actions": [
+    {
+      "id": "bite",
+      "name": {
+        "ko": "물기",
+        "en": "Bite"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 4,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d6+2",
+          "damage_type": "piercing"
+        },
+        {
+          "dice": "1d6",
+          "damage_type": "necrotic"
+        }
+      ]
+    },
+    {
+      "id": "claw",
+      "name": {
+        "ko": "할퀴기",
+        "en": "Claw"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 4,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d4+2",
+          "damage_type": "slashing"
+        }
+      ],
+      "on_hit": [
+        {
+          "type": "apply_condition",
+          "id": "paralyzed",
+          "turns": 1,
+          "save": {
+            "ability": "con",
+            "dc": 10
+          },
+          "exclude": {
+            "creature_type": [
+              "undead"
+            ],
+            "species": [
+              "elf"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "weight_kg": 60,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/ghoul.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "immunities": [
+    "poison"
+  ],
+  "condition_immunities": [
+    "charmed",
+    "poisoned"
+  ],
+  "multiattack": {
+    "count": 2,
+    "actions": [
+      "bite"
+    ]
+  },
+  "ai": {
+    "style": "melee"
+  }
+}

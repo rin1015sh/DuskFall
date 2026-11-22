@@ -394,6 +394,11 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 		out["by_type"][t] = v
 		total += v
 	out["total"] = total
+	target.set_meta("last_damage_total", total)
+	target.set_meta("last_damage_types", out["by_type"].keys())
+	for t: String in out["by_type"].keys():
+		if t in ["acid", "fire"] and out["by_type"][t] > 0:
+			target.set_meta("regen_blocked", true)  # 트롤 재생 막힘(다음 턴)
 	if total <= 0:
 		return out
 	# 9. 적용: 임시 HP 먼저
@@ -403,7 +408,9 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 	var rest := total - absorbed
 	out["temp_absorbed"] = absorbed
 	var info := {"target": target, "amount": total, "opts": opts, "result": out}
-	if was_down:
+	if was_down and target.has_meta("regen_down"):
+		pass  # 재생으로 쓰러져 있는 트롤: 턴 시작에 재생 여부로 결정
+	elif was_down:
 		_damage_while_down(target, total, opts, out)
 	else:
 		var before: int = target.hp
@@ -648,6 +655,17 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 ## 반응 회복과 재충전은 3단계 TurnManager가 맡는다.
 static func start_turn(creature: Node, ctx: Dictionary = {}) -> void:
 	EventBus.on_turn_start.emit(creature)
+	var regen: Dictionary = creature.feature_data.get("regeneration", {})
+	if not regen.is_empty() and not creature.dead:
+		if creature.get_meta("regen_blocked", false):
+			creature.set_meta("regen_blocked", false)
+			if creature.get_meta("regen_down", false):
+				_die(creature, "재생하지 못하고 0 HP로 턴 시작")
+				return
+		elif creature.hp < creature.hp_max:
+			heal(creature, int(regen.get("amount", 15)), "regeneration")
+			if creature.get_meta("regen_down", false):
+				creature.set_meta("regen_down", false)
 	for a in creature.active_conditions():
 		var parts: Array = []
 		for e: Dictionary in a["def"].get("hooks", {}).get("on_turn_start", []):

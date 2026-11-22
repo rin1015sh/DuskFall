@@ -1,0 +1,98 @@
+{
+  "schema": "monster_v1",
+  "id": "bugbear_warrior",
+  "name": {
+    "ko": "버그베어 전사",
+    "en": "Bugbear Warrior"
+  },
+  "size": "medium",
+  "creature_type": "fey",
+  "cr": 1,
+  "xp": 200,
+  "proficiency_bonus": 2,
+  "ac": 14,
+  "hp": 33,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 15,
+    "dex": 14,
+    "con": 13,
+    "int": 8,
+    "wis": 11,
+    "cha": 9
+  },
+  "saves": {
+    "str": 2,
+    "dex": 2,
+    "con": 1,
+    "int": -1,
+    "wis": 0,
+    "cha": -1
+  },
+  "actions": [
+    {
+      "id": "grab",
+      "name": {
+        "ko": "움켜쥐기",
+        "en": "Grab"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 4,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "2d6+2",
+          "damage_type": "bludgeoning"
+        }
+      ],
+      "on_hit": [
+        {
+          "type": "apply_condition",
+          "id": "restrained",
+          "max_size": "medium",
+          "escape_dc": 12
+        }
+      ]
+    },
+    {
+      "id": "light_hammer",
+      "name": {
+        "ko": "경량 망치",
+        "en": "Light Hammer"
+      },
+      "type": "attack",
+      "kind": "both",
+      "bonus": 4,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "3d4+2",
+          "damage_type": "bludgeoning"
+        }
+      ],
+      "range_tiles": [
+        4,
+        12
+      ]
+    }
+  ],
+  "weight_kg": 120,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/orc_warrior.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "skills": {
+    "stealth": 4,
+    "survival": 2
+  },
+  "notes_ko": "붙잡힘 → 속박(룰북 2단계 결정 2, 6단계). 속박된 대상에게 경량 망치 유리.",
+  "ai": {
+    "style": "melee"
+  }
+}

@@ -51,8 +51,10 @@ static func is_ranged_weapon(w: Dictionary) -> bool:
 	return str(w.get("category", "")).ends_with("ranged")
 
 
-## 무기의 도달(칸): 기본 1, 리치 무기 2(3단계 기회 공격).
+## 무기의 도달(칸): 기본 1, 리치 무기 2(3단계 기회 공격). 몬스터는 근접 행동의 도달.
 static func reach_of(c: Node) -> int:
+	if c.has_meta("monster"):
+		return maxi(preload("res://scripts/rules/monster_factory.gd").melee_reach(c), 1)
 	var w := weapon_data(c.weapon_sets.get("melee", {}).get("main", ""))
 	return 2 if "reach" in w.get("properties", []) else 1
 
@@ -113,8 +115,19 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 	var ctx: Dictionary = grid.attack_context(attacker, target)
 	ctx["disadvantage"].append_array(atk.get("extra_disadvantage", []))
 	var dist: int = ctx["distance_tiles"]
+	# 무리 전술: 대상 1칸 안에 무력화되지 않은 공격자의 아군이 있으면 유리(SRD)
+	if attacker.has_feature("pack_tactics"):
+		for o: Node in grid.creatures():
+			if o != attacker and o != target and not o.dead and o.team == attacker.team and not o.is_incapacitated() \
+					and grid.distance_between(o, target) <= 1:
+				ctx["advantage"].append("무리 전술")
+				break
+	# 햇빛 민감: 햇빛(맵 sunlight 표시가 있는 밝은 칸)에서 공격 불리
+	if attacker.has_feature("sunlight_sensitivity") and grid.has_meta("sunlight") \
+			and grid.light_at(grid.cell_of(attacker)) == grid.Light.BRIGHT:
+		ctx["disadvantage"].append("햇빛 민감")
 	if atk["kind"] == "melee":
-		var reach := 2 if "reach" in atk.get("properties", []) else 1
+		var reach := int(atk.get("reach_tiles", 2 if "reach" in atk.get("properties", []) else 1))
 		if dist > reach:
 			ctx["invalid"] = "도달 밖"
 	else:
@@ -196,6 +209,15 @@ static func offhand_attack(world: Dictionary, attacker: Node, target: Node) -> D
 static func opportunity_attack(world: Dictionary, attacker: Node, target: Node) -> Dictionary:
 	if not spend(attacker, "reaction"):
 		return _fail("반응이 없다")
+	if attacker.has_meta("monster"):
+		var MF := preload("res://scripts/rules/monster_factory.gd")
+		for a: Dictionary in MF.actions(attacker):
+			if a["type"] == "attack" and a.get("kind", "melee") in ["melee", "both"]:
+				var matk := MF.to_attack(a, "melee")
+				matk["name"] = "기회 공격(%s)" % matk["name"]
+				var mres := _do_attack(world, attacker, target, matk, true)
+				_monster_on_hit(world, attacker, target, a, mres)
+				return mres
 	var atk := build_weapon_attack(attacker, attacker.weapon_sets.get("melee", {}).get("main", ""))
 	atk["name"] = "기회 공격(%s)" % atk["name"]
 	var res := _do_attack(world, attacker, target, atk, true)
@@ -371,7 +393,10 @@ static func _provokers(world: Dictionary, mover: Node, cur: Vector2i, nxt: Vecto
 	for e: Node in grid.creatures():
 		if e == mover or e.dead or not e.is_hostile_to(mover) or not e.can_react():
 			continue
-		if e.active_set != "melee" or is_ranged_weapon(weapon_data(e.weapon("main"))):
+		if e.has_meta("monster"):
+			if preload("res://scripts/rules/monster_factory.gd").melee_reach(e) <= 0:
+				continue
+		elif e.active_set != "melee" or is_ranged_weapon(weapon_data(e.weapon("main"))):
 			continue  # 원거리 무기를 든 생물은 기회 공격 불가(3단계)
 		var reach := reach_of(e)
 		var before := _dist_cells(grid, grid.occupied_cells(e), grid.footprint(cur, sz))
@@ -593,3 +618,119 @@ static func interact(c: Node) -> Dictionary:
 	if spend(c, "action"):
 		return {"ok": true, "cost": "action"}
 	return _fail("행동이 없다")
+
+
+# ======================================================================
+# 몬스터 행동(데이터의 actions·multiattack — /add-monster 규칙)
+# ======================================================================
+
+## 몬스터 행동 하나. 공격 행동은 다중 공격 목록 안이면 같은 행동의 남은 공격을 쓴다.
+## use: 근접·투척 겸용 무기를 어떻게 쓸지("melee" | "ranged"). 결과: {"ok", ...}
+static func monster_action(world: Dictionary, m: Node, action_id: String, target: Node, use: String = "") -> Dictionary:
+	var MF := preload("res://scripts/rules/monster_factory.gd")
+	var a := MF.action(m, action_id)
+	if a.is_empty():
+		return _fail("모르는 행동")
+	if int(m.cooldowns.get(action_id, 0)) > 0:
+		return _fail("재충전 중(%d턴)" % m.cooldowns[action_id])
+	var multi: Dictionary = m.get_meta("monster").get("multiattack", {})
+	var in_multi: bool = action_id in multi.get("actions", [])
+	if int(m.turn.get("attacks_left", 0)) <= 0 or not in_multi:
+		if not spend(m, "action"):
+			return _fail("행동이 없다")
+		m.turn["attacks_left"] = int(multi.get("count", 1)) if in_multi else 1
+	var res: Dictionary
+	if a["type"] == "attack":
+		var atk := MF.to_attack(a, use)
+		res = _do_attack(world, m, target, atk)
+		if not res.get("ok", false):
+			m.turn["attacks_left"] = int(m.turn["attacks_left"])  # 비용은 이미 씀
+			return res
+		_monster_on_hit(world, m, target, a, res)
+	else:
+		res = _monster_save_action(world, m, a, target)
+	m.turn["attacks_left"] = int(m.turn["attacks_left"]) - 1
+	if a.has("recharge"):
+		m.cooldowns[action_id] = MF.RECHARGE_TURNS.get(a["recharge"], 3)
+	if world.get("turns") != null:
+		world["turns"].notify_hostile_action(m)
+	return res
+
+
+static func _monster_on_hit(world: Dictionary, m: Node, target: Node, a: Dictionary, res: Dictionary) -> void:
+	if not res.get("hit", false) or target.dead:
+		return
+	for e: Dictionary in a.get("on_hit", []):
+		_monster_effect(world, m, target, e)
+
+
+## 몬스터 효과 하나(크기 제한·제외·내성 포함).
+static func _monster_effect(world: Dictionary, m: Node, t: Node, e: Dictionary) -> void:
+	var order := ["tiny", "small", "medium", "large", "huge", "gargantuan"]
+	if e.has("max_size") and order.find(t.size) > order.find(e["max_size"]):
+		return
+	var ex: Dictionary = e.get("exclude", {})
+	if t.creature_type in ex.get("creature_type", []) or t.species_id in ex.get("species", []):
+		return
+	if e.has("save"):
+		var s := Resolver.saving_throw(t, e["save"]["ability"], int(e["save"]["dc"]), {"source": m,
+			"against_conditions": [e.get("id", "")]})
+		if s["success"]:
+			return
+	match e["type"]:
+		"apply_condition":
+			var params := {}
+			if e.has("escape_dc"):
+				params["escape_dc"] = int(e["escape_dc"])
+			t.apply_condition(e["id"], int(e.get("turns", -1)), m, params)
+		"advantage":
+			var mod := {"effect": {"type": "advantage", "roll": e["roll"], "side": e["side"], "value": e["value"]}, "source": m.name}
+			if e.get("consume", "") == "attacked":
+				mod["consume_on_attacked"] = true
+			if e.get("until", "") == "start_of_attacker_next_turn":
+				mod["until_turn_start_of"] = m
+			t.extra_modifiers.append(mod)
+		"damage":
+			var r := Dice.roll(e["dice"], "몬스터 효과")
+			var out := Resolver.apply_damage(t, [{"amount": r["total"], "damage_type": e["damage_type"]}], {"attacker": m})
+			if e.get("reduce_hp_max", false) and int(out["total"]) > 0 and not t.dead:
+				t.hp_max = maxi(t.hp_max - int(out["total"]), 0)  # 생명 흡수: 최대 HP 감소(긴 휴식까지 — 7단계)
+				t.hp = mini(t.hp, t.hp_max)
+				if t.hp_max == 0:
+					Resolver._die(t, "최대 HP 0")
+
+
+static func _monster_save_action(world: Dictionary, m: Node, a: Dictionary, target: Node) -> Dictionary:
+	var grid: Node = world["grid"]
+	var rng: Variant = a.get("range_tiles", 1)
+	var reach: int = int(rng) if typeof(rng) != TYPE_ARRAY else int(rng[0])
+	if target == null or grid.distance_between(m, target) > reach or not grid.can_see(m, target):
+		return _fail("대상이 사거리 밖")
+	var s := Resolver.saving_throw(target, a["ability"], int(a["dc"]), {"source": m,
+		"against_conditions": a.get("fail", []).filter(func(e: Dictionary) -> bool: return e["type"] == "apply_condition").map(
+			func(e: Dictionary) -> String: return e["id"])})
+	if not s["success"]:
+		for e: Dictionary in a.get("fail", []):
+			_monster_effect(world, m, target, e)
+	return {"ok": true, "save": s}
+
+
+## 속박에서 빠져나오기(행동): 근력(운동) 또는 민첩(곡예) 판정 vs 속박의 escape_dc(붙잡기 대체 — 룰북 6단계).
+static func escape(world: Dictionary, c: Node) -> Dictionary:
+	var inst: Dictionary = c.condition_instance("restrained")
+	if inst.is_empty() or not inst.get("params", {}).has("escape_dc"):
+		return _fail("빠져나올 속박이 없다")
+	if not spend(c, "action"):
+		return _fail("행동이 없다")
+	var ability := "str" if c.ability_mod("str") + int(c.skill_bonuses.get("athletics", 0)) >= c.ability_mod("dex") + int(c.skill_bonuses.get("acrobatics", 0)) else "dex"
+	var r := Resolver.ability_check(c, ability, int(inst["params"]["escape_dc"]), {"skill": "athletics" if ability == "str" else "acrobatics"})
+	if r["success"]:
+		c.remove_condition("restrained")
+	return {"ok": true, "success": r["success"]}
+
+
+## 날렵한 탈출(고블린): 보너스 행동으로 이탈 또는 숨기.
+static func nimble_escape(world: Dictionary, c: Node, which: String) -> Dictionary:
+	if not c.has_feature("nimble_escape"):
+		return _fail("날렵한 탈출이 없다")
+	return disengage(c, "bonus") if which == "disengage" else hide(world, c, "bonus")

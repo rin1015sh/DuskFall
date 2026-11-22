@@ -1,0 +1,85 @@
+{
+  "schema": "monster_v1",
+  "id": "ogre",
+  "name": {
+    "ko": "오우거",
+    "en": "Ogre"
+  },
+  "size": "large",
+  "creature_type": "giant",
+  "cr": 2,
+  "xp": 450,
+  "proficiency_bonus": 2,
+  "ac": 11,
+  "hp": 68,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 19,
+    "dex": 8,
+    "con": 16,
+    "int": 5,
+    "wis": 7,
+    "cha": 7
+  },
+  "saves": {
+    "str": 4,
+    "dex": -1,
+    "con": 3,
+    "int": -3,
+    "wis": -2,
+    "cha": -2
+  },
+  "actions": [
+    {
+      "id": "greatclub",
+      "name": {
+        "ko": "대형 곤봉",
+        "en": "Greatclub"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 6,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "2d8+4",
+          "damage_type": "bludgeoning"
+        }
+      ]
+    },
+    {
+      "id": "javelin",
+      "name": {
+        "ko": "투창",
+        "en": "Javelin"
+      },
+      "type": "attack",
+      "kind": "both",
+      "bonus": 6,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "2d6+4",
+          "damage_type": "piercing"
+        }
+      ],
+      "range_tiles": [
+        6,
+        24
+      ]
+    }
+  ],
+  "weight_kg": 300,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/half_troll.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "ai": {
+    "style": "melee"
+  }
+}

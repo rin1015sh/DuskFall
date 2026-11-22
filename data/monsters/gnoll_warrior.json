@@ -1,0 +1,86 @@
+{
+  "schema": "monster_v1",
+  "id": "gnoll_warrior",
+  "name": {
+    "ko": "놀 전사",
+    "en": "Gnoll Warrior"
+  },
+  "size": "medium",
+  "creature_type": "fiend",
+  "cr": 0.5,
+  "xp": 100,
+  "proficiency_bonus": 2,
+  "ac": 15,
+  "hp": 27,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 14,
+    "dex": 12,
+    "con": 11,
+    "int": 6,
+    "wis": 10,
+    "cha": 7
+  },
+  "saves": {
+    "str": 2,
+    "dex": 1,
+    "con": 0,
+    "int": -2,
+    "wis": 0,
+    "cha": -2
+  },
+  "actions": [
+    {
+      "id": "rend",
+      "name": {
+        "ko": "찢기",
+        "en": "Rend"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 4,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d6+2",
+          "damage_type": "piercing"
+        }
+      ]
+    },
+    {
+      "id": "bone_bow",
+      "name": {
+        "ko": "뼈 활",
+        "en": "Bone Bow"
+      },
+      "type": "attack",
+      "kind": "ranged",
+      "bonus": 3,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d10+1",
+          "damage_type": "piercing"
+        }
+      ],
+      "range_tiles": [
+        30,
+        120
+      ]
+    }
+  ],
+  "weight_kg": 90,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/bone_hyena.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "notes_ko": "광폭(Rampage, 1/일)은 1차 제외 — 보너스 행동 이동+공격 연쇄는 AI 작업에서.",
+  "ai": {
+    "style": "melee"
+  }
+}

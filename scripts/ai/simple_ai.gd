@@ -10,7 +10,12 @@ const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
 static func take_turn(world: Dictionary, c: Node) -> void:
 	if c.dead or c.is_down() or c.has_flag("cannot_act"):
 		return
+	if c.has_meta("monster"):
+		monster_turn(world, c)
+		return
 	var grid: Node = world["grid"]
+	if c.has_condition("restrained") and c.condition_instance("restrained").get("params", {}).has("escape_dc"):
+		Combat.escape(world, c)
 	if c.has_condition("prone"):
 		Combat.stand_up(c)
 	# 1. 쓰러진 아군
@@ -24,6 +29,13 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 				_approach(world, c, ally)
 				if grid.distance_between(c, ally) <= 1:
 					Combat.help(world, c, ally)
+	# 1-2. 기능: 재기의 숨결(HP 절반 이하), 행동 연쇄(적이 둘 이상), 영체 수호자·범위 주문
+	var Features := preload("res://scripts/rules/features.gd")
+	if c.hp <= c.hp_max / 2 and c.resource("second_wind") > 0:
+		Features.use(world, c, "second_wind")
+	if c.resource("action_surge") > 0 and _foes(world, c).size() >= 2:
+		Features.use(world, c, "action_surge")
+	_cast_best_area(world, c)
 	# 2. 공격 행동
 	var guard := 0
 	while guard < 6 and not c.dead and not c.is_down():
@@ -119,3 +131,105 @@ static func _nearest_foe(world: Dictionary, c: Node) -> Node:
 
 static func _allies(world: Dictionary, c: Node) -> Array:
 	return world["grid"].creatures().filter(func(o: Node) -> bool: return o != c and not o.dead and o.team == c.team)
+
+
+# ======================================================================
+# 몬스터(데이터의 actions·multiattack·재충전)
+# ======================================================================
+
+static func monster_turn(world: Dictionary, m: Node) -> void:
+	var MF := preload("res://scripts/rules/monster_factory.gd")
+	var grid: Node = world["grid"]
+	if m.has_condition("prone"):
+		Combat.stand_up(m)
+	if m.has_condition("restrained") and m.condition_instance("restrained").get("params", {}).has("escape_dc"):
+		Combat.escape(world, m)
+		return
+	var guard := 0
+	while guard < 8 and not m.dead and not m.is_down():
+		guard += 1
+		var foe := _nearest_foe(world, m)
+		if foe == null:
+			return
+		if int(m.turn.get("action", 0)) <= 0 and int(m.turn.get("attacks_left", 0)) <= 0:
+			break
+		var dist: int = grid.distance_between(m, foe)
+		var did := false
+		# 재충전 능력(내성 행동) 먼저
+		for a: Dictionary in MF.actions(m):
+			if a["type"] == "save" and int(m.cooldowns.get(a["id"], 0)) == 0 and not a.get("replaces_attack", false):
+				var rng: Variant = a.get("range_tiles", 1)
+				if dist <= (int(rng) if typeof(rng) != TYPE_ARRAY else int(rng[0])) and grid.can_see(m, foe) \
+						and int(m.turn.get("attacks_left", 0)) <= 0:
+					did = Combat.monster_action(world, m, a["id"], foe).get("ok", false)
+					break
+		if did:
+			continue
+		var best := ""
+		var use := "melee"
+		for a: Dictionary in MF.actions(m):
+			if a["type"] != "attack":
+				continue
+			var kind: String = a.get("kind", "melee")
+			if kind in ["melee", "both"] and dist <= int(a.get("reach_tiles", 1)):
+				best = a["id"]
+				use = "melee"
+				break
+		if best == "" and not Combat.is_threatened(world, m):
+			for a: Dictionary in MF.actions(m):
+				if a["type"] == "attack" and a.get("kind", "melee") in ["ranged", "both"]:
+					var atk := MF.to_attack(a, "ranged")
+					var ctx := Combat.attack_context(world, m, foe, atk)
+					if not ctx.has("invalid"):
+						best = a["id"]
+						use = "ranged"
+						break
+		if best != "":
+			if not Combat.monster_action(world, m, best, foe, use).get("ok", false):
+				break
+			continue
+		# 행동을 아직 안 썼으면 다가간다
+		if not _approach(world, m, foe):
+			break
+	var f := _nearest_foe(world, m)
+	if f != null and not m.dead and grid.distance_between(m, f) > 1 and int(m.turn.get("movement", 0)) > 0:
+		_approach(world, m, f)
+
+
+static func _foes(world: Dictionary, c: Node) -> Array:
+	return world["grid"].creatures().filter(func(o: Node) -> bool: return not o.dead and not o.is_down() and c.is_hostile_to(o))
+
+
+## 범위 주문: 아군을 맞히지 않고 적을 둘 이상 맞히는 조준을 찾는다(높은 레벨 주문부터).
+static func _cast_best_area(world: Dictionary, c: Node) -> void:
+	var grid: Node = world["grid"]
+	var order := ["spirit_guardians", "fireball", "lightning_bolt", "shatter", "burning_hands", "thunderwave", "sleep", "hypnotic_pattern"]
+	for sid: String in order:
+		if not c.spells.has(sid) or int(c.turn.get("action", 0)) <= 0:
+			continue
+		var spell := RulesDB.get_entry("spell", sid)
+		var best_cell := Vector2i(-1, -1)
+		var best := 1
+		var candidates: Array = []
+		for f: Node in _foes(world, c):
+			candidates.append(grid.cell_of(f))
+		if spell["range"]["type"] == "self":
+			candidates = [grid.cell_of(c) + Vector2i(1, 0), grid.cell_of(c) + Vector2i(-1, 0), grid.cell_of(c) + Vector2i(0, 1),
+				grid.cell_of(c) + Vector2i(0, -1), grid.cell_of(c) + Vector2i(1, 1), grid.cell_of(c) + Vector2i(-1, -1),
+				grid.cell_of(c) + Vector2i(1, -1), grid.cell_of(c) + Vector2i(-1, 1)]
+		for cell: Vector2i in candidates:
+			if Spellcasting.can_cast(world, c, sid, cell) != "":
+				continue
+			var cells := Spellcasting.area_cells(world, c, spell, cell)
+			var hit: Array = preload("res://scripts/rules/area.gd").creatures_in(grid, cells)
+			var foes := hit.filter(func(o: Node) -> bool: return c.is_hostile_to(o) and not o.dead).size()
+			var friends := hit.filter(func(o: Node) -> bool: return not c.is_hostile_to(o) and o != c).size()
+			if sid == "spirit_guardians":
+				foes = _foes(world, c).filter(func(o: Node) -> bool: return grid.distance_between(c, o) <= 4).size()
+				friends = 0
+			if friends == 0 and foes > best:
+				best = foes
+				best_cell = cell
+		if best_cell.x >= 0:
+			Spellcasting.cast(world, c, sid, best_cell)
+			return

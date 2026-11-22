@@ -1,0 +1,94 @@
+{
+  "schema": "monster_v1",
+  "id": "skeleton",
+  "name": {
+    "ko": "해골",
+    "en": "Skeleton"
+  },
+  "size": "medium",
+  "creature_type": "undead",
+  "cr": 0.25,
+  "xp": 50,
+  "proficiency_bonus": 2,
+  "ac": 14,
+  "hp": 13,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 10,
+    "dex": 16,
+    "con": 15,
+    "int": 6,
+    "wis": 8,
+    "cha": 5
+  },
+  "saves": {
+    "str": 0,
+    "dex": 3,
+    "con": 2,
+    "int": -2,
+    "wis": -1,
+    "cha": -3
+  },
+  "actions": [
+    {
+      "id": "shortsword",
+      "name": {
+        "ko": "소검",
+        "en": "Shortsword"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 5,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d6+3",
+          "damage_type": "piercing"
+        }
+      ]
+    },
+    {
+      "id": "shortbow",
+      "name": {
+        "ko": "단궁",
+        "en": "Shortbow"
+      },
+      "type": "attack",
+      "kind": "ranged",
+      "bonus": 5,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d6+3",
+          "damage_type": "piercing"
+        }
+      ],
+      "range_tiles": [
+        16,
+        64
+      ]
+    }
+  ],
+  "weight_kg": 30,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/skeleton_warrior.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "vulnerabilities": [
+    "bludgeoning"
+  ],
+  "immunities": [
+    "poison"
+  ],
+  "condition_immunities": [
+    "poisoned"
+  ],
+  "ai": {
+    "style": "melee"
+  }
+}

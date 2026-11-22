@@ -1,0 +1,93 @@
+{
+  "schema": "monster_v1",
+  "id": "giant_spider",
+  "name": {
+    "ko": "거대 거미",
+    "en": "Giant Spider"
+  },
+  "size": "large",
+  "creature_type": "beast",
+  "cr": 1,
+  "xp": 200,
+  "proficiency_bonus": 2,
+  "ac": 14,
+  "hp": 26,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 14,
+    "dex": 16,
+    "con": 12,
+    "int": 2,
+    "wis": 11,
+    "cha": 4
+  },
+  "saves": {
+    "str": 2,
+    "dex": 3,
+    "con": 1,
+    "int": -4,
+    "wis": 0,
+    "cha": -3
+  },
+  "actions": [
+    {
+      "id": "bite",
+      "name": {
+        "ko": "물기",
+        "en": "Bite"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 5,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d8+3",
+          "damage_type": "piercing"
+        },
+        {
+          "dice": "2d6",
+          "damage_type": "poison"
+        }
+      ]
+    },
+    {
+      "id": "web",
+      "name": {
+        "ko": "거미줄",
+        "en": "Web"
+      },
+      "type": "save",
+      "ability": "dex",
+      "dc": 13,
+      "range_tiles": 12,
+      "targets": 1,
+      "recharge": "5-6",
+      "fail": [
+        {
+          "type": "apply_condition",
+          "id": "restrained",
+          "escape_dc": 12
+        }
+      ]
+    }
+  ],
+  "weight_kg": 150,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/dune_scorpion.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "skills": {
+    "perception": 2,
+    "stealth": 4
+  },
+  "notes_ko": "거미줄 속박: 원문은 거미줄(AC 10, HP 5)을 부숴야 풀림 → 1차는 근력 판정 DC 12로 빠져나오기(속박 풀기 행동).",
+  "ai": {
+    "style": "melee"
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "schema": "monster_v1",
+  "id": "wight",
+  "name": {
+    "ko": "와이트",
+    "en": "Wight"
+  },
+  "size": "medium",
+  "creature_type": "undead",
+  "cr": 3,
+  "xp": 700,
+  "proficiency_bonus": 2,
+  "ac": 14,
+  "hp": 82,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 15,
+    "dex": 14,
+    "con": 16,
+    "int": 10,
+    "wis": 13,
+    "cha": 15
+  },
+  "saves": {
+    "str": 2,
+    "dex": 2,
+    "con": 3,
+    "int": 0,
+    "wis": 1,
+    "cha": 2
+  },
+  "actions": [
+    {
+      "id": "necrotic_sword",
+      "name": {
+        "ko": "사령의 검",
+        "en": "Necrotic Sword"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 4,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d8+2",
+          "damage_type": "slashing"
+        },
+        {
+          "dice": "1d8",
+          "damage_type": "necrotic"
+        }
+      ]
+    },
+    {
+      "id": "necrotic_bow",
+      "name": {
+        "ko": "사령의 활",
+        "en": "Necrotic Bow"
+      },
+      "type": "attack",
+      "kind": "ranged",
+      "bonus": 4,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d8+2",
+          "damage_type": "piercing"
+        },
+        {
+          "dice": "1d8",
+          "damage_type": "necrotic"
+        }
+      ],
+      "range_tiles": [
+        30,
+        120
+      ]
+    },
+    {
+      "id": "life_drain",
+      "name": {
+        "ko": "생명 흡수",
+        "en": "Life Drain"
+      },
+      "type": "save",
+      "ability": "con",
+      "dc": 13,
+      "range_tiles": 1,
+      "targets": 1,
+      "fail": [
+        {
+          "type": "damage",
+          "dice": "1d8+2",
+          "damage_type": "necrotic",
+          "reduce_hp_max": true
+        }
+      ],
+      "replaces_attack": true
+    }
+  ],
+  "weight_kg": 70,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/bone_knight.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "resistances": [
+    "necrotic"
+  ],
+  "immunities": [
+    "poison"
+  ],
+  "condition_immunities": [
+    "poisoned"
+  ],
+  "skills": {
+    "perception": 2,
+    "stealth": 2
+  },
+  "traits": [
+    {
+      "id": "sunlight_sensitivity",
+      "name": {
+        "ko": "햇빛 민감",
+        "en": "Sunlight Sensitivity"
+      }
+    }
+  ],
+  "multiattack": {
+    "count": 2,
+    "actions": [
+      "necrotic_sword",
+      "necrotic_bow",
+      "life_drain"
+    ]
+  },
+  "ai": {
+    "style": "melee"
+  }
+}

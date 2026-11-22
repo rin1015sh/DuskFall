@@ -1,0 +1,121 @@
+{
+  "schema": "monster_v1",
+  "id": "goblin_boss",
+  "name": {
+    "ko": "고블린 두목",
+    "en": "Goblin Boss"
+  },
+  "size": "small",
+  "creature_type": "fey",
+  "cr": 1,
+  "xp": 200,
+  "proficiency_bonus": 2,
+  "ac": 17,
+  "hp": 21,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 10,
+    "dex": 15,
+    "con": 10,
+    "int": 10,
+    "wis": 8,
+    "cha": 10
+  },
+  "saves": {
+    "str": 0,
+    "dex": 2,
+    "con": 0,
+    "int": 0,
+    "wis": -1,
+    "cha": 0
+  },
+  "actions": [
+    {
+      "id": "scimitar",
+      "name": {
+        "ko": "시미터",
+        "en": "Scimitar"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 4,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d6+2",
+          "damage_type": "slashing"
+        }
+      ],
+      "extra_if_advantage": [
+        {
+          "dice": "1d4",
+          "damage_type": "slashing"
+        }
+      ]
+    },
+    {
+      "id": "shortbow",
+      "name": {
+        "ko": "단궁",
+        "en": "Shortbow"
+      },
+      "type": "attack",
+      "kind": "ranged",
+      "bonus": 4,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d6+2",
+          "damage_type": "piercing"
+        }
+      ],
+      "range_tiles": [
+        16,
+        64
+      ],
+      "extra_if_advantage": [
+        {
+          "dice": "1d4",
+          "damage_type": "piercing"
+        }
+      ]
+    }
+  ],
+  "weight_kg": 25,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/goblin_trap_king.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "skills": {
+    "stealth": 4
+  },
+  "multiattack": {
+    "count": 2,
+    "actions": [
+      "scimitar",
+      "shortbow"
+    ]
+  },
+  "bonus_actions": [
+    {
+      "id": "nimble_escape",
+      "name": {
+        "ko": "날렵한 탈출",
+        "en": "Nimble Escape"
+      },
+      "kind": "bonus_action",
+      "options": [
+        "disengage",
+        "hide"
+      ]
+    }
+  ],
+  "ai": {
+    "style": "skirmisher"
+  }
+}

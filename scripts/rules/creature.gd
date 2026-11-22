@@ -80,6 +80,8 @@ var crit_threshold := 20
 var initiative_bonus := 0
 ## 암시야 거리(칸). 0이면 없음. senses의 "darkvision"과 함께 쓴다.
 var darkvision_tiles := 0
+## 내성 보너스 고정값(몬스터 원문 SAVE 행). 있으면 save_bonus가 이 값을 쓴다.
+var save_overrides := {}
 ## 이 상태를 피하는 내성에 유리(드워프 중독, 엘프 매혹, 하플링 공포)
 var save_advantage_vs: Array = []
 ## 이 능력치 내성에 유리(노움)
@@ -121,6 +123,8 @@ func ability_mod(ability: String) -> int:
 
 
 func save_bonus(ability: String) -> int:
+	if save_overrides.has(ability):
+		return int(save_overrides[ability])
 	return ability_mod(ability) + (proficiency_bonus if save_proficiencies.has(ability) else 0)
 
 

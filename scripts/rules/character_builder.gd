@@ -182,6 +182,11 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		c.features.append_array(ft.get("tags", []))
 		if "initiative_proficiency" in ft.get("tags", []):
 			c.initiative_bonus = c.proficiency_bonus
+	var uniq_f: Array = []
+	for f: String in c.features:
+		if not f in uniq_f:
+			uniq_f.append(f)
+	c.features = uniq_f
 	if c.has_feature("remarkable_athlete"):
 		c.extra_modifiers.append({"effect": {"type": "advantage", "roll": "initiative", "side": "self", "value": "advantage"},
 			"source": "remarkable_athlete"})
