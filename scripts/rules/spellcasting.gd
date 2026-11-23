@@ -263,7 +263,7 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 	if caster.has_condition("incapacitated"):
 		return "무력화"
 	if caster.has_flag("no_spellcasting"):
-		return "숙련 없는 갑옷·방패를 입고는 주문을 쓸 수 없다"
+		return "지금은 주문을 쓸 수 없다(숙련 없는 갑옷·분노·야생 변신)"
 	if spell.get("components", {}).get("verbal", false) and world.has("grid") and world["grid"].creatures().has(caster) \
 			and world["grid"].has_flag(world["grid"].cell_of(caster), "silence"):
 		return "침묵 구역에서는 음성 구성 요소 주문을 쓸 수 없다"

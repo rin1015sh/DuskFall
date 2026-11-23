@@ -138,7 +138,8 @@
         "cleric",
         "ranger",
         "paladin",
-        "bard"
+        "bard",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -408,7 +409,8 @@
       "school": "divination",
       "classes": [
         "cleric",
-        "wizard"
+        "wizard",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -993,7 +995,8 @@
         "wizard",
         "bard",
         "sorcerer",
-        "warlock"
+        "warlock",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -1386,7 +1389,8 @@
       "school": "evocation",
       "classes": [
         "cleric",
-        "wizard"
+        "wizard",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -1539,7 +1543,8 @@
       "level": 1,
       "school": "transmutation",
       "classes": [
-        "cleric"
+        "cleric",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -1601,7 +1606,8 @@
         "cleric",
         "ranger",
         "paladin",
-        "bard"
+        "bard",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -1771,7 +1777,8 @@
       "classes": [
         "wizard",
         "ranger",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -1822,7 +1829,8 @@
       "classes": [
         "cleric",
         "ranger",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -1927,7 +1935,8 @@
         "paladin",
         "bard",
         "sorcerer",
-        "warlock"
+        "warlock",
+        "druid"
       ],
       "granted_by": [
         "elf_high"
@@ -1974,7 +1983,8 @@
       "classes": [
         "cleric",
         "ranger",
-        "paladin"
+        "paladin",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -2122,7 +2132,8 @@
         "ranger",
         "bard",
         "sorcerer",
-        "warlock"
+        "warlock",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -2227,7 +2238,9 @@
       },
       "level": 0,
       "school": "transmutation",
-      "classes": [],
+      "classes": [
+        "druid"
+      ],
       "granted_by": [
         "elf_wood"
       ],
@@ -2325,7 +2338,8 @@
         "wizard",
         "ranger",
         "bard",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -2382,7 +2396,8 @@
       "classes": [
         "wizard",
         "bard",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -2484,7 +2499,8 @@
       "level": 1,
       "school": "evocation",
       "classes": [
-        "bard"
+        "bard",
+        "druid"
       ],
       "granted_by": [
         "elf_drow"
@@ -2766,7 +2782,8 @@
       "school": "divination",
       "classes": [
         "cleric",
-        "ranger"
+        "ranger",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -2958,7 +2975,8 @@
       "school": "conjuration",
       "classes": [
         "wizard",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -3118,7 +3136,8 @@
       "classes": [
         "wizard",
         "ranger",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -3391,7 +3410,8 @@
       "level": 0,
       "school": "divination",
       "classes": [
-        "cleric"
+        "cleric",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -3512,7 +3532,8 @@
       "classes": [
         "wizard",
         "ranger",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -3621,7 +3642,8 @@
       "school": "abjuration",
       "classes": [
         "cleric",
-        "bard"
+        "bard",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -3822,7 +3844,8 @@
         "wizard",
         "bard",
         "sorcerer",
-        "warlock"
+        "warlock",
+        "druid"
       ],
       "granted_by": [
         "tiefling_abyssal"
@@ -3955,7 +3978,8 @@
       "school": "conjuration",
       "classes": [
         "wizard",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -4225,7 +4249,8 @@
       "classes": [
         "wizard",
         "ranger",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -4328,7 +4353,8 @@
         "cleric",
         "ranger",
         "paladin",
-        "bard"
+        "bard",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -4554,7 +4580,8 @@
         "wizard",
         "ranger",
         "paladin",
-        "bard"
+        "bard",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -4599,7 +4626,8 @@
       "classes": [
         "wizard",
         "ranger",
-        "bard"
+        "bard",
+        "druid"
       ],
       "granted_by": [
         "elf_wood"
@@ -5072,7 +5100,8 @@
       "school": "transmutation",
       "classes": [
         "cleric",
-        "ranger"
+        "ranger",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -5124,7 +5153,8 @@
         "cleric",
         "wizard",
         "bard",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [
         "gnome_rock"
@@ -5170,7 +5200,8 @@
       "classes": [
         "wizard",
         "bard",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -5474,7 +5505,8 @@
       "level": 2,
       "school": "abjuration",
       "classes": [
-        "ranger"
+        "ranger",
+        "druid"
       ],
       "granted_by": [
         "elf_wood"
@@ -5570,7 +5602,8 @@
       "classes": [
         "wizard",
         "sorcerer",
-        "warlock"
+        "warlock",
+        "druid"
       ],
       "granted_by": [
         "tiefling_abyssal"
@@ -5731,7 +5764,8 @@
         "cleric",
         "wizard",
         "ranger",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -5782,7 +5816,8 @@
         "cleric",
         "wizard",
         "paladin",
-        "warlock"
+        "warlock",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -5826,7 +5861,8 @@
       "classes": [
         "cleric",
         "ranger",
-        "paladin"
+        "paladin",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -5879,7 +5915,8 @@
       "school": "transmutation",
       "classes": [
         "cleric",
-        "paladin"
+        "paladin",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -6147,7 +6184,8 @@
       "level": 0,
       "school": "abjuration",
       "classes": [
-        "cleric"
+        "cleric",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -6199,7 +6237,8 @@
       "school": "necromancy",
       "classes": [
         "cleric",
-        "ranger"
+        "ranger",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -6945,7 +6984,8 @@
       "school": "conjuration",
       "classes": [
         "wizard",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -7071,7 +7111,8 @@
       "level": 0,
       "school": "necromancy",
       "classes": [
-        "cleric"
+        "cleric",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -7116,7 +7157,8 @@
       "classes": [
         "ranger",
         "bard",
-        "warlock"
+        "warlock",
+        "druid"
       ],
       "granted_by": [
         "gnome_forest"
@@ -7581,7 +7623,8 @@
       "classes": [
         "wizard",
         "bard",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -7948,7 +7991,8 @@
       "classes": [
         "wizard",
         "ranger",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -7993,7 +8037,8 @@
       "classes": [
         "cleric",
         "ranger",
-        "sorcerer"
+        "sorcerer",
+        "druid"
       ],
       "granted_by": [],
       "cast": {
@@ -8276,7 +8321,8 @@
       "level": 1,
       "school": "conjuration",
       "classes": [
-        "ranger"
+        "ranger",
+        "druid"
       ],
       "cast": {
         "cost": "action",
@@ -8342,7 +8388,8 @@
       "level": 1,
       "school": "conjuration",
       "classes": [
-        "ranger"
+        "ranger",
+        "druid"
       ],
       "cast": {
         "cost": "action",
@@ -8389,7 +8436,8 @@
       "level": 2,
       "school": "transmutation",
       "classes": [
-        "ranger"
+        "ranger",
+        "druid"
       ],
       "cast": {
         "cost": "bonus_action",
@@ -8441,7 +8489,8 @@
       "level": 2,
       "school": "transmutation",
       "classes": [
-        "ranger"
+        "ranger",
+        "druid"
       ],
       "cast": {
         "cost": "action",
@@ -8891,7 +8940,8 @@
       "level": 0,
       "school": "evocation",
       "classes": [
-        "bard"
+        "bard",
+        "druid"
       ],
       "cast": {
         "cost": "action",
@@ -9038,6 +9088,65 @@
         "role": "none"
       },
       "notes_ko": "명중마다 +1d6 사령, 대상이 쓰러지면 자동으로 옮김(사냥꾼의 표식과 같은 방식). 능력 판정 불리 생략. 1시간 → 긴 휴식까지."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "produce_flame",
+      "name": {
+        "ko": "불꽃 만들기",
+        "en": "Produce Flame"
+      },
+      "level": 0,
+      "school": "conjuration",
+      "classes": [
+        "druid"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        },
+        "hit": [
+          {
+            "type": "damage",
+            "dice": "1d8",
+            "damage_type": "fire"
+          }
+        ]
+      },
+      "upcast": {
+        "cantrip_scaling": {
+          "5": "2d8"
+        }
+      },
+      "icon": {
+        "glyph": "flame",
+        "family": "fire"
+      },
+      "notes_ko": "원문: 보너스 행동으로 손에 불꽃(빛), 마법 행동으로 던지기. 게임: 던지기만(원거리 주문 공격 1d8 화염). 손의 빛은 1차 생략."
     }
   ]
 }

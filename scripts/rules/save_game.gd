@@ -12,7 +12,7 @@ const WORLD_KEYS := ["stash", "inspiration", "short_rests_left", "party_resource
 const CREATURE_KEYS := ["hp", "hp_max", "temp_hp", "dead", "stable", "death_saves", "team", "sneaking", "level", "faction",
 	"spells", "spellbook", "prepared", "prep_swaps", "prep_base", "known_reactions", "inventory", "equipment"]
 ## 생물 메타 중 저장하는 것(대화를 이미 했는지, 경험치를 이미 줬는지, 레벨 업 명세)
-const CREATURE_METAS := ["dialogue_done", "xp_given", "spec"]
+const CREATURE_METAS := ["dialogue_done", "xp_given", "spec", "beast_form"]
 
 
 static func can_save(world: Dictionary) -> bool:
@@ -128,6 +128,10 @@ static func restore(world: Dictionary, snap: Dictionary, opts: Dictionary = {}) 
 		c.concentration = {}
 		for m: String in e.get("metas", {}):
 			c.set_meta(m, e["metas"][m])
+		if c.has_meta("beast_form"):
+			load("res://scripts/rules/effects/wild_shape.gd").shape_stats(c, str(c.get_meta("beast_form")))  # 야생 변신 중 저장
+		elif c.has_condition("wild_shaped"):
+			c.remove_condition("wild_shaped")
 		c.awareness.clear()
 		for n2: String in e.get("awareness", {}):
 			if by_name.has(n2):

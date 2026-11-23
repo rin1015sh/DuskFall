@@ -231,6 +231,17 @@
             },
             "darkvision_tiles": {
               "type": "integer"
+            },
+            "always_prepared": {
+              "$comment": "선택에 따른 항상 준비 주문 레벨표",
+              "type": "object"
+            },
+            "skill_bonus_ability": {
+              "$comment": "기능 판정에 능력 수정치(최소 1)를 더한다 {기능: 능력}",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
             }
           }
         },
@@ -300,6 +311,17 @@
               },
               "darkvision_tiles": {
                 "type": "integer"
+              },
+              "always_prepared": {
+                "$comment": "선택에 따른 항상 준비 주문 레벨표",
+                "type": "object"
+              },
+              "skill_bonus_ability": {
+                "$comment": "기능 판정에 능력 수정치(최소 1)를 더한다 {기능: 능력}",
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -415,6 +437,14 @@
           "additionalProperties": {
             "type": "integer"
           }
+        },
+        "forms": {
+          "$comment": "야생 변신 형태 레벨표 {레벨: [몬스터 ID]}",
+          "type": "object"
+        },
+        "cr_by_level": {
+          "$comment": "야생 변신 최대 도전 등급 레벨표",
+          "type": "object"
         }
       }
     }

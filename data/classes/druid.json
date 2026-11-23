@@ -1,0 +1,384 @@
+{
+  "schema": "class_v1",
+  "id": "druid",
+  "name": {
+    "ko": "드루이드",
+    "en": "Druid"
+  },
+  "hit_die": 8,
+  "primary": [
+    "wis"
+  ],
+  "saves": [
+    "int",
+    "wis"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "arcana",
+      "animal_handling",
+      "insight",
+      "medicine",
+      "nature",
+      "perception",
+      "religion",
+      "survival"
+    ]
+  },
+  "weapon_training": [
+    "simple"
+  ],
+  "armor_training": [
+    "light",
+    "shield"
+  ],
+  "asi_levels": [
+    4
+  ],
+  "always_prepared": {
+    "1": [
+      "speak_with_animals"
+    ]
+  },
+  "spellcasting": {
+    "ability": "wis",
+    "swap": {
+      "long_rest": -1
+    },
+    "type": "prepared",
+    "list": "druid",
+    "cantrips": {
+      "1": 2,
+      "4": 3
+    },
+    "prepared": {
+      "1": 4,
+      "2": 5,
+      "3": 6,
+      "4": 7,
+      "5": 9
+    },
+    "slots": {
+      "1": [
+        2
+      ],
+      "2": [
+        3
+      ],
+      "3": [
+        4,
+        2
+      ],
+      "4": [
+        4,
+        3
+      ],
+      "5": [
+        4,
+        3,
+        2
+      ]
+    }
+  },
+  "resources": [
+    {
+      "id": "wild_shape",
+      "name": {
+        "ko": "야생 변신",
+        "en": "Wild Shape"
+      },
+      "max": {
+        "2": 2
+      },
+      "recharge": "short_one"
+    },
+    {
+      "id": "wild_resurgence",
+      "name": {
+        "ko": "야생의 부활",
+        "en": "Wild Resurgence"
+      },
+      "max": {
+        "5": 1
+      },
+      "recharge": "long"
+    }
+  ],
+  "features": [
+    {
+      "id": "druidic",
+      "name": {
+        "ko": "드루이드어",
+        "en": "Druidic"
+      },
+      "level": 1,
+      "handled_by": "클래스 always_prepared(동물과 대화). 숨은 글 남기기는 삭제(언어)",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "primal_order",
+      "name": {
+        "ko": "원초의 질서",
+        "en": "Primal Order"
+      },
+      "level": 1,
+      "choices": [
+        "magician",
+        "warden"
+      ],
+      "choice_kind": "option",
+      "choice_grants": {
+        "magician": {
+          "extra_cantrips": 1,
+          "skill_bonus_ability": {
+            "arcana": "wis",
+            "nature": "wis"
+          }
+        },
+        "warden": {
+          "weapon_training": [
+            "martial"
+          ],
+          "armor_training": [
+            "medium"
+          ]
+        }
+      },
+      "notes_ko": "마법사(소마법 +1, 비전·자연 판정 + 지혜) 또는 수호자(군용 무기·중갑옷 훈련).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "wild_shape",
+      "name": {
+        "ko": "야생 변신",
+        "en": "Wild Shape"
+      },
+      "level": 2,
+      "kind": "bonus_action",
+      "resource": "wild_shape",
+      "script": "wild_shape",
+      "forms": {
+        "2": [
+          "wolf"
+        ],
+        "4": [
+          "worg"
+        ]
+      },
+      "cr_by_level": {
+        "2": 0.25,
+        "4": 0.5
+      },
+      "notes_ko": "보너스 행동으로 아는 짐승(2레벨 늑대 — 도전 1/4, 4레벨 워그 — 1/2, 비행 없음). 근력·민첩·건강·AC·속도·공격은 짐승 것, HP 그대로 + 임시 HP = 드루이드 레벨, 주문 불가. 보너스 행동으로 풀기, 0 HP·긴 휴식에 풀림. 2회, 짧은 휴식에 1회 회복. 형태 고르기는 설정 options.wild_shape_form.",
+      "source": "SRD 5.2.1",
+      "glyph": "paw"
+    },
+    {
+      "id": "revert_wild_shape",
+      "name": {
+        "ko": "변신 풀기",
+        "en": "Revert Wild Shape"
+      },
+      "level": 2,
+      "kind": "bonus_action",
+      "script": "revert_wild_shape",
+      "source": "SRD 5.2.1",
+      "glyph": "paw"
+    },
+    {
+      "id": "wild_companion",
+      "name": {
+        "ko": "야생 동료",
+        "en": "Wild Companion"
+      },
+      "level": 2,
+      "status": "deferred",
+      "notes_ko": "슬롯·야생 변신으로 친구 찾기(요정). 친구 찾기 주문(소환물 조종)이 1차 제외라 보류.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "wild_resurgence",
+      "name": {
+        "ko": "야생의 부활",
+        "en": "Wild Resurgence"
+      },
+      "level": 5,
+      "kind": "free",
+      "script": "wild_resurgence",
+      "notes_ko": "행동 없이: 야생 변신이 없으면 슬롯으로 1회(턴당 1회). opts.mode slot이면 야생 변신 1회 → 1레벨 슬롯(긴 휴식마다 1회).",
+      "source": "SRD 5.2.1",
+      "glyph": "paw"
+    }
+  ],
+  "subclasses": [
+    {
+      "id": "land",
+      "name": {
+        "ko": "대지 회합",
+        "en": "Circle of the Land"
+      },
+      "level": 3,
+      "source": "SRD 5.2.1",
+      "features": [
+        {
+          "id": "circle_land_spells",
+          "name": {
+            "ko": "대지 회합 주문",
+            "en": "Circle of the Land Spells"
+          },
+          "level": 3,
+          "choices": [
+            "arid",
+            "polar",
+            "temperate",
+            "tropical"
+          ],
+          "choice_kind": "option",
+          "choice_grants": {
+            "arid": {
+              "always_prepared": {
+                "3": [
+                  "blur",
+                  "burning_hands",
+                  "fire_bolt"
+                ],
+                "5": [
+                  "fireball"
+                ]
+              }
+            },
+            "polar": {
+              "always_prepared": {
+                "3": [
+                  "fog_cloud",
+                  "hold_person",
+                  "ray_of_frost"
+                ],
+                "5": [
+                  "sleet_storm"
+                ]
+              }
+            },
+            "temperate": {
+              "always_prepared": {
+                "3": [
+                  "misty_step",
+                  "shocking_grasp",
+                  "sleep"
+                ],
+                "5": [
+                  "lightning_bolt"
+                ]
+              }
+            },
+            "tropical": {
+              "always_prepared": {
+                "3": [
+                  "acid_splash",
+                  "ray_of_sickness",
+                  "web"
+                ],
+                "5": [
+                  "stinking_cloud"
+                ]
+              }
+            }
+          },
+          "notes_ko": "땅 종류(건조·극지·온대·열대)에 따라 3·5레벨 주문 항상 준비. 원문은 긴 휴식마다 다시 고름 — 지금은 생성 때 고정(1차).",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "lands_aid",
+          "name": {
+            "ko": "땅의 도움",
+            "en": "Land's Aid"
+          },
+          "level": 3,
+          "kind": "action",
+          "resource": "wild_shape",
+          "script": "lands_aid",
+          "target": "cell",
+          "notes_ko": "야생 변신 1회: 12칸 안 반지름 2칸 — 적 건강 내성 2d6 사령(성공 절반), 아군 하나 2d6 회복.",
+          "source": "SRD 5.2.1",
+          "glyph": "leaf"
+        }
+      ]
+    }
+  ],
+  "ai_role": "caster",
+  "art": {
+    "sheet": "res://assets/actors/elf.webp"
+  },
+  "color": "#7fbf4d",
+  "starting_equipment": {
+    "armor": "leather_armor",
+    "shield": true,
+    "melee": {
+      "main": "quarterstaff",
+      "off": ""
+    },
+    "ranged": {
+      "main": "sling"
+    }
+  },
+  "default_build": {
+    "subclass": "land",
+    "species": "elf",
+    "lineage": "elf_wood",
+    "background": "sage",
+    "scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 14,
+      "int": 10,
+      "wis": 15,
+      "cha": 10
+    },
+    "bonus": {
+      "wis": 2,
+      "con": 1
+    },
+    "skills": [
+      "perception",
+      "medicine"
+    ],
+    "species_skill": "survival",
+    "primal_order": "magician",
+    "circle_land_spells": "temperate",
+    "cantrips": [
+      "produce_flame",
+      "guidance",
+      "poison_spray"
+    ],
+    "spells": [
+      "cure_wounds",
+      "faerie_fire",
+      "thunderwave",
+      "entangle",
+      "healing_word",
+      "lesser_restoration",
+      "barkskin",
+      "spike_growth",
+      "sleet_storm",
+      "dispel_magic"
+    ],
+    "asi": {
+      "4": {
+        "wis": 2
+      }
+    },
+    "armor": "leather_armor",
+    "shield": true,
+    "weapons": {
+      "melee": {
+        "main": "quarterstaff",
+        "off": ""
+      },
+      "ranged": {
+        "main": "sling"
+      }
+    }
+  },
+  "source": "SRD 5.2.1"
+}

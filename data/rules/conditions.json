@@ -1250,6 +1250,20 @@
       },
       "notes_ko": "Hex: 시전자가 공격으로 맞힐 때마다 +1d6 사령. 대상이 쓰러지면 가장 가까운 적에게 자동으로 옮긴다(사냥꾼의 표식과 같음). 고른 능력 판정 불리는 1차 생략.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "wild_shaped",
+      "name": {
+        "ko": "야생 변신",
+        "en": "Wild Shape"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "flags": {
+        "no_spellcasting": true
+      },
+      "notes_ko": "드루이드 야생 변신 중: 주문 시전 불가(집중은 유지). 짐승 능력치·공격은 wild_shape.gd.",
+      "source": "SRD 5.2.1"
     }
   ]
 }

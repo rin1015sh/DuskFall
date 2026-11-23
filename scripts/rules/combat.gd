@@ -213,6 +213,8 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 		if not spend(attacker, "action"):
 			return _fail("행동이 없다")
 		attacker.turn["attacks_left"] = attacker.attacks_per_action
+	if attacker.has_meta("beast_form") and not opts.has("weapon"):
+		return _beast_attack(world, attacker, target)
 	var wid: String = opts.get("weapon", attacker.weapon("main"))
 	var atk := build_weapon_attack(attacker, wid, opts)
 	var res := _do_attack(world, attacker, target, atk)
@@ -226,6 +228,27 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 	_after_attack_features(world, attacker, target, res)
 	if not opts.get("horde_breaker", false):
 		_horde_breaker(world, attacker, target, wid, opts)
+	if world.get("turns") != null:
+		world["turns"].notify_hostile_action(attacker)
+	return res
+
+
+## 야생 변신 중 공격: 짐승의 첫 근접 공격(명중 보너스·피해·맞으면 효과는 몬스터 데이터 그대로).
+static func _beast_attack(world: Dictionary, attacker: Node, target: Node) -> Dictionary:
+	var m := RulesDB.get_entry("monster", str(attacker.get_meta("beast_form")))
+	var a: Dictionary = {}
+	for x: Dictionary in m.get("actions", []):
+		if x.get("type", "") == "attack":
+			a = x
+			break
+	if a.is_empty():
+		return _fail("짐승 공격이 없다")
+	var res := _do_attack(world, attacker, target, preload("res://scripts/rules/monster_factory.gd").to_attack(a, "melee"))
+	if not res.get("ok", true):
+		return res
+	attacker.turn["attacks_left"] -= 1
+	attacker.turn["attacks_made"] = int(attacker.turn.get("attacks_made", 0)) + 1
+	_monster_on_hit(world, attacker, target, a, res)
 	if world.get("turns") != null:
 		world["turns"].notify_hostile_action(attacker)
 	return res

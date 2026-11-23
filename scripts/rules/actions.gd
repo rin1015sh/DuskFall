@@ -304,7 +304,8 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 	if key.begins_with("spell:"):
 		return Spellcasting.cast(world, c, key.trim_prefix("spell:"), cell)
 	if key.begins_with("feature:"):
-		return Features.use(world, c, key.trim_prefix("feature:"), t)
+		var tgt: Variant = cell if str(def_of(key).get("target", "self")) == "cell" else t  # 칸을 고르는 기능(땅의 도움)은 칸을
+		return Features.use(world, c, key.trim_prefix("feature:"), tgt)
 	if key.begins_with("wa_"):
 		return _weapon_action(world, c, key, t)
 	if key.begins_with("entity:"):

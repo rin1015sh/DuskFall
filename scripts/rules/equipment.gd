@@ -145,6 +145,8 @@ static func in_combat(world: Dictionary) -> bool:
 static func equip_blocked(world: Dictionary, c: Node, id: String, slot: String = "") -> String:
 	if not c.has_meta("spec"):
 		return "장비를 바꿀 수 없는 생물"
+	if c.has_meta("beast_form"):
+		return "야생 변신 중에는 장비를 바꿀 수 없다"
 	if int(c.inventory.get(id, 0)) <= 0:
 		return "소지품에 없다"
 	var ok := slots_for(id)

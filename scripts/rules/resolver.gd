@@ -655,6 +655,8 @@ static func _hp_zero(target: Node, remainder: int, opts: Dictionary, out: Dictio
 		return
 	_transfer_on_drop(target)
 	_dark_ones_blessing(target, opts)
+	if target.has_meta("beast_form"):
+		load("res://scripts/rules/effects/wild_shape.gd").revert(target)  # 0 HP(무력화)면 야생 변신이 풀린다
 	if not target.is_player_character:
 		_die(target, "몬스터는 0 HP에서 즉사")
 	elif remainder >= target.hp_max:

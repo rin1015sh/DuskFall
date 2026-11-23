@@ -145,6 +145,8 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 		c.temp_hp = 0
 		c.death_saves = {"successes": 0, "failures": 0}
 		SpellPrep.open_window(c, "long")  # 준비 주문 교체 창(다음 전투까지)
+		if c.has_meta("beast_form"):
+			load("res://scripts/rules/effects/wild_shape.gd").revert(c)  # 야생 변신은 긴 휴식까지(레벨 절반 시간)
 		if full:
 			_heal_to(c, c.hp_max)
 			for id: String in c.resources:

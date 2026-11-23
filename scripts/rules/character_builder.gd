@@ -267,6 +267,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var extra_cantrips := 0
 	var hp_per_level := 0
 	var at_will: Array = []
+	var grant_spells: Array = []
+	var skill_bonus_ability := {}
 	for g: Array in grants:
 		var gr: Dictionary = g[1]
 		c.attacks_per_action = maxi(c.attacks_per_action, int(gr.get("attacks_per_action", 1)))
@@ -276,6 +278,11 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		extra_cantrips += int(gr.get("extra_cantrips", 0))
 		hp_per_level += int(gr.get("hp_per_level", 0))
 		at_will.append_array(gr.get("at_will", []))  # 슬롯 없이 마음대로 쓰는 주문(워락 영창)
+		for k: String in gr.get("always_prepared", {}):
+			if lv >= int(k):
+				grant_spells.append_array(gr["always_prepared"][k])  # 선택에 따른 항상 준비(대지 회합 주문)
+		for sk: String in gr.get("skill_bonus_ability", {}):
+			skill_bonus_ability[sk] = str(gr["skill_bonus_ability"][sk])  # 원초의 질서 마법사: 비전·자연 + 지혜
 		if int(gr.get("darkvision_tiles", 0)) > c.darkvision_tiles:
 			c.darkvision_tiles = int(gr["darkvision_tiles"])  # 악마의 시야
 			if not c.senses.has("darkvision"):
@@ -295,6 +302,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	c.skill_bonuses = {}
 	for s: String in skills:
 		c.skill_bonuses[s] = c.proficiency_bonus * (2 if s in expertise else 1)  # 전문화는 숙련 기능에만
+	for sk: String in skill_bonus_ability:
+		c.skill_bonuses[sk] = int(c.skill_bonuses.get(sk, 0)) + maxi(1, c.ability_mod(skill_bonus_ability[sk]))
 	# 훈련·숙련
 	c.weapon_proficiencies = _weapon_profs(wt)
 	# 무기 마스터리: 레벨별 개수만큼(명세에 미리 적어 둔 다음 선택은 레벨이 오르면 열린다)
@@ -328,7 +337,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	_apply_spells(c, cls, sub, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)
 	c.set_meta("at_will", at_will)
-	for sid: String in at_will:
+	for sid: String in at_will + grant_spells:
 		if not c.spells.has(sid) and not RulesDB.get_entry("spell", sid).is_empty():
 			c.spells.append(sid)
 	# 반응

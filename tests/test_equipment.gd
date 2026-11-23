@@ -83,7 +83,7 @@ func test_bracers_boots_gloves_and_training() -> void:
 	# 숙련 없는 갑옷(BG3식): 입을 수 있지만 공격·판정·내성 불리, 주문 불가
 	assert_true(Equipment.equip(w, wz, "chain_mail")["ok"], "숙련 없어도 입는다")
 	assert_true(wz.has_condition("armor_unproficient"))
-	assert_eq(load("res://scripts/rules/spellcasting.gd").can_cast({"grid": null}, wz, "magic_missile", Vector2i.ZERO), "숙련 없는 갑옷·방패를 입고는 주문을 쓸 수 없다")
+	assert_eq(load("res://scripts/rules/spellcasting.gd").can_cast({"grid": null}, wz, "magic_missile", Vector2i.ZERO), "지금은 주문을 쓸 수 없다(숙련 없는 갑옷·분노·야생 변신)")
 	Dice.force([5, 15])
 	assert_eq(int(Resolver.saving_throw(wz, "wis", 10)["mode"]), -1, "내성 불리")
 	Equipment.unequip(w, wz, "armor")
