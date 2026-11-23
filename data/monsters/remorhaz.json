@@ -1,0 +1,82 @@
+{
+  "schema": "monster_v1",
+  "id": "remorhaz",
+  "name": {
+    "ko": "레모라즈",
+    "en": "Remorhaz"
+  },
+  "size": "huge",
+  "creature_type": "monstrosity",
+  "cr": 11,
+  "xp": 7200,
+  "proficiency_bonus": 4,
+  "ac": 17,
+  "hp": 195,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 24,
+    "dex": 13,
+    "con": 21,
+    "int": 4,
+    "wis": 10,
+    "cha": 5
+  },
+  "saves": {
+    "str": 7,
+    "dex": 1,
+    "con": 5,
+    "int": -3,
+    "wis": 0,
+    "cha": -3
+  },
+  "actions": [
+    {
+      "id": "bite",
+      "name": {
+        "ko": "물기",
+        "en": "Bite"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 11,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "2d10+7",
+          "damage_type": "piercing"
+        },
+        {
+          "dice": "4d6",
+          "damage_type": "fire"
+        }
+      ],
+      "on_hit": [
+        {
+          "type": "apply_condition",
+          "id": "restrained",
+          "escape_dc": 17,
+          "max_size": "large"
+        }
+      ]
+    }
+  ],
+  "weight_kg": 5000,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/deathworm.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "immunities": [
+    "cold",
+    "fire"
+  ],
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "push_immune": true,
+  "notes_ko": "열기 오라(턴 끝 1칸 3d10 화염)·삼키기·굴착은 1차 생략. 붙잡기는 속박(탈출 DC 17). 그림은 임시."
+}

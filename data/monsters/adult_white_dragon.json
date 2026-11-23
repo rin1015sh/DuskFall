@@ -1,0 +1,126 @@
+{
+  "schema": "monster_v1",
+  "id": "adult_white_dragon",
+  "name": {
+    "ko": "성룡 백룡",
+    "en": "Adult White Dragon"
+  },
+  "size": "huge",
+  "creature_type": "dragon",
+  "cr": 13,
+  "xp": 10000,
+  "proficiency_bonus": 5,
+  "ac": 18,
+  "hp": 200,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 22,
+    "dex": 10,
+    "con": 22,
+    "int": 8,
+    "wis": 12,
+    "cha": 12
+  },
+  "saves": {
+    "str": 6,
+    "dex": 5,
+    "con": 6,
+    "int": -1,
+    "wis": 6,
+    "cha": 1
+  },
+  "actions": [
+    {
+      "id": "rend",
+      "name": {
+        "ko": "할퀴기",
+        "en": "Rend"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 11,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "2d6+6",
+          "damage_type": "slashing"
+        },
+        {
+          "dice": "1d8",
+          "damage_type": "cold"
+        }
+      ]
+    },
+    {
+      "id": "cold_breath",
+      "name": {
+        "ko": "냉기 숨결",
+        "en": "Cold Breath"
+      },
+      "type": "save",
+      "ability": "con",
+      "dc": 19,
+      "range_tiles": 12,
+      "recharge": "5-6",
+      "area": {
+        "shape": "cone",
+        "length_tiles": 12
+      },
+      "fail": [
+        {
+          "type": "damage",
+          "dice": "12d8",
+          "damage_type": "cold"
+        }
+      ],
+      "success": [
+        {
+          "type": "damage",
+          "dice": "12d8",
+          "damage_type": "cold",
+          "scale": 0.5
+        }
+      ]
+    }
+  ],
+  "weight_kg": 4000,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/frost_wolf.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "multiattack": {
+    "count": 3,
+    "actions": [
+      "rend"
+    ]
+  },
+  "immunities": [
+    "cold"
+  ],
+  "senses": {
+    "darkvision_tiles": 24
+  },
+  "skills": {
+    "perception": 11,
+    "stealth": 5
+  },
+  "push_immune": true,
+  "traits": [
+    {
+      "id": "legendary_resistance",
+      "name": {
+        "ko": "전설적 저항",
+        "en": "Legendary Resistance"
+      },
+      "hook": "on_save_failed",
+      "script": "legendary_resistance",
+      "uses": 3
+    }
+  ],
+  "notes_ko": "전설적 저항 3회. 전설적 행동·비행·굴착·수영·얼음 걷기는 1차 생략. 그림은 임시."
+}

@@ -1147,7 +1147,11 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 					if e.get("escape", false):
 						cp["escape_dc"] = int(check.get("dc", 10))  # 행동으로 판정해 풀 수 있다(Entangle 등)
 					t.apply_condition(e["id"], int(e.get("turns", opts.get("duration", 0))), opts.get("source"), cp)
-		var dmg := apply_damage(t, parts, opts) if not parts.is_empty() else {}
+		var dopts := opts
+		if not opts.has("attacker") and opts.get("source") is Node:
+			dopts = opts.duplicate()
+			dopts["attacker"] = opts["source"]  # 주문·효과 피해의 출처(어둠의 자의 축복·피해 반응이 본다)
+		var dmg := apply_damage(t, parts, dopts) if not parts.is_empty() else {}
 		out.append({"target": t, "save": s, "damage": dmg})
 	return out
 

@@ -1,0 +1,128 @@
+{
+  "schema": "monster_v1",
+  "id": "ice_devil",
+  "name": {
+    "ko": "얼음 악마",
+    "en": "Ice Devil"
+  },
+  "size": "large",
+  "creature_type": "fiend",
+  "cr": 14,
+  "xp": 11500,
+  "proficiency_bonus": 5,
+  "ac": 18,
+  "hp": 228,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 21,
+    "dex": 14,
+    "con": 18,
+    "int": 18,
+    "wis": 15,
+    "cha": 18
+  },
+  "saves": {
+    "str": 5,
+    "dex": 7,
+    "con": 9,
+    "int": 4,
+    "wis": 7,
+    "cha": 9
+  },
+  "actions": [
+    {
+      "id": "ice_spear",
+      "name": {
+        "ko": "얼음 창",
+        "en": "Ice Spear"
+      },
+      "type": "attack",
+      "kind": "both",
+      "bonus": 10,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "2d8+5",
+          "damage_type": "piercing"
+        },
+        {
+          "dice": "3d6",
+          "damage_type": "cold"
+        }
+      ],
+      "range_tiles": [
+        6,
+        24
+      ],
+      "on_hit": [
+        {
+          "type": "apply_condition",
+          "id": "dazed",
+          "turns": 1
+        }
+      ]
+    },
+    {
+      "id": "tail",
+      "name": {
+        "ko": "꼬리",
+        "en": "Tail"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 10,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "3d6+5",
+          "damage_type": "bludgeoning"
+        },
+        {
+          "dice": "4d8",
+          "damage_type": "cold"
+        }
+      ]
+    }
+  ],
+  "weight_kg": 500,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/ice_orc_shaman.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "multiattack": {
+    "count": 3,
+    "actions": [
+      "ice_spear",
+      "tail"
+    ]
+  },
+  "immunities": [
+    "cold",
+    "fire",
+    "poison"
+  ],
+  "condition_immunities": [
+    "poisoned"
+  ],
+  "senses": {
+    "darkvision_tiles": 24
+  },
+  "skills": {
+    "perception": 7
+  },
+  "traits": [
+    {
+      "id": "magic_resistance",
+      "name": {
+        "ko": "마법 저항",
+        "en": "Magic Resistance"
+      }
+    }
+  ],
+  "notes_ko": "얼음 창 명중: 다음 턴 하나만(현혹 — 이동·보너스 행동 막음). 빗나가도 주는 냉기·얼음 벽은 1차 생략. 그림은 임시."
+}

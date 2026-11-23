@@ -1,0 +1,142 @@
+{
+  "schema": "monster_v1",
+  "id": "horned_devil",
+  "name": {
+    "ko": "뿔 악마",
+    "en": "Horned Devil"
+  },
+  "size": "large",
+  "creature_type": "fiend",
+  "cr": 11,
+  "xp": 7200,
+  "proficiency_bonus": 4,
+  "ac": 18,
+  "hp": 199,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 22,
+    "dex": 17,
+    "con": 21,
+    "int": 12,
+    "wis": 16,
+    "cha": 18
+  },
+  "saves": {
+    "str": 10,
+    "dex": 7,
+    "con": 5,
+    "int": 1,
+    "wis": 7,
+    "cha": 8
+  },
+  "actions": [
+    {
+      "id": "searing_fork",
+      "name": {
+        "ko": "작열하는 갈퀴",
+        "en": "Searing Fork"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 10,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "2d8+6",
+          "damage_type": "piercing"
+        },
+        {
+          "dice": "2d8",
+          "damage_type": "fire"
+        }
+      ]
+    },
+    {
+      "id": "hurl_flame",
+      "name": {
+        "ko": "불꽃 던지기",
+        "en": "Hurl Flame"
+      },
+      "type": "attack",
+      "kind": "ranged",
+      "bonus": 8,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "5d8+4",
+          "damage_type": "fire"
+        }
+      ],
+      "range_tiles": [
+        30,
+        30
+      ]
+    },
+    {
+      "id": "infernal_tail",
+      "name": {
+        "ko": "지옥의 꼬리",
+        "en": "Infernal Tail"
+      },
+      "type": "save",
+      "ability": "dex",
+      "dc": 17,
+      "range_tiles": 2,
+      "targets": 1,
+      "replaces_attack": true,
+      "fail": [
+        {
+          "type": "damage",
+          "dice": "1d8+6",
+          "damage_type": "necrotic"
+        },
+        {
+          "type": "apply_condition",
+          "id": "infernal_wound",
+          "turns": 10
+        }
+      ]
+    }
+  ],
+  "weight_kg": 600,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/deathfiend.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "multiattack": {
+    "count": 3,
+    "actions": [
+      "searing_fork",
+      "hurl_flame",
+      "infernal_tail"
+    ]
+  },
+  "immunities": [
+    "fire",
+    "poison"
+  ],
+  "condition_immunities": [
+    "poisoned"
+  ],
+  "resistances": [
+    "cold"
+  ],
+  "senses": {
+    "darkvision_tiles": 30
+  },
+  "traits": [
+    {
+      "id": "magic_resistance",
+      "name": {
+        "ko": "마법 저항",
+        "en": "Magic Resistance"
+      }
+    }
+  ],
+  "notes_ko": "비행·악마의 부활(지옥에서 되살아남)은 1차 생략. 지옥의 상처: 턴 시작마다 3d6(회복으로 닫는 규칙은 생략, 10턴). 그림은 임시."
+}

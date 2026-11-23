@@ -1,0 +1,147 @@
+{
+  "schema": "monster_v1",
+  "id": "storm_giant",
+  "name": {
+    "ko": "폭풍 거인",
+    "en": "Storm Giant"
+  },
+  "size": "huge",
+  "creature_type": "giant",
+  "cr": 13,
+  "xp": 10000,
+  "proficiency_bonus": 5,
+  "ac": 16,
+  "hp": 230,
+  "speed_tiles": 10,
+  "abilities": {
+    "str": 29,
+    "dex": 14,
+    "con": 20,
+    "int": 16,
+    "wis": 20,
+    "cha": 18
+  },
+  "saves": {
+    "str": 14,
+    "dex": 2,
+    "con": 10,
+    "int": 3,
+    "wis": 10,
+    "cha": 9
+  },
+  "actions": [
+    {
+      "id": "storm_sword",
+      "name": {
+        "ko": "폭풍 검",
+        "en": "Storm Sword"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 14,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "4d6+9",
+          "damage_type": "slashing"
+        },
+        {
+          "dice": "3d8",
+          "damage_type": "lightning"
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt",
+      "name": {
+        "ko": "벼락",
+        "en": "Thunderbolt"
+      },
+      "type": "attack",
+      "kind": "ranged",
+      "bonus": 14,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "2d12+9",
+          "damage_type": "lightning"
+        }
+      ],
+      "range_tiles": [
+        100,
+        100
+      ],
+      "on_hit": [
+        {
+          "type": "apply_condition",
+          "id": "blinded",
+          "turns": 1
+        }
+      ]
+    },
+    {
+      "id": "lightning_storm",
+      "name": {
+        "ko": "번개 폭풍",
+        "en": "Lightning Storm"
+      },
+      "type": "save",
+      "ability": "dex",
+      "dc": 18,
+      "range_tiles": 100,
+      "recharge": "5-6",
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 2
+      },
+      "fail": [
+        {
+          "type": "damage",
+          "dice": "10d10",
+          "damage_type": "lightning"
+        }
+      ],
+      "success": [
+        {
+          "type": "damage",
+          "dice": "10d10",
+          "damage_type": "lightning",
+          "scale": 0.5
+        }
+      ]
+    }
+  ],
+  "weight_kg": 6000,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/sand_colossus.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "multiattack": {
+    "count": 2,
+    "actions": [
+      "storm_sword",
+      "thunderbolt"
+    ]
+  },
+  "resistances": [
+    "cold"
+  ],
+  "immunities": [
+    "lightning",
+    "thunder"
+  ],
+  "senses": {
+    "darkvision_tiles": 24
+  },
+  "skills": {
+    "athletics": 14,
+    "perception": 10
+  },
+  "push_immune": true,
+  "notes_ko": "번개 폭풍: 100칸 안 반지름 2칸 원기둥. 비행·수영·주문 시전은 1차 생략. 벼락 귀먹음은 없는 상태. 그림은 임시."
+}

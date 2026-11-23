@@ -14,7 +14,7 @@
 | feat | 10 |
 | species | 15 |
 | background | 4 |
-| monster | 31 |
+| monster | 38 |
 | capability | 89 |
 | terrain_preset | 11 |
 | map | 5 |

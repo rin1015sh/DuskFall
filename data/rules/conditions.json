@@ -1624,6 +1624,26 @@
       ],
       "notes_ko": "Mind Blank: 정신 피해·매혹 면역.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "infernal_wound",
+      "name": {
+        "ko": "지옥의 상처",
+        "en": "Infernal Wound"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "damage",
+            "dice": "3d6",
+            "damage_type": "necrotic"
+          }
+        ]
+      },
+      "notes_ko": "뿔 악마 꼬리: 턴 시작마다 3d6(원문은 HP 손실·회복으로 닫힘 — 1차는 10턴).",
+      "source": "SRD 5.2.1"
     }
   ]
 }
