@@ -35,6 +35,7 @@ const Hotbar := preload("res://scenes/ui/hotbar.gd")
 const S := preload("res://scenes/ui/ui_style.gd")
 const CharacterSheet := preload("res://scenes/ui/character_sheet.gd")
 const SpellbookWindow := preload("res://scenes/ui/spellbook_window.gd")
+const Equipment := preload("res://scripts/rules/equipment.gd")
 const Minimap := preload("res://scenes/ui/minimap.gd")
 const Vfx := preload("res://scenes/battle/vfx.gd")
 ## 상태 → 아이콘(assets/statuses). 없으면 이로운 것 buff, 해로운 것 debuff.
@@ -337,6 +338,12 @@ func _ready() -> void:
 		var gp: PackedStringArray = args["goto"].split(",")
 		explore.move_to(selected, Vector2i(int(gp[0]), int(gp[1])))
 	_refresh()
+	if args.has("give"):
+		for it: String in str(args["give"]).split(","):
+			selected.inventory[it] = int(selected.inventory.get(it, 0)) + 1  # 시험용: --give=아이템,아이템
+	if args.has("equip"):
+		for it: String in str(args["equip"]).split(","):
+			Equipment.equip(world, selected, it)  # 시험용: --equip=아이템,아이템(소지품에 있어야)
 	if args.has("sheet"):
 		sheet.show_for(world, selected)
 	if args.has("spellbook"):
@@ -662,6 +669,8 @@ func _end_turn() -> void:
 
 func _select(c: Node) -> void:
 	follow = true
+	if sheet.visible:
+		sheet.creature = c  # 캐릭터 창은 고른 캐릭터를 따라간다
 	if exploring:
 		if c.dead:
 			return
@@ -1496,6 +1505,10 @@ func _build_ui() -> void:
 	dlg_panel.visible = false
 	root.add_child(dlg_panel)
 	sheet = CharacterSheet.new()
+	sheet.changed.connect(_refresh)
+	sheet.select_requested.connect(func(c: Node) -> void:
+		if exploring and not c.dead:
+			_select(c))  # 탐험 중이면 고른 캐릭터도 바꾼다(BG3), 전투 중에는 보기만
 	root.add_child(sheet)
 	spellbook = SpellbookWindow.new()
 	spellbook.changed.connect(_refresh)
@@ -1538,7 +1551,8 @@ func _refresh() -> void:
 	minimap.party = party
 	minimap.center_creature = selected if selected != null else (party[0] if not party.is_empty() else null)
 	if sheet.visible and selected != null:
-		sheet.show_for(world, selected)
+		var who: Node = sheet.creature if sheet.creature != null and is_instance_valid(sheet.creature) and sheet.creature in party else selected
+		sheet.show_for(world, who, sheet.note.text)
 	if spellbook.visible and selected != null and selected != spellbook.creature:
 		spellbook.show_for(world, selected)
 	if dlg != null:

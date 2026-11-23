@@ -17,7 +17,8 @@
       "mastery": "slow",
       "weight_kg": 0.91,
       "price_gp": 0.1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "beast_bone_club"
     },
     {
       "id": "dagger",
@@ -40,7 +41,8 @@
       ],
       "weight_kg": 0.45,
       "price_gp": 2,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "beast_bone_dagger"
     },
     {
       "id": "greatclub",
@@ -57,7 +59,8 @@
       "mastery": "push",
       "weight_kg": 4.54,
       "price_gp": 0.2,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "ironwood_club"
     },
     {
       "id": "handaxe",
@@ -79,7 +82,8 @@
       ],
       "weight_kg": 0.91,
       "price_gp": 5,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "idium_axe"
     },
     {
       "id": "javelin",
@@ -100,7 +104,8 @@
       ],
       "weight_kg": 0.91,
       "price_gp": 0.5,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "airilje_spear"
     },
     {
       "id": "light_hammer",
@@ -122,7 +127,8 @@
       ],
       "weight_kg": 0.91,
       "price_gp": 2,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "iron_mace"
     },
     {
       "id": "mace",
@@ -137,7 +143,8 @@
       "mastery": "sap",
       "weight_kg": 1.81,
       "price_gp": 5,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "beast_bone_mace"
     },
     {
       "id": "quarterstaff",
@@ -155,7 +162,8 @@
       "versatile_damage": "1d8",
       "weight_kg": 1.81,
       "price_gp": 0.2,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "artene_staff"
     },
     {
       "id": "sickle",
@@ -172,7 +180,8 @@
       "mastery": "nick",
       "weight_kg": 0.91,
       "price_gp": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "hunting_dagger"
     },
     {
       "id": "spear",
@@ -195,7 +204,8 @@
       "versatile_damage": "1d8",
       "weight_kg": 1.36,
       "price_gp": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "idium_spear"
     },
     {
       "id": "dart",
@@ -217,7 +227,8 @@
       ],
       "weight_kg": 0.11,
       "price_gp": 0.05,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "glacier_ice_spike"
     },
     {
       "id": "light_crossbow",
@@ -241,7 +252,8 @@
       "ammunition": "bolt",
       "weight_kg": 2.27,
       "price_gp": 25,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "ironwood_crossbow"
     },
     {
       "id": "shortbow",
@@ -264,7 +276,8 @@
       "ammunition": "arrow",
       "weight_kg": 0.91,
       "price_gp": 25,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "hunting_bow"
     },
     {
       "id": "sling",
@@ -286,7 +299,8 @@
       "ammunition": "bullet",
       "weight_kg": 0.0,
       "price_gp": 0.1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "leather_belt"
     },
     {
       "id": "battleaxe",
@@ -304,7 +318,8 @@
       "versatile_damage": "1d10",
       "weight_kg": 1.81,
       "price_gp": 10,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "ark_axe"
     },
     {
       "id": "flail",
@@ -319,7 +334,8 @@
       "mastery": "sap",
       "weight_kg": 0.91,
       "price_gp": 10,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "ark_mace"
     },
     {
       "id": "glaive",
@@ -338,7 +354,8 @@
       "mastery": "graze",
       "weight_kg": 2.72,
       "price_gp": 20,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "airilje_halberd"
     },
     {
       "id": "greataxe",
@@ -356,7 +373,8 @@
       "mastery": "cleave",
       "weight_kg": 3.18,
       "price_gp": 30,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "adamantium_axe"
     },
     {
       "id": "greatsword",
@@ -374,7 +392,8 @@
       "mastery": "graze",
       "weight_kg": 2.72,
       "price_gp": 50,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "mithril_greatsword"
     },
     {
       "id": "halberd",
@@ -393,7 +412,8 @@
       "mastery": "cleave",
       "weight_kg": 2.72,
       "price_gp": 20,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "fortress_halberd"
     },
     {
       "id": "lance",
@@ -412,7 +432,8 @@
       "mastery": "topple",
       "weight_kg": 2.72,
       "price_gp": 10,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "airilje_spear"
     },
     {
       "id": "longsword",
@@ -430,7 +451,8 @@
       "versatile_damage": "1d10",
       "weight_kg": 1.36,
       "price_gp": 15,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "fortress_knight_sword"
     },
     {
       "id": "maul",
@@ -448,7 +470,8 @@
       "mastery": "topple",
       "weight_kg": 4.54,
       "price_gp": 10,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "lightium_warhammer"
     },
     {
       "id": "morningstar",
@@ -463,7 +486,8 @@
       "mastery": "sap",
       "weight_kg": 1.81,
       "price_gp": 15,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "iron_mace"
     },
     {
       "id": "pike",
@@ -482,7 +506,8 @@
       "mastery": "push",
       "weight_kg": 8.16,
       "price_gp": 5,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "steel_spear"
     },
     {
       "id": "rapier",
@@ -499,7 +524,8 @@
       "mastery": "vex",
       "weight_kg": 0.91,
       "price_gp": 25,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "moonstone_sword"
     },
     {
       "id": "scimitar",
@@ -517,7 +543,8 @@
       "mastery": "nick",
       "weight_kg": 1.36,
       "price_gp": 25,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "steel_sword"
     },
     {
       "id": "shortsword",
@@ -535,7 +562,8 @@
       "mastery": "vex",
       "weight_kg": 0.91,
       "price_gp": 10,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "mithril_sword"
     },
     {
       "id": "trident",
@@ -558,7 +586,8 @@
       "versatile_damage": "1d10",
       "weight_kg": 1.81,
       "price_gp": 5,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "adamantium_spear"
     },
     {
       "id": "warhammer",
@@ -576,7 +605,8 @@
       "versatile_damage": "1d10",
       "weight_kg": 2.27,
       "price_gp": 15,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "ark_warhammer"
     },
     {
       "id": "war_pick",
@@ -594,7 +624,8 @@
       "versatile_damage": "1d10",
       "weight_kg": 0.91,
       "price_gp": 5,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "mithril_mace"
     },
     {
       "id": "whip",
@@ -612,7 +643,8 @@
       "mastery": "slow",
       "weight_kg": 1.36,
       "price_gp": 2,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "leather_belt"
     },
     {
       "id": "blowgun",
@@ -635,7 +667,8 @@
       "ammunition": "needle",
       "weight_kg": 0.45,
       "price_gp": 10,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "redwood_staff"
     },
     {
       "id": "hand_crossbow",
@@ -659,7 +692,8 @@
       "ammunition": "bolt",
       "weight_kg": 1.36,
       "price_gp": 75,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "oak_crossbow"
     },
     {
       "id": "heavy_crossbow",
@@ -684,7 +718,8 @@
       "ammunition": "bolt",
       "weight_kg": 8.16,
       "price_gp": 50,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "steel_crossbow"
     },
     {
       "id": "longbow",
@@ -708,7 +743,8 @@
       "ammunition": "arrow",
       "weight_kg": 0.91,
       "price_gp": 50,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "ironwood_bow"
     },
     {
       "id": "musket",

@@ -13,7 +13,8 @@
       "weight_kg": 0.0,
       "price_gp": 1,
       "material": "metal",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "old_gold_coin"
     },
     {
       "id": "potion_of_healing",
@@ -41,7 +42,8 @@
           "burning"
         ]
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "minor_potion"
     },
     {
       "id": "potion_of_greater_healing",
@@ -69,7 +71,8 @@
           "burning"
         ]
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "medium_potion"
     },
     {
       "id": "potion_of_superior_healing",
@@ -97,7 +100,8 @@
           "burning"
         ]
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "greater_potion"
     },
     {
       "id": "potion_of_supreme_healing",
@@ -125,7 +129,8 @@
           "burning"
         ]
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "soul_potion"
     },
     {
       "id": "thieves_tools",
@@ -138,7 +143,8 @@
       "weight_kg": 0.45,
       "price_gp": 25,
       "material": "metal",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "mine_hammer"
     },
     {
       "id": "trap_disarm_kit",
@@ -151,7 +157,8 @@
       "weight_kg": 0.45,
       "price_gp": 25,
       "material": "metal",
-      "source": "original"
+      "source": "original",
+      "icon": "mine_powder_pouch"
     },
     {
       "id": "rations",
@@ -165,7 +172,8 @@
       "price_gp": 0.5,
       "material": "cloth",
       "camp_supplies": 10,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "ration"
     },
     {
       "id": "spell_scroll_magic_missile",
@@ -181,7 +189,8 @@
       "spell": "magic_missile",
       "save_dc": 13,
       "attack_bonus": 5,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "knight_oath_scroll"
     },
     {
       "id": "spell_scroll_cure_wounds",
@@ -197,7 +206,8 @@
       "spell": "cure_wounds",
       "save_dc": 13,
       "attack_bonus": 5,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "knight_oath_scroll"
     },
     {
       "id": "goodberry",
@@ -220,7 +230,8 @@
       "feed_cost": "action",
       "throwable": false,
       "expires": "long_rest",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "glacier_frost_herb"
     },
     {
       "id": "longsword_plus_1",
@@ -236,7 +247,8 @@
       "slot": "weapon",
       "base": "longsword",
       "bonus": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
     },
     {
       "id": "shortsword_plus_1",
@@ -252,7 +264,8 @@
       "slot": "weapon",
       "base": "shortsword",
       "bonus": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "moonstone_sword"
     },
     {
       "id": "longbow_plus_1",
@@ -268,7 +281,8 @@
       "slot": "weapon",
       "base": "longbow",
       "bonus": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "world_tree_bow"
     },
     {
       "id": "mace_plus_1",
@@ -284,7 +298,8 @@
       "slot": "weapon",
       "base": "mace",
       "bonus": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "mithril_mace"
     },
     {
       "id": "quarterstaff_plus_1",
@@ -300,7 +315,8 @@
       "slot": "weapon",
       "base": "quarterstaff",
       "bonus": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "world_tree_staff"
     },
     {
       "id": "dagger_plus_1",
@@ -316,7 +332,8 @@
       "slot": "weapon",
       "base": "dagger",
       "bonus": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "mithril_dagger"
     },
     {
       "id": "studded_leather_armor_plus_1",
@@ -332,7 +349,8 @@
       "slot": "armor",
       "base": "studded_leather_armor",
       "bonus": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "wyvern_leather_armor"
     },
     {
       "id": "chain_mail_plus_1",
@@ -348,7 +366,8 @@
       "slot": "armor",
       "base": "chain_mail",
       "bonus": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "mithril_chainmail"
     },
     {
       "id": "shield_plus_1",
@@ -364,7 +383,8 @@
       "slot": "shield",
       "base": "shield",
       "bonus": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "mithril_shield"
     },
     {
       "id": "sentinel_shield",
@@ -398,7 +418,8 @@
           }
         ]
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "artene_shield"
     },
     {
       "id": "ring_of_protection",
@@ -416,7 +437,8 @@
         "ac": 1,
         "saves": 1
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "mithril_ring"
     },
     {
       "id": "cloak_of_protection",
@@ -434,7 +456,8 @@
         "ac": 1,
         "saves": 1
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "fortress_cloak"
     },
     {
       "id": "boots_of_elvenkind",
@@ -461,7 +484,8 @@
           }
         ]
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "drake_boots"
     },
     {
       "id": "cloak_of_elvenkind",
@@ -488,7 +512,8 @@
           }
         ]
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "drake_cloak"
     },
     {
       "id": "gauntlets_of_ogre_power",
@@ -507,7 +532,8 @@
           "str": 19
         }
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "adamantium_gauntlets"
     },
     {
       "id": "headband_of_intellect",
@@ -526,7 +552,8 @@
           "int": 19
         }
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "linen_hood"
     },
     {
       "id": "amulet_of_health",
@@ -545,7 +572,8 @@
           "con": 19
         }
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "jade_amulet"
     },
     {
       "id": "bracers_of_defense",
@@ -566,7 +594,8 @@
           "no_shield": true
         }
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "leather_gloves"
     },
     {
       "id": "gloves_of_swimming_and_climbing",
@@ -585,7 +614,8 @@
           "climber"
         ]
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "drake_gloves"
     }
   ]
 }

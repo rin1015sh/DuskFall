@@ -19,7 +19,8 @@
       "sprite_parts": [
         "armor_padded_armor"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "padded_armor"
     },
     {
       "id": "leather_armor",
@@ -38,7 +39,8 @@
       "sprite_parts": [
         "armor_leather_armor"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "leather_armor"
     },
     {
       "id": "studded_leather_armor",
@@ -57,7 +59,8 @@
       "sprite_parts": [
         "armor_studded_leather_armor"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "drake_leather_armor"
     },
     {
       "id": "hide_armor",
@@ -76,7 +79,8 @@
       "sprite_parts": [
         "armor_hide_armor"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "troll_hide_leather_armor"
     },
     {
       "id": "chain_shirt",
@@ -95,7 +99,8 @@
       "sprite_parts": [
         "armor_chain_shirt"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "steel_chainmail"
     },
     {
       "id": "scale_mail",
@@ -114,7 +119,8 @@
       "sprite_parts": [
         "armor_scale_mail"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "idium_chainmail"
     },
     {
       "id": "breastplate",
@@ -133,7 +139,8 @@
       "sprite_parts": [
         "armor_breastplate"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "steel_plate"
     },
     {
       "id": "half_plate_armor",
@@ -152,7 +159,8 @@
       "sprite_parts": [
         "armor_half_plate_armor"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "mithril_plate"
     },
     {
       "id": "ring_mail",
@@ -171,7 +179,8 @@
       "sprite_parts": [
         "armor_ring_mail"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "ark_chainmail"
     },
     {
       "id": "chain_mail",
@@ -190,7 +199,8 @@
       "sprite_parts": [
         "armor_chain_mail"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "fortress_chainmail"
     },
     {
       "id": "splint_armor",
@@ -209,7 +219,8 @@
       "sprite_parts": [
         "armor_splint_armor"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "ark_plate"
     },
     {
       "id": "plate_armor",
@@ -228,7 +239,8 @@
       "sprite_parts": [
         "armor_plate_armor"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "adamantium_plate"
     },
     {
       "id": "shield",
@@ -247,7 +259,8 @@
       "sprite_parts": [
         "armor_shield"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "ironwood_shield"
     }
   ]
 }

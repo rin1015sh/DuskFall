@@ -247,6 +247,10 @@
               }
             }
           }
+        },
+        "icon": {
+          "$comment": "그림 파일 이름(assets/items/<icon>.webp — 화면 소지품·장비 칸)",
+          "type": "string"
         }
       }
     },

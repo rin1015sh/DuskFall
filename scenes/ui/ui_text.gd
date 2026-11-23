@@ -125,6 +125,33 @@ const TEXT := {
 	"no_scrolls": {"ko": "배울 두루마리가 없다", "en": "No scrolls to learn"},
 	"ritual": {"ko": "의식", "en": "Ritual"},
 	"prep_full": {"ko": "준비 칸이 가득 찼다", "en": "No free preparation slot"},
+	"slot_head": {"ko": "머리", "en": "Head"}, "slot_cloak": {"ko": "망토", "en": "Cloak"}, "slot_armor": {"ko": "갑옷", "en": "Armour"},
+	"slot_hands": {"ko": "장갑", "en": "Hands"}, "slot_feet": {"ko": "신발", "en": "Feet"}, "slot_amulet": {"ko": "목걸이", "en": "Amulet"},
+	"slot_ring1": {"ko": "반지", "en": "Ring"}, "slot_ring2": {"ko": "반지", "en": "Ring"},
+	"slot_melee_main": {"ko": "근접 주무기", "en": "Melee Main Hand"}, "slot_melee_off": {"ko": "근접 보조", "en": "Melee Off Hand"},
+	"slot_ranged_main": {"ko": "원거리 주무기", "en": "Ranged Main Hand"}, "slot_ranged_off": {"ko": "원거리 보조", "en": "Ranged Off Hand"},
+	"short_head": {"ko": "머리", "en": "Head"}, "short_cloak": {"ko": "망토", "en": "Cloak"}, "short_armor": {"ko": "갑옷", "en": "Armour"},
+	"short_hands": {"ko": "장갑", "en": "Hands"}, "short_feet": {"ko": "신발", "en": "Feet"}, "short_amulet": {"ko": "목걸이", "en": "Amulet"},
+	"short_ring1": {"ko": "반지", "en": "Ring"}, "short_ring2": {"ko": "반지", "en": "Ring"}, "short_melee_main": {"ko": "주무기", "en": "Main"},
+	"short_melee_off": {"ko": "보조", "en": "Off"}, "short_ranged_main": {"ko": "원거리", "en": "Ranged"}, "short_ranged_off": {"ko": "보조", "en": "Off"},
+	"equip": {"ko": "장착", "en": "Equip"}, "unequip": {"ko": "벗기", "en": "Unequip"},
+	"give_to": {"ko": "%s에게 넘기기", "en": "Give to %s"}, "send_camp": {"ko": "캠프로 보내기", "en": "Send to Camp"},
+	"take_out": {"ko": "꺼내기", "en": "Take"}, "camp_stash": {"ko": "캠프 보관함", "en": "Camp Chest"},
+	"use_item": {"ko": "사용", "en": "Use"}, "empty_slot": {"ko": "비어 있음", "en": "Empty"},
+	"rarity_common": {"ko": "일반", "en": "Common"}, "rarity_uncommon": {"ko": "고급", "en": "Uncommon"}, "rarity_rare": {"ko": "희귀", "en": "Rare"},
+	"rarity_very_rare": {"ko": "매우 희귀", "en": "Very Rare"}, "rarity_legendary": {"ko": "전설", "en": "Legendary"},
+	"tip_ac": {"ko": "방어도 %+d", "en": "AC %+d"}, "tip_saves": {"ko": "내성 %+d", "en": "Saving throws %+d"},
+	"tip_min": {"ko": "%s %d", "en": "%s becomes %d"}, "tip_adv": {"ko": "%s 유리", "en": "Advantage on %s"},
+	"tip_cap": {"ko": "특수: %s", "en": "Special: %s"}, "tip_no_armor": {"ko": "(갑옷·방패 없을 때)", "en": "(no armour or shield)"},
+	"tip_weapon": {"ko": "피해 %s %s", "en": "Damage %s %s"}, "tip_armor": {"ko": "방어도 %d", "en": "AC %d"},
+	"tip_weight": {"ko": "%.2f kg · %d gp", "en": "%.2f kg · %d gp"},
+}
+
+## 엔진 사유(장비·소지품) → 영어
+const EQUIP_REASON_EN := {
+	"장비를 바꿀 수 없는 생물": "Can't change equipment", "소지품에 없다": "Not in inventory", "장비가 아니다": "Not equipment",
+	"그 칸에 넣을 수 없다": "Doesn't fit that slot", "전투 중에는 갑옷을 바꿀 수 없다": "Can't change armour in combat",
+	"훈련하지 않은 갑옷": "Not proficient with this armour", "빈 칸": "Empty slot",
 }
 
 ## 엔진 사유(한국어) → 영어(주문 준비 창)
@@ -141,6 +168,8 @@ const REASON_EN := {
 static func reason(text: String) -> String:
 	if lang == "ko":
 		return text
+	if EQUIP_REASON_EN.has(text):
+		return EQUIP_REASON_EN[text]
 	for k: String in REASON_EN:
 		if text.begins_with(k):
 			return REASON_EN[k] + text.substr(k.length())

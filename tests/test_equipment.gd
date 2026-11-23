@@ -149,3 +149,50 @@ func test_every_magic_item_equips() -> void:
 		if not done:
 			bad.append(e["id"])
 	assert_eq(bad, [], "장착할 수 있는 클래스가 없는 마법 물품")
+
+
+## 화면(캐릭터 창): 끌어다 놓기로 장착·벗기·넘기기, 메뉴 항목.
+func test_character_sheet_drop_and_menu() -> void:
+	var Sheet := preload("res://scenes/ui/character_sheet.gd")
+	var a := _pc("fighter")
+	var b := _pc("rogue")
+	var w := {"party": [a, b]}
+	a.inventory = {"ring_of_protection": 1, "rations": 2}
+	var sheet: Control = Sheet.new()
+	tree.root.add_child(sheet)
+	own(sheet)
+	sheet.show_for(w, a)
+	var slot: Control = Sheet.ItemSlot.new()
+	slot.kind = "slot"
+	slot.slot = "ring1"
+	own(slot)
+	assert_true(slot.sheet == null)
+	slot.sheet = sheet
+	assert_true(slot._can_drop_data(Vector2.ZERO, {"kind": "inv", "item": "ring_of_protection", "slot": ""}), "반지 칸에 반지")
+	assert_false(slot._can_drop_data(Vector2.ZERO, {"kind": "inv", "item": "rations", "slot": ""}), "식량은 안 들어간다")
+	sheet.drop({"kind": "inv", "item": "ring_of_protection", "slot": ""}, slot)
+	assert_eq(a.equipment["ring1"], "ring_of_protection", "끌어다 놓아 장착")
+	var bag: Control = Sheet.ItemSlot.new()
+	bag.kind = "inventory"
+	bag.sheet = sheet
+	own(bag)
+	sheet.drop({"kind": "slot", "item": "ring_of_protection", "slot": "ring1"}, bag)
+	assert_eq(a.equipment["ring1"], "", "소지품에 놓으면 벗기")
+	var tab: Control = Sheet.ItemSlot.new()
+	tab.kind = "member"
+	tab.member = b
+	tab.sheet = sheet
+	own(tab)
+	sheet.drop({"kind": "inv", "item": "rations", "slot": ""}, tab)
+	assert_eq(int(b.inventory.get("rations", 0)), 1, "파티 탭에 놓으면 넘기기")
+	var src: Control = Sheet.ItemSlot.new()
+	src.kind = "inv"
+	src.item = "ring_of_protection"
+	src.sheet = sheet
+	own(src)
+	sheet.open_menu(src)
+	var labels: Array = []
+	for i in sheet.menu.item_count:
+		labels.append(sheet.menu.get_item_text(i))
+	assert_true(labels.size() >= 3, "장착·넘기기·캠프로 보내기 %s" % str(labels))
+	sheet.menu.hide()
