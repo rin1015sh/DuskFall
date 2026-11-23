@@ -417,8 +417,22 @@ static func inspire(c: Node) -> int:
 	return n
 
 
+## 레벨표에서 그 레벨의 값(가장 가까운 아래 레벨).
+static func level_value(table: Dictionary, lv: int) -> int:
+	var best := 0
+	var best_lv := 0
+	for k: String in table:
+		if lv >= int(k) and int(k) >= best_lv:
+			best_lv = int(k)
+			best = int(table[k])
+	return best
+
+
 ## 분노 피해 보너스(수정치 stat rage_damage의 합 — 분노 상태 데이터).
 static func rage_bonus(c: Node) -> int:
+	var table: Dictionary = c.feature_data.get("rage", {}).get("bonus_by_level", {})
+	if not table.is_empty() and c.has_condition("raging"):
+		return level_value(table, c.feature_level("rage"))  # 분노 피해 +2(1)·+3(9)·+4(16) — 바바리안 레벨
 	var n := 0
 	for m in c.modifier_entries():
 		if m["effect"]["type"] == "modify" and m["effect"]["stat"] == "rage_damage":

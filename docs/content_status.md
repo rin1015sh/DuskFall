@@ -1,6 +1,6 @@
 # 콘텐츠 현황
 
-> `tools/content_report.gd`가 데이터에서 만든다(손으로 고치지 않는다). 레벨 상한 5(data/rules/progression.json).
+> `tools/content_report.gd`가 데이터에서 만든다(손으로 고치지 않는다). 레벨 상한 20(data/rules/progression.json).
 
 ## 요약
 
@@ -10,12 +10,12 @@
 | spell | 168 |
 | weapon | 38 |
 | armor | 13 |
-| item | 30 |
+| item | 36 |
 | feat | 10 |
 | species | 15 |
 | background | 4 |
 | monster | 22 |
-| capability | 51 |
+| capability | 55 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -29,6 +29,7 @@
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
 | 1 | 분노 (rage) |  | 스크립트 rage |  |
+| 1 | 분노 연장 (extend_rage) |  | 스크립트 extend_rage |  |
 | 1 | 맨몸 방어 (unarmored_defense) |  | 태그 unarmored_defense_con |  |
 | 1 | 무기 마스터리 (weapon_mastery) |  | 처리: 생성기 — 클래스 weapon_mastery 표(2종, 4레벨 3종)와 명세 masteries |  |
 | 2 | 위험 감지 (danger_sense) |  | 부여 advantage |  |
@@ -172,6 +173,11 @@
 | 3 | 어둠의 축복 (dark_ones_blessing) | fiend | 태그 dark_ones_blessing |  |
 | 3 | 악마의 주문 (fiend_spells) | fiend | 처리: 하위 클래스 always_prepared(3레벨 불타는 손·명령·작열 광선·암시, 5레벨 화염구·악취 구름) |  |
 | 5 | 섬뜩한 영창(5레벨) (eldritch_invocations_5) |  | 고르기(option) |  |
+| 7 | 섬뜩한 영창(7레벨) (eldritch_invocations_7) |  | 고르기(option) |  |
+| 9 | 섬뜩한 영창(9레벨) (eldritch_invocations_9) |  | 고르기(option) |  |
+| 12 | 섬뜩한 영창(12레벨) (eldritch_invocations_12) |  | 고르기(option) |  |
+| 15 | 섬뜩한 영창(15레벨) (eldritch_invocations_15) |  | 고르기(option) |  |
+| 18 | 섬뜩한 영창(18레벨) (eldritch_invocations_18) |  | 고르기(option) |  |
 
 ### 위저드 (wizard) — 생명 주사위 d6, 역할 caster
 
@@ -194,7 +200,7 @@
 
 ## 아이템
 
-- 분류: magic 19, currency 1, potion 5, food 1, scroll 2, tool 2
+- 분류: gear 6, magic 19, currency 1, potion 5, food 1, scroll 2, tool 2
 - 동작하는 분류: potion(마시기·먹이기·던지기), scroll(두루마리 읽기), food(캠프 보급품), tool(자물쇠·함정). **magic(장착 효과)은 아직 동작 없음** — 장비 칸 설계가 먼저 필요
 
 ## 능력 태그 사용
@@ -210,6 +216,7 @@
 | crit_free_move | 치명타 뒤 이동 | fighter |
 | cunning_strike | 교활한 일격 | rogue |
 | dark_ones_blessing | 어둠의 축복 | warlock |
+| eldritch_mind | 섬뜩한 정신 | (몬스터 특성 또는 아직 없음) |
 | extra_attack | 추가 공격 | barbarian, fighter, monk, paladin, ranger |
 | extra_bonus_action | 추가 보너스 행동 | rogue |
 | extra_damage_wounded | 거상 학살자 | (몬스터 특성 또는 아직 없음) |
@@ -224,10 +231,13 @@
 | jump_plus_1 | 도약 +1칸 | fighter, rogue |
 | long_rest_inspiration | 기지 | 종족 human |
 | martial_arts | 무술 | monk |
+| metamagic_careful | 신중한 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_distant | 원거리 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_extended | 연장된 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_heightened | 고양된 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_quickened | 빠른 주문 | (몬스터 특성 또는 아직 없음) |
+| metamagic_seeking | 추적 주문 | (몬스터 특성 또는 아직 없음) |
+| metamagic_subtle | 은밀한 주문 | (몬스터 특성 또는 아직 없음) |
 | nimble_escape | 날렵한 탈출 | (몬스터 특성 또는 아직 없음) |
 | open_hand_technique | 열린 손 기법 | monk |
 | pack_tactics | 무리 전술 | (몬스터 특성 또는 아직 없음) |

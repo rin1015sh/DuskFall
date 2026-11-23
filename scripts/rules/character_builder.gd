@@ -377,7 +377,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	if c.has_cap("fast_movement") and not _heavy(str(c.get_meta("armor"))):
 		c.speed_tiles += 2  # 빠른 이동: 중갑이 아니면 +10피트
 	if c.has_cap("unarmored_movement") and str(c.get_meta("armor")) == "" and not bool(c.get_meta("shield")):
-		c.speed_tiles += 2  # 몽크 맨몸 이동: 갑옷·방패 없으면 +10피트(1~5레벨)
+		var mv: Dictionary = c.feature_data.get("unarmored_movement", {}).get("bonus_by_level", {})
+		c.speed_tiles += _by_level(mv, c.feature_level("unarmored_movement"), 2) if not mv.is_empty() else 2  # 몽크 맨몸 이동: +10~30피트(레벨표)
 	# 주문
 	_apply_spells(c, entries, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)

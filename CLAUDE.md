@@ -41,7 +41,7 @@ BG3류 CRPG. 타일 격자 + 2D 일러스트 3/4 탑뷰(위에서 살짝 비스�
 ```text
 res://
   data/rules/     conditions.json surfaces.json reactions.json materials.json actions.json weapon_actions.json
-                  progression.json(레벨 상한·XP·숙련 보너스 단일 출처) capabilities.json(능력 태그 — 엔진 메커니즘 이름)
+                  progression.json(레벨 상한 20·XP·숙련 보너스·멀티클래스 슬롯표 단일 출처) capabilities.json(능력 태그 — 엔진 메커니즘 이름)
   data/content/   spells.json weapons.json armor.json items.json feats.json backgrounds.json species.json shops.json terrain_presets.json
   data/classes/   <class>.json
   data/monsters/  <monster>.json

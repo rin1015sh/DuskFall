@@ -453,6 +453,10 @@
         "cr_by_level": {
           "$comment": "야생 변신 최대 도전 등급 레벨표",
           "type": "object"
+        },
+        "bonus_by_level": {
+          "$comment": "레벨 → 수치(분노 피해 +2/+3/+4, 맨몸 이동 칸 수)",
+          "type": "object"
         }
       }
     }

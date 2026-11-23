@@ -17,7 +17,8 @@ func test_xp_table_and_level_up_keeps_damage() -> void:
 	assert_eq(Progression.level_for(0), 1)
 	assert_eq(Progression.level_for(899), 2)
 	assert_eq(Progression.level_for(900), 3)
-	assert_eq(Progression.level_for(99999), 5, "1차 상한 5레벨")
+	assert_eq(Progression.level_for(99999), 11, "경험치 99999 = 11레벨(SRD 표, 상한 20)")
+	assert_eq(Progression.level_for(999999), 20, "상한 20레벨")
 	var c := _pc("fighter")
 	var w := {"xp": 300}
 	c.hp -= 4
