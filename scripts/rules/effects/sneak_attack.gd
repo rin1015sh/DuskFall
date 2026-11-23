@@ -27,7 +27,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 	var mode: int = res.get("mode", 0)
 	var ok := mode > 0
 	if not ok and mode == 0:
-		ok = _ally_adjacent(c, res["target"])
+		ok = _ally_adjacent(c, res["target"]) or (c.has_cap("rakish_sneak") and atk.get("kind", "") == "melee" and _isolated(c, res["target"]))
 	if not ok:
 		return {"ok": false}
 	var count := _dice_count(c)
@@ -75,3 +75,15 @@ func _ally_adjacent(c: Node, target: Node) -> bool:
 				and not o.is_incapacitated() and grid.distance_between(o, target) <= 1:
 			return true
 	return false
+
+
+## 대담한 급소(스워시버클러형, 능력 태그 rakish_sneak): 대상 곁(1칸)에 나 말고 다른 생물이 없으면 유리 없이도 급소 공격.
+func _isolated(c: Node, target: Node) -> bool:
+	var rq: Node = EventBus.reaction_queue
+	if rq == null or not is_instance_valid(rq) or not rq.world.has("grid"):
+		return false
+	var grid: Node = rq.world["grid"]
+	for o: Node in grid.creatures():
+		if o != c and o != target and not o.dead and grid.distance_between(o, target) <= 1:
+			return false
+	return true

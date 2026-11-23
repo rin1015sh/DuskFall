@@ -1,6 +1,7 @@
 extends "res://tests/test_case.gd"
 ## 레벨 상한 20 — 1구간(6~10레벨) 기능: 전사·로그·클레릭·위저드.
 
+const Features := preload("res://scripts/rules/features.gd")
 const Builder := preload("res://scripts/rules/character_builder.gd")
 const Resolver := preload("res://scripts/rules/resolver.gd")
 const Combat := preload("res://scripts/rules/combat.gd")
@@ -59,23 +60,17 @@ func test_rogue_expertise_evasion_reliable() -> void:
 func test_supreme_sneak() -> void:
 	var w := make_world(["....."])
 	var r := _pc("rogue", 9)
-	var foe := make_creature({"team": "enemy", "hp_max": 200, "ac_base": 1})
+	assert_eq(r.resource("supreme_sneak"), 1, "BG3 최상급 은신: 짧은 휴식 1회")
 	w["grid"].place(r, Vector2i(0, 0))
+	r.reset_turn()
+	assert_true(Features.use(w, r, "supreme_sneak")["ok"])
+	assert_true(r.has_condition("invisible"), "10턴 투명")
+	assert_eq(r.resource("supreme_sneak"), 0)
+	var foe := make_creature({"team": "enemy", "hp_max": 200, "ac_base": 1})
 	w["grid"].place(foe, Vector2i(1, 0))
-	r.reset_turn()
-	r.apply_condition("invisible", -1, "hide")
-	var atk := Combat.build_weapon_attack(r, "shortsword")
 	Dice.force([15, 15])
-	var res := Resolver.attack(r, foe, atk, w["grid"].attack_context(r, foe))
-	assert_true(res["hit"])
-	assert_true(res.get("stealth_attack", false), "은신 공격")
-	assert_eq(int(res["sneak_attack"]), 4, "5d6 → 주사위 1개를 써서 4d6")
-	assert_true(r.has_condition("invisible"), "숨기 유지")
-	r.reset_turn()
-	r.options["supreme_sneak"] = "off"
-	Dice.force([15, 15])
-	Resolver.attack(r, foe, atk, w["grid"].attack_context(r, foe))
-	assert_false(r.has_condition("invisible"), "끄면 숨기가 풀린다")
+	Resolver.attack(r, foe, Combat.build_weapon_attack(r, "shortsword"), w["grid"].attack_context(r, foe))
+	assert_false(r.has_condition("invisible"), "공격하면 풀린다")
 
 
 func test_divine_strike_and_potent() -> void:

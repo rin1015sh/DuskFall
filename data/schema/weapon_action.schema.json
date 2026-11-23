@@ -156,7 +156,8 @@
           "group": {
             "enum": [
               "maneuver",
-              "arcane_shot"
+              "arcane_shot",
+              "dirty_trick"
             ]
           },
           "kind": {
@@ -167,7 +168,8 @@
               "sweep",
               "line",
               "auto_hit",
-              "passive"
+              "passive",
+              "save_only"
             ]
           },
           "weapon_kind": {

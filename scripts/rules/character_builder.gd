@@ -473,6 +473,14 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		extra_skill.append_array(gr.get("skills", []))  # 무대 체질: 기만·공연
 		expertise.append_array(gr.get("expertise", []))
 		init_bonus += int(gr.get("initiative_bonus", 0))  # 경계 +5
+		if str(gr.get("initiative_bonus_from", "")) == "proficiency_bonus":
+			init_bonus += c.proficiency_bonus  # 대담함(스워시버클러형): 레벨에 따라 오르는 이니셔티브
+		if gr.has("special_attacks"):
+			var sl: Array = c.get_meta("special_attacks", []).duplicate()
+			for sa: String in gr["special_attacks"]:
+				if c.feature_level(str(g[0])) >= int(gr.get("special_attacks_level", 0)) and not sa in sl:
+					sl.append(sa)  # 정해진 특수 공격(지저분한 수법)
+			c.set_meta("special_attacks", sl)
 		c.speed_tiles += int(gr.get("speed_tiles", 0))  # 날랜 발 +2칸
 		if gr.has("elemental_adept"):
 			var ea: Array = c.get_meta("elemental_adept", []).duplicate()

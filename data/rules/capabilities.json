@@ -1009,6 +1009,42 @@
       },
       "note_ko": "무기로 맞힌 생물은 내 다음 주문 내성 불리(resolver)",
       "source": "original"
+    },
+    {
+      "id": "fall_resistance",
+      "name": {
+        "ko": "낙하 저항",
+        "en": "Fall Resistance"
+      },
+      "note_ko": "낙하 피해 절반(physics.fall)",
+      "source": "original"
+    },
+    {
+      "id": "assassinate",
+      "name": {
+        "ko": "암살",
+        "en": "Assassinate"
+      },
+      "note_ko": "기습당한 생물 명중 치명타, 아직 턴을 갖지 않은 생물에게 유리(resolver)",
+      "source": "original"
+    },
+    {
+      "id": "rakish_sneak",
+      "name": {
+        "ko": "대담한 급소",
+        "en": "Audacious Sneak"
+      },
+      "note_ko": "대상 곁에 다른 생물이 없으면 근접 급소 공격(sneak_attack)",
+      "source": "original"
+    },
+    {
+      "id": "magical_ambush",
+      "name": {
+        "ko": "마법 매복",
+        "en": "Magical Ambush"
+      },
+      "note_ko": "숨은 채 쓴 주문 내성 불리(resolver.saving_throw)",
+      "source": "original"
     }
   ]
 }

@@ -137,6 +137,7 @@ func start_combat(zone_id: String, surprised: Array = [], extra: Array = []) -> 
 		roll_initiative(c)
 		c.refresh_reaction()
 		SpellPrep.close_window(c)  # 준비 주문 교체 창은 전투가 시작되면 닫힌다
+		c.set_meta("not_acted_yet", true)  # 암살자형: 아직 턴을 갖지 않은 생물
 		if c in surprised and not c.has_cap("surprise_immune"):  # 경계(재주): 기습당하지 않는다
 			c.apply_condition("surprised", -1, "combat_start")
 	_sort_order()
@@ -274,6 +275,8 @@ func _begin_group() -> void:
 
 ## 턴 시작(3단계 턴 순서 2): 반응 회복 → 턴 시작 효과(표면·연소) → 사망 내성 → 재충전 쿨다운 −1.
 func begin_turn(c: Node) -> void:
+	if c.has_meta("not_acted_yet"):
+		c.remove_meta("not_acted_yet")
 	c.refresh_reaction()
 	for other: Node in world["grid"].creatures():
 		for m in other.extra_modifiers.duplicate():

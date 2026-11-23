@@ -44,7 +44,20 @@
   "expertise": {
     "1": 2
   },
-  "resources": [],
+  "resources": [
+    {
+      "id": "supreme_sneak",
+      "name": {
+        "ko": "최상급 은신",
+        "en": "Supreme Sneak"
+      },
+      "max": {
+        "9": 1
+      },
+      "recharge": "short",
+      "subclass": "thief"
+    }
+  ],
   "features": [
     {
       "id": "expertise",
@@ -309,11 +322,11 @@
             "en": "Fast Hands"
           },
           "level": 3,
-          "notes_ko": "[BG3] 매 턴 보너스 행동 1개를 더 받는다(원문: 보너스 행동으로 손재주·활용·마법 물체) — 사용자 결정 2026-11-22.",
-          "source": "SRD 5.2.1",
           "caps": [
             "extra_bonus_action"
-          ]
+          ],
+          "notes_ko": "BG3: 매 턴 보너스 행동 1개를 더 받는다.",
+          "source": "original"
         },
         {
           "id": "second_story_work",
@@ -322,13 +335,12 @@
             "en": "Second-Story Work"
           },
           "level": 3,
-          "notes_ko": "도약 거리에 근력·민첩 중 높은 수정치(원문) + 1칸(BG3), 오르기 지점이 아닌 높은 칸도 오르내린다(룰북 6단계 등반 속도).",
-          "source": "SRD 5.2.1",
           "caps": [
-            "climber",
-            "jump_dex",
-            "jump_plus_1"
-          ]
+            "fall_resistance",
+            "climber"
+          ],
+          "notes_ko": "BG3: 낙하 피해 저항. 오르기 지점이 아닌 높은 칸도 오르내린다(룰북 6단계 등반).",
+          "source": "original"
         },
         {
           "id": "supreme_sneak",
@@ -337,33 +349,226 @@
             "en": "Supreme Sneak"
           },
           "level": 9,
-          "caps": [
-            "stealth_attack"
+          "kind": "action",
+          "script": "supreme_sneak",
+          "resource": "supreme_sneak",
+          "target": "self",
+          "icon": "statuses/hidden.webp",
+          "glyph": "eye_slash",
+          "explore": true,
+          "notes_ko": "BG3: 행동, 10턴 동안 투명(공격·주문으로 풀림), 짧은 휴식마다 1회.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "arcane_trickster",
+      "name": {
+        "ko": "비전 사기꾼",
+        "en": "Arcane Rogue"
+      },
+      "level": 3,
+      "source": "original",
+      "spellcasting": {
+        "ability": "int",
+        "list": "wizard",
+        "progression": "third",
+        "cantrips": {
+          "3": 2,
+          "10": 3
+        },
+        "known": {
+          "3": 3,
+          "4": 4,
+          "7": 5,
+          "8": 6,
+          "10": 7,
+          "11": 8
+        },
+        "slots": {
+          "3": [
+            2
           ],
-          "notes_ko": "교활한 일격 '은신 공격'(급소 공격 주사위 1개): 숨기로 얻은 투명 상태로 급소 공격을 하면 숨기가 풀리지 않는다. 턴 끝 엄폐 조건은 생략.",
-          "source": "SRD 5.2.1",
-          "toggle": {
-            "values": [
-              {
-                "id": "on",
-                "name": {
-                  "ko": "켬",
-                  "en": "On"
-                }
-              },
-              {
-                "id": "off",
-                "name": {
-                  "ko": "끔",
-                  "en": "Off"
-                }
-              }
-            ],
-            "desc": {
-              "ko": "숨어서 급소 공격할 때 주사위 1개로 숨기 유지.",
-              "en": "Spend a Sneak Attack die to stay hidden."
-            }
-          }
+          "4": [
+            3
+          ],
+          "7": [
+            4,
+            2
+          ],
+          "10": [
+            4,
+            3
+          ]
+        },
+        "schools": [
+          "enchantment",
+          "illusion"
+        ],
+        "free_school_by_level": {
+          "3": 1,
+          "8": 2
+        }
+      },
+      "always_prepared": {
+        "3": [
+          "mage_hand"
+        ]
+      },
+      "features": [
+        {
+          "id": "at_spellcasting",
+          "name": {
+            "ko": "주문 시전(비전 사기꾼)",
+            "en": "Spellcasting (Arcane Rogue)"
+          },
+          "level": 3,
+          "handled_by": "생성기 — 하위 클래스 spellcasting(1/3 시전자, 위저드 목록, 지능, 명세 subclass_spells)",
+          "notes_ko": "마법사의 손 + 소마법 2(10레벨 3), 아는 주문 3·4·5·6·7·8(환혹·환영, 3·8레벨에 아무 학파 하나씩), 슬롯은 비전 기사와 같다.",
+          "source": "original"
+        },
+        {
+          "id": "mage_hand_legerdemain",
+          "name": {
+            "ko": "마법사의 손 손재주",
+            "en": "Sleight Hand"
+          },
+          "level": 3,
+          "status": "deferred",
+          "notes_ko": "BG3: 마법사의 손이 보이지 않고 오래 간다 — 손 투명은 표시 장치가 없어 1차 보류.",
+          "source": "original"
+        },
+        {
+          "id": "magical_ambush",
+          "name": {
+            "ko": "마법 매복",
+            "en": "Magical Ambush"
+          },
+          "level": 9,
+          "caps": [
+            "magical_ambush"
+          ],
+          "notes_ko": "숨은 채 쓴 주문의 내성이 불리.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "assassin",
+      "name": {
+        "ko": "그림자 칼날",
+        "en": "Shadowblade"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "assassins_alacrity",
+          "name": {
+            "ko": "재빠른 손놀림",
+            "en": "Quick Start"
+          },
+          "level": 3,
+          "handled_by": "탐험 중 공격은 행동 비용이 없어(탐험 규칙) 전투 시작 때 행동·보너스 행동이 그대로 있다",
+          "notes_ko": "BG3: 전투가 시작되면 행동·보너스 행동을 되찾는다 — 우리 게임은 탐험 중 선제 공격이 비용을 쓰지 않으므로 같은 결과.",
+          "source": "original"
+        },
+        {
+          "id": "assassinate",
+          "name": {
+            "ko": "암살",
+            "en": "Assassinate"
+          },
+          "level": 3,
+          "caps": [
+            "assassinate"
+          ],
+          "notes_ko": "BG3: 기습당한 생물에게 명중하면 치명타, 전투에서 아직 턴을 갖지 않은 생물에게 공격 유리.",
+          "source": "original"
+        },
+        {
+          "id": "infiltration_expertise",
+          "name": {
+            "ko": "위장 신분",
+            "en": "False Identity"
+          },
+          "level": 9,
+          "status": "deferred",
+          "notes_ko": "BG3: 모습을 바꾼 새 신분(긴 휴식까지) — 겉모습만 바뀌어 대화 장치가 생기면 넣는다.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "swashbuckler",
+      "name": {
+        "ko": "허세꾼",
+        "en": "Daredevil"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "fancy_footwork",
+          "name": {
+            "ko": "화려한 발놀림",
+            "en": "Fancy Footwork"
+          },
+          "level": 3,
+          "caps": [
+            "no_oa_from_melee_target"
+          ],
+          "notes_ko": "근접 공격한 대상은 이번 턴 나에게 기회 공격을 못 한다.",
+          "source": "original"
+        },
+        {
+          "id": "rakish_audacity",
+          "name": {
+            "ko": "대담함",
+            "en": "Audacity"
+          },
+          "level": 3,
+          "caps": [
+            "rakish_sneak"
+          ],
+          "grants": {
+            "initiative_bonus_from": "proficiency_bonus"
+          },
+          "notes_ko": "BG3: 이니셔티브 + 숙련 보너스(레벨에 따라 오름 — 3레벨 +2). 대상 곁에 다른 생물이 없으면 유리 없이도 근접 급소 공격.",
+          "source": "original"
+        },
+        {
+          "id": "dirty_tricks",
+          "name": {
+            "ko": "지저분한 수법",
+            "en": "Dirty Tricks"
+          },
+          "level": 4,
+          "grants": {
+            "special_attacks": [
+              "wa_d_flick",
+              "wa_d_sand",
+              "wa_d_mockery"
+            ]
+          },
+          "notes_ko": "BG3: 보너스 행동 손목 튕기기(무기 놓침)·모래 뿌리기(실명)·조롱(다음 공격 불리).",
+          "source": "original"
+        },
+        {
+          "id": "panache",
+          "name": {
+            "ko": "허세",
+            "en": "Bravado"
+          },
+          "level": 9,
+          "kind": "action",
+          "script": "panache",
+          "target": "creature",
+          "icon": "statuses/charm.webp",
+          "glyph": "mask",
+          "explore": true,
+          "notes_ko": "BG3: 12칸 안 인간형과 설득 대 통찰. 적은 10턴 동안 나 아닌 생물 공격 불리, 적이 아니면 매혹. 피해를 받으면 풀린다.",
+          "source": "original"
         }
       ]
     }

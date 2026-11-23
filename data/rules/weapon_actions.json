@@ -1104,6 +1104,79 @@
       "icon": "res://assets/statuses/blind.webp",
       "glyph": "eye_slash",
       "source": "original"
+    },
+    {
+      "id": "wa_d_flick",
+      "name": {
+        "ko": "손목 튕기기",
+        "en": "Wrist Flick"
+      },
+      "desc": {
+        "ko": "보너스 행동: 근접 무기 공격(무기 피해). 맞으면 민첩 내성(근력·민첩 DC), 실패하면 무기 놓침.",
+        "en": "Bonus action: melee weapon attack. On hit: DEX save or Disarmed."
+      },
+      "cost": "bonus",
+      "weapons": [],
+      "group": "dirty_trick",
+      "dc": "maneuver",
+      "weapon_kind": "melee",
+      "save": "dex",
+      "condition": "disarmed",
+      "turns": 1,
+      "needs_weapon": true,
+      "icon": "res://assets/statuses/shield_arm.webp",
+      "glyph": "swap",
+      "source": "original"
+    },
+    {
+      "id": "wa_d_sand",
+      "name": {
+        "ko": "모래 뿌리기",
+        "en": "Sand Toss"
+      },
+      "desc": {
+        "ko": "보너스 행동: 1d6 타격(공격 굴림). 맞으면 건강 내성, 실패하면 2턴 동안 실명.",
+        "en": "Bonus action: 1d6 bludgeoning (attack roll). On hit: CON save or Blinded for 2 turns."
+      },
+      "cost": "bonus",
+      "weapons": [],
+      "group": "dirty_trick",
+      "dc": "maneuver",
+      "weapon_kind": "melee",
+      "damage": "1d6",
+      "damage_type": "bludgeoning",
+      "no_mod": true,
+      "save": "con",
+      "condition": "blinded",
+      "turns": 2,
+      "icon": "res://assets/statuses/blind.webp",
+      "glyph": "drops",
+      "source": "original"
+    },
+    {
+      "id": "wa_d_mockery",
+      "name": {
+        "ko": "조롱",
+        "en": "Jeer"
+      },
+      "desc": {
+        "ko": "보너스 행동: 12칸 안 대상 지혜 내성, 실패하면 정신 1d4와 다음 공격 불리.",
+        "en": "Bonus action: a target within 12 tiles makes a WIS save or takes 1d4 psychic and has Disadvantage on its next attack."
+      },
+      "cost": "bonus",
+      "weapons": [],
+      "group": "dirty_trick",
+      "dc": "maneuver",
+      "kind": "save_only",
+      "range_tiles": 12,
+      "damage": "1d4",
+      "damage_type": "psychic",
+      "save": "wis",
+      "condition": "mocked",
+      "turns": 1,
+      "icon": "res://assets/statuses/taunt.webp",
+      "glyph": "voice",
+      "source": "original"
     }
   ]
 }

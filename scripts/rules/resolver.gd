@@ -122,6 +122,8 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	if res["hit"] and not res["crit"] and target.auto_crit_against_within(res["distance"]):
 		res["crit"] = true
 		res["auto_crit"] = true
+	if res["hit"] and not res["crit"] and attacker.has_cap("assassinate") and target.has_condition("surprised"):
+		res["crit"] = true  # 암살: 기습당한 생물에게 명중하면 치명타
 	if res["hit"]:
 		EventBus.on_hit.emit(res)
 		_retaliate(attacker, target, atk, res)
@@ -294,6 +296,8 @@ static func _collect_attack_mods(attacker: Node, target: Node, res: Dictionary) 
 		_add_adv(m, "attack", "against", target, attacker, res)
 	res["advantage"].append_array(ctx.get("advantage", []))
 	res["disadvantage"].append_array(ctx.get("disadvantage", []))
+	if attacker.has_cap("assassinate") and target.has_meta("not_acted_yet"):
+		res["advantage"].append("암살: 아직 행동하지 않은 대상")  # 암살자형: 전투에서 아직 턴을 갖지 않은 생물에게 유리
 	if res.get("attack", {}).get("opportunity", false) and target.has_cap("escape_the_horde"):
 		res["disadvantage"].append("무리 탈출")  # 사냥꾼 방어 전술(7레벨)
 	var hd := int(ctx.get("height_diff", 0))
@@ -340,6 +344,9 @@ static func _add_adv(m: Dictionary, roll: String, side: String, owner: Node, oth
 		"other_is_source":
 			if m["instance"].get("source") != other:
 				return
+		"other_not_source":
+			if m["instance"].get("source") == other:
+				return  # 허세: 나(건 생물) 아닌 생물을 노린 공격만 불리
 	match e.get("unless", ""):
 		"other_sees_invisible":
 			if other != null and (other.senses.has("see_invisible") or other.senses.has("truesight")):
@@ -1036,6 +1043,10 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 	var res := _save_setup(creature, ability, dc, opts)
 	if src is Node and opts.get("magic", false) and creature.has_cap("mage_slayer") and _adjacent(src, creature):
 		res["advantage"].append("마법사 사냥꾼")  # 곁에서 시전한 주문의 내성 유리
+	if src is Node and opts.get("magic", false) and src.has_cap("magical_ambush"):
+		var hide: Dictionary = src.condition_instance("invisible")
+		if not hide.is_empty() and hide["source"] is String and hide["source"] == "hide":
+			res["disadvantage"].append("마법 매복")  # 숨은 채 쓴 주문의 내성 불리
 	if src is Node and opts.get("magic", false) and creature.has_meta("eldritch_strike") and creature.get_meta("eldritch_strike") == src:
 		creature.remove_meta("eldritch_strike")
 		res["advantage"].erase("마법사 사냥꾼")

@@ -703,13 +703,15 @@ static func _special_attack(world: Dictionary, c: Node, key: String, wa: Diction
 			return {"ok": false, "reason": "대상 곁에 근접 무기를 든 아군이 없다"}
 	if str(wa.get("also_costs", "")) != "" and not Combat.can_spend(c, str(wa["also_costs"])):
 		return {"ok": false, "reason": "보너스 행동이 없다"}
-	# 비용: 행동이면 공격 행동의 공격 하나
+	# 비용: 행동이면 공격 행동의 공격 하나, 보너스 행동이면 그것
 	if str(wa["cost"]) == "action":
 		if int(c.turn.get("attacks_left", 0)) <= 0:
 			if not Combat.spend(c, "action"):
 				return {"ok": false, "reason": "행동이 없다"}
 			c.turn["attacks_left"] = c.attacks_per_action
 		c.turn["attacks_left"] = int(c.turn["attacks_left"]) - 1
+	elif str(wa["cost"]) == "bonus" and not Combat.spend(c, "bonus"):
+		return {"ok": false, "reason": "보너스 행동이 없다"}
 	if str(wa.get("also_costs", "")) != "":
 		Combat.spend(c, str(wa["also_costs"]))
 	var out := {"ok": true}
@@ -728,8 +730,24 @@ static func _special_attack(world: Dictionary, c: Node, key: String, wa: Diction
 		var set_name := "ranged" if c.weapon_sets.get("ranged", {}).get("main", "") == wid else "melee"
 		if c.active_set != set_name:
 			Combat.switch_weapon_set(c)
+	if kind == "save_only":
+		# 내성만(지저분한 수법 '조롱'): 사거리 안 대상 내성 실패 → 피해 + 상태
+		if grid.distance_between(c, t) > int(wa.get("range_tiles", 12)):
+			return {"ok": false, "reason": "너무 멀다"}
+		var svo := Resolver.saving_throw(t, str(wa["save"]), weapon_action_dc(c, key), {"source": c})
+		if not svo["success"]:
+			Resolver.apply_damage(t, [{"amount": Dice.roll(str(wa["damage"]), name)["total"], "damage_type": str(wa["damage_type"])}], {"attacker": c})
+			if not t.dead and wa.has("condition"):
+				t.apply_condition(str(wa["condition"]), int(wa.get("turns", 1)), c)
+		if world.get("turns") != null:
+			world["turns"].notify_hostile_action(c)
+		return {"ok": true, "save": svo}
 	var atk := Combat.build_weapon_attack(c, wid)
 	atk["name"] = name
+	if wa.has("damage"):
+		var mod0 := 0 if wa.get("no_mod", false) else int(atk["ability_mod"])
+		atk["damage"] = [{"dice": "%s%+d" % [wa["damage"], mod0] if mod0 != 0 else str(wa["damage"]),
+			"damage_type": str(wa.get("damage_type", atk["damage"][0]["damage_type"]))}]
 	if atk["kind"] == "ranged" and c.has_cap("magic_ranged"):
 		atk["magical"] = true
 	for e: Dictionary in wa.get("extra_damage", []):

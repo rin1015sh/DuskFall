@@ -297,6 +297,17 @@
                 "array",
                 "integer"
               ]
+            },
+            "initiative_bonus_from": {
+              "enum": [
+                "proficiency_bonus"
+              ]
+            },
+            "special_attacks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
@@ -435,6 +446,17 @@
                   "array",
                   "integer"
                 ]
+              },
+              "initiative_bonus_from": {
+                "enum": [
+                  "proficiency_bonus"
+                ]
+              },
+              "special_attacks": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }

@@ -1897,6 +1897,27 @@
       },
       "notes_ko": "비전 사격 '가시덩굴 화살': 속도 −2칸, 움직이면(이동 한 번에) 참격 2d6.",
       "source": "original"
+    },
+    {
+      "id": "panache_goaded",
+      "name": {
+        "ko": "허세에 홀림",
+        "en": "Dazzled by Bravado"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 10,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage",
+          "requires": "other_not_source"
+        }
+      ],
+      "notes_ko": "허세(스워시버클러형): 건 생물 아닌 생물을 노린 공격이 불리. 피해를 받으면 풀린다.",
+      "source": "original"
     }
   ]
 }

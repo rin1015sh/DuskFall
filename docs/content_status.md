@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 43 |
-| capability | 112 |
+| capability | 116 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -185,15 +185,25 @@
 | 1 | 전문화 (expertise) |  | 처리: 생성기 — 명세 expertise(숙련 기능의 숙련 보너스 2배) |  |
 | 1 | 급소 공격 (sneak_attack) |  | 스크립트 sneak_attack; 태그 sneak_attack; 설정 |  |
 | 2 | 교활한 행동 (cunning_action) |  | 태그 bonus_dash_disengage_hide |  |
-| 3 | 안정된 조준 (steady_aim) |  | 스크립트 steady_aim |  |
+| 3 | 대담함 (rakish_audacity) | swashbuckler | 태그 rakish_sneak; 부여 initiative_bonus_from |  |
+| 3 | 화려한 발놀림 (fancy_footwork) | swashbuckler | 태그 no_oa_from_melee_target |  |
+| 3 | 암살 (assassinate) | assassin | 태그 assassinate |  |
+| 3 | 재빠른 손놀림 (assassins_alacrity) | assassin | 처리: 탐험 중 공격은 행동 비용이 없어(탐험 규칙) 전투 시작 때 행동·보너스 행동이 그대로 있다 |  |
+| 3 | 마법사의 손 손재주 (mage_hand_legerdemain) | arcane_trickster |  | 보류(deferred) |
+| 3 | 주문 시전(비전 사기꾼) (at_spellcasting) | arcane_trickster | 처리: 생성기 — 하위 클래스 spellcasting(1/3 시전자, 위저드 목록, 지능, 명세 subclass_spells) |  |
+| 3 | 2층 작업 (second_story_work) | thief | 태그 fall_resistance, climber |  |
 | 3 | 빠른 손 (fast_hands) | thief | 태그 extra_bonus_action |  |
-| 3 | 2층 작업 (second_story_work) | thief | 태그 climber, jump_dex, jump_plus_1 |  |
-| 5 | 교활한 일격 (cunning_strike) |  | 스크립트 cunning_strike; 태그 cunning_strike; 설정 |  |
+| 3 | 안정된 조준 (steady_aim) |  | 스크립트 steady_aim |  |
+| 4 | 지저분한 수법 (dirty_tricks) | swashbuckler | 부여 special_attacks |  |
 | 5 | 교묘한 회피 (uncanny_dodge) |  | 스크립트 uncanny_dodge; 반응 |  |
+| 5 | 교활한 일격 (cunning_strike) |  | 스크립트 cunning_strike; 태그 cunning_strike; 설정 |  |
 | 6 | 전문화(6레벨) (expertise_6) |  | 고르기(expertise) |  |
-| 7 | 회피 (evasion) |  | 태그 evasion |  |
 | 7 | 믿음직한 재능 (reliable_talent) |  | 태그 reliable_talent |  |
-| 9 | 최상급 은신 (supreme_sneak) | thief | 태그 stealth_attack; 설정 |  |
+| 7 | 회피 (evasion) |  | 태그 evasion |  |
+| 9 | 최상급 은신 (supreme_sneak) | thief | 스크립트 supreme_sneak |  |
+| 9 | 마법 매복 (magical_ambush) | arcane_trickster | 태그 magical_ambush |  |
+| 9 | 위장 신분 (infiltration_expertise) | assassin |  | 보류(deferred) |
+| 9 | 허세 (panache) | swashbuckler | 스크립트 panache |  |
 | 11 | 향상된 교활한 일격 (improved_cunning_strike) |  | 태그 improved_cunning_strike; 설정 |  |
 
 ### 소서러 (sorcerer) — 생명 주사위 d6, 역할 caster
@@ -263,6 +273,7 @@
 | --- | --- | --- |
 | agonizing_blast | 고통의 화살 | (몬스터 특성 또는 아직 없음) |
 | armor_ac_plus_1 | 방어 | 재주 defense |
+| assassinate | 암살 | rogue |
 | blessed_healer | 축복받은 치유자 | cleric |
 | bonus_attack_on_crit_kill | 강타 추가 공격 | (몬스터 특성 또는 아직 없음) |
 | bonus_dash_disengage_hide | 교활한 행동 | rogue |
@@ -294,6 +305,7 @@
 | extra_attack | 추가 공격 | barbarian, fighter, fighter, monk, paladin, ranger |
 | extra_bonus_action | 추가 보너스 행동 | rogue |
 | extra_damage_wounded | 거상 학살자 | (몬스터 특성 또는 아직 없음) |
+| fall_resistance | 낙하 저항 | rogue |
 | fast_movement | 빠른 이동 | barbarian, ranger |
 | free_cast_class_spell | 신성 개입 | cleric, druid |
 | frenzy | 광란 | barbarian |
@@ -308,13 +320,14 @@
 | improved_cunning_strike | 향상된 교활한 일격 | rogue |
 | instinctive_pounce | 본능적 도약 | barbarian |
 | jack_of_all_trades | 만물박사 | bard |
-| jump_dex | 민첩 도약 | rogue |
+| jump_dex | 민첩 도약 | (몬스터 특성 또는 아직 없음) |
 | jump_half_more | 도약 +50% | (몬스터 특성 또는 아직 없음) |
-| jump_plus_1 | 도약 +1칸 | fighter, fighter, rogue |
+| jump_plus_1 | 도약 +1칸 | fighter, fighter |
 | long_rest_inspiration | 기지 | 종족 human |
 | lucky | 행운의 별 | (몬스터 특성 또는 아직 없음) |
 | mage_slayer | 마법사 사냥꾼 | (몬스터 특성 또는 아직 없음) |
 | magic_ranged | 마법 화살 | fighter |
+| magical_ambush | 마법 매복 | rogue |
 | mark_spread | 먹잇감 확산 | ranger |
 | martial_arts | 무술 | monk |
 | medium_armor_master | 중형 갑옷 숙달 | (몬스터 특성 또는 아직 없음) |
@@ -329,7 +342,7 @@
 | mindless_rage | 광기 없는 분노 | barbarian |
 | multiattack_defense | 다중 공격 방어 | (몬스터 특성 또는 아직 없음) |
 | nimble_escape | 날렵한 탈출 | (몬스터 특성 또는 아직 없음) |
-| no_oa_from_melee_target | 치고 빠지기 | (몬스터 특성 또는 아직 없음) |
+| no_oa_from_melee_target | 치고 빠지기 | rogue |
 | open_hand_technique | 열린 손 기법 | monk |
 | pack_tactics | 무리 전술 | (몬스터 특성 또는 아직 없음) |
 | pact_blade | 계약의 칼날 | (몬스터 특성 또는 아직 없음) |
@@ -337,6 +350,7 @@
 | polearm_haft | 자루 공격 | (몬스터 특성 또는 아직 없음) |
 | precision_attack | 정밀 공격 | (몬스터 특성 또는 아직 없음) |
 | prepare_swap_short_rest | 주문 암기 | wizard |
+| rakish_sneak | 대담한 급소 | rogue |
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |
 | reckless | 무모한 공격 | barbarian |
 | reliable_talent | 믿음직한 재능 | rogue |
@@ -360,7 +374,7 @@
 | ss_all_in | 조준 | (몬스터 특성 또는 아직 없음) |
 | ss_low_ground | 낮은 곳 사격 | (몬스터 특성 또는 아직 없음) |
 | stand_up_one_tile | 빠르게 일어서기 | (몬스터 특성 또는 아직 없음) |
-| stealth_attack | 은신 공격 | rogue |
+| stealth_attack | 은신 공격 | (몬스터 특성 또는 아직 없음) |
 | stunning_strike | 충격의 일격 | monk |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |
 | surprise_immune | 기습 면역 | (몬스터 특성 또는 아직 없음) |
