@@ -1691,6 +1691,43 @@
       "stack": "keep_longest",
       "notes_ko": "헌신의 맹세 20레벨: 보호의 오라 안에서 턴을 시작하는 적은 매력 + 숙련 광휘.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "foresight",
+      "name": {
+        "ko": "예지",
+        "en": "Foresight"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "advantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "advantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "advantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "disadvantage"
+        }
+      ],
+      "notes_ko": "Foresight: d20 시험 유리, 받는 공격 불리.",
+      "source": "SRD 5.2.1"
     }
   ]
 }

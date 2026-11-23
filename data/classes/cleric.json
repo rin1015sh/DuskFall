@@ -645,7 +645,10 @@
       "fire_storm",
       "divine_word",
       "holy_aura",
-      "sunburst"
+      "sunburst",
+      "mass_heal",
+      "power_word_heal",
+      "true_resurrection"
     ],
     "asi": {
       "4": {

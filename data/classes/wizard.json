@@ -570,7 +570,10 @@
       "finger_of_death",
       "delayed_blast_fireball",
       "sunburst",
-      "power_word_stun"
+      "power_word_stun",
+      "meteor_swarm",
+      "power_word_kill",
+      "foresight"
     ],
     "asi": {
       "4": {

@@ -783,7 +783,9 @@
       "finger_of_death",
       "fire_storm",
       "incendiary_cloud",
-      "sunburst"
+      "sunburst",
+      "meteor_swarm",
+      "power_word_kill"
     ],
     "asi": {
       "4": {

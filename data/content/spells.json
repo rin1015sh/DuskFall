@@ -15966,6 +15966,785 @@
         "en": "Tsunami"
       },
       "notes_ko": "움직이는 벽 장치가 필요해 1차 제외"
+    },
+    {
+      "id": "foresight",
+      "level": 9,
+      "school": "divination",
+      "classes": [
+        "bard",
+        "druid",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": false,
+        "explore_only": true
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "foresight"
+          }
+        ]
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "예지",
+        "en": "Foresight"
+      },
+      "targets_max": 1,
+      "notes_ko": "탐험 전용. 긴 휴식까지 d20 시험 유리, 받는 공격 불리",
+      "icon": {
+        "glyph": "eye",
+        "family": "divination"
+      }
+    },
+    {
+      "id": "mass_heal",
+      "level": 9,
+      "school": "abjuration",
+      "classes": [
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "heal",
+            "dice": "700"
+          }
+        ]
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "집단 치유",
+        "en": "Mass Heal"
+      },
+      "script": "mass_heal",
+      "notes_ko": "12칸 안 아군에게 합계 700 자동 분배(HP 비율 낮은 순) + 실명·중독 해제",
+      "icon": {
+        "glyph": "heal_cross",
+        "family": "heal"
+      }
+    },
+    {
+      "id": "meteor_swarm",
+      "level": 9,
+      "school": "evocation",
+      "classes": [
+        "sorcerer",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 200
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 8,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "20d6",
+            "damage_type": "fire"
+          },
+          {
+            "type": "damage",
+            "dice": "20d6",
+            "damage_type": "bludgeoning"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "20d6",
+            "damage_type": "fire",
+            "scale": 0.5
+          },
+          {
+            "type": "damage",
+            "dice": "20d6",
+            "damage_type": "bludgeoning",
+            "scale": 0.5
+          }
+        ]
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "유성 폭풍",
+        "en": "Meteor Swarm"
+      },
+      "tiles": [
+        {
+          "type": "tile_damage",
+          "damage_type": "fire"
+        },
+        {
+          "type": "ignite_flammable_object"
+        }
+      ],
+      "notes_ko": "200칸 안 반지름 8칸 하나(원문: 네 곳 — 1차는 한 곳)",
+      "icon": {
+        "glyph": "fireball",
+        "family": "fire"
+      }
+    },
+    {
+      "id": "power_word_heal",
+      "level": 9,
+      "school": "enchantment",
+      "classes": [
+        "bard",
+        "cleric"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "heal",
+            "dice": "1000"
+          },
+          {
+            "type": "remove_condition",
+            "id": "charmed"
+          },
+          {
+            "type": "remove_condition",
+            "id": "frightened"
+          },
+          {
+            "type": "remove_condition",
+            "id": "paralyzed"
+          },
+          {
+            "type": "remove_condition",
+            "id": "poisoned"
+          },
+          {
+            "type": "remove_condition",
+            "id": "stunned"
+          }
+        ]
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "권능의 말: 치유",
+        "en": "Power Word Heal"
+      },
+      "targets_max": 1,
+      "notes_ko": "HP 전부 회복 + 매혹·공포·마비·중독·기절 해제. 반응으로 일어서기는 생략",
+      "icon": {
+        "glyph": "voice",
+        "family": "heal"
+      }
+    },
+    {
+      "id": "power_word_kill",
+      "level": 9,
+      "school": "enchantment",
+      "classes": [
+        "bard",
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "권능의 말: 죽음",
+        "en": "Power Word Kill"
+      },
+      "script": "power_word_kill",
+      "targets_max": 1,
+      "notes_ko": "내성 없이 HP 100 이하면 죽음, 아니면 12d12 정신",
+      "icon": {
+        "glyph": "skull",
+        "family": "psychic"
+      }
+    },
+    {
+      "id": "weird",
+      "level": 9,
+      "school": "illusion",
+      "classes": [
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 24
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 6,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "10d10",
+            "damage_type": "psychic"
+          },
+          {
+            "type": "apply_condition",
+            "id": "frightened"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "10d10",
+            "damage_type": "psychic",
+            "scale": 0.5
+          }
+        ]
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "괴이",
+        "en": "Weird"
+      },
+      "repeat_save": true,
+      "notes_ko": "실패: 10d10 정신 + 공포(턴 끝 지혜 내성으로 끝 — 실패 시 5d10은 생략)",
+      "icon": {
+        "glyph": "skull",
+        "family": "psychic"
+      }
+    },
+    {
+      "id": "true_resurrection",
+      "level": 9,
+      "school": "necromancy",
+      "classes": [
+        "cleric",
+        "druid"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": false,
+        "explore_only": true
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 25000,
+        "consumed": true
+      },
+      "effects": {},
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "완전한 부활",
+        "en": "True Resurrection"
+      },
+      "script": "revive",
+      "notes_ko": "탐험 전용, 죽은 동료를 최대 HP로. 25,000gp 다이아몬드 소모",
+      "icon": {
+        "glyph": "sun",
+        "family": "heal"
+      }
+    },
+    {
+      "id": "astral_projection",
+      "level": 9,
+      "school": "necromancy",
+      "classes": [
+        "cleric",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": false,
+        "explore_only": true
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 2
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 1000,
+        "consumed": true
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "아스트랄 투영",
+        "en": "Astral Projection"
+      },
+      "notes_ko": "서술형"
+    },
+    {
+      "id": "gate",
+      "level": 9,
+      "school": "conjuration",
+      "classes": [
+        "cleric",
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 5000,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "관문",
+        "en": "Gate"
+      },
+      "notes_ko": "서술형"
+    },
+    {
+      "id": "imprisonment",
+      "level": 9,
+      "school": "abjuration",
+      "classes": [
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "explore",
+        "ritual": false,
+        "explore_only": true
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 5000,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "구금",
+        "en": "Imprisonment"
+      },
+      "notes_ko": "서술형"
+    },
+    {
+      "id": "prismatic_wall",
+      "level": 9,
+      "school": "abjuration",
+      "classes": [
+        "bard",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "무지갯빛 벽",
+        "en": "Prismatic Wall"
+      },
+      "notes_ko": "벽 생성 장치가 필요해 1차 제외"
+    },
+    {
+      "id": "shapechange",
+      "level": 9,
+      "school": "transmutation",
+      "classes": [
+        "druid",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 1500,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "형태 변환",
+        "en": "Shapechange"
+      },
+      "notes_ko": "변신 장치가 필요해 1차 제외"
+    },
+    {
+      "id": "storm_of_vengeance",
+      "level": 9,
+      "school": "conjuration",
+      "classes": [
+        "druid"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 999
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "복수의 폭풍",
+        "en": "Storm of Vengeance"
+      },
+      "notes_ko": "턴마다 바뀌는 구역 장치가 필요해 1차 제외"
+    },
+    {
+      "id": "time_stop",
+      "level": 9,
+      "school": "transmutation",
+      "classes": [
+        "sorcerer",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "시간 정지",
+        "en": "Time Stop"
+      },
+      "notes_ko": "연속 턴 장치가 필요해 1차 제외"
+    },
+    {
+      "id": "true_polymorph",
+      "level": 9,
+      "school": "transmutation",
+      "classes": [
+        "bard",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "완전한 변신",
+        "en": "True Polymorph"
+      },
+      "notes_ko": "변신 장치가 필요해 1차 제외"
+    },
+    {
+      "id": "wish",
+      "level": 9,
+      "school": "conjuration",
+      "classes": [
+        "sorcerer",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "excluded_v1",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "name": {
+        "ko": "소원",
+        "en": "Wish"
+      },
+      "notes_ko": "서술형 — 1차 제외(다른 주문 따라 하기는 다음에)"
     }
   ]
 }

@@ -7,7 +7,7 @@
 | 종류 | 수 |
 | --- | --- |
 | class | 12 |
-| spell | 308 |
+| spell | 324 |
 | weapon | 38 |
 | armor | 13 |
 | item | 59 |
@@ -312,11 +312,11 @@
 
 ## 주문
 
-- 상태: included 199, excluded_v1 103, candidate_exclusion 6
-- 포함 주문 레벨별: 2레벨 45, 0레벨 24, 3레벨 30, 4레벨 16, 1레벨 50, 8레벨 7, 6레벨 10, 5레벨 10, 7레벨 7
-- 스크립트 주문 82개, 그중 포함인데 미구현: 없음
+- 상태: included 206, excluded_v1 112, candidate_exclusion 6
+- 포함 주문 레벨별: 2레벨 45, 0레벨 24, 3레벨 30, 4레벨 16, 1레벨 50, 8레벨 7, 6레벨 10, 5레벨 10, 7레벨 7, 9레벨 7
+- 스크립트 주문 85개, 그중 포함인데 미구현: 없음
 - 아이콘(icon) 없는 포함 주문(학파 색 별로 표시): 없음
-- 클래스 주문 목록: wizard 205, sorcerer 131, cleric 104, ranger 40, paladin 32, bard 117, druid 107, warlock 64
+- 클래스 주문 목록: wizard 217, sorcerer 136, cleric 109, ranger 40, paladin 32, bard 122, druid 111, warlock 71
 
 ## 아이템
 

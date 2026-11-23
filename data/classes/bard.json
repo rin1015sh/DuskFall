@@ -582,7 +582,9 @@
       "prismatic_spray",
       "regenerate",
       "mind_blank",
-      "power_word_stun"
+      "power_word_stun",
+      "power_word_heal",
+      "foresight"
     ],
     "asi": {
       "4": {
