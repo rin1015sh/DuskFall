@@ -1,0 +1,151 @@
+{
+  "$comment": "지형 프리셋 파일 스키마(맵 데이터 stamps로 찍는 언덕·절벽 도장 — scripts/rules/map_stamps.gd).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "presets"
+  ],
+  "properties": {
+    "schema": {
+      "const": "terrain_preset_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "presets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "grid",
+          "legend",
+          "source"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ko": {
+                "type": "string"
+              },
+              "en": {
+                "type": "string"
+              }
+            }
+          },
+          "note_ko": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "hill",
+              "cliff",
+              "rock",
+              "ramp"
+            ]
+          },
+          "grid": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "legend": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^[^. ]$": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "h"
+                ],
+                "properties": {
+                  "h": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 8
+                  },
+                  "material": {
+                    "type": "string"
+                  },
+                  "floor": {
+                    "type": "string"
+                  },
+                  "flags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "light": {
+                    "enum": [
+                      "bright",
+                      "dim",
+                      "dark"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "at"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "v": {
+                  "type": "string"
+                },
+                "at": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "flip": {
+                  "type": "boolean"
+                },
+                "scale": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "source": {
+            "enum": [
+              "original",
+              "SRD 5.2.1"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

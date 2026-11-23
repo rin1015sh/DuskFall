@@ -5,7 +5,7 @@
     "ko": "바위 언덕길",
     "en": "Rocky Hill Path"
   },
-  "note_ko": "자연 지형 시범 맵(art.terrain = natural): 흙길 비탈로 0→3단계를 돌아 오르는 서쪽 언덕, 3단계 바위 절벽(사다리 오르기 지점)과 동굴 입구, 동쪽 둔덕, 물웅덩이·기름통. 고지 궁수와 지면 고블린으로 고지대 전투를 시험한다.",
+  "note_ko": "자연 지형 시범 맵(지형 프리셋 도장): 북쪽 높이 3 절벽 띠·동굴 절벽, 서쪽 긴 비탈길(0→3), 동쪽 큰 둔덕, 가운데 바위 노두, 물웅덩이·기름통. 사다리 오르기 지점. 고지 궁수와 지면 고블린으로 고지대 전투를 시험한다.",
   "legend": {
     "#": {
       "flags": [
@@ -15,39 +15,12 @@
     ".": {
       "material": "grass"
     },
-    "1": {
-      "material": "grass",
-      "height": 1
-    },
-    "2": {
-      "material": "grass",
-      "height": 2
+    ",": {
+      "material": "earth"
     },
     "3": {
       "material": "grass",
       "height": 3
-    },
-    ",": {
-      "material": "earth"
-    },
-    "a": {
-      "material": "earth",
-      "height": 1
-    },
-    "b": {
-      "material": "earth",
-      "height": 2
-    },
-    "c": {
-      "material": "earth",
-      "height": 3
-    },
-    "r": {
-      "material": "stone",
-      "height": 3
-    },
-    "k": {
-      "material": "stone"
     },
     "~": {
       "material": "earth",
@@ -56,40 +29,73 @@
   },
   "rows": [
     "########################",
-    "#33333333rrr33333333333#",
-    "#333333333r33333333333r#",
-    "#3333ccc333333kkk333rr3#",
-    "#333c333ccccc3kkk333rr3#",
-    "#33c3333..3333kkk333333#",
-    "#33c332....rr..,.22.,12#",
-    "#33c3321....r,,.,,,,,.1#",
-    "#22b2221...,,..........#",
-    "#22b2211..,......11111.#",
-    "#11a111..,.......12221.#",
-    "#11a11..,........12221.#",
-    "#..,...,.~~~.....11111.#",
-    "#..,,,,..~~~...........#",
+    "#.....................3#",
+    "#.....................3#",
+    "#.....................3#",
+    "#.....................3#",
+    "#......................#",
+    "#..........,....,,,,...#",
+    "#..........,..,,.......#",
+    "#..........,,,.........#",
+    "#.........,............#",
+    "#..,....,,.............#",
+    "#..,...,...............#",
+    "#..,..,.~~~............#",
+    "#..,,,..~~~............#",
     "#..,...................#",
     "########################"
   ],
   "light": "bright",
-  "light_rects": [
+  "stamps": [
     {
-      "rect": [
-        14,
-        3,
-        3,
-        3
-      ],
-      "light": "dark"
+      "preset": "cliff_band",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "preset": "cliff_cave",
+      "at": [
+        7,
+        1
+      ]
+    },
+    {
+      "preset": "cliff_band",
+      "at": [
+        16,
+        1
+      ]
+    },
+    {
+      "preset": "long_slope",
+      "at": [
+        2,
+        5
+      ]
+    },
+    {
+      "preset": "mound_large",
+      "at": [
+        15,
+        8
+      ]
+    },
+    {
+      "preset": "rock_outcrop",
+      "at": [
+        8,
+        6
+      ]
     }
   ],
   "light_sources": [
     {
-      "id": "cave_torch",
+      "id": "cave_ember",
       "cell": [
-        15,
-        3
+        12,
+        4
       ],
       "bright": 1,
       "dim": 2
@@ -98,8 +104,8 @@
   "flags": [
     {
       "cell": [
-        20,
-        6
+        19,
+        5
       ],
       "flags": [
         "climb"
@@ -126,8 +132,8 @@
   "objects": [
     {
       "cell": [
-        11,
-        3
+        9,
+        2
       ],
       "id": "oil_barrel",
       "material": "wood",
@@ -142,8 +148,8 @@
     },
     {
       "cell": [
-        15,
-        3
+        11,
+        4
       ],
       "id": "cave_chest",
       "material": "wood",
@@ -195,8 +201,8 @@
     {
       "id": "hill_archer_a",
       "cell": [
-        10,
-        4
+        8,
+        3
       ],
       "monster": "goblin_warrior",
       "facing": [
@@ -208,8 +214,8 @@
     {
       "id": "hill_archer_b",
       "cell": [
-        19,
-        4
+        18,
+        3
       ],
       "monster": "goblin_warrior",
       "facing": [
@@ -221,8 +227,8 @@
     {
       "id": "mound_goblin",
       "cell": [
-        19,
-        10
+        18,
+        11
       ],
       "monster": "goblin_warrior",
       "facing": [
@@ -234,7 +240,7 @@
     {
       "id": "cave_guard",
       "cell": [
-        15,
+        11,
         5
       ],
       "monster": "goblin_boss",
@@ -248,7 +254,7 @@
       "id": "path_goblin",
       "cell": [
         12,
-        8
+        9
       ],
       "monster": "goblin_warrior",
       "facing": [
@@ -268,58 +274,11 @@
     "cliff": "cave",
     "floors": {
       ".": "ground_meadow",
-      "1": "ground_meadow",
-      "2": "ground_meadow",
-      "3": "ground_grass",
       ",": "floor_dirt",
-      "a": "floor_dirt",
-      "b": "floor_dirt",
-      "c": "floor_dirt",
-      "r": "ground_rock",
-      "k": "floor_cracked",
+      "3": "ground_grass",
       "~": "ground_mud"
     },
     "props": [
-      {
-        "id": "tree_pine",
-        "v": "a",
-        "at": [
-          2,
-          1
-        ]
-      },
-      {
-        "id": "tree_broadleaf",
-        "v": "a",
-        "at": [
-          7,
-          1
-        ]
-      },
-      {
-        "id": "tree_pine",
-        "v": "b",
-        "at": [
-          13,
-          1
-        ]
-      },
-      {
-        "id": "tree_broadleaf",
-        "v": "b",
-        "at": [
-          18,
-          1
-        ]
-      },
-      {
-        "id": "tree_pine",
-        "v": "young",
-        "at": [
-          22,
-          1
-        ]
-      },
       {
         "id": "tree_broadleaf",
         "v": "young",
@@ -340,8 +299,24 @@
         "id": "tree_pine",
         "v": "young",
         "at": [
-          14,
-          11
+          13,
+          12
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "a",
+        "at": [
+          2,
+          1
+        ]
+      },
+      {
+        "id": "tree_broadleaf",
+        "v": "b",
+        "at": [
+          20,
+          1
         ]
       },
       {
@@ -349,95 +324,31 @@
         "v": "flowering",
         "at": [
           6,
-          12
+          13
         ]
       },
       {
         "id": "bush",
         "v": "a",
         "at": [
-          16,
-          13
-        ]
-      },
-      {
-        "id": "bush",
-        "v": "wide",
-        "at": [
           12,
-          2
+          14
         ]
       },
       {
         "id": "boulder_mossy",
         "v": "b",
         "at": [
-          8,
-          13
-        ]
-      },
-      {
-        "id": "rock",
-        "v": "large_a",
-        "at": [
-          12,
-          13
-        ]
-      },
-      {
-        "id": "rock",
-        "v": "medium_b",
-        "at": [
-          21,
-          8
+          7,
+          14
         ]
       },
       {
         "id": "grass_tall",
         "v": "wide",
         "at": [
-          5,
+          6,
           9
-        ]
-      },
-      {
-        "id": "grass_tall",
-        "v": "b",
-        "at": [
-          19,
-          12
-        ]
-      },
-      {
-        "id": "grass_tall",
-        "v": "a",
-        "at": [
-          10,
-          11
-        ]
-      },
-      {
-        "id": "roots",
-        "v": "a",
-        "at": [
-          13,
-          5
-        ]
-      },
-      {
-        "id": "roots",
-        "v": "b",
-        "at": [
-          17,
-          5
-        ]
-      },
-      {
-        "id": "brazier",
-        "v": "embers",
-        "at": [
-          16,
-          3
         ]
       },
       {
@@ -452,8 +363,8 @@
         "id": "stump",
         "v": "a",
         "at": [
-          16,
-          9
+          14,
+          10
         ]
       }
     ]

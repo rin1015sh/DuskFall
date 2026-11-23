@@ -716,6 +716,49 @@
     },
     "camp": {
       "type": "boolean"
+    },
+    "stamps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "preset",
+          "at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "preset": {
+            "type": "string"
+          },
+          "at": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "rot": {
+            "enum": [
+              0,
+              90,
+              180,
+              270
+            ]
+          },
+          "flip": {
+            "type": "boolean"
+          },
+          "base": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "note_ko": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }

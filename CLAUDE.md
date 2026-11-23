@@ -36,7 +36,7 @@ BG3류 CRPG. 타일 격자 + 2D 일러스트 3/4 탑뷰(위에서 살짝 비스�
 ```text
 res://
   data/rules/     conditions.json surfaces.json reactions.json materials.json actions.json weapon_actions.json
-  data/content/   spells.json weapons.json armor.json items.json feats.json backgrounds.json species.json shops.json
+  data/content/   spells.json weapons.json armor.json items.json feats.json backgrounds.json species.json shops.json terrain_presets.json
   data/classes/   <class>.json
   data/monsters/  <monster>.json
   data/maps/      <map>.json
@@ -72,7 +72,9 @@ res://
   확대 1에서 가로 1칸 = 64px, 높이 1단계 = 40px, 바닥 세로 1칸 ≈ 50px. 벽 2.8유닛(방 남쪽 벽은 0.5로 잘라 냄). 칸 고르기는 카메라 광선(view3d.pick).
   바닥·벽·절벽은 그물(map_view.gd, terrain.gdshader — 캐릭터 앞 벽은 체크무늬로 비침, floor.gdshader — 종류가 다른 바닥 경계를 흔들어 맞물리고 변형 a·b를 얼룩으로 섞음, overlay.gdshader — 물·얼음·진흙 가장자리를 웅덩이처럼), 캐릭터·소품은 세운 판(Sprite3D, 세로 1.6배 — scenes/kit/kit3d.gd), 바닥 무늬는 눕힌 판.
   자연 지형(맵 `art.terrain: "natural"`, terrain_natural.gd·rock.gdshader): 높이 차 1단계 이웃은 부드러운 비탈, 2단계 이상은 들쭉날쭉한 바위 절벽(`art.cliff_rock` = wall_cave 등),
-  절벽 위·아래 풀·바위 자동 장식(`art.cliff_decor`), 오르기 지점 절벽 면에 사다리(`art.climb_art`). 규칙 높이는 그대로(칸 가운데 = 규칙 높이). 시범 맵 hill_path.
+  절벽 위·아래 풀·바위 자동 장식(`art.cliff_decor`), 오르기 지점 절벽 면에 사다리(`art.climb_art`). 비탈은 이어진 칸 높이를 넓게 평균해 곧고 완만하게 그리고,
+  캐릭터·소품·하이라이트는 그려진 바닥(map_view.ground_at)에 선다. 규칙 높이는 칸 정수 그대로. 그림자는 북서쪽 햇빛 하나로(드리운 그림자·면 음영).
+  지형 프리셋 도장: 맵 `stamps`(`data/content/terrain_presets.json`, scripts/rules/map_stamps.gd — 높이·재질·오르기 지점·빛·바닥·소품을 한꺼번에, 돌리기·뒤집기·base). 모음 맵 terrain_presets_demo, 시범 맵 hill_path.
   캡처: `--shot=<png> --frames=<n>`, 카메라 고정 `--cam=x,y --zoom=<배율>`. 맵 그림은 던전 에셋 키트로 그린다:
   맵 데이터 `art`(wall·wall_top·cliff·floors[범례 글자 → 키트 바닥]·props[키트 물건 at/id/v]). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`·`asset_library/`.
 - 캐릭터 그림(지금): assets/actors 걷기 시트 4방향(아래·왼·오른·위). 최종은 2D 일러스트 컷아웃(Skeleton2D를 SubViewport로 그려 세운 판에 입힘) — 룰북 1단계.

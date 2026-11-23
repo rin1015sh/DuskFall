@@ -1,0 +1,475 @@
+{
+  "schema": "terrain_preset_v1",
+  "note_ko": "지형 프리셋 모음(맵 stamps로 찍는다 — scripts/rules/map_stamps.gd). 자연 지형(art.terrain = natural) 맵에서 비탈·바위 절벽으로 그려진다. 높이는 도장 base에 더한다.",
+  "presets": [
+    {
+      "id": "low_rise",
+      "name": {
+        "ko": "낮은 턱",
+        "en": "Low Rise"
+      },
+      "kind": "hill",
+      "note_ko": "높이 1 넓은 턱. 사방이 완만한 비탈이라 어디로든 오른다(고지 보정 없음 — 2단계 미만).",
+      "grid": [
+        "1111111",
+        "1111111",
+        "1111111"
+      ],
+      "legend": {
+        "1": {
+          "h": 1,
+          "material": "grass",
+          "floor": "ground_grass"
+        }
+      },
+      "props": [],
+      "source": "original"
+    },
+    {
+      "id": "mound_small",
+      "name": {
+        "ko": "작은 둔덕",
+        "en": "Small Mound"
+      },
+      "kind": "hill",
+      "note_ko": "높이 2 작은 둔덕. 사방 비탈. 궁수 한 명 자리.",
+      "grid": [
+        ".111.",
+        "12221",
+        "12221",
+        "12221",
+        ".111."
+      ],
+      "legend": {
+        "1": {
+          "h": 1,
+          "material": "grass",
+          "floor": "ground_grass"
+        },
+        "2": {
+          "h": 2,
+          "material": "grass",
+          "floor": "ground_grass"
+        }
+      },
+      "props": [
+        {
+          "id": "grass_tall",
+          "v": "a",
+          "at": [
+            0,
+            0
+          ]
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "mound_large",
+      "name": {
+        "ko": "큰 둔덕",
+        "en": "Large Mound"
+      },
+      "kind": "hill",
+      "note_ko": "높이 3 둥근 언덕. 사방 비탈이라 꼭대기(고지 +2)를 두고 다툰다. 꼭대기에 나무.",
+      "grid": [
+        "..111..",
+        ".12221.",
+        "1233321",
+        "1233321",
+        "1233321",
+        ".12221.",
+        "..111.."
+      ],
+      "legend": {
+        "1": {
+          "h": 1,
+          "material": "grass",
+          "floor": "ground_grass"
+        },
+        "2": {
+          "h": 2,
+          "material": "grass",
+          "floor": "ground_grass"
+        },
+        "3": {
+          "h": 3,
+          "material": "grass",
+          "floor": "ground_grass"
+        }
+      },
+      "props": [
+        {
+          "id": "tree_broadleaf",
+          "v": "a",
+          "at": [
+            3,
+            2
+          ]
+        },
+        {
+          "id": "grass_tall",
+          "v": "wide",
+          "at": [
+            1,
+            5
+          ]
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "ridge",
+      "name": {
+        "ko": "능선",
+        "en": "Ridge"
+      },
+      "kind": "hill",
+      "note_ko": "높이 2 긴 능선. 엄폐 없이 길게 내려다보는 자리. rot 90으로 세로.",
+      "grid": [
+        ".1111111.",
+        "122222221",
+        "122222221",
+        ".1111111."
+      ],
+      "legend": {
+        "1": {
+          "h": 1,
+          "material": "grass",
+          "floor": "ground_grass"
+        },
+        "2": {
+          "h": 2,
+          "material": "grass",
+          "floor": "ground_grass"
+        }
+      },
+      "props": [
+        {
+          "id": "grass_tall",
+          "v": "b",
+          "at": [
+            2,
+            0
+          ]
+        },
+        {
+          "id": "rock",
+          "v": "small_a",
+          "at": [
+            6,
+            3
+          ]
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "long_slope",
+      "name": {
+        "ko": "긴 비탈길",
+        "en": "Long Slope"
+      },
+      "kind": "ramp",
+      "note_ko": "높이 0→3 곧은 흙길 비탈(3칸 너비). 북쪽 끝을 높이 3 고원에 붙여 쓴다. 옆이 낮은 땅이면 높이 2 구간은 옆이 절벽.",
+      "grid": [
+        "ccc",
+        "bbb",
+        "bbb",
+        "aaa",
+        "aaa"
+      ],
+      "legend": {
+        "a": {
+          "h": 1,
+          "material": "earth",
+          "floor": "floor_dirt"
+        },
+        "b": {
+          "h": 2,
+          "material": "earth",
+          "floor": "floor_dirt"
+        },
+        "c": {
+          "h": 3,
+          "material": "earth",
+          "floor": "floor_dirt"
+        }
+      },
+      "props": [],
+      "source": "original"
+    },
+    {
+      "id": "plateau_ramp",
+      "name": {
+        "ko": "비탈길 고원",
+        "en": "Ramped Plateau"
+      },
+      "kind": "cliff",
+      "note_ko": "높이 3 고원 + 남쪽 가운데로 내려오는 곧은 흙길 비탈. 비탈 말고는 사방 절벽.",
+      "grid": [
+        "3333333",
+        "3333333",
+        "3333333",
+        "33ccc33",
+        "..bbb..",
+        "..bbb..",
+        "..aaa..",
+        "..aaa.."
+      ],
+      "legend": {
+        "3": {
+          "h": 3,
+          "material": "grass",
+          "floor": "ground_grass"
+        },
+        "a": {
+          "h": 1,
+          "material": "earth",
+          "floor": "floor_dirt"
+        },
+        "b": {
+          "h": 2,
+          "material": "earth",
+          "floor": "floor_dirt"
+        },
+        "c": {
+          "h": 3,
+          "material": "earth",
+          "floor": "floor_dirt"
+        }
+      },
+      "props": [
+        {
+          "id": "bush",
+          "v": "a",
+          "at": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "rock",
+          "v": "medium_a",
+          "at": [
+            1,
+            6
+          ]
+        },
+        {
+          "id": "grass_tall",
+          "v": "c",
+          "at": [
+            5,
+            7
+          ]
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "mesa",
+      "name": {
+        "ko": "바위 고원",
+        "en": "Mesa"
+      },
+      "kind": "cliff",
+      "note_ko": "높이 3 바위 고원, 사방 절벽. 남쪽 사다리(오르기 지점)로만 오른다 — 점프·도둑 등반 말고는 막힌 요새.",
+      "grid": [
+        ".rrrr.",
+        "rrrrrr",
+        "rrrrrr",
+        "rrrrrr",
+        ".rrrr.",
+        "...L.."
+      ],
+      "legend": {
+        "L": {
+          "h": 0,
+          "material": "earth",
+          "floor": "floor_dirt",
+          "flags": [
+            "climb"
+          ]
+        },
+        "r": {
+          "h": 3,
+          "material": "stone",
+          "floor": "ground_rock"
+        }
+      },
+      "props": [
+        {
+          "id": "bush",
+          "v": "wide",
+          "at": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "rock",
+          "v": "small_b",
+          "at": [
+            4,
+            2
+          ]
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "cliff_band",
+      "name": {
+        "ko": "절벽 띠",
+        "en": "Cliff Band"
+      },
+      "kind": "cliff",
+      "note_ko": "높이 3 절벽 띠(6×4). 이어 붙여 맵 가장자리 고원을 만든다.",
+      "grid": [
+        "333333",
+        "333333",
+        "333333",
+        "333333"
+      ],
+      "legend": {
+        "3": {
+          "h": 3,
+          "material": "grass",
+          "floor": "ground_grass"
+        }
+      },
+      "props": [
+        {
+          "id": "grass_tall",
+          "v": "a",
+          "at": [
+            1,
+            3
+          ]
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "cliff_cave",
+      "name": {
+        "ko": "동굴 절벽",
+        "en": "Cliff Cave"
+      },
+      "kind": "cliff",
+      "note_ko": "높이 3 절벽에 3×2 동굴 입구(어두움). 절벽 띠 사이에 끼워 쓴다.",
+      "grid": [
+        "333333333",
+        "333333333",
+        "333333333",
+        "333kkk333",
+        "333kkk333"
+      ],
+      "legend": {
+        "3": {
+          "h": 3,
+          "material": "grass",
+          "floor": "ground_grass"
+        },
+        "k": {
+          "h": 0,
+          "material": "stone",
+          "floor": "floor_cracked",
+          "light": "dark"
+        }
+      },
+      "props": [
+        {
+          "id": "tree_pine",
+          "v": "a",
+          "at": [
+            7,
+            0
+          ]
+        },
+        {
+          "id": "bush",
+          "v": "b",
+          "at": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "brazier",
+          "v": "embers",
+          "at": [
+            5,
+            3
+          ]
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "rock_outcrop",
+      "name": {
+        "ko": "바위 노두",
+        "en": "Rock Outcrop"
+      },
+      "kind": "rock",
+      "note_ko": "높이 2 작은 바위(십자). 엄폐 겸 디딤돌 — 오르기 지점 없음(점프로).",
+      "grid": [
+        ".q.",
+        "qqq",
+        ".q."
+      ],
+      "legend": {
+        "q": {
+          "h": 2,
+          "material": "stone",
+          "floor": "ground_rock"
+        }
+      },
+      "props": [
+        {
+          "id": "grass_tall",
+          "v": "b",
+          "at": [
+            0,
+            2
+          ]
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "overlook",
+      "name": {
+        "ko": "전망 바위",
+        "en": "Overlook"
+      },
+      "kind": "rock",
+      "note_ko": "높이 4 바위 탑(3×3) + 남쪽 사다리. 맵 전체를 내려다보는 저격 자리.",
+      "grid": [
+        "RRR",
+        "RRR",
+        "RRR",
+        ".L."
+      ],
+      "legend": {
+        "L": {
+          "h": 0,
+          "material": "earth",
+          "floor": "floor_dirt",
+          "flags": [
+            "climb"
+          ]
+        },
+        "R": {
+          "h": 4,
+          "material": "stone",
+          "floor": "ground_rock"
+        }
+      },
+      "props": [],
+      "source": "original"
+    }
+  ]
+}

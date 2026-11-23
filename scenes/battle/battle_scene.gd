@@ -380,6 +380,7 @@ func _setup_world(b: Dictionary, map_id: String) -> void:
 	for c: Node in party + foes + world.get("roster", []):
 		if world["grid"].creatures().has(c) and not views.has(c):
 			var v: Node3D = ActorView.new()
+			v.ground = map_view.ground_at
 			v.setup(c, world["grid"])
 			sorted.add_child(v)
 			views[c] = v
@@ -1509,6 +1510,7 @@ func _refresh() -> void:
 	for m: Node in world.get("summons", []):
 		if is_instance_valid(m) and not views.has(m) and world["grid"].creatures().has(m):
 			var mv: Node3D = ActorView.new()
+			mv.ground = map_view.ground_at
 			mv.setup(m, world["grid"])
 			sorted.add_child(mv)
 			views[m] = mv

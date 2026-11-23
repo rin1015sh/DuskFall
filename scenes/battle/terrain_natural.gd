@@ -1,8 +1,9 @@
 extends RefCounted
 ## 자연 지형(맵 데이터 art.terrain = "natural"): 부드러운 언덕 + 바위 절벽. 표현 계층만 — 규칙 높이는 칸마다 정수 그대로.
-## - 칸을 2×2로 쪼갠 3×3 점. 가운데 점 = 그 칸 높이(캐릭터가 서는 곳 = 규칙 높이).
-##   변 가운데·모서리 점은 '이어진' 칸끼리 높이를 평균한다. 이어짐 = 둘 다 바닥이고 높이 차 1단계 이하(걸어서 오르내리는 차 — 3단계 이동 규칙).
-##   모서리는 그 점을 둘러싼 네 칸 중 변으로 이어진 무리의 평균이라 이웃 칸끼리 같은 값을 쓴다(틈이 없다).
+## - 칸마다 (RES+1)×(RES+1) 점. 점 높이 = 걸어서 이어진 칸들(반경 안, 이어짐 = 둘 다 바닥이고 높이 차 1단계 이하 — 3단계 이동 규칙)의
+##   규칙 높이를 거리 가중 평균한 값이라, 2칸마다 1단계씩 오르는 길도 계단 없이 곧고 완만한 비탈이 된다.
+##   이웃 칸과 공유하는 점은 같은 무리·같은 가중이라 같은 값(틈 없음). 칸 가운데는 규칙 높이와 조금(±0.3 안) 다를 수 있어
+##   캐릭터·소품·하이라이트는 ground_at(그려진 바닥)에 세운다. 규칙 판정은 언제나 칸 정수 높이.
 ## - 이어지지 않은 변(높이 차 2단계 이상)에는 바위 면을 세운다: 높은 칸 변에서 아래로 갈수록 밖으로 퍼져 낮은 땅과 돌무더기 비탈처럼 이어지고,
 ##   변마다 세로 4줄·단마다 한 줄로 쪼개 안쪽 점을 잡음으로 불룩하게(모서리 세로줄은 맞닿은 면끼리 같은 점).
 ## - 밝기(입체감): 햇빛 하나(북서쪽 위) 기준 —
@@ -22,12 +23,16 @@ const FLOOR_BASE := 0.88
 const SHADOW := 0.58
 const PENUMBRA := 0.35
 const SHADOW_STEP := 0.2
-## 바닥 쪼갬(칸당)
-const SUB := 4
-## 바위 면 불룩함(유닛)·아래 퍼짐(유닛, 돌무더기 비탈)·변당 세로줄 수
+## 칸당 점 간격 수(바닥 쪼갬)
+const RES := 4
+const SUB := RES
+## 비탈 매끄럽게: 거리 가중 반경(칸)
+const SMOOTH_R := 1.25
+## 기준 높이와의 차 가중 폭(단계)
+const HEIGHT_SIGMA := 0.9
+## 바위 면 불룩함(유닛)·아래 퍼짐(유닛, 돌무더기 비탈)
 const BULGE := 0.2
 const TALUS := 0.42
-const COLS := 4
 ## 절벽 발치 그늘 밝기
 const FOOT_AO := 0.62
 ## 절벽 위 가장자리 빛 테두리 너비·밝기(흰색 섞음)
@@ -38,19 +43,20 @@ var grid: Node
 ## 드리운 그림자 캐시(점 → 0..1, 높이만 보므로 빛이 바뀌어도 다시 쓴다)
 var _shadow := {}
 var _max_h := 0.0
-## 칸 → 3×3 높이(줄 = 북→남, 칸 = 서→동)
+## 칸 → (RES+1)² 높이(줄 = 북→남, 칸 = 서→동)
 var vh := {}
 
 
 func _init(g: Node) -> void:
 	grid = g
+	var n := RES + 1
 	for c: Vector2i in grid.all_cells():
 		if _floor(c):
 			var arr := PackedFloat32Array()
-			arr.resize(9)
-			for iz in 3:
-				for ix in 3:
-					arr[iz * 3 + ix] = _vertex_h(c, ix, iz)
+			arr.resize(n * n)
+			for iz in n:
+				for ix in n:
+					arr[iz * n + ix] = _smooth_h(c, Vector2(c.x + float(ix) / RES, c.y + float(iz) / RES))
 			vh[c] = arr
 			_max_h = maxf(_max_h, float(grid.height(c)))
 
@@ -64,22 +70,49 @@ func linked(a: Vector2i, b: Vector2i) -> bool:
 	return _floor(a) and _floor(b) and absi(grid.height(a) - grid.height(b)) <= 1
 
 
-func _vertex_h(c: Vector2i, ix: int, iz: int) -> float:
-	var h := float(grid.height(c))
-	if ix == 1 and iz == 1:
-		return h
-	if ix == 1 or iz == 1:
-		var n := c + Vector2i(ix - 1, iz - 1)
-		return (h + grid.height(n)) * 0.5 if linked(c, n) else h
-	# 모서리 점(px, pz)을 둘러싼 네 칸 중 c와 변으로 이어진 무리의 평균
-	var px := c.x + ix / 2
-	var pz := c.y + iz / 2
-	var around := [Vector2i(px - 1, pz - 1), Vector2i(px, pz - 1), Vector2i(px - 1, pz), Vector2i(px, pz)]
+## 점 p(칸 c의 점)의 높이: c에서 이어짐으로 닿는 칸 중 p 둘레(반경 SMOOTH_R + 0.71) 칸들의 가중 평균.
+## 가중 = 거리 가중 × 기준 높이와의 차 가중(차가 2 이상인 칸은 거의 0 — 비탈로 돌아 이어진 절벽 너머가 끼어들어 절벽을 깎지 않게).
+## 기준 높이 = p에 맞닿은 칸 중 c와 변으로 이어진 무리의 평균. 둘레 안에서만 이어 가고 기준도 맞닿은 무리로 정하므로
+## p를 공유하는 이어진 이웃 칸은 같은 값을 얻는다(틈 없음).
+func _smooth_h(c: Vector2i, p: Vector2) -> float:
+	var href := _touch_ref(c, p)
+	var reach := SMOOTH_R + 0.71
+	var group := {c: true}
+	var queue: Array[Vector2i] = [c]
+	var sw := 0.0
+	var sh := 0.0
+	while not queue.is_empty():
+		var g: Vector2i = queue.pop_back()
+		var d := p.distance_to(Vector2(g) + Vector2(0.5, 0.5))
+		var w := maxf(0.0, 1.0 - d / reach)
+		var dh := float(grid.height(g)) - href
+		w *= w * exp(-dh * dh / (HEIGHT_SIGMA * HEIGHT_SIGMA))
+		sw += w
+		sh += w * grid.height(g)
+		for o: Vector2i in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+			var nb := g + o
+			if group.has(nb) or not linked(g, nb):
+				continue
+			if p.distance_to(Vector2(nb) + Vector2(0.5, 0.5)) > reach:
+				continue
+			group[nb] = true
+			queue.append(nb)
+	return sh / sw if sw > 0.0 else href
+
+
+## p에 맞닿은 칸(1·2·4칸) 중 c와 변으로 이어진 무리의 평균 높이
+func _touch_ref(c: Vector2i, p: Vector2) -> float:
+	var xs := [floori(p.x)] if not is_equal_approx(p.x, roundf(p.x)) else [roundi(p.x) - 1, roundi(p.x)]
+	var zs := [floori(p.y)] if not is_equal_approx(p.y, roundf(p.y)) else [roundi(p.y) - 1, roundi(p.y)]
+	var touch := []
+	for x: int in xs:
+		for z: int in zs:
+			touch.append(Vector2i(x, z))
 	var group := [c]
 	var i := 0
 	while i < group.size():
 		var g: Vector2i = group[i]
-		for o: Vector2i in around:
+		for o: Vector2i in touch:
 			if not o in group and absi(o.x - g.x) + absi(o.y - g.y) == 1 and linked(g, o):
 				group.append(o)
 		i += 1
@@ -89,22 +122,23 @@ func _vertex_h(c: Vector2i, ix: int, iz: int) -> float:
 	return s / group.size()
 
 
-## 바닥 높이(칸 평면 점 p). 자연 지형 칸은 2×2 조각 안에서 쌍선형, 아니면 칸 윗면.
+## 바닥 높이(칸 평면 점 p). 자연 지형 칸은 점 격자 안에서 쌍선형, 아니면 칸 윗면.
 func ground_at(p: Vector2) -> float:
 	var c := Vector2i(floori(p.x), floori(p.y))
 	if not vh.has(c):
 		return V.cell_top(grid, c) if grid.in_bounds(c) else 0.0
 	var arr: PackedFloat32Array = vh[c]
-	var fx := clampf(p.x - c.x, 0.0, 1.0) * 2.0
-	var fz := clampf(p.y - c.y, 0.0, 1.0) * 2.0
-	var qx := mini(int(fx), 1)
-	var qz := mini(int(fz), 1)
+	var n := RES + 1
+	var fx := clampf(p.x - c.x, 0.0, 1.0) * RES
+	var fz := clampf(p.y - c.y, 0.0, 1.0) * RES
+	var qx := mini(int(fx), RES - 1)
+	var qz := mini(int(fz), RES - 1)
 	var u := fx - qx
 	var v := fz - qz
-	var h00 := arr[qz * 3 + qx]
-	var h10 := arr[qz * 3 + qx + 1]
-	var h01 := arr[(qz + 1) * 3 + qx]
-	var h11 := arr[(qz + 1) * 3 + qx + 1]
+	var h00 := arr[qz * n + qx]
+	var h10 := arr[qz * n + qx + 1]
+	var h01 := arr[(qz + 1) * n + qx]
+	var h11 := arr[(qz + 1) * n + qx + 1]
 	return lerpf(lerpf(h00, h10, u), lerpf(h01, h11, u), v)
 
 
@@ -168,7 +202,7 @@ func build_floor(dark_at: Callable) -> ArrayMesh:
 		for iz in n:
 			for ix in n:
 				var p := Vector2(c.x + float(ix) / SUB, c.y + float(iz) / SUB)
-				pts.append(Vector3(p.x, ground_at(p), p.y))
+				pts.append(Vector3(p.x, (vh[c] as PackedFloat32Array)[iz * n + ix], p.y))
 				var k: float = (1.0 - float(dark_at.call(p))) * floor_shade(_normal_at(c, p)) * lerpf(1.0, SHADOW, shadow_at(p))
 				shade.append(Color(k, k, k))
 		for qz in SUB:
@@ -195,17 +229,11 @@ func build_cliffs(dark_of: Callable) -> ArrayMesh:
 			var top := _edge(c, d)
 			var out := Vector3(d.x, 0, d.y)
 			var k := 1.0 - float(dark_of.call(n))
-			# 변을 따라 4줄(모서리·¼·가운데·¾·모서리)
-			var cols_top := []
+			# 변을 따라 RES+1줄(모서리 … 모서리)
+			var cols_top := top
 			var flares := []
-			for i in COLS + 1:
-				var f := float(i) / COLS
-				var tp: Vector3 = (top[0] as Vector3).lerp(top[1], f * 2.0) if f <= 0.5 else (top[1] as Vector3).lerp(top[2], f * 2.0 - 1.0)
-				cols_top.append(tp)
-				if i == 0 or i == COLS:
-					flares.append(_corner_flare(c, tp))
-				else:
-					flares.append(out)
+			for i in top.size():
+				flares.append(_corner_flare(c, top[i]) if i == 0 or i == top.size() - 1 else out)
 			_face_grid(verts, cols, c, n, cols_top, flares, out, k)
 	return _mesh(verts, cols)
 
@@ -269,14 +297,15 @@ func _face_grid(verts: PackedVector3Array, cols: PackedColorArray, c: Vector2i, 
 				cols.append(Color(v, v, v))
 
 
-## 칸 c의 d쪽 변의 세 점(모서리 → 가운데 → 모서리, 변을 따라 x 또는 z가 커지는 순서)
+## 칸 c의 d쪽 변의 점들(RES+1개, 변을 따라 x 또는 z가 커지는 순서)
 func _edge(c: Vector2i, d: Vector2i) -> Array:
 	var arr: PackedFloat32Array = vh[c]
+	var n := RES + 1
 	var out := []
-	for i in 3:
-		var ix: int = i if d.y != 0 else (0 if d.x < 0 else 2)
-		var iz: int = i if d.x != 0 else (0 if d.y < 0 else 2)
-		out.append(Vector3(c.x + ix * 0.5, arr[iz * 3 + ix], c.y + iz * 0.5))
+	for i in n:
+		var ix: int = i if d.y != 0 else (0 if d.x < 0 else RES)
+		var iz: int = i if d.x != 0 else (0 if d.y < 0 else RES)
+		out.append(Vector3(c.x + float(ix) / RES, arr[iz * n + ix], c.y + float(iz) / RES))
 	return out
 
 
@@ -293,7 +322,7 @@ func build_rims() -> ArrayMesh:
 				continue
 			var e := _edge(c, d)
 			var inward := Vector3(-d.x, 0, -d.y) * RIM_W
-			for s in 2:
+			for s in e.size() - 1:
 				var a: Vector3 = e[s] + Vector3(0, V.LIFT, 0)
 				var b: Vector3 = e[s + 1] + Vector3(0, V.LIFT, 0)
 				var ai := a + inward

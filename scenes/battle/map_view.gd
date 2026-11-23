@@ -23,6 +23,7 @@ const OVERLAY_SHADER := preload("res://scenes/battle/overlay.gdshader")
 const FLOOR_SHADER := preload("res://scenes/battle/floor.gdshader")
 const ROCK_SHADER := preload("res://scenes/battle/rock.gdshader")
 const TerrainNatural := preload("res://scenes/battle/terrain_natural.gd")
+const MapStamps := preload("res://scripts/rules/map_stamps.gd")
 ## 자연 지형 장식: 절벽 위(풀·덤불·작은 바위)·절벽 아래(바위·이끼 바위) — [키트 id, 변형, 확률]
 const CLIFF_TOP_DECOR := [["grass_tall", "a", 0.22], ["grass_tall", "c", 0.14], ["bush", "a", 0.06], ["rock", "small_a", 0.08]]
 const CLIFF_FOOT_DECOR := [["rock", "medium_a", 0.12], ["rock", "small_b", 0.12], ["boulder_mossy", "a", 0.04], ["grass_tall", "b", 0.1]]
@@ -62,6 +63,8 @@ var _rim_mi: MeshInstance3D
 var _rock_mi: MeshInstance3D
 ## 자연 지형(없으면 블록 지형)
 var natural: RefCounted
+## 지형 도장이 덮은 칸(바닥 그림 floor) — 규칙 쪽 map_stamps.gd와 같은 계산
+var _stamp_cells := {}
 ## 칸 데이터 텍스처(셰이더용): 높이·바닥 있음 / 바닥 조각 / 표면 조각
 var _info_tex: ImageTexture
 var _cells_tex: ImageTexture
@@ -126,6 +129,7 @@ func build(g: Node, sorted_layer: Node3D, map_data: Dictionary = {}) -> void:
 	sorted = sorted_layer
 	kit = DungeonKit.open()
 	kit.tileset()
+	_stamp_cells = MapStamps.cells(map)
 	_floor_mi = _mesh_node("floors", FLOOR_SHADER, false)
 	_top_mi = _mesh_node("wall_tops", TERRAIN_SHADER, true)
 	_face_mi = _mesh_node("wall_faces", TERRAIN_SHADER, true)
@@ -175,6 +179,8 @@ func _floor_id(c: Vector2i) -> String:
 	var mat: String = grid.material(c)
 	if mat == "burnt_ground":
 		return "ground_ash"
+	if _stamp_cells.has(c) and (_stamp_cells[c] as Dictionary).has("floor"):
+		return _stamp_cells[c]["floor"]
 	var ch := _legend_char(c)
 	var floors: Dictionary = art().get("floors", {})
 	if floors.has(ch):
@@ -196,7 +202,7 @@ func _sheet_size(sheet: String) -> Vector2:
 
 ## 한 번만: 소품(맵 데이터 art.props)
 func _build_props() -> void:
-	for p: Dictionary in art().get("props", []):
+	for p: Dictionary in art().get("props", []) + MapStamps.props(map):
 		var cell := Vector2i(int(p["at"][0]), int(p["at"][1]))
 		var node: Node3D = Kit3D.make(kit, p["id"], p.get("v", ""), {"flip": p.get("flip", false), "up": p.get("up", 0.0), "scale": float(p.get("scale", 1.0))})
 		node.position = _prop_pos(cell, float(p.get("dx", 0.0)), float(p.get("dy", 0.0)))
@@ -307,9 +313,11 @@ func _build_climb_art() -> void:
 		if d == Vector2i.UP or done.has([hi, lo]):
 			continue  # 북쪽을 보는 면은 화면에서 보이지 않는다
 		done[[hi, lo]] = true
-		var dh: int = grid.height(hi) - grid.height(lo)
 		var edge := (Vector2(hi) + Vector2(0.5, 0.5) + Vector2(d) * 0.5)
-		var pos := Vector3(edge.x, float(grid.height(lo)), edge.y) + Vector3(d.x, 0, d.y) * 0.06
+		var top_y := ground_at(edge - Vector2(d) * 0.05)
+		var foot := edge + Vector2(d) * 0.3
+		var dh := top_y - ground_at(foot)
+		var pos := Vector3(foot.x, ground_at(foot), foot.y)
 		var node: Node3D
 		if kind == "vines":
 			node = _add_prop("vines", "ivy_a", pos + Vector3(0, dh, 0), lo)

@@ -13,10 +13,15 @@ description: 새 맵(구역)을 설계하고 만든다. 지형·높이·빛·표
 
 ## 구조
 
-- 그림: `scenes/maps/<id>.tscn` — TileMapLayer(바닥·벽·소품). 벽·지붕은 캐릭터를 가리면 반투명.
-- 규칙 데이터: `data/maps/<id>.json` — 레이어별 2차원 배열 `height`, `material`, `surface`, `cloud`, `light`, `flags`(difficult·impassable·climb_point·no_camp), 그리고 목록 `zones`(전투 구역), `owners`(소유물), `placements`.
-- `placements` 종류: creature(몬스터·NPC, AI 힌트), companion(영입 동료), trap(발견 DC·해제 DC·발동 범위·효과), lock(DC·열쇠 ID), hidden(지각 DC), container(전리품), light_source, supplies, transition(다른 맵 연결), dialogue(대화 ID).
-- 씬과 데이터가 어긋나지 않게 `tools/export_map.gd`로 씬의 사용자 정의 데이터 레이어에서 JSON을 뽑는다. 도구가 없으면 먼저 만든다.
+- 맵 한 장 = `data/maps/<id>.json`(스키마 `data/schema/map.schema.json`). 씬 파일은 없다 — 표현 계층(scenes/battle/map_view.gd, 3D)이 데이터를 읽어 그린다.
+- 규칙 데이터: 글자 지도 `rows` + 범례 `legend`(글자 → material·height·surface·flags), `light`·`light_rects`·`light_sources`, `flags`·`flag_rects`
+  (difficult·impassable·climb·no_camp), `zones`(전투 구역)·`zone_rewards`, `objects`(물체·상자·자물쇠), `traps`, `examines`, `spawns`(파티·몬스터·동료·대화), `transitions`.
+- 그림: `art` — wall·wall_top·cliff·floors(범례 글자 → 키트 바닥)·props(키트 물건 at/id/v). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`.
+- 언덕·절벽 지형: `art.terrain: "natural"`이면 높이 차 1단계 = 부드러운 비탈, 2단계 이상 = 바위 절벽(`art.cliff_rock`, 자동 장식 `art.cliff_decor`, 사다리 `art.climb_art`).
+- 지형 프리셋 도장: `stamps: [{"preset", "at": [x, y], "rot": 0|90|180|270, "flip", "base"}]` — `data/content/terrain_presets.json`의 프리셋
+  (낮은 턱·작은/큰 둔덕·능선·긴 비탈길·비탈길 고원·바위 고원·절벽 띠·동굴 절벽·바위 노두·전망 바위)을 찍으면 높이·재질·오르기 지점·빛·바닥 그림·소품이 한꺼번에 들어간다.
+  모음 미리보기: 맵 `terrain_presets_demo`(`--map=terrain_presets_demo`). 새 모양은 프리셋을 추가해 쓴다(id 영어 snake_case, 이름 ko/en, `"source": "original"`).
+- 캡처로 확인: `godot --path . res://scenes/battle/battle_scene.tscn -- --map=<id> --cam=x,y --zoom=0.6 --shot=<png> --frames=40`(화면이 필요하면 xvfb-run).
 
 ## 설계 점검표
 

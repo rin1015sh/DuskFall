@@ -6,11 +6,13 @@ extends RefCounted
 ##      (scripts/rules/data_loader.gd — 게임 시작 때 RulesDB도 같은 검사를 한다)
 ## 3. 다른 데이터를 가리키는 ID(클래스·종족·상태·표면)가 실제로 있는가
 ##    대상 종류의 데이터가 아직 하나도 없으면 경고만 내고 건너뛴다.
+## 3-1. 맵 stamps가 가리키는 지형 프리셋이 있고 지도 안에 들어가는가, 프리셋 글자가 범례에 있는가
 ## 4. "script": "<id>"마다 res://scripts/rules/effects/<id>.gd가 있고 컴파일되는가
 ## 5. data/·scenes/·scripts/에 tools/banned_names.txt의 금지어가 없는가
 
 const DataLoader := preload("res://scripts/rules/data_loader.gd")
 const EventBusScript := preload("res://scripts/rules/event_bus.gd")
+const MapStamps := preload("res://scripts/rules/map_stamps.gd")
 
 const DATA_DIR := "res://data"
 const EFFECTS_DIR := "res://scripts/rules/effects"
@@ -77,9 +79,28 @@ func run() -> bool:
 	entries = loader.entries
 	info.append("JSON %d개 검사" % loader.files_loaded)
 	_check_refs()
+	_check_stamps()
 	_check_scripts()
 	_check_banned_names()
 	return errors.is_empty()
+
+
+# ---------- 3-1. 지형 도장(맵 stamps → terrain_preset) ----------
+
+func _check_stamps() -> void:
+	var presets := {}
+	for id: String in entries.get("terrain_preset", {}).keys():
+		presets[id] = entries["terrain_preset"][id]["entry"]
+	for id: String in entries.get("map", {}).keys():
+		var rec: Dictionary = entries["map"][id]
+		for e in MapStamps.check(rec["entry"], presets):
+			errors.append("%s: map '%s' %s" % [rec["file"], id, e])
+	for id: String in presets.keys():
+		var pre: Dictionary = presets[id]
+		for row: Variant in pre.get("grid", []):
+			for ch: String in String(row):
+				if ch != "." and ch != " " and not pre.get("legend", {}).has(ch):
+					errors.append("%s: terrain_preset '%s' 글자 '%s'가 범례에 없다" % [entries["terrain_preset"][id]["file"], id, ch])
 
 
 # ---------- 3. ID 참조 ----------

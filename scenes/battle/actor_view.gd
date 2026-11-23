@@ -21,6 +21,8 @@ static var _disc: Texture2D
 
 var creature: Node
 var grid: Node
+## 그려진 바닥 높이(칸 평면 점 → 높이, map_view.ground_at). 없으면 칸 규칙 높이. 자연 지형의 비탈 위에 발을 붙인다.
+var ground: Callable
 var selected := false
 var current := false
 var sprite: Sprite3D
@@ -163,7 +165,10 @@ func _build_ground_marks() -> void:
 func _foot(cell: Vector2i) -> Vector3:
 	var sz: int = grid.size_of(creature)
 	var h: float = float(grid.height(cell)) if grid.in_bounds(cell) else 0.0
-	return V.pos(cell, h) + Vector3((sz - 1) * 0.5, 0.0, (sz - 1) * 0.5 + 0.18)
+	var p := V.pos(cell, h) + Vector3((sz - 1) * 0.5, 0.0, (sz - 1) * 0.5 + 0.18)
+	if ground.is_valid():
+		p.y = ground.call(Vector2(p.x, p.z))
+	return p
 
 
 func sync() -> void:
@@ -259,6 +264,11 @@ func _process(delta: float) -> void:
 		var target: Vector3 = _path[0]
 		var speed: float = 1.0 / STEP_SEC * (1.0 + _path.size() * 0.15)
 		position = position.move_toward(target, speed * delta)
+		if ground.is_valid():
+			# 비탈을 따라 걷는다(칸 사이 직선이 아니라 그려진 바닥 위)
+			var gy: float = ground.call(Vector2(position.x, position.z))
+			if absf(target.y - gy) < 1.5:
+				position.y = gy
 		if position.distance_to(target) < 0.01:
 			_pop_step()
 		_place_sprite()

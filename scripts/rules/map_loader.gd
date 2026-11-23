@@ -3,6 +3,7 @@ extends RefCounted
 ## 글자 지도 + 범례 판. 생물 배치(spawns)는 돌려주기만 하고, 생물을 만드는 쪽이 놓는다.
 
 const LIGHT := {"bright": 2, "dim": 1, "dark": 0}
+const MapStamps := preload("res://scripts/rules/map_stamps.gd")
 
 
 ## 결과: {"spawns": {spawn id: Vector2i}, "spawn_info": {spawn id: {"facing", "dialogue", "team"}},
@@ -26,6 +27,8 @@ static func load_into(grid: Node, surfaces: Node, map: Dictionary) -> Dictionary
 				grid.set_flag(cell, f)
 			if l.has("surface"):
 				water.append([cell, l["surface"]])
+	# 지형 도장(프리셋): 글자 지도를 덮어쓴다(높이·재질·플래그·빛)
+	MapStamps.apply(grid, map)
 	for item: Array in water:
 		# 맵에 배치한 표면은 영구(4단계 물: 맵 배치는 영구)
 		surfaces.place_surface([item[0]], item[1], {"turns": -1})
