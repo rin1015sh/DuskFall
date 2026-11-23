@@ -109,7 +109,11 @@
       "resource": "arcane_recovery",
       "script": "arcane_recovery",
       "notes_ko": "짧은 휴식 뒤 합계 레벨 ≤ 위저드 레벨 절반(올림) 슬롯 회복, 긴 휴식 1회.",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "statuses/riddle_empowered.webp",
+      "glyph": "swirl",
+      "usable": true,
+      "explore": true
     },
     {
       "id": "scholar",
@@ -126,7 +130,8 @@
         "nature",
         "religion"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "choice_kind": "expertise"
     },
     {
       "id": "memorize_spell",
@@ -168,7 +173,10 @@
           },
           "level": 3,
           "notes_ko": "피해 소마법이 빗나가거나 내성에 성공해도 절반 피해(추가 효과 없음).",
-          "source": "SRD 5.2.1"
+          "source": "SRD 5.2.1",
+          "caps": [
+            "cantrip_half_on_miss"
+          ]
         }
       ]
     }
@@ -192,6 +200,11 @@
     "robe",
     "weapon_staff"
   ],
+  "ai_role": "caster",
+  "art": {
+    "sheet": "res://assets/actors/elf.webp"
+  },
+  "color": "#73b3ff",
   "default_build": {
     "subclass": "evoker",
     "species": "elf",

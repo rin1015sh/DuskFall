@@ -31,12 +31,15 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 				_approach(world, c, ally)
 				if grid.distance_between(c, ally) <= 1:
 					Combat.help(world, c, ally)
-	# 1-2. 기능: 재기의 숨결(HP 절반 이하), 행동 연쇄(적이 둘 이상), 영체 수호자·범위 주문
+	# 1-2. 기능: 기능 데이터 ai.when(HP 절반 이하·적 둘 이상)이 맞으면 쓴다(재기의 숨결·행동 연쇄 등), 영체 수호자·범위 주문
 	var Features := preload("res://scripts/rules/features.gd")
-	if c.hp <= c.hp_max / 2 and c.resource("second_wind") > 0:
-		Features.use(world, c, "second_wind")
-	if c.resource("action_surge") > 0 and _foes(world, c).size() >= 2:
-		Features.use(world, c, "action_surge")
+	for fid: String in c.feature_data.keys():
+		var when := str(c.feature_data[fid].get("ai", {}).get("when", ""))
+		var res := str(c.feature_data[fid].get("resource", ""))
+		if when == "" or when == "never" or (res != "" and c.resource(res) <= 0):
+			continue
+		if (when == "hp_below_half" and c.hp <= c.hp_max / 2) or (when == "foes_2plus" and _foes(world, c).size() >= 2):
+			Features.use(world, c, fid)
 	Tactics.pre_turn(world, c)
 	_cast_best_area(world, c)
 	_light_up(world, c)

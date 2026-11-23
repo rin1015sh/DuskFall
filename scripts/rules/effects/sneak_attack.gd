@@ -30,7 +30,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 		return {"ok": false}
 	var count := _dice_count(c)
 	var option: String = c.turn.get("cunning_strike", c.options.get("cunning_strike", ""))
-	if option != "" and c.has_feature("cunning_strike") and count > COST:
+	if option != "" and c.has_cap("cunning_strike") and count > COST:
 		count -= COST
 		res["cunning_strike"] = option
 	c.turn["sneak_used"] = true
@@ -42,7 +42,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 
 
 func _dice_count(c: Node) -> int:
-	var table: Dictionary = RulesDB.get_entry("class", "rogue").get("sneak_attack_dice", {"1": "1d6"})
+	var table: Dictionary = c.feature_data.get("sneak_attack", {}).get("dice_by_level", {"1": "1d6"})
 	var best := "1d6"
 	var best_lv := 0
 	for lv: String in table.keys():

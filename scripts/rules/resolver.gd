@@ -88,7 +88,7 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 		Features.hook("on_hit", target, {"res": res})
 		if res["crit"]:
 			EventBus.on_crit.emit(res)
-			if attacker.has_feature("remarkable_athlete"):
+			if attacker.has_cap("crit_free_move"):
 				attacker.turn["free_move_no_oa"] = maxi(int(attacker.turn.get("free_move_no_oa", 0)), attacker.speed() / 2)
 	else:
 		EventBus.on_miss.emit(res)
@@ -290,10 +290,10 @@ static func _attack_damage_parts(attacker: Node, atk: Dictionary, res: Dictionar
 
 ## 피해 굴림(판정 순서 7). 야만적 공격(턴당 1회 무기 피해 두 번 굴려 큰 쪽), 대형 무기 전투(1·2 → 3).
 static func _roll_damage(attacker: Node, atk: Dictionary, parts: Array, res: Dictionary) -> Array:
-	var gwf: bool = attacker.has_feature("great_weapon_fighting") and atk.get("weapon", false) \
+	var gwf: bool = attacker.has_cap("reroll_low_damage_two_handed") and atk.get("weapon", false) \
 		and atk.get("kind", "") == "melee" and (atk.get("two_handed", false) or "two_handed" in atk.get("properties", []))
 	var times := 1
-	if attacker.has_feature("savage_attacker") and atk.get("weapon", false) and not attacker.turn.get("savage_used", false):
+	if attacker.has_cap("weapon_damage_twice") and atk.get("weapon", false) and not attacker.turn.get("savage_used", false):
 		attacker.turn["savage_used"] = true
 		times = 2
 	var best: Array = []
@@ -313,7 +313,7 @@ static func _roll_damage(attacker: Node, atk: Dictionary, parts: Array, res: Dic
 
 ## 행운(하플링): d20 테스트의 자연 1은 다시 굴려 새 값을 쓴다.
 static func luck(c: Node, d: Dictionary) -> Dictionary:
-	if d["natural"] == 1 and c != null and c.has_feature("halfling_luck"):
+	if d["natural"] == 1 and c != null and c.has_cap("reroll_natural_1"):
 		var again := Dice.die(20)
 		Dice.log_text("%s 행운: 1 → %d" % [c.label(), again])
 		d["natural"] = again

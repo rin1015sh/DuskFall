@@ -146,6 +146,197 @@
             "SRD 5.2.1",
             "original"
           ]
+        },
+        "caps": {
+          "$comment": "엔진 메커니즘 태그(data/rules/capabilities.json)",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "grants": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "attacks_per_action": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            },
+            "crit_threshold": {
+              "type": "integer",
+              "minimum": 15,
+              "maximum": 20
+            },
+            "weapon_training": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "armor_training": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "extra_cantrips": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "caps": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "advantage": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "choice_kind": {
+          "$comment": "choices를 고르는 방식: feat = 재주를 얻음, expertise = 그 기능에 전문화, option = choice_grants의 효과. 명세 키는 기능 id",
+          "enum": [
+            "feat",
+            "expertise",
+            "option"
+          ]
+        },
+        "choice_grants": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attacks_per_action": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "crit_threshold": {
+                "type": "integer",
+                "minimum": 15,
+                "maximum": 20
+              },
+              "weapon_training": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "armor_training": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "extra_cantrips": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "caps": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "advantage": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "icon": {
+          "$comment": "res://assets/ 아래 그림(단축 막대)",
+          "type": "string"
+        },
+        "glyph": {
+          "$comment": "행동 아이콘 문양(scenes/ui/action_icons.gd)",
+          "type": "string"
+        },
+        "target": {
+          "enum": [
+            "self",
+            "creature",
+            "enemy",
+            "cell"
+          ]
+        },
+        "explore": {
+          "$comment": "탐험 중에도 쓴다",
+          "type": "boolean"
+        },
+        "usable": {
+          "$comment": "kind가 없어도 단축 막대에 쓰는 기능으로 둔다",
+          "type": "boolean"
+        },
+        "ai": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "when"
+          ],
+          "properties": {
+            "when": {
+              "enum": [
+                "hp_below_half",
+                "foes_2plus",
+                "never"
+              ]
+            }
+          }
+        },
+        "dice_by_level": {
+          "$comment": "레벨 → 주사위(급소 공격 등)",
+          "type": "object"
+        },
+        "toggle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "values"
+          ],
+          "properties": {
+            "values": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "name"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "object",
+                    "required": [
+                      "ko",
+                      "en"
+                    ]
+                  }
+                }
+              }
+            },
+            "desc": {
+              "type": "object",
+              "required": [
+                "ko",
+                "en"
+              ]
+            }
+          },
+          "$comment": "상시 발동 탭 설정: 누를 때마다 values를 돈다. 고른 값은 c.options[기능 id](첫 값이 기본)"
         }
       }
     }
@@ -382,9 +573,6 @@
         }
       }
     },
-    "sneak_attack_dice": {
-      "type": "object"
-    },
     "starting_equipment": {
       "type": "object"
     },
@@ -407,6 +595,30 @@
         "bonus",
         "skills"
       ]
+    },
+    "ai_role": {
+      "$comment": "AI 역할(scripts/ai): melee 근접 · ranged 원거리 · caster 시전 · healer 치유",
+      "enum": [
+        "melee",
+        "ranged",
+        "caster",
+        "healer"
+      ]
+    },
+    "art": {
+      "$comment": "임시 그림: 걷기 시트(assets/actors)",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sheet": {
+          "type": "string"
+        }
+      }
+    },
+    "color": {
+      "$comment": "클래스 기능 아이콘 색(#rrggbb)",
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
     }
   }
 }

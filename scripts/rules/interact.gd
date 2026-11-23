@@ -204,14 +204,15 @@ static func visible_check(world: Dictionary, c: Node, ability: String, skill: St
 
 
 ## 판정 실패 창(2단계 보이는 굴림, 6단계 전술적 판단): 실패한 보이는 굴림에 쓸 수 있는 것.
-## "inspiration": 공용 영감 1점으로 다시 굴림, "tactical_mind": 재기의 숨결 1회로 +1d10(그래도 실패면 소모 안 함).
+## "inspiration": 공용 영감 1점으로 다시 굴림, "tactical_mind": check_boost_d10 태그를 준 기능의 자원 1회로 +1d10(그래도 실패면 소모 안 함).
 static func reroll_options(world: Dictionary, c: Node, r: Dictionary) -> Array:
 	var out: Array = []
 	if r.get("success", false) or r.get("auto", false):
 		return out
 	if int(world.get("inspiration", 0)) > 0:
 		out.append("inspiration")
-	if c.has_feature("tactical_mind") and c.resource("second_wind") > 0 and int(r.get("natural", 0)) != 1 \
+	var boost_res: String = c.cap_resource("check_boost_d10")
+	if c.has_cap("check_boost_d10") and boost_res != "" and c.resource(boost_res) > 0 and int(r.get("natural", 0)) != 1 \
 			and int(r["total"]) + 10 >= int(r["dc"]) and not r.get("tactical_used", false):
 		out.append("tactical_mind")
 	return out
@@ -238,7 +239,7 @@ static func reroll(world: Dictionary, c: Node, r: Dictionary, kind: String) -> D
 			out["tactical_roll"] = roll
 			if out["total"] >= int(r["dc"]):
 				out["success"] = true
-				c.spend_resource("second_wind")
+				c.spend_resource(c.cap_resource("check_boost_d10"))
 				Dice.log_text("%s 전술적 판단 +%d → 성공" % [c.label(), roll])
 			else:
 				Dice.log_text("%s 전술적 판단 +%d → 실패(소모 안 함)" % [c.label(), roll])

@@ -1,0 +1,213 @@
+{
+  "schema": "capability_v1",
+  "note_ko": "능력 태그 목록: 엔진이 기능 이름 대신 검사하는 메커니즘 이름. 클래스·종족 기능은 caps, 재주는 tags로 태그를 준다(새 클래스가 기존 메커니즘을 데이터만으로 재사용). 새 메커니즘은 엔진에 먼저 넣고 여기 적는다.",
+  "capabilities": [
+    {
+      "id": "extra_attack",
+      "name": {
+        "ko": "추가 공격",
+        "en": "Extra Attack"
+      },
+      "note_ko": "공격 행동 한 번에 공격 2회(grants.attacks_per_action으로 횟수를 정한다 — 이 태그는 표시용)",
+      "source": "original"
+    },
+    {
+      "id": "crit_free_move",
+      "name": {
+        "ko": "치명타 뒤 이동",
+        "en": "Move on Crit"
+      },
+      "note_ko": "무기 치명타 직후 속도 절반만큼 기회 공격 없이 이동(resolver)",
+      "source": "original"
+    },
+    {
+      "id": "reroll_low_damage_two_handed",
+      "name": {
+        "ko": "대형 무기 전투",
+        "en": "Great Weapon Fighting"
+      },
+      "note_ko": "양손 근접 무기 피해 주사위 1·2를 3으로(resolver)",
+      "source": "original"
+    },
+    {
+      "id": "weapon_damage_twice",
+      "name": {
+        "ko": "야만적 공격",
+        "en": "Savage Attacker"
+      },
+      "note_ko": "턴당 1회 무기 피해를 두 번 굴려 큰 쪽(resolver)",
+      "source": "original"
+    },
+    {
+      "id": "reroll_natural_1",
+      "name": {
+        "ko": "행운",
+        "en": "Lucky"
+      },
+      "note_ko": "d20 테스트 자연 1을 다시 굴린다(resolver)",
+      "source": "original"
+    },
+    {
+      "id": "ranged_weapon_attack_bonus",
+      "name": {
+        "ko": "궁술",
+        "en": "Archery"
+      },
+      "note_ko": "원거리 무기 명중 +2(combat)",
+      "source": "original"
+    },
+    {
+      "id": "pack_tactics",
+      "name": {
+        "ko": "무리 전술",
+        "en": "Pack Tactics"
+      },
+      "note_ko": "대상 1칸 안에 무력화되지 않은 아군이 있으면 공격 유리(combat)",
+      "source": "original"
+    },
+    {
+      "id": "sunlight_sensitivity",
+      "name": {
+        "ko": "햇빛 민감",
+        "en": "Sunlight Sensitivity"
+      },
+      "note_ko": "햇빛 아래 공격 불리(combat)",
+      "source": "original"
+    },
+    {
+      "id": "bonus_dash_disengage_hide",
+      "name": {
+        "ko": "교활한 행동",
+        "en": "Cunning Action"
+      },
+      "note_ko": "보너스 행동으로 질주·이탈·숨기(combat, 행동 목록 requires)",
+      "source": "original"
+    },
+    {
+      "id": "nimble_escape",
+      "name": {
+        "ko": "날렵한 탈출",
+        "en": "Nimble Escape"
+      },
+      "note_ko": "보너스 행동으로 이탈·숨기(combat)",
+      "source": "original"
+    },
+    {
+      "id": "sneak_attack",
+      "name": {
+        "ko": "급소 공격",
+        "en": "Sneak Attack"
+      },
+      "note_ko": "급소 공격 행동·상시 발동 설정을 연다(행동 목록 requires). 주사위는 기능 dice_by_level",
+      "source": "original"
+    },
+    {
+      "id": "cunning_strike",
+      "name": {
+        "ko": "교활한 일격",
+        "en": "Cunning Strike"
+      },
+      "note_ko": "급소 공격 주사위로 추가 효과 설정(상시 발동 탭)",
+      "source": "original"
+    },
+    {
+      "id": "jump_dex",
+      "name": {
+        "ko": "민첩 도약",
+        "en": "Dexterous Jump"
+      },
+      "note_ko": "도약 거리에 근력·민첩 중 높은 수정치(combat)",
+      "source": "original"
+    },
+    {
+      "id": "jump_plus_1",
+      "name": {
+        "ko": "도약 +1칸",
+        "en": "Jump +1"
+      },
+      "note_ko": "도약 거리 +1칸 — 여러 기능이 주면 겹친다(combat)",
+      "source": "original"
+    },
+    {
+      "id": "climber",
+      "name": {
+        "ko": "등반",
+        "en": "Climber"
+      },
+      "note_ko": "오르기 지점이 아닌 2단계 이상 높이 차도 오르내린다(grid_world)",
+      "source": "original"
+    },
+    {
+      "id": "extra_bonus_action",
+      "name": {
+        "ko": "추가 보너스 행동",
+        "en": "Extra Bonus Action"
+      },
+      "note_ko": "매 턴 보너스 행동 1개를 더 받는다(creature)",
+      "source": "original"
+    },
+    {
+      "id": "cantrip_half_on_miss",
+      "name": {
+        "ko": "강력한 소마법",
+        "en": "Potent Cantrip"
+      },
+      "note_ko": "피해 소마법이 빗나가거나 내성 성공해도 절반 피해(spellcasting)",
+      "source": "original"
+    },
+    {
+      "id": "spell_heal_bonus",
+      "name": {
+        "ko": "생명의 제자",
+        "en": "Disciple of Life"
+      },
+      "note_ko": "1레벨 이상 주문 회복 +2 + 슬롯 레벨(spellcasting)",
+      "source": "original"
+    },
+    {
+      "id": "immune_magic_sleep",
+      "name": {
+        "ko": "마법 수면 면역",
+        "en": "Magic Sleep Immunity"
+      },
+      "note_ko": "마법 수면(Sleep 등)에 걸리지 않는다(effects/sleep)",
+      "source": "original"
+    },
+    {
+      "id": "check_boost_d10",
+      "name": {
+        "ko": "전술적 판단",
+        "en": "Tactical Mind"
+      },
+      "note_ko": "능력 판정 실패 시 기능의 resource 1회로 +1d10, 그래도 실패면 소모 안 함(interact, 굴림 창)",
+      "source": "original"
+    },
+    {
+      "id": "armor_ac_plus_1",
+      "name": {
+        "ko": "방어",
+        "en": "Defense"
+      },
+      "note_ko": "갑옷을 입었을 때 AC +1(character_builder)",
+      "source": "original"
+    },
+    {
+      "id": "initiative_proficiency",
+      "name": {
+        "ko": "경계",
+        "en": "Alert"
+      },
+      "note_ko": "이니셔티브에 숙련 보너스(character_builder)",
+      "source": "original"
+    },
+    {
+      "id": "two_weapon_fighting",
+      "name": {
+        "ko": "쌍수 전투",
+        "en": "Two-Weapon Fighting"
+      },
+      "note_ko": "보조 무기 공격에 능력 수정치를 더한다(combat)",
+      "source": "original"
+    }
+  ]
+}

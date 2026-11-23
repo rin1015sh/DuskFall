@@ -47,7 +47,7 @@
       },
       "category": "origin",
       "tags": [
-        "savage_attacker"
+        "weapon_damage_twice"
       ],
       "effects_ko": "턴당 1회 무기 피해 주사위를 두 번 굴려 큰 쪽(자동).",
       "source": "SRD 5.2.1"
@@ -85,7 +85,7 @@
       },
       "category": "fighting_style",
       "tags": [
-        "archery"
+        "ranged_weapon_attack_bonus"
       ],
       "effects_ko": "원거리 무기 명중 +2.",
       "source": "SRD 5.2.1"
@@ -98,7 +98,7 @@
       },
       "category": "fighting_style",
       "tags": [
-        "defense"
+        "armor_ac_plus_1"
       ],
       "effects_ko": "갑옷을 입으면 AC +1.",
       "source": "SRD 5.2.1"
@@ -111,7 +111,7 @@
       },
       "category": "fighting_style",
       "tags": [
-        "great_weapon_fighting"
+        "reroll_low_damage_two_handed"
       ],
       "effects_ko": "양손으로 든 양손·다용도 근접 무기 피해 주사위 1·2를 3으로.",
       "source": "SRD 5.2.1"

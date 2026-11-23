@@ -1,0 +1,52 @@
+{
+  "$comment": "능력 태그 스키마(data/rules/capabilities.json — 엔진 메커니즘 이름 목록).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "capabilities"
+  ],
+  "properties": {
+    "schema": {
+      "const": "capability_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "note_ko",
+          "source"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ]
+          },
+          "note_ko": {
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "original",
+              "SRD 5.2.1"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

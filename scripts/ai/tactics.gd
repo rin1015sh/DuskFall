@@ -125,7 +125,8 @@ static func _high_ground(world: Dictionary, c: Node) -> bool:
 		for a: Dictionary in MF.actions(c):
 			ranged = ranged or a.get("kind", "") in ["ranged", "both"]
 	else:
-		ranged = c.weapon_sets.get("ranged", {}).get("main", "") != "" and c.class_id in ["rogue", "wizard"]
+		var role := str(RulesDB.get_entry("class", c.class_id).get("ai_role", "melee"))  # 클래스 데이터 ai_role
+		ranged = c.weapon_sets.get("ranged", {}).get("main", "") != "" and role in ["ranged", "caster"]
 	if not ranged or int(c.turn.get("movement", 0)) <= 0 or Combat.is_threatened(world, c):
 		return false
 	var target := pick_target(world, c)

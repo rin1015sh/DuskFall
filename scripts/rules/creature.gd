@@ -49,8 +49,10 @@ var weapon_proficiencies: Array = ["simple"]
 var weapon_masteries: Array = []
 ## 공격 행동 한 번의 공격 횟수(추가 공격이면 2)
 var attacks_per_action := 1
-## 재주·기능 태그: "two_weapon_fighting" 등
+## 재주·기능 ID(표시·이름 조회용). 엔진 메커니즘은 caps로 검사한다.
 var features: Array = []
+## 능력 태그(data/rules/capabilities.json): 기능 caps·grants.caps·재주 tags를 모은 것. 같은 태그를 여러 기능이 주면 여러 번 들어 있다(cap_count).
+var caps: Array = []
 ## 알고 있는 반응: "opportunity_attack"(누구나), "shield" 등
 var known_reactions: Array = ["opportunity_attack"]
 ## 반응 설정: 반응 ID → "ask" | "auto" | "off"(기본 ask, 기회 공격 기본 auto)
@@ -172,8 +174,8 @@ func speed() -> int:
 ## 턴 시작에 행동·보너스 행동·이동·무료 상호작용을 채운다. 반응은 refresh_reaction이 따로 채운다.
 func reset_turn() -> void:
 	var can_act := not is_incapacitated() and not has_flag("cannot_act")
-	# 빠른 손(도둑, BG3식): 보너스 행동 하나 더(changes.md 2026-11-22)
-	var bonus := (2 if has_feature("fast_hands") else 1) if can_act else 0
+	# 추가 보너스 행동(빠른 손 등 — changes.md 2026-11-22)
+	var bonus := (2 if has_cap("extra_bonus_action") else 1) if can_act else 0
 	turn = {"action": 1 if can_act else 0, "bonus": bonus, "movement": speed(),
 		"interaction": 1, "attacks_left": 0, "light_attack_done": false, "nick_used": false,
 		"cleave_used": false, "disengaged": false, "reaction": turn.get("reaction", 1),
@@ -182,6 +184,26 @@ func reset_turn() -> void:
 
 func has_feature(id: String) -> bool:
 	return features.has(id) or feature_data.has(id)
+
+
+## 엔진 메커니즘 검사(룰북 1단계 클래스 확장 원칙): 기능 이름이 아니라 능력 태그로.
+## 몬스터는 특성 ID가 곧 태그 이름이다(pack_tactics 등) — 그래서 기능 ID도 함께 본다.
+func has_cap(cap: String) -> bool:
+	return caps.has(cap) or has_feature(cap)
+
+
+## 같은 태그를 준 기능 수(도약 +1칸처럼 겹치는 메커니즘)
+func cap_count(cap: String) -> int:
+	return caps.count(cap)
+
+
+## 그 태그를 준 기능이 쓰는 자원 ID(전술적 판단 = 재기의 숨결 등). 없으면 "".
+func cap_resource(cap: String) -> String:
+	for fid: String in feature_data:
+		var f: Dictionary = feature_data[fid]
+		if cap in f.get("caps", []) and f.has("resource"):
+			return str(f["resource"])
+	return ""
 
 
 func refresh_reaction() -> void:
@@ -263,7 +285,7 @@ func has_flag(flag: String) -> bool:
 
 ## 오르기 지점 없이 높이 차를 오르내린다(2층 작업·Spider Climb·비행).
 func is_climber() -> bool:
-	return has_feature("second_story_work") or has_flag("climber") or has_flag("flying")
+	return has_cap("climber") or has_flag("climber") or has_flag("flying")
 
 
 func is_incapacitated() -> bool:

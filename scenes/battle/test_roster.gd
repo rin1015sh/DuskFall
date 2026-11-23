@@ -4,10 +4,6 @@ extends RefCounted
 
 const WorldBuilder := preload("res://scripts/rules/world_builder.gd")
 
-## 파티 그림(임시): 클래스 → 걷기 시트
-const PARTY_ART := {
-	"fighter": "res://assets/actors/human.webp", "rogue": "res://assets/actors/barbarian.webp",
-	"cleric": "res://assets/actors/dwarf.webp", "wizard": "res://assets/actors/elf.webp"}
 
 
 ## 결과: {"world", "party", "foes", "nodes"}. monster: test_arena의 goblin_* 자리에 놓을 몬스터.
@@ -21,7 +17,11 @@ static func build(map_id: String = "test_arena", level: int = 1, monster: String
 	return b
 
 
-## 사람 캐릭터(파티·동료)에 클래스별 걷기 시트를 붙인다.
+## 사람 캐릭터(파티·동료)에 걷기 시트를 붙인다(클래스 데이터 art.sheet — 없으면 기본 시트).
+const DEFAULT_SHEET := "res://assets/actors/human.webp"
+
+
 static func add_art(c: Node) -> void:
 	if c.class_id != "" and not c.has_meta("art") or (c.class_id != "" and c.get_meta("art", {}).is_empty()):
-		c.set_meta("art", {"sheet": PARTY_ART.get(c.class_id, "")})
+		var sheet := str(RulesDB.get_entry("class", c.class_id).get("art", {}).get("sheet", DEFAULT_SHEET))
+		c.set_meta("art", {"sheet": sheet})

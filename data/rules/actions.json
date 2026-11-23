@@ -238,7 +238,8 @@
       "tab": "class",
       "icon": "res://assets/statuses/haste.webp",
       "explore": false,
-      "source": "original"
+      "source": "original",
+      "requires": "bonus_dash_disengage_hide"
     },
     {
       "id": "cunning_disengage",
@@ -255,7 +256,8 @@
       "tab": "class",
       "icon": "res://assets/statuses/shield_arm.webp",
       "explore": false,
-      "source": "original"
+      "source": "original",
+      "requires": "bonus_dash_disengage_hide"
     },
     {
       "id": "cunning_hide",
@@ -272,7 +274,8 @@
       "tab": "class",
       "icon": "res://assets/statuses/lurk.webp",
       "explore": false,
-      "source": "original"
+      "source": "original",
+      "requires": "bonus_dash_disengage_hide"
     },
     {
       "id": "drink",
@@ -340,7 +343,8 @@
       "tab": "class",
       "icon": "res://assets/statuses/ambush_hunter.webp",
       "explore": true,
-      "source": "original"
+      "source": "original",
+      "requires": "sneak_attack"
     },
     {
       "id": "sneak_ranged",
@@ -357,7 +361,8 @@
       "tab": "class",
       "icon": "res://assets/statuses/ambush_hunter_weak.webp",
       "explore": true,
-      "source": "original"
+      "source": "original",
+      "requires": "sneak_attack"
     }
   ]
 }

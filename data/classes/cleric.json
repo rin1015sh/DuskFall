@@ -98,7 +98,21 @@
         "thaumaturge"
       ],
       "notes_ko": "수호자: 군용 무기·중갑. 기적술사: 소마법 +1, 비전·종교 판정에 지혜 수정치(최소 +1).",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "choice_kind": "option",
+      "choice_grants": {
+        "protector": {
+          "weapon_training": [
+            "martial"
+          ],
+          "armor_training": [
+            "heavy"
+          ]
+        },
+        "thaumaturge": {
+          "extra_cantrips": 1
+        }
+      }
     },
     {
       "id": "channel_divinity",
@@ -124,7 +138,10 @@
       "resource": "channel_divinity",
       "script": "divine_spark",
       "notes_ko": "6칸, 1d8 + 지혜 회복 또는 건강 내성 사령·광휘 피해(성공 절반).",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "statuses/buff.webp",
+      "glyph": "sparkle",
+      "target": "creature"
     },
     {
       "id": "turn_undead",
@@ -137,7 +154,9 @@
       "resource": "channel_divinity",
       "script": "turn_undead",
       "notes_ko": "6칸 안 언데드 지혜 내성, 실패 시 공포+무력화 10턴(피해를 받으면 끝).",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "statuses/fear.webp",
+      "glyph": "skull_rays"
     },
     {
       "id": "sear_undead",
@@ -182,7 +201,10 @@
           },
           "level": 1,
           "notes_ko": "[BG3] 생명 영역을 1레벨에(원문 2024는 3레벨). 생명의 제자 1레벨, 생명 보존 2레벨(신성 변환과 함께) — 사용자 결정 2026-11-22.",
-          "source": "SRD 5.2.1"
+          "source": "SRD 5.2.1",
+          "caps": [
+            "spell_heal_bonus"
+          ]
         },
         {
           "id": "preserve_life",
@@ -195,7 +217,9 @@
           "resource": "channel_divinity",
           "script": "preserve_life",
           "notes_ko": "레벨 × 5 HP를 6칸 안 피투성이 생물에게 자동 분배(HP 비율 낮은 순), 최대 HP 절반까지.",
-          "source": "SRD 5.2.1"
+          "source": "SRD 5.2.1",
+          "icon": "statuses/vitality_drain.webp",
+          "glyph": "heart"
         }
       ]
     }
@@ -220,6 +244,11 @@
     "weapon_mace",
     "shield"
   ],
+  "ai_role": "healer",
+  "art": {
+    "sheet": "res://assets/actors/dwarf.webp"
+  },
+  "color": "#ffe080",
   "default_build": {
     "subclass": "life",
     "species": "dwarf",

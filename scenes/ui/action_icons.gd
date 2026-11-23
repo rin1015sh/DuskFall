@@ -1,6 +1,6 @@
 extends Control
 ## 행동·주문 아이콘(표현 계층): 검은 바탕 위에 빛나는 두꺼운 붓획 문양(BG3 주문 아이콘 화풍 참고, 문양은 자체).
-## 색은 계열별로 통일한다 — 공용 행동 호박, 교활한 행동 보라, 무기 액션 은청, 물약 다홍, 클래스 기능은 클래스 색,
+## 색은 계열별로 통일한다 — 공용 행동 호박, 교활한 행동 보라, 무기 액션 은청, 물약 다홍, 클래스 기능은 클래스 데이터 color(문양은 기능 glyph),
 ## 주문은 피해 종류 색(불·냉기·번개·산·독·사령·광휘·역장·정신·천둥·물리), 피해가 없으면 회복 초록 또는 학파 색.
 ## kind = 행동 키(attack, wa_sweep, feature:second_wind, spell:fireball, drink:potion_of_healing ...).
 
@@ -9,7 +9,6 @@ const S := preload("res://scenes/ui/ui_style.gd")
 ## 계열 색
 const FAM := {
 	"common": Color(1.0, 0.74, 0.32), "cunning": Color(0.74, 0.52, 1.0), "weapon": Color(0.62, 0.82, 0.98), "item": Color(1.0, 0.45, 0.42),
-	"fighter": Color(1.0, 0.5, 0.26), "rogue": Color(0.74, 0.52, 1.0), "cleric": Color(1.0, 0.88, 0.5), "wizard": Color(0.45, 0.7, 1.0),
 	"fire": Color(1.0, 0.52, 0.18), "cold": Color(0.5, 0.88, 1.0), "lightning": Color(0.6, 0.62, 1.0), "acid": Color(0.72, 0.95, 0.25),
 	"poison": Color(0.45, 0.9, 0.4), "necrotic": Color(0.35, 0.95, 0.7), "radiant": Color(1.0, 0.9, 0.45), "force": Color(0.85, 0.5, 1.0),
 	"psychic": Color(1.0, 0.5, 0.82), "thunder": Color(0.55, 0.55, 1.0), "physical": Color(0.82, 0.84, 0.88), "heal": Color(0.45, 1.0, 0.6),
@@ -29,11 +28,20 @@ const ACTIONS := {
 	"drink": ["flask", "item"], "feed": ["flask_hand", "item"], "throw_potion": ["flask_arc", "item"],
 	"wa_sweep": ["sweep", "weapon"], "wa_hamstring": ["hamstring", "weapon"], "wa_pommel": ["pommel", "weapon"],
 	"wa_topple": ["topple", "weapon"], "wa_impale": ["spear", "weapon"],
-	"feature:second_wind": ["breath", "fighter"], "feature:action_surge": ["surge", "fighter"], "feature:steady_aim": ["crosshair", "rogue"],
-	"feature:divine_spark": ["sparkle", "cleric"], "feature:turn_undead": ["skull_rays", "cleric"], "feature:preserve_life": ["heart", "cleric"],
-	"feature:arcane_recovery": ["swirl", "wizard"],
 	"entity:spiritual_weapon": ["sword", "force"], "entity:flaming_sphere": ["orb", "fire"], "entity:mage_hand": ["hand", "conjuration"],
 }
+
+## 클래스 기능: 기능 데이터 glyph(문양)와 클래스 데이터 color(색). 종족 기능은 공용 색.
+static func _feature_icon(fid: String) -> Array:
+	for cls: Dictionary in RulesDB.entries("class"):
+		var feats: Array = cls.get("features", []).duplicate()
+		for sc: Dictionary in cls.get("subclasses", []):
+			feats.append_array(sc.get("features", []))
+		for f: Dictionary in feats:
+			if f["id"] == fid:
+				return [str(f.get("glyph", "sparkle")), Color(str(cls.get("color", "#ffbd52")))]
+	return ["sparkle", FAM["common"]]
+
 
 ## 주문: [문양, 계열]
 const SPELLS := {
@@ -108,7 +116,7 @@ static func spec(key: String) -> Array:
 		var sp := RulesDB.get_entry("spell", sid)
 		return ["star", FAM.get(sp.get("school", ""), FAM["evocation"])]
 	if key.begins_with("feature:"):
-		return ["sparkle", FAM["common"]]
+		return _feature_icon(key.trim_prefix("feature:"))
 	return ["star", FAM["common"]]
 
 

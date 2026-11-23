@@ -7,7 +7,7 @@ extends RefCounted
 ##   "background": "sage", "class": "wizard", "subclass": "evoker", "level": 1~5,
 ##   "scores": {"str": 8, ...}(포인트 구매 전 값 8~15), "bonus": {"int": 2, "con": 1}(+2/+1 또는 +1/+1/+1),
 ##   "skills": [클래스 기능], "species_skill": "perception", "expertise": [...], "extra_skills": [숙련 재주 등],
-##   "fighting_style": "defense", "divine_order": "protector", "scholar": "arcana",
+##   <고르는 기능 id>: 고른 것 — 기능 데이터 choice_kind(feat·expertise·option)대로. 예 "fighting_style": "defense", "divine_order": "protector", "scholar": "arcana",
 ##   "asi": {"4": {"str": 2}}(4레벨 능력치 향상 또는 {"feat": id}), "origin_feat": "alert"(인간),
 ##   "masteries": [무기 ID], "cantrips": [...], "spells": [준비 주문 / 주문서],
 ##   "armor": "chain_mail", "shield": true, "weapons": {"melee": {"main", "off"}, "ranged": {"main"}}
@@ -152,57 +152,71 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	c.damage_resistances = sp.get("resistances", []) + lin.get("resistances", [])
 	c.save_advantage_vs = sp.get("save_advantage_vs", []).duplicate()
 	c.save_advantage_abilities = sp.get("save_advantage_abilities", []).duplicate()
-	# 내성·기능
-	c.save_proficiencies = cls["saves"].duplicate()
-	var skills: Array = spec.get("skills", []).duplicate() + bg["skills"]
-	if spec.get("species_skill", "") != "":
-		skills.append(spec["species_skill"])
-	skills.append_array(spec.get("extra_skills", []))
-	if spec.get("scholar", "") != "" and lv >= 2 and cls["id"] == "wizard":
-		pass  # 학자 = 전문화(아래 expertise에 넣는다)
-	var expertise: Array = spec.get("expertise", []).duplicate()
-	if spec.get("scholar", "") != "" and lv >= 2:
-		expertise.append(spec["scholar"])
-	c.skill_bonuses = {}
-	for s: String in skills:
-		c.skill_bonuses[s] = c.proficiency_bonus * (2 if s in expertise else 1)
-	# 기능·재주
+	# 기능·재주(먼저 모아야 전문화·숙련 부여를 기능 계산에 쓸 수 있다)
 	c.features = []
 	c.feature_data = {}
 	c.feature_hooks = {}
+	c.caps = []
 	for f: Dictionary in cls["features"] + sub.get("features", []):
 		if int(f.get("level", 1)) <= lv:
 			_add_feature(c, f)
 	for f: Dictionary in sp.get("features", []) + lin.get("features", []):
 		_add_feature(c, f)
-	if spec.get("fighting_style", "") != "" and c.has_feature("fighting_style"):
-		feats.append(spec["fighting_style"])
+	# 고르는 기능(choice_kind): 명세 키 = 기능 id. feat = 재주, expertise = 전문화, option = choice_grants 효과
+	var expertise: Array = spec.get("expertise", []).duplicate()
+	var grants: Array = []  # [출처 기능 id, grants]
+	for fid: String in c.feature_data:
+		var f: Dictionary = c.feature_data[fid]
+		if f.has("grants"):
+			grants.append([fid, f["grants"]])
+		var kind := str(f.get("choice_kind", ""))
+		var chosen := str(spec.get(fid, ""))
+		if kind == "" or chosen == "" or not chosen in f.get("choices", []):
+			continue
+		match kind:
+			"feat":
+				feats.append(chosen)
+			"expertise":
+				expertise.append(chosen)
+			"option":
+				if f.get("choice_grants", {}).has(chosen):
+					grants.append([fid, f["choice_grants"][chosen]])
 	for fid: String in feats:
 		var ft := RulesDB.get_entry("feat", fid)
 		c.features.append(fid)
-		c.features.append_array(ft.get("tags", []))
-		if "initiative_proficiency" in ft.get("tags", []):
-			c.initiative_bonus = c.proficiency_bonus
+		c.caps.append_array(ft.get("tags", []))
 	var uniq_f: Array = []
 	for f: String in c.features:
 		if not f in uniq_f:
 			uniq_f.append(f)
 	c.features = uniq_f
-	if c.has_feature("remarkable_athlete"):
-		c.extra_modifiers.append({"effect": {"type": "advantage", "roll": "initiative", "side": "self", "value": "advantage"},
-			"source": "remarkable_athlete"})
-	if c.has_feature("improved_critical"):
-		c.crit_threshold = 19
-	if c.has_feature("extra_attack"):
-		c.attacks_per_action = 2
-	# 훈련·숙련
+	# 기능이 주는 것(grants): 공격 횟수·치명타 범위·훈련·소마법 수·태그·유리
 	var wt: Array = cls["weapon_training"].duplicate()
-	if spec.get("divine_order", "") == "protector" and cls["id"] == "cleric":
-		wt.append("martial")
-	c.weapon_proficiencies = _weapon_profs(wt)
 	var armor_training: Array = cls["armor_training"].duplicate()
-	if spec.get("divine_order", "") == "protector":
-		armor_training.append("heavy")
+	var extra_cantrips := 0
+	for g: Array in grants:
+		var gr: Dictionary = g[1]
+		c.attacks_per_action = maxi(c.attacks_per_action, int(gr.get("attacks_per_action", 1)))
+		c.crit_threshold = mini(c.crit_threshold, int(gr.get("crit_threshold", 20)))
+		wt.append_array(gr.get("weapon_training", []))
+		armor_training.append_array(gr.get("armor_training", []))
+		extra_cantrips += int(gr.get("extra_cantrips", 0))
+		c.caps.append_array(gr.get("caps", []))
+		for adv: Dictionary in gr.get("advantage", []):
+			c.extra_modifiers.append({"effect": adv.duplicate(true), "source": g[0]})
+	if c.has_cap("initiative_proficiency"):
+		c.initiative_bonus = c.proficiency_bonus
+	# 내성·기능 숙련
+	c.save_proficiencies = cls["saves"].duplicate()
+	var skills: Array = spec.get("skills", []).duplicate() + bg["skills"]
+	if spec.get("species_skill", "") != "":
+		skills.append(spec["species_skill"])
+	skills.append_array(spec.get("extra_skills", []))
+	c.skill_bonuses = {}
+	for s: String in skills:
+		c.skill_bonuses[s] = c.proficiency_bonus * (2 if s in expertise else 1)  # 전문화는 숙련 기능에만
+	# 훈련·숙련
+	c.weapon_proficiencies = _weapon_profs(wt)
 	# 무기 마스터리: 레벨별 개수만큼(명세에 미리 적어 둔 다음 선택은 레벨이 오르면 열린다)
 	c.weapon_masteries = spec.get("masteries", []).slice(0, _by_level(cls.get("weapon_mastery", {}), lv, 0))
 	# HP: 1레벨 최대, 이후 평균 올림(룰북 6단계) + 건강 수정치, 드워프 +1/레벨
@@ -229,13 +243,14 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	if not c.weapon_sets.has("ranged"):
 		c.weapon_sets["ranged"] = {"main": ""}
 	# 주문
-	_apply_spells(c, cls, sub, sp, lin, spec, lv)
+	_apply_spells(c, cls, sub, sp, lin, spec, lv, extra_cantrips)
 	# 반응
 	c.known_reactions = ["opportunity_attack"]
 	if c.spells.has("shield"):
 		c.known_reactions.append("shield")
-	if c.has_feature("uncanny_dodge"):
-		c.known_reactions.append("uncanny_dodge")
+	for fid: String in c.feature_data:
+		if str(c.feature_data[fid].get("kind", "")) == "reaction":
+			c.known_reactions.append(fid)  # 반응 기능(교묘한 회피 등)
 	for r: String in ["hellish_rebuke", "counterspell", "feather_fall"]:
 		if c.spells.has(r):
 			c.known_reactions.append(r)
@@ -248,6 +263,7 @@ static func _add_feature(c: Node, f: Dictionary) -> void:
 		c.features.append(f["id"])  # 표시만, 동작은 뒤 단계
 		return
 	c.feature_data[f["id"]] = f
+	c.caps.append_array(f.get("caps", []))
 	if f.has("hook") and f.has("script"):
 		if not c.feature_hooks.has(f["hook"]):
 			c.feature_hooks[f["hook"]] = []
@@ -263,8 +279,8 @@ static func armor_class(c: Node, armor_id: String, shield: bool, training: Array
 		var cap: Variant = a.get("dex_cap")
 		# 중갑(상한 0)은 민첩을 더하지도 빼지도 않는다(SRD Heavy Armor)
 		ac = int(a["ac_base"]) + (dex if cap == null else (0 if int(cap) == 0 else mini(dex, int(cap))))
-		if c.has_feature("defense"):
-			ac += 1
+		if c.has_cap("armor_ac_plus_1"):
+			ac += 1  # 방어(전투 방식)
 	if shield:
 		ac += 2
 	return ac
@@ -283,7 +299,7 @@ static func _weapon_profs(training: Array) -> Array:
 	return out
 
 
-static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Dictionary, lin: Dictionary, spec: Dictionary, lv: int) -> void:
+static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Dictionary, lin: Dictionary, spec: Dictionary, lv: int, extra_cantrips: int = 0) -> void:
 	var spells: Array = []
 	var sc: Dictionary = cls.get("spellcasting", {})
 	if not sc.is_empty():
@@ -292,7 +308,7 @@ static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Diction
 		for i in slots.size():
 			c.resources["spell_slot_%d" % (i + 1)] = {"current": slots[i], "max": slots[i], "recharge": "long"}
 		var cantrips: Array = spec.get("cantrips", [])
-		spells.append_array(cantrips.slice(0, _by_level(sc["cantrips"], lv, 0) + (1 if spec.get("divine_order", "") == "thaumaturge" else 0)))
+		spells.append_array(cantrips.slice(0, _by_level(sc["cantrips"], lv, 0) + extra_cantrips))
 		spells.append_array(spec.get("spells", []).slice(0, _by_level(sc["prepared"], lv, 0)))
 	for k: String in sub.get("always_prepared", {}).keys():
 		if lv >= int(k):

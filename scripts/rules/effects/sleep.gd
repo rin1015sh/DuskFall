@@ -17,7 +17,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 	var id: int = ctx["instance"]["id"]
 	var n := 0
 	for t: Node in Area.creatures_in(ctx["world"]["grid"], cells):
-		if t.dead or t == c or t.has_feature("trance") or t.creature_type in ["undead", "construct"]:
+		if t.dead or t == c or t.has_cap("immune_magic_sleep") or t.creature_type in ["undead", "construct"]:
 			continue
 		var s := Resolver.saving_throw(t, "wis", dc, {"source": c})
 		if s["success"]:

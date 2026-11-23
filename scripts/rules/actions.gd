@@ -27,12 +27,6 @@ const ENTITY_ACTIONS := {
 		"cost": "action", "target": "cell", "tab": "spells", "icon": "res://assets/statuses/shield_arm.webp", "explore": true},
 }
 
-## 직접 쓰는 기능의 대상(없으면 자신)
-const FEATURE_TARGET := {"divine_spark": "creature"}
-## 아이콘(상태 그림 재사용)
-const FEATURE_ICON := {"second_wind": "statuses/refreshed.webp", "action_surge": "statuses/orc_fervor.webp",
-	"steady_aim": "statuses/marked.webp", "divine_spark": "statuses/buff.webp", "turn_undead": "statuses/fear.webp",
-	"preserve_life": "statuses/vitality_drain.webp", "arcane_recovery": "statuses/riddle_empowered.webp"}
 const COST_NAME := {"action_": "action", "bonus_action": "bonus", "action": "action", "free": "free", "reaction": "reaction"}
 
 
@@ -51,12 +45,12 @@ static func def_of(key: String) -> Dictionary:
 	if key.begins_with("feature:"):
 		var fid := key.trim_prefix("feature:")
 		var f: Dictionary = {}
-		for cls_f: Dictionary in _all_features():
+		for cls_f: Dictionary in all_features():
 			if cls_f["id"] == fid:
 				f = cls_f
 		return {"id": key, "name": f.get("name", {"ko": fid, "en": fid}), "desc": f.get("desc", f.get("summary", {"ko": f.get("notes_ko", ""), "en": ""})),
-			"cost": COST_NAME.get(str(f.get("kind", "free")), "free"), "target": FEATURE_TARGET.get(fid, "self"), "tab": "class",
-			"icon": "res://assets/" + FEATURE_ICON.get(fid, "statuses/buff.webp"), "explore": fid in ["arcane_recovery", "second_wind"],
+			"cost": COST_NAME.get(str(f.get("kind", "free")), "free"), "target": str(f.get("target", "self")), "tab": "class",
+			"icon": "res://assets/" + str(f.get("icon", "statuses/buff.webp")), "explore": bool(f.get("explore", false)),
 			"resource": f.get("resource", "")}
 	if key.begins_with("entity:"):
 		var kind := key.trim_prefix("entity:")
@@ -83,12 +77,15 @@ static func def_of(key: String) -> Dictionary:
 	return base
 
 
-static func _all_features() -> Array:
+## 모든 클래스·하위 클래스·종족 기능(아이콘·이름 조회)
+static func all_features() -> Array:
 	var out: Array = []
 	for cls: Dictionary in RulesDB.entries("class"):
 		out.append_array(cls.get("features", []))
 		for s: Dictionary in cls.get("subclasses", []):
 			out.append_array(s.get("features", []))
+	for sp: Dictionary in RulesDB.entries("species"):
+		out.append_array(sp.get("features", []))
 	return out
 
 
@@ -99,18 +96,16 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 		var d: Dictionary = defs()[id]
 		if d["tab"] == "items":
 			continue
-		if id.begins_with("cunning_") and not c.has_feature("cunning_action"):
-			continue
+		if str(d.get("requires", "")) != "" and not c.has_cap(str(d["requires"])):
+			continue  # 행동 데이터 requires: 이 능력 태그가 있어야 뜬다(교활한 행동·급소 공격 등)
 		if id == "offhand_attack" and c.weapon("off") == "":
-			continue
-		if id.begins_with("sneak_") and not c.has_feature("sneak_attack"):
 			continue
 		if explore and not d["explore"]:
 			continue
 		out[d["tab"]].append(id)
 	for fid: String in c.feature_data:
 		var f: Dictionary = c.feature_data[fid]
-		if f.has("script") and (str(f.get("kind", "")) in ["action", "bonus_action", "free"] or fid == "arcane_recovery"):
+		if f.has("script") and (str(f.get("kind", "")) in ["action", "bonus_action", "free"] or bool(f.get("usable", false))):
 			if explore and not def_of("feature:" + fid)["explore"]:
 				continue
 			out["class"].append("feature:" + fid)
@@ -478,7 +473,7 @@ static func _weapon_action(world: Dictionary, c: Node, key: String, t: Node) -> 
 
 
 static func sneak_dice(c: Node) -> int:
-	var table: Dictionary = RulesDB.get_entry("class", "rogue").get("sneak_attack_dice", {"1": "1d6"})
+	var table: Dictionary = c.feature_data.get("sneak_attack", {}).get("dice_by_level", {"1": "1d6"})
 	var best := 1
 	var best_lv := 0
 	for lv: String in table:
@@ -492,44 +487,52 @@ static func sneak_dice(c: Node) -> int:
 # 상시 발동(BG3 패시브 탭): 켜고 끄는 설정
 # ======================================================================
 
-## [{"id", "name": {ko,en}, "state": 표시 글, "desc"}]
+## [{"id", "name": {ko,en}, "state": 표시 글, "desc"}] — 기능 데이터 toggle(상시 발동 설정)과 반응 설정
 static func passives(c: Node) -> Array:
 	var out: Array = []
-	if c.has_feature("sneak_attack"):
-		var manual: bool = c.options.get("sneak_attack", "auto") == "manual"
-		out.append({"id": "sneak_attack", "name": {"ko": "급소 공격", "en": "Sneak Attack"},
-			"state": {"ko": "수동" if manual else "자동", "en": "Manual" if manual else "Auto"},
-			"desc": {"ko": "자동: 조건이 맞는 첫 명중에. 수동: '급소 공격' 행동으로 쓴 공격에만.", "en": "Auto: first eligible hit. Manual: only via the Sneak Attack action."}})
-	if c.has_feature("cunning_strike"):
-		var cs: String = c.options.get("cunning_strike", "")
-		var names := {"": ["끔", "Off"], "poison": ["독", "Poison"], "trip": ["넘어뜨리기", "Trip"], "withdraw": ["물러나기", "Withdraw"]}
-		out.append({"id": "cunning_strike", "name": {"ko": "교활한 일격", "en": "Cunning Strike"},
-			"state": {"ko": names[cs][0], "en": names[cs][1]},
-			"desc": {"ko": "급소 공격 주사위 1개를 써서 효과를 더한다(누를 때마다 바뀜).", "en": "Spend one Sneak Attack die for an effect (click to cycle)."}})
+	for fid: String in c.feature_data:
+		var f: Dictionary = c.feature_data[fid]
+		if not f.has("toggle"):
+			continue
+		var vals: Array = f["toggle"]["values"]
+		var cur := str(c.options.get(fid, vals[0]["id"]))
+		var name_of: Dictionary = vals[0]["name"]
+		for v: Dictionary in vals:
+			if str(v["id"]) == cur:
+				name_of = v["name"]
+		out.append({"id": fid, "name": f.get("name", {"ko": fid, "en": fid}), "state": name_of,
+			"desc": f["toggle"].get("desc", {"ko": "", "en": ""})})
 	for r: String in c.known_reactions:
 		var st: String = c.reaction_setting(r)
-		out.append({"id": "reaction:" + r, "name": REACTION_NAMES.get(r, {"ko": r, "en": r}),
+		out.append({"id": "reaction:" + r, "name": reaction_name(c, r),
 			"state": {"ko": "자동" if st != "off" else "끄기", "en": "Auto" if st != "off" else "Off"},
 			"desc": {"ko": "반응 설정(누를 때마다 자동/끄기).", "en": "Reaction setting (click to toggle)."}})
 	return out
 
 
-const REACTION_NAMES := {"opportunity_attack": {"ko": "기회 공격", "en": "Opportunity Attack"}, "shield": {"ko": "Shield", "en": "Shield"},
-	"counterspell": {"ko": "Counterspell", "en": "Counterspell"}, "uncanny_dodge": {"ko": "교묘한 회피", "en": "Uncanny Dodge"},
-	"feather_fall": {"ko": "Feather Fall", "en": "Feather Fall"}, "hellish_rebuke": {"ko": "Hellish Rebuke", "en": "Hellish Rebuke"}}
+## 반응 이름: 주문이면 주문 이름, 기능이면 기능 이름(코드에 이름 표를 두지 않는다)
+static func reaction_name(c: Node, r: String) -> Dictionary:
+	if r == "opportunity_attack":
+		return {"ko": "기회 공격", "en": "Opportunity Attack"}
+	var sp := RulesDB.get_entry("spell", r)
+	if not sp.is_empty():
+		return {"ko": sp["name"].get("ko") if sp["name"].get("ko") != null else sp["name"]["en"], "en": sp["name"]["en"]}
+	if c.feature_data.has(r):
+		return c.feature_data[r].get("name", {"ko": r, "en": r})
+	return {"ko": r, "en": r}
 
 
 static func toggle_passive(c: Node, id: String) -> void:
-	match id:
-		"sneak_attack":
-			c.options["sneak_attack"] = "auto" if c.options.get("sneak_attack", "auto") == "manual" else "manual"
-		"cunning_strike":
-			var cycle := ["", "poison", "trip", "withdraw"]
-			c.options["cunning_strike"] = cycle[(cycle.find(c.options.get("cunning_strike", "")) + 1) % cycle.size()]
-		_:
-			if id.begins_with("reaction:"):
-				var r := id.trim_prefix("reaction:")
-				c.reaction_settings[r] = "auto" if c.reaction_setting(r) == "off" else "off"
+	if id.begins_with("reaction:"):
+		var r := id.trim_prefix("reaction:")
+		c.reaction_settings[r] = "auto" if c.reaction_setting(r) == "off" else "off"
+		return
+	var f: Dictionary = c.feature_data.get(id, {})
+	if not f.has("toggle"):
+		return
+	var ids: Array = f["toggle"]["values"].map(func(v: Dictionary) -> String: return str(v["id"]))
+	var cur := str(c.options.get(id, ids[0]))
+	c.options[id] = ids[(ids.find(cur) + 1) % ids.size()]
 
 
 static func _entity_action(world: Dictionary, c: Node, kind: String, cell: Vector2i, t: Node) -> Dictionary:

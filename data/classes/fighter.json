@@ -83,7 +83,8 @@
         "great_weapon_fighting",
         "two_weapon_fighting"
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "choice_kind": "feat"
     },
     {
       "id": "second_wind",
@@ -96,7 +97,13 @@
       "resource": "second_wind",
       "script": "second_wind",
       "notes_ko": "[BG3] 보너스 행동, 1d10 + 전사 레벨 회복. 짧은 휴식마다 1회(원문 2024는 2~3회 — 사용자 결정 2026-11-22).",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "statuses/refreshed.webp",
+      "glyph": "breath",
+      "explore": true,
+      "ai": {
+        "when": "hp_below_half"
+      }
     },
     {
       "id": "weapon_mastery",
@@ -118,7 +125,12 @@
       "resource": "action_surge",
       "script": "action_surge",
       "notes_ko": "추가 행동 1회(마법 행동 제외).",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "icon": "statuses/orc_fervor.webp",
+      "glyph": "surge",
+      "ai": {
+        "when": "foes_2plus"
+      }
     },
     {
       "id": "tactical_mind",
@@ -131,7 +143,10 @@
       "resource": "second_wind",
       "script": "tactical_mind",
       "notes_ko": "능력 판정 실패 시 재기의 숨결 1회로 +1d10, 그래도 실패면 소모 안 함. 숨은 판정에는 자동.",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "caps": [
+        "check_boost_d10"
+      ]
     },
     {
       "id": "extra_attack",
@@ -140,7 +155,13 @@
         "en": "Extra Attack"
       },
       "level": 5,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "caps": [
+        "extra_attack"
+      ],
+      "grants": {
+        "attacks_per_action": 2
+      }
     },
     {
       "id": "tactical_shift",
@@ -171,7 +192,10 @@
           },
           "level": 3,
           "notes_ko": "무기·비무장 공격 치명타 19~20.",
-          "source": "SRD 5.2.1"
+          "source": "SRD 5.2.1",
+          "grants": {
+            "crit_threshold": 19
+          }
         },
         {
           "id": "remarkable_athlete",
@@ -181,7 +205,21 @@
           },
           "level": 3,
           "notes_ko": "이니셔티브·근력(운동) 유리, 치명타 직후 속도 절반 이동(기회 공격 없음). [BG3 추가] 도약 거리 +1칸.",
-          "source": "SRD 5.2.1"
+          "source": "SRD 5.2.1",
+          "caps": [
+            "crit_free_move",
+            "jump_plus_1"
+          ],
+          "grants": {
+            "advantage": [
+              {
+                "type": "advantage",
+                "roll": "initiative",
+                "side": "self",
+                "value": "advantage"
+              }
+            ]
+          }
         }
       ]
     }
@@ -205,6 +243,11 @@
     "armor_chain_mail",
     "weapon_2h_sword"
   ],
+  "ai_role": "melee",
+  "art": {
+    "sheet": "res://assets/actors/human.webp"
+  },
+  "color": "#ff8042",
   "default_build": {
     "subclass": "champion",
     "species": "human",

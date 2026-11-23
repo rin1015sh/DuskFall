@@ -76,7 +76,7 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	if "versatile" in props and opts.get("two_handed", false) and c.weapon("off") == "":
 		dice = w["versatile_damage"]
 	var dmg_mod := mod
-	if opts.get("hand", "main") == "off" and mod > 0 and not c.features.has("two_weapon_fighting"):
+	if opts.get("hand", "main") == "off" and mod > 0 and not c.has_cap("two_weapon_fighting"):
 		dmg_mod = 0
 	if opts.get("no_ability_damage", false) and mod > 0:
 		dmg_mod = 0
@@ -89,7 +89,7 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	if w["id"] == "unarmed":
 		expr = str(maxi(1 + mod, 0)) if mod != 0 else "1"
 	var hit_bonus := dmg_bonus
-	if ranged and is_ranged_weapon(w) and c.has_feature("archery"):
+	if ranged and is_ranged_weapon(w) and c.has_cap("ranged_weapon_attack_bonus"):
 		hit_bonus += 2  # 궁술: 원거리 무기 명중 +2
 	var dis: Array = []
 	if "heavy" in props and ((not ranged and c.abilities["str"] < 13) or (ranged and c.abilities["dex"] < 13)):
@@ -118,14 +118,14 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 	ctx["disadvantage"].append_array(atk.get("extra_disadvantage", []))
 	var dist: int = ctx["distance_tiles"]
 	# 무리 전술: 대상 1칸 안에 무력화되지 않은 공격자의 아군이 있으면 유리(SRD)
-	if attacker.has_feature("pack_tactics"):
+	if attacker.has_cap("pack_tactics"):
 		for o: Node in grid.creatures():
 			if o != attacker and o != target and not o.dead and o.team == attacker.team and not o.is_incapacitated() \
 					and grid.distance_between(o, target) <= 1:
 				ctx["advantage"].append("무리 전술")
 				break
 	# 햇빛 민감: 햇빛(맵 sunlight 표시가 있는 밝은 칸)에서 공격 불리
-	if attacker.has_feature("sunlight_sensitivity") and grid.has_meta("sunlight") \
+	if attacker.has_cap("sunlight_sensitivity") and grid.has_meta("sunlight") \
 			and grid.light_at(grid.cell_of(attacker)) == grid.Light.BRIGHT:
 		ctx["disadvantage"].append("햇빛 민감")
 	if atk["kind"] == "melee":
@@ -477,7 +477,7 @@ static func stand_up(c: Node) -> Dictionary:
 
 ## 교활한 행동(로그 2레벨): 질주·이탈·숨기를 보너스 행동으로.
 static func cunning_action(world: Dictionary, c: Node, which: String) -> Dictionary:
-	if not c.has_feature("cunning_action"):
+	if not c.has_cap("bonus_dash_disengage_hide"):
 		return _fail("교활한 행동이 없다")
 	match which:
 		"dash":
@@ -572,13 +572,10 @@ static func jump(world: Dictionary, c: Node, to: Vector2i) -> Dictionary:
 
 static func jump_distance(c: Node) -> int:
 	var mod: int = c.ability_mod("str")
-	if c.has_feature("second_story_work"):
-		mod = maxi(mod, c.ability_mod("dex"))  # 2층 작업: 민첩으로 도약(원문)
+	if c.has_cap("jump_dex"):
+		mod = maxi(mod, c.ability_mod("dex"))  # 2층 작업 등: 민첩으로 도약(원문)
 	var base := 3 + maxi(mod, 0) / 2
-	if c.has_feature("second_story_work"):
-		base += 1  # BG3식 도약 보너스
-	if c.has_feature("remarkable_athlete"):
-		base += 1  # BG3식 도약 보너스(챔피언)
+	base += c.cap_count("jump_plus_1")  # BG3식 도약 보너스(2층 작업·뛰어난 운동선수 — 겹친다)
 	for m in c.modifier_entries():
 		var e: Dictionary = m["effect"]
 		if e["type"] == "modify" and e["stat"] == "jump_tiles":
@@ -766,6 +763,6 @@ static func escape(world: Dictionary, c: Node) -> Dictionary:
 
 ## 날렵한 탈출(고블린): 보너스 행동으로 이탈 또는 숨기.
 static func nimble_escape(world: Dictionary, c: Node, which: String) -> Dictionary:
-	if not c.has_feature("nimble_escape"):
+	if not c.has_cap("nimble_escape"):
 		return _fail("날렵한 탈출이 없다")
 	return disengage(c, "bonus") if which == "disengage" else hide(world, c, "bonus")

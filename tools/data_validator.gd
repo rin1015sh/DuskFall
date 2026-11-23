@@ -81,9 +81,53 @@ func run() -> bool:
 	_check_refs()
 	_check_stamps()
 	_check_class_builds()
+	_check_caps()
 	_check_scripts()
 	_check_banned_names()
 	return errors.is_empty()
+
+
+# ---------- 3-3. 능력 태그(caps)·고르는 기능 ----------
+
+func _check_caps() -> void:
+	var known: Dictionary = entries.get("capability", {})
+	var check := func(where: String, cap: Variant) -> void:
+		if not known.has(str(cap)):
+			errors.append("%s: 능력 태그 '%s'가 data/rules/capabilities.json에 없다" % [where, cap])
+	var feature_lists := []  # [where, features]
+	for cid: String in entries.get("class", {}).keys():
+		var rec: Dictionary = entries["class"][cid]
+		feature_lists.append(["%s: class '%s'" % [rec["file"], cid], rec["entry"].get("features", [])])
+		for sc: Dictionary in rec["entry"].get("subclasses", []):
+			feature_lists.append(["%s: class '%s'/%s" % [rec["file"], cid, sc.get("id", "")], sc.get("features", [])])
+	for sid: String in entries.get("species", {}).keys():
+		var rec: Dictionary = entries["species"][sid]
+		feature_lists.append(["%s: species '%s'" % [rec["file"], sid], rec["entry"].get("features", [])])
+	for fl: Array in feature_lists:
+		for f: Dictionary in fl[1]:
+			var where := "%s 기능 %s" % [fl[0], f.get("id", "")]
+			for cap: Variant in f.get("caps", []):
+				check.call(where, cap)
+			for cap: Variant in f.get("grants", {}).get("caps", []):
+				check.call(where + " grants", cap)
+			for opt: String in f.get("choice_grants", {}).keys():
+				for cap: Variant in f["choice_grants"][opt].get("caps", []):
+					check.call(where + " choice_grants." + opt, cap)
+				if not opt in f.get("choices", []):
+					errors.append("%s: choice_grants '%s'가 choices에 없다" % [where, opt])
+			if str(f.get("choice_kind", "")) == "feat":
+				for ch: Variant in f.get("choices", []):
+					if not entries.get("feat", {}).has(str(ch)):
+						errors.append("%s: 고르는 재주 '%s'가 없다" % [where, ch])
+			if f.has("toggle") and f["toggle"].get("values", []).size() < 2:
+				errors.append("%s: toggle 값이 둘 이상이어야 한다" % where)
+	for fid: String in entries.get("feat", {}).keys():
+		for cap: Variant in entries["feat"][fid]["entry"].get("tags", []):
+			check.call("%s: feat '%s' tags" % [entries["feat"][fid]["file"], fid], cap)
+	for aid: String in entries.get("action", {}).keys():
+		var req := str(entries["action"][aid]["entry"].get("requires", ""))
+		if req != "":
+			check.call("%s: action '%s' requires" % [entries["action"][aid]["file"], aid], req)
 
 
 # ---------- 3-2. 클래스 추천 빌드(default_build) 교차 참조 ----------

@@ -95,7 +95,10 @@
             "en": "Trance"
           },
           "notes_ko": "수면 면역만 남김(6단계).",
-          "source": "SRD 5.2.1"
+          "source": "SRD 5.2.1",
+          "caps": [
+            "immune_magic_sleep"
+          ]
         }
       ],
       "source": "SRD 5.2.1"
@@ -148,7 +151,10 @@
             "en": "Luck"
           },
           "notes_ko": "d20 테스트에서 자연 1이면 다시 굴려 새 값을 쓴다(숨은 굴림 자동).",
-          "source": "SRD 5.2.1"
+          "source": "SRD 5.2.1",
+          "caps": [
+            "reroll_natural_1"
+          ]
         },
         {
           "id": "halfling_nimbleness",

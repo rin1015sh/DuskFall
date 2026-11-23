@@ -1290,7 +1290,7 @@ func _draw_roll() -> void:
 	v.move_child(detail, 3)
 	for opt: String in Interact.reroll_options(world, c, res):
 		var b := Button.new()
-		b.text = UiText.t("roll_inspiration") % int(world.get("inspiration", 0)) if opt == "inspiration" else UiText.t("roll_tactical") % c.resource("second_wind")
+		b.text = UiText.t("roll_inspiration") % int(world.get("inspiration", 0)) if opt == "inspiration" else UiText.t("roll_tactical") % c.resource(c.cap_resource("check_boost_d10"))
 		b.pressed.connect(func() -> void:
 			_roll_ctx["result"] = Interact.reroll(world, c, res, opt)
 			_draw_roll())

@@ -334,7 +334,7 @@ static func resolve_effects(ctx: Dictionary) -> Dictionary:
 				for e: Dictionary in eff.get("hit", []):
 					if e["type"] != "damage":
 						apply_effect(ctx, t, e)
-			elif r["valid"] and level_of(spell) == 0 and caster.has_feature("potent_cantrip"):
+			elif r["valid"] and level_of(spell) == 0 and caster.has_cap("cantrip_half_on_miss"):
 				# 강력한 소마법(방출학파 3레벨): 빗나가도 절반 피해, 추가 효과 없음
 				var half: Array = []
 				for p: Dictionary in atk["damage"]:
@@ -345,7 +345,7 @@ static func resolve_effects(ctx: Dictionary) -> Dictionary:
 		var rolled := {}
 		var fail := _scaled(caster, spell, eff.get("fail", []), slot, opts)
 		var success := _scaled(caster, spell, eff.get("success", []), slot, opts)
-		if level_of(spell) == 0 and caster.has_feature("potent_cantrip") and success.is_empty():
+		if level_of(spell) == 0 and caster.has_cap("cantrip_half_on_miss") and success.is_empty():
 			for e: Dictionary in fail:
 				if e["type"] == "damage":
 					var h := e.duplicate()
@@ -403,7 +403,7 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 			var amount: int = Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])["total"]
 			if e.get("add") == "spell_mod":
 				amount += spell_mod(caster)
-			if level_of(spell) > 0 and caster.has_feature("disciple_of_life"):
+			if level_of(spell) > 0 and caster.has_cap("spell_heal_bonus"):
 				amount += 2 + slot  # 생명의 제자: 2 + 슬롯 레벨
 			if has_max_healing(t):
 				amount = _max_heal(caster, spell, e, slot)  # Beacon of Hope
@@ -467,7 +467,7 @@ static func _max_heal(caster: Node, spell: Dictionary, e: Dictionary, slot: int)
 	var v := int(s["max"])
 	if e.get("add") == "spell_mod":
 		v += spell_mod(caster)
-	if level_of(spell) > 0 and caster.has_feature("disciple_of_life"):
+	if level_of(spell) > 0 and caster.has_cap("spell_heal_bonus"):
 		v += 2 + slot
 	return v
 
