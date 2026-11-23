@@ -305,6 +305,12 @@ func end_turn(c: Node) -> void:
 		Dice.log_text("%s: 분노가 끝났다" % c.label())
 	if c.dead and not c.has_meta("died_round"):
 		c.set_meta("died_round", round_number)
+	if c.has_cap("self_restoration") and not c.dead:
+		for cid: String in ["charmed", "frightened", "poisoned"]:
+			if c.has_condition(cid):
+				c.remove_condition(cid)  # 자기 회복(몽크 10레벨): 턴 끝마다 매혹·공포·중독 중 하나
+				Dice.log_text("%s 자기 회복: %s 해제" % [c.label(), cid])
+				break
 	c.tick_conditions()
 	c.remove_condition("surprised")
 	for m in c.extra_modifiers.duplicate():

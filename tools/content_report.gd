@@ -61,6 +61,8 @@ func _process(_d: float) -> bool:
 				how.append("부여 " + ", ".join(PackedStringArray(f["grants"].keys())))
 			if f.has("choice_kind"):
 				how.append("고르기(%s)" % f["choice_kind"])
+			if f.has("aura"):
+				how.append("오라(auras.gd)")
 			if f.has("toggle"):
 				how.append("설정")
 			if str(f.get("kind", "")) == "reaction":

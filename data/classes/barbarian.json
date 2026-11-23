@@ -261,6 +261,81 @@
       ],
       "notes_ko": "중갑이 아니면 속도 +10피트(2칸).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "feral_instinct",
+      "name": {
+        "ko": "야생의 본능",
+        "en": "Feral Instinct"
+      },
+      "level": 7,
+      "source": "SRD 5.2.1",
+      "notes_ko": "이니셔티브 유리.",
+      "grants": {
+        "advantage": [
+          {
+            "type": "advantage",
+            "roll": "initiative",
+            "side": "self",
+            "value": "advantage"
+          }
+        ]
+      }
+    },
+    {
+      "id": "instinctive_pounce",
+      "name": {
+        "ko": "본능적 도약",
+        "en": "Instinctive Pounce"
+      },
+      "level": 7,
+      "caps": [
+        "instinctive_pounce"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "분노에 들어가는 보너스 행동과 함께 속도 절반만큼 더 이동."
+    },
+    {
+      "id": "brutal_strike",
+      "name": {
+        "ko": "잔혹한 일격",
+        "en": "Brutal Strike"
+      },
+      "level": 9,
+      "caps": [
+        "brutal_strike"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "무모한 공격 중 턴의 근력 공격 하나(불리 없음)에서 유리를 버리면, 명중 시 +1d10과 효과 하나: 강타(3칸 밀고 속도 절반을 기회 공격 없이) 또는 오금 베기(다음 내 턴 시작까지 속도 −15피트). 설정에서 고른다(첫 해당 공격에 자동).",
+      "toggle": {
+        "values": [
+          {
+            "id": "",
+            "name": {
+              "ko": "끔",
+              "en": "Off"
+            }
+          },
+          {
+            "id": "forceful",
+            "name": {
+              "ko": "강타",
+              "en": "Forceful Blow"
+            }
+          },
+          {
+            "id": "hamstring",
+            "name": {
+              "ko": "오금 베기",
+              "en": "Hamstring Blow"
+            }
+          }
+        ],
+        "desc": {
+          "ko": "무모한 공격 중 첫 근력 공격에서 유리 대신 잔혹한 일격(누를 때마다 바뀜).",
+          "en": "Trade Advantage for a Brutal Strike on your first Strength attack while Reckless."
+        }
+      }
     }
   ],
   "subclasses": [
@@ -285,6 +360,33 @@
           ],
           "notes_ko": "분노 중 무모한 공격이면 턴의 첫 근력 명중에 (분노 피해 보너스)d6 추가 피해.",
           "source": "SRD 5.2.1"
+        },
+        {
+          "id": "mindless_rage",
+          "name": {
+            "ko": "광기 없는 분노",
+            "en": "Mindless Rage"
+          },
+          "level": 6,
+          "caps": [
+            "mindless_rage"
+          ],
+          "source": "SRD 5.2.1",
+          "notes_ko": "분노 중 매혹·공포 면역, 분노에 들어가면 매혹·공포가 끝난다."
+        },
+        {
+          "id": "retaliation",
+          "name": {
+            "ko": "보복",
+            "en": "Retaliation"
+          },
+          "level": 10,
+          "kind": "reaction",
+          "caps": [
+            "retaliation"
+          ],
+          "source": "SRD 5.2.1",
+          "notes_ko": "1칸 안 생물에게 피해를 받으면 반응으로 그 생물에게 근접 공격 1회(반응 설정 대상)."
         }
       ]
     }

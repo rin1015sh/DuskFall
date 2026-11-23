@@ -25,11 +25,12 @@ func apply(ctx: Dictionary) -> Dictionary:
 		if not s["success"]:
 			t.apply_condition("frightened", 10, c)
 			t.apply_condition("incapacitated", 10, c)
-			t.set_meta("turned_by", c)
 			failed.append(t)
 	if c.has_feature("sear_undead") and not failed.is_empty():
 		var n := maxi(c.ability_mod("wis"), 1)
 		var dmg: int = Dice.roll("%dd8" % n, "언데드 소각")["total"]
 		for t: Node in failed:
 			Resolver.apply_damage(t, [{"amount": dmg, "damage_type": "radiant"}])
+	for t: Node in failed:
+		t.set_meta("end_on_damage", ["frightened", "incapacitated"])  # 피해를 받으면 끝(소각 피해는 퇴치를 끝내지 않는다 — SRD)
 	return {"ok": true, "turned": failed.size()}

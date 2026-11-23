@@ -77,6 +77,15 @@
         "2": 1
       },
       "recharge": "long"
+    },
+    {
+      "id": "wholeness_of_body",
+      "name": {
+        "ko": "몸의 완전함",
+        "en": "Wholeness of Body"
+      },
+      "max": "ability_mod:wis",
+      "recharge": "long"
     }
   ],
   "features": [
@@ -326,6 +335,71 @@
       },
       "notes_ko": "턴당 1회 무술 명중에 기 1: 건강 내성 실패 시 기절(대상의 다음 턴), 성공 시 속도 절반·다음 공격받을 때 유리. 상시 설정(켜기·끄기).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "empowered_strikes",
+      "name": {
+        "ko": "강화된 타격",
+        "en": "Empowered Strikes"
+      },
+      "level": 6,
+      "caps": [
+        "empowered_strikes"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "비무장 공격 피해를 역장으로(BG3식 자동 — 원문은 고를 수 있음)."
+    },
+    {
+      "id": "evasion",
+      "name": {
+        "ko": "회피",
+        "en": "Evasion"
+      },
+      "level": 7,
+      "caps": [
+        "evasion"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "성공하면 절반인 민첩 내성: 성공 0, 실패 절반."
+    },
+    {
+      "id": "acrobatic_movement",
+      "name": {
+        "ko": "곡예 이동",
+        "en": "Acrobatic Movement"
+      },
+      "level": 9,
+      "caps": [
+        "climber"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "벽을 오르내린다(오르기 지점이 아닌 높이 차). 액체 위 이동은 생략. 갑옷·방패 조건은 생략."
+    },
+    {
+      "id": "heightened_focus",
+      "name": {
+        "ko": "고양된 집중",
+        "en": "Heightened Focus"
+      },
+      "level": 10,
+      "caps": [
+        "heightened_focus"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "연타 3회, 인내의 방어(기 사용)에 무술 주사위 2개 임시 HP. 바람 걸음의 동행은 생략."
+    },
+    {
+      "id": "self_restoration",
+      "name": {
+        "ko": "자기 회복",
+        "en": "Self-Restoration"
+      },
+      "level": 10,
+      "caps": [
+        "self_restoration"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "턴 끝마다 매혹·공포·중독 중 하나를 푼다."
     }
   ],
   "subclasses": [
@@ -379,6 +453,25 @@
           },
           "notes_ko": "연타 명중마다: 넘어뜨리기(민첩 내성)·밀기 15피트(근력 내성)·어지럽히기(다음 턴 시작까지 기회 공격 불가). 상시 설정.",
           "source": "SRD 5.2.1"
+        },
+        {
+          "id": "wholeness_of_body",
+          "name": {
+            "ko": "몸의 완전함",
+            "en": "Wholeness of Body"
+          },
+          "level": 6,
+          "kind": "bonus_action",
+          "resource": "wholeness_of_body",
+          "script": "wholeness_of_body",
+          "icon": "statuses/buff.webp",
+          "glyph": "heart",
+          "explore": true,
+          "ai": {
+            "when": "hp_below_half"
+          },
+          "source": "SRD 5.2.1",
+          "notes_ko": "무술 주사위 + 지혜 수정치(최소 1) 회복. 지혜 수정치(최소 1)회, 긴 휴식."
         }
       ]
     }

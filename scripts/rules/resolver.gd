@@ -14,6 +14,7 @@ extends RefCounted
 
 const DiceExpr := preload("res://scripts/rules/dice_expr.gd")
 const Features := preload("res://scripts/rules/features.gd")
+const Auras := preload("res://scripts/rules/auras.gd")
 
 ## 고지: 높이 2단계 이상 차이면 명중 ±2(룰북 4단계).
 const HIGH_GROUND_STEPS := 2
@@ -96,6 +97,10 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 		res["auto_crit"] = true
 	if res["hit"]:
 		EventBus.on_hit.emit(res)
+		if target.has_cap("multiattack_defense") and attacker != target:
+			# 다중 공격 방어(사냥꾼 방어 전술 7레벨): 나를 맞힌 생물은 이번 턴 남은 나에 대한 공격이 불리
+			target.extra_modifiers.append({"effect": {"type": "advantage", "roll": "attack", "side": "against", "value": "disadvantage"},
+				"source": "multiattack_defense", "target_only": attacker, "expires_after_turn_end_of": attacker, "turn_end_count": 1})
 		Features.hook("on_hit", attacker, {"res": res})
 		Features.hook("on_hit", target, {"res": res})
 		_hit_riders(attacker, target, atk, res)
@@ -205,8 +210,24 @@ static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Di
 	# 3. 유리·불리 수집
 	_collect_attack_mods(attacker, target, res)
 	EventBus.on_before_attack_roll.emit(res)
+	_brutal_strike_setup(attacker, atk, res, preview)
 	res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 	return res
+
+
+## 잔혹한 일격(능력 태그 brutal_strike — 바바리안 9레벨): 무모한 공격 중 턴의 근력 공격 하나에서 유리를 버리면(불리가 없을 때)
+## 명중 시 +1d10과 효과 하나(설정: forceful 강타 — 3칸 밀고 속도 절반 기회 공격 없이 / hamstring 오금 — 속도 −3칸).
+static func _brutal_strike_setup(attacker: Node, atk: Dictionary, res: Dictionary, preview: bool) -> void:
+	var opt := str(attacker.options.get("brutal_strike", ""))
+	if opt == "" or not attacker.has_cap("brutal_strike") or not attacker.turn.get("reckless", false) \
+			or attacker.turn.get("brutal_used", false) or str(atk.get("ability", "")) != "str":
+		return
+	if res["advantage"].is_empty() or not res["disadvantage"].is_empty():
+		return
+	res["advantage"].clear()
+	res["brutal_strike"] = opt
+	if not preview:
+		attacker.turn["brutal_used"] = true
 
 
 static func _collect_attack_mods(attacker: Node, target: Node, res: Dictionary) -> void:
@@ -217,6 +238,8 @@ static func _collect_attack_mods(attacker: Node, target: Node, res: Dictionary) 
 		_add_adv(m, "attack", "against", target, attacker, res)
 	res["advantage"].append_array(ctx.get("advantage", []))
 	res["disadvantage"].append_array(ctx.get("disadvantage", []))
+	if res.get("attack", {}).get("opportunity", false) and target.has_cap("escape_the_horde"):
+		res["disadvantage"].append("무리 탈출")  # 사냥꾼 방어 전술(7레벨)
 	var hd := int(ctx.get("height_diff", 0))
 	if hd >= HIGH_GROUND_STEPS:
 		res["attack_bonus"] += HIGH_GROUND_BONUS
@@ -364,9 +387,27 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 			attacker.turn["frenzy_used"] = true
 			res["extra_damage"].append({"dice": "%dd6" % rage_bonus(attacker), "damage_type": atk["damage"][0]["damage_type"]})
 		_feature_hit_bonus(attacker, target, atk, res)
+		if res.has("brutal_strike"):
+			res["extra_damage"].append({"dice": "1d10", "damage_type": atk["damage"][0]["damage_type"]})
+			_brutal_effect(attacker, target, str(res["brutal_strike"]))
 		if attacker.has_cap("extra_damage_wounded") and target.hp < target.hp_max and not attacker.turn.get("wounded_bonus_used", false):
 			attacker.turn["wounded_bonus_used"] = true
 			res["extra_damage"].append({"dice": "1d8", "damage_type": atk["damage"][0]["damage_type"]})
+
+
+static func _brutal_effect(attacker: Node, target: Node, opt: String) -> void:
+	match opt:
+		"forceful":
+			var rq: Node = EventBus.reaction_queue
+			if rq != null and is_instance_valid(rq) and rq.world.has("grid"):
+				load("res://scripts/rules/combat.gd")._push_up_to(rq.world, attacker, target, 3)
+			attacker.turn["free_move_no_oa"] = maxi(int(attacker.turn.get("free_move_no_oa", 0)), attacker.speed() / 2)
+		"hamstring":
+			for old in target.extra_modifiers.duplicate():
+				if old.get("source") == "hamstring":
+					target.extra_modifiers.erase(old)
+			target.extra_modifiers.append({"effect": {"type": "modify", "stat": "speed_tiles", "add": -3},
+				"source": "hamstring", "until_turn_start_of": attacker})
 
 
 ## 기능 부여 weapon_hit_bonus(신성한 일격·원초의 일격): 턴당 1회 무기 명중에 dice_by_level(기능의 클래스 레벨) 추가 피해.
@@ -453,6 +494,33 @@ static func inspire(c: Node) -> int:
 	c.remove_condition("bardic_inspiration")
 	Dice.log_text("%s: 바드의 영감 +%d" % [c.label(), n])
 	return n
+
+
+## 대항 매혹(능력 태그 countercharm — 바드 7레벨): 자신 또는 6칸 안 생물이 매혹·공포를 거는 효과의 내성에 실패하면
+## 반응으로 유리하게 다시 굴린다(반응 설정을 따른다 — 자동 기본).
+static func _countercharm(creature: Node, res: Dictionary, opts: Dictionary) -> void:
+	var against: Array = opts.get("against_conditions", [])
+	if not ("charmed" in against or "frightened" in against):
+		return
+	var rq: Node = EventBus.reaction_queue
+	if rq == null or not is_instance_valid(rq) or not rq.world.has("grid"):
+		return
+	var grid: Node = rq.world["grid"]
+	if not grid.creatures().has(creature):
+		return
+	for b: Node in grid.creatures():
+		if b.dead or not b.has_cap("countercharm") or not b.can_react() or (b != creature and b.is_hostile_to(creature)):
+			continue
+		if b != creature and grid.distance_between(b, creature) > 6:
+			continue
+		Features.offer_reaction(b, "countercharm", {"target": creature}, func() -> void:
+			b.turn["reaction"] = 0
+			var d := luck(creature, Dice.d20(1, "%s 대항 매혹" % creature.label()))
+			res["natural"] = d["natural"]
+			res["total"] = int(d["natural"]) + int(res["bonus"]) + roll_bonus_dice(creature, "saving_throw")
+			res["success"] = res["total"] >= int(res["dc"])
+			Dice.log_text("%s 대항 매혹(%s): %d → %s" % [creature.label(), b.label(), res["total"], "성공" if res["success"] else "실패"]))
+		return
 
 
 ## 영웅적 영감(상태 플래그 reroll_failed_d20 — 챔피언 영웅 전사): 실패한 d20 시험을 한 번 다시 굴린다(BG3식 자동). 썼으면 true.
@@ -710,6 +778,10 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 		parts_text.append("%s %d" % [t, out["by_type"][t]])
 	Dice.log_text("%s 피해 %d (%s) → HP %d/%d%s" % [target.label(), total, ", ".join(parts_text), target.hp,
 		target.hp_max, " (임시 HP %d 흡수)" % absorbed if absorbed > 0 else ""])
+	if total > 0 and target.has_meta("end_on_damage"):
+		for cid: String in target.get_meta("end_on_damage"):
+			target.remove_condition(cid)  # 피해를 받으면 끝나는 상태(언데드 퇴치·적 퇴치)
+		target.remove_meta("end_on_damage")
 	EventBus.on_damage_taken.emit(info)
 	# 피해를 받으면 끝나는 상태(Sleep·Hypnotic Pattern — params.ends_on_damage)
 	for cond in target.conditions.duplicate():
@@ -837,6 +909,8 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 	if not res["success"]:
 		res["rolls"] = d["rolls"]
 		Features.hook("on_save_failed", creature, {"res": res})  # 불굴(전사 9레벨) 등 — 스크립트가 res를 고친다
+		if not res["success"]:
+			_countercharm(creature, res, opts)
 		d["natural"] = int(res["natural"])
 	if opts.get("natural_rules", false):
 		if d["natural"] == 20:
@@ -863,7 +937,7 @@ static func preview_save_fail(creature: Node, ability: String, dc: int, opts: Di
 
 static func _save_setup(creature: Node, ability: String, dc: int, opts: Dictionary) -> Dictionary:
 	var res := {"creature": creature, "ability": ability, "dc": dc, "phase": "before",
-		"bonus": creature.save_bonus(ability) + int(opts.get("bonus", 0)),
+		"bonus": creature.save_bonus(ability) + int(opts.get("bonus", 0)) + Auras.save_bonus(creature),
 		"advantage": opts.get("advantage", []).duplicate(), "disadvantage": opts.get("disadvantage", []).duplicate(),
 		"auto": false, "success": false, "natural": 0, "total": 0, "mode": 0}
 	if creature.auto_fails_save(ability):

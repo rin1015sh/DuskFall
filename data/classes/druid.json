@@ -288,6 +288,28 @@
         "5": 1
       },
       "recharge": "long"
+    },
+    {
+      "id": "natural_recovery",
+      "name": {
+        "ko": "자연 회복",
+        "en": "Natural Recovery"
+      },
+      "max": {
+        "6": 1
+      },
+      "recharge": "long"
+    },
+    {
+      "id": "natural_recovery_cast",
+      "name": {
+        "ko": "자연 회복: 무료 시전",
+        "en": "Natural Recovery: Free Cast"
+      },
+      "max": {
+        "6": 1
+      },
+      "recharge": "long"
     }
   ],
   "features": [
@@ -397,6 +419,42 @@
       "notes_ko": "행동 없이: 야생 변신이 없으면 슬롯으로 1회(턴당 1회). opts.mode slot이면 야생 변신 1회 → 1레벨 슬롯(긴 휴식마다 1회).",
       "source": "SRD 5.2.1",
       "glyph": "paw"
+    },
+    {
+      "id": "elemental_fury",
+      "name": {
+        "ko": "원소의 격노",
+        "en": "Elemental Fury"
+      },
+      "level": 7,
+      "choice_kind": "option",
+      "choices": [
+        "potent_spellcasting",
+        "primal_strike"
+      ],
+      "source": "SRD 5.2.1",
+      "choice_grants": {
+        "potent_spellcasting": {
+          "caps": [
+            "cantrip_add_mod"
+          ]
+        },
+        "primal_strike": {
+          "weapon_hit_bonus": {
+            "dice_by_level": {
+              "7": "1d8",
+              "15": "2d8"
+            },
+            "damage_types": [
+              "fire",
+              "cold",
+              "lightning",
+              "thunder"
+            ]
+          }
+        }
+      },
+      "notes_ko": "강력한 주문 시전: 드루이드 소마법 피해 + 지혜. 원초의 일격: 턴당 1회 무기·야수 형태 공격 명중 +1d8 냉기·화염·번개·천둥(대상이 저항하지 않는 쪽 자동, 15레벨 2d8)."
     }
   ],
   "subclasses": [
@@ -490,6 +548,112 @@
           "notes_ko": "야생 변신 1회: 12칸 안 반지름 2칸 — 적 건강 내성 2d6 사령(성공 절반), 아군 하나 2d6 회복.",
           "source": "SRD 5.2.1",
           "glyph": "leaf"
+        },
+        {
+          "id": "natural_recovery",
+          "name": {
+            "ko": "자연 회복",
+            "en": "Natural Recovery"
+          },
+          "level": 6,
+          "resource": "natural_recovery",
+          "script": "arcane_recovery",
+          "usable": true,
+          "explore": true,
+          "icon": "statuses/riddle_empowered.webp",
+          "glyph": "swirl",
+          "source": "SRD 5.2.1",
+          "notes_ko": "전투 밖에서 쓴 슬롯을 합계 레벨 ≤ 드루이드 레벨 절반(올림)만큼 회복(6레벨 이상 슬롯 제외), 긴 휴식 1회."
+        },
+        {
+          "id": "natural_recovery_cast",
+          "name": {
+            "ko": "자연 회복: 무료 시전",
+            "en": "Natural Recovery: Free Cast"
+          },
+          "level": 6,
+          "caps": [
+            "free_cast_class_spell"
+          ],
+          "free_cast_from": "subclass",
+          "max_spell_level": 9,
+          "resource": "natural_recovery_cast",
+          "source": "SRD 5.2.1",
+          "notes_ko": "켜 두면 다음 회합 주문(1레벨 이상) 하나를 슬롯 없이. 긴 휴식 1회.",
+          "toggle": {
+            "values": [
+              {
+                "id": "off",
+                "name": {
+                  "ko": "끔",
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "on",
+                "name": {
+                  "ko": "다음 주문",
+                  "en": "Next spell"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "다음 회합 주문을 슬롯 없이(한 번 쓰면 꺼짐).",
+              "en": "Next Circle spell costs no slot (turns off after use)."
+            }
+          }
+        },
+        {
+          "id": "natures_ward",
+          "name": {
+            "ko": "자연의 수호",
+            "en": "Nature's Ward"
+          },
+          "level": 10,
+          "choice_kind": "option",
+          "choice_from": "circle_land_spells",
+          "choices": [
+            "arid",
+            "polar",
+            "temperate",
+            "tropical"
+          ],
+          "source": "SRD 5.2.1",
+          "choice_grants": {
+            "arid": {
+              "resistances": [
+                "fire"
+              ],
+              "condition_immunities": [
+                "poisoned"
+              ]
+            },
+            "polar": {
+              "resistances": [
+                "cold"
+              ],
+              "condition_immunities": [
+                "poisoned"
+              ]
+            },
+            "temperate": {
+              "resistances": [
+                "lightning"
+              ],
+              "condition_immunities": [
+                "poisoned"
+              ]
+            },
+            "tropical": {
+              "resistances": [
+                "poison"
+              ],
+              "condition_immunities": [
+                "poisoned"
+              ]
+            }
+          },
+          "notes_ko": "중독 면역 + 대지 종류의 저항(건조 화염·극지 냉기·온대 번개·열대 독)."
         }
       ]
     }
@@ -567,7 +731,8 @@
       "ranged": {
         "main": "sling"
       }
-    }
+    },
+    "elemental_fury": "potent_spellcasting"
   },
   "source": "SRD 5.2.1",
   "multiclass": {

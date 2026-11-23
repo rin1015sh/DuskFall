@@ -16,6 +16,10 @@ func apply(ctx: Dictionary) -> Dictionary:
 		c.spend_resource("focus")
 		c.extra_modifiers.append({"effect": {"type": "advantage", "roll": "attack", "side": "against", "value": "disadvantage"}, "source": "dodge", "until_turn_start_of": c})
 		c.extra_modifiers.append({"effect": {"type": "advantage", "roll": "save", "side": "self", "value": "advantage", "ability": ["dex"]}, "source": "dodge", "until_turn_start_of": c})
+		if c.has_cap("heightened_focus"):
+			var die: String = load("res://scripts/rules/combat.gd").martial_arts_die(c)
+			var thp: int = Dice.roll(die, "고양된 집중")["total"] + Dice.roll(die, "고양된 집중")["total"]
+			load("res://scripts/rules/resolver.gd").grant_temp_hp(c, thp)  # 고양된 집중(10레벨): 무술 주사위 2개 임시 HP
 		Dice.log_text("%s 인내의 방어: 이탈 + 회피" % c.label())
 		return {"ok": true, "dodge": true}
 	Dice.log_text("%s 인내의 방어: 이탈" % c.label())

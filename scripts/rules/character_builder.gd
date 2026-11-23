@@ -117,19 +117,29 @@ static func validate_spells(cls: Dictionary, spec: Dictionary, lv: int) -> Packe
 			e.append("%s는 주문을 쓰지 않는다" % cls["id"])
 		return e
 	var list := str(sc.get("list", cls["id"]))
+	var lists := extra_lists(cls, lv)
+	lists.append(list)
 	for k: String in ["cantrips", "spells"]:
 		for sid: Variant in spec.get(k, []):
 			var sp := RulesDB.get_entry("spell", str(sid))
 			if sp.is_empty():
 				e.append("모르는 주문 '%s'" % sid)
 				continue
-			if not list in sp.get("classes", []):
+			if not lists.any(func(l: String) -> bool: return l in sp.get("classes", [])):
 				e.append("%s는 %s 주문 목록에 없다" % [sid, list])
 			if k == "cantrips" and int(sp["level"]) != 0:
 				e.append("%s는 소마법이 아니다" % sid)
 			if k == "spells" and int(sp["level"]) == 0:
 				e.append("%s는 소마법이다(cantrips에)" % sid)
 	return e
+
+
+## 클래스 레벨에 따라 더 열리는 주문 목록(spellcasting.extra_lists {"level", "lists"} — 바드 마법의 비밀 10레벨).
+static func extra_lists(cls: Dictionary, lv: int) -> Array:
+	var x: Dictionary = cls.get("spellcasting", {}).get("extra_lists", {})
+	if x.is_empty() or lv < int(x.get("level", 99)):
+		return []
+	return (x.get("lists", []) as Array).duplicate()
 
 
 ## 포인트 구매 27점: 능력치마다 8~15, 비용 합계 ≤ 27(룰북 6단계).
@@ -263,7 +273,9 @@ static func apply(c: Node, spec: Dictionary) -> void:
 				if str(pick) in f.get("choices", []):
 					extra_skill.append(str(pick))  # 여러 개 고르기(지식 학파 추가 숙련 3)
 			continue
-		var chosen := str(spec.get(fid, ""))
+		if kind == "spell" and spec.get(fid) is Array:
+			continue  # 고른 주문(마법의 발견): 아래 주문 단계에서 항상 준비로
+		var chosen := str(spec.get(str(f.get("choice_from", fid)), ""))  # choice_from: 다른 기능의 선택을 따른다(자연의 수호 = 대지 종류)
 		if kind == "" or chosen == "" or not chosen in f.get("choices", []):
 			continue
 		match kind:
@@ -297,6 +309,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var grant_spells: Array = []
 	var skill_bonus_ability := {}
 	var hit_bonus: Array = []
+	var type_bonus: Array = []
 	for g: Array in grants:
 		var gr: Dictionary = g[1]
 		c.attacks_per_action = maxi(c.attacks_per_action, int(gr.get("attacks_per_action", 1)))
@@ -316,6 +329,13 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			if not c.senses.has("darkvision"):
 				c.senses.append("darkvision")
 		c.caps.append_array(gr.get("caps", []))
+		for r: String in gr.get("resistances", []):
+			if not r in c.damage_resistances:
+				c.damage_resistances.append(r)  # 자연의 수호·악마의 회복력
+		for ci: String in gr.get("condition_immunities", []):
+			if not ci in c.condition_immunities:
+				c.condition_immunities.append(ci)
+		type_bonus.append_array(gr.get("spell_damage_types", []))  # 원소 친화: 그 종류 주문 피해 + 주문 능력
 		if gr.has("weapon_hit_bonus"):
 			var hb: Dictionary = gr["weapon_hit_bonus"].duplicate(true)
 			hb["feature"] = str(g[0])
@@ -394,6 +414,30 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	_apply_feat_spells(c, feats, spec)
 	c.set_meta("at_will", at_will)
 	c.set_meta("weapon_hit_bonus", hit_bonus)
+	c.set_meta("spell_type_bonus", type_bonus)
+	var aura := {}
+	for fid: String in c.feature_data:
+		var fa: Dictionary = c.feature_data[fid].get("aura", {})
+		if fa.is_empty():
+			continue
+		if fa.has("range_by_level"):
+			aura["range_by_level"] = fa["range_by_level"]
+			aura["feature"] = fid
+		if fa.has("save_bonus"):
+			aura["save_bonus"] = fa["save_bonus"]
+		var im: Array = aura.get("immune", [])
+		im.append_array(fa.get("immune", []))
+		aura["immune"] = im
+	if aura.has("feature"):
+		c.set_meta("aura", aura)  # 팔라딘 오라(scripts/rules/auras.gd)
+	elif c.has_meta("aura"):
+		c.remove_meta("aura")
+	var sub_spells: Array = grant_spells.duplicate()  # 하위 클래스 주문(무료 시전 free_cast_from subclass — 자연 회복)
+	for e: Dictionary in entries:
+		for k: String in (e["sub"] as Dictionary).get("always_prepared", {}):
+			if int(e["level"]) >= int(k):
+				sub_spells.append_array(e["sub"]["always_prepared"][k])
+	c.set_meta("subclass_spells", sub_spells)
 	for sid: String in at_will + grant_spells:
 		if not c.spells.has(sid) and not RulesDB.get_entry("spell", sid).is_empty():
 			c.spells.append(sid)
@@ -443,9 +487,10 @@ static func _add_feature(c: Node, f: Dictionary) -> void:
 	c.feature_data[f["id"]] = f
 	c.caps.append_array(f.get("caps", []))
 	if f.has("hook") and f.has("script"):
-		if not c.feature_hooks.has(f["hook"]):
-			c.feature_hooks[f["hook"]] = []
-		c.feature_hooks[f["hook"]].append(f["script"])
+		for h: String in [str(f["hook"])] + Array(f.get("also_hooks", [])):  # also_hooks: 같은 스크립트를 다른 훅에도(어둠의 자의 행운)
+			if not c.feature_hooks.has(h):
+				c.feature_hooks[h] = []
+			c.feature_hooks[h].append(f["script"])
 
 
 ## AC: 갑옷 기본값 + 민첩(상한) + 방패 2 + 방어 재주 1(갑옷을 입었을 때). 갑옷이 없으면 10 + 민첩.
@@ -549,6 +594,24 @@ static func _apply_spells(c: Node, entries: Array, sp: Dictionary, lin: Dictiona
 						spells.append(sid)  # 클래스·하위 클래스의 항상 준비 주문(준비 수에 세지 않음)
 						if not c.spell_class.has(sid):
 							c.spell_class[sid] = e["id"]
+	# 고른 주문(choice_kind spell — 바드 마법의 발견): spell_lists의 주문 중 소마법이거나 가진 슬롯 레벨 이하, 항상 준비
+	var top_slot := 0
+	for i in range(1, 10):
+		if c.resources.has("spell_slot_%d" % i) or c.resources.has("pact_slot_%d" % i):
+			top_slot = i
+	for fid: String in c.feature_data:
+		var f: Dictionary = c.feature_data[fid]
+		if str(f.get("choice_kind", "")) != "spell" or not spec.get(fid) is Array:
+			continue
+		for sid: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
+			var spd := RulesDB.get_entry("spell", str(sid))
+			if spd.is_empty() or int(spd["level"]) > top_slot:
+				continue
+			if not (f.get("spell_lists", []) as Array).any(func(l: String) -> bool: return l in spd.get("classes", [])):
+				continue
+			spells.append(str(sid))
+			if not c.spell_class.has(str(sid)):
+				c.spell_class[str(sid)] = str(c.feature_class.get(fid, c.class_id))
 	for cid: String in c.prepared_by_class:
 		for sid: String in c.prepared_by_class[cid]:
 			if not sid in c.prepared:

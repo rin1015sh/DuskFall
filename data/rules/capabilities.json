@@ -586,6 +586,105 @@
       },
       "note_ko": "설정을 켜면 다음 그 클래스 주문(max_spell_level 이하)을 슬롯 없이 기능 resource로(spellcasting.free_cast_feature)",
       "source": "original"
+    },
+    {
+      "id": "instinctive_pounce",
+      "name": {
+        "ko": "본능적 도약",
+        "en": "Instinctive Pounce"
+      },
+      "note_ko": "분노에 들어갈 때 속도 절반만큼 이동력 추가(스크립트 rage)",
+      "source": "original"
+    },
+    {
+      "id": "brutal_strike",
+      "name": {
+        "ko": "잔혹한 일격",
+        "en": "Brutal Strike"
+      },
+      "note_ko": "무모한 공격 중 첫 근력 공격의 유리를 버리고 +1d10·강타/오금(resolver._brutal_strike_setup, 설정)",
+      "source": "original"
+    },
+    {
+      "id": "mindless_rage",
+      "name": {
+        "ko": "광기 없는 분노",
+        "en": "Mindless Rage"
+      },
+      "note_ko": "분노 중 매혹·공포 면역(creature.is_condition_immune, 스크립트 rage)",
+      "source": "original"
+    },
+    {
+      "id": "retaliation",
+      "name": {
+        "ko": "보복",
+        "en": "Retaliation"
+      },
+      "note_ko": "1칸 안 생물에게 피해를 받으면 반응으로 근접 공격(reaction_queue._on_damage_taken)",
+      "source": "original"
+    },
+    {
+      "id": "countercharm",
+      "name": {
+        "ko": "대항 매혹",
+        "en": "Countercharm"
+      },
+      "note_ko": "자신·6칸 안 생물이 매혹·공포 내성 실패 시 반응으로 유리하게 다시 굴림(resolver._countercharm)",
+      "source": "original"
+    },
+    {
+      "id": "empowered_strikes",
+      "name": {
+        "ko": "강화된 타격",
+        "en": "Empowered Strikes"
+      },
+      "note_ko": "비무장 공격 피해 역장(combat.build_weapon_attack)",
+      "source": "original"
+    },
+    {
+      "id": "heightened_focus",
+      "name": {
+        "ko": "고양된 집중",
+        "en": "Heightened Focus"
+      },
+      "note_ko": "연타 3회, 인내의 방어 임시 HP(스크립트 flurry_of_blows·patient_defense)",
+      "source": "original"
+    },
+    {
+      "id": "self_restoration",
+      "name": {
+        "ko": "자기 회복",
+        "en": "Self-Restoration"
+      },
+      "note_ko": "턴 끝마다 매혹·공포·중독 하나 해제(turn_manager.end_turn)",
+      "source": "original"
+    },
+    {
+      "id": "escape_the_horde",
+      "name": {
+        "ko": "무리 탈출",
+        "en": "Escape the Horde"
+      },
+      "note_ko": "나에 대한 기회 공격 불리(resolver._collect_attack_mods)",
+      "source": "original"
+    },
+    {
+      "id": "multiattack_defense",
+      "name": {
+        "ko": "다중 공격 방어",
+        "en": "Multiattack Defense"
+      },
+      "note_ko": "나를 맞힌 생물은 그 턴 남은 나에 대한 공격 불리(resolver.attack)",
+      "source": "original"
+    },
+    {
+      "id": "sorcery_incarnate",
+      "name": {
+        "ko": "마법의 화신",
+        "en": "Sorcery Incarnate"
+      },
+      "note_ko": "타고난 마법 횟수가 없으면 기능 alt_cost(마법 점수 2)로(features.use)",
+      "source": "original"
     }
   ]
 }

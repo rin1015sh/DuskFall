@@ -157,14 +157,17 @@ static func scaled_dice(c: Node, spell: Dictionary, dice: String, slot: int) -> 
 
 
 ## 주문 피해 주사위 = 올려 쓴 주사위 + 기능 보너스(강력한 주문 시전: 소마법 + 주문 능력, 강화된 방출: 방출학파 + 주문 능력).
-static func damage_dice(c: Node, spell: Dictionary, dice: String, slot: int) -> String:
+static func damage_dice(c: Node, spell: Dictionary, dice: String, slot: int, dtype: String = "") -> String:
 	var out := scaled_dice(c, spell, dice, slot)
-	var b := damage_bonus(c, spell)
+	var b := damage_bonus(c, spell, dtype)
 	return out + ("%+d" % b) if b != 0 else out
 
 
-static func damage_bonus(c: Node, spell: Dictionary) -> int:
+## 원소 친화(소서러 용의 혈통 6레벨 — 생물 meta spell_type_bonus): 그 피해 종류 주문 + 주문 능력 수정치.
+static func damage_bonus(c: Node, spell: Dictionary, dtype: String = "") -> int:
 	var n := 0
+	if dtype != "" and dtype in c.get_meta("spell_type_bonus", []):
+		n += spell_mod(c)
 	if int(spell.get("level", 0)) == 0 and c.has_cap("cantrip_add_mod"):
 		n += spell_mod(c)
 	if str(spell.get("school", "")) == "evocation" and c.has_cap("evocation_add_mod"):
@@ -338,6 +341,10 @@ static func free_cast_feature(c: Node, spell: Dictionary) -> String:
 			continue
 		if c.resource(str(f.get("resource", ""))) <= 0 or int(spell["level"]) > int(f.get("max_spell_level", 5)):
 			continue
+		if str(f.get("free_cast_from", "")) == "subclass":
+			if spell["id"] in c.get_meta("subclass_spells", []):
+				return fid  # 자연 회복(대지 회합 6레벨): 회합 주문 하나
+			continue
 		var cls := RulesDB.get_entry("class", str(c.feature_class.get(fid, c.class_id)))
 		if str(cls.get("spellcasting", {}).get("list", "")) in spell.get("classes", []):
 			return fid
@@ -383,7 +390,7 @@ static func _spell_attack(caster: Node, spell: Dictionary, slot: int) -> Diction
 	var hit: Array = []
 	for e: Dictionary in spell["effects"].get("hit", []):
 		if e["type"] == "damage":
-			hit.append({"dice": damage_dice(caster, spell, e["dice"], slot), "damage_type": e["damage_type"]})
+			hit.append({"dice": damage_dice(caster, spell, e["dice"], slot, str(e["damage_type"])), "damage_type": e["damage_type"]})
 	return {"name": spell["name"]["en"], "bonus": spell_attack_bonus(caster), "weapon": false, "spell": spell["id"],
 		"kind": spell["effects"]["check"].get("kind", "ranged"), "damage": hit}
 
@@ -578,8 +585,8 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 	var dur := _dur(spell, opts)
 	match e["type"]:
 		"damage":
-			var r := Dice.roll(damage_dice(caster, spell, e["dice"], slot), spell["name"]["en"])
 			var dtype: String = e["damage_type"] if e["damage_type"] != "chosen" else opts.get("choice", "fire")
+			var r := Dice.roll(damage_dice(caster, spell, e["dice"], slot, dtype), spell["name"]["en"])
 			Resolver.apply_damage(t, [{"amount": r["total"], "damage_type": dtype}], {"attacker": caster})
 		"heal":
 			var amount: int = Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])["total"]
@@ -709,9 +716,9 @@ static func _scaled(caster: Node, spell: Dictionary, effects: Array, slot: int, 
 	for e: Dictionary in effects:
 		var c := e.duplicate()
 		if c["type"] == "damage":
-			c["dice"] = damage_dice(caster, spell, c["dice"], slot)
 			if c["damage_type"] == "chosen":
 				c["damage_type"] = opts.get("choice", "fire")
+			c["dice"] = damage_dice(caster, spell, c["dice"], slot, str(c["damage_type"]))
 		out.append(c)
 	return out
 

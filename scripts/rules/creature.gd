@@ -360,6 +360,10 @@ func modifier_entries() -> Array[Dictionary]:
 func is_condition_immune(id: String) -> bool:
 	if condition_immunities.has(id):
 		return true
+	if id in ["charmed", "frightened"] and has_cap("mindless_rage") and has_condition("raging"):
+		return true  # 광기 없는 분노(광전사 6레벨)
+	if load("res://scripts/rules/auras.gd").immune(self, id):
+		return true  # 용기·헌신의 오라(팔라딘)
 	for a in active_conditions():
 		if id in a["def"].get("condition_immunities", []):
 			return true

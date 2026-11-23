@@ -92,9 +92,11 @@ static func pool(c: Node, cid: String = "") -> Array:
 	if t == "spellbook":
 		source = c.spellbook
 	else:
-		var list := str(_sc(c, cid).get("list", ""))
+		var lists: Array = [str(_sc(c, cid).get("list", ""))]
+		var ccid := _cid(c, cid)
+		lists.append_array(load("res://scripts/rules/character_builder.gd").extra_lists(RulesDB.get_entry("class", ccid), c.class_level(ccid)))
 		for sp: Dictionary in RulesDB.entries("spell"):
-			if list in sp.get("classes", []) and str(sp.get("game_status", "")) == "included":
+			if lists.any(func(l: String) -> bool: return l in sp.get("classes", [])) and str(sp.get("game_status", "")) == "included":
 				source.append(sp["id"])
 	var fixed := fixed_spells(c)
 	return source.filter(func(sid: String) -> bool:

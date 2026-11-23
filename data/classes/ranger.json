@@ -217,6 +217,15 @@
         "20": 6
       },
       "recharge": "long"
+    },
+    {
+      "id": "tireless",
+      "name": {
+        "ko": "지치지 않음",
+        "en": "Tireless"
+      },
+      "max": "ability_mod:wis",
+      "recharge": "long"
     }
   ],
   "features": [
@@ -293,6 +302,49 @@
         "attacks_per_action": 2
       },
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "roving",
+      "name": {
+        "ko": "방랑",
+        "en": "Roving"
+      },
+      "level": 6,
+      "caps": [
+        "fast_movement",
+        "climber"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "중갑이 아니면 속도 +10피트, 등반·수영 속도(오르기 지점이 아닌 높이 차도 오르내림)."
+    },
+    {
+      "id": "expertise_9",
+      "name": {
+        "ko": "전문화(9레벨)",
+        "en": "Expertise (level 9)"
+      },
+      "level": 9,
+      "choice_kind": "expertise",
+      "count": 2,
+      "choices": [],
+      "source": "SRD 5.2.1",
+      "notes_ko": "숙련 기능 2개 더 전문화."
+    },
+    {
+      "id": "tireless",
+      "name": {
+        "ko": "지치지 않음",
+        "en": "Tireless"
+      },
+      "level": 10,
+      "kind": "action",
+      "resource": "tireless",
+      "script": "tireless",
+      "icon": "statuses/buff.webp",
+      "glyph": "shield",
+      "explore": true,
+      "source": "SRD 5.2.1",
+      "notes_ko": "임시 HP 1d8 + 지혜(최소 1). 지혜 수정치(최소 1)회, 긴 휴식. 탈진 감소는 생략."
     }
   ],
   "subclasses": [
@@ -343,6 +395,33 @@
           },
           "notes_ko": "거상 학살자: 턴당 1회 HP가 줄어든 대상에게 무기 명중 +1d8. 무리 파괴자: 턴당 1회 무기 공격 뒤 원래 대상 1칸 안 다른 적에게 같은 무기로 추가 공격 — 자동(단순화). 휴식 때 바꾸기는 1차 생략.",
           "source": "SRD 5.2.1"
+        },
+        {
+          "id": "defensive_tactics",
+          "name": {
+            "ko": "방어 전술",
+            "en": "Defensive Tactics"
+          },
+          "level": 7,
+          "choice_kind": "option",
+          "choices": [
+            "escape_the_horde",
+            "multiattack_defense"
+          ],
+          "source": "SRD 5.2.1",
+          "choice_grants": {
+            "escape_the_horde": {
+              "caps": [
+                "escape_the_horde"
+              ]
+            },
+            "multiattack_defense": {
+              "caps": [
+                "multiattack_defense"
+              ]
+            }
+          },
+          "notes_ko": "무리 탈출: 나에 대한 기회 공격 불리. 다중 공격 방어: 나를 맞힌 생물은 이번 턴 남은 나에 대한 공격 불리. 휴식 때 바꾸기는 생략."
         }
       ],
       "source": "SRD 5.2.1"
@@ -418,7 +497,8 @@
       "ranged": {
         "main": "longbow"
       }
-    }
+    },
+    "defensive_tactics": "multiattack_defense"
   },
   "source": "SRD 5.2.1",
   "multiclass": {

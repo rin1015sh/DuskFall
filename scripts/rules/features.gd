@@ -45,13 +45,20 @@ static func use(world: Dictionary, creature: Node, feature_id: String, target: V
 	if not Combat.can_spend(creature, cost):
 		return {"ok": false, "reason": "비용이 없다"}
 	var res_id: String = f.get("resource", "")
+	var pay_n := 1
 	if res_id != "" and creature.resource(res_id) <= 0:
-		return {"ok": false, "reason": "남은 횟수가 없다"}
+		# 대체 비용 alt_cost {resource, amount, cap}: 횟수가 없으면 다른 자원으로(마법의 화신 — 마법 점수 2로 타고난 마법)
+		var alt: Dictionary = f.get("alt_cost", {})
+		if alt.is_empty() or not creature.has_cap(str(alt.get("cap", ""))) or creature.resource(str(alt["resource"])) < int(alt.get("amount", 1)):
+			return {"ok": false, "reason": "남은 횟수가 없다"}
+		res_id = str(alt["resource"])
+		pay_n = int(alt.get("amount", 1))
 	var r := run(f["script"], {"world": world, "self": creature, "target": target, "opts": opts, "feature": f})
 	if r.get("ok", false):
 		Combat.spend(creature, cost)
 		if res_id != "" and not r.get("keep_resource", false):
-			creature.spend_resource(res_id)
+			for i in pay_n:
+				creature.spend_resource(res_id)
 	return r
 
 

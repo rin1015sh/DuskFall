@@ -19,7 +19,12 @@ func apply(ctx: Dictionary) -> Dictionary:
 		return {"ok": false, "reason": "이미 분노 중"}
 	if not c.concentration.is_empty():
 		c.break_concentration("분노")
+	if c.has_cap("mindless_rage"):
+		c.remove_condition("charmed")
+		c.remove_condition("frightened")
 	c.apply_condition("raging", TURNS, c)
+	if c.has_cap("instinctive_pounce"):
+		c.turn["movement"] = int(c.turn.get("movement", 0)) + c.speed() / 2  # 본능적 도약(7레벨): 속도 절반 더 이동
 	c.turn["rage_kept"] = true  # 들어간 턴은 다음 턴 끝까지 간다
 	Dice.log_text("%s: 분노" % c.label())
 	return {"ok": true}

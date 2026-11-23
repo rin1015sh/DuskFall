@@ -218,6 +218,9 @@
                 "type": "object"
               }
             },
+            "resistances": {"type": "array", "items": {"type": "string"}},
+            "condition_immunities": {"type": "array", "items": {"type": "string"}},
+            "spell_damage_types": {"type": "array", "items": {"type": "string"}},
             "weapon_hit_bonus": {
               "$comment": "턴당 1회 무기 명중 추가 피해 {dice_by_level, damage_types}(신성한 일격·원초의 일격)",
               "type": "object"
@@ -255,7 +258,8 @@
             "feat",
             "skill",
             "expertise",
-            "option"
+            "option",
+            "spell"
           ]
         },
         "choice_grants": {
@@ -302,7 +306,10 @@
                   "type": "object"
                 }
               },
-              "weapon_hit_bonus": {
+              "resistances": {"type": "array", "items": {"type": "string"}},
+            "condition_immunities": {"type": "array", "items": {"type": "string"}},
+            "spell_damage_types": {"type": "array", "items": {"type": "string"}},
+            "weapon_hit_bonus": {
               "$comment": "턴당 1회 무기 명중 추가 피해 {dice_by_level, damage_types}(신성한 일격·원초의 일격)",
               "type": "object"
             },
@@ -469,6 +476,32 @@
         "max_spell_level": {
           "$comment": "무료 시전 기능의 최대 주문 레벨(신성 개입 5)",
           "type": "integer"
+        },
+        "also_hooks": {
+          "$comment": "같은 스크립트를 더 거는 훅들",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "aura": {
+          "$comment": "오라 {range_by_level, save_bonus, immune} — scripts/rules/auras.gd",
+          "type": "object"
+        },
+        "alt_cost": {
+          "$comment": "횟수가 없을 때 대체 비용 {resource, amount, cap}",
+          "type": "object"
+        },
+        "choice_from": {
+          "$comment": "다른 기능의 선택 값을 따른다",
+          "type": "string"
+        },
+        "spell_lists": {
+          "$comment": "choice_kind spell의 주문 목록들",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "free_cast_from": {
+          "$comment": "무료 시전 범위(subclass = 하위 클래스 항상 준비 주문)",
+          "type": "string"
         }
       }
     }
@@ -609,6 +642,10 @@
         "list": {
           "$comment": "주문 목록 id — 주문 데이터 classes에 이 값이 있는 주문만 고를 수 있다",
           "type": "string"
+        },
+        "extra_lists": {
+          "$comment": "클래스 레벨이 되면 더 열리는 주문 목록 {level, lists}(바드 마법의 비밀)",
+          "type": "object"
         },
         "swap": {
           "$comment": "준비 주문 교체(spell_prep.gd): long_rest 긴 휴식 뒤 바꿀 수(-1 전부, 기본 -1), level_up 레벨 업 때 바꿀 수(기본 0). 창은 다음 전투가 시작되면 닫힌다",

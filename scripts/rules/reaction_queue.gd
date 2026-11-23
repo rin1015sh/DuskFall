@@ -233,6 +233,11 @@ func _on_damage_taken(info: Dictionary) -> void:
 	var grid: Node = world["grid"]
 	if not grid.creatures().has(attacker) or not grid.creatures().has(t) or not grid.can_see(t, attacker):
 		return
+	# 보복(능력 태그 retaliation — 광전사 10레벨): 1칸 안 생물에게 피해를 받으면 반응으로 근접 공격 1회
+	if t.has_cap("retaliation") and grid.distance_between(t, attacker) <= 1 and t.known_reactions.has("retaliation"):
+		var Combat: Variant = load("res://scripts/rules/combat.gd")
+		if offer(t, "retaliation", {"attacker": attacker}, func() -> void: Combat.opportunity_attack(world, t, attacker)):
+			return
 	var Spellcasting: Variant = load("res://scripts/rules/spellcasting.gd")
 	for sid: String in reaction_spells(t, "on_damage_taken"):
 		if not t.spells.has(sid) or payment(t, sid) == "" \

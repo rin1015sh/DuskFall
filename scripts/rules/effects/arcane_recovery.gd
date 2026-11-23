@@ -12,7 +12,8 @@ func apply(ctx: Dictionary) -> Dictionary:
 	var w: Dictionary = ctx.get("world", {})
 	if w.get("turns") != null and w["turns"].in_combat:
 		return {"ok": false, "reason": "전투 중에는 쓸 수 없다"}  # BG3식: 전투 밖이면 언제나(changes.md)
-	var budget: int = ceili(c.feature_level("arcane_recovery") / 2.0)
+	var fid := str(ctx.get("feature", {}).get("id", "arcane_recovery"))  # 자연 회복(드루이드 대지 6레벨)도 같은 스크립트
+	var budget: int = ceili(c.feature_level(fid) / 2.0)
 	var got := 0
 	for lv in range(5, 0, -1):
 		var id := "spell_slot_%d" % lv

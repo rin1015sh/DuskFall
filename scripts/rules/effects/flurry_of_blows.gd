@@ -20,7 +20,8 @@ func apply(ctx: Dictionary) -> Dictionary:
 	if w.has("grid") and w["grid"].distance_between(c, t) > 1:
 		return {"ok": false, "reason": "인접해야 한다"}
 	var hits := 0
-	for i in STRIKES:
+	var n := STRIKES + (1 if c.has_cap("heightened_focus") else 0)  # 고양된 집중(10레벨): 3회
+	for i in n:
 		if t.dead:
 			break
 		var res := Combat._do_attack(w, c, t, Combat.build_weapon_attack(c, "unarmed"))

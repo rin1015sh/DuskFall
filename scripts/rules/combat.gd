@@ -157,7 +157,8 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		"two_handed": opts.get("two_handed", false) or "two_handed" in props,
 		"kind": "ranged" if ranged else "melee", "weapon": true, "properties": props,
 		"mastery": _mastery_of(c, w),
-		"damage": [{"dice": expr, "damage_type": w["damage_type"]}], "extra_disadvantage": dis,
+		"damage": [{"dice": expr, "damage_type": "force" if w["id"] == "unarmed" and c.has_cap("empowered_strikes") else w["damage_type"]}],
+		"extra_disadvantage": dis,
 		"range_tiles": w.get("range_tiles", [reach_of(c), reach_of(c)]) if ranged else [1, 1]}
 
 
@@ -413,11 +414,13 @@ static func opportunity_attack(world: Dictionary, attacker: Node, target: Node) 
 			if a["type"] == "attack" and a.get("kind", "melee") in ["melee", "both"]:
 				var matk := MF.to_attack(a, "melee")
 				matk["name"] = "기회 공격(%s)" % matk["name"]
+				matk["opportunity"] = true
 				var mres := _do_attack(world, attacker, target, matk, true)
 				_monster_on_hit(world, attacker, target, a, mres)
 				return mres
 	var atk := build_weapon_attack(attacker, attacker.weapon_sets.get("melee", {}).get("main", ""))
 	atk["name"] = "기회 공격(%s)" % atk["name"]
+	atk["opportunity"] = true
 	var res := _do_attack(world, attacker, target, atk, true)
 	apply_mastery(world, attacker, target, atk, res, {})
 	return res

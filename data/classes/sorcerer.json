@@ -308,6 +308,11 @@
       "glyph": "sparkle",
       "ai": {
         "when": "foes_2plus"
+      },
+      "alt_cost": {
+        "resource": "sorcery_points",
+        "amount": 2,
+        "cap": "sorcery_incarnate"
       }
     },
     {
@@ -480,6 +485,77 @@
       ],
       "notes_ko": "짧은 휴식 뒤 마법 점수를 레벨 절반(내림)까지 자동 회복, 긴 휴식마다 1회.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "metamagic_10",
+      "name": {
+        "ko": "주문 변형(10레벨)",
+        "en": "Metamagic (level 10)"
+      },
+      "level": 10,
+      "choices": [
+        "quickened",
+        "distant",
+        "heightened",
+        "extended",
+        "careful",
+        "subtle",
+        "seeking"
+      ],
+      "choice_kind": "option",
+      "count": 2,
+      "choice_grants": {
+        "quickened": {
+          "caps": [
+            "metamagic_quickened"
+          ]
+        },
+        "distant": {
+          "caps": [
+            "metamagic_distant"
+          ]
+        },
+        "heightened": {
+          "caps": [
+            "metamagic_heightened"
+          ]
+        },
+        "extended": {
+          "caps": [
+            "metamagic_extended"
+          ]
+        },
+        "careful": {
+          "caps": [
+            "metamagic_careful"
+          ]
+        },
+        "subtle": {
+          "caps": [
+            "metamagic_subtle"
+          ]
+        },
+        "seeking": {
+          "caps": [
+            "metamagic_seeking"
+          ]
+        }
+      },
+      "notes_ko": "변형 2개 더.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sorcery_incarnate",
+      "name": {
+        "ko": "마법의 화신",
+        "en": "Sorcery Incarnate"
+      },
+      "level": 7,
+      "caps": [
+        "sorcery_incarnate"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "타고난 마법 횟수가 없으면 마법 점수 2로 쓴다(타고난 마법 alt_cost). 타고난 마법 중 주문 하나에 변형 2개는 다음 단계(변형 토글이 하나)."
     }
   ],
   "subclasses": [
@@ -529,6 +605,66 @@
           "level": 3,
           "handled_by": "하위 클래스 always_prepared(3레벨 변신·색채의 구슬·명령·용의 숨결, 5레벨 공포·비행)",
           "source": "SRD 5.2.1"
+        },
+        {
+          "id": "elemental_affinity",
+          "name": {
+            "ko": "원소 친화",
+            "en": "Elemental Affinity"
+          },
+          "level": 6,
+          "choice_kind": "option",
+          "choices": [
+            "acid",
+            "cold",
+            "fire",
+            "lightning",
+            "poison"
+          ],
+          "source": "SRD 5.2.1",
+          "choice_grants": {
+            "acid": {
+              "resistances": [
+                "acid"
+              ],
+              "spell_damage_types": [
+                "acid"
+              ]
+            },
+            "cold": {
+              "resistances": [
+                "cold"
+              ],
+              "spell_damage_types": [
+                "cold"
+              ]
+            },
+            "fire": {
+              "resistances": [
+                "fire"
+              ],
+              "spell_damage_types": [
+                "fire"
+              ]
+            },
+            "lightning": {
+              "resistances": [
+                "lightning"
+              ],
+              "spell_damage_types": [
+                "lightning"
+              ]
+            },
+            "poison": {
+              "resistances": [
+                "poison"
+              ],
+              "spell_damage_types": [
+                "poison"
+              ]
+            }
+          },
+          "notes_ko": "용의 원소(산·냉기·화염·번개·독) 하나: 그 피해 저항, 그 종류 주문 피해 + 매력 수정치(효과 모델 주문)."
         }
       ]
     }
@@ -606,7 +742,12 @@
       "ranged": {
         "main": "light_crossbow"
       }
-    }
+    },
+    "elemental_affinity": "fire",
+    "metamagic_10": [
+      "careful",
+      "heightened"
+    ]
   },
   "source": "SRD 5.2.1",
   "multiclass": {}

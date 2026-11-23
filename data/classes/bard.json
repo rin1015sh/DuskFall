@@ -251,7 +251,15 @@
         1
       ]
     },
-    "progression": "full"
+    "progression": "full",
+    "extra_lists": {
+      "level": 10,
+      "lists": [
+        "cleric",
+        "druid",
+        "wizard"
+      ]
+    }
   },
   "resources": [
     {
@@ -342,6 +350,43 @@
       "notes_ko": "영감을 짧은 휴식에도 전부 회복(자원 recharge 레벨표). 행동 없이 주문 슬롯 하나로 영감 1회 회복.",
       "source": "SRD 5.2.1",
       "glyph": "note"
+    },
+    {
+      "id": "expertise_9",
+      "name": {
+        "ko": "전문화(9레벨)",
+        "en": "Expertise (level 9)"
+      },
+      "level": 9,
+      "choice_kind": "expertise",
+      "count": 2,
+      "choices": [],
+      "source": "SRD 5.2.1",
+      "notes_ko": "숙련 기능 2개 더 전문화."
+    },
+    {
+      "id": "countercharm",
+      "name": {
+        "ko": "대항 매혹",
+        "en": "Countercharm"
+      },
+      "level": 7,
+      "kind": "reaction",
+      "caps": [
+        "countercharm"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "자신 또는 6칸 안 생물이 매혹·공포를 거는 효과의 내성에 실패하면 반응으로 유리하게 다시 굴린다(반응 설정 대상)."
+    },
+    {
+      "id": "magical_secrets",
+      "name": {
+        "ko": "마법의 비밀",
+        "en": "Magical Secrets"
+      },
+      "level": 10,
+      "source": "SRD 5.2.1",
+      "handled_by": "클래스 spellcasting.extra_lists — 10레벨부터 준비 주문을 클레릭·드루이드·위저드 목록에서도 고른다(주문 창·생성기 검사)"
     }
   ],
   "subclasses": [
@@ -399,6 +444,23 @@
           "range_tiles": 12,
           "notes_ko": "12칸 안 보이는 적이 명중하면 반응 + 영감 1회로 영감 주사위만큼 명중 굴림을 뺀다(반응 설정 대상). 피해 굴림·능력 판정에 쓰기는 1차 생략.",
           "source": "SRD 5.2.1"
+        },
+        {
+          "id": "magical_discoveries",
+          "name": {
+            "ko": "마법의 발견",
+            "en": "Magical Discoveries"
+          },
+          "level": 6,
+          "choice_kind": "spell",
+          "count": 2,
+          "spell_lists": [
+            "cleric",
+            "druid",
+            "wizard"
+          ],
+          "source": "SRD 5.2.1",
+          "notes_ko": "클레릭·드루이드·위저드 목록에서 주문 2개(소마법이거나 가진 슬롯 레벨 이하) — 항상 준비. 레벨 업 때 바꾸기는 생략(명세에서 바꿈)."
         }
       ]
     }
@@ -479,7 +541,15 @@
       "ranged": {
         "main": "light_crossbow"
       }
-    }
+    },
+    "magical_discoveries": [
+      "spirit_guardians",
+      "counterspell"
+    ],
+    "expertise_9": [
+      "insight",
+      "arcana"
+    ]
   },
   "source": "SRD 5.2.1",
   "multiclass": {

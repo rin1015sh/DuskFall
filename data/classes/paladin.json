@@ -378,6 +378,57 @@
       "notes_ko": "탈것 찾기 항상 준비 + 긴 휴식마다 1회 무료. 탈것은 동료로 싸운다(올라타기 규칙 없음).",
       "source": "SRD 5.2.1",
       "handled_by": "클래스 always_prepared(탈것 찾기) + 자원 innate_find_steed(슬롯 없이 긴 휴식마다 1회). 올라타기 없음(BG3식 동료)"
+    },
+    {
+      "id": "aura_of_protection",
+      "name": {
+        "ko": "보호의 오라",
+        "en": "Aura of Protection"
+      },
+      "level": 6,
+      "aura": {
+        "range_by_level": {
+          "6": 2,
+          "18": 6
+        },
+        "save_bonus": "cha"
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "자신과 2칸(18레벨 6칸) 안 아군의 내성 + 매력 수정치(최소 +1). 무력화되면 꺼진다. 여러 팔라딘이면 가장 큰 하나."
+    },
+    {
+      "id": "abjure_foes",
+      "name": {
+        "ko": "적 퇴치",
+        "en": "Abjure Foes"
+      },
+      "level": 9,
+      "kind": "action",
+      "resource": "channel_divinity",
+      "script": "abjure_foes",
+      "target": "enemy",
+      "icon": "statuses/fear.webp",
+      "glyph": "skull_rays",
+      "ai": {
+        "when": "foes_2plus"
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "신성 변환. 12칸 안 보이는 적 매력 수정치(최소 1)명 지혜 내성, 실패 시 공포 10턴(피해를 받으면 끝). '한 가지만 하기'는 생략."
+    },
+    {
+      "id": "aura_of_courage",
+      "name": {
+        "ko": "용기의 오라",
+        "en": "Aura of Courage"
+      },
+      "level": 10,
+      "aura": {
+        "immune": [
+          "frightened"
+        ]
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "오라 안 자신과 아군은 공포 면역."
     }
   ],
   "subclasses": [
@@ -424,6 +475,21 @@
           "source": "SRD 5.2.1",
           "glyph": "sword",
           "explore": true
+        },
+        {
+          "id": "aura_of_devotion",
+          "name": {
+            "ko": "헌신의 오라",
+            "en": "Aura of Devotion"
+          },
+          "level": 7,
+          "aura": {
+            "immune": [
+              "charmed"
+            ]
+          },
+          "source": "SRD 5.2.1",
+          "notes_ko": "오라 안 자신과 아군은 매혹 면역."
         }
       ]
     }
