@@ -35,6 +35,9 @@
   ],
   "spellcasting": {
     "ability": "int",
+    "swap": {
+      "long_rest": -1
+    },
     "type": "spellbook",
     "list": "wizard",
     "cantrips": {
@@ -95,9 +98,11 @@
         "en": "Ritual Adept"
       },
       "level": 1,
-      "status": "deferred",
       "notes_ko": "탐험 중 주문서 의식 주문을 준비 없이 슬롯 없이(6단계 탐험).",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "caps": [
+        "ritual_from_spellbook"
+      ]
     },
     {
       "id": "arcane_recovery",
@@ -140,9 +145,11 @@
         "en": "Memorize Spell"
       },
       "level": 5,
-      "status": "deferred",
       "notes_ko": "짧은 휴식 뒤 준비 주문 1개 교체(7단계 휴식).",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "caps": [
+        "prepare_swap_short_rest"
+      ]
     }
   ],
   "subclasses": [
@@ -162,9 +169,15 @@
             "en": "Evocation Savant"
           },
           "level": 3,
-          "notes_ko": "방출학파 주문 2개(2레벨 이하) 무료 + 새 슬롯 레벨마다 1개. 주문책·준비 교체 시스템이 생기면 붙인다(지금은 주문책 = 준비 주문).",
-          "status": "deferred",
-          "source": "SRD 5.2.1"
+          "notes_ko": "방출학파 주문 2개(2레벨 이하) 무료 + 새 슬롯 레벨마다 1개 — 주문서 크기에 더하고 명세 주문 중 방출학파로 채운다.",
+          "source": "SRD 5.2.1",
+          "grants": {
+            "spellbook_school": {
+              "school": "evocation",
+              "count": 2,
+              "per_new_slot_level": 1
+            }
+          }
         },
         {
           "id": "potent_cantrip",

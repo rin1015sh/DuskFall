@@ -5,6 +5,7 @@ extends RefCounted
 ##   world["inventory"]["gold"]: 캠프 서비스(부활 200gp·재분배 100gp)
 ##   world["inspiration"]: 파티 공용 영감(최대 4)
 
+const SpellPrep := preload("res://scripts/rules/spell_prep.gd")
 const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
 const Interact := preload("res://scripts/rules/interact.gd")
 const Stealth := preload("res://scripts/rules/stealth.gd")
@@ -45,6 +46,7 @@ static func short_rest(world: Dictionary, party: Array) -> Dictionary:
 		if c.dead:
 			continue
 		_heal_to(c, mini(c.hp_max, c.hp + c.hp_max / 2))
+		SpellPrep.open_window(c, "short")  # 주문 암기(능력 태그 prepare_swap_short_rest): 1개 교체
 		for id: String in c.resources:
 			var r: Dictionary = c.resources[id]
 			match r.get("recharge", ""):
@@ -117,6 +119,7 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 			continue
 		c.temp_hp = 0
 		c.death_saves = {"successes": 0, "failures": 0}
+		SpellPrep.open_window(c, "long")  # 준비 주문 교체 창(다음 전투까지)
 		if full:
 			_heal_to(c, c.hp_max)
 			for id: String in c.resources:

@@ -22,7 +22,7 @@ description: 무기·갑옷·물약·두루마리·도구·음식(보급품)·�
    - **무기**: `category`(simple_melee·simple_ranged·martial_melee·martial_ranged), `damage`, `damage_type`, `properties`(finesse·light·heavy·thrown·two_handed·versatile·reach·loading·ammunition), `versatile_damage`, `range_tiles`([보통, 최대] 칸), `ammunition`, `mastery`(cleave·graze·nick·push·sap·slow·topple·vex).
    - **갑옷**: `category`(light·medium·heavy·shield), `ac_base`, `dex_cap`(없으면 null, 중갑 0), `str_required`, `stealth_disadvantage`.
    - **물약**(`category: potion`): `effects`(효과 모델), `drink_cost`, `feed_cost`, `throwable`, `throw{area, removes}` — 행동 목록에 마시기·먹이기·던지기가 자동으로 뜬다.
-   - **두루마리**(`category: scroll`): `spell`(주문 id), `save_dc`, `attack_bonus`(SRD: 소마법·1레벨 13 / +5). 내 클래스 주문 목록에 있으면 '두루마리 읽기'가 뜨고 슬롯 없이 시전, 쓰면 사라진다.
+   - **두루마리**(`category: scroll`): `spell`(주문 id), `save_dc`, `attack_bonus`(SRD: 소마법·1레벨 13 / +5). 내 클래스 주문 목록에 있으면 '두루마리 읽기'가 뜨고 슬롯 없이 시전, 쓰면 사라진다. 주문서형 클래스(위저드)는 주문 준비 창(K)에서 배울 수 있다(두루마리 소모 + 주문 레벨 × 50gp).
    - **음식**(`category: food`): `camp_supplies`(긴 휴식 1회 = 40).
    - **도구**(`category: tool`): 도둑 도구·함정 해체 도구(지금은 이 둘만 엔진이 쓴다).
    - **마법 물품**(`category: magic`): **아직 동작 없음** — 장비 칸(장착 효과) 설계가 먼저다. 넣기 전에 사용자에게 묻는다.

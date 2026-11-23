@@ -185,10 +185,25 @@ static func targets_for(world: Dictionary, caster: Node, spell: Dictionary, aim:
 # 시전 가능·미리보기
 # ======================================================================
 
+## 의식(룰북 6단계 공통 변환): 의식 주문은 탐험 중(실시간, 전투 밖)에 슬롯 없이 즉시 시전, 전투 중에는 슬롯을 쓴다.
+static func ritual_free(world: Dictionary, spell: Dictionary, opts: Dictionary = {}) -> bool:
+	return bool(spell.get("cast", {}).get("ritual", false)) and int(spell.get("level", 0)) > 0 and not opts.has("slot") \
+		and EventBus.realtime and not (world.get("turns") != null and world["turns"].in_combat)
+
+
+## 능력 태그 ritual_from_spellbook(의식 숙련): 주문서의 의식 주문은 준비하지 않아도 의식으로 시전한다.
+static func ritual_from_book(world: Dictionary, caster: Node, spell_id: String) -> bool:
+	var spell := RulesDB.get_entry("spell", spell_id)
+	return caster.has_cap("ritual_from_spellbook") and spell_id in caster.spellbook and ritual_free(world, spell)
+
+
 static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i, opts: Dictionary = {}) -> String:
 	var spell := RulesDB.get_entry("spell", spell_id)
-	if spell.is_empty() or not caster.spells.has(spell_id):
+	if spell.is_empty() or not (caster.spells.has(spell_id) or ritual_from_book(world, caster, spell_id)):
 		return "모르는 주문"
+	if ritual_free(world, spell, opts):
+		opts = opts.duplicate()
+		opts["no_slot"] = true
 	if spell["game_status"] != "included":
 		return "1차 제외 주문"
 	if spell.has("script"):
@@ -285,6 +300,10 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 		return {"ok": false, "reason": why}
 	var spell := RulesDB.get_entry("spell", spell_id)
 	var level := int(spell["level"])
+	if ritual_free(world, spell, opts):
+		opts = opts.duplicate()
+		opts["no_slot"] = true
+		Dice.log_text("%s: 의식으로 시전(슬롯 없음)" % caster.label())
 	# 무료 횟수(타고난 시전 innate_<주문> — 선호하는 적·마법 입문)가 남아 있으면 먼저 쓴다(사용자 결정 2026-11-23)
 	var use_innate: bool = level > 0 and not opts.get("no_slot", false) and not opts.get("free", false) and not opts.has("slot") \
 		and caster.resource(innate_id(spell_id)) > 0

@@ -4,6 +4,7 @@ extends Node
 ## 순서가 이어진 아군(party)은 공유 턴으로 묶여 원하는 순서로 행동한다.
 ## 턴은 바깥(화면·AI·테스트)이 end_turn으로 끝낸다.
 
+const SpellPrep := preload("res://scripts/rules/spell_prep.gd")
 const Resolver := preload("res://scripts/rules/resolver.gd")
 
 var world: Dictionary = {}
@@ -119,6 +120,7 @@ func start_combat(zone_id: String, surprised: Array = [], extra: Array = []) -> 
 	for c: Node in order:
 		roll_initiative(c)
 		c.refresh_reaction()
+		SpellPrep.close_window(c)  # 준비 주문 교체 창은 전투가 시작되면 닫힌다
 		if c in surprised:
 			c.apply_condition("surprised", -1, "combat_start")
 	_sort_order()

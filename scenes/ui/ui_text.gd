@@ -109,7 +109,48 @@ const TEXT := {
 	"roll_result": {"ko": "d20 %d → %d (DC %d) %s", "en": "d20 %d → %d (DC %d) %s"},
 	"success": {"ko": "성공", "en": "Success"},
 	"failure": {"ko": "실패", "en": "Failure"},
+	"spellbook": {"ko": "주문서", "en": "Spellbook"},
+	"spells_window": {"ko": "주문 준비", "en": "Prepare Spells"},
+	"prepared_n": {"ko": "준비 %d / %d", "en": "Prepared %d / %d"},
+	"swap_all": {"ko": "자유롭게 바꿀 수 있다(다음 전투까지)", "en": "Change freely (until next combat)"},
+	"swap_left": {"ko": "바꿀 수 있는 주문 %d개(다음 전투까지)", "en": "%d change(s) left (until next combat)"},
+	"swap_closed": {"ko": "긴 휴식 뒤에 바꿀 수 있다", "en": "Change after a long rest"},
+	"swap_combat": {"ko": "전투 중에는 바꿀 수 없다", "en": "Can't change during combat"},
+	"swap_none": {"ko": "이 클래스는 준비 주문을 바꾸지 않는다", "en": "This class doesn't prepare spells"},
+	"cantrips": {"ko": "소마법", "en": "Cantrips"},
+	"always_prepared": {"ko": "항상 준비", "en": "Always Prepared"},
+	"spell_level_n": {"ko": "%d레벨", "en": "Level %d"},
+	"learn_scrolls": {"ko": "두루마리에서 배우기", "en": "Learn from Scrolls"},
+	"learn_btn": {"ko": "%s 배우기 (%dgp)", "en": "Learn %s (%dgp)"},
+	"no_scrolls": {"ko": "배울 두루마리가 없다", "en": "No scrolls to learn"},
+	"ritual": {"ko": "의식", "en": "Ritual"},
+	"prep_full": {"ko": "준비 칸이 가득 찼다", "en": "No free preparation slot"},
 }
+
+## 엔진 사유(한국어) → 영어(주문 준비 창)
+const REASON_EN := {
+	"전투 중에는 바꿀 수 없다": "Can't change during combat", "긴 휴식 뒤에 바꿀 수 있다": "Change after a long rest",
+	"준비 주문을 바꾸지 않는 클래스": "This class doesn't prepare spells", "주문서가 없다": "No spellbook",
+	"주문 두루마리가 아니다": "Not a spell scroll", "두루마리가 없다": "No scroll", "내 클래스 주문 목록에 없는 주문": "Not on your class list",
+	"소마법은 주문서에 적지 않는다": "Cantrips aren't copied", "아직 준비할 수 없는 레벨": "Level too high to prepare yet",
+	"이미 주문서에 있다": "Already in spellbook", "전투 중에는 적을 수 없다": "Can't copy during combat",
+}
+
+
+## 엔진이 돌려준 사유를 화면 언어로(앞부분이 같으면 바꾼다 — "준비 수 초과(4)" 등은 그대로).
+static func reason(text: String) -> String:
+	if lang == "ko":
+		return text
+	for k: String in REASON_EN:
+		if text.begins_with(k):
+			return REASON_EN[k] + text.substr(k.length())
+	if text.begins_with("금화가 모자라다"):
+		return "Not enough gold" + text.substr("금화가 모자라다".length())
+	if text.begins_with("이번에 바꿀 수 있는 주문은"):
+		return "Changes allowed now:" + text.substr("이번에 바꿀 수 있는 주문은".length()).replace("개", "")
+	if text.begins_with("준비 수 초과"):
+		return "Too many prepared" + text.substr("준비 수 초과".length())
+	return text
 
 
 static func t(key: String) -> String:

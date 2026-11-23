@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 21 |
-| capability | 26 |
+| capability | 28 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -80,12 +80,12 @@
 
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
-| 1 | 의식 숙련 (ritual_adept) |  |  | 보류(deferred) |
+| 1 | 의식 숙련 (ritual_adept) |  | 태그 ritual_from_spellbook |  |
 | 1 | 비전 회복 (arcane_recovery) |  | 스크립트 arcane_recovery |  |
 | 2 | 학자 (scholar) |  | 고르기(expertise) |  |
-| 3 | 방출 학자 (evocation_savant) | evoker |  | 보류(deferred) |
+| 3 | 방출 학자 (evocation_savant) | evoker | 부여 spellbook_school |  |
 | 3 | 강력한 소마법 (potent_cantrip) | evoker | 태그 cantrip_half_on_miss |  |
-| 5 | 주문 암기 (memorize_spell) |  |  | 보류(deferred) |
+| 5 | 주문 암기 (memorize_spell) |  | 태그 prepare_swap_short_rest |  |
 
 ## 주문
 
@@ -122,9 +122,11 @@
 | long_rest_inspiration | 기지 | 종족 human |
 | nimble_escape | 날렵한 탈출 | (몬스터 특성 또는 아직 없음) |
 | pack_tactics | 무리 전술 | (몬스터 특성 또는 아직 없음) |
+| prepare_swap_short_rest | 주문 암기 | wizard |
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |
 | reroll_low_damage_two_handed | 대형 무기 전투 | 재주 great_weapon_fighting |
 | reroll_natural_1 | 행운 | 종족 halfling |
+| ritual_from_spellbook | 의식 숙련 | wizard |
 | sneak_attack | 급소 공격 | rogue |
 | spell_heal_bonus | 생명의 제자 | cleric |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |

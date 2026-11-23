@@ -2,6 +2,7 @@ extends RefCounted
 ## 경험치·레벨 업·동료 영입(룰북 7단계 '캠프와 동료': 영입한 동료 전원이 같은 경험치, 레벨업은 전투 밖 언제나,
 ## SRD 경험치 표·상한은 data/rules/progression.json). 경험치는 파티 공용 world["xp"].
 
+const SpellPrep := preload("res://scripts/rules/spell_prep.gd")
 const Builder := preload("res://scripts/rules/character_builder.gd")
 
 const Levels := preload("res://scripts/rules/levels.gd")
@@ -58,7 +59,11 @@ static func level_up(world: Dictionary, c: Node) -> bool:
 	for m in c.extra_modifiers.duplicate():
 		if not m.has("instance") and m.get("source", "") is String and not str(m.get("source", "")).begins_with("spell"):
 			c.extra_modifiers.erase(m)
+	var window := [c.prep_swaps, c.prep_base.duplicate()]
 	Builder.apply(c, spec)
+	c.prep_swaps = window[0]  # 생성기가 연 새 캐릭터 창 대신 원래 창 + 레벨 업 창
+	c.prep_base = window[1]
+	SpellPrep.open_window(c, "level_up")
 	c.hp = maxi(1, c.hp_max - lost)
 	for id: String in c.resources:
 		if keep_res.has(id):

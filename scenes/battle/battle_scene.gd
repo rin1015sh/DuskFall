@@ -34,6 +34,7 @@ const Actions := preload("res://scripts/rules/actions.gd")
 const Hotbar := preload("res://scenes/ui/hotbar.gd")
 const S := preload("res://scenes/ui/ui_style.gd")
 const CharacterSheet := preload("res://scenes/ui/character_sheet.gd")
+const SpellbookWindow := preload("res://scenes/ui/spellbook_window.gd")
 const Minimap := preload("res://scenes/ui/minimap.gd")
 const Vfx := preload("res://scenes/battle/vfx.gd")
 ## 상태 → 아이콘(assets/statuses). 없으면 이로운 것 buff, 해로운 것 debuff.
@@ -93,6 +94,7 @@ var dlg_options: VBoxContainer
 var dlg_use_insp: CheckBox
 var hotbar: Control
 var sheet: Control
+var spellbook: Control
 var minimap: Control
 var vfx: Node2D
 
@@ -337,6 +339,12 @@ func _ready() -> void:
 	_refresh()
 	if args.has("sheet"):
 		sheet.show_for(world, selected)
+	if args.has("spellbook"):
+		world["inventory"]["spell_scroll_magic_missile"] = 1  # 시험용: 배우기 단추가 보이게
+		var bi := int(str(args["spellbook"])) if str(args["spellbook"]).is_valid_int() else 0
+		selected = party[clampi(bi, 0, party.size() - 1)]
+		_refresh()
+		spellbook.show_for(world, selected)
 	if args.has("camp"):
 		_go_camp()
 	if args.has("shop"):
@@ -521,12 +529,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			cam_target += V.pan_delta(pan[event.keycode], cam_zoom)
 		elif event.keycode == KEY_I or event.keycode == KEY_C:
 			_toggle_sheet()
+		elif event.keycode == KEY_K:
+			_toggle_spellbook()
 		elif event.keycode == KEY_L:
 			log_forced = not log_forced
 			_refresh()
 		elif event.keycode == KEY_ESCAPE:
-			if sheet.visible:
+			if sheet.visible or spellbook.visible:
 				sheet.visible = false
+				spellbook.visible = false
 				return
 			mode = "move"
 			hotbar.selected_key = ""
@@ -1392,6 +1403,12 @@ func _build_ui() -> void:
 	sheet_btn.focus_mode = Control.FOCUS_NONE
 	sheet_btn.pressed.connect(_toggle_sheet)
 	root.add_child(sheet_btn)
+	var book_btn := Button.new()
+	book_btn.text = UiText.t("spells_window") + " (K)"
+	book_btn.position = Vector2(150, 12)
+	book_btn.focus_mode = Control.FOCUS_NONE
+	book_btn.pressed.connect(_toggle_spellbook)
+	root.add_child(book_btn)
 	minimap = Minimap.new()
 	minimap.anchor_left = 1.0
 	minimap.anchor_right = 1.0
@@ -1480,6 +1497,9 @@ func _build_ui() -> void:
 	root.add_child(dlg_panel)
 	sheet = CharacterSheet.new()
 	root.add_child(sheet)
+	spellbook = SpellbookWindow.new()
+	spellbook.changed.connect(_refresh)
+	root.add_child(spellbook)
 	banner = S.title("", 44)
 	banner.set_anchors_preset(Control.PRESET_CENTER)
 	banner.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -1518,6 +1538,8 @@ func _refresh() -> void:
 	minimap.center_creature = selected if selected != null else (party[0] if not party.is_empty() else null)
 	if sheet.visible and selected != null:
 		sheet.show_for(world, selected)
+	if spellbook.visible and selected != null and selected != spellbook.creature:
+		spellbook.show_for(world, selected)
 	if dlg != null:
 		hotbar.visible = false  # 대화 중에는 단축 막대를 숨긴다(BG3)
 	elif selected != null and selected.team == "party" and (exploring or not busy):
@@ -1634,7 +1656,16 @@ func _toggle_sheet() -> void:
 	if sheet.visible:
 		sheet.visible = false
 	elif selected != null:
+		spellbook.visible = false
 		sheet.show_for(world, selected)
+
+
+func _toggle_spellbook() -> void:
+	if spellbook.visible:
+		spellbook.visible = false
+	elif selected != null:
+		sheet.visible = false
+		spellbook.show_for(world, selected)
 
 
 ## 탐험 탭 버튼(BG3의 은신·묶기·휴식·저장 자리)

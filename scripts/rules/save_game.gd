@@ -9,7 +9,8 @@ const SAVE_DIR := "user://saves"
 ## 세계에서 그대로 저장하는 값
 const WORLD_KEYS := ["inventory", "inspiration", "short_rests_left", "party_resources", "dialogue_tags", "flags",
 	"goals_done", "xp", "options", "map_id", "traps", "examines", "zones_cleared"]
-const CREATURE_KEYS := ["hp", "hp_max", "temp_hp", "dead", "stable", "death_saves", "team", "sneaking", "level", "faction"]
+const CREATURE_KEYS := ["hp", "hp_max", "temp_hp", "dead", "stable", "death_saves", "team", "sneaking", "level", "faction",
+	"spells", "spellbook", "prepared", "prep_swaps", "prep_base", "known_reactions"]
 ## 생물 메타 중 저장하는 것(대화를 이미 했는지, 경험치를 이미 줬는지, 레벨 업 명세)
 const CREATURE_METAS := ["dialogue_done", "xp_given", "spec"]
 

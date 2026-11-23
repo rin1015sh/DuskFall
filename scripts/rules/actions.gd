@@ -126,6 +126,9 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 	for sid: String in c.spells:
 		if not RulesDB.get_entry("spell", sid).is_empty():
 			out["spells"].append("spell:" + sid)
+	for sid: String in c.spellbook:
+		if not sid in c.spells and Spellcasting.ritual_from_book(world, c, sid):
+			out["spells"].append("spell:" + sid)  # 의식 숙련: 주문서의 의식 주문(탐험 중)
 	return out
 
 

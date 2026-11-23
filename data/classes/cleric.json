@@ -37,6 +37,7 @@
   ],
   "spellcasting": {
     "ability": "wis",
+    "swap": {"long_rest": -1},
     "type": "prepared",
     "list": "cleric",
     "cantrips": {

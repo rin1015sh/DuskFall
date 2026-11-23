@@ -15,6 +15,7 @@ extends RefCounted
 
 const CreatureScript := preload("res://scripts/rules/creature.gd")
 const Levels := preload("res://scripts/rules/levels.gd")
+const SpellPrep := preload("res://scripts/rules/spell_prep.gd")
 
 const POINT_COST := {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9}
 const POINT_BUDGET := 27
@@ -303,6 +304,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		if str(c.feature_data[fid].get("kind", "")) == "reaction":
 			c.known_reactions.append(fid)  # 반응 기능(교묘한 회피 등)
 	c.set_meta("spec", spec.duplicate(true))
+	# 새로 만든 캐릭터는 막 쉰 것처럼 준비 교체 창이 열려 있다(spell_prep.gd)
+	SpellPrep.open_window(c, "long")
 	c.reset_turn()
 
 
@@ -349,6 +352,8 @@ static func _weapon_profs(training: Array) -> Array:
 
 static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Dictionary, lin: Dictionary, spec: Dictionary, lv: int, extra_cantrips: int = 0) -> void:
 	var spells: Array = []
+	c.spellbook = []
+	c.prepared = []
 	var sc: Dictionary = cls.get("spellcasting", {})
 	if not sc.is_empty():
 		c.spellcasting_ability = sc["ability"]
@@ -360,8 +365,46 @@ static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Diction
 		# 준비 주문: 명세 순서대로, 가진 슬롯 레벨 이하인 것만 준비 수만큼(높은 주문은 레벨이 오르면 열린다)
 		var max_slot: int = slots.size()
 		var castable: Array = spec.get("spells", []).filter(func(sid: Variant) -> bool:
-			return int(RulesDB.get_entry("spell", str(sid)).get("level", 99)) <= max_slot)
-		spells.append_array(castable.slice(0, _by_level(sc["prepared"], lv, 0)))
+			var l := int(RulesDB.get_entry("spell", str(sid)).get("level", 99))
+			return l >= 1 and l <= max_slot)
+		# 주문서형: 주문서 = 명세 spellbook(두루마리로 배운 것 포함), 없으면 명세 주문에서 기본 크기만큼. 준비는 주문서 안에서만
+		if str(sc.get("type", "")) == "spellbook":
+			var book: Array = []
+			for sid: Variant in spec.get("spellbook", []):
+				if not str(sid) in book and not RulesDB.get_entry("spell", str(sid)).is_empty():
+					book.append(str(sid))
+			# 크기 = 기본(6 + 레벨당 2) + 학파 무료 주문(grants.spellbook_school — 방출 학자) + 두루마리로 배운 수
+			var base_size := int(sc.get("spellbook", {}).get("1", 6)) + int(sc.get("spellbook", {}).get("per_level", 2)) * (lv - 1)
+			var target := base_size + int(spec.get("spellbook_learned", 0))
+			for f: Dictionary in c.feature_data.values():
+				var bonus: Dictionary = f.get("grants", {}).get("spellbook_school", {})
+				if bonus.is_empty():
+					continue
+				var slots_then: int = sc["slots"].get(str(int(f.get("level", 1))), []).size()
+				var n := int(bonus.get("count", 0)) + int(bonus.get("per_new_slot_level", 0)) * maxi(0, max_slot - slots_then)
+				var have := book.filter(func(x: String) -> bool: return str(RulesDB.get_entry("spell", x).get("school", "")) == str(bonus["school"])).size()
+				target += n
+				for sid: Variant in castable:
+					if have >= n:
+						break
+					var e := RulesDB.get_entry("spell", str(sid))
+					if str(e.get("school", "")) == str(bonus["school"]) and not str(sid) in book:
+						book.append(str(sid))
+						have += 1
+			for sid: Variant in castable:
+				if book.size() >= target:
+					break
+				if not str(sid) in book:
+					book.append(str(sid))
+			c.spellbook = book
+			castable = castable.filter(func(sid: Variant) -> bool: return str(sid) in book)
+		var prep: Array = []
+		for sid: Variant in castable:
+			if not str(sid) in prep:
+				prep.append(str(sid))
+		prep = prep.slice(0, _by_level(sc["prepared"], lv, 0))
+		spells.append_array(prep)
+		c.prepared = prep
 	for src: Dictionary in [cls, sub]:
 		for k: String in src.get("always_prepared", {}).keys():
 			if lv >= int(k):

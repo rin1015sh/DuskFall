@@ -68,6 +68,11 @@ var initiative := 0
 var level := 1
 var spellcasting_ability := ""
 var spells := []
+## 주문 준비(spell_prep.gd): 주문서(주문서형), 지금 준비한 주문(바꿀 수 있는 것), 남은 교체 창(-1 전부·0 닫힘), 창이 열릴 때의 목록
+var spellbook := []
+var prepared := []
+var prep_swaps := 0
+var prep_base := []
 ## 캐릭터 출신·클래스(캐릭터 생성기가 채운다)
 var class_id := ""
 var subclass_id := ""
