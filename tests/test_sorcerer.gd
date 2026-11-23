@@ -78,3 +78,33 @@ func test_sorcerous_restoration() -> void:
 	s.resources["sorcery_points"]["current"] = 0
 	Rest.short_rest(w, [s])
 	assert_eq(s.resource("sorcery_points"), 0, "긴 휴식마다 1회")
+
+
+## 신중한 주문(범위 안 아군 자동 성공·피해 없음), 은밀한 주문(주문 방해를 받지 않음), 추적 주문(빗나가면 다시).
+func test_metamagic_careful_subtle_seeking() -> void:
+	var spec := Builder.default_spec("sorcerer", 3)
+	spec["metamagic"] = ["careful", "seeking"]
+	var s: Node = own(Builder.build(spec)["creature"])
+	var w := make_world(["......", "......", "......"])
+	var ally := make_creature({"team": "party", "hp_max": 30})
+	var foe := make_creature({"team": "enemy", "hp_max": 30, "abilities": {"dex": 1}})
+	w["grid"].place(s, Vector2i(0, 1))
+	w["grid"].place(ally, Vector2i(1, 1))
+	w["grid"].place(foe, Vector2i(2, 1))
+	s.reset_turn()
+	s.options["metamagic"] = "careful"
+	Dice.force([1, 3, 3, 3])
+	var r: Dictionary = Spellcasting.cast(w, s, "burning_hands", Vector2i(2, 1))
+	assert_true(r.get("ok", false), str(r))
+	assert_eq(ally.hp, 30, "신중한 주문: 아군 피해 없음")
+	assert_true(foe.hp < 30)
+	s.reset_turn()
+	s.options["metamagic"] = "seeking"
+	var hp: int = foe.hp
+	Dice.force([1, 18, 5])  # 빗나감 → 다시 18 명중 → 피해
+	assert_true(Spellcasting.cast(w, s, "fire_bolt", Vector2i(2, 1)).get("ok", false))
+	assert_true(foe.hp < hp, "추적 주문으로 명중")
+	var spec2 := Builder.default_spec("sorcerer", 3)
+	spec2["metamagic"] = ["subtle", "quickened"]
+	var s2: Node = own(Builder.build(spec2)["creature"])
+	assert_true(s2.has_cap("metamagic_subtle"))

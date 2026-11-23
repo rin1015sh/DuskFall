@@ -178,8 +178,8 @@ static func _feature_die(c: Node, f: Dictionary) -> String:
 
 func _on_spell_cast(ctx: Dictionary) -> void:
 	var caster: Node = ctx["caster"]
-	if ctx.get("countered", false) or not world.has("grid"):
-		return
+	if ctx.get("countered", false) or ctx.get("subtle", false) or not world.has("grid"):
+		return  # 은밀한 주문은 시전을 알아챌 수 없다
 	if str(RulesDB.get_entry("spell", str(ctx.get("spell", ""))).get("cast", {}).get("trigger", "")) == "on_spell_cast":
 		return  # 방해 주문은 다시 방해하지 않는다
 	var grid: Node = world["grid"]

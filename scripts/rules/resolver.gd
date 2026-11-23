@@ -801,7 +801,10 @@ static func _save_setup(creature: Node, ability: String, dc: int, opts: Dictiona
 ## 집중 유지 내성: 건강, DC = max(10, 피해 절반 내림), 최대 30. 자연 20·1 적용(2단계 결정 1).
 static func concentration_check(creature: Node, damage: int) -> Dictionary:
 	var dc := clampi(maxi(CONCENTRATION_DC_MIN, damage / 2), CONCENTRATION_DC_MIN, CONCENTRATION_DC_MAX)
-	var res := saving_throw(creature, "con", dc, {"natural_rules": true})
+	var copts := {"natural_rules": true}
+	if creature.has_cap("eldritch_mind") or bool(creature.concentration.get("advantage", false)):
+		copts["advantage"] = ["집중 유리"]  # 섬뜩한 정신(워락 영창)·연장된 주문
+	var res := saving_throw(creature, "con", dc, copts)
 	if not res["success"]:
 		creature.break_concentration("집중 유지 내성 실패")
 	return res
@@ -855,13 +858,19 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 	var so := opts.duplicate()
 	so["against_conditions"] = fail.filter(func(e: Dictionary) -> bool: return e["type"] == "apply_condition").map(
 		func(e: Dictionary) -> String: return e["id"])
+	var careful: Array = opts.get("careful", [])  # 신중한 주문(소서러): 고른 아군은 자동 성공, 절반 피해도 받지 않는다
 	for t: Node in targets:
+		if t in careful:
+			saves.append({"success": true, "auto": true, "careful": true})
+			continue
 		# 내성 없는 효과(함정 등): check가 비면 굴리지 않고 실패로 친다
 		saves.append({"success": false, "auto": true} if check.is_empty() else saving_throw(t, check["ability"], int(check["dc"]), so))
 	for i in targets.size():
 		var t: Node = targets[i]
 		var s: Dictionary = saves[i]
 		var effects: Array = success if s["success"] else fail
+		if s.get("careful", false):
+			effects = effects.filter(func(e: Dictionary) -> bool: return e["type"] != "damage")
 		var parts: Array = []
 		for e: Dictionary in effects:
 			match e["type"]:

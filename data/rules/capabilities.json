@@ -460,6 +460,42 @@
       },
       "note_ko": "내가 건 표식(reveals_defenses) 대상의 면역·저항·취약을 미리보기에 보여 준다(resolver.lore_lines)",
       "source": "original"
+    },
+    {
+      "id": "metamagic_careful",
+      "name": {
+        "ko": "신중한 주문",
+        "en": "Careful Spell"
+      },
+      "note_ko": "주문 변형: 범위 내성 주문에서 아군(매력 수정치명) 자동 성공·피해 없음(1점)",
+      "source": "original"
+    },
+    {
+      "id": "metamagic_subtle",
+      "name": {
+        "ko": "은밀한 주문",
+        "en": "Subtle Spell"
+      },
+      "note_ko": "주문 변형: 구성 요소 없이 — 침묵 무시, 주문 방해 불가(1점)",
+      "source": "original"
+    },
+    {
+      "id": "metamagic_seeking",
+      "name": {
+        "ko": "추적 주문",
+        "en": "Seeking Spell"
+      },
+      "note_ko": "주문 변형: 주문 공격이 빗나가면 한 번 다시 굴림(1점)",
+      "source": "original"
+    },
+    {
+      "id": "eldritch_mind",
+      "name": {
+        "ko": "섬뜩한 정신",
+        "en": "Eldritch Mind"
+      },
+      "note_ko": "집중 유지 내성 유리(resolver.concentration_check)",
+      "source": "original"
     }
   ]
 }

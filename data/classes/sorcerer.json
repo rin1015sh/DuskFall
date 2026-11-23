@@ -175,7 +175,10 @@
         "quickened",
         "distant",
         "heightened",
-        "extended"
+        "extended",
+        "careful",
+        "subtle",
+        "seeking"
       ],
       "choice_kind": "option",
       "count": 2,
@@ -198,6 +201,21 @@
         "extended": {
           "caps": [
             "metamagic_extended"
+          ]
+        },
+        "careful": {
+          "caps": [
+            "metamagic_careful"
+          ]
+        },
+        "subtle": {
+          "caps": [
+            "metamagic_subtle"
+          ]
+        },
+        "seeking": {
+          "caps": [
+            "metamagic_seeking"
           ]
         }
       },
@@ -237,6 +255,27 @@
               "ko": "연장된 주문",
               "en": "Extended Spell"
             }
+          },
+          {
+            "id": "careful",
+            "name": {
+              "ko": "신중한 주문",
+              "en": "Careful Spell"
+            }
+          },
+          {
+            "id": "subtle",
+            "name": {
+              "ko": "은밀한 주문",
+              "en": "Subtle Spell"
+            }
+          },
+          {
+            "id": "seeking",
+            "name": {
+              "ko": "추적 주문",
+              "en": "Seeking Spell"
+            }
           }
         ],
         "desc": {
@@ -244,7 +283,7 @@
           "en": "Metamagic for your next spell (turns off after use)"
         }
       },
-      "notes_ko": "변형 2개를 고른다(빠른 2점·원거리 1점·고양된 2점·연장된 1점). 상시 설정에서 켜면 다음 주문 하나에 쓰고 꺼진다(BG3식). 쌍둥이·신중한·강화·은밀한·추적은 1차 생략. 빠른 주문의 '같은 턴 다른 주문 금지'는 생략.",
+      "notes_ko": "변형 2개를 고른다(빠른 2점·원거리 1점·고양된 2점·연장된 1점 — 집중 유리 포함·신중한 1점·은밀한 1점·추적 1점). 상시 설정에서 켜면 다음 주문 하나에 쓰고 꺼진다(BG3식). 쌍둥이·강화는 1차 생략. 빠른 주문의 '같은 턴 다른 주문 금지'는 생략.",
       "source": "SRD 5.2.1"
     },
     {

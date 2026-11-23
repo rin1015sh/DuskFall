@@ -65,3 +65,16 @@ func test_magical_cunning_and_short_rest() -> void:
 	c.resources["spell_slot_3"]["current"] = 0
 	Rest.short_rest(w, [c])
 	assert_eq(c.resource("spell_slot_3"), 2, "짧은 휴식에 계약 슬롯 회복")
+
+
+func test_more_invocations() -> void:
+	var spec := Builder.default_spec("warlock", 2)
+	spec["eldritch_invocations"] = ["pact_of_the_chain"]
+	spec["eldritch_invocations_2"] = ["eldritch_mind", "mask_of_many_faces"]
+	var c: Node = own(Builder.build(spec)["creature"])
+	assert_true(c.has_cap("eldritch_mind"))
+	assert_true("disguise_self" in c.get_meta("at_will") and "find_familiar" in c.get_meta("at_will"))
+	c.start_concentration("hex", {"instance": -1, "turns_left": 10})
+	Dice.force([5, 15])
+	var r: Dictionary = Resolver.concentration_check(c, 4)
+	assert_eq(int(r["mode"]), 1, "섬뜩한 정신: 집중 유지 유리")

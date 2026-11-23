@@ -115,7 +115,11 @@
         "fiendish_vigor",
         "otherworldly_leap",
         "pact_of_the_blade",
-        "thirsting_blade"
+        "thirsting_blade",
+        "eldritch_mind",
+        "mask_of_many_faces",
+        "misty_visions",
+        "pact_of_the_chain"
       ],
       "choice_kind": "option",
       "count": 1,
@@ -161,6 +165,26 @@
             "extra_attack"
           ],
           "attacks_per_action": 2
+        },
+        "eldritch_mind": {
+          "caps": [
+            "eldritch_mind"
+          ]
+        },
+        "mask_of_many_faces": {
+          "at_will": [
+            "disguise_self"
+          ]
+        },
+        "misty_visions": {
+          "at_will": [
+            "silent_image"
+          ]
+        },
+        "pact_of_the_chain": {
+          "at_will": [
+            "find_familiar"
+          ]
         }
       },
       "choice_min_level": {
@@ -169,9 +193,11 @@
         "devils_sight": 2,
         "fiendish_vigor": 2,
         "otherworldly_leap": 2,
-        "thirsting_blade": 5
+        "thirsting_blade": 5,
+        "mask_of_many_faces": 2,
+        "misty_visions": 2
       },
-      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
+      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~)·섬뜩한 정신(1레벨~, 집중 유지 내성 유리)·천의 얼굴(2레벨~)·안개 환영(2레벨~)·계약의 사슬(1레벨~, 사역마 찾기 슬롯 없이 — 특수 형태·사역마 공격 생략). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
       "source": "SRD 5.2.1"
     },
     {
@@ -189,7 +215,11 @@
         "fiendish_vigor",
         "otherworldly_leap",
         "pact_of_the_blade",
-        "thirsting_blade"
+        "thirsting_blade",
+        "eldritch_mind",
+        "mask_of_many_faces",
+        "misty_visions",
+        "pact_of_the_chain"
       ],
       "choice_kind": "option",
       "count": 2,
@@ -235,6 +265,26 @@
             "extra_attack"
           ],
           "attacks_per_action": 2
+        },
+        "eldritch_mind": {
+          "caps": [
+            "eldritch_mind"
+          ]
+        },
+        "mask_of_many_faces": {
+          "at_will": [
+            "disguise_self"
+          ]
+        },
+        "misty_visions": {
+          "at_will": [
+            "silent_image"
+          ]
+        },
+        "pact_of_the_chain": {
+          "at_will": [
+            "find_familiar"
+          ]
         }
       },
       "choice_min_level": {
@@ -243,9 +293,11 @@
         "devils_sight": 2,
         "fiendish_vigor": 2,
         "otherworldly_leap": 2,
-        "thirsting_blade": 5
+        "thirsting_blade": 5,
+        "mask_of_many_faces": 2,
+        "misty_visions": 2
       },
-      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
+      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~)·섬뜩한 정신(1레벨~, 집중 유지 내성 유리)·천의 얼굴(2레벨~)·안개 환영(2레벨~)·계약의 사슬(1레벨~, 사역마 찾기 슬롯 없이 — 특수 형태·사역마 공격 생략). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
       "source": "SRD 5.2.1"
     },
     {
@@ -263,7 +315,11 @@
         "fiendish_vigor",
         "otherworldly_leap",
         "pact_of_the_blade",
-        "thirsting_blade"
+        "thirsting_blade",
+        "eldritch_mind",
+        "mask_of_many_faces",
+        "misty_visions",
+        "pact_of_the_chain"
       ],
       "choice_kind": "option",
       "count": 2,
@@ -309,6 +365,26 @@
             "extra_attack"
           ],
           "attacks_per_action": 2
+        },
+        "eldritch_mind": {
+          "caps": [
+            "eldritch_mind"
+          ]
+        },
+        "mask_of_many_faces": {
+          "at_will": [
+            "disguise_self"
+          ]
+        },
+        "misty_visions": {
+          "at_will": [
+            "silent_image"
+          ]
+        },
+        "pact_of_the_chain": {
+          "at_will": [
+            "find_familiar"
+          ]
         }
       },
       "choice_min_level": {
@@ -317,9 +393,11 @@
         "devils_sight": 2,
         "fiendish_vigor": 2,
         "otherworldly_leap": 2,
-        "thirsting_blade": 5
+        "thirsting_blade": 5,
+        "mask_of_many_faces": 2,
+        "misty_visions": 2
       },
-      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
+      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~)·섬뜩한 정신(1레벨~, 집중 유지 내성 유리)·천의 얼굴(2레벨~)·안개 환영(2레벨~)·계약의 사슬(1레벨~, 사역마 찾기 슬롯 없이 — 특수 형태·사역마 공격 생략). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
       "source": "SRD 5.2.1"
     },
     {

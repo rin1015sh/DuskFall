@@ -63,7 +63,7 @@ static func _cost(spell: Dictionary) -> String:
 
 ## 주문 변형(소서러 메타매직, 설정 options.metamagic — 다음 주문 한 번에 쓰고 꺼진다). 값 = 마법 점수.
 ## 능력 태그 metamagic_<id>(고른 변형)가 있어야 한다. 쌍둥이·신중한·강화 등은 1차 생략.
-const METAMAGIC := {"quickened": 2, "distant": 1, "heightened": 2, "extended": 1}
+const METAMAGIC := {"quickened": 2, "distant": 1, "heightened": 2, "extended": 1, "careful": 1, "subtle": 1, "seeking": 1}
 
 
 static func metamagic_for(caster: Node, spell: Dictionary) -> String:
@@ -79,7 +79,19 @@ static func metamagic_for(caster: Node, spell: Dictionary) -> String:
 			return m if str(spell.get("effects", {}).get("check", {}).get("type", "")) == "save" else ""
 		"extended":
 			return m if str(spell["duration"]["type"]) == "turns" and int(spell["duration"].get("turns", 0)) >= 10 else ""
+		"careful":
+			return m if str(spell.get("effects", {}).get("check", {}).get("type", "")) == "save" and spell.get("area") != null else ""
+		"subtle":
+			return m if spell.get("components", {}).get("verbal", false) or spell.get("components", {}).get("somatic", false) else ""
+		"seeking":
+			return m if str(spell.get("effects", {}).get("check", {}).get("type", "")) == "attack" else ""
 	return ""
+
+
+## 신중한 주문: 범위 안 아군(시전자 제외) 중 매력 수정치(최소 1)명.
+static func _careful_targets(caster: Node, targets: Array) -> Array:
+	var allies: Array = targets.filter(func(t: Node) -> bool: return t != caster and not t.is_hostile_to(caster))
+	return allies.slice(0, maxi(1, caster.ability_mod("cha")))
 
 
 ## 빠른 주문이면 행동 → 보너스 행동.
@@ -264,7 +276,7 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 		return "무력화"
 	if caster.has_flag("no_spellcasting"):
 		return "지금은 주문을 쓸 수 없다(숙련 없는 갑옷·분노·야생 변신)"
-	if spell.get("components", {}).get("verbal", false) and world.has("grid") and world["grid"].creatures().has(caster) \
+	if spell.get("components", {}).get("verbal", false) and metamagic_for(caster, spell) != "subtle" and world.has("grid") and world["grid"].creatures().has(caster) \
 			and world["grid"].has_flag(world["grid"].cell_of(caster), "silence"):
 		return "침묵 구역에서는 음성 구성 요소 주문을 쓸 수 없다"
 	var grid: Node = world["grid"]
@@ -366,7 +378,8 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 			opts["duration_mult"] = 2
 		Dice.log_text("%s: 주문 변형 — %s" % [caster.label(), mm])
 	# 시전 시작(on_spell_cast): Counterspell 같은 반응이 끊을 수 있다. 끊기면 슬롯은 쓰지 않는다(원문).
-	var cast_ctx := {"caster": caster, "spell": spell_id, "aim": aim, "slot": slot, "countered": false, "world": world}
+	var cast_ctx := {"caster": caster, "spell": spell_id, "aim": aim, "slot": slot, "countered": false, "world": world,
+		"subtle": opts.get("metamagic", "") == "subtle"}  # 은밀한 주문: 구성 요소 없음 — 주문 방해를 받지 않는다
 	EventBus.on_spell_cast.emit(cast_ctx)
 	_end_on_cast(caster)
 	if cast_ctx["countered"]:
@@ -379,7 +392,8 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 	Dice.log_text("%s: %s%s" % [caster.label(), spell["name"]["en"], " (%d레벨 슬롯)" % slot if slot > level else ""])
 	var inst := new_instance(world, caster, spell, slot)
 	if spell["concentration"]:
-		caster.start_concentration(spell_id, {"instance": inst["id"], "turns_left": _dur(spell, opts)})
+		caster.start_concentration(spell_id, {"instance": inst["id"], "turns_left": _dur(spell, opts),
+			"advantage": opts.get("metamagic", "") == "extended"})  # 연장된 주문: 집중 유지 내성 유리
 	if world.get("turns") != null:
 		world["turns"].notify_hostile_action(caster)
 	var ctx := {"world": world, "self": caster, "spell": spell, "aim": aim, "opts": opts, "instance": inst, "slot": slot}
@@ -416,6 +430,9 @@ static func resolve_effects(ctx: Dictionary) -> Dictionary:
 			if atk["kind"] == "ranged" and Combat.is_threatened(world, caster):
 				actx["disadvantage"].append("근접 위협")
 			var r := Resolver.attack(caster, t, atk, actx)
+			if not r["hit"] and r.get("valid", true) and opts.get("metamagic", "") == "seeking" and int(r.get("natural", 0)) != 20:
+				Dice.log_text("%s: 추적 주문 — 다시 굴린다" % caster.label())
+				r = Resolver.attack(caster, t, atk, actx)
 			if r["hit"]:
 				affected.append(t)
 				for e: Dictionary in eff.get("hit", []):
@@ -443,7 +460,8 @@ static func resolve_effects(ctx: Dictionary) -> Dictionary:
 			cparams["repeat_save"] = {"ability": check["ability"], "dc": spell_dc(caster)}
 		results = Resolver.save_effect(targets, {"ability": check["ability"], "dc": spell_dc(caster)},
 			fail, success, {"source": caster, "rolled": rolled, "duration": _dur(spell, opts), "condition_params": cparams,
-				"disadvantage": ["고양된 주문"] if opts.get("metamagic", "") == "heightened" else []})
+				"disadvantage": ["고양된 주문"] if opts.get("metamagic", "") == "heightened" else [],
+				"careful": _careful_targets(caster, targets) if opts.get("metamagic", "") == "careful" else []})
 		for r: Dictionary in results:
 			var t: Node = r["target"]
 			if not r["save"]["success"]:
