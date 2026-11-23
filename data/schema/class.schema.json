@@ -457,7 +457,48 @@
         "cantrips",
         "prepared",
         "slots"
-      ]
+      ],
+      "properties": {
+        "ability": {
+          "enum": [
+            "int",
+            "wis",
+            "cha"
+          ]
+        },
+        "type": {
+          "$comment": "prepared 준비(클레릭) · spellbook 주문서(위저드) · known 아는 주문(레인저·워락 등 — 준비와 같게 다룬다)",
+          "enum": [
+            "prepared",
+            "spellbook",
+            "known"
+          ]
+        },
+        "list": {
+          "$comment": "주문 목록 id — 주문 데이터 classes에 이 값이 있는 주문만 고를 수 있다",
+          "type": "string"
+        },
+        "slot_recharge": {
+          "$comment": "슬롯 회복: long 긴 휴식(기본) · short 짧은 휴식(계약형 — 워락)",
+          "enum": [
+            "long",
+            "short"
+          ]
+        },
+        "cantrips": {
+          "type": "object"
+        },
+        "prepared": {
+          "type": "object"
+        },
+        "slots": {
+          "$comment": "레벨 → [1레벨 슬롯 수, 2레벨, …]. 절반 시전자는 표만 다르다",
+          "type": "object"
+        },
+        "spellbook": {
+          "type": "object"
+        }
+      }
     },
     "resources": {
       "type": "array",

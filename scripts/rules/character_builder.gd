@@ -67,8 +67,37 @@ static func validate(spec: Dictionary) -> PackedStringArray:
 	for s: String in skills:
 		if not s in sk["from"]:
 			e.append("%s는 %s 기능 목록에 없다" % [s, cls["id"]])
-	if lv >= 3 and spec.get("subclass", "") == "":
-		e.append("3레벨부터 하위 클래스를 골라야 한다")
+	var sub_lv := 99
+	for sc: Dictionary in cls.get("subclasses", []):
+		sub_lv = mini(sub_lv, int(sc.get("level", 3)))
+	if lv >= sub_lv and spec.get("subclass", "") == "":
+		e.append("%d레벨부터 하위 클래스를 골라야 한다" % sub_lv)
+	e.append_array(validate_spells(cls, spec, lv))
+	return e
+
+
+## 주문 선택: 소마법·준비 주문은 클래스 주문 목록(주문 데이터 classes ∋ spellcasting.list)에 있고,
+## (가진 슬롯보다 높은 준비 주문은 오류가 아니라 생성기가 건너뛴다 — 레벨이 오르면 열린다.)
+static func validate_spells(cls: Dictionary, spec: Dictionary, lv: int) -> PackedStringArray:
+	var e := PackedStringArray()
+	var sc: Dictionary = cls.get("spellcasting", {})
+	if sc.is_empty():
+		if not spec.get("spells", []).is_empty() or not spec.get("cantrips", []).is_empty():
+			e.append("%s는 주문을 쓰지 않는다" % cls["id"])
+		return e
+	var list := str(sc.get("list", cls["id"]))
+	for k: String in ["cantrips", "spells"]:
+		for sid: Variant in spec.get(k, []):
+			var sp := RulesDB.get_entry("spell", str(sid))
+			if sp.is_empty():
+				e.append("모르는 주문 '%s'" % sid)
+				continue
+			if not list in sp.get("classes", []):
+				e.append("%s는 %s 주문 목록에 없다" % [sid, list])
+			if k == "cantrips" and int(sp["level"]) != 0:
+				e.append("%s는 소마법이 아니다" % sid)
+			if k == "spells" and int(sp["level"]) == 0:
+				e.append("%s는 소마법이다(cantrips에)" % sid)
 	return e
 
 
@@ -306,10 +335,14 @@ static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Diction
 		c.spellcasting_ability = sc["ability"]
 		var slots: Array = sc["slots"].get(str(lv), [])
 		for i in slots.size():
-			c.resources["spell_slot_%d" % (i + 1)] = {"current": slots[i], "max": slots[i], "recharge": "long"}
+			c.resources["spell_slot_%d" % (i + 1)] = {"current": slots[i], "max": slots[i], "recharge": str(sc.get("slot_recharge", "long"))}
 		var cantrips: Array = spec.get("cantrips", [])
 		spells.append_array(cantrips.slice(0, _by_level(sc["cantrips"], lv, 0) + extra_cantrips))
-		spells.append_array(spec.get("spells", []).slice(0, _by_level(sc["prepared"], lv, 0)))
+		# 준비 주문: 명세 순서대로, 가진 슬롯 레벨 이하인 것만 준비 수만큼(높은 주문은 레벨이 오르면 열린다)
+		var max_slot: int = slots.size()
+		var castable: Array = spec.get("spells", []).filter(func(sid: Variant) -> bool:
+			return int(RulesDB.get_entry("spell", str(sid)).get("level", 99)) <= max_slot)
+		spells.append_array(castable.slice(0, _by_level(sc["prepared"], lv, 0)))
 	for k: String in sub.get("always_prepared", {}).keys():
 		if lv >= int(k):
 			spells.append_array(sub["always_prepared"][k])

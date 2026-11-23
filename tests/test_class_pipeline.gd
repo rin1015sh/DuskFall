@@ -81,3 +81,23 @@ func test_data_only_class_works_without_code() -> void:
 	var d: Dictionary = Actions.def_of("feature:warden_breath")
 	assert_true(bool(d["explore"]) and str(d["icon"]).ends_with("refreshed.webp"), "단축 막대 기능 데이터(explore·icon)")
 	db._entries["class"].erase("test_warden")
+
+
+## 시전 방식 데이터: 계약형(짧은 휴식 회복) 슬롯, 클래스 주문 목록 밖 주문은 생성 오류, 슬롯보다 높은 준비 주문은 건너뜀
+func test_spellcasting_is_data_driven() -> void:
+	var db: Node = _db()
+	var cls: Dictionary = db.get_entry("class", "wizard").duplicate(true)
+	cls["id"] = "test_pact"
+	cls["subclasses"] = []
+	cls["spellcasting"]["slot_recharge"] = "short"
+	cls["default_build"].erase("subclass")
+	db._entries["class"]["test_pact"] = cls
+	var c: Node = own(Builder.build(Builder.default_spec("test_pact", 1))["creature"])
+	assert_eq(str(c.resources["spell_slot_1"]["recharge"]), "short", "계약형 슬롯은 짧은 휴식에 회복")
+	var lv1: Array = c.spells.filter(func(s: String) -> bool: return int(db.get_entry("spell", s)["level"]) > 1)
+	assert_eq(lv1.size(), 0, "1레벨에는 2레벨 이상 주문을 준비하지 않는다")
+	var spec := Builder.default_spec("test_pact", 1)
+	spec["spells"] = ["cure_wounds"] + spec["spells"]
+	var errs := Builder.validate(spec)
+	db._entries["class"].erase("test_pact")
+	assert_true(Array(errs).any(func(e: String) -> bool: return e.contains("cure_wounds")), "다른 클래스 주문은 오류 %s" % str(errs))

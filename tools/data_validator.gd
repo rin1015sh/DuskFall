@@ -146,10 +146,18 @@ func _check_class_builds() -> void:
 			var v := str(b.get(r[0], ""))
 			if v != "" and not entries.get(r[1], {}).has(v):
 				errors.append("%s.%s: %s '%s'가 없다" % [where, r[0], r[1], v])
+		var list := str(cls.get("spellcasting", {}).get("list", cid))
 		for k: String in ["spells", "cantrips"]:
 			for v: Variant in b.get(k, []):
 				if not entries.get("spell", {}).has(str(v)):
 					errors.append("%s.%s: 주문 '%s'가 없다" % [where, k, v])
+				elif not list in entries["spell"][str(v)]["entry"].get("classes", []):
+					errors.append("%s.%s: 주문 '%s'가 %s 주문 목록(주문 classes)에 없다" % [where, k, v, list])
+		for sc: Dictionary in cls.get("subclasses", []):
+			for lvk: String in sc.get("always_prepared", {}).keys():
+				for v: Variant in sc["always_prepared"][lvk]:
+					if not entries.get("spell", {}).has(str(v)):
+						errors.append("%s: class '%s'/%s always_prepared 주문 '%s'가 없다" % [rec["file"], cid, sc.get("id", ""), v])
 		for v: Variant in b.get("masteries", []):
 			if not entries.get("weapon", {}).has(str(v)):
 				errors.append("%s.masteries: 무기 '%s'가 없다" % [where, v])
