@@ -842,6 +842,9 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 	var total := 0
 	for t: String in raw.keys():
 		var v := int(modify_amount(target, raw[t], t, 1.0, true))
+		if t == "fire" and target.has_cap("fire_absorption"):
+			heal(target, int(raw[t]), "fire_absorption")  # 화염 흡수(강철 골렘): 화염 피해만큼 회복
+			v = 0
 		var src: Variant = opts.get("attacker")
 		if src is Node and t in ["bludgeoning", "piercing", "slashing"] and src.has_cap("ignore_physical_resistance") \
 				and target.resists(t) and not target.immune_to(t) and not target.vulnerable_to(t):

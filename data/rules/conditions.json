@@ -1728,6 +1728,46 @@
       ],
       "notes_ko": "Foresight: d20 시험 유리, 받는 공격 불리.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "reactionless",
+      "name": {
+        "ko": "반응 불가",
+        "en": "No Reactions"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "no_reactions"
+        }
+      ],
+      "notes_ko": "발로르 번개 칼날: 반응을 쓸 수 없다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "pit_fiend_poison",
+      "name": {
+        "ko": "구덩이 악마의 독",
+        "en": "Pit Fiend Poison"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "also_applies": [
+        "poisoned"
+      ],
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "damage",
+            "dice": "6d6",
+            "damage_type": "poison"
+          }
+        ]
+      },
+      "notes_ko": "구덩이 악마 물기: 중독 + 턴 시작 6d6 독(회복 불가는 생략).",
+      "source": "SRD 5.2.1"
     }
   ]
 }

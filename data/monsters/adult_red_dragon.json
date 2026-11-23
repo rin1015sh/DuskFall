@@ -1,0 +1,126 @@
+{
+  "schema": "monster_v1",
+  "id": "adult_red_dragon",
+  "name": {
+    "ko": "성룡 적룡",
+    "en": "Adult Red Dragon"
+  },
+  "size": "huge",
+  "creature_type": "dragon",
+  "cr": 17,
+  "xp": 18000,
+  "proficiency_bonus": 6,
+  "ac": 19,
+  "hp": 256,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 27,
+    "dex": 10,
+    "con": 25,
+    "int": 16,
+    "wis": 13,
+    "cha": 23
+  },
+  "saves": {
+    "str": 8,
+    "dex": 6,
+    "con": 7,
+    "int": 3,
+    "wis": 7,
+    "cha": 6
+  },
+  "actions": [
+    {
+      "id": "rend",
+      "name": {
+        "ko": "할퀴기",
+        "en": "Rend"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 14,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "1d10+8",
+          "damage_type": "slashing"
+        },
+        {
+          "dice": "2d4",
+          "damage_type": "fire"
+        }
+      ]
+    },
+    {
+      "id": "fire_breath",
+      "name": {
+        "ko": "화염 숨결",
+        "en": "Fire Breath"
+      },
+      "type": "save",
+      "ability": "dex",
+      "dc": 21,
+      "range_tiles": 12,
+      "recharge": "5-6",
+      "area": {
+        "shape": "cone",
+        "length_tiles": 12
+      },
+      "fail": [
+        {
+          "type": "damage",
+          "dice": "17d6",
+          "damage_type": "fire"
+        }
+      ],
+      "success": [
+        {
+          "type": "damage",
+          "dice": "17d6",
+          "damage_type": "fire",
+          "scale": 0.5
+        }
+      ]
+    }
+  ],
+  "weight_kg": 4000,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/katumba.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "push_immune": true,
+  "multiattack": {
+    "count": 3,
+    "actions": [
+      "rend"
+    ]
+  },
+  "immunities": [
+    "fire"
+  ],
+  "senses": {
+    "darkvision_tiles": 24
+  },
+  "skills": {
+    "perception": 13,
+    "stealth": 6
+  },
+  "traits": [
+    {
+      "id": "legendary_resistance",
+      "name": {
+        "ko": "전설적 저항",
+        "en": "Legendary Resistance"
+      },
+      "hook": "on_save_failed",
+      "script": "legendary_resistance",
+      "uses": 3
+    }
+  ],
+  "notes_ko": "전설적 저항 3회. 주문 시전·전설적 행동·비행·등반은 1차 생략. 그림은 임시."
+}

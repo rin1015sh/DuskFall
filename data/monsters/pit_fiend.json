@@ -1,0 +1,183 @@
+{
+  "schema": "monster_v1",
+  "id": "pit_fiend",
+  "name": {
+    "ko": "구덩이 악마",
+    "en": "Pit Fiend"
+  },
+  "size": "large",
+  "creature_type": "fiend",
+  "cr": 20,
+  "xp": 25000,
+  "proficiency_bonus": 6,
+  "ac": 21,
+  "hp": 337,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 26,
+    "dex": 14,
+    "con": 24,
+    "int": 22,
+    "wis": 18,
+    "cha": 24
+  },
+  "saves": {
+    "str": 8,
+    "dex": 8,
+    "con": 7,
+    "int": 6,
+    "wis": 10,
+    "cha": 7
+  },
+  "actions": [
+    {
+      "id": "bite",
+      "name": {
+        "ko": "물기",
+        "en": "Bite"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 14,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "3d6+8",
+          "damage_type": "piercing"
+        }
+      ],
+      "on_hit": [
+        {
+          "type": "apply_condition",
+          "id": "pit_fiend_poison",
+          "turns": 10,
+          "save": {
+            "ability": "con",
+            "dc": 21
+          }
+        }
+      ]
+    },
+    {
+      "id": "devilish_claw",
+      "name": {
+        "ko": "악마의 발톱",
+        "en": "Devilish Claw"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 14,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "4d8+8",
+          "damage_type": "necrotic"
+        }
+      ]
+    },
+    {
+      "id": "fiery_mace",
+      "name": {
+        "ko": "불꽃 철퇴",
+        "en": "Fiery Mace"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 14,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "4d6+8",
+          "damage_type": "force"
+        },
+        {
+          "dice": "6d6",
+          "damage_type": "fire"
+        }
+      ]
+    },
+    {
+      "id": "hellfire",
+      "name": {
+        "ko": "지옥불",
+        "en": "Hellfire"
+      },
+      "type": "save",
+      "ability": "dex",
+      "dc": 21,
+      "range_tiles": 30,
+      "recharge": "5-6",
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 4
+      },
+      "fail": [
+        {
+          "type": "damage",
+          "dice": "10d6",
+          "damage_type": "fire"
+        }
+      ],
+      "success": [
+        {
+          "type": "damage",
+          "dice": "10d6",
+          "damage_type": "fire",
+          "scale": 0.5
+        }
+      ]
+    }
+  ],
+  "weight_kg": 3000,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/regret_lord.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "push_immune": true,
+  "multiattack": {
+    "count": 4,
+    "actions": [
+      "bite",
+      "devilish_claw",
+      "fiery_mace"
+    ]
+  },
+  "resistances": [
+    "cold"
+  ],
+  "immunities": [
+    "fire",
+    "poison"
+  ],
+  "condition_immunities": [
+    "poisoned"
+  ],
+  "skills": {
+    "perception": 10
+  },
+  "traits": [
+    {
+      "id": "legendary_resistance",
+      "name": {
+        "ko": "전설적 저항",
+        "en": "Legendary Resistance"
+      },
+      "hook": "on_save_failed",
+      "script": "legendary_resistance",
+      "uses": 4
+    },
+    {
+      "id": "magic_resistance",
+      "name": {
+        "ko": "마법 저항",
+        "en": "Magic Resistance"
+      }
+    }
+  ],
+  "notes_ko": "지옥불: 5레벨 화염구 한 번(원문 두 번·재충전 4~6 → 5~6). 공포 오라·비행은 1차 생략. 물기 독: 턴 시작 6d6(회복 불가는 생략). 그림은 임시."
+}

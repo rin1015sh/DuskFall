@@ -26,7 +26,7 @@ func test_all_monsters_spawn() -> void:
 	for id: String in ids:
 		var m := _m(id)
 		assert_true(m.hp_max > 0 and m.ac() > 0, id)
-		assert_true(RulesDB.get_entry("monster", id)["cr"] <= 15, "%s CR 15 이하(2구간 상한)" % id)
+		assert_true(RulesDB.get_entry("monster", id)["cr"] <= 20, "%s CR 20 이하" % id)
 		assert_false(MF.actions(m).is_empty(), "%s 행동" % id)
 
 

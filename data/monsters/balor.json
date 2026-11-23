@@ -1,0 +1,144 @@
+{
+  "schema": "monster_v1",
+  "id": "balor",
+  "name": {
+    "ko": "발로르",
+    "en": "Balor"
+  },
+  "size": "huge",
+  "creature_type": "fiend",
+  "cr": 19,
+  "xp": 22000,
+  "proficiency_bonus": 6,
+  "ac": 19,
+  "hp": 287,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 26,
+    "dex": 15,
+    "con": 22,
+    "int": 20,
+    "wis": 16,
+    "cha": 22
+  },
+  "saves": {
+    "str": 8,
+    "dex": 2,
+    "con": 12,
+    "int": 5,
+    "wis": 9,
+    "cha": 6
+  },
+  "actions": [
+    {
+      "id": "flame_whip",
+      "name": {
+        "ko": "불꽃 채찍",
+        "en": "Flame Whip"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 14,
+      "reach_tiles": 6,
+      "damage": [
+        {
+          "dice": "3d6+8",
+          "damage_type": "force"
+        },
+        {
+          "dice": "5d6",
+          "damage_type": "fire"
+        }
+      ],
+      "on_hit": [
+        {
+          "type": "apply_condition",
+          "id": "prone",
+          "max_size": "huge"
+        }
+      ]
+    },
+    {
+      "id": "lightning_blade",
+      "name": {
+        "ko": "번개 칼날",
+        "en": "Lightning Blade"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 14,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "3d8+8",
+          "damage_type": "force"
+        },
+        {
+          "dice": "4d10",
+          "damage_type": "lightning"
+        }
+      ],
+      "on_hit": [
+        {
+          "type": "apply_condition",
+          "id": "reactionless",
+          "turns": 1
+        }
+      ]
+    }
+  ],
+  "weight_kg": 8000,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/deathfiend.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "push_immune": true,
+  "multiattack": {
+    "count": 2,
+    "actions": [
+      "flame_whip",
+      "lightning_blade"
+    ]
+  },
+  "resistances": [
+    "cold",
+    "lightning"
+  ],
+  "immunities": [
+    "fire",
+    "poison"
+  ],
+  "condition_immunities": [
+    "charmed",
+    "frightened",
+    "poisoned"
+  ],
+  "skills": {
+    "perception": 9
+  },
+  "traits": [
+    {
+      "id": "legendary_resistance",
+      "name": {
+        "ko": "전설적 저항",
+        "en": "Legendary Resistance"
+      },
+      "hook": "on_save_failed",
+      "script": "legendary_resistance",
+      "uses": 3
+    },
+    {
+      "id": "magic_resistance",
+      "name": {
+        "ko": "마법 저항",
+        "en": "Magic Resistance"
+      }
+    }
+  ],
+  "notes_ko": "불꽃 채찍: 넘어뜨림(끌어오기 생략), 번개 칼날: 다음 발로르 턴까지 반응 불가. 죽음의 폭발·불꽃 오라·순간 이동·비행은 1차 생략. 그림은 임시."
+}

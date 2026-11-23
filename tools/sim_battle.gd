@@ -22,6 +22,10 @@ const ENCOUNTERS := {
 		"foes": [["horned_devil", "goblin_a"], ["remorhaz", "goblin_c"]]},
 	"tier2_l15": {"note": "2구간 시험(15레벨, 성룡 녹룡 + 얼음 악마)", "level": 15, "map": "test_arena",
 		"foes": [["adult_green_dragon", "goblin_a"], ["ice_devil", "goblin_c"]]},
+	"tier3_l17": {"note": "3구간 시험(17레벨, 성룡 청룡 + 강철 골렘)", "level": 17, "map": "test_arena",
+		"foes": [["adult_blue_dragon", "goblin_a"], ["iron_golem", "goblin_c"]]},
+	"tier3_l20": {"note": "3구간 시험(20레벨, 구덩이 악마 + 발로르)", "level": 20, "map": "test_arena",
+		"foes": [["pit_fiend", "goblin_a"], ["balor", "goblin_c"]]},
 	"hill_path": {"note": "시범 맵 hill_path(1레벨, 고원 궁수 2·둔덕 1·지면 1 고블린 전사 + 동굴 입구 고블린 두목)", "level": 1, "map": "hill_path", "zone": "hill",
 		"foes": [["goblin_warrior", "hill_archer_a"], ["goblin_warrior", "hill_archer_b"], ["goblin_warrior", "mound_goblin"],
 			["goblin_boss", "cave_guard"], ["goblin_warrior", "path_goblin"]]},
@@ -29,7 +33,8 @@ const ENCOUNTERS := {
 ## SRD XP Budget per Character(낮음·보통·높음)
 const BUDGET := {1: [50, 75, 100], 2: [100, 150, 200], 3: [150, 225, 400], 4: [250, 375, 500], 5: [500, 750, 1100],
 	6: [600, 1000, 1400], 7: [750, 1300, 1700], 8: [1000, 1700, 2100], 9: [1300, 2000, 2600], 10: [1600, 2300, 3100],
-	11: [1900, 2900, 4100], 12: [2200, 3700, 4700], 13: [2600, 4200, 5400], 14: [2900, 4900, 6200], 15: [3300, 5400, 7800]}
+	11: [1900, 2900, 4100], 12: [2200, 3700, 4700], 13: [2600, 4200, 5400], 14: [2900, 4900, 6200], 15: [3300, 5400, 7800],
+	16: [3800, 6100, 9800], 17: [4500, 7200, 11700], 18: [5000, 8700, 14200], 19: [5500, 10700, 17200], 20: [6400, 13200, 22000]}
 
 var _done := false
 var _gear := false

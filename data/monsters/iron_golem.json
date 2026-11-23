@@ -1,0 +1,157 @@
+{
+  "schema": "monster_v1",
+  "id": "iron_golem",
+  "name": {
+    "ko": "강철 골렘",
+    "en": "Iron Golem"
+  },
+  "size": "large",
+  "creature_type": "construct",
+  "cr": 16,
+  "xp": 15000,
+  "proficiency_bonus": 5,
+  "ac": 20,
+  "hp": 252,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 24,
+    "dex": 9,
+    "con": 20,
+    "int": 3,
+    "wis": 11,
+    "cha": 1
+  },
+  "saves": {
+    "str": 7,
+    "dex": -1,
+    "con": 5,
+    "int": -4,
+    "wis": 0,
+    "cha": -5
+  },
+  "actions": [
+    {
+      "id": "bladed_arm",
+      "name": {
+        "ko": "칼날 팔",
+        "en": "Bladed Arm"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 12,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "3d8+7",
+          "damage_type": "slashing"
+        },
+        {
+          "dice": "3d6",
+          "damage_type": "fire"
+        }
+      ]
+    },
+    {
+      "id": "fiery_bolt",
+      "name": {
+        "ko": "불꽃 화살",
+        "en": "Fiery Bolt"
+      },
+      "type": "attack",
+      "kind": "ranged",
+      "bonus": 10,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "8d8",
+          "damage_type": "fire"
+        }
+      ],
+      "range_tiles": [
+        24,
+        24
+      ]
+    },
+    {
+      "id": "poison_breath",
+      "name": {
+        "ko": "독 숨결",
+        "en": "Poison Breath"
+      },
+      "type": "save",
+      "ability": "con",
+      "dc": 18,
+      "range_tiles": 12,
+      "recharge": "6",
+      "area": {
+        "shape": "cone",
+        "length_tiles": 12
+      },
+      "fail": [
+        {
+          "type": "damage",
+          "dice": "10d10",
+          "damage_type": "poison"
+        }
+      ],
+      "success": [
+        {
+          "type": "damage",
+          "dice": "10d10",
+          "damage_type": "poison",
+          "scale": 0.5
+        }
+      ]
+    }
+  ],
+  "weight_kg": 2500,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/copper_golem.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "push_immune": true,
+  "multiattack": {
+    "count": 2,
+    "actions": [
+      "bladed_arm",
+      "fiery_bolt"
+    ]
+  },
+  "immunities": [
+    "fire",
+    "poison",
+    "psychic"
+  ],
+  "condition_immunities": [
+    "charmed",
+    "frightened",
+    "paralyzed",
+    "petrified",
+    "poisoned"
+  ],
+  "senses": {
+    "darkvision_tiles": 24
+  },
+  "traits": [
+    {
+      "id": "magic_resistance",
+      "name": {
+        "ko": "마법 저항",
+        "en": "Magic Resistance"
+      }
+    },
+    {
+      "id": "fire_absorption",
+      "name": {
+        "ko": "화염 흡수",
+        "en": "Fire Absorption"
+      }
+    }
+  ],
+  "notes_ko": "화염 흡수: 화염 피해만큼 회복. 마법 저항. 그림은 임시."
+}
