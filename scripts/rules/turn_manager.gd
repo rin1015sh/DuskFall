@@ -78,7 +78,23 @@ func roll_initiative(c: Node) -> int:
 	var d := Dice.d20(Resolver.mode_of(res["advantage"], res["disadvantage"]), "%s 이니셔티브" % c.label())
 	c.initiative = d["natural"] + c.ability_mod("dex") + c.initiative_bonus
 	_tiebreak[c] = Dice.die(1000)
+	_uncanny_metabolism(c)
 	return c.initiative
+
+
+## 능력 태그 uncanny_metabolism(몽크 신비한 대사): 이니셔티브를 굴릴 때 기가 모자라면 긴 휴식마다 1회 —
+## 기를 전부 되찾고 몽크 레벨 + 무술 주사위만큼 회복.
+func _uncanny_metabolism(c: Node) -> void:
+	if not c.has_cap("uncanny_metabolism") or c.resource("uncanny_metabolism") <= 0 or not c.resources.has("focus"):
+		return
+	var f: Dictionary = c.resources["focus"]
+	if int(f["current"]) >= int(f["max"]):
+		return
+	c.spend_resource("uncanny_metabolism")
+	f["current"] = f["max"]
+	var n: int = Dice.roll(load("res://scripts/rules/combat.gd").martial_arts_die(c), "신비한 대사")["total"] + c.level
+	Resolver.heal(c, n, c)
+	Dice.log_text("%s 신비한 대사: 기 회복, HP +%d" % [c.label(), n])
 
 
 ## 정렬: 이니셔티브 → 민첩 점수 → 아군 우선 → 무작위(2단계 동률 처리).

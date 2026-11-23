@@ -1,0 +1,375 @@
+{
+  "schema": "class_v1",
+  "id": "monk",
+  "name": {
+    "ko": "몽크",
+    "en": "Monk"
+  },
+  "hit_die": 8,
+  "primary": [
+    "dex",
+    "wis"
+  ],
+  "saves": [
+    "str",
+    "dex"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "acrobatics",
+      "athletics",
+      "history",
+      "insight",
+      "religion",
+      "stealth"
+    ]
+  },
+  "weapon_training": [
+    "simple",
+    "martial_finesse_or_light"
+  ],
+  "armor_training": [],
+  "asi_levels": [
+    4
+  ],
+  "resources": [
+    {
+      "id": "focus",
+      "name": {
+        "ko": "기",
+        "en": "Focus Points"
+      },
+      "max": {
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "recharge": "short"
+    },
+    {
+      "id": "uncanny_metabolism",
+      "name": {
+        "ko": "신비한 대사",
+        "en": "Uncanny Metabolism"
+      },
+      "max": {
+        "2": 1
+      },
+      "recharge": "long"
+    }
+  ],
+  "features": [
+    {
+      "id": "martial_arts",
+      "name": {
+        "ko": "무술",
+        "en": "Martial Arts"
+      },
+      "level": 1,
+      "caps": [
+        "martial_arts"
+      ],
+      "dice_by_level": {
+        "1": "1d6",
+        "5": "1d8"
+      },
+      "notes_ko": "갑옷·방패 없이 비무장·몽크 무기(단순 근접·가벼운 군용 근접): 민첩 사용, 무술 주사위(d6, 5레벨 d8).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "martial_arts_strike",
+      "name": {
+        "ko": "보너스 비무장 공격",
+        "en": "Bonus Unarmed Strike"
+      },
+      "level": 1,
+      "kind": "bonus_action",
+      "script": "martial_arts_strike",
+      "target": "enemy",
+      "notes_ko": "무술: 보너스 행동으로 비무장 공격 1회.",
+      "source": "SRD 5.2.1",
+      "glyph": "fist"
+    },
+    {
+      "id": "unarmored_defense",
+      "name": {
+        "ko": "맨몸 방어",
+        "en": "Unarmored Defense"
+      },
+      "level": 1,
+      "caps": [
+        "unarmored_defense_wis"
+      ],
+      "notes_ko": "갑옷·방패 없으면 AC 10 + 민첩 + 지혜.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "monks_focus",
+      "name": {
+        "ko": "몽크의 기",
+        "en": "Monk's Focus"
+      },
+      "level": 2,
+      "handled_by": "자원 focus(레벨만큼, 짧은 휴식) — 연타·인내의 방어·바람의 걸음·충격의 일격이 쓴다",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "flurry_of_blows",
+      "name": {
+        "ko": "연타",
+        "en": "Flurry of Blows"
+      },
+      "level": 2,
+      "kind": "bonus_action",
+      "resource": "focus",
+      "script": "flurry_of_blows",
+      "target": "enemy",
+      "notes_ko": "기 1, 보너스 행동으로 비무장 공격 2회.",
+      "source": "SRD 5.2.1",
+      "glyph": "fist"
+    },
+    {
+      "id": "patient_defense",
+      "name": {
+        "ko": "인내의 방어",
+        "en": "Patient Defense"
+      },
+      "level": 2,
+      "kind": "bonus_action",
+      "script": "patient_defense",
+      "notes_ko": "보너스 행동으로 이탈. 기가 있으면 기 1로 이탈 + 회피(다음 턴 시작까지 노리는 공격 불리·민첩 내성 유리).",
+      "source": "SRD 5.2.1",
+      "glyph": "shield"
+    },
+    {
+      "id": "step_of_the_wind",
+      "name": {
+        "ko": "바람의 걸음",
+        "en": "Step of the Wind"
+      },
+      "level": 2,
+      "kind": "bonus_action",
+      "script": "step_of_the_wind",
+      "notes_ko": "보너스 행동으로 질주. 기가 있으면 기 1로 질주 + 이탈 + 이번 턴 도약 2배.",
+      "source": "SRD 5.2.1",
+      "glyph": "wind",
+      "explore": true
+    },
+    {
+      "id": "unarmored_movement",
+      "name": {
+        "ko": "맨몸 이동",
+        "en": "Unarmored Movement"
+      },
+      "level": 2,
+      "caps": [
+        "unarmored_movement"
+      ],
+      "notes_ko": "갑옷·방패 없으면 속도 +10피트.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "uncanny_metabolism",
+      "name": {
+        "ko": "신비한 대사",
+        "en": "Uncanny Metabolism"
+      },
+      "level": 2,
+      "caps": [
+        "uncanny_metabolism"
+      ],
+      "notes_ko": "이니셔티브를 굴릴 때 기가 모자라면 자동 — 기 전부 회복 + 몽크 레벨 + 무술 주사위 회복. 긴 휴식마다 1회.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "deflect_attacks",
+      "name": {
+        "ko": "공격 쳐내기",
+        "en": "Deflect Attacks"
+      },
+      "level": 3,
+      "kind": "reaction",
+      "hook": "on_hit",
+      "script": "deflect_attacks",
+      "notes_ko": "타격·관통·참격 공격에 맞으면 반응으로 피해 −(1d10 + 민첩 + 몽크 레벨). 되돌려 보내기는 1차 생략.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "slow_fall",
+      "name": {
+        "ko": "느린 낙하",
+        "en": "Slow Fall"
+      },
+      "level": 4,
+      "kind": "reaction",
+      "caps": [
+        "slow_fall"
+      ],
+      "notes_ko": "떨어질 때 반응으로 낙하 피해 − 몽크 레벨 × 5(반응 설정 대상).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "extra_attack",
+      "name": {
+        "ko": "추가 공격",
+        "en": "Extra Attack"
+      },
+      "level": 5,
+      "caps": [
+        "extra_attack"
+      ],
+      "grants": {
+        "attacks_per_action": 2
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "stunning_strike",
+      "name": {
+        "ko": "충격의 일격",
+        "en": "Stunning Strike"
+      },
+      "level": 5,
+      "caps": [
+        "stunning_strike"
+      ],
+      "toggle": {
+        "values": [
+          {
+            "id": "on",
+            "name": {
+              "ko": "켜기",
+              "en": "On"
+            }
+          },
+          {
+            "id": "off",
+            "name": {
+              "ko": "끄기",
+              "en": "Off"
+            }
+          }
+        ],
+        "desc": {
+          "ko": "무술 명중 턴당 1회 기 1로 충격의 일격",
+          "en": "Spend 1 Focus on a Martial Arts hit once per turn"
+        }
+      },
+      "notes_ko": "턴당 1회 무술 명중에 기 1: 건강 내성 실패 시 기절(대상의 다음 턴), 성공 시 속도 절반·다음 공격받을 때 유리. 상시 설정(켜기·끄기).",
+      "source": "SRD 5.2.1"
+    }
+  ],
+  "subclasses": [
+    {
+      "id": "open_hand",
+      "name": {
+        "ko": "열린 손의 전사",
+        "en": "Warrior of the Open Hand"
+      },
+      "level": 3,
+      "source": "SRD 5.2.1",
+      "features": [
+        {
+          "id": "open_hand_technique",
+          "name": {
+            "ko": "열린 손 기법",
+            "en": "Open Hand Technique"
+          },
+          "level": 3,
+          "caps": [
+            "open_hand_technique"
+          ],
+          "toggle": {
+            "values": [
+              {
+                "id": "topple",
+                "name": {
+                  "ko": "넘어뜨리기",
+                  "en": "Topple"
+                }
+              },
+              {
+                "id": "push",
+                "name": {
+                  "ko": "밀기",
+                  "en": "Push"
+                }
+              },
+              {
+                "id": "addle",
+                "name": {
+                  "ko": "어지럽히기",
+                  "en": "Addle"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "연타 명중 효과",
+              "en": "Flurry of Blows hit effect"
+            }
+          },
+          "notes_ko": "연타 명중마다: 넘어뜨리기(민첩 내성)·밀기 15피트(근력 내성)·어지럽히기(다음 턴 시작까지 기회 공격 불가). 상시 설정.",
+          "source": "SRD 5.2.1"
+        }
+      ]
+    }
+  ],
+  "ai_role": "melee",
+  "art": {
+    "sheet": "res://assets/actors/human.webp"
+  },
+  "color": "#4fb3c9",
+  "starting_equipment": {
+    "armor": "",
+    "shield": false,
+    "melee": {
+      "main": "quarterstaff",
+      "off": ""
+    },
+    "ranged": {
+      "main": "dart"
+    }
+  },
+  "default_build": {
+    "subclass": "open_hand",
+    "species": "human",
+    "background": "acolyte",
+    "scores": {
+      "str": 10,
+      "dex": 15,
+      "con": 13,
+      "int": 8,
+      "wis": 15,
+      "cha": 8
+    },
+    "bonus": {
+      "dex": 2,
+      "wis": 1
+    },
+    "skills": [
+      "acrobatics",
+      "stealth"
+    ],
+    "species_skill": "athletics",
+    "origin_feat": "alert",
+    "asi": {
+      "4": {
+        "dex": 2
+      }
+    },
+    "armor": "",
+    "shield": false,
+    "weapons": {
+      "melee": {
+        "main": "quarterstaff",
+        "off": ""
+      },
+      "ranged": {
+        "main": "dart"
+      }
+    }
+  },
+  "source": "SRD 5.2.1"
+}

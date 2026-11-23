@@ -111,7 +111,12 @@ static func fall(creature: Node, levels: int) -> Dictionary:
 	if ctx["prevented"] or dice <= 0:
 		return out
 	var r := Dice.roll("%dd6" % dice, "%s 낙하" % creature.label())
-	var dmg := Resolver.apply_damage(creature, [{"amount": r["total"], "damage_type": "bludgeoning"}], {"in_combat": not EventBus.realtime})
+	var amount: int = r["total"]
+	if creature.has_cap("slow_fall") and creature.can_react() and creature.reaction_setting("slow_fall") != "off":
+		creature.turn["reaction"] = int(creature.turn.get("reaction", 1)) - 1  # 몽크 느린 낙하: 반응, 몽크 레벨 × 5 줄이기
+		amount = maxi(0, amount - 5 * creature.level)
+		Dice.log_text("%s 느린 낙하: 낙하 피해 −%d" % [creature.label(), 5 * creature.level])
+	var dmg := Resolver.apply_damage(creature, [{"amount": amount, "damage_type": "bludgeoning"}], {"in_combat": not EventBus.realtime})
 	out["damage"] = dmg["total"]
 	if dmg["total"] > 0 and not creature.dead:
 		creature.apply_condition("prone", -1)

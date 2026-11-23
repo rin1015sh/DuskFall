@@ -307,6 +307,60 @@
       },
       "note_ko": "숙련 없는 기능 판정에 숙련 보너스 절반(내림)(resolver._skill_bonus)",
       "source": "original"
+    },
+    {
+      "id": "martial_arts",
+      "name": {
+        "ko": "무술",
+        "en": "Martial Arts"
+      },
+      "note_ko": "갑옷·방패 없이 몽크 무기: 민첩 사용, 무술 주사위(combat.build_weapon_attack)",
+      "source": "original"
+    },
+    {
+      "id": "unarmored_movement",
+      "name": {
+        "ko": "맨몸 이동",
+        "en": "Unarmored Movement"
+      },
+      "note_ko": "갑옷·방패 없으면 속도 +2칸(생성기)",
+      "source": "original"
+    },
+    {
+      "id": "uncanny_metabolism",
+      "name": {
+        "ko": "신비한 대사",
+        "en": "Uncanny Metabolism"
+      },
+      "note_ko": "이니셔티브 때 기 회복 + 회복(turn_manager, 자원 uncanny_metabolism)",
+      "source": "original"
+    },
+    {
+      "id": "slow_fall",
+      "name": {
+        "ko": "느린 낙하",
+        "en": "Slow Fall"
+      },
+      "note_ko": "낙하 피해를 반응으로 몽크 레벨 × 5 줄인다(physics.fall)",
+      "source": "original"
+    },
+    {
+      "id": "stunning_strike",
+      "name": {
+        "ko": "충격의 일격",
+        "en": "Stunning Strike"
+      },
+      "note_ko": "무술 명중 턴당 1회, 기 1 — 건강 내성 실패 시 기절(resolver._stunning_strike, 설정 on/off)",
+      "source": "original"
+    },
+    {
+      "id": "open_hand_technique",
+      "name": {
+        "ko": "열린 손 기법",
+        "en": "Open Hand Technique"
+      },
+      "note_ko": "연타 명중마다 넘어뜨리기·밀기·기회 공격 막기(스크립트 flurry_of_blows, 설정)",
+      "source": "original"
     }
   ]
 }

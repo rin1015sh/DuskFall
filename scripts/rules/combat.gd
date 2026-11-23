@@ -4,6 +4,7 @@ extends RefCounted
 ## 모든 함수는 첫 인자로 world를 받는다: {"grid", "surfaces", "reactions"(ReactionQueue, 없으면 null)}
 
 const Resolver := preload("res://scripts/rules/resolver.gd")
+const DiceExpr := preload("res://scripts/rules/dice_expr.gd")
 const Physics := preload("res://scripts/rules/physics.gd")
 const Area := preload("res://scripts/rules/area.gd")
 
@@ -57,6 +58,29 @@ static func weapon_data(id: String) -> Dictionary:
 	return {}
 
 
+## 몽크 무기: 비무장, 단순 근접, 가벼운 군용 근접.
+static func is_monk_weapon(w: Dictionary) -> bool:
+	var cat := str(w.get("category", ""))
+	return str(w.get("id", "")) == "unarmed" or cat == "simple_melee" or (cat == "martial_melee" and "light" in w.get("properties", []))
+
+
+## 능력 태그 martial_arts(몽크 무술): 갑옷·방패 없이 몽크 무기를 쓸 때.
+static func martial_arts_applies(c: Node, w: Dictionary) -> bool:
+	return c.has_cap("martial_arts") and is_monk_weapon(w) and str(c.get_meta("armor", "")) == "" and not bool(c.get_meta("shield", false))
+
+
+## 무술 주사위(기능 martial_arts의 dice_by_level).
+static func martial_arts_die(c: Node) -> String:
+	var table: Dictionary = c.feature_data.get("martial_arts", {}).get("dice_by_level", {"1": "1d6"})
+	var best := "1d6"
+	var best_lv := 0
+	for k: String in table:
+		if c.level >= int(k) and int(k) >= best_lv:
+			best_lv = int(k)
+			best = str(table[k])
+	return best
+
+
 static func is_ranged_weapon(w: Dictionary) -> bool:
 	return str(w.get("category", "")).ends_with("ranged")
 
@@ -77,14 +101,20 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	var props: Array = w.get("properties", [])
 	var ranged: bool = is_ranged_weapon(w) or opts.get("thrown", false)
 	var ability := "dex" if is_ranged_weapon(w) else "str"
-	if "finesse" in props and c.ability_mod("dex") > c.ability_mod("str"):
-		ability = "dex"
+	var martial := martial_arts_applies(c, w)
+	if ("finesse" in props or martial) and c.ability_mod("dex") > c.ability_mod("str"):
+		ability = "dex"  # 교묘 무기, 몽크 무술(민첩 공격)
 	var mod: int = c.ability_mod(ability)
 	var proficient: bool = w["id"] == "unarmed" or c.weapon_proficiencies.has(w["id"]) \
 		or c.weapon_proficiencies.has(str(w.get("category", "")).get_slice("_", 0))
 	var dice: String = w["damage"]
 	if "versatile" in props and opts.get("two_handed", false) and c.weapon("off") == "":
 		dice = w["versatile_damage"]
+	var martial_die := ""
+	if martial:
+		martial_die = martial_arts_die(c)
+		if w["id"] != "unarmed" and DiceExpr.stats(martial_die).get("avg", 0.0) > DiceExpr.stats(dice).get("avg", 0.0):
+			dice = martial_die  # 무술 주사위가 크면 바꿔 굴린다
 	var dmg_mod := mod
 	if opts.get("hand", "main") == "off" and mod > 0 and not c.has_cap("two_weapon_fighting"):
 		dmg_mod = 0
@@ -101,6 +131,8 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	var expr := dice if dmg_mod + dmg_bonus + str_bonus == 0 else "%s%+d" % [dice, dmg_mod + dmg_bonus + str_bonus]
 	if w["id"] == "unarmed":
 		expr = str(maxi(1 + mod, 0)) if mod != 0 else "1"
+		if martial_die != "":
+			expr = martial_die if mod + str_bonus == 0 else "%s%+d" % [martial_die, mod + str_bonus]  # 무술: 비무장 공격 = 무술 주사위 + 수정치
 	var hit_bonus := dmg_bonus
 	for m in c.modifier_entries():
 		if m["effect"]["type"] == "modify" and m["effect"]["stat"] == "weapon_attack":
@@ -116,7 +148,7 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 			expr += r["expr_add"]  # Enlarge(+1d4)·Reduce(−1d4)
 		if r.get("when", "") == "advantage":
 			extra_adv.append({"dice": r["dice"], "damage_type": r.get("damage_type", w["damage_type"])})
-	return {"name": w.get("name", {}).get("en", w["id"]) if w.has("name") else w["id"], "weapon_id": w["id"],
+	return {"martial": martial, "name": w.get("name", {}).get("en", w["id"]) if w.has("name") else w["id"], "weapon_id": w["id"],
 		"extra_if_advantage": extra_adv,
 		"bonus": mod + (c.proficiency_bonus if proficient else 0) + hit_bonus, "ability": ability, "ability_mod": mod,
 		"two_handed": opts.get("two_handed", false) or "two_handed" in props,

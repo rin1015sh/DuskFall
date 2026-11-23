@@ -110,6 +110,13 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 		if mult != 1.0:
 			for r: Dictionary in rolled:
 				r["multiplier"] = mult
+		var cut := int(res.get("damage_reduction", 0))  # 공격 피해 줄이기(몽크 공격 쳐내기)
+		for r: Dictionary in rolled:
+			if cut <= 0:
+				break
+			var k := mini(cut, int(r["amount"]))
+			r["amount"] = int(r["amount"]) - k
+			cut -= k
 		res["damage"] = apply_damage(target, rolled, {"crit": res["crit"], "attacker": attacker,
 			"in_combat": ctx.get("in_combat", true)})
 	return res
@@ -337,6 +344,7 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 			EventBus.on_weapon_hit.emit(res)
 			if a["def"].get("consume_on_trigger", false):
 				attacker.remove_condition(str(a["id"]))
+		_stunning_strike(attacker, target, atk)
 		# 능력 태그 frenzy(광전사 광란): 분노 중 무모한 공격이면 턴의 첫 근력 명중에 (분노 피해)d6
 		if attacker.has_cap("frenzy") and attacker.has_condition("raging") and attacker.turn.get("reckless", false) \
 				and str(atk.get("ability", "")) == "str" and not attacker.turn.get("frenzy_used", false):
@@ -345,6 +353,26 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 		if attacker.has_cap("extra_damage_wounded") and target.hp < target.hp_max and not attacker.turn.get("wounded_bonus_used", false):
 			attacker.turn["wounded_bonus_used"] = true
 			res["extra_damage"].append({"dice": "1d8", "damage_type": atk["damage"][0]["damage_type"]})
+
+
+## 능력 태그 stunning_strike(몽크 충격의 일격): 턴당 1회, 무술 공격 명중 + 설정 on + 기 1 → 건강 내성(DC 8 + 지혜 + 숙련).
+## 실패: 기절(대상의 다음 턴 동안). 성공: 다음 자기 턴 시작까지 속도 절반, 다음 공격받을 때 유리.
+static func _stunning_strike(attacker: Node, target: Node, atk: Dictionary) -> void:
+	if not attacker.has_cap("stunning_strike") or not atk.get("martial", false) or attacker.turn.get("stun_used", false):
+		return
+	if str(attacker.options.get("stunning_strike", "on")) != "on" or attacker.resource("focus") <= 0 or target.dead:
+		return
+	attacker.turn["stun_used"] = true
+	attacker.spend_resource("focus")
+	var dc: int = 8 + attacker.ability_mod("wis") + attacker.proficiency_bonus
+	var s := saving_throw(target, "con", dc)
+	if not s["success"]:
+		target.apply_condition("stunned", 1, attacker)
+		Dice.log_text("%s 충격의 일격: %s 기절" % [attacker.label(), target.label()])
+	else:
+		target.extra_modifiers.append({"effect": {"type": "modify", "stat": "speed_tiles", "multiply": 0.5}, "source": "stunning_strike", "until_turn_start_of": attacker})
+		target.extra_modifiers.append({"effect": {"type": "advantage", "roll": "attack", "side": "against", "value": "advantage"},
+			"source": "stunning_strike", "consume_on_attacked": true, "until_turn_start_of": attacker})
 
 
 ## 기능 판정 보너스: 숙련이면 그 값, 아니면 능력 태그 jack_of_all_trades(바드 만물박사)로 숙련 보너스 절반(내림).

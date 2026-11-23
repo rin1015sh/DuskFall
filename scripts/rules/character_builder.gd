@@ -306,6 +306,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	Equipment.sync_conditions(c)  # 숙련 없는 갑옷·무게 상태(BG3식)
 	if c.has_cap("fast_movement") and not _heavy(str(c.get_meta("armor"))):
 		c.speed_tiles += 2  # 빠른 이동: 중갑이 아니면 +10피트
+	if c.has_cap("unarmored_movement") and str(c.get_meta("armor")) == "" and not bool(c.get_meta("shield")):
+		c.speed_tiles += 2  # 몽크 맨몸 이동: 갑옷·방패 없으면 +10피트(1~5레벨)
 	# 주문
 	_apply_spells(c, cls, sub, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)
