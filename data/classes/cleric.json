@@ -463,6 +463,27 @@
       },
       "source": "SRD 5.2.1",
       "notes_ko": "신성한 일격 2d8(축복받은 일격 레벨표). 강력한 주문 시전: 클레릭 소마법이 피해를 주면 12칸 안 가장 다친 아군(자신 포함)에게 지혜 × 2 임시 HP."
+    },
+    {
+      "id": "epic_boon",
+      "name": {
+        "ko": "서사 은혜",
+        "en": "Epic Boon"
+      },
+      "level": 19,
+      "source": "SRD 5.2.1",
+      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_fate"
+    },
+    {
+      "id": "greater_divine_intervention",
+      "name": {
+        "ko": "상급 신성 개입",
+        "en": "Greater Divine Intervention"
+      },
+      "level": 20,
+      "status": "deferred",
+      "source": "SRD 5.2.1",
+      "notes_ko": "신성 개입으로 소원(Wish) — 소원은 서술형이라 1차 제외."
     }
   ],
   "subclasses": [
@@ -537,6 +558,19 @@
           ],
           "notes_ko": "슬롯을 쓴 주문으로 다른 생물을 회복시키면 자신도 2 + 슬롯 레벨 회복(시전마다 1회).",
           "source": "SRD 5.2.1"
+        },
+        {
+          "id": "supreme_healing",
+          "name": {
+            "ko": "최상의 치유",
+            "en": "Supreme Healing"
+          },
+          "level": 17,
+          "caps": [
+            "max_healing_dice"
+          ],
+          "source": "SRD 5.2.1",
+          "notes_ko": "주문 회복 주사위를 굴리지 않고 최대값으로(효과 모델 회복 주문)."
         }
       ]
     }
@@ -616,6 +650,10 @@
     "asi": {
       "4": {
         "wis": 2
+      },
+      "19": {
+        "feat": "boon_of_fate",
+        "wis": 1
       }
     },
     "armor": "chain_mail",

@@ -128,6 +128,136 @@
       ],
       "effects_ko": "가벼운 무기 보조 공격 피해에 능력 수정치.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "boon_of_combat_prowess",
+      "name": {
+        "ko": "전투 기량의 은혜",
+        "en": "Boon of Combat Prowess"
+      },
+      "category": "epic_boon",
+      "min_level": 19,
+      "ability_increase": {
+        "total": 1,
+        "max": 30
+      },
+      "effects_ko": "능력치 +1(최대 30). 비할 데 없는 조준: 공격이 빗나가면 명중으로 — 내 다음 턴 시작까지 1회(자동).",
+      "source": "SRD 5.2.1",
+      "tags": [
+        "peerless_aim"
+      ]
+    },
+    {
+      "id": "boon_of_dimensional_travel",
+      "name": {
+        "ko": "차원 여행의 은혜",
+        "en": "Boon of Dimensional Travel"
+      },
+      "category": "epic_boon",
+      "min_level": 19,
+      "ability_increase": {
+        "total": 1,
+        "max": 30
+      },
+      "effects_ko": "능력치 +1(최대 30). 점멸 걸음(공격·마법 행동 뒤 30피트 순간 이동)은 1차 생략.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "boon_of_fate",
+      "name": {
+        "ko": "운명의 은혜",
+        "en": "Boon of Fate"
+      },
+      "category": "epic_boon",
+      "min_level": 19,
+      "ability_increase": {
+        "total": 1,
+        "max": 30
+      },
+      "effects_ko": "능력치 +1(최대 30). 운명 개선: 자신의 실패한 d20 시험에 2d4(성공할 수 있을 때 자동, 이니셔티브마다 1회). 남에게·빼기는 생략.",
+      "source": "SRD 5.2.1",
+      "hook": "on_save_failed",
+      "also_hooks": [
+        "on_check_failed",
+        "on_attack_missed"
+      ],
+      "script": "boon_of_fate"
+    },
+    {
+      "id": "boon_of_irresistible_offense",
+      "name": {
+        "ko": "거스를 수 없는 공세의 은혜",
+        "en": "Boon of Irresistible Offense"
+      },
+      "category": "epic_boon",
+      "min_level": 19,
+      "ability_increase": {
+        "total": 1,
+        "max": 30,
+        "abilities": [
+          "str",
+          "dex"
+        ]
+      },
+      "effects_ko": "근력 또는 민첩 +1(최대 30). 타격·관통·참격 피해는 저항 무시. 공격 자연 20이면 + 근력·민첩 점수 피해.",
+      "source": "SRD 5.2.1",
+      "tags": [
+        "ignore_physical_resistance",
+        "overwhelming_strike"
+      ]
+    },
+    {
+      "id": "boon_of_spell_recall",
+      "name": {
+        "ko": "주문 회상의 은혜",
+        "en": "Boon of Spell Recall"
+      },
+      "category": "epic_boon",
+      "min_level": 19,
+      "ability_increase": {
+        "total": 1,
+        "max": 30,
+        "abilities": [
+          "int",
+          "wis",
+          "cha"
+        ]
+      },
+      "effects_ko": "지능·지혜·매력 +1(최대 30). 1~4레벨 슬롯으로 시전하면 1d4가 슬롯 레벨과 같을 때 슬롯을 쓰지 않는다.",
+      "source": "SRD 5.2.1",
+      "tags": [
+        "spell_recall"
+      ]
+    },
+    {
+      "id": "boon_of_the_night_spirit",
+      "name": {
+        "ko": "밤 정령의 은혜",
+        "en": "Boon of the Night Spirit"
+      },
+      "category": "epic_boon",
+      "min_level": 19,
+      "ability_increase": {
+        "total": 1,
+        "max": 30
+      },
+      "effects_ko": "능력치 +1(최대 30). 어둠 속 투명·저항은 빛 단계 장치와 함께 다음에.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "boon_of_truesight",
+      "name": {
+        "ko": "진시야의 은혜",
+        "en": "Boon of Truesight"
+      },
+      "category": "epic_boon",
+      "min_level": 19,
+      "ability_increase": {
+        "total": 1,
+        "max": 30
+      },
+      "effects_ko": "능력치 +1(최대 30). 진시야 60피트는 감각 장치와 함께 다음에.",
+      "source": "SRD 5.2.1"
     }
   ]
 }

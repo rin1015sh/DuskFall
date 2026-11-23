@@ -556,6 +556,29 @@
       ],
       "source": "SRD 5.2.1",
       "notes_ko": "타고난 마법 횟수가 없으면 마법 점수 2로 쓴다(타고난 마법 alt_cost). 타고난 마법 중 주문 하나에 변형 2개는 다음 단계(변형 토글이 하나)."
+    },
+    {
+      "id": "epic_boon",
+      "name": {
+        "ko": "서사 은혜",
+        "en": "Epic Boon"
+      },
+      "level": 19,
+      "source": "SRD 5.2.1",
+      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_dimensional_travel"
+    },
+    {
+      "id": "arcane_apotheosis",
+      "name": {
+        "ko": "비전 신격화",
+        "en": "Arcane Apotheosis"
+      },
+      "level": 20,
+      "caps": [
+        "arcane_apotheosis"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "타고난 마법 중 턴마다 주문 변형 하나 무료."
     }
   ],
   "subclasses": [
@@ -679,6 +702,17 @@
           "status": "deferred",
           "source": "SRD 5.2.1",
           "notes_ko": "비행 속도 60피트 — 비행 장치와 함께 다음에."
+        },
+        {
+          "id": "dragon_companion",
+          "name": {
+            "ko": "용 동료",
+            "en": "Dragon Companion"
+          },
+          "level": 18,
+          "status": "deferred",
+          "source": "SRD 5.2.1",
+          "notes_ko": "용 소환(1차 제외 주문) — 소환 장치와 함께 다음에."
         }
       ]
     }
@@ -754,6 +788,10 @@
     "asi": {
       "4": {
         "cha": 2
+      },
+      "19": {
+        "feat": "boon_of_dimensional_travel",
+        "cha": 1
       }
     },
     "armor": "",

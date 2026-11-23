@@ -385,6 +385,55 @@
       },
       "source": "SRD 5.2.1",
       "notes_ko": "다음 내 턴 끝까지 투명. 지혜 수정치(최소 1)회, 긴 휴식."
+    },
+    {
+      "id": "epic_boon",
+      "name": {
+        "ko": "서사 은혜",
+        "en": "Epic Boon"
+      },
+      "level": 19,
+      "source": "SRD 5.2.1",
+      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_dimensional_travel"
+    },
+    {
+      "id": "precise_hunter",
+      "name": {
+        "ko": "정밀한 사냥꾼",
+        "en": "Precise Hunter"
+      },
+      "level": 17,
+      "caps": [
+        "precise_hunter"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "내 사냥꾼의 표식 대상에게 공격 유리."
+    },
+    {
+      "id": "feral_senses",
+      "name": {
+        "ko": "야생의 감각",
+        "en": "Feral Senses"
+      },
+      "level": 18,
+      "grants": {
+        "darkvision_tiles": 6
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "맹목 시야 30피트 — 1차는 6칸 암시야로(맹목 시야 장치 없음)."
+    },
+    {
+      "id": "foe_slayer",
+      "name": {
+        "ko": "적 처단자",
+        "en": "Foe Slayer"
+      },
+      "level": 20,
+      "caps": [
+        "foe_slayer"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "사냥꾼의 표식 피해 주사위 d10."
     }
   ],
   "subclasses": [
@@ -555,6 +604,10 @@
     "asi": {
       "4": {
         "dex": 2
+      },
+      "19": {
+        "feat": "boon_of_dimensional_travel",
+        "dex": 1
       }
     },
     "armor": "studded_leather_armor",

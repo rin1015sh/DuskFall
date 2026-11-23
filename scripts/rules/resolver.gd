@@ -71,6 +71,10 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	if not res["hit"] and res["natural"] != 1:
 		Features.hook("on_attack_missed", attacker, {"res": res})  # 비할 데 없는 기술(지식 학파 14레벨) — 스크립트가 total을 고친다
 		_decide_hit(res)
+	if not res["hit"] and attacker.has_cap("peerless_aim") and not attacker.turn.get("peerless_aim_used", false):
+		attacker.turn["peerless_aim_used"] = true  # 전투 기량(서사 은혜): 빗나가면 명중으로 — 내 다음 턴 시작까지 1회
+		res["hit"] = true
+		Dice.log_text("%s 비할 데 없는 조준: 명중" % attacker.label())
 	# 받는 쪽의 '다음 공격을 받으면 사라지는' 수정치(Guiding Bolt)
 	for m in target.extra_modifiers.duplicate():
 		if m.get("consume_on_attacked", false):
@@ -261,6 +265,13 @@ static func _collect_attack_mods(attacker: Node, target: Node, res: Dictionary) 
 	res["disadvantage"].append_array(ctx.get("disadvantage", []))
 	if res.get("attack", {}).get("opportunity", false) and target.has_cap("escape_the_horde"):
 		res["disadvantage"].append("무리 탈출")  # 사냥꾼 방어 전술(7레벨)
+	if attacker.has_cap("precise_hunter"):
+		for a in target.active_conditions():
+			if a["instance"].get("source") is Node and a["instance"]["source"] == attacker and a["def"].has("dice_upgrade"):
+				res["advantage"].append("정밀한 사냥꾼")  # 레인저 17레벨: 내 사냥꾼의 표식 대상에게 유리
+				break
+	if target.has_cap("elusive") and not target.is_incapacitated():
+		res["advantage"].clear()  # 포착 불가(로그 18레벨): 무력화되지 않았으면 나를 노리는 공격은 유리가 없다
 	var hd := int(ctx.get("height_diff", 0))
 	if hd >= HIGH_GROUND_STEPS:
 		res["attack_bonus"] += HIGH_GROUND_BONUS
@@ -371,7 +382,9 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 			continue
 		for e: Dictionary in a["def"].get("hooks", {}).get("on_hit_by_source", []):
 			if e["type"] == "damage":
-				res["extra_damage"].append({"dice": e["dice"], "damage_type": e["damage_type"]})
+				var up: Dictionary = a["def"].get("dice_upgrade", {})
+				var dice: String = str(up["dice"]) if not up.is_empty() and attacker.has_cap(str(up["cap"])) else str(e["dice"])  # 적 처단자(레인저 20레벨): d10
+				res["extra_damage"].append({"dice": dice, "damage_type": e["damage_type"]})
 				if attacker.has_cap("mark_spread") and not attacker.turn.get("mark_spread_used", false):
 					_mark_spread(attacker, target, e)
 		EventBus.on_hit_by_source.emit(res)
@@ -410,9 +423,16 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 			attacker.turn["frenzy_used"] = true
 			res["extra_damage"].append({"dice": "%dd6" % rage_bonus(attacker), "damage_type": atk["damage"][0]["damage_type"]})
 		_feature_hit_bonus(attacker, target, atk, res)
+		if int(res.get("natural", 0)) == 20 and attacker.has_cap("overwhelming_strike"):
+			var sc: int = maxi(int(attacker.abilities.get("str", 10)), int(attacker.abilities.get("dex", 10)))
+			res["extra_damage"].append({"dice": str(sc), "damage_type": atk["damage"][0]["damage_type"]})  # 압도적인 일격(서사 은혜)
 		if res.has("brutal_strike"):
-			res["extra_damage"].append({"dice": "1d10", "damage_type": atk["damage"][0]["damage_type"]})
+			var two: bool = attacker.has_cap("brutal_strike_2")  # 향상된 잔혹한 일격(17레벨): 2d10, 효과 둘
+			res["extra_damage"].append({"dice": "2d10" if two else "1d10", "damage_type": atk["damage"][0]["damage_type"]})
 			_brutal_effect(attacker, target, str(res["brutal_strike"]))
+			var second := str(attacker.options.get("brutal_strike_2", ""))
+			if two and second != "" and second != str(res["brutal_strike"]):
+				_brutal_effect(attacker, target, second)
 		if attacker.has_cap("extra_damage_wounded") and target.hp < target.hp_max and not attacker.turn.get("wounded_bonus_used", false):
 			attacker.turn["wounded_bonus_used"] = true
 			res["extra_damage"].append({"dice": "1d8", "damage_type": atk["damage"][0]["damage_type"]})
@@ -822,6 +842,10 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 	var total := 0
 	for t: String in raw.keys():
 		var v := int(modify_amount(target, raw[t], t, 1.0, true))
+		var src: Variant = opts.get("attacker")
+		if src is Node and t in ["bludgeoning", "piercing", "slashing"] and src.has_cap("ignore_physical_resistance") \
+				and target.resists(t) and not target.immune_to(t) and not target.vulnerable_to(t):
+			v = int(raw[t])  # 거스를 수 없는 공세(서사 은혜): 타격·관통·참격은 저항을 무시
 		out["by_type"][t] = v
 		total += v
 	out["total"] = total
@@ -981,6 +1005,9 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 	if not res["success"]:
 		res["total"] += inspire(creature)
 		res["success"] = res["total"] >= dc
+	if not res["success"] and ability == "str" and creature.has_cap("indomitable_might") and int(creature.abilities["str"]) > int(res["total"]):
+		res["total"] = int(creature.abilities["str"])  # 불굴의 힘(바바리안 18레벨): 근력 내성 합계가 근력 점수보다 낮으면 점수로
+		res["success"] = res["total"] >= dc
 	if not res["success"] and heroic(creature):
 		d = luck(creature, Dice.d20(res["mode"], "%s %s 내성(영웅적 영감)" % [creature.label(), ability]))
 		res["natural"] = d["natural"]
@@ -1081,6 +1108,9 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		if not res["success"] and d["natural"] != 1:
 			res["total"] += inspire(creature)
 			res["success"] = res["total"] >= dc
+		if not res["success"] and ability == "str" and creature.has_cap("indomitable_might") and int(creature.abilities["str"]) > int(res["total"]):
+			res["total"] = int(creature.abilities["str"])  # 불굴의 힘
+			res["success"] = d["natural"] != 1 and res["total"] >= dc
 		if not res["success"] and heroic(creature):
 			d = luck(creature, Dice.d20(res["mode"], "%s %s 판정(영웅적 영감)" % [creature.label(), ability]))
 			res["natural"] = d["natural"]
@@ -1169,6 +1199,14 @@ static func start_turn(creature: Node, ctx: Dictionary = {}) -> void:
 		for o: Node in rq.world["grid"].creatures():
 			if o.has_meta("no_opportunity_until") and o.get_meta("no_opportunity_until") == creature:
 				o.remove_meta("no_opportunity_until")
+	if creature.has_cap("survivor") and creature.hp > 0 and creature.hp <= creature.hp_max / 2 and not creature.dead:
+		heal(creature, 5 + creature.ability_mod("con"), "heroic_rally")  # 영웅적 반격(챔피언 18레벨): 피투성이면 턴 시작에 5 + 건강
+	if rq != null and is_instance_valid(rq) and rq.world.has("grid") and not creature.dead:
+		var grid: Node = rq.world["grid"]
+		for o: Node in grid.creatures():
+			if o.has_condition("holy_nimbus") and o.is_hostile_to(creature) and not o.is_incapacitated() \
+					and grid.distance_between(o, creature) <= Auras.range_of(o):
+				apply_damage(creature, [{"amount": o.ability_mod("cha") + o.proficiency_bonus, "damage_type": "radiant"}], {"attacker": o})  # 성스러운 후광
 	if ctx.get("in_combat", false) and creature.has_cap("heroic_warrior") and not creature.has_condition("heroic_inspiration"):
 		creature.apply_condition("heroic_inspiration", -1, creature)  # 영웅 전사(챔피언 10레벨): 전투 중 턴 시작마다
 	var regen: Dictionary = creature.feature_data.get("regeneration", {})
@@ -1205,8 +1243,12 @@ static func death_save(creature: Node, bonus: int = 0) -> Dictionary:
 	var dres := {"advantage": [], "disadvantage": [], "distance": 1}
 	for m in creature.modifier_entries():
 		_add_adv(m, "death_save", "self", creature, null, dres)
+	if creature.has_cap("survivor"):
+		dres["advantage"].append("죽음 거부")  # 생존자(챔피언 18레벨)
 	var d := luck(creature, Dice.d20(mode_of(dres["advantage"], dres["disadvantage"]), "%s 사망 내성" % creature.label()))
 	var n: int = d["natural"]
+	if n >= 18 and creature.has_cap("survivor"):
+		n = 20  # 18~20은 20으로
 	var res := {"natural": n, "total": n + bonus, "result": ""}
 	if n == 20:
 		heal(creature, 1, "death_save")

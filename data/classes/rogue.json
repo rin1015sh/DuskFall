@@ -49,7 +49,19 @@
   "expertise": {
     "1": 2
   },
-  "resources": [],
+  "resources": [
+    {
+      "id": "stroke_of_luck",
+      "name": {
+        "ko": "행운의 일격",
+        "en": "Stroke of Luck"
+      },
+      "max": {
+        "20": 1
+      },
+      "recharge": "short"
+    }
+  ],
   "features": [
     {
       "id": "expertise",
@@ -391,6 +403,46 @@
       },
       "source": "SRD 5.2.1",
       "notes_ko": "지혜·매력 내성 숙련."
+    },
+    {
+      "id": "epic_boon",
+      "name": {
+        "ko": "서사 은혜",
+        "en": "Epic Boon"
+      },
+      "level": 19,
+      "source": "SRD 5.2.1",
+      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_the_night_spirit"
+    },
+    {
+      "id": "elusive",
+      "name": {
+        "ko": "포착 불가",
+        "en": "Elusive"
+      },
+      "level": 18,
+      "caps": [
+        "elusive"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "무력화되지 않았으면 나를 노리는 공격은 유리를 얻지 못한다."
+    },
+    {
+      "id": "stroke_of_luck",
+      "name": {
+        "ko": "행운의 일격",
+        "en": "Stroke of Luck"
+      },
+      "level": 20,
+      "hook": "on_attack_missed",
+      "also_hooks": [
+        "on_save_failed",
+        "on_check_failed"
+      ],
+      "script": "stroke_of_luck",
+      "resource": "stroke_of_luck",
+      "source": "SRD 5.2.1",
+      "notes_ko": "실패한 d20 시험을 20으로(20이면 성공할 때 자동). 짧은 휴식 1회."
     }
   ],
   "subclasses": [
@@ -478,6 +530,17 @@
           ],
           "source": "SRD 5.2.1",
           "notes_ko": "어떤 주문 두루마리든 읽는다(높은 레벨 판정 생략). 조율은 없는 규칙, 충전 아끼기는 충전 물품이 없어 생략."
+        },
+        {
+          "id": "thiefs_reflexes",
+          "name": {
+            "ko": "도둑의 반사신경",
+            "en": "Thief's Reflexes"
+          },
+          "level": 17,
+          "status": "deferred",
+          "source": "SRD 5.2.1",
+          "notes_ko": "첫 라운드에 두 번 행동 — 턴 순서 장치와 함께 다음에."
         }
       ]
     }
@@ -539,6 +602,10 @@
     "asi": {
       "4": {
         "dex": 2
+      },
+      "19": {
+        "feat": "boon_of_the_night_spirit",
+        "dex": 1
       }
     },
     "armor": "leather_armor",

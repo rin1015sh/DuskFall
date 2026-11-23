@@ -1132,6 +1132,45 @@
       "spell_level": 8,
       "source": "SRD 5.2.1",
       "notes_ko": "8레벨 워락 주문 하나 — 긴 휴식마다 슬롯 없이 1회(innate)."
+    },
+    {
+      "id": "epic_boon",
+      "name": {
+        "ko": "서사 은혜",
+        "en": "Epic Boon"
+      },
+      "level": 19,
+      "source": "SRD 5.2.1",
+      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_fate"
+    },
+    {
+      "id": "mystic_arcanum_9",
+      "name": {
+        "ko": "신비한 비전(9레벨)",
+        "en": "Mystic Arcanum (level 9)"
+      },
+      "level": 17,
+      "choice_kind": "spell",
+      "count": 1,
+      "spell_lists": [
+        "warlock"
+      ],
+      "spell_level": 9,
+      "source": "SRD 5.2.1",
+      "notes_ko": "9레벨 워락 주문 하나 — 긴 휴식마다 슬롯 없이 1회."
+    },
+    {
+      "id": "eldritch_master",
+      "name": {
+        "ko": "섬뜩한 대가",
+        "en": "Eldritch Master"
+      },
+      "level": 20,
+      "caps": [
+        "eldritch_master"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "마법적 기지로 계약 슬롯 전부 회복."
     }
   ],
   "subclasses": [
@@ -1393,6 +1432,10 @@
     "asi": {
       "4": {
         "cha": 2
+      },
+      "19": {
+        "feat": "boon_of_fate",
+        "cha": 1
       }
     },
     "armor": "leather_armor",

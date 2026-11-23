@@ -83,6 +83,13 @@ func roll_initiative(c: Node) -> int:
 	if c.has_cap("perfect_focus") and c.resource("uncanny_metabolism") == had and c.resources.has("focus"):
 		var f: Dictionary = c.resources["focus"]
 		f["current"] = maxi(int(f["current"]), mini(4, int(f["max"])))  # 완벽한 집중(몽크 15레벨): 기가 3 이하면 4까지
+	if c.has_cap("superior_inspiration") and c.resources.has("bardic_inspiration"):
+		var bi: Dictionary = c.resources["bardic_inspiration"]
+		bi["current"] = maxi(int(bi["current"]), mini(2, int(bi["max"])))  # 탁월한 영감(바드 18레벨): 2회까지
+	if c.has_cap("evergreen_wild_shape") and c.resources.has("wild_shape") and int(c.resources["wild_shape"]["current"]) == 0:
+		c.resources["wild_shape"]["current"] = 1  # 상록의 야생 변신(대드루이드 20레벨)
+	if c.has_meta("fate_used"):
+		c.remove_meta("fate_used")  # 운명 개선(서사 은혜): 이니셔티브 때 다시
 	if c.has_cap("persistent_rage") and c.resource("persistent_rage") > 0 and c.resources.has("rage") \
 			and int(c.resources["rage"]["current"]) < int(c.resources["rage"]["max"]):
 		c.resources["rage"]["current"] = c.resources["rage"]["max"]  # 끈질긴 분노(바바리안 15레벨): 이니셔티브 때 분노 전부, 긴 휴식 1회

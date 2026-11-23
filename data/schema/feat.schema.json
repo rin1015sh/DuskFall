@@ -58,9 +58,13 @@
           "enum": [
             "origin",
             "general",
-            "fighting_style"
+            "fighting_style",
+            "epic_boon"
           ]
         },
+        "hook": {"type": "string"},
+        "also_hooks": {"type": "array", "items": {"type": "string"}},
+        "script": {"type": "string"},
         "tags": {
           "type": "array",
           "items": {

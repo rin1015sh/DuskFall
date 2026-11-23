@@ -387,6 +387,39 @@
       "level": 10,
       "source": "SRD 5.2.1",
       "handled_by": "클래스 spellcasting.extra_lists — 10레벨부터 준비 주문을 클레릭·드루이드·위저드 목록에서도 고른다(주문 창·생성기 검사)"
+    },
+    {
+      "id": "epic_boon",
+      "name": {
+        "ko": "서사 은혜",
+        "en": "Epic Boon"
+      },
+      "level": 19,
+      "source": "SRD 5.2.1",
+      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_spell_recall"
+    },
+    {
+      "id": "superior_inspiration",
+      "name": {
+        "ko": "탁월한 영감",
+        "en": "Superior Inspiration"
+      },
+      "level": 18,
+      "caps": [
+        "superior_inspiration"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "이니셔티브 때 바드의 영감이 2회 미만이면 2회로."
+    },
+    {
+      "id": "words_of_creation",
+      "name": {
+        "ko": "창조의 말",
+        "en": "Words of Creation"
+      },
+      "level": 20,
+      "source": "SRD 5.2.1",
+      "handled_by": "클래스 always_prepared 20레벨(권능의 말: 치유·죽음). 두 번째 대상(2칸 안)은 1차 생략"
     }
   ],
   "subclasses": [
@@ -554,6 +587,10 @@
     "asi": {
       "4": {
         "cha": 2
+      },
+      "19": {
+        "feat": "boon_of_spell_recall",
+        "cha": 1
       }
     },
     "armor": "leather_armor",
@@ -584,5 +621,11 @@
       "choose": 1,
       "from": "any"
     }
+  },
+  "always_prepared": {
+    "20": [
+      "power_word_heal",
+      "power_word_kill"
+    ]
   }
 }

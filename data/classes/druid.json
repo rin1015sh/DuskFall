@@ -310,6 +310,17 @@
         "6": 1
       },
       "recharge": "long"
+    },
+    {
+      "id": "nature_magician",
+      "name": {
+        "ko": "자연의 마법사",
+        "en": "Nature Magician"
+      },
+      "max": {
+        "20": 1
+      },
+      "recharge": "long"
     }
   ],
   "features": [
@@ -479,6 +490,58 @@
       },
       "source": "SRD 5.2.1",
       "notes_ko": "강력한 주문 시전: 사거리 10피트 이상 소마법 +300피트. 원초의 일격: 2d8(원소의 격노 레벨표)."
+    },
+    {
+      "id": "epic_boon",
+      "name": {
+        "ko": "서사 은혜",
+        "en": "Epic Boon"
+      },
+      "level": 19,
+      "source": "SRD 5.2.1",
+      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_dimensional_travel"
+    },
+    {
+      "id": "beast_spells",
+      "name": {
+        "ko": "야수 주문",
+        "en": "Beast Spells"
+      },
+      "level": 18,
+      "caps": [
+        "beast_spells"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "야생 변신 중에도 주문(값 있는 재료·소모 재료 제외 — 재료 검사는 생략)."
+    },
+    {
+      "id": "archdruid",
+      "name": {
+        "ko": "대드루이드",
+        "en": "Archdruid"
+      },
+      "level": 20,
+      "caps": [
+        "evergreen_wild_shape"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "상록의 야생 변신: 이니셔티브 때 야생 변신이 없으면 1회. 자연의 마법사는 별도 기능. 장수는 서술."
+    },
+    {
+      "id": "nature_magician",
+      "name": {
+        "ko": "자연의 마법사",
+        "en": "Nature Magician"
+      },
+      "level": 20,
+      "resource": "nature_magician",
+      "script": "nature_magician",
+      "usable": true,
+      "explore": true,
+      "icon": "statuses/riddle_empowered.webp",
+      "glyph": "swirl",
+      "source": "SRD 5.2.1",
+      "notes_ko": "야생 변신 횟수를 슬롯 하나로(횟수당 2레벨). 긴 휴식 1회."
     }
   ],
   "subclasses": [
@@ -783,6 +846,10 @@
     "asi": {
       "4": {
         "wis": 2
+      },
+      "19": {
+        "feat": "boon_of_dimensional_travel",
+        "wis": 1
       }
     },
     "armor": "leather_armor",

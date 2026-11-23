@@ -776,7 +776,11 @@
       },
       "notes_ko": "Hunter's Mark: 건 시전자가 공격으로 맞히면 +1d6 역장. 쓰러지면 18칸 안 가장 가까운 적에게 자동으로 옮긴다(사용자 결정).",
       "source": "SRD 5.2.1",
-      "reveals_defenses": true
+      "reveals_defenses": true,
+      "dice_upgrade": {
+        "cap": "foe_slayer",
+        "dice": "1d10"
+      }
     },
     {
       "id": "ensnaring_ready",
@@ -1264,7 +1268,8 @@
         "no_spellcasting": true
       },
       "notes_ko": "드루이드 야생 변신 중: 주문 시전 불가(집중은 유지). 짐승 능력치·공격은 wild_shape.gd.",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "lifted_by_cap": "beast_spells"
     },
     {
       "id": "divine_sensed",
@@ -1643,6 +1648,48 @@
         ]
       },
       "notes_ko": "뿔 악마 꼬리: 턴 시작마다 3d6(원문은 HP 손실·회복으로 닫힘 — 1차는 10턴).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "superior_defense",
+      "name": {
+        "ko": "탁월한 방어",
+        "en": "Superior Defense"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "acid",
+            "bludgeoning",
+            "cold",
+            "fire",
+            "lightning",
+            "necrotic",
+            "piercing",
+            "poison",
+            "psychic",
+            "radiant",
+            "slashing",
+            "thunder"
+          ]
+        }
+      ],
+      "notes_ko": "몽크 18레벨: 역장 외 모든 피해 저항(무력화되면 끝 — 1차는 10턴).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "holy_nimbus",
+      "name": {
+        "ko": "성스러운 후광",
+        "en": "Holy Nimbus"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "notes_ko": "헌신의 맹세 20레벨: 보호의 오라 안에서 턴을 시작하는 적은 매력 + 숙련 광휘.",
       "source": "SRD 5.2.1"
     }
   ]

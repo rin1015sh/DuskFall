@@ -18,7 +18,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 		var mx := int(r["max"])
 		if mx <= 0:
 			continue
-		var n := mini(mx - int(r["current"]), (mx + 1) / 2)
+		var n := mini(mx - int(r["current"]), mx if c.has_cap("eldritch_master") else (mx + 1) / 2)  # 섬뜩한 대가(20레벨): 전부
 		r["current"] = int(r["current"]) + n
 		regained += n
 	if regained <= 0:

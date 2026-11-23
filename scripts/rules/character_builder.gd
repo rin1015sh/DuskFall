@@ -213,11 +213,13 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		for asi_lv: int in e["cls"].get("asi_levels", []):
 			if int(e["level"]) >= asi_lv:
 				var pick: Dictionary = asi_src.get(str(asi_lv), {})
+				var cap := 20
 				if pick.has("feat"):
 					feats.append(pick["feat"])
-				else:
-					for a: String in pick.keys():
-						ab[a] = mini(int(ab[a]) + int(pick[a]), 20)
+					cap = int(RulesDB.get_entry("feat", str(pick["feat"])).get("ability_increase", {}).get("max", 20))  # 서사 은혜: +1, 최대 30
+				for a: String in pick.keys():
+					if a in ABILITIES:
+						ab[a] = mini(int(ab[a]) + int(pick[a]), maxi(cap, int(ab[a])))
 	# 장비(equipment.gd): 착용 능력치 최소값(오우거 힘의 건틀릿 등)
 	var slots := Equipment.from_spec(spec, cls)
 	var mins := Equipment.ability_mins(slots)
@@ -292,6 +294,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		var ft := RulesDB.get_entry("feat", fid)
 		c.features.append(fid)
 		c.caps.append_array(ft.get("tags", []))
+		if ft.has("hook") and ft.has("script"):
+			_add_feature(c, ft)  # 훅을 쓰는 재주(운명의 은혜)
 	var uniq_f: Array = []
 	for f: String in c.features:
 		if not f in uniq_f:
@@ -344,6 +348,12 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			hit_bonus.append(hb)  # 신성한 일격·원초의 일격: 턴당 1회 무기 명중 추가 피해(resolver._hit_riders)
 		for adv: Dictionary in gr.get("advantage", []):
 			c.extra_modifiers.append({"effect": adv.duplicate(true), "source": g[0], "builder": true})
+	# 능력치 상승 부여(ability_increase {능력: n, "max": m} — 원시 투사·몸과 마음: +4, 최대 25)
+	for g: Array in grants:
+		var inc: Dictionary = g[1].get("ability_increase", {})
+		for a: String in inc:
+			if a in ABILITIES:
+				c.abilities[a] = mini(int(c.abilities[a]) + int(inc[a]), maxi(int(inc.get("max", 20)), int(c.abilities[a])))
 	if c.has_cap("initiative_proficiency"):
 		c.initiative_bonus = c.proficiency_bonus
 	# 내성·기능 숙련
@@ -417,6 +427,9 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	# 주문
 	_apply_spells(c, entries, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)
+	at_will.append_array(c.get_meta("chosen_at_will", []))
+	if c.has_meta("chosen_at_will"):
+		c.remove_meta("chosen_at_will")
 	c.set_meta("at_will", at_will)
 	c.set_meta("weapon_hit_bonus", hit_bonus)
 	c.set_meta("spell_type_bonus", type_bonus)
@@ -615,7 +628,14 @@ static func _apply_spells(c: Node, entries: Array, sp: Dictionary, lin: Dictiona
 			if f.has("spell_level"):
 				if int(spd["level"]) != int(f["spell_level"]):
 					continue  # 신비한 비전(워락): 정해진 레벨의 주문 하나, 긴 휴식마다 슬롯 없이 1회
-				c.resources["innate_" + str(sid)] = {"current": 1, "max": 1, "recharge": "long"}
+				if f.get("from_spellbook", false) and not str(sid) in c.spellbook and not str(sid) in spec.get("spells", []):
+					continue  # 주문 숙달·대표 주문(위저드): 주문서의 주문
+				if f.get("at_will", false):
+					var aw: Array = c.get_meta("chosen_at_will", [])
+					aw.append(str(sid))
+					c.set_meta("chosen_at_will", aw)  # 주문 숙달(위저드 18레벨): 가장 낮은 레벨로 마음대로
+				else:
+					c.resources["innate_" + str(sid)] = {"current": 1, "max": 1, "recharge": str(f.get("recharge", "long"))}
 			elif int(spd["level"]) > top_slot:
 				continue
 			if not (f.get("spell_lists", []) as Array).any(func(l: String) -> bool: return l in spd.get("classes", [])):

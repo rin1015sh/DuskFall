@@ -219,6 +219,7 @@
               }
             },
             "resistances": {"type": "array", "items": {"type": "string"}},
+            "ability_increase": {"type": "object"},
             "save_proficiencies": {"type": "array", "items": {"type": "string"}},
             "condition_immunities": {"type": "array", "items": {"type": "string"}},
             "spell_damage_types": {"type": "array", "items": {"type": "string"}},
@@ -308,7 +309,9 @@
                 }
               },
               "resistances": {"type": "array", "items": {"type": "string"}},
-              "save_proficiencies": {"type": "array", "items": {"type": "string"}},
+              "ability_increase": {"type": "object"},
+            "save_proficiencies": {"type": "array", "items": {"type": "string"}},
+            "ability_increase": {"type": "object"},
             "save_proficiencies": {"type": "array", "items": {"type": "string"}},
             "condition_immunities": {"type": "array", "items": {"type": "string"}},
             "spell_damage_types": {"type": "array", "items": {"type": "string"}},
@@ -511,6 +514,9 @@
           "type": "array",
           "items": {"type": "string"}
         },
+        "at_will": {"$comment": "choice_kind spell: 슬롯 없이 마음대로(주문 숙달)", "type": "boolean"},
+        "from_spellbook": {"$comment": "choice_kind spell: 주문서의 주문만", "type": "boolean"},
+        "recharge": {"$comment": "choice_kind spell: 무료 1회 회복(long·short)", "type": "string"},
         "spell_level": {
           "$comment": "choice_kind spell: 이 레벨 주문만, 긴 휴식마다 슬롯 없이 1회(신비한 비전)",
           "type": "integer"

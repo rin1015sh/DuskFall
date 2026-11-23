@@ -802,6 +802,150 @@
       },
       "note_ko": "다음 위저드 피해 주문 최대 피해 + 대가(spellcasting._overchannel_start, 설정)",
       "source": "original"
+    },
+    {
+      "id": "brutal_strike_2",
+      "name": {
+        "ko": "향상된 잔혹한 일격 17",
+        "en": "Improved Brutal Strike 17"
+      },
+      "note_ko": "잔혹한 일격 2d10·효과 둘(resolver._hit_riders)",
+      "source": "original"
+    },
+    {
+      "id": "indomitable_might",
+      "name": {
+        "ko": "불굴의 힘",
+        "en": "Indomitable Might"
+      },
+      "note_ko": "근력 판정·내성 합계 하한 = 근력 점수(resolver)",
+      "source": "original"
+    },
+    {
+      "id": "superior_inspiration",
+      "name": {
+        "ko": "탁월한 영감",
+        "en": "Superior Inspiration"
+      },
+      "note_ko": "이니셔티브 때 바드의 영감 2회까지(turn_manager)",
+      "source": "original"
+    },
+    {
+      "id": "max_healing_dice",
+      "name": {
+        "ko": "최상의 치유",
+        "en": "Supreme Healing"
+      },
+      "note_ko": "주문 회복 주사위 최대값(spellcasting.apply_effect)",
+      "source": "original"
+    },
+    {
+      "id": "beast_spells",
+      "name": {
+        "ko": "야수 주문",
+        "en": "Beast Spells"
+      },
+      "note_ko": "야생 변신 중 주문(상태 lifted_by_cap — spellcasting._beast_spells)",
+      "source": "original"
+    },
+    {
+      "id": "evergreen_wild_shape",
+      "name": {
+        "ko": "상록의 야생 변신",
+        "en": "Evergreen Wild Shape"
+      },
+      "note_ko": "이니셔티브 때 야생 변신 0이면 1(turn_manager)",
+      "source": "original"
+    },
+    {
+      "id": "survivor",
+      "name": {
+        "ko": "생존자",
+        "en": "Survivor"
+      },
+      "note_ko": "사망 내성 유리·18~20 = 20, 피투성이면 턴 시작 회복(resolver)",
+      "source": "original"
+    },
+    {
+      "id": "precise_hunter",
+      "name": {
+        "ko": "정밀한 사냥꾼",
+        "en": "Precise Hunter"
+      },
+      "note_ko": "내 사냥꾼의 표식 대상에게 공격 유리(resolver._collect_attack_mods)",
+      "source": "original"
+    },
+    {
+      "id": "foe_slayer",
+      "name": {
+        "ko": "적 처단자",
+        "en": "Foe Slayer"
+      },
+      "note_ko": "사냥꾼의 표식 d10(상태 dice_upgrade)",
+      "source": "original"
+    },
+    {
+      "id": "elusive",
+      "name": {
+        "ko": "포착 불가",
+        "en": "Elusive"
+      },
+      "note_ko": "나를 노리는 공격에 유리 없음(resolver._collect_attack_mods)",
+      "source": "original"
+    },
+    {
+      "id": "arcane_apotheosis",
+      "name": {
+        "ko": "비전 신격화",
+        "en": "Arcane Apotheosis"
+      },
+      "note_ko": "타고난 마법 중 턴마다 변형 하나 무료(spellcasting._cast)",
+      "source": "original"
+    },
+    {
+      "id": "eldritch_master",
+      "name": {
+        "ko": "섬뜩한 대가",
+        "en": "Eldritch Master"
+      },
+      "note_ko": "마법적 기지로 계약 슬롯 전부(스크립트 magical_cunning)",
+      "source": "original"
+    },
+    {
+      "id": "peerless_aim",
+      "name": {
+        "ko": "비할 데 없는 조준",
+        "en": "Peerless Aim"
+      },
+      "note_ko": "빗나가면 명중으로, 턴마다 1회(resolver.attack — 서사 은혜)",
+      "source": "original"
+    },
+    {
+      "id": "ignore_physical_resistance",
+      "name": {
+        "ko": "저항 무시",
+        "en": "Overcome Defenses"
+      },
+      "note_ko": "타격·관통·참격 피해는 저항 무시(resolver.apply_damage — 서사 은혜)",
+      "source": "original"
+    },
+    {
+      "id": "overwhelming_strike",
+      "name": {
+        "ko": "압도적인 일격",
+        "en": "Overwhelming Strike"
+      },
+      "note_ko": "공격 자연 20이면 + 근력·민첩 점수 피해(resolver._hit_riders — 서사 은혜)",
+      "source": "original"
+    },
+    {
+      "id": "spell_recall",
+      "name": {
+        "ko": "주문 회상",
+        "en": "Spell Recall"
+      },
+      "note_ko": "1~4레벨 슬롯 1d4 = 슬롯 레벨이면 슬롯을 쓰지 않음(spellcasting._cast — 서사 은혜)",
+      "source": "original"
     }
   ]
 }

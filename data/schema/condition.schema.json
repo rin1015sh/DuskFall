@@ -485,6 +485,14 @@
           "$comment": "이 상태로 공격 굴림을 하면 끝난다(조롱당함)",
           "type": "boolean"
         },
+        "dice_upgrade": {
+          "$comment": "건 생물이 cap 능력 태그가 있으면 on_hit_by_source 피해 주사위를 dice로(적 처단자 — 사냥꾼의 표식 d10)",
+          "type": "object"
+        },
+        "lifted_by_cap": {
+          "$comment": "이 능력 태그가 있으면 이 상태의 no_spellcasting을 무시(야수 주문)",
+          "type": "string"
+        },
         "retaliate": {
           "$comment": "1칸 안 근접 명중 시 공격자에게 피해 {dice, damage_type}(화염 방패)",
           "type": "object"

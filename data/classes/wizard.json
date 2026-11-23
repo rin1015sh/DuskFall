@@ -328,6 +328,70 @@
       "caps": [
         "prepare_swap_short_rest"
       ]
+    },
+    {
+      "id": "epic_boon",
+      "name": {
+        "ko": "서사 은혜",
+        "en": "Epic Boon"
+      },
+      "level": 19,
+      "source": "SRD 5.2.1",
+      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_spell_recall"
+    },
+    {
+      "id": "spell_mastery_1",
+      "name": {
+        "ko": "주문 숙달(1레벨)",
+        "en": "Spell Mastery (level 1)"
+      },
+      "level": 18,
+      "choice_kind": "spell",
+      "count": 1,
+      "spell_lists": [
+        "wizard"
+      ],
+      "spell_level": 1,
+      "at_will": true,
+      "from_spellbook": true,
+      "source": "SRD 5.2.1",
+      "notes_ko": "주문서의 1레벨 주문 하나를 가장 낮은 레벨로 슬롯 없이 마음대로."
+    },
+    {
+      "id": "spell_mastery_2",
+      "name": {
+        "ko": "주문 숙달(2레벨)",
+        "en": "Spell Mastery (level 2)"
+      },
+      "level": 18,
+      "choice_kind": "spell",
+      "count": 1,
+      "spell_lists": [
+        "wizard"
+      ],
+      "spell_level": 2,
+      "at_will": true,
+      "from_spellbook": true,
+      "source": "SRD 5.2.1",
+      "notes_ko": "주문서의 2레벨 주문 하나를 가장 낮은 레벨로 슬롯 없이 마음대로."
+    },
+    {
+      "id": "signature_spells",
+      "name": {
+        "ko": "대표 주문",
+        "en": "Signature Spells"
+      },
+      "level": 20,
+      "choice_kind": "spell",
+      "count": 2,
+      "spell_lists": [
+        "wizard"
+      ],
+      "spell_level": 3,
+      "recharge": "short",
+      "from_spellbook": true,
+      "source": "SRD 5.2.1",
+      "notes_ko": "주문서의 3레벨 주문 둘 — 짧은 휴식마다 각각 슬롯 없이 1회."
     }
   ],
   "subclasses": [
@@ -511,6 +575,10 @@
     "asi": {
       "4": {
         "int": 2
+      },
+      "19": {
+        "feat": "boon_of_spell_recall",
+        "int": 1
       }
     },
     "armor": "",
@@ -522,7 +590,17 @@
       "ranged": {
         "main": "dagger"
       }
-    }
+    },
+    "spell_mastery_1": [
+      "magic_missile"
+    ],
+    "spell_mastery_2": [
+      "misty_step"
+    ],
+    "signature_spells": [
+      "fireball",
+      "counterspell"
+    ]
   },
   "source": "SRD 5.2.1",
   "multiclass": {}

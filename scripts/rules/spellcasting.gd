@@ -381,7 +381,7 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 		return "주문 슬롯이 없다"
 	if caster.has_condition("incapacitated"):
 		return "무력화"
-	if caster.has_flag("no_spellcasting"):
+	if caster.has_flag("no_spellcasting") and not _beast_spells(caster):
 		return "지금은 주문을 쓸 수 없다(숙련 없는 갑옷·분노·야생 변신)"
 	if spell.get("components", {}).get("verbal", false) and metamagic_for(caster, spell) != "subtle" and world.has("grid") and world["grid"].creatures().has(caster) \
 			and world["grid"].has_flag(world["grid"].cell_of(caster), "silence"):
@@ -398,6 +398,14 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 		if not grid.has_line_of_sight(grid.cell_of(caster), aim) and not spell.get("no_sight", false):
 			return "보이지 않는다"  # no_sight: 보이지 않는 곳도(차원 문)
 	return ""
+
+
+## 야수 주문(드루이드 18레벨, 능력 태그 beast_spells): 주문 금지가 야생 변신에서만 온 것이면 시전할 수 있다(상태 데이터 lifted_by_cap).
+static func _beast_spells(c: Node) -> bool:
+	for a in c.active_conditions():
+		if a["def"].get("flags", {}).get("no_spellcasting", false) and not c.has_cap(str(a["def"].get("lifted_by_cap", "-"))):
+			return false
+	return true
 
 
 ## 능력 태그 free_cast_class_spell(신성 개입 — 클레릭 10레벨): 설정을 켜 두면 다음 그 클래스 주문(1 ~ max_spell_level, 반응 주문 제외)을
@@ -519,7 +527,11 @@ static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector
 		Combat.spend(caster, cost)
 	var mm := metamagic_for(caster, spell)
 	if mm != "" and not opts.get("free", false):
-		caster.resources["sorcery_points"]["current"] = caster.resource("sorcery_points") - int(METAMAGIC[mm])
+		var free_mm: bool = caster.has_cap("arcane_apotheosis") and caster.has_condition("innate_sorcery") and not caster.turn.get("apotheosis_used", false)
+		if free_mm:
+			caster.turn["apotheosis_used"] = true  # 비전 신격화(소서러 20레벨): 타고난 마법 중 턴마다 변형 하나 무료
+		else:
+			caster.resources["sorcery_points"]["current"] = caster.resource("sorcery_points") - int(METAMAGIC[mm])
 		caster.options["metamagic"] = "none"  # 한 번 쓰면 꺼진다(BG3식)
 		opts = opts.duplicate()
 		opts["metamagic"] = mm
@@ -538,6 +550,9 @@ static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector
 		caster.spend_resource(str(caster.feature_data[free_fid]["resource"]))
 		caster.options[free_fid] = "off"  # 한 번 쓰면 꺼진다
 		Dice.log_text("%s: %s — 슬롯 없이 시전" % [caster.label(), caster.feature_data[free_fid]["name"]["ko"]])
+	if slot_id != "" and caster.has_cap("spell_recall") and slot <= 4 and Dice.die(4) == slot:
+		Dice.log_text("%s 주문 회상: 슬롯을 쓰지 않는다" % caster.label())  # 주문 회상(서사 은혜)
+		slot_id = ""
 	if slot_id != "":
 		caster.spend_resource(slot_id)
 	elif use_innate:
@@ -667,8 +682,8 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 				amount += spell_mod(caster)
 			if level_of(spell) > 0 and caster.has_cap("spell_heal_bonus"):
 				amount += 2 + slot  # 생명의 제자: 2 + 슬롯 레벨
-			if has_max_healing(t):
-				amount = _max_heal(caster, spell, e, slot)  # Beacon of Hope
+			if has_max_healing(t) or caster.has_cap("max_healing_dice"):
+				amount = _max_heal(caster, spell, e, slot)  # Beacon of Hope, 최상의 치유(생명 영역 17레벨)
 			Resolver.heal(t, amount, caster)
 			if level_of(spell) > 0 and t != caster and caster.has_cap("blessed_healer") and not inst.get("blessed_healer", false):
 				inst["blessed_healer"] = true  # 축복받은 치유자(생명 영역 6레벨): 남을 치유하면 나도 2 + 슬롯 레벨

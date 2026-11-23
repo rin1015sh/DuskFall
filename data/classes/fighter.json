@@ -303,6 +303,32 @@
       ],
       "source": "SRD 5.2.1",
       "notes_ko": "공격이 빗나가면 다음 내 턴 끝까지 그 대상에 대한 다음 공격 유리."
+    },
+    {
+      "id": "epic_boon",
+      "name": {
+        "ko": "서사 은혜",
+        "en": "Epic Boon"
+      },
+      "level": 19,
+      "source": "SRD 5.2.1",
+      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_combat_prowess"
+    },
+    {
+      "id": "three_extra_attacks",
+      "name": {
+        "ko": "추가 공격 3회",
+        "en": "Three Extra Attacks"
+      },
+      "level": 20,
+      "caps": [
+        "extra_attack"
+      ],
+      "grants": {
+        "attacks_per_action": 4
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "공격 행동에 4회."
     }
   ],
   "subclasses": [
@@ -394,6 +420,19 @@
           },
           "source": "SRD 5.2.1",
           "notes_ko": "치명타 18~20."
+        },
+        {
+          "id": "survivor",
+          "name": {
+            "ko": "생존자",
+            "en": "Survivor"
+          },
+          "level": 18,
+          "caps": [
+            "survivor"
+          ],
+          "source": "SRD 5.2.1",
+          "notes_ko": "사망 내성 유리, 18~20은 20으로. 피투성이(HP 절반 이하)면 턴 시작에 5 + 건강 회복."
         }
       ]
     }
@@ -454,6 +493,10 @@
     "asi": {
       "4": {
         "str": 2
+      },
+      "19": {
+        "feat": "boon_of_combat_prowess",
+        "str": 1
       }
     },
     "armor": "chain_mail",

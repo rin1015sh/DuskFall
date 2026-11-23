@@ -448,6 +448,50 @@
       ],
       "source": "SRD 5.2.1",
       "notes_ko": "이니셔티브 때 신비한 대사를 쓰지 않았고 기가 3 이하면 4로."
+    },
+    {
+      "id": "epic_boon",
+      "name": {
+        "ko": "서사 은혜",
+        "en": "Epic Boon"
+      },
+      "level": 19,
+      "source": "SRD 5.2.1",
+      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_irresistible_offense"
+    },
+    {
+      "id": "superior_defense",
+      "name": {
+        "ko": "탁월한 방어",
+        "en": "Superior Defense"
+      },
+      "level": 18,
+      "kind": "free",
+      "script": "superior_defense",
+      "icon": "statuses/buff.webp",
+      "glyph": "shield",
+      "ai": {
+        "when": "hp_below_half"
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "내 턴에 기 3 — 10턴 동안 역장 외 모든 피해 저항."
+    },
+    {
+      "id": "body_and_mind",
+      "name": {
+        "ko": "몸과 마음",
+        "en": "Body and Mind"
+      },
+      "level": 20,
+      "grants": {
+        "ability_increase": {
+          "dex": 4,
+          "wis": 4,
+          "max": 25
+        }
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "민첩·지혜 +4(최대 25)."
     }
   ],
   "subclasses": [
@@ -531,6 +575,40 @@
           "status": "deferred",
           "source": "SRD 5.2.1",
           "notes_ko": "다른 보너스 행동 뒤 바람 걸음을 바로 — 보너스 행동 연계 장치와 함께 다음에."
+        },
+        {
+          "id": "quivering_palm",
+          "name": {
+            "ko": "진동하는 손바닥",
+            "en": "Quivering Palm"
+          },
+          "level": 17,
+          "hook": "on_hit",
+          "script": "quivering_palm",
+          "source": "SRD 5.2.1",
+          "notes_ko": "설정을 켜면 다음 비무장 명중 때 기 4로 건강 내성, 실패 10d12 역장(성공 절반). 원문은 진동을 걸어 두고 나중에 끝냄 — 바로 끝낸다.",
+          "toggle": {
+            "values": [
+              {
+                "id": "off",
+                "name": {
+                  "ko": "끔",
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "on",
+                "name": {
+                  "ko": "켬",
+                  "en": "On"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "다음 비무장 명중에 진동하는 손바닥(기 4, 한 번 쓰면 꺼짐).",
+              "en": "Quivering Palm on your next unarmed hit (4 Focus)."
+            }
+          }
         }
       ]
     }
@@ -576,6 +654,10 @@
     "asi": {
       "4": {
         "dex": 2
+      },
+      "19": {
+        "feat": "boon_of_irresistible_offense",
+        "dex": 1
       }
     },
     "armor": "",
