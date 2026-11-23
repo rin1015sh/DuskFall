@@ -969,6 +969,8 @@ static func _save_setup(creature: Node, ability: String, dc: int, opts: Dictiona
 			res["advantage"].append("%s 내성 유리" % cid)
 	if ability in creature.save_advantage_abilities:
 		res["advantage"].append("%s 내성 유리" % ability)
+	if opts.get("magic", false) and creature.has_cap("magic_resistance"):
+		res["advantage"].append("마법 저항")  # 주문 내성 유리(돌 골렘 등)
 	return res
 
 

@@ -1,0 +1,113 @@
+{
+  "schema": "monster_v1",
+  "id": "young_red_dragon",
+  "name": {
+    "ko": "젊은 적룡",
+    "en": "Young Red Dragon"
+  },
+  "size": "large",
+  "creature_type": "dragon",
+  "cr": 10,
+  "xp": 5900,
+  "proficiency_bonus": 4,
+  "ac": 18,
+  "hp": 178,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 23,
+    "dex": 10,
+    "con": 21,
+    "int": 14,
+    "wis": 11,
+    "cha": 19
+  },
+  "saves": {
+    "str": 6,
+    "dex": 4,
+    "con": 5,
+    "int": 2,
+    "wis": 4,
+    "cha": 4
+  },
+  "actions": [
+    {
+      "id": "rend",
+      "name": {
+        "ko": "할퀴기",
+        "en": "Rend"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 10,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "2d6+6",
+          "damage_type": "slashing"
+        },
+        {
+          "dice": "1d6",
+          "damage_type": "fire"
+        }
+      ]
+    },
+    {
+      "id": "fire_breath",
+      "name": {
+        "ko": "화염 숨결",
+        "en": "Fire Breath"
+      },
+      "type": "save",
+      "ability": "dex",
+      "dc": 17,
+      "range_tiles": 6,
+      "recharge": "5-6",
+      "area": {
+        "shape": "cone",
+        "length_tiles": 6
+      },
+      "fail": [
+        {
+          "type": "damage",
+          "dice": "16d6",
+          "damage_type": "fire"
+        }
+      ],
+      "success": [
+        {
+          "type": "damage",
+          "dice": "16d6",
+          "damage_type": "fire",
+          "scale": 0.5
+        }
+      ]
+    }
+  ],
+  "weight_kg": 1000,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/tarunbas.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "multiattack": {
+    "count": 3,
+    "actions": [
+      "rend"
+    ]
+  },
+  "immunities": [
+    "fire"
+  ],
+  "senses": {
+    "darkvision_tiles": 24
+  },
+  "skills": {
+    "perception": 8,
+    "stealth": 4
+  },
+  "notes_ko": "비행·등반 생략. 그림은 임시."
+}

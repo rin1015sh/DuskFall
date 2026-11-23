@@ -544,7 +544,7 @@ static func resolve_effects(ctx: Dictionary) -> Dictionary:
 		if spell.get("repeat_save", false):
 			cparams["repeat_save"] = {"ability": check["ability"], "dc": spell_dc(caster)}
 		results = Resolver.save_effect(targets, {"ability": check["ability"], "dc": spell_dc(caster)},
-			fail, success, {"source": caster, "rolled": rolled, "duration": _dur(spell, opts), "condition_params": cparams,
+			fail, success, {"source": caster, "rolled": rolled, "duration": _dur(spell, opts), "condition_params": cparams, "magic": true,
 				"disadvantage": ["고양된 주문"] if opts.get("metamagic", "") == "heightened" else [],
 				"careful": _protected_targets(caster, spell, targets, opts)})
 		for r: Dictionary in results:

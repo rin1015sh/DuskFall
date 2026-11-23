@@ -3,7 +3,7 @@ extends RefCounted
 
 const CreatureScript := preload("res://scripts/rules/creature.gd")
 
-const SIZE_CELLS := {"tiny": 1, "small": 1, "medium": 1, "large": 2}
+const SIZE_CELLS := {"tiny": 1, "small": 1, "medium": 1, "large": 2, "huge": 3, "gargantuan": 4}
 ## 재충전 → 고정 쿨다운(룰북 2단계): 5~6 → 3턴, 6 → 6턴
 const RECHARGE_TURNS := {"5-6": 3, "6": 6}
 

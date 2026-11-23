@@ -13,7 +13,7 @@ const WALK_FPS := 9.0
 const STEP_SEC := 0.16
 ## 그림 키(px): 사람 = 84(1.3칸), 몬스터는 크기 배율
 const BODY_PX := 84.0
-const SIZE_K := {"tiny": 0.5, "small": 0.8, "medium": 1.0, "large": 1.7}
+const SIZE_K := {"tiny": 0.5, "small": 0.8, "medium": 1.0, "large": 1.7, "huge": 2.4}
 ## 옛 2D 그림자 타원(세로/가로 0.45)을 바닥 판에서 같게 보이게
 const SHADOW_Z := 0.45 / V.SIN_P
 

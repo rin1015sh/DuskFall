@@ -1,0 +1,116 @@
+{
+  "schema": "monster_v1",
+  "id": "young_green_dragon",
+  "name": {
+    "ko": "젊은 녹룡",
+    "en": "Young Green Dragon"
+  },
+  "size": "large",
+  "creature_type": "dragon",
+  "cr": 8,
+  "xp": 3900,
+  "proficiency_bonus": 3,
+  "ac": 18,
+  "hp": 136,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 19,
+    "dex": 12,
+    "con": 17,
+    "int": 16,
+    "wis": 13,
+    "cha": 15
+  },
+  "saves": {
+    "str": 4,
+    "dex": 4,
+    "con": 3,
+    "int": 3,
+    "wis": 4,
+    "cha": 2
+  },
+  "actions": [
+    {
+      "id": "rend",
+      "name": {
+        "ko": "할퀴기",
+        "en": "Rend"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 7,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "2d6+4",
+          "damage_type": "slashing"
+        },
+        {
+          "dice": "2d6",
+          "damage_type": "poison"
+        }
+      ]
+    },
+    {
+      "id": "poison_breath",
+      "name": {
+        "ko": "독 숨결",
+        "en": "Poison Breath"
+      },
+      "type": "save",
+      "ability": "con",
+      "dc": 14,
+      "range_tiles": 6,
+      "recharge": "5-6",
+      "area": {
+        "shape": "cone",
+        "length_tiles": 6
+      },
+      "fail": [
+        {
+          "type": "damage",
+          "dice": "12d6",
+          "damage_type": "poison"
+        }
+      ],
+      "success": [
+        {
+          "type": "damage",
+          "dice": "12d6",
+          "damage_type": "poison",
+          "scale": 0.5
+        }
+      ]
+    }
+  ],
+  "weight_kg": 900,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/sandworm.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "multiattack": {
+    "count": 3,
+    "actions": [
+      "rend"
+    ]
+  },
+  "immunities": [
+    "poison"
+  ],
+  "condition_immunities": [
+    "poisoned"
+  ],
+  "senses": {
+    "darkvision_tiles": 24
+  },
+  "skills": {
+    "perception": 7,
+    "stealth": 4
+  },
+  "notes_ko": "비행·수영 생략. 그림은 임시."
+}

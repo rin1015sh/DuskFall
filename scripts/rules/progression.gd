@@ -71,6 +71,7 @@ static func level_up(world: Dictionary, c: Node, cid: String = "", extra: Dictio
 			spec["classes"].append(ne)
 		spec["level"] = c.level + 1
 	fill_choices(c, spec)
+	Builder.fill_asi(spec)
 	if not Builder.validate(spec).is_empty():
 		return false
 	Builder.reapply(c, spec)

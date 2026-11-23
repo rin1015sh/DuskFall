@@ -52,7 +52,8 @@
         "tiny",
         "small",
         "medium",
-        "large"
+        "large",
+        "huge"
       ]
     },
     "creature_type": {
@@ -283,6 +284,10 @@
           },
           "replaces_attack": {
             "type": "boolean"
+          },
+          "area": {
+            "$comment": "범위 내성 행동 {shape: cone·line·sphere, length_tiles·radius_tiles·width_tiles}(용의 숨결)",
+            "type": "object"
           }
         }
       }

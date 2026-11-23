@@ -1,0 +1,106 @@
+{
+  "schema": "monster_v1",
+  "id": "frost_giant",
+  "name": {
+    "ko": "서리 거인",
+    "en": "Frost Giant"
+  },
+  "size": "huge",
+  "creature_type": "giant",
+  "cr": 8,
+  "xp": 3900,
+  "proficiency_bonus": 3,
+  "ac": 15,
+  "hp": 149,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 23,
+    "dex": 9,
+    "con": 21,
+    "int": 9,
+    "wis": 10,
+    "cha": 12
+  },
+  "saves": {
+    "str": 6,
+    "dex": -1,
+    "con": 8,
+    "int": -1,
+    "wis": 3,
+    "cha": 4
+  },
+  "actions": [
+    {
+      "id": "frost_axe",
+      "name": {
+        "ko": "서리 도끼",
+        "en": "Frost Axe"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 9,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "2d12+6",
+          "damage_type": "slashing"
+        },
+        {
+          "dice": "2d8",
+          "damage_type": "cold"
+        }
+      ]
+    },
+    {
+      "id": "great_bow",
+      "name": {
+        "ko": "대궁",
+        "en": "Great Bow"
+      },
+      "type": "attack",
+      "kind": "ranged",
+      "bonus": 9,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "2d10+6",
+          "damage_type": "piercing"
+        },
+        {
+          "dice": "2d6",
+          "damage_type": "cold"
+        }
+      ],
+      "range_tiles": [
+        30,
+        120
+      ]
+    }
+  ],
+  "weight_kg": 3500,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/ice_golem.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "multiattack": {
+    "count": 2,
+    "actions": [
+      "frost_axe",
+      "great_bow"
+    ]
+  },
+  "immunities": [
+    "cold"
+  ],
+  "skills": {
+    "athletics": 9,
+    "perception": 3
+  },
+  "push_immune": true,
+  "notes_ko": "대궁 속도 감소·함성(보너스 행동 임시 HP)은 1차 생략. 그림은 임시."
+}

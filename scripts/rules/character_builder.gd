@@ -766,4 +766,39 @@ static func default_spec(class_id: String, level: int = 1) -> Dictionary:
 		return base
 	base.merge((cls.get("default_build", {}) as Dictionary).duplicate(true))
 	base["class"] = class_id
+	fill_asi(base)
 	return base
+
+
+## 비어 있는 능력치 향상 레벨을 채운다(추천 빌드의 첫 향상 능력 → 20이 되면 건강 → 민첩·지혜). 레벨 업·추천 빌드가 쓴다.
+static func fill_asi(spec: Dictionary) -> void:
+	var ab := {}
+	for a: String in ABILITIES:
+		ab[a] = int(spec.get("scores", {}).get(a, 8)) + int(spec.get("bonus", {}).get(a, 0))
+	for e: Dictionary in class_entries(spec):
+		var key := "asi"
+		var src: Dictionary = spec if e["primary"] else e["entry"]
+		if not src.has(key):
+			src[key] = {}
+		var asi: Dictionary = src[key]
+		var db_asi: Dictionary = e["cls"].get("default_build", {}).get("asi", {})
+		var first: String = str((db_asi.get("4", {"con": 2}) as Dictionary).keys()[0]) if not db_asi.is_empty() else "con"
+		for asi_lv: int in e["cls"].get("asi_levels", []):
+			if int(e["level"]) < asi_lv:
+				continue
+			if asi.has(str(asi_lv)):
+				for a: String in (asi[str(asi_lv)] as Dictionary).keys():
+					if a in ABILITIES:
+						ab[a] = mini(int(ab[a]) + int(asi[str(asi_lv)][a]), 20)
+				continue
+			var pick := {}
+			var left := 2
+			for a: String in [first, "con", "dex", "wis"]:
+				var add := mini(left, 20 - int(ab[a]))
+				if add > 0:
+					pick[a] = int(pick.get(a, 0)) + add
+					ab[a] = int(ab[a]) + add
+					left -= add
+				if left == 0:
+					break
+			asi[str(asi_lv)] = pick

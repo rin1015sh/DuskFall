@@ -1,0 +1,119 @@
+{
+  "schema": "monster_v1",
+  "id": "fire_giant",
+  "name": {
+    "ko": "불의 거인",
+    "en": "Fire Giant"
+  },
+  "size": "huge",
+  "creature_type": "giant",
+  "cr": 9,
+  "xp": 5000,
+  "proficiency_bonus": 4,
+  "ac": 18,
+  "hp": 162,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 25,
+    "dex": 9,
+    "con": 23,
+    "int": 10,
+    "wis": 14,
+    "cha": 13
+  },
+  "saves": {
+    "str": 7,
+    "dex": 3,
+    "con": 10,
+    "int": 0,
+    "wis": 2,
+    "cha": 5
+  },
+  "actions": [
+    {
+      "id": "flame_sword",
+      "name": {
+        "ko": "불꽃 검",
+        "en": "Flame Sword"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 11,
+      "reach_tiles": 2,
+      "damage": [
+        {
+          "dice": "4d6+7",
+          "damage_type": "slashing"
+        },
+        {
+          "dice": "3d6",
+          "damage_type": "fire"
+        }
+      ]
+    },
+    {
+      "id": "hammer_throw",
+      "name": {
+        "ko": "망치 던지기",
+        "en": "Hammer Throw"
+      },
+      "type": "attack",
+      "kind": "ranged",
+      "bonus": 11,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "3d10+7",
+          "damage_type": "bludgeoning"
+        },
+        {
+          "dice": "1d8",
+          "damage_type": "fire"
+        }
+      ],
+      "range_tiles": [
+        12,
+        48
+      ],
+      "on_hit": [
+        {
+          "type": "push",
+          "tiles": 3
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage",
+          "consume": "attack"
+        }
+      ]
+    }
+  ],
+  "weight_kg": 4000,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/orc_lord.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "multiattack": {
+    "count": 2,
+    "actions": [
+      "flame_sword",
+      "hammer_throw"
+    ]
+  },
+  "immunities": [
+    "fire"
+  ],
+  "skills": {
+    "athletics": 11,
+    "perception": 6
+  },
+  "push_immune": true,
+  "notes_ko": "망치 던지기: 3칸 밀고 다음 공격 불리. 그림은 임시."
+}

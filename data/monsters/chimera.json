@@ -1,0 +1,154 @@
+{
+  "schema": "monster_v1",
+  "id": "chimera",
+  "name": {
+    "ko": "키메라",
+    "en": "Chimera"
+  },
+  "size": "large",
+  "creature_type": "monstrosity",
+  "cr": 6,
+  "xp": 2300,
+  "proficiency_bonus": 3,
+  "ac": 14,
+  "hp": 114,
+  "speed_tiles": 6,
+  "abilities": {
+    "str": 19,
+    "dex": 11,
+    "con": 19,
+    "int": 3,
+    "wis": 14,
+    "cha": 10
+  },
+  "saves": {
+    "str": 4,
+    "dex": 0,
+    "con": 4,
+    "int": -4,
+    "wis": 2,
+    "cha": 0
+  },
+  "actions": [
+    {
+      "id": "ram",
+      "name": {
+        "ko": "들이받기",
+        "en": "Ram"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 7,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d12+4",
+          "damage_type": "bludgeoning"
+        }
+      ],
+      "on_hit": [
+        {
+          "type": "apply_condition",
+          "id": "prone",
+          "max_size": "medium"
+        }
+      ]
+    },
+    {
+      "id": "bite",
+      "name": {
+        "ko": "물기",
+        "en": "Bite"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 7,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "2d6+4",
+          "damage_type": "piercing"
+        }
+      ],
+      "extra_if_advantage": [
+        {
+          "dice": "2d6",
+          "damage_type": "piercing"
+        }
+      ]
+    },
+    {
+      "id": "claw",
+      "name": {
+        "ko": "발톱",
+        "en": "Claw"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 7,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d6+4",
+          "damage_type": "slashing"
+        }
+      ]
+    },
+    {
+      "id": "fire_breath",
+      "name": {
+        "ko": "화염 숨결",
+        "en": "Fire Breath"
+      },
+      "type": "save",
+      "ability": "dex",
+      "dc": 15,
+      "range_tiles": 3,
+      "recharge": "5-6",
+      "area": {
+        "shape": "cone",
+        "length_tiles": 3
+      },
+      "fail": [
+        {
+          "type": "damage",
+          "dice": "7d8",
+          "damage_type": "fire"
+        }
+      ],
+      "success": [
+        {
+          "type": "damage",
+          "dice": "7d8",
+          "damage_type": "fire",
+          "scale": 0.5
+        }
+      ]
+    }
+  ],
+  "weight_kg": 500,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/chimera_wolf.webp"
+  },
+  "source": "SRD 5.2.1",
+  "ai": {
+    "style": "melee"
+  },
+  "multiattack": {
+    "count": 3,
+    "actions": [
+      "ram",
+      "bite",
+      "claw"
+    ]
+  },
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "skills": {
+    "perception": 8
+  },
+  "notes_ko": "비행 생략. 물기는 유리하면 4d6+4(extra_if_advantage). 화염 숨결은 손톱 대신이 아니라 따로(재충전 5~6 → 3턴)."
+}

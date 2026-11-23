@@ -901,6 +901,8 @@ static func _monster_effect(world: Dictionary, m: Node, t: Node, e: Dictionary) 
 			if e.get("until", "") == "start_of_attacker_next_turn":
 				mod["until_turn_start_of"] = m
 			t.extra_modifiers.append(mod)
+		"push":
+			_push_up_to(world, m, t, int(e.get("tiles", 1)))  # 망치 던지기 등
 		"damage":
 			var r := Dice.roll(e["dice"], "몬스터 효과")
 			var out := Resolver.apply_damage(t, [{"amount": r["total"], "damage_type": e["damage_type"]}], {"attacker": m})
@@ -917,6 +919,8 @@ static func _monster_save_action(world: Dictionary, m: Node, a: Dictionary, targ
 	var reach: int = int(rng) if typeof(rng) != TYPE_ARRAY else int(rng[0])
 	if target == null or grid.distance_between(m, target) > reach or not grid.can_see(m, target):
 		return _fail("대상이 사거리 밖")
+	if a.has("area"):
+		return _monster_area_save(world, m, a, target)
 	var s := Resolver.saving_throw(target, a["ability"], int(a["dc"]), {"source": m,
 		"against_conditions": a.get("fail", []).filter(func(e: Dictionary) -> bool: return e["type"] == "apply_condition").map(
 			func(e: Dictionary) -> String: return e["id"])})
@@ -924,6 +928,46 @@ static func _monster_save_action(world: Dictionary, m: Node, a: Dictionary, targ
 		for e: Dictionary in a.get("fail", []):
 			_monster_effect(world, m, target, e)
 	return {"ok": true, "save": s}
+
+
+## 범위 내성 행동(용의 숨결 등): area {shape cone·line·sphere, length_tiles·radius_tiles}. 큰 몬스터는 차지한 칸 가운데에서 대상 쪽으로.
+## 범위 안 모든 생물(자신 제외)이 내성 — 실패 fail, 성공 success(절반 피해). 피해 주사위는 한 번만(원문). 칸 반응(화염·냉기 등)도.
+static func _monster_area_save(world: Dictionary, m: Node, a: Dictionary, target: Node) -> Dictionary:
+	var grid: Node = world["grid"]
+	var ar: Dictionary = a["area"]
+	var sz: int = grid.size_of(m)
+	var cell: Vector2i = grid.cell_of(m)
+	var origin := cell + Vector2i((sz - 1) / 2, (sz - 1) / 2)
+	var aim := Vector2(grid.cell_of(target)) + Vector2(0.5, 0.5)
+	var cov: Dictionary = {}
+	match str(ar["shape"]):
+		"cone":
+			cov = Area.cov_cone(grid, origin, aim, int(ar["length_tiles"]))
+		"line":
+			cov = Area.cov_line(grid, origin, aim, int(ar["length_tiles"]), 0.5 * int(ar.get("width_tiles", 1)))
+		_:
+			cov = Area.cov_circle(grid, grid.cell_of(target), int(ar.get("radius_tiles", 1)))
+	var cells: Array[Vector2i] = []
+	var own_cells: Array[Vector2i] = grid.occupied_cells(m)
+	for c: Vector2i in cov:
+		if not c in own_cells:
+			cells.append(c)
+	var targets: Array = Area.creatures_in(grid, cells).filter(func(o: Node) -> bool: return o != m and not o.dead)
+	var rolled := {}
+	var results := Resolver.save_effect(targets, {"ability": a["ability"], "dc": int(a["dc"])}, a.get("fail", []), a.get("success", []),
+		{"source": m, "attacker": m, "rolled": rolled})
+	var dtype := ""
+	for e: Dictionary in a.get("fail", []):
+		if e["type"] == "damage":
+			dtype = str(e["damage_type"])
+			break
+	if dtype != "" and world.get("surfaces") != null and not cells.is_empty():
+		var amount := 0
+		for k: String in rolled:
+			amount = maxi(amount, int(rolled[k]))
+		world["surfaces"].tile_damage(cells, dtype, amount, m)
+	Dice.log_text("%s %s: %d명" % [m.label(), a["name"]["ko"], targets.size()])
+	return {"ok": true, "results": results, "cells": cells}
 
 
 ## 속박에서 빠져나오기(행동): 근력(운동) 또는 민첩(곡예) 판정 vs 속박의 escape_dc(붙잡기 대체 — 룰북 6단계).
