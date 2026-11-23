@@ -341,8 +341,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		c.caps.append_array(ft.get("tags", []))
 		if ft.has("grants"):
 			grants.append([fid, ft["grants"]])  # 재주도 기능과 같은 부여 장치(훈련·내성·HP·태그·능력치 등)
-		if ft.has("hook") and ft.has("script"):
-			_add_feature(c, ft)
+		if (ft.has("hook") and ft.has("script")) or ft.has("toggle") or ft.has("kind"):
+			_add_feature(c, ft)  # 켜고 끄는·반응 재주는 기능과 같은 장치(상시 설정·반응 목록)
 		# 고르는 재주(choose): 명세 키 = 재주 id, 값 = 고른 목록
 		var ch: Dictionary = ft.get("choose", {})
 		var picks: Array = (spec.get(fid, []) as Array).slice(0, int(ch.get("count", 0))) if spec.get(fid) is Array else []
@@ -465,6 +465,9 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			res_src.append([r, int(e["level"])])
 	for r: Dictionary in sp.get("resources", []):
 		res_src.append([r, lv])
+	for fid: String in feats:
+		for r: Dictionary in RulesDB.get_entry("feat", fid).get("resources", []):
+			res_src.append([r, lv])  # 재주 자원(행운 점수)
 	for row: Array in res_src:
 		var r: Dictionary = row[0]
 		var mx := _resource_max(r["max"], int(row[1]), c.proficiency_bonus, c)

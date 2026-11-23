@@ -1,6 +1,6 @@
 {
   "schema": "feat_v1",
-  "note_ko": "BG3 재주(수치 BG3 그대로, 이름·설명 자체 — 사용자 결정 2026-11-23). 출신 재주 없음(배경·인간이 재주를 주지 않는다). 재주는 4·8·12레벨(전사 6, 로그 10 추가) 능력치 향상 칸에 명세 asi {\"<레벨>\": {\"feat\": id, <능력>: n}}. ability_increase.choose = 고르는 +1(명세 asi에 능력을 적는다), grants.ability_increase = 고정. choose = 명세 키 재주 id로 고르는 것(skills·weapons·spells). requires = 선행 조건. 전투 방식 6종(BG3). 토글·반응 재주(대형 무기 강타·저격수·장병기 달인·파수·전투 시전자·마법사 사냥꾼·막아내기 검술·방패 달인·행운의 별·돌격병)와 전투 방식 '보호'는 다음 묶음, 전투 기법 입문은 4단계 배틀 마스터형과 함께.",
+  "note_ko": "BG3 재주(수치 BG3 그대로, 이름·설명 자체 — 사용자 결정 2026-11-23). 출신 재주 없음(배경·인간이 재주를 주지 않는다). 재주는 4·8·12레벨(전사 6, 로그 10 추가) 능력치 향상 칸에 명세 asi {\"<레벨>\": {\"feat\": id, <능력>: n}}. ability_increase.choose = 고르는 +1(명세 asi에 능력을 적는다), grants.ability_increase = 고정. choose = 명세 키 재주 id로 고르는 것(skills·weapons·spells). requires = 선행 조건. 전투 방식 6종(BG3). 토글·반응 재주(묶음 B)는 기능과 같은 장치(toggle·kind reaction·trigger·resources)로 feature_data에 들어간다. 전투 기법 입문은 4단계 배틀 마스터형과 함께.",
   "feats": [
     {
       "id": "ability_score_improvement",
@@ -886,6 +886,311 @@
         "two_weapon_fighting"
       ],
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "great_weapon_master",
+      "name": {
+        "ko": "대형 무기 강타",
+        "en": "Heavy Swing"
+      },
+      "desc": {
+        "ko": "강타(켜고 끔): 숙련한 근접 무기를 두 손으로 쥐고(양손 무기·두 손 잡은 다용도 무기) 공격하면 명중 −5, 피해 +10. 근접 무기로 치명타를 내거나 적을 쓰러뜨리면 이번 턴 보너스 행동으로 근접 무기 공격 1회.",
+        "en": "Heavy Swing (toggle): attacks with a proficient melee weapon held in both hands take −5 to hit and deal +10 damage. When a melee weapon attack crits or drops a creature, you may make a melee weapon attack as a bonus action this turn."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "gwm_all_in",
+          "bonus_attack_on_crit_kill"
+        ]
+      },
+      "toggle": {
+        "values": [
+          {
+            "id": "off",
+            "name": {
+              "ko": "끔",
+              "en": "Off"
+            }
+          },
+          {
+            "id": "on",
+            "name": {
+              "ko": "켬",
+              "en": "On"
+            }
+          }
+        ],
+        "desc": {
+          "ko": "대형 무기 강타: 명중 −5 / 피해 +10",
+          "en": "Heavy Swing: −5 to hit / +10 damage"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sharpshooter",
+      "name": {
+        "ko": "저격수",
+        "en": "Deadeye"
+      },
+      "desc": {
+        "ko": "조준(켜고 끔): 숙련한 원거리 무기 공격이 명중 −5, 피해 +10. 원거리 무기 공격은 낮은 곳에서 쏴도 불리하지 않다(높이 −2 없음).",
+        "en": "Deadeye (toggle): ranged weapon attacks with proficient weapons take −5 to hit and deal +10 damage. Your ranged weapon attacks ignore the low-ground penalty."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "ss_all_in",
+          "ss_low_ground"
+        ]
+      },
+      "toggle": {
+        "values": [
+          {
+            "id": "off",
+            "name": {
+              "ko": "끔",
+              "en": "Off"
+            }
+          },
+          {
+            "id": "on",
+            "name": {
+              "ko": "켬",
+              "en": "On"
+            }
+          }
+        ],
+        "desc": {
+          "ko": "저격수: 명중 −5 / 피해 +10",
+          "en": "Deadeye: −5 to hit / +10 damage"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "polearm_master",
+      "name": {
+        "ko": "장병기 달인",
+        "en": "Haft Fighter"
+      },
+      "desc": {
+        "ko": "글레이브·핼버드·파이크·쿼터스태프·창으로 공격한 턴에 보너스 행동으로 자루 공격(1d4 타격 + 근력·민첩, 턴당 1회). 이 무기를 쥐면 적이 내 도달 안으로 들어올 때 반응으로 기회 공격.",
+        "en": "After attacking with a glaive, halberd, pike, quarterstaff or spear, make a bonus-action haft strike (1d4 bludgeoning + STR/DEX, once per turn). While wielding one, you can make an Opportunity Attack when a creature enters your reach."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "polearm_haft",
+          "polearm_enter_oa"
+        ]
+      },
+      "kind": "reaction",
+      "trigger": "enemy_enters_reach",
+      "source": "original"
+    },
+    {
+      "id": "sentinel",
+      "name": {
+        "ko": "파수",
+        "en": "Warden's Stance"
+      },
+      "desc": {
+        "ko": "곁(도달 안)의 적이 다른 아군을 공격하면 반응으로 그 적에게 무기 공격(그 아군이 파수가 없을 때). 기회 공격이 유리하고, 기회 공격이 맞으면 대상은 이번 턴 더 움직이지 못한다.",
+        "en": "When an enemy within your reach attacks another ally (who lacks this feat), you can use your reaction to make a weapon attack against it. You have Advantage on Opportunity Attacks, and a creature hit by your Opportunity Attack can't move for the rest of its turn."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "sentinel_oa"
+        ]
+      },
+      "kind": "reaction",
+      "trigger": "enemy_attacks_ally",
+      "source": "original"
+    },
+    {
+      "id": "war_caster",
+      "name": {
+        "ko": "전투 시전자",
+        "en": "Battle Caster"
+      },
+      "desc": {
+        "ko": "집중 유지 내성 유리. 기회 공격 대신 반응으로 전격 손길을 쓸 수 있다(켜고 끔, 내 시전 능력).",
+        "en": "Advantage on saves to maintain Concentration. You can cast Shocking Grasp as your Opportunity Attack instead (toggle; uses your spellcasting ability)."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "concentration_advantage",
+          "war_caster_oa"
+        ]
+      },
+      "toggle": {
+        "values": [
+          {
+            "id": "off",
+            "name": {
+              "ko": "끔",
+              "en": "Off"
+            }
+          },
+          {
+            "id": "on",
+            "name": {
+              "ko": "켬",
+              "en": "On"
+            }
+          }
+        ],
+        "desc": {
+          "ko": "기회 공격 대신 전격 손길",
+          "en": "Shocking Grasp instead of Opportunity Attacks"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "mage_slayer",
+      "name": {
+        "ko": "마법사 사냥꾼",
+        "en": "Spellbreaker"
+      },
+      "desc": {
+        "ko": "곁(1칸)에서 주문을 시전한 생물의 그 주문 내성에 유리, 반응으로 그 시전자에게 무기 공격. 내가 맞힌 적은 그 피해의 집중 유지 내성이 불리.",
+        "en": "Advantage on saves against spells cast by a creature within 1 tile, and you can use your reaction to make a weapon attack against that caster. Creatures you hit have Disadvantage on the Concentration save from that damage."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "mage_slayer"
+        ]
+      },
+      "kind": "reaction",
+      "trigger": "enemy_casts_adjacent",
+      "source": "original"
+    },
+    {
+      "id": "defensive_duellist",
+      "name": {
+        "ko": "막아내기 검술",
+        "en": "Parrying Blade"
+      },
+      "desc": {
+        "ko": "숙련한 교묘 무기를 주 무기로 쥐고 근접 공격에 맞으면, 반응으로 그 공격에 대해 AC + 숙련 보너스(빗나가게 할 수 있을 때만).",
+        "en": "While wielding a proficient Finesse weapon in your main hand, when a melee attack hits you, use your reaction to add your proficiency bonus to AC against it (only when it would turn the hit into a miss)."
+      },
+      "category": "general",
+      "kind": "reaction",
+      "trigger": "self_hit_melee",
+      "requires_weapon_property": "finesse",
+      "source": "original"
+    },
+    {
+      "id": "shield_master",
+      "name": {
+        "ko": "방패 달인",
+        "en": "Shield Expert"
+      },
+      "desc": {
+        "ko": "방패를 들면 민첩 내성 +2. 민첩 내성을 요구하는 주문에 반응으로 몸을 가려 실패하면 피해 절반, 성공하면 피해 없음.",
+        "en": "+2 to Dexterity saves while wielding a shield. When a spell forces a Dexterity save, use your reaction: half damage on a failure, none on a success."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "shield_dex_save_bonus"
+        ]
+      },
+      "kind": "reaction",
+      "trigger": "dex_save_spell",
+      "source": "original"
+    },
+    {
+      "id": "lucky",
+      "name": {
+        "ko": "행운의 별",
+        "en": "Lucky Star"
+      },
+      "desc": {
+        "ko": "행운 점수 3(긴 휴식). 켜 두면 실패한 내 공격 굴림·능력 판정·내성을 다시 굴려 좋은 쪽을 쓰고(유리), 적의 공격이 나를 맞히면 다시 굴리게 한다. 한 번에 점수 1.",
+        "en": "3 luck points per long rest. While on, when your attack roll, ability check or saving throw fails, reroll and keep the better (Advantage); when an enemy's attack hits you, force a reroll. 1 point each."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "lucky"
+        ]
+      },
+      "resources": [
+        {
+          "id": "luck_points",
+          "name": {
+            "ko": "행운 점수",
+            "en": "Luck Points"
+          },
+          "max": 3,
+          "recharge": "long"
+        }
+      ],
+      "toggle": {
+        "values": [
+          {
+            "id": "on",
+            "name": {
+              "ko": "켬",
+              "en": "On"
+            }
+          },
+          {
+            "id": "off",
+            "name": {
+              "ko": "끔",
+              "en": "Off"
+            }
+          }
+        ],
+        "desc": {
+          "ko": "행운 점수를 자동으로 쓴다",
+          "en": "Spend luck points automatically"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "charger",
+      "name": {
+        "ko": "돌격병",
+        "en": "Vanguard Rush"
+      },
+      "desc": {
+        "ko": "행동 + 보너스 행동: 곧게 6칸까지 기회 공격 없이 돌진해 처음 만나는 적에게 무기 공격(피해 +5, 추가 공격과 이어짐) 또는 밀치기.",
+        "en": "Action + bonus action: rush up to 6 tiles in a straight line without provoking Opportunity Attacks and make a weapon attack (+5 damage; counts toward Extra Attack) or Shove against the first enemy in the way."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "charger"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "protection",
+      "name": {
+        "ko": "보호",
+        "en": "Protection"
+      },
+      "desc": {
+        "ko": "방패를 들고 있을 때, 내 곁(1칸)의 아군을 노린 보이는 적의 공격에 반응으로 불리를 준다.",
+        "en": "While wielding a shield, use your reaction to impose Disadvantage on a visible enemy's attack against an ally within 1 tile of you."
+      },
+      "category": "fighting_style",
+      "kind": "reaction",
+      "trigger": "enemy_attacks_ally_before",
+      "requires_shield": true,
+      "source": "original"
     }
   ]
 }

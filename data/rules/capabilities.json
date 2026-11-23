@@ -829,6 +829,123 @@
       },
       "note_ko": "전투 시작 기습을 받지 않는다(경계 — turn_manager)",
       "source": "original"
+    },
+    {
+      "id": "gwm_all_in",
+      "name": {
+        "ko": "강타",
+        "en": "Heavy Swing"
+      },
+      "note_ko": "설정 켬: 두 손 숙련 근접 무기 명중 −5·피해 +10(combat.build_weapon_attack)",
+      "source": "original"
+    },
+    {
+      "id": "bonus_attack_on_crit_kill",
+      "name": {
+        "ko": "강타 추가 공격",
+        "en": "Follow-Up Swing"
+      },
+      "note_ko": "근접 무기 치명타·처치 뒤 보너스 행동 공격(turn bonus_attack_ready)",
+      "source": "original"
+    },
+    {
+      "id": "ss_all_in",
+      "name": {
+        "ko": "조준",
+        "en": "Deadeye"
+      },
+      "note_ko": "설정 켬: 숙련 원거리 무기 명중 −5·피해 +10",
+      "source": "original"
+    },
+    {
+      "id": "ss_low_ground",
+      "name": {
+        "ko": "낮은 곳 사격",
+        "en": "Low-Ground Shot"
+      },
+      "note_ko": "원거리 무기 공격에 높이 −2 없음(resolver)",
+      "source": "original"
+    },
+    {
+      "id": "polearm_haft",
+      "name": {
+        "ko": "자루 공격",
+        "en": "Haft Strike"
+      },
+      "note_ko": "장병기로 공격한 턴 보너스 행동 1d4 타격(turn haft_ready)",
+      "source": "original"
+    },
+    {
+      "id": "polearm_enter_oa",
+      "name": {
+        "ko": "장병기 경계",
+        "en": "Haft Guard"
+      },
+      "note_ko": "도달 안으로 들어오는 적에게 반응 기회 공격(combat.move)",
+      "source": "original"
+    },
+    {
+      "id": "sentinel_oa",
+      "name": {
+        "ko": "파수 기회 공격",
+        "en": "Warden's Strike"
+      },
+      "note_ko": "기회 공격 유리, 맞히면 대상 이번 턴 이동 0",
+      "source": "original"
+    },
+    {
+      "id": "concentration_advantage",
+      "name": {
+        "ko": "집중 유리",
+        "en": "Steady Focus"
+      },
+      "note_ko": "집중 유지 내성 유리(전투 시전자)",
+      "source": "original"
+    },
+    {
+      "id": "war_caster_oa",
+      "name": {
+        "ko": "주문 기회 공격",
+        "en": "Opportunity Spell"
+      },
+      "note_ko": "설정 켬: 기회 공격 대신 전격 손길",
+      "source": "original"
+    },
+    {
+      "id": "mage_slayer",
+      "name": {
+        "ko": "마법사 사냥꾼",
+        "en": "Spellbreaker"
+      },
+      "note_ko": "1칸 안 시전자의 주문 내성 유리, 내가 맞힌 적 집중 유지 불리",
+      "source": "original"
+    },
+    {
+      "id": "shield_dex_save_bonus",
+      "name": {
+        "ko": "방패 민첩 내성",
+        "en": "Shield Save"
+      },
+      "note_ko": "방패를 들면 민첩 내성 +2",
+      "source": "original"
+    },
+    {
+      "id": "lucky",
+      "name": {
+        "ko": "행운의 별",
+        "en": "Lucky Star"
+      },
+      "note_ko": "행운 점수로 실패한 굴림 다시·적 명중 다시(resolver)",
+      "source": "original"
+    },
+    {
+      "id": "charger",
+      "name": {
+        "ko": "돌격병",
+        "en": "Vanguard Rush"
+      },
+      "note_ko": "돌격 공격·돌격 밀치기 행동",
+      "source": "original"
     }
   ]
 }

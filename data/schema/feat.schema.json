@@ -175,6 +175,30 @@
         "grants": {
           "type": "object",
           "description": "기능 grants와 같은 부여 장치(character_builder) + skills·expertise·initiative_bonus·speed_tiles·elemental_adept"
+        },
+        "toggle": {
+          "type": "object"
+        },
+        "kind": {
+          "enum": [
+            "passive",
+            "action",
+            "bonus_action",
+            "reaction",
+            "free"
+          ]
+        },
+        "trigger": {
+          "type": "string"
+        },
+        "requires_weapon_property": {
+          "type": "string"
+        },
+        "requires_shield": {
+          "type": "boolean"
+        },
+        "resources": {
+          "type": "array"
         }
       }
     },

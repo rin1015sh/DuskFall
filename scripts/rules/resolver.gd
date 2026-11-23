@@ -73,6 +73,17 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	if not res["hit"] and res["natural"] != 1:
 		Features.hook("on_attack_missed", attacker, {"res": res})  # 비할 데 없는 기술(지식 학파 14레벨) — 스크립트가 total을 고친다
 		_decide_hit(res)
+	if not res["hit"] and lucky(attacker, "공격"):
+		var nat := Dice.die(20)
+		if nat > int(res["natural"]):  # 행운의 별: 다시 굴려 좋은 쪽(유리)
+			res["natural"] = nat
+			res["total"] = nat + res["attack_bonus"] + bonus_dice
+			_decide_hit(res)
+	if res["hit"] and attacker.is_hostile_to(target) and lucky(target, "적 공격 다시"):
+		var nat2 := Dice.die(20)  # 행운의 별: 나를 맞힌 적의 공격을 다시 굴리게 한다(새 값)
+		res["natural"] = nat2
+		res["total"] = nat2 + res["attack_bonus"] + bonus_dice
+		_decide_hit(res)
 	# 받는 쪽의 '다음 공격을 받으면 사라지는' 수정치(Guiding Bolt)
 	for m in target.extra_modifiers.duplicate():
 		if m.get("consume_on_attacked", false):
@@ -148,6 +159,9 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 			cut -= k
 		res["damage"] = apply_damage(target, rolled, {"crit": res["crit"], "attacker": attacker,
 			"in_combat": ctx.get("in_combat", true)})
+		if attacker.has_cap("bonus_attack_on_crit_kill") and atk.get("weapon", false) and str(atk.get("kind", "")) == "melee" \
+				and (res["crit"] or target.hp == 0) and not attacker.turn.get("bonus_attack_used", false):
+			attacker.turn["bonus_attack_ready"] = true  # 대형 무기 강타: 치명타·처치 → 보너스 행동 공격
 	return res
 
 
@@ -269,8 +283,9 @@ static func _collect_attack_mods(attacker: Node, target: Node, res: Dictionary) 
 	if hd >= HIGH_GROUND_STEPS:
 		res["attack_bonus"] += HIGH_GROUND_BONUS
 		res["high_ground"] = HIGH_GROUND_BONUS
-	elif hd <= -HIGH_GROUND_STEPS:
-		res["attack_bonus"] -= HIGH_GROUND_BONUS
+	elif hd <= -HIGH_GROUND_STEPS and not (attacker.has_cap("ss_low_ground") and res.get("attack", {}).get("weapon", false) \
+			and str(res.get("attack", {}).get("kind", "")) == "ranged"):
+		res["attack_bonus"] -= HIGH_GROUND_BONUS  # 저격수: 원거리 무기는 낮은 곳 −2 없음
 		res["high_ground"] = -HIGH_GROUND_BONUS
 
 
@@ -346,6 +361,8 @@ static func _decide_hit(res: Dictionary) -> void:
 static func _attack_damage_parts(attacker: Node, atk: Dictionary, res: Dictionary) -> Array:
 	var parts: Array = []
 	parts.append_array(atk.get("damage", []))
+	if int(atk.get("flat_damage", 0)) != 0:
+		parts.append({"dice": str(int(atk["flat_damage"])), "damage_type": atk["damage"][0]["damage_type"]})  # 강타·저격수 +10
 	if res.get("mode", 0) > 0:
 		parts.append_array(atk.get("extra_if_advantage", []))
 	# 공격자 상태의 on_hit 피해(무기 담금 등)
@@ -579,6 +596,23 @@ static func _countercharm(creature: Node, res: Dictionary, opts: Dictionary) -> 
 
 
 ## 영웅적 영감(상태 플래그 reroll_failed_d20 — 챔피언 영웅 전사): 실패한 d20 시험을 한 번 다시 굴린다(BG3식 자동). 썼으면 true.
+static func _adjacent(a: Node, b: Node) -> bool:
+	var rq: Node = EventBus.reaction_queue
+	if rq == null or not is_instance_valid(rq) or not rq.world.has("grid"):
+		return false
+	var grid: Node = rq.world["grid"]
+	return grid.creatures().has(a) and grid.creatures().has(b) and grid.distance_between(a, b) <= 1
+
+
+## 행운의 별(능력 태그 lucky, 설정 켬): 행운 점수 1을 쓴다. 쓸 수 있으면 true.
+static func lucky(c: Node, what: String) -> bool:
+	if c == null or not c.has_cap("lucky") or str(c.options.get("lucky", "on")) != "on" or c.resource("luck_points") <= 0:
+		return false
+	c.spend_resource("luck_points")
+	Dice.log_text("%s 행운의 별(%s)" % [c.label(), what])
+	return true
+
+
 static func heroic(c: Node) -> bool:
 	for a in c.active_conditions():
 		if a["def"].get("flags", {}).get("reroll_failed_d20", false):
@@ -883,7 +917,7 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 						target.remove_condition(other["id"])
 	# 집중 유지 내성(피해를 받으면 — 임시 HP가 막아도 받은 것이다)
 	if not target.concentration.is_empty() and target.hp > 0:
-		out["concentration"] = concentration_check(target, total)
+		out["concentration"] = concentration_check(target, total, opts.get("attacker"))
 	# 10. 0 HP
 	if not was_down and target.hp == 0:
 		_hp_zero(target, rest - out["hp_lost"], opts, out)
@@ -983,6 +1017,10 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 	if src is Node and src.has_condition("raging") and src.is_hostile_to(creature):
 		src.turn["rage_kept"] = true  # 분노 연장: 적에게 내성을 강요했다
 	var res := _save_setup(creature, ability, dc, opts)
+	if src is Node and opts.get("magic", false) and creature.has_cap("mage_slayer") and _adjacent(src, creature):
+		res["advantage"].append("마법사 사냥꾼")  # 곁에서 시전한 주문의 내성 유리
+	if ability == "dex" and creature.has_cap("shield_dex_save_bonus") and bool(creature.get_meta("shield", false)):
+		res["bonus"] += 2  # 방패 달인: 방패를 들면 민첩 내성 +2
 	if res["auto"]:
 		Dice.log_text("%s %s 내성 자동 실패 vs DC %d" % [creature.label(), ability, dc])
 		return res
@@ -1000,6 +1038,12 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 		res["natural"] = d["natural"]
 		res["total"] = d["natural"] + res["bonus"] + roll_bonus_dice(creature, "saving_throw")
 		res["success"] = res["total"] >= dc
+	if not res["success"] and lucky(creature, "내성"):
+		var nat := Dice.die(20)
+		if nat > int(res["natural"]):
+			res["total"] += nat - int(res["natural"])
+			res["natural"] = nat
+			res["success"] = res["total"] >= dc
 	if not res["success"]:
 		res["rolls"] = d["rolls"]
 		Features.hook("on_save_failed", creature, {"res": res})  # 불굴(전사 9레벨) 등 — 스크립트가 res를 고친다
@@ -1050,15 +1094,17 @@ static func _save_setup(creature: Node, ability: String, dc: int, opts: Dictiona
 
 
 ## 집중 유지 내성: 건강, DC = max(10, 피해 절반 내림), 최대 30. 자연 20·1 적용(2단계 결정 1).
-static func concentration_check(creature: Node, damage: int) -> Dictionary:
+static func concentration_check(creature: Node, damage: int, attacker: Variant = null) -> Dictionary:
 	var held := str(creature.concentration.get("spell", ""))
 	for f: Dictionary in creature.feature_data.values():
 		if held != "" and held in f.get("protects_concentration", []):
 			return {"success": true, "auto": true}  # 끈질긴 사냥꾼(레인저 13레벨): 피해로 사냥꾼의 표식 집중이 깨지지 않는다
 	var dc := clampi(maxi(CONCENTRATION_DC_MIN, damage / 2), CONCENTRATION_DC_MIN, CONCENTRATION_DC_MAX)
 	var copts := {"natural_rules": true}
-	if creature.has_cap("eldritch_mind") or bool(creature.concentration.get("advantage", false)):
-		copts["advantage"] = ["집중 유리"]  # 섬뜩한 정신(워락 영창)·연장된 주문
+	if creature.has_cap("eldritch_mind") or creature.has_cap("concentration_advantage") or bool(creature.concentration.get("advantage", false)):
+		copts["advantage"] = ["집중 유리"]  # 섬뜩한 정신(워락 영창)·연장된 주문·전투 시전자
+	if attacker is Node and attacker.has_cap("mage_slayer"):
+		copts["disadvantage"] = ["마법사 사냥꾼"]  # 내가 맞힌 적의 집중 유지 불리
 	var res := saving_throw(creature, "con", dc, copts)
 	if not res["success"]:
 		creature.break_concentration("집중 유지 내성 실패")
@@ -1101,6 +1147,12 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 			res["natural"] = d["natural"]
 			res["total"] = _reliable(creature, res["skill"], d["natural"]) + res["bonus"]
 			res["success"] = d["natural"] == 20 or (d["natural"] != 1 and res["total"] >= dc)
+		if not res["success"] and lucky(creature, "판정"):
+			var nat := Dice.die(20)
+			if nat > int(res["natural"]):
+				res["natural"] = nat
+				res["total"] = _reliable(creature, res["skill"], nat) + res["bonus"]
+				res["success"] = nat == 20 or (nat != 1 and res["total"] >= dc)
 	Dice.log_text("%s %s 판정: %s vs DC %d → %s" % [creature.label(), ability,
 		"자동 실패" if res["auto"] else "%d + %d = %d" % [res["natural"], res["bonus"], res["total"]],
 		dc, "성공" if res["success"] else "실패"])
@@ -1143,6 +1195,12 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 		# 회피(능력 태그 evasion — 로그·몽크 7레벨): 성공 시 절반인 민첩 내성 피해 → 성공 0, 실패 절반. 무력화되면 못 쓴다.
 		var evade: bool = str(check.get("ability", "")) == "dex" and t.has_cap("evasion") and not t.is_incapacitated() \
 			and success.any(func(e: Dictionary) -> bool: return e["type"] == "damage")
+		# 방패 달인(반응 재주 shield_master): 민첩 내성 주문 — 반응으로 실패면 절반, 성공이면 0(회피와 같은 결과)
+		if not evade and str(check.get("ability", "")) == "dex" and opts.get("magic", false) and t.feature_data.has("shield_master") \
+				and bool(t.get_meta("shield", false)) and (fail + success).any(func(e: Dictionary) -> bool: return e["type"] == "damage"):
+			evade = Features.offer_reaction(t, "shield_master", {"save": s}, func() -> void:
+				t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
+				Dice.log_text("%s 방패 달인: 방패로 막는다" % t.label()))
 		if evade and s["success"]:
 			effects = effects.filter(func(e: Dictionary) -> bool: return e["type"] != "damage")
 		elif evade:

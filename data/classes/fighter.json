@@ -92,7 +92,8 @@
         "defense",
         "dueling",
         "great_weapon_fighting",
-        "two_weapon_fighting"
+        "two_weapon_fighting",
+        "protection"
       ],
       "source": "SRD 5.2.1",
       "choice_kind": "feat"
@@ -265,7 +266,8 @@
             "defense",
             "dueling",
             "great_weapon_fighting",
-            "two_weapon_fighting"
+            "two_weapon_fighting",
+            "protection"
           ],
           "choice_kind": "feat",
           "notes_ko": "전투 방식 재주 하나 더.",

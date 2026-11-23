@@ -304,8 +304,8 @@ static func ritual_from_book(world: Dictionary, caster: Node, spell_id: String) 
 
 static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i, opts: Dictionary = {}) -> String:
 	var spell := RulesDB.get_entry("spell", spell_id)
-	if spell.is_empty() or not (caster.spells.has(spell_id) or ritual_from_book(world, caster, spell_id)):
-		return "모르는 주문"
+	if spell.is_empty() or not (caster.spells.has(spell_id) or ritual_from_book(world, caster, spell_id) or opts.get("granted", false)):
+		return "모르는 주문"  # granted: 기능이 주는 한 번의 시전(전투 시전자 기회 공격 — 전격 손길)
 	if ritual_free(world, spell, opts) or spell_id in caster.get_meta("at_will", []) or free_cast_feature(caster, spell) != "":
 		opts = opts.duplicate()
 		opts["no_slot"] = true

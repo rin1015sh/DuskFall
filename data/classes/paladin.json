@@ -220,7 +220,8 @@
       "choices": [
         "defense",
         "dueling",
-        "great_weapon_fighting"
+        "great_weapon_fighting",
+        "protection"
       ],
       "choice_kind": "feat",
       "notes_ko": "전투 방식 재주 1. 축복받은 전사(클레릭 소마법 2) 선택지는 1차 제외.",

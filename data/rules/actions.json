@@ -414,6 +414,86 @@
       "icon": "res://assets/items/iron_scrap.webp",
       "explore": true,
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "bonus_weapon_attack",
+      "name": {
+        "ko": "강타 추가 공격",
+        "en": "Follow-Up Swing"
+      },
+      "desc": {
+        "ko": "대형 무기 강타: 치명타나 처치 뒤 보너스 행동으로 근접 무기 공격 1회.",
+        "en": "Heavy Swing: after a crit or kill, one melee weapon attack as a bonus action."
+      },
+      "cost": "bonus",
+      "target": "enemy",
+      "tab": "class",
+      "icon": "res://assets/statuses/rally.webp",
+      "explore": false,
+      "source": "original",
+      "requires": "bonus_attack_on_crit_kill",
+      "requires_turn": [
+        "bonus_attack_ready"
+      ]
+    },
+    {
+      "id": "haft_strike",
+      "name": {
+        "ko": "자루 공격",
+        "en": "Haft Strike"
+      },
+      "desc": {
+        "ko": "장병기 달인: 장병기로 공격한 턴에 보너스 행동으로 1d4 타격 + 근력·민첩.",
+        "en": "Haft Fighter: after attacking with a polearm this turn, a bonus-action 1d4 bludgeoning strike."
+      },
+      "cost": "bonus",
+      "target": "enemy",
+      "tab": "class",
+      "icon": "res://assets/statuses/bone_brace.webp",
+      "explore": false,
+      "source": "original",
+      "requires": "polearm_haft",
+      "requires_turn": [
+        "haft_ready"
+      ]
+    },
+    {
+      "id": "charger_attack",
+      "name": {
+        "ko": "돌격 공격",
+        "en": "Rushing Strike"
+      },
+      "desc": {
+        "ko": "돌격병: 행동 + 보너스 행동. 곧게 6칸까지 기회 공격 없이 돌진해 처음 만나는 적에게 무기 공격(피해 +5).",
+        "en": "Vanguard Rush: action + bonus action. Rush up to 6 tiles in a straight line, no Opportunity Attacks, weapon attack (+5 damage) on the first enemy."
+      },
+      "cost": "action",
+      "target": "enemy",
+      "tab": "class",
+      "icon": "res://assets/statuses/march_order.webp",
+      "explore": false,
+      "source": "original",
+      "requires": "charger",
+      "also_costs": "bonus"
+    },
+    {
+      "id": "charger_shove",
+      "name": {
+        "ko": "돌격 밀치기",
+        "en": "Rushing Shove"
+      },
+      "desc": {
+        "ko": "돌격병: 행동 + 보너스 행동. 곧게 6칸까지 기회 공격 없이 돌진해 처음 만나는 적을 밀친다.",
+        "en": "Vanguard Rush: action + bonus action. Rush up to 6 tiles in a straight line, no Opportunity Attacks, Shove the first enemy."
+      },
+      "cost": "action",
+      "target": "enemy",
+      "tab": "class",
+      "icon": "res://assets/statuses/march_order.webp",
+      "explore": false,
+      "source": "original",
+      "requires": "charger",
+      "also_costs": "bonus"
     }
   ]
 }

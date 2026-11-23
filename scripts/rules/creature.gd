@@ -228,6 +228,8 @@ func speed() -> int:
 
 ## 턴 시작에 행동·보너스 행동·이동·무료 상호작용을 채운다. 반응은 refresh_reaction이 따로 채운다.
 func reset_turn() -> void:
+	if has_meta("sentinel_stopped"):
+		remove_meta("sentinel_stopped")
 	var can_act := not is_incapacitated() and not has_flag("cannot_act")
 	# 추가 보너스 행동(빠른 손 등 — changes.md 2026-11-22)
 	var bonus := (2 if has_cap("extra_bonus_action") else 1) if can_act else 0

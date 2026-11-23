@@ -180,3 +180,211 @@ func test_brawler_and_crossbow() -> void:
 	w["grid"].place(e, Vector2i(1, 0))
 	var atk := Combat.build_weapon_attack(c, "light_crossbow")
 	assert_false("근접 위협" in Combat.attack_context(w, c, e, atk)["disadvantage"], "석궁 명수")
+
+
+# ---------- 묶음 B: 켜고 끄는·반응 재주 ----------
+
+const Actions := preload("res://scripts/rules/actions.gd")
+
+
+func _arena(rows: Array = [".......", ".......", "......."]) -> Dictionary:
+	return make_world(rows)
+
+
+func _brute(v: Dictionary = {}) -> Node:
+	var d := {"team": "enemy", "ac_base": 10, "hp_max": 100, "abilities": {"str": 14, "dex": 10, "con": 10},
+		"proficiency_bonus": 2, "weapon_proficiencies": ["simple", "martial"], "weapon_sets": {"melee": {"main": "club", "off": ""}}}
+	d.merge(v, true)
+	return make_creature(d)
+
+
+func test_great_weapon_master() -> void:
+	var c := _f({"4": {"feat": "great_weapon_master"}}, {"shield": false, "weapons": {"melee": {"main": "greatsword", "off": ""}, "ranged": {"main": ""}}}, "fighter", 4)
+	var off: Dictionary = Combat.build_weapon_attack(c, "greatsword")
+	c.options["great_weapon_master"] = "on"
+	var on: Dictionary = Combat.build_weapon_attack(c, "greatsword")
+	assert_eq(int(on["bonus"]), int(off["bonus"]) - 5, "명중 −5")
+	assert_eq(int(on["flat_damage"]), 10, "피해 +10")
+	assert_true(Actions.passives(c).any(func(p: Dictionary) -> bool: return p["id"] == "great_weapon_master"), "상시 설정")
+	var w := _arena()
+	var e := _brute()
+	w["grid"].place(c, Vector2i(1, 1))
+	w["grid"].place(e, Vector2i(2, 1))
+	c.reset_turn()
+	assert_eq(Actions.unavailable(w, c, "bonus_weapon_attack"), "지금은 쓸 수 없다")
+	Dice.force([20, 1, 1, 1, 1])
+	Combat.attack(w, c, e)
+	assert_true(c.turn.get("bonus_attack_ready", false), "치명타 → 추가 공격")
+	assert_eq(Actions.unavailable(w, c, "bonus_weapon_attack"), "")
+	Dice.force([15, 3, 3])
+	assert_true(Actions.execute(w, c, "bonus_weapon_attack", Vector2i(2, 1))["ok"])
+	assert_eq(int(c.turn["bonus"]), 0)
+
+
+func test_sharpshooter_low_ground() -> void:
+	var c := _f({"4": {"feat": "sharpshooter"}}, {"weapons": {"melee": {"main": "longsword", "off": ""}, "ranged": {"main": "longbow"}}}, "fighter", 4)
+	c.options["sharpshooter"] = "on"
+	var atk: Dictionary = Combat.build_weapon_attack(c, "longbow")
+	assert_eq(int(atk["flat_damage"]), 10)
+	var w := make_world(["0000000", "0002000"])
+	var e := _brute()
+	w["grid"].place(c, Vector2i(0, 0))
+	w["grid"].place(e, Vector2i(3, 1))
+	c.active_set = "ranged"
+	var p: Dictionary = Combat.preview_attack(w, c, e, {"weapon": "longbow"})
+	assert_false(p.get("high_ground", 0) < 0, "낮은 곳 −2 없음")
+
+
+func test_polearm_master() -> void:
+	var c := _f({"4": {"feat": "polearm_master"}}, {"shield": false, "weapons": {"melee": {"main": "spear", "off": ""}, "ranged": {"main": ""}}}, "fighter", 4)
+	var w := make_world([".......", "......."])
+	var e := _brute()
+	w["grid"].place(c, Vector2i(0, 0))
+	w["grid"].place(e, Vector2i(1, 0))
+	c.reset_turn()
+	Dice.force([15, 3])
+	Combat.attack(w, c, e)
+	assert_true(c.turn.get("haft_ready", false))
+	Dice.force([15, 2])
+	var hp: int = e.hp
+	var r: Dictionary = Actions.execute(w, c, "haft_strike", Vector2i(1, 0))
+	assert_true(r["ok"])
+	assert_eq(hp - e.hp, 2 + maxi(c.ability_mod("str"), c.ability_mod("dex")), "1d4 타격 + 수정치")
+	# 도달 안으로 들어오면 기회 공격
+	var w2 := make_world([".......", "......."])
+	var m := _brute()
+	w2["grid"].place(c, Vector2i(0, 0))
+	w2["grid"].place(m, Vector2i(4, 0))
+	c.refresh_reaction()
+	m.reset_turn()
+	Dice.force([15, 3])
+	Combat.move(w2, m, Vector2i(1, 0))
+	assert_false(c.can_react(), "들어오는 적에게 반응 기회 공격")
+
+
+func test_sentinel() -> void:
+	var c := _f({"4": {"feat": "sentinel"}}, {}, "fighter", 4)
+	var ally := make_creature({"team": "party", "hp_max": 30, "ac_base": 5})
+	var e := _brute()
+	var w := _arena()
+	w["grid"].place(c, Vector2i(1, 1))
+	w["grid"].place(e, Vector2i(2, 1))
+	w["grid"].place(ally, Vector2i(3, 1))
+	c.refresh_reaction()
+	e.reset_turn()
+	Dice.force([15, 3, 15, 4])  # 적이 아군을 침, 파수 반격
+	var hp: int = e.hp
+	Combat.attack(w, e, ally)
+	assert_false(c.can_react(), "파수: 반응으로 반격")
+	assert_true(e.hp < hp)
+	# 기회 공격: 유리, 맞히면 이동 멈춤
+	c.refresh_reaction()
+	e.reset_turn()
+	Dice.force([2, 15, 3])
+	Combat.move(w, e, Vector2i(5, 1))
+	assert_eq(w["grid"].cell_of(e), Vector2i(2, 1), "파수 기회 공격(유리 2·15 → 15)이 맞아 그 자리에 멈췄다")
+	assert_false(c.can_react())
+
+
+func test_war_caster_and_mage_slayer() -> void:
+	var c := _f({"4": {"feat": "war_caster"}, "6": {"feat": "mage_slayer"}}, {}, "fighter", 6)
+	assert_true(c.has_cap("concentration_advantage"))
+	c.concentration = {"spell": "bless"}
+	var cres := Resolver.concentration_check(c, 10)
+	assert_eq(int(cres["mode"]), 1, "집중 유지 유리")
+	var foe := _brute()
+	foe.concentration = {"spell": "bless"}
+	assert_eq(int(Resolver.concentration_check(foe, 10, c)["mode"]), -1, "마법사 사냥꾼이 맞힌 적: 집중 불리")
+	# 곁에서 주문을 쓰면 반응 공격
+	var w := _arena()
+	var mage := _brute({"spellcasting_ability": "int", "spells": ["fire_bolt"], "abilities": {"str": 10, "dex": 10, "con": 10, "int": 16}})
+	w["grid"].place(c, Vector2i(1, 1))
+	w["grid"].place(mage, Vector2i(2, 1))
+	c.refresh_reaction()
+	mage.reset_turn()
+	Dice.force([15, 3, 1, 1])
+	Spellcasting.cast(w, mage, "fire_bolt", Vector2i(1, 1))
+	assert_false(c.can_react(), "마법사 사냥꾼: 시전자에게 반응 공격")
+	# 전투 시전자: 기회 공격 대신 전격 손길
+	var w2 := _arena()
+	var runner := _brute()
+	w2["grid"].place(c, Vector2i(1, 1))
+	w2["grid"].place(runner, Vector2i(2, 1))
+	c.options["war_caster"] = "on"
+	c.refresh_reaction()
+	runner.reset_turn()
+	Dice.force([15, 4])
+	Combat.move(w2, runner, Vector2i(5, 1))
+	assert_false(c.can_react())
+	assert_true(Dice.roll_log.any(func(l: Dictionary) -> bool: return "Shocking Grasp" in str(l.get("text", ""))), "전격 손길")
+
+
+func test_defensive_duellist_and_protection() -> void:
+	var c := _f({"4": {"feat": "defensive_duellist"}}, {"shield": false, "weapons": {"melee": {"main": "rapier", "off": ""}, "ranged": {"main": ""}}}, "fighter", 4)
+	var e := _brute()
+	var w := _arena()
+	w["grid"].place(c, Vector2i(1, 1))
+	w["grid"].place(e, Vector2i(2, 1))
+	c.refresh_reaction()
+	var atk := {"name": "몽둥이", "bonus": 0, "kind": "melee", "weapon": false, "damage": [{"dice": "5", "damage_type": "bludgeoning"}]}
+	Dice.force([c.ac()])  # 딱 맞는 명중
+	var r := Resolver.attack(e, c, atk, w["grid"].attack_context(e, c))
+	assert_false(r["hit"], "막아내기 검술: AC + 숙련으로 빗나감")
+	assert_false(c.can_react())
+	# 보호: 방패를 든 전사 곁의 아군을 노린 공격이 불리
+	var p := _f({}, {"fighting_style": "protection", "shield": true}, "fighter", 1)
+	var ally := make_creature({"team": "party", "hp_max": 30, "ac_base": 5})
+	var e2 := _brute()
+	var w2 := _arena()
+	w2["grid"].place(p, Vector2i(1, 1))
+	w2["grid"].place(ally, Vector2i(2, 1))
+	w2["grid"].place(e2, Vector2i(3, 1))
+	p.refresh_reaction()
+	Dice.force([15, 3, 3])
+	var r2 := Resolver.attack(e2, ally, atk, w2["grid"].attack_context(e2, ally))
+	assert_true("보호" in r2["disadvantage"], "보호: 불리")
+
+
+func test_shield_master_and_lucky() -> void:
+	var c := _f({"4": {"feat": "shield_master"}, "6": {"feat": "lucky"}}, {"shield": true}, "fighter", 6)
+	var base := Resolver.preview_save_fail(c, "dex", 15)
+	assert_true(c.resource("luck_points") == 3, "행운 점수 3")
+	var w := _arena()
+	w["grid"].place(c, Vector2i(1, 1))
+	c.refresh_reaction()
+	c.options["lucky"] = "off"
+	var res := Resolver.save_effect([c], {"ability": "dex", "dc": 40}, [{"type": "damage", "dice": "10", "damage_type": "fire"}], [], {"magic": true})
+	assert_eq(int(res[0]["damage"]["total"]), 5, "방패 달인: 실패해도 절반")
+	assert_false(c.can_react())
+	assert_true(base < 1.0)
+	c.options["lucky"] = "on"
+	Dice.force([2, 18])
+	var s := Resolver.saving_throw(c, "wis", 15)
+	assert_true(s["success"], "행운의 별: 다시 굴려 좋은 쪽")
+	assert_eq(c.resource("luck_points"), 2)
+	# 적의 명중을 다시 굴리게 한다
+	var e := _brute()
+	w["grid"].place(e, Vector2i(2, 1))
+	var atk := {"name": "몽둥이", "bonus": 0, "kind": "melee", "weapon": false, "damage": [{"dice": "5", "damage_type": "bludgeoning"}]}
+	Dice.force([19, 1])
+	var r := Resolver.attack(e, c, atk, w["grid"].attack_context(e, c))
+	assert_false(r["hit"], "다시 굴린 1")
+	assert_eq(c.resource("luck_points"), 1)
+
+
+func test_charger() -> void:
+	var c := _f({"4": {"feat": "charger"}}, {}, "fighter", 4)
+	var e := _brute()
+	var w := make_world([".........", "........."])
+	w["grid"].place(c, Vector2i(0, 0))
+	w["grid"].place(e, Vector2i(5, 0))
+	c.reset_turn()
+	var mv: int = c.turn["movement"]
+	Dice.force([15, 4])
+	var hp: int = e.hp
+	var r: Dictionary = Actions.execute(w, c, "charger_attack", Vector2i(5, 0))
+	assert_true(r.get("hit", false), str(r))
+	assert_eq(w["grid"].cell_of(c), Vector2i(4, 0), "곧게 달려가 붙었다")
+	assert_eq(hp - e.hp, 4 + c.ability_mod("str") + 5, "피해 +5")
+	assert_eq(int(c.turn["movement"]), mv, "이동력은 쓰지 않는다")
+	assert_eq(int(c.turn["bonus"]), 0, "보너스 행동도 쓴다")

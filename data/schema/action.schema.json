@@ -105,6 +105,18 @@
           "requires": {
             "$comment": "이 능력 태그가 있어야 행동 목록에 뜬다",
             "type": "string"
+          },
+          "requires_turn": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "also_costs": {
+            "enum": [
+              "bonus",
+              "action"
+            ]
           }
         }
       }

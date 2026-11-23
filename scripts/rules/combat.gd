@@ -93,6 +93,10 @@ static func reach_of(c: Node) -> int:
 	return 2 if "reach" in w.get("properties", []) else 1
 
 
+## 장병기 달인(재주)이 쓰는 무기(BG3: 글레이브·핼버드·파이크·쿼터스태프·창)
+const POLEARMS := ["glaive", "halberd", "pike", "quarterstaff", "spear"]
+
+
 ## 무기 공격 정의(Resolver.attack용)를 만든다. opts: {"hand": "main"|"off", "thrown": bool}
 ## 능력: 원거리 무기는 민첩, 교묘(finesse)는 근력·민첩 중 큰 쪽, 나머지는 근력.
 ## 보조 공격(off)은 피해에 능력 수정치를 더하지 않는다(음수면 더함, Two-Weapon Fighting이면 더함).
@@ -151,6 +155,15 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 			hit_bonus += int(m["effect"].get("add", 0))  # 신성한 무기: 명중만
 	if ranged and is_ranged_weapon(w) and c.has_cap("ranged_weapon_attack_bonus"):
 		hit_bonus += 2  # 궁술: 원거리 무기 명중 +2
+	# 대형 무기 강타·저격수(BG3 재주, 설정 켬): 숙련 무기 명중 −5, 피해 +10(따로 더하는 고정 피해 — 휩쓸기 절반에도 그대로)
+	var flat := 0
+	var two_hand_grip: bool = "two_handed" in props or ("versatile" in props and dice == str(w.get("versatile_damage", "")))
+	if proficient and w["id"] != "unarmed" and not ranged and two_hand_grip and c.has_cap("gwm_all_in") and str(c.options.get("great_weapon_master", "off")) == "on":
+		hit_bonus -= 5
+		flat = 10
+	if proficient and ranged and is_ranged_weapon(w) and c.has_cap("ss_all_in") and str(c.options.get("sharpshooter", "off")) == "on":
+		hit_bonus -= 5
+		flat = 10
 	var dis: Array = []
 	if "heavy" in props and ((not ranged and c.abilities["str"] < 13) or (ranged and c.abilities["dex"] < 13)):
 		dis.append("무거운 무기")
@@ -166,7 +179,7 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		"two_handed": opts.get("two_handed", false) or "two_handed" in props,
 		"kind": "ranged" if ranged else "melee", "weapon": true, "properties": props,
 		"damage": [{"dice": expr, "damage_type": "force" if w["id"] == "unarmed" and c.has_cap("empowered_strikes") else w["damage_type"]}],
-		"extra_disadvantage": dis,
+		"extra_disadvantage": dis, "flat_damage": flat,
 		"range_tiles": w.get("range_tiles", [reach_of(c), reach_of(c)]) if ranged else [1, 1]}
 
 
@@ -176,6 +189,7 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 	var grid: Node = world["grid"]
 	var ctx: Dictionary = grid.attack_context(attacker, target)
 	ctx["disadvantage"].append_array(atk.get("extra_disadvantage", []))
+	ctx["advantage"].append_array(atk.get("advantage_add", []))
 	var dist: int = ctx["distance_tiles"]
 	# 무리 전술: 대상 1칸 안에 무력화되지 않은 공격자의 아군이 있으면 유리(SRD)
 	if attacker.has_cap("pack_tactics"):
@@ -234,6 +248,8 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 		return res
 	attacker.turn["attacks_left"] -= 1
 	attacker.turn["attacks_made"] = int(attacker.turn.get("attacks_made", 0)) + 1  # 무모한 공격: 첫 공격 전에만
+	if atk["kind"] == "melee" and attacker.has_cap("polearm_haft") and str(atk.get("weapon_id", "")) in POLEARMS and not attacker.turn.get("haft_used", false):
+		attacker.turn["haft_ready"] = true  # 장병기 달인: 이번 턴 자루 공격(보너스 행동)
 	if atk["kind"] == "melee":
 		var mt: Array = attacker.turn.get("melee_targets", [])
 		mt.append(target)
@@ -420,10 +436,20 @@ static func opportunity_attack(world: Dictionary, attacker: Node, target: Node) 
 				var mres := _do_attack(world, attacker, target, matk, true)
 				_monster_on_hit(world, attacker, target, a, mres)
 				return mres
+	if attacker.has_cap("war_caster_oa") and str(attacker.options.get("war_caster", "off")) == "on":
+		# 전투 시전자: 기회 공격 대신 전격 손길(내 시전 능력, 모르는 주문이어도)
+		return load("res://scripts/rules/spellcasting.gd").cast(world, attacker, "shocking_grasp", world["grid"].cell_of(target), {"free": true, "granted": true})
 	var atk := build_weapon_attack(attacker, attacker.weapon_sets.get("melee", {}).get("main", ""))
 	atk["name"] = "기회 공격(%s)" % atk["name"]
 	atk["opportunity"] = true
-	return _do_attack(world, attacker, target, atk, true)
+	if attacker.has_cap("sentinel_oa"):
+		atk["advantage_add"] = ["파수"]  # 파수: 기회 공격 유리
+	var r := _do_attack(world, attacker, target, atk, true)
+	if r.get("hit", false) and attacker.has_cap("sentinel_oa") and not target.dead:
+		target.turn["movement"] = 0
+		target.turn["free_move_no_oa"] = 0
+		target.set_meta("sentinel_stopped", true)  # 파수: 이번 턴 더 움직이지 못한다(move가 멈춘다)
+	return r
 
 
 static func _do_attack(world: Dictionary, attacker: Node, target: Node, atk: Dictionary, skip_range: bool = false) -> Dictionary:
@@ -436,8 +462,12 @@ static func _do_attack(world: Dictionary, attacker: Node, target: Node, atk: Dic
 	res["ok"] = res["valid"]
 	if not res["valid"]:
 		res["reason"] = res.get("reason", "")
-	elif not attacker.has_meta("monster"):
-		load("res://scripts/rules/actions.gd").follow_through(attacker, target, atk, res)  # 끈기(무기 액션 반응)
+	else:
+		if not attacker.has_meta("monster"):
+			load("res://scripts/rules/actions.gd").follow_through(attacker, target, atk, res)  # 끈기(무기 액션 반응)
+		var rq: Variant = world.get("reactions")
+		if rq != null and not atk.get("opportunity", false) and not str(atk.get("name", "")).begins_with("파수"):
+			rq.after_attack(res)  # 파수(반응 재주)
 	return res
 
 
@@ -499,7 +529,7 @@ static func move(world: Dictionary, c: Node, to: Vector2i, opts: Dictionary = {}
 	for nxt: Vector2i in p["path"]:
 		if not c.turn.get("disengaged", false) and not free:
 			_opportunity_attacks(world, c, cur, nxt)
-		if c.dead or c.is_down() or c.speed() == 0:
+		if c.dead or c.is_down() or c.speed() == 0 or c.has_meta("sentinel_stopped"):
 			out["stopped"] = "이동 중 쓰러지거나 멈춤"
 			break
 		var step: int = 0
@@ -509,9 +539,14 @@ static func move(world: Dictionary, c: Node, to: Vector2i, opts: Dictionary = {}
 		if not free:
 			c.turn["moved"] = true
 		out["cost"] += step
+		var prev := cur
 		grid.move_creature(c, nxt)
 		out["moved"] += 1
 		cur = nxt
+		_polearm_enter_oa(world, c, prev, cur)
+		if c.dead or c.is_down() or c.has_meta("sentinel_stopped"):
+			out["stopped"] = "이동 중 쓰러지거나 멈춤"
+			break
 		load("res://scripts/rules/spellcasting.gd").on_moved(world, c)
 	return out
 
@@ -563,6 +598,25 @@ static func _dist_cells(grid: Node, a: Array, b: Array) -> int:
 		for y: Vector2i in b:
 			best = mini(best, grid.distance(x, y))
 	return best
+
+
+## 장병기 달인(능력 태그 polearm_enter_oa): 장병기를 쥔 적의 도달 밖에서 안으로 들어오면 그 적이 반응으로 기회 공격(반응 id = 재주 기능).
+static func _polearm_enter_oa(world: Dictionary, mover: Node, prev: Vector2i, now: Vector2i) -> void:
+	var grid: Node = world["grid"]
+	var sz: int = grid.size_of(mover)
+	for e: Node in grid.creatures():
+		if e == mover or e.dead or not e.is_hostile_to(mover) or not e.can_react() or not e.has_cap("polearm_enter_oa"):
+			continue
+		if e.active_set != "melee" or not str(e.weapon("main")) in POLEARMS:
+			continue
+		var reach := reach_of(e)
+		var before := _dist_cells(grid, grid.occupied_cells(e), grid.footprint(prev, sz))
+		var after := _dist_cells(grid, grid.occupied_cells(e), grid.footprint(now, sz))
+		if before > reach and after <= reach and grid.can_see(e, mover):
+			load("res://scripts/rules/features.gd").offer_reaction(e, "polearm_master", {"target": mover},
+				func() -> void: opportunity_attack(world, e, mover))
+		if mover.dead or mover.is_down():
+			return
 
 
 static func _opportunity_attacks(world: Dictionary, mover: Node, cur: Vector2i, nxt: Vector2i) -> void:

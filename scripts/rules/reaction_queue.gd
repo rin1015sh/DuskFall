@@ -18,6 +18,8 @@ func setup(w: Dictionary) -> Node:
 	EventBus.reaction_queue = self
 	if not EventBus.on_after_attack_roll.is_connected(_on_after_attack_roll):
 		EventBus.on_after_attack_roll.connect(_on_after_attack_roll)
+	if not EventBus.on_before_attack_roll.is_connected(_on_before_attack_roll):
+		EventBus.on_before_attack_roll.connect(_on_before_attack_roll)
 	if not EventBus.on_spell_cast.is_connected(_on_spell_cast):
 		EventBus.on_spell_cast.connect(_on_spell_cast)
 	if not EventBus.on_fall.is_connected(_on_fall):
@@ -31,6 +33,8 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
 		if EventBus.on_after_attack_roll.is_connected(_on_after_attack_roll):
 			EventBus.on_after_attack_roll.disconnect(_on_after_attack_roll)
+		if EventBus.on_before_attack_roll.is_connected(_on_before_attack_roll):
+			EventBus.on_before_attack_roll.disconnect(_on_before_attack_roll)
 		if EventBus.reaction_queue == self:
 			EventBus.reaction_queue = null
 		if EventBus.on_spell_cast.is_connected(_on_spell_cast):
@@ -100,10 +104,94 @@ static func _spell_name(spell_id: String) -> String:
 	return str(RulesDB.get_entry("spell", spell_id).get("name", {}).get("en", spell_id))
 
 
+## 반응 재주(기능 데이터 kind reaction + trigger)를 가진 생물의 그 기능 id. 없으면 "".
+static func _trigger_feature(c: Node, trigger: String) -> String:
+	for fid: String in c.feature_data:
+		var f: Dictionary = c.feature_data[fid]
+		if str(f.get("kind", "")) == "reaction" and str(f.get("trigger", "")) == trigger:
+			return fid
+	return ""
+
+
+## 보호(전투 방식, trigger enemy_attacks_ally_before): 방패를 든 내 곁(1칸)의 아군을 노린 보이는 적의 공격에 반응으로 불리.
+func _on_before_attack_roll(res: Dictionary) -> void:
+	if res.get("preview", false) or not world.has("grid") or not res.get("valid", true):
+		return
+	var grid: Node = world["grid"]
+	var attacker: Node = res["attacker"]
+	var target: Node = res["target"]
+	if not grid.creatures().has(attacker) or not grid.creatures().has(target):
+		return
+	for o: Node in grid.creatures():
+		if o == target or o.dead or not o.is_hostile_to(attacker) or o.is_hostile_to(target) or not o.can_react():
+			continue
+		var fid := _trigger_feature(o, "enemy_attacks_ally_before")
+		if fid == "" or not bool(o.get_meta("shield", false)) or grid.distance_between(o, target) > 1 or not grid.can_see(o, attacker):
+			continue
+		if "보호" in res["disadvantage"]:
+			return
+		if offer(o, fid, {"attack": res}, func() -> void:
+			o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+			res["disadvantage"].append("보호")
+			Dice.log_text("%s 보호: %s의 공격이 불리" % [o.label(), attacker.label()])):
+			return
+
+
+## 막아내기 검술(trigger self_hit_melee): 숙련 교묘 무기를 주 무기로 쥐고 근접 공격에 맞으면 반응으로 그 공격에 AC + 숙련 보너스.
+## 빗나가게 할 수 있을 때만(BG3). 명중 굴림에서 숙련 보너스를 빼는 것과 같다.
+func _self_hit_reactions(res: Dictionary) -> void:
+	var t: Node = res["target"]
+	var fid := _trigger_feature(t, "self_hit_melee")
+	if fid == "" or not t.can_react() or str(res.get("attack", {}).get("kind", "")) != "melee":
+		return
+	var prop := str(t.feature_data[fid].get("requires_weapon_property", ""))
+	var wid: String = t.weapon_sets.get("melee", {}).get("main", "")
+	var Combat: Variant = load("res://scripts/rules/combat.gd")
+	if prop != "" and (wid == "" or t.active_set != "melee" or not prop in Combat.weapon_data(wid).get("properties", [])):
+		return
+	var pb: int = t.proficiency_bonus
+	if res["total"] - pb >= res["ac"] + res["ac_bonus"]:
+		return
+	offer(t, fid, {"attack": res, "would_miss": true}, func() -> void:
+		t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
+		res["ac_bonus"] += pb
+		Dice.log_text("%s 막아내기 검술: AC +%d" % [t.label(), pb]))
+
+
+## 파수(trigger enemy_attacks_ally): 내 도달 안의 적이 다른 아군(파수가 없는)을 공격하면 반응으로 그 적에게 무기 공격.
+## Combat._do_attack이 공격을 끝낸 뒤 부른다.
+func after_attack(res: Dictionary) -> void:
+	if res.get("preview", false) or not world.has("grid") or EventBus.realtime:
+		return
+	var grid: Node = world["grid"]
+	var attacker: Node = res.get("attacker")
+	var target: Node = res.get("target")
+	if attacker == null or target == null or not grid.creatures().has(attacker) or attacker.dead:
+		return
+	if _trigger_feature(target, "enemy_attacks_ally") != "":
+		return  # 대상이 파수를 가졌으면 다른 파수는 반응하지 않는다(BG3)
+	var Combat: Variant = load("res://scripts/rules/combat.gd")
+	for o: Node in grid.creatures():
+		if o == target or o == attacker or o.dead or not o.is_hostile_to(attacker) or o.is_hostile_to(target) or not o.can_react():
+			continue
+		var fid := _trigger_feature(o, "enemy_attacks_ally")
+		if fid == "" or o.active_set != "melee" or grid.distance_between(o, attacker) > Combat.reach_of(o):
+			continue
+		offer(o, fid, {"target": attacker}, func() -> void:
+			o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+			var atk: Dictionary = Combat.build_weapon_attack(o, o.weapon("main"))
+			atk["name"] = "파수(%s)" % atk["name"]
+			Combat._do_attack(world, o, attacker, atk, true))
+		if attacker.dead:
+			return
+
+
 func _on_after_attack_roll(res: Dictionary) -> void:
 	if res.get("preview", false) or not res.get("hit", false) or res.get("crit", false):
 		return
 	_enemy_hit_reactions(res)
+	if res.get("hit", false) and res["total"] >= res["ac"] + res["ac_bonus"]:
+		_self_hit_reactions(res)
 	if not res.get("hit", false) or res["total"] < res["ac"] + res["ac_bonus"]:
 		return  # 이미 빗나감으로 바뀌었다
 	var t: Node = res["target"]
@@ -183,6 +271,20 @@ func _on_spell_cast(ctx: Dictionary) -> void:
 	if str(RulesDB.get_entry("spell", str(ctx.get("spell", ""))).get("cast", {}).get("trigger", "")) == "on_spell_cast":
 		return  # 방해 주문은 다시 방해하지 않는다
 	var grid: Node = world["grid"]
+	# 마법사 사냥꾼(trigger enemy_casts_adjacent): 곁(1칸)의 적이 주문을 시전하면 반응으로 그 시전자에게 무기 공격
+	if grid.creatures().has(caster) and not EventBus.realtime:
+		var Combat: Variant = load("res://scripts/rules/combat.gd")
+		for o: Node in grid.creatures():
+			if o == caster or o.dead or not o.is_hostile_to(caster) or not o.can_react() or grid.distance_between(o, caster) > 1:
+				continue
+			var fid := _trigger_feature(o, "enemy_casts_adjacent")
+			if fid == "" or o.active_set != "melee":
+				continue
+			offer(o, fid, {"cast": ctx}, func() -> void:
+				o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+				var atk: Dictionary = Combat.build_weapon_attack(o, o.weapon("main"))
+				atk["name"] = "마법사 사냥꾼(%s)" % atk["name"]
+				Combat._do_attack(world, o, caster, atk, true))
 	var list: Array = grid.creatures().filter(func(o: Node) -> bool:
 		return o != caster and not o.dead and o.is_hostile_to(caster) and not reaction_spells(o, "on_spell_cast").is_empty() \
 			and grid.can_see(o, caster))

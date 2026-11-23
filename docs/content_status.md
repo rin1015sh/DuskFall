@@ -11,11 +11,11 @@
 | weapon | 38 |
 | armor | 13 |
 | item | 59 |
-| feat | 44 |
+| feat | 55 |
 | species | 15 |
 | background | 4 |
 | monster | 43 |
-| capability | 92 |
+| capability | 105 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -255,13 +255,16 @@
 | agonizing_blast | 고통의 화살 | (몬스터 특성 또는 아직 없음) |
 | armor_ac_plus_1 | 방어 | 재주 defense |
 | blessed_healer | 축복받은 치유자 | cleric |
+| bonus_attack_on_crit_kill | 강타 추가 공격 | (몬스터 특성 또는 아직 없음) |
 | bonus_dash_disengage_hide | 교활한 행동 | rogue |
 | brawler | 주먹다짐 | (몬스터 특성 또는 아직 없음) |
 | brutal_strike | 잔혹한 일격 | barbarian |
 | cantrip_add_mod | 강력한 주문 시전 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_miss | 강력한 소마법 | wizard |
+| charger | 돌격병 | (몬스터 특성 또는 아직 없음) |
 | check_boost_d10 | 전술적 판단 | fighter |
 | climber | 등반 | monk, ranger, rogue |
+| concentration_advantage | 집중 유리 | (몬스터 특성 또는 아직 없음) |
 | countercharm | 대항 매혹 | bard |
 | crit_free_move | 치명타 뒤 이동 | fighter |
 | crossbow_point_blank | 근접 석궁 | (몬스터 특성 또는 아직 없음) |
@@ -283,6 +286,7 @@
 | fast_movement | 빠른 이동 | barbarian, ranger |
 | free_cast_class_spell | 신성 개입 | cleric, druid |
 | frenzy | 광란 | barbarian |
+| gwm_all_in | 강타 | (몬스터 특성 또는 아직 없음) |
 | heavy_armor_damage_reduction | 중갑 피해 감소 | (몬스터 특성 또는 아직 없음) |
 | heightened_focus | 고양된 집중 | monk |
 | heroic_warrior | 영웅 전사 | fighter |
@@ -296,6 +300,8 @@
 | jump_half_more | 도약 +50% | (몬스터 특성 또는 아직 없음) |
 | jump_plus_1 | 도약 +1칸 | fighter, rogue |
 | long_rest_inspiration | 기지 | 종족 human |
+| lucky | 행운의 별 | (몬스터 특성 또는 아직 없음) |
+| mage_slayer | 마법사 사냥꾼 | (몬스터 특성 또는 아직 없음) |
 | mark_spread | 먹잇감 확산 | ranger |
 | martial_arts | 무술 | monk |
 | medium_armor_master | 중형 갑옷 숙달 | (몬스터 특성 또는 아직 없음) |
@@ -314,6 +320,8 @@
 | open_hand_technique | 열린 손 기법 | monk |
 | pack_tactics | 무리 전술 | (몬스터 특성 또는 아직 없음) |
 | pact_blade | 계약의 칼날 | (몬스터 특성 또는 아직 없음) |
+| polearm_enter_oa | 장병기 경계 | (몬스터 특성 또는 아직 없음) |
+| polearm_haft | 자루 공격 | (몬스터 특성 또는 아직 없음) |
 | prepare_swap_short_rest | 주문 암기 | wizard |
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |
 | reckless | 무모한 공격 | barbarian |
@@ -325,6 +333,8 @@
 | ritual_from_spellbook | 의식 숙련 | wizard |
 | sculpt_spells | 주문 조각 | wizard |
 | self_restoration | 자기 회복 | monk |
+| sentinel_oa | 파수 기회 공격 | (몬스터 특성 또는 아직 없음) |
+| shield_dex_save_bonus | 방패 민첩 내성 | (몬스터 특성 또는 아직 없음) |
 | short_rest_full_heal | 짧은 휴식 완전 회복 | (몬스터 특성 또는 아직 없음) |
 | slow_fall | 느린 낙하 | monk |
 | sneak_attack | 급소 공격 | rogue |
@@ -332,6 +342,8 @@
 | sorcery_incarnate | 마법의 화신 | sorcerer |
 | spell_crit_minus_1 | 주문 치명타 범위 | (몬스터 특성 또는 아직 없음) |
 | spell_heal_bonus | 생명의 제자 | cleric |
+| ss_all_in | 조준 | (몬스터 특성 또는 아직 없음) |
+| ss_low_ground | 낮은 곳 사격 | (몬스터 특성 또는 아직 없음) |
 | stand_up_one_tile | 빠르게 일어서기 | (몬스터 특성 또는 아직 없음) |
 | stealth_attack | 은신 공격 | rogue |
 | stunning_strike | 충격의 일격 | monk |
@@ -344,3 +356,4 @@
 | unarmored_defense_wis | 맨몸 방어(지혜) | monk |
 | unarmored_movement | 맨몸 이동 | monk |
 | uncanny_metabolism | 신비한 대사 | monk |
+| war_caster_oa | 주문 기회 공격 | (몬스터 특성 또는 아직 없음) |

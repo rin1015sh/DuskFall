@@ -197,6 +197,12 @@ static func unavailable(world: Dictionary, c: Node, key: String, explore: bool =
 			return "이번 턴에 질주나 이탈을 해야 한다"
 	if key.begins_with("wa_") and c.has_flag("disarmed"):
 		return "무기를 놓쳤다"
+	if not explore:
+		var rt: Array = d.get("requires_turn", [])
+		if not rt.is_empty() and not rt.any(func(f: String) -> bool: return c.turn.get(f, false)):
+			return "지금은 쓸 수 없다"  # 행동 데이터 requires_turn: 이번 턴 조건(강타 추가 공격·자루 공격)
+		if str(d.get("also_costs", "")) != "" and not Combat.can_spend(c, str(d["also_costs"])):
+			return "보너스 행동이 없다" if str(d["also_costs"]) == "bonus" else "행동이 없다"
 	return ""
 
 
@@ -351,6 +357,13 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 		return _weapon_action(world, c, key, t)
 	if key.begins_with("entity:"):
 		return _entity_action(world, c, key.trim_prefix("entity:"), cell, t)
+	match key:
+		"bonus_weapon_attack":
+			return _bonus_weapon_attack(world, c, t)
+		"haft_strike":
+			return _haft_strike(world, c, t)
+		"charger_attack", "charger_shove":
+			return _charge(world, c, t, key == "charger_shove")
 	var parts := key.split(":")
 	match parts[0]:
 		"attack":
@@ -627,6 +640,94 @@ static func follow_through(c: Node, t: Node, atk: Dictionary, res: Dictionary) -
 	c.turn["reaction"] = int(c.turn.get("reaction", 1)) - 1
 	res["follow_through"] = Resolver.apply_damage(t, [{"amount": maxi(1, c.ability_mod("str")), "damage_type": "bludgeoning"}], {"attacker": c})
 	Dice.log_text("%s 끈기: 빗나갔지만 %d" % [c.label(), maxi(1, c.ability_mod("str"))])
+
+
+# ======================================================================
+# 재주 행동(BG3 재주 묶음 B)
+# ======================================================================
+
+## 강타 추가 공격(대형 무기 강타): 치명타·처치 뒤 보너스 행동으로 쥔 근접 무기 공격 1회.
+static func _bonus_weapon_attack(world: Dictionary, c: Node, t: Node) -> Dictionary:
+	if t == null or not c.turn.get("bonus_attack_ready", false):
+		return {"ok": false, "reason": "지금은 쓸 수 없다"}
+	if c.active_set != "melee":
+		Combat.switch_weapon_set(c)
+	if not Combat.spend(c, "bonus"):
+		return {"ok": false, "reason": "보너스 행동이 없다"}
+	c.turn["bonus_attack_ready"] = false
+	c.turn["bonus_attack_used"] = true
+	var atk := Combat.build_weapon_attack(c, c.weapon("main"))
+	atk["name"] = "강타 추가 공격"
+	return Combat._do_attack(world, c, t, atk)
+
+
+## 자루 공격(장병기 달인): 장병기로 공격한 턴에 보너스 행동 1d4 타격 + 근력·민첩 중 높은 수정치(턴당 1회).
+static func _haft_strike(world: Dictionary, c: Node, t: Node) -> Dictionary:
+	if t == null or not c.turn.get("haft_ready", false):
+		return {"ok": false, "reason": "지금은 쓸 수 없다"}
+	if not Combat.spend(c, "bonus"):
+		return {"ok": false, "reason": "보너스 행동이 없다"}
+	c.turn["haft_ready"] = false
+	c.turn["haft_used"] = true
+	var atk := Combat.build_weapon_attack(c, c.weapon("main"))
+	var mod := maxi(c.ability_mod("str"), c.ability_mod("dex"))
+	atk["damage"] = [{"dice": "1d4%+d" % mod if mod != 0 else "1d4", "damage_type": "bludgeoning"}]
+	atk["flat_damage"] = int(atk.get("flat_damage", 0))
+	atk["name"] = "자루 공격"
+	return Combat._do_attack(world, c, t, atk)
+
+
+## 돌격(돌격병): 행동 + 보너스 행동. 곧은 선으로 6칸까지 기회 공격 없이 달려가(이동력은 쓰지 않는다) 처음 만나는 적에게
+## 무기 공격(피해 +5, 공격 행동의 공격 하나 — 추가 공격과 이어짐) 또는 밀치기.
+static func _charge(world: Dictionary, c: Node, t: Node, shove: bool) -> Dictionary:
+	var grid: Node = world["grid"]
+	if t == null or t.dead or not c.is_hostile_to(t):
+		return {"ok": false, "reason": "적을 골라야 한다"}
+	var from: Vector2i = grid.cell_of(c)
+	var goal: Vector2i = grid.cell_of(t)
+	if grid.distance(from, goal) > 7:
+		return {"ok": false, "reason": "너무 멀다(6칸까지)"}
+	# 곧은 선: 한 칸씩 목표 쪽으로. 처음 만나는 적이 대상이 된다.
+	var cur := from
+	var hit: Node = null
+	while true:
+		var step := Vector2i(signi(goal.x - cur.x), signi(goal.y - cur.y))
+		var nxt := cur + step
+		var o: Node = grid.creature_at(nxt)
+		if o != null and o != c:
+			if c.is_hostile_to(o):
+				hit = o
+			break
+		if not grid.can_step_sized(cur, nxt, grid.size_of(c), c, []) or grid.distance(from, nxt) > 6:
+			break
+		cur = nxt
+	if hit == null:
+		return {"ok": false, "reason": "가는 길에 적이 없다"}
+	if not Combat.can_spend(c, "bonus") or (int(c.turn.get("attacks_left", 0)) <= 0 and not Combat.can_spend(c, "action")):
+		return {"ok": false, "reason": "행동과 보너스 행동이 필요하다"}
+	if cur != from:
+		grid.move_creature(c, cur)  # 돌진: 기회 공격 없음, 이동력 쓰지 않음
+	Combat.spend(c, "bonus")
+	if int(c.turn.get("attacks_left", 0)) <= 0:
+		Combat.spend(c, "action")
+		c.turn["attacks_left"] = c.attacks_per_action
+	c.turn["attacks_left"] = int(c.turn["attacks_left"]) - 1
+	if shove:
+		var plan := Physics.plan_shove(grid, c, hit)
+		if not plan["valid"]:
+			return {"ok": true, "reason": plan["reason"], "moved": cur != from}
+		var r := Physics.shove(grid, c, hit, false)
+		r["ok"] = true
+		return r
+	if c.active_set != "melee":
+		Combat.switch_weapon_set(c)
+	var atk := Combat.build_weapon_attack(c, c.weapon("main"))
+	atk["flat_damage"] = int(atk.get("flat_damage", 0)) + 5
+	atk["name"] = "돌격 공격"
+	var res := Combat._do_attack(world, c, hit, atk)
+	if world.get("turns") != null:
+		world["turns"].notify_hostile_action(c)
+	return res
 
 
 ## 주문 두루마리(SRD 원문, 룰북 6단계): 내 클래스 주문 목록에 있는 주문이면 읽는다.
