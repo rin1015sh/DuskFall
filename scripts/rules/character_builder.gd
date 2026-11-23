@@ -227,6 +227,11 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		if f.has("grants"):
 			grants.append([fid, f["grants"]])
 		var kind := str(f.get("choice_kind", ""))
+		if kind == "skill" and spec.get(fid) is Array:
+			for pick: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
+				if str(pick) in f.get("choices", []):
+					extra_skill.append(str(pick))  # 여러 개 고르기(지식 학파 추가 숙련 3)
+			continue
 		var chosen := str(spec.get(fid, ""))
 		if kind == "" or chosen == "" or not chosen in f.get("choices", []):
 			continue
@@ -288,9 +293,12 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	# 자원
 	c.resources = {}
 	for r: Dictionary in cls.get("resources", []) + sp.get("resources", []):
-		var mx := _resource_max(r["max"], lv, c.proficiency_bonus)
+		var mx := _resource_max(r["max"], lv, c.proficiency_bonus, c)
 		if mx > 0:
-			c.resources[r["id"]] = {"current": mx, "max": mx, "recharge": r["recharge"]}
+			var rc: Variant = r["recharge"]
+			if rc is Dictionary:
+				rc = _by_level_str(rc, lv, "long")  # 레벨표(바드: 5레벨부터 짧은 휴식 — 영감의 샘)
+			c.resources[r["id"]] = {"current": mx, "max": mx, "recharge": str(rc)}
 	# 장비·AC: 칸에서 갑옷·방패·무기 묶음과 착용 효과(마법 보너스·반지·망토 등은 수정치 source "item:<칸>")
 	c.set_meta("armor_training", armor_training)
 	Equipment.apply_to(c, slots)
@@ -370,6 +378,16 @@ static func armor_class(c: Node, armor_id: String, shield: bool, training: Array
 	if shield:
 		ac += 2
 	return ac
+
+
+static func _by_level_str(table: Dictionary, lv: int, default: String) -> String:
+	var best := default
+	var best_lv := 0
+	for k: String in table:
+		if lv >= int(k) and int(k) >= best_lv:
+			best_lv = int(k)
+			best = str(table[k])
+	return best
 
 
 static func _heavy(armor_id: String) -> bool:
@@ -494,9 +512,11 @@ static func _by_level(table: Variant, lv: int, default: int) -> int:
 	return best
 
 
-static func _resource_max(mx: Variant, lv: int, pb: int) -> int:
+static func _resource_max(mx: Variant, lv: int, pb: int, c: Node = null) -> int:
 	if typeof(mx) == TYPE_STRING and mx == "proficiency_bonus":
 		return pb
+	if typeof(mx) == TYPE_STRING and str(mx).begins_with("ability_mod:") and c != null:
+		return maxi(1, c.ability_mod(str(mx).get_slice(":", 1)))  # 능력 수정치(최소 1 — 바드의 영감 = 매력)
 	if typeof(mx) == TYPE_DICTIONARY:
 		return _by_level(mx, lv, 0)
 	return int(mx)

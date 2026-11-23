@@ -58,13 +58,16 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	res["bonus_dice"] = bonus_dice
 	res["total"] = res["natural"] + res["attack_bonus"] + bonus_dice
 	_decide_hit(res)
+	if not res["hit"] and res["natural"] != 1:
+		res["total"] += inspire(attacker)  # 바드의 영감: 실패한 d20 시험에 주사위를 더한다
+		_decide_hit(res)
 	# 받는 쪽의 '다음 공격을 받으면 사라지는' 수정치(Guiding Bolt)
 	for m in target.extra_modifiers.duplicate():
 		if m.get("consume_on_attacked", false):
 			target.extra_modifiers.erase(m)
 	# 공격하면 끝나는 상태(Invisibility·Sanctuary — params.ends_on_attack)
 	for cond in attacker.conditions.duplicate():
-		if cond.get("params", {}).get("ends_on_attack", false):
+		if cond.get("params", {}).get("ends_on_attack", false) or RulesDB.get_entry("condition", str(cond["id"])).get("ends_on_attack", false):
 			attacker.remove_condition(cond["id"])
 	# 다음 공격 한 번에만 붙는 수정치(Sap·Vex 등)는 굴림에 쓰이면 사라진다.
 	for m in attacker.extra_modifiers.duplicate():
@@ -342,6 +345,26 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 		if attacker.has_cap("extra_damage_wounded") and target.hp < target.hp_max and not attacker.turn.get("wounded_bonus_used", false):
 			attacker.turn["wounded_bonus_used"] = true
 			res["extra_damage"].append({"dice": "1d8", "damage_type": atk["damage"][0]["damage_type"]})
+
+
+## 기능 판정 보너스: 숙련이면 그 값, 아니면 능력 태그 jack_of_all_trades(바드 만물박사)로 숙련 보너스 절반(내림).
+static func _skill_bonus(c: Node, skill: String) -> int:
+	if skill == "":
+		return 0
+	if c.skill_bonuses.has(skill):
+		return int(c.skill_bonuses[skill])
+	return c.proficiency_bonus / 2 if c.has_cap("jack_of_all_trades") else 0
+
+
+## 바드의 영감(상태 bardic_inspiration, params.die): 실패한 d20 시험에 자동으로 굴려 더하고 사라진다(BG3식 자동). 더한 값.
+static func inspire(c: Node) -> int:
+	var inst: Dictionary = c.condition_instance("bardic_inspiration")
+	if inst.is_empty():
+		return 0
+	var n: int = Dice.roll(str(inst.get("params", {}).get("die", "1d6")), "바드의 영감")["total"]
+	c.remove_condition("bardic_inspiration")
+	Dice.log_text("%s: 바드의 영감 +%d" % [c.label(), n])
+	return n
 
 
 ## 분노 피해 보너스(수정치 stat rage_damage의 합 — 분노 상태 데이터).
@@ -659,6 +682,9 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 	res["natural"] = d["natural"]
 	res["total"] = d["natural"] + res["bonus"] + roll_bonus_dice(creature, "saving_throw")
 	res["success"] = res["total"] >= dc
+	if not res["success"]:
+		res["total"] += inspire(creature)
+		res["success"] = res["total"] >= dc
 	if opts.get("natural_rules", false):
 		if d["natural"] == 20:
 			res["success"] = true
@@ -714,7 +740,7 @@ static func concentration_check(creature: Node, damage: int) -> Dictionary:
 ## 자연 20 자동 성공, 자연 1 자동 실패(2단계 공통 처리 규칙 1).
 static func ability_check(creature: Node, ability: String, dc: int, opts: Dictionary = {}) -> Dictionary:
 	var res := {"creature": creature, "ability": ability, "dc": dc, "auto": false,
-		"bonus": creature.ability_mod(ability) + int(creature.skill_bonuses.get(opts.get("skill", ""), 0)) + int(opts.get("bonus", 0)),
+		"bonus": creature.ability_mod(ability) + _skill_bonus(creature, str(opts.get("skill", ""))) + int(opts.get("bonus", 0)),
 		"advantage": opts.get("advantage", []).duplicate(), "disadvantage": opts.get("disadvantage", []).duplicate(),
 		"success": false, "natural": 0, "total": 0, "mode": 0, "ctx": {}, "skill": str(opts.get("skill", ""))}
 	if opts.get("requires_sight", false) and creature.has_flag("fails_sight_checks"):
@@ -732,6 +758,9 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		res["natural"] = d["natural"]
 		res["total"] = d["natural"] + res["bonus"]
 		res["success"] = d["natural"] == 20 or (d["natural"] != 1 and res["total"] >= dc)
+		if not res["success"] and d["natural"] != 1:
+			res["total"] += inspire(creature)
+			res["success"] = res["total"] >= dc
 	Dice.log_text("%s %s 판정: %s vs DC %d → %s" % [creature.label(), ability,
 		"자동 실패" if res["auto"] else "%d + %d = %d" % [res["natural"], res["bonus"], res["total"]],
 		dc, "성공" if res["success"] else "실패"])

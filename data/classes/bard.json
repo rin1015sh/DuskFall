@@ -1,0 +1,297 @@
+{
+  "schema": "class_v1",
+  "id": "bard",
+  "name": {
+    "ko": "바드",
+    "en": "Bard"
+  },
+  "hit_die": 8,
+  "primary": [
+    "cha"
+  ],
+  "saves": [
+    "dex",
+    "cha"
+  ],
+  "skills": {
+    "choose": 3,
+    "from": [
+      "acrobatics",
+      "animal_handling",
+      "arcana",
+      "athletics",
+      "deception",
+      "history",
+      "insight",
+      "intimidation",
+      "investigation",
+      "medicine",
+      "nature",
+      "perception",
+      "performance",
+      "persuasion",
+      "religion",
+      "sleight_of_hand",
+      "stealth",
+      "survival"
+    ]
+  },
+  "weapon_training": [
+    "simple"
+  ],
+  "armor_training": [
+    "light"
+  ],
+  "asi_levels": [
+    4
+  ],
+  "spellcasting": {
+    "ability": "cha",
+    "swap": {
+      "long_rest": 0,
+      "level_up": 1
+    },
+    "type": "prepared",
+    "list": "bard",
+    "cantrips": {
+      "1": 2,
+      "4": 3
+    },
+    "prepared": {
+      "1": 4,
+      "2": 5,
+      "3": 6,
+      "4": 7,
+      "5": 9
+    },
+    "slots": {
+      "1": [
+        2
+      ],
+      "2": [
+        3
+      ],
+      "3": [
+        4,
+        2
+      ],
+      "4": [
+        4,
+        3
+      ],
+      "5": [
+        4,
+        3,
+        2
+      ]
+    }
+  },
+  "resources": [
+    {
+      "id": "bardic_inspiration",
+      "name": {
+        "ko": "바드의 영감",
+        "en": "Bardic Inspiration"
+      },
+      "max": "ability_mod:cha",
+      "recharge": {
+        "1": "long",
+        "5": "short"
+      }
+    }
+  ],
+  "features": [
+    {
+      "id": "bardic_inspiration",
+      "name": {
+        "ko": "바드의 영감",
+        "en": "Bardic Inspiration"
+      },
+      "level": 1,
+      "kind": "bonus_action",
+      "resource": "bardic_inspiration",
+      "script": "bardic_inspiration",
+      "target": "creature",
+      "dice_by_level": {
+        "1": "1d6",
+        "5": "1d8"
+      },
+      "notes_ko": "보너스 행동, 12칸 안 다른 아군에게 영감 주사위(d6, 5레벨 d8). 실패한 d20 시험에 자동으로 더한다(BG3식 — 원문은 고른다). 횟수 = 매력 수정치(최소 1), 긴 휴식(5레벨부터 짧은 휴식).",
+      "source": "SRD 5.2.1",
+      "glyph": "note"
+    },
+    {
+      "id": "expertise",
+      "name": {
+        "ko": "전문화",
+        "en": "Expertise"
+      },
+      "level": 2,
+      "handled_by": "생성기 — 명세 expertise(숙련 기능 2개, 숙련 보너스 2배)",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "jack_of_all_trades",
+      "name": {
+        "ko": "만물박사",
+        "en": "Jack of All Trades"
+      },
+      "level": 2,
+      "caps": [
+        "jack_of_all_trades"
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "font_of_inspiration",
+      "name": {
+        "ko": "영감의 샘",
+        "en": "Font of Inspiration"
+      },
+      "level": 5,
+      "kind": "free",
+      "script": "font_of_inspiration",
+      "notes_ko": "영감을 짧은 휴식에도 전부 회복(자원 recharge 레벨표). 행동 없이 주문 슬롯 하나로 영감 1회 회복.",
+      "source": "SRD 5.2.1",
+      "glyph": "note"
+    }
+  ],
+  "subclasses": [
+    {
+      "id": "lore",
+      "name": {
+        "ko": "지식 학파",
+        "en": "College of Lore"
+      },
+      "level": 3,
+      "source": "SRD 5.2.1",
+      "features": [
+        {
+          "id": "bonus_proficiencies_lore",
+          "name": {
+            "ko": "추가 숙련",
+            "en": "Bonus Proficiencies"
+          },
+          "level": 3,
+          "choices": [
+            "acrobatics",
+            "animal_handling",
+            "arcana",
+            "athletics",
+            "deception",
+            "history",
+            "insight",
+            "intimidation",
+            "investigation",
+            "medicine",
+            "nature",
+            "perception",
+            "performance",
+            "persuasion",
+            "religion",
+            "sleight_of_hand",
+            "stealth",
+            "survival"
+          ],
+          "choice_kind": "skill",
+          "count": 3,
+          "notes_ko": "기능 숙련 3개(명세에 목록).",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "cutting_words",
+          "name": {
+            "ko": "비꼬는 말",
+            "en": "Cutting Words"
+          },
+          "level": 3,
+          "kind": "reaction",
+          "trigger": "enemy_attack_hit",
+          "resource": "bardic_inspiration",
+          "range_tiles": 12,
+          "notes_ko": "12칸 안 보이는 적이 명중하면 반응 + 영감 1회로 영감 주사위만큼 명중 굴림을 뺀다(반응 설정 대상). 피해 굴림·능력 판정에 쓰기는 1차 생략.",
+          "source": "SRD 5.2.1"
+        }
+      ]
+    }
+  ],
+  "ai_role": "caster",
+  "art": {
+    "sheet": "res://assets/actors/elf.webp"
+  },
+  "color": "#c77dd8",
+  "starting_equipment": {
+    "armor": "leather_armor",
+    "shield": false,
+    "melee": {
+      "main": "dagger",
+      "off": ""
+    },
+    "ranged": {
+      "main": "light_crossbow"
+    }
+  },
+  "default_build": {
+    "subclass": "lore",
+    "species": "halfling",
+    "background": "criminal",
+    "scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 14,
+      "int": 10,
+      "wis": 10,
+      "cha": 15
+    },
+    "bonus": {
+      "cha": 2,
+      "dex": 1
+    },
+    "skills": [
+      "persuasion",
+      "performance",
+      "insight"
+    ],
+    "expertise": [
+      "persuasion",
+      "performance"
+    ],
+    "bonus_proficiencies_lore": [
+      "arcana",
+      "history",
+      "medicine"
+    ],
+    "cantrips": [
+      "vicious_mockery",
+      "dancing_lights",
+      "light"
+    ],
+    "spells": [
+      "healing_word",
+      "dissonant_whispers",
+      "faerie_fire",
+      "heroism",
+      "hold_person",
+      "shatter",
+      "invisibility",
+      "hypnotic_pattern",
+      "mass_healing_word"
+    ],
+    "asi": {
+      "4": {
+        "cha": 2
+      }
+    },
+    "armor": "leather_armor",
+    "weapons": {
+      "melee": {
+        "main": "dagger",
+        "off": ""
+      },
+      "ranged": {
+        "main": "light_crossbow"
+      }
+    }
+  },
+  "source": "SRD 5.2.1"
+}

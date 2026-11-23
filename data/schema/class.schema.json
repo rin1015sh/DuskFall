@@ -188,11 +188,22 @@
               "$comment": "주문서에 학파 주문 무료 추가(방출 학자): count개 + 기능 레벨 뒤 새 슬롯 레벨마다 per_new_slot_level개",
               "type": "object",
               "additionalProperties": false,
-              "required": ["school", "count"],
+              "required": [
+                "school",
+                "count"
+              ],
               "properties": {
-                "school": {"type": "string"},
-                "count": {"type": "integer", "minimum": 0},
-                "per_new_slot_level": {"type": "integer", "minimum": 0}
+                "school": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "per_new_slot_level": {
+                  "type": "integer",
+                  "minimum": 0
+                }
               }
             },
             "caps": {
@@ -214,7 +225,7 @@
           "enum": [
             "feat",
             "skill",
-              "expertise",
+            "expertise",
             "option"
           ]
         },
@@ -278,9 +289,9 @@
             "self",
             "creature",
             "enemy",
-            "cell"
-          ,
-              "ally"]
+            "cell",
+            "ally"
+          ]
         },
         "explore": {
           "$comment": "탐험 중에도 쓴다",
@@ -354,6 +365,21 @@
         "handled_by": {
           "$comment": "다른 곳이 이 기능을 처리할 때 그곳(현황 보고서가 '설명만'으로 세지 않는다)",
           "type": "string"
+        },
+        "count": {
+          "$comment": "choice_kind skill: 고르는 개수(명세 값이 목록)",
+          "type": "integer",
+          "minimum": 1
+        },
+        "trigger": {
+          "$comment": "kind reaction: enemy_attack_hit = 사거리 안 적이 명중하면(reaction_queue 제3자 반응)",
+          "enum": [
+            "enemy_attack_hit"
+          ]
+        },
+        "range_tiles": {
+          "type": "integer",
+          "minimum": 1
         }
       }
     }
@@ -500,8 +526,14 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "long_rest": {"type": "integer", "minimum": -1},
-            "level_up": {"type": "integer", "minimum": 0}
+            "long_rest": {
+              "type": "integer",
+              "minimum": -1
+            },
+            "level_up": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         },
         "slot_recharge": {
@@ -549,10 +581,25 @@
             ]
           },
           "recharge": {
-            "enum": [
-              "short",
-              "short_one",
-              "long"
+            "$comment": "short·short_one·long, 또는 레벨표 {\"1\": \"long\", \"5\": \"short\"}",
+            "oneOf": [
+              {
+                "enum": [
+                  "short",
+                  "short_one",
+                  "long"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "enum": [
+                    "short",
+                    "short_one",
+                    "long"
+                  ]
+                }
+              }
             ]
           },
           "name": {

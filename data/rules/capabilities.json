@@ -298,6 +298,15 @@
       },
       "note_ko": "턴의 첫 공격 전에: 다음 자기 턴 시작까지 근력 공격 유리, 나를 노리는 공격 유리(스크립트 reckless_attack)",
       "source": "original"
+    },
+    {
+      "id": "jack_of_all_trades",
+      "name": {
+        "ko": "만물박사",
+        "en": "Jack of All Trades"
+      },
+      "note_ko": "숙련 없는 기능 판정에 숙련 보너스 절반(내림)(resolver._skill_bonus)",
+      "source": "original"
     }
   ]
 }

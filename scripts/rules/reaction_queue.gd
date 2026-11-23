@@ -103,6 +103,9 @@ static func _spell_name(spell_id: String) -> String:
 func _on_after_attack_roll(res: Dictionary) -> void:
 	if res.get("preview", false) or not res.get("hit", false) or res.get("crit", false):
 		return
+	_enemy_hit_reactions(res)
+	if not res.get("hit", false) or res["total"] < res["ac"] + res["ac_bonus"]:
+		return  # 이미 빗나감으로 바뀌었다
 	var t: Node = res["target"]
 	for sid: String in reaction_spells(t, "on_after_attack_roll"):
 		var add := 0
@@ -119,6 +122,58 @@ func _on_after_attack_roll(res: Dictionary) -> void:
 				"until_turn_start_of": t})
 			Dice.log_text("%s %s: AC +%d" % [t.label(), _spell_name(sid), add]), would_miss):
 			return
+
+
+## 제3자 반응 기능(기능 데이터 kind reaction + trigger "enemy_attack_hit" — 바드 비꼬는 말):
+## 사거리 안 보이는 적이 명중하면, 반응과 자원(feature.resource)을 써서 기능 주사위(dice_by_level)를 명중 굴림에서 뺀다.
+## 자동 설정이면 평균값으로 빗나감이 될 때만 쓴다.
+func _enemy_hit_reactions(res: Dictionary) -> void:
+	if not world.has("grid"):
+		return
+	var grid: Node = world["grid"]
+	var attacker: Node = res["attacker"]
+	if not grid.creatures().has(attacker):
+		return
+	for o: Node in grid.creatures():
+		if o.dead or not o.is_hostile_to(attacker) or not o.can_react():
+			continue
+		for fid: String in o.feature_data:
+			var f: Dictionary = o.feature_data[fid]
+			if str(f.get("kind", "")) != "reaction" or str(f.get("trigger", "")) != "enemy_attack_hit":
+				continue
+			var res_id := str(f.get("resource", ""))
+			if res_id != "" and o.resource(res_id) <= 0:
+				continue
+			if grid.distance_between(o, attacker) > int(f.get("range_tiles", 12)) or not grid.can_see(o, attacker):
+				continue
+			var die := _feature_die(o, f)
+			var avg := (int(die.get_slice("d", 1)) + 1) / 2.0
+			var would_miss: bool = res["total"] - avg < res["ac"] + res["ac_bonus"]
+			if offer(o, fid, {"attack": res, "would_miss": would_miss}, func() -> void:
+				if res_id != "":
+					o.spend_resource(res_id)
+				o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+				var n: int = Dice.roll(die, str(f.get("name", {}).get("en", fid)))["total"]
+				res["total"] -= n
+				res["hit"] = res["total"] >= res["ac"] + res["ac_bonus"]
+				Dice.log_text("%s %s: 명중 굴림 −%d" % [o.label(), str(f.get("name", {}).get("ko", fid)), n]), would_miss):
+				return
+
+
+## 기능 주사위(dice_by_level, 없으면 같은 자원을 쓰는 기능의 표 — 바드의 영감 주사위).
+static func _feature_die(c: Node, f: Dictionary) -> String:
+	var table: Dictionary = f.get("dice_by_level", {})
+	if table.is_empty():
+		for g: Dictionary in c.feature_data.values():
+			if g.get("resource", "") == f.get("resource", "-") and g.has("dice_by_level"):
+				table = g["dice_by_level"]
+	var best := "1d6"
+	var best_lv := 0
+	for k: String in table:
+		if c.level >= int(k) and int(k) >= best_lv:
+			best_lv = int(k)
+			best = str(table[k])
+	return best
 
 
 func _on_spell_cast(ctx: Dictionary) -> void:

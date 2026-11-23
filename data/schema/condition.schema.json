@@ -468,6 +468,10 @@
         "melee_only": {
           "$comment": "on_weapon_hit: 근접 무기·비무장 명중에만(강타)",
           "type": "boolean"
+        },
+        "ends_on_attack": {
+          "$comment": "이 상태로 공격 굴림을 하면 끝난다(조롱당함)",
+          "type": "boolean"
         }
       }
     }

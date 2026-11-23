@@ -1171,6 +1171,37 @@
       },
       "notes_ko": "바바리안 분노: 타격·관통·참격 저항, 근력 공격 피해 +2(1~8레벨), 근력 판정·내성 유리, 주문·집중 불가. 10턴(BG3식 — 원문은 매 턴 연장, 최대 10분).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "bardic_inspiration",
+      "name": {
+        "ko": "바드의 영감",
+        "en": "Bardic Inspiration"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "notes_ko": "실패한 d20 시험(공격·능력 판정·내성)에 영감 주사위를 자동으로 굴려 더하고 사라진다(BG3식). 긴 휴식까지.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mocked",
+      "name": {
+        "ko": "조롱당함",
+        "en": "Mocked"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "ends_on_attack": true,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        }
+      ],
+      "notes_ko": "Vicious Mockery: 다음 공격 굴림 하나 불리(자기 다음 턴 끝까지).",
+      "source": "SRD 5.2.1"
     }
   ]
 }
