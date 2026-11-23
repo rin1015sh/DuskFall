@@ -46,10 +46,17 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 			continue
 		if (when == "hp_below_half" and c.hp <= c.hp_max / 2) or (when == "foes_2plus" and _foes(world, c).size() >= 2):
 			Features.use(world, c, fid)
+		elif when == "ally_buff":
+			for ally: Node in _allies(world, c):
+				if ally != c and not ally.is_down() and Features.use(world, c, fid, ally).get("ok", false):
+					break  # 바드의 영감 등: 받을 수 있는 첫 아군
 	Tactics.pre_turn(world, c)
 	_cast_best_area(world, c)
 	_light_up(world, c)
-	# 2. 공격 행동
+	# 2. 공격 행동(기능 ai.when before_attack — 인접한 적이 있으면 먼저: 무모한 공격)
+	var first := Tactics.pick_target(world, c)
+	if first != null and grid.distance_between(c, first) <= Combat.reach_of(c):
+		_use_when(world, c, "before_attack", first)
 	var guard := 0
 	while guard < 6 and not c.dead and not c.is_down():
 		guard += 1
@@ -86,10 +93,30 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 			Combat.switch_weapon_set(c)
 		if not _approach(world, c, foe):
 			break
+	# 2-2. 공격 뒤 보너스 행동 기능(ai.when after_attack — 몽크 연타·보너스 비무장 공격, ai.priority 높은 것 먼저)
+	var near := Tactics.pick_target(world, c)
+	if near != null and not c.dead and grid.distance_between(c, near) <= 1:
+		_use_when(world, c, "after_attack", near)
 	# 3. 남은 이동으로 가장 가까운 적에게 붙기
 	var f := _nearest_foe(world, c)
 	if f != null and not c.dead and grid.distance_between(c, f) > 1:
 		_approach(world, c, f)
+
+
+## ai.when이 그 시점인 기능을 우선순위(ai.priority) 순서로 하나 쓴다(자원·비용이 없으면 다음).
+static func _use_when(world: Dictionary, c: Node, when: String, target: Node) -> void:
+	var Features := preload("res://scripts/rules/features.gd")
+	var fids: Array = c.feature_data.keys().filter(func(fid: String) -> bool:
+		return str(c.feature_data[fid].get("ai", {}).get("when", "")) == when)
+	fids.sort_custom(func(a: String, b: String) -> bool:
+		return int(c.feature_data[a]["ai"].get("priority", 0)) > int(c.feature_data[b]["ai"].get("priority", 0)))
+	for fid: String in fids:
+		var res := str(c.feature_data[fid].get("resource", ""))
+		if res != "" and c.resource(res) <= 0:
+			continue
+		var t: Variant = target if str(c.feature_data[fid].get("target", "self")) in ["enemy", "creature"] else null
+		if Features.use(world, c, fid, t).get("ok", false):
+			return
 
 
 static func _approach(world: Dictionary, c: Node, target: Node) -> bool:

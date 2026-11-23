@@ -27,7 +27,7 @@
   },
   "weapon_training": [
     "simple",
-    "martial_finesse_or_light"
+    "martial_light"
   ],
   "armor_training": [],
   "asi_levels": [
@@ -90,7 +90,11 @@
       "target": "enemy",
       "notes_ko": "무술: 보너스 행동으로 비무장 공격 1회.",
       "source": "SRD 5.2.1",
-      "glyph": "fist"
+      "glyph": "fist",
+      "ai": {
+        "when": "after_attack",
+        "priority": 1
+      }
     },
     {
       "id": "unarmored_defense",
@@ -128,7 +132,11 @@
       "target": "enemy",
       "notes_ko": "기 1, 보너스 행동으로 비무장 공격 2회.",
       "source": "SRD 5.2.1",
-      "glyph": "fist"
+      "glyph": "fist",
+      "ai": {
+        "when": "after_attack",
+        "priority": 2
+      }
     },
     {
       "id": "patient_defense",

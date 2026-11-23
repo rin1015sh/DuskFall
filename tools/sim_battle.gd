@@ -1,6 +1,8 @@
 extends SceneTree
 ## 밸런스 점검 시뮬레이션(/balance-check). 같은 조우를 시드만 바꿔 여러 번 돌린다.
 ## 실행: godot --headless --path . -s res://tools/sim_battle.gd -- --encounter=example_1 --runs=200
+##   --swap=<클래스>: 기준 파티에서 같은 역할(ai_role: melee 전사·ranged 로그·caster 위저드·healer 클레릭)의 한 명을 그 클래스 추천 빌드로 바꾼다.
+##   --classes: 모든 클래스를 하나씩 바꿔 넣어 표로(승률·바꿔 넣은 캐릭터의 피해·쓰러짐).
 ## 파티·적 모두 단순 AI(scripts/ai/simple_ai.gd). 조우 난이도는 SRD 5.2.1 XP Budget per Character.
 
 const ENCOUNTERS := {
@@ -31,12 +33,36 @@ func _process(_d: float) -> bool:
 		args[kv[0]] = kv[1] if kv.size() > 1 else "true"
 	var ids: Array = [args.get("encounter", "")] if args.has("encounter") else ENCOUNTERS.keys()
 	for id: String in ids:
-		report(id, int(args.get("runs", "200")))
+		if args.has("classes"):
+			class_table(id, int(args.get("runs", "100")))
+		else:
+			report(id, int(args.get("runs", "200")), str(args.get("swap", "")))
 	quit()
 	return true
 
 
-func report(id: String, runs: int) -> void:
+## 모든 클래스를 하나씩 바꿔 넣어 비교한다.
+func class_table(id: String, runs: int) -> void:
+	var enc: Dictionary = ENCOUNTERS[id]
+	print("== %s: %s — 클래스 비교(%d회씩)" % [id, enc["note"], runs])
+	print("   | 클래스 | 바꾼 자리 | 승률 | 라운드 | 파티 쓰러짐 | 사망 | 그 캐릭터 피해/전투 | 그 캐릭터 쓰러짐 |")
+	for cid: String in root.get_node("RulesDB").ids("class"):
+		var st := {"wins": 0, "rounds": 0, "downs": 0, "deaths": 0, "dmg": 0, "self_downs": 0, "slot": ""}
+		for s in runs:
+			root.get_node("Dice").set_seed(1000 + s)
+			var r := run_once(enc, cid)
+			st["wins"] += 1 if r["win"] else 0
+			st["rounds"] += r["rounds"]
+			st["downs"] += r["downs"]
+			st["deaths"] += r["deaths"]
+			st["dmg"] += r["swap_damage"]
+			st["self_downs"] += r["swap_downs"]
+			st["slot"] = r["swap_slot"]
+		print("   | %s | %s | %.0f%% | %.1f | %.2f | %.2f | %.1f | %.2f |" % [cid, st["slot"], 100.0 * st["wins"] / runs, float(st["rounds"]) / runs,
+			float(st["downs"]) / runs, float(st["deaths"]) / runs, float(st["dmg"]) / runs, float(st["self_downs"]) / runs])
+
+
+func report(id: String, runs: int, swap: String = "") -> void:
 	var enc: Dictionary = ENCOUNTERS[id]
 	var Dice: Node = root.get_node("Dice")
 	var stats := {"wins": 0, "rounds": 0, "downs": 0, "deaths": 0, "slots": 0, "potions": 0}
@@ -45,7 +71,7 @@ func report(id: String, runs: int) -> void:
 		xp += int(root.get_node("RulesDB").get_entry("monster", f[0])["xp"])
 	for s in runs:
 		Dice.set_seed(1000 + s)
-		var r := run_once(enc)
+		var r := run_once(enc, swap)
 		stats["wins"] += 1 if r["win"] else 0
 		stats["rounds"] += r["rounds"]
 		stats["downs"] += r["downs"]
@@ -66,7 +92,10 @@ func report(id: String, runs: int) -> void:
 		float(stats["deaths"]) / runs, float(stats["slots"]) / runs])
 
 
-func run_once(enc: Dictionary) -> Dictionary:
+const ROLE_SLOT := {"melee": "fighter", "ranged": "rogue", "caster": "wizard", "healer": "cleric"}
+
+
+func run_once(enc: Dictionary, swap: String = "") -> Dictionary:
 	var Roster: Variant = load("res://scenes/battle/test_roster.gd")
 	var MF: Variant = load("res://scripts/rules/monster_factory.gd")
 	var AI: Variant = load("res://scripts/ai/simple_ai.gd")
@@ -78,6 +107,32 @@ func run_once(enc: Dictionary) -> Dictionary:
 		spawns[str(f.name)] = grid.cell_of(f)
 		grid.remove(f)
 		f.free()
+	var swapped: Node = null
+	var slot_class := ""
+	if swap != "":
+		var cls: Dictionary = root.get_node("RulesDB").get_entry("class", swap)
+		slot_class = str(ROLE_SLOT.get(str(cls.get("ai_role", "melee")), "fighter"))
+		for i in b["party"].size():
+			var old: Node = b["party"][i]
+			if old.class_id == slot_class:
+				var Builder: Variant = load("res://scripts/rules/character_builder.gd")
+				var nc: Node = Builder.build(Builder.default_spec(swap, enc["level"]))["creature"]
+				nc.name = old.name
+				nc.inventory = old.inventory.duplicate()
+				var at: Vector2i = grid.cell_of(old)
+				grid.remove(old)
+				old.free()
+				grid.place(nc, at)
+				b["party"][i] = nc
+				w["party"] = b["party"]
+				swapped = nc
+				break
+	var dealt := {"n": 0, "downs": 0}
+	var on_dmg := func(info: Dictionary) -> void:
+		var a: Variant = info.get("opts", {}).get("attacker")
+		if swapped != null and a == swapped and info["target"].team != "party":
+			dealt["n"] += int(info.get("amount", 0))
+	root.get_node("EventBus").on_damage_taken.connect(on_dmg)
 	var foes: Array = []
 	for f: Array in enc["foes"]:
 		var m: Node = MF.spawn(f[0])
@@ -96,6 +151,8 @@ func run_once(enc: Dictionary) -> Dictionary:
 	var on_zero := func(info: Dictionary) -> void:
 		if info["creature"].team == "party":
 			downs["n"] += 1
+			if info["creature"] == swapped:
+				dealt["downs"] += 1
 	root.get_node("EventBus").on_hp_zero.connect(on_zero)
 	var tm: Node = w["turns"]
 	tm.start_combat(enc.get("zone", "arena"))
@@ -109,13 +166,15 @@ func run_once(enc: Dictionary) -> Dictionary:
 		if tm.in_combat:
 			tm.end_turn(g[0])
 	root.get_node("EventBus").on_hp_zero.disconnect(on_zero)
+	root.get_node("EventBus").on_damage_taken.disconnect(on_dmg)
 	var slots_after := 0
 	for c: Node in b["party"]:
 		for k: String in c.resources.keys():
 			if k.begins_with("spell_slot"):
 				slots_after += int(c.resources[k]["current"])
 	var out := {"win": tm.result == "victory", "rounds": tm.round_number, "downs": downs["n"],
-		"deaths": b["party"].filter(func(c: Node) -> bool: return c.dead).size(), "slots": slots_before - slots_after}
+		"deaths": b["party"].filter(func(c: Node) -> bool: return c.dead).size(), "slots": slots_before - slots_after,
+		"swap_damage": dealt["n"], "swap_downs": dealt["downs"], "swap_slot": slot_class}
 	var Sp: Variant = load("res://scripts/rules/spellcasting.gd")
 	for id: Variant in Sp.instances.keys():
 		Sp.end_instance(id)

@@ -132,7 +132,10 @@
       ],
       "notes_ko": "턴의 첫 공격 전에(행동 없음) 다음 자기 턴 시작까지 근력 공격 유리, 나를 노리는 공격 유리.",
       "source": "SRD 5.2.1",
-      "glyph": "axe"
+      "glyph": "axe",
+      "ai": {
+        "when": "before_attack"
+      }
     },
     {
       "id": "primal_knowledge",

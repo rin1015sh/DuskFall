@@ -25,6 +25,15 @@ static func role_of(spell: Dictionary) -> String:
 	return "none"
 
 
+static func _deals_damage(spell: Dictionary) -> bool:
+	var eff: Dictionary = spell.get("effects", {})
+	for k: String in ["apply", "hit", "fail"]:
+		for e: Dictionary in eff.get(k, []):
+			if str(e.get("type", "")) == "damage":
+				return true
+	return false
+
+
 ## c가 가진 그 역할의 주문(우선순위: 데이터 ai.priority 높은 순 → 주문 레벨 높은 순, 회복은 보너스 행동·낮은 레벨 먼저)
 static func known(c: Node, role: String) -> Array:
 	var out: Array = []
@@ -37,6 +46,11 @@ static func known(c: Node, role: String) -> Array:
 		var pb := int(b.get("ai", {}).get("priority", 0))
 		if pa != pb:
 			return pa > pb
+		if role == "area":
+			var da := _deals_damage(a)
+			var db := _deals_damage(b)
+			if da != db:
+				return da  # 범위 주문: 피해를 주는 것 먼저(같은 우선순위일 때)
 		if role == "heal":
 			var ba := str(a.get("cast", {}).get("cost", "")) == "bonus_action"
 			var bb := str(b.get("cast", {}).get("cost", "")) == "bonus_action"

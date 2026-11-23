@@ -362,8 +362,15 @@
               "enum": [
                 "hp_below_half",
                 "foes_2plus",
+                "before_attack",
+                "after_attack",
+                "ally_buff",
                 "never"
               ]
+            },
+            "priority": {
+              "$comment": "같은 시점 기능 중 높은 것 먼저",
+              "type": "integer"
             }
           }
         },

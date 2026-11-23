@@ -430,7 +430,12 @@ static func _heavy(armor_id: String) -> bool:
 static func _weapon_profs(training: Array) -> Array:
 	var out: Array = []
 	for t: String in training:
-		if t == "martial_finesse_or_light":
+		if t == "martial_light":
+			for wid: String in RulesDB.ids("weapon"):
+				var w := RulesDB.get_entry("weapon", wid)
+				if str(w["category"]).begins_with("martial") and "light" in w["properties"]:
+					out.append(wid)  # 몽크: 가벼운 군용 무기만(SRD)
+		elif t == "martial_finesse_or_light":
 			for wid: String in RulesDB.ids("weapon"):
 				var w := RulesDB.get_entry("weapon", wid)
 				if str(w["category"]).begins_with("martial") and ("finesse" in w["properties"] or "light" in w["properties"]):
