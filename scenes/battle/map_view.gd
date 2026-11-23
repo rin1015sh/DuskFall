@@ -10,6 +10,9 @@ extends Node3D
 ##   카메라는 남쪽에서만 보므로(회전 없음) 동·서·북 면은 보이지 않아 만들지 않는다.
 ## - 소품: 맵 데이터 art.props(키트 물건 — 서 있는 것은 세운 판, 바닥 무늬는 눕힌 판). 규칙 물체(기름통 등)는 art 키 또는 기본 그림.
 ## - 표면·구름: 키트 바닥(물·얼음·진흙 — overlay.gdshader가 가장자리를 웅덩이처럼 흔듦)·불꽃 애니메이션·얼룩·안개로 그린다(규칙 상태를 그리기만).
+## - 자연 지형(art.terrain = "natural", terrain_natural.gd): 높이 차 1단계 이하 이웃끼리는 부드러운 언덕, 2단계 이상은 바위 절벽
+##   (art.cliff_rock = 키트 벽면 바위 그림 wall_<값>: cave·sandstone). 절벽 위·아래에 풀·바위를 흩고(art.cliff_decor = false로 끔),
+##   오르기 지점(climb) 칸의 보이는 절벽 면에 사다리(art.climb_art = ladder·vines)를 세운다. 규칙 높이는 그대로(칸 가운데 = 규칙 높이).
 ## - 빛: 규칙의 빛 단계로 정점 색을 어둡게(칸 모서리마다 이웃 평균). 캐릭터를 가리는 앞쪽 벽·절벽은 체크무늬로 비친다.
 
 const V := preload("res://scenes/battle/view3d.gd")
@@ -18,6 +21,11 @@ const Kit3D := preload("res://scenes/kit/kit3d.gd")
 const TERRAIN_SHADER := preload("res://scenes/battle/terrain.gdshader")
 const OVERLAY_SHADER := preload("res://scenes/battle/overlay.gdshader")
 const FLOOR_SHADER := preload("res://scenes/battle/floor.gdshader")
+const ROCK_SHADER := preload("res://scenes/battle/rock.gdshader")
+const TerrainNatural := preload("res://scenes/battle/terrain_natural.gd")
+## 자연 지형 장식: 절벽 위(풀·덤불·작은 바위)·절벽 아래(바위·이끼 바위) — [키트 id, 변형, 확률]
+const CLIFF_TOP_DECOR := [["grass_tall", "a", 0.22], ["grass_tall", "c", 0.14], ["bush", "a", 0.06], ["rock", "small_a", 0.08]]
+const CLIFF_FOOT_DECOR := [["rock", "medium_a", 0.12], ["rock", "small_b", 0.12], ["boulder_mossy", "a", 0.04], ["grass_tall", "b", 0.1]]
 
 const MATERIAL_FLOORS := {"stone": "floor_flag", "earth": "floor_dirt", "grass": "ground_grass", "brush": "ground_thicket",
 	"wood": "room_wood", "burnt_ground": "ground_ash", "metal": "floor_brick", "glass": "floor_flag", "cloth": "floor_old"}
@@ -51,6 +59,9 @@ var _top_mi: MeshInstance3D
 var _face_mi: MeshInstance3D
 var _water_mi: MeshInstance3D
 var _rim_mi: MeshInstance3D
+var _rock_mi: MeshInstance3D
+## 자연 지형(없으면 블록 지형)
+var natural: RefCounted
 ## 칸 데이터 텍스처(셰이더용): 높이·바닥 있음 / 바닥 조각 / 표면 조각
 var _info_tex: ImageTexture
 var _cells_tex: ImageTexture
@@ -119,6 +130,13 @@ func build(g: Node, sorted_layer: Node3D, map_data: Dictionary = {}) -> void:
 	_top_mi = _mesh_node("wall_tops", TERRAIN_SHADER, true)
 	_face_mi = _mesh_node("wall_faces", TERRAIN_SHADER, true)
 	_water_mi = _mesh_node("floors", OVERLAY_SHADER, false, "floors_overlay")
+	_rock_mi = _mesh_node("wall_faces", ROCK_SHADER, true, "rock")
+	# 자연 암벽: 키트 벽면 중 바위 그림(wall_cave 등 — cliff_drop은 아래로 꺼지는 낭떠러지라 검다)
+	var rock_f: Array = kit.info("wall_%s" % String(art().get("cliff_rock", "cave"))).get("variants", {}).get("clean", {"frames": [[0, 0, 256, 160]]})["frames"][0]
+	_mats["rock"].set_shader_parameter("frame", Vector4(float(rock_f[0]), float(rock_f[1]), float(rock_f[2]), float(rock_f[3])))
+	_mats["rock"].set_shader_parameter("atlas_px", _sheet_size("wall_faces"))
+	if String(art().get("terrain", "block")) == "natural":
+		natural = TerrainNatural.new(grid)
 	var rim_mat := StandardMaterial3D.new()
 	rim_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	rim_mat.vertex_color_use_as_albedo = true
@@ -137,7 +155,7 @@ func _mesh_node(sheet: String, shader: Shader, cutaway: bool, key: String = "") 
 	var mat := ShaderMaterial.new()
 	mat.shader = shader
 	mat.set_shader_parameter("tex", kit._sheet(sheet))
-	if cutaway:
+	if cutaway and shader != ROCK_SHADER:
 		mat.set_shader_parameter("cutaway", true)
 	if shader == OVERLAY_SHADER:
 		mat.render_priority = 1
@@ -186,6 +204,85 @@ func _build_props() -> void:
 		_prop_cells[node] = cell
 		if String(node.get_meta("kit_layer", "stand")) == "stand" and (String(p["id"]).begins_with("tree") or p["id"] in ["tent", "pillar", "gibbet", "statue"]):
 			_tall_props.append(node)
+	if natural != null:
+		if bool(art().get("cliff_decor", true)):
+			_build_cliff_decor()
+		_build_climb_art()
+
+
+func _add_prop(id: String, variant: String, pos: Vector3, cell: Vector2i, opts: Dictionary = {}) -> Node3D:
+	var node: Node3D = Kit3D.make(kit, id, variant, opts)
+	node.position = pos
+	sorted.add_child(node)
+	_prop_cells[node] = cell
+	return node
+
+
+## 절벽 위 가장자리·아래 발치에 풀·바위를 흩는다(칸·방향으로 정한 난수 — 매번 같은 배치).
+## 오르기 지점·물체·맵 이동 칸은 비운다.
+func _build_cliff_decor() -> void:
+	var busy := {}
+	for o: Variant in map.get("objects", []) + map.get("transitions", []) + map.get("spawns", []):
+		if o is Dictionary and (o as Dictionary).has("cell"):
+			busy[Vector2i(int(o["cell"][0]), int(o["cell"][1]))] = true
+	for e: Array in natural.cliff_edges():
+		var hi: Vector2i = e[0]
+		var lo: Vector2i = e[1]
+		var d: Vector2i = lo - hi
+		for side in 2:
+			var cell: Vector2i = hi if side == 0 else lo
+			if busy.has(cell) or grid.has_flag(cell, "climb"):
+				continue
+			var table: Array = CLIFF_TOP_DECOR if side == 0 else CLIFF_FOOT_DECOR
+			var r := _rand(cell, d, side)
+			var acc := 0.0
+			for row: Array in table:
+				acc += float(row[2])
+				if r < acc:
+					# 가장자리 쪽으로 붙이고(위: 변에서 0.22 안쪽, 아래: 0.3 앞) 변을 따라 흩는다
+					var along := (_rand(cell, d, side + 7) - 0.5) * 0.7
+					var edge_pt := Vector2(cell) + Vector2(0.5, 0.5) + Vector2(d) * (0.28 if side == 0 else -0.2)
+					var pt := edge_pt + Vector2(absf(d.y), absf(d.x)) * along
+					_add_prop(row[0], row[1], Vector3(pt.x, ground_at(pt), pt.y), cell, {"flip": _rand(cell, d, 3) < 0.5})
+					break
+
+
+## 오르기 지점: 보이는 절벽 면(높은 칸이 북·동·서쪽)에 사다리나 덩굴을 세운다. 높이 차에 맞춰 늘인다.
+func _build_climb_art() -> void:
+	var kind := String(art().get("climb_art", "ladder"))
+	var done := {}
+	for e: Array in natural.cliff_edges():
+		var hi: Vector2i = e[0]
+		var lo: Vector2i = e[1]
+		if not (grid.has_flag(hi, "climb") or grid.has_flag(lo, "climb")):
+			continue
+		var d: Vector2i = lo - hi  # 높은 칸에서 낮은 칸 쪽
+		if d == Vector2i.UP or done.has([hi, lo]):
+			continue  # 북쪽을 보는 면은 화면에서 보이지 않는다
+		done[[hi, lo]] = true
+		var dh: int = grid.height(hi) - grid.height(lo)
+		var edge := (Vector2(hi) + Vector2(0.5, 0.5) + Vector2(d) * 0.5)
+		var pos := Vector3(edge.x, float(grid.height(lo)), edge.y) + Vector3(d.x, 0, d.y) * 0.06
+		var node: Node3D
+		if kind == "vines":
+			node = _add_prop("vines", "ivy_a", pos + Vector3(0, dh, 0), lo)
+		else:
+			node = _add_prop("ladder", "wall", pos, lo)
+			# 그림 176px(원점 위) → 높이 차 + 반 단계
+			var k := (dh + 0.5) * V.STEP_PX / 176.0
+			node.scale = Vector3(1.0, V.UPRIGHT * k, 1.0)
+
+
+func _rand(c: Vector2i, d: Vector2i, salt: int) -> float:
+	return float(posmod(hash([c, d, salt]), 10007)) / 10007.0
+
+
+## 바닥 높이(칸 평면 점). 자연 지형은 언덕 면, 블록 지형은 칸 윗면.
+func ground_at(p: Vector2) -> float:
+	if natural != null:
+		return natural.ground_at(p)
+	var c := Vector2i(floori(p.x), floori(p.y))
+	return V.cell_top(grid, c) if grid.in_bounds(c) else 0.0
 
 
 ## 소품 발 위치. 옛 2D 배치(칸 가운데 + 아래로 0.3칸 + dx·dy px)를 바닥 위 위치로 옮긴다.
@@ -197,7 +294,8 @@ func _prop_pos(cell: Vector2i, dx: float, dy: float) -> Vector3:
 		var base: float = maxf(V.wall_base(grid, cell), float(grid.height(south)) if grid.in_bounds(south) and not grid.has_flag(south, "wall") else 0.0)
 		# 옛 2D: 발이 벽면 아래 끝에서 (0.2칸 − dy)px 위
 		return Vector3(x, base + maxf(0.0, (V.T * 0.2 - dy) / V.STEP_PX), cell.y + 1.02)
-	return Vector3(x, float(grid.height(cell)) if grid.in_bounds(cell) else 0.0, cell.y + 0.8 + dy / V.T)
+	var z := cell.y + 0.8 + dy / V.T
+	return Vector3(x, ground_at(Vector2(x, z)) if natural != null else (float(grid.height(cell)) if grid.in_bounds(cell) else 0.0), z)
 
 
 ## 칸 데이터가 바뀌면(표면·재질·빛) 다시 그린다.
@@ -258,6 +356,8 @@ func _build_terrain() -> void:
 	var cliff_frame: Array = kit.info("wall_%s" % art().get("cliff", wall_kind)).get("variants", {}).get("clean", {"frames": [face_frame]})["frames"][0]
 	var t := float(V.T)
 	var rims := MeshBuilder.new()
+	if natural != null:
+		natural = TerrainNatural.new(grid)  # 높이가 바뀌었을 수 있다
 	for c: Vector2i in grid.all_cells():
 		var x0 := float(c.x)
 		var z0 := float(c.y)
@@ -283,9 +383,12 @@ func _build_terrain() -> void:
 				var px := minf((top_c - y0) * V.STEP_PX, float(ff[3]))
 				var src := Rect2(float(ff[0]) + posmod(c.x, 4) * t, float(ff[1]) + float(ff[3]) - px, t, px)
 				_face(faces, x0, z0 + 1.0, y0, top_c, src, wsize, FACE_SHADE, k, not grid.has_flag(south, "wall"))
+				if natural != null and not grid.has_flag(south, "wall"):
+					# 언덕 바닥이 벽 앞에서 기울어도 틈이 없게 벽면을 땅속으로 한 단계 더
+					_cliff(faces, cliff_frame, wsize, x0, z0 + 1.0, y0 - 1.0, y0, k, false)
 				if top_s < base:
 					_cliff(faces, cliff_frame, wsize, x0, z0 + 1.0, top_s, base, k, false)
-		else:
+		elif natural == null:
 			var fsrc := _floor_src(c, "a")
 			if fsrc.size.x > 0.0:
 				# 변형 a·b가 모두 있을 때만 섞는다(하나뿐이면 같은 조각 — 섞임 없음)
@@ -295,11 +398,28 @@ func _build_terrain() -> void:
 			if has_south and top_s < top_c:
 				_cliff(faces, cliff_frame, wsize, x0, z0 + 1.0, top_s, top_c, k, not grid.has_flag(south, "wall"))
 			_rims(rims, c, top_c, 1.0 - float(dark[c]))
-	_rim_mi.mesh = rims.mesh()
-	_floor_mi.mesh = floors.mesh()
+	if natural != null:
+		_rim_mi.mesh = natural.build_rims()
+		_floor_mi.mesh = natural.build_floor(func(p: Vector2) -> float: return _dark_point(dark, p))
+		_rock_mi.mesh = natural.build_cliffs(func(c: Vector2i) -> float: return float(dark.get(c, 0.0)))
+	else:
+		_rim_mi.mesh = rims.mesh()
+		_floor_mi.mesh = floors.mesh()
 	_build_cell_textures()
 	_top_mi.mesh = tops.mesh()
 	_face_mi.mesh = faces.mesh()
+
+
+## 점의 어둠: 칸 모서리 값(둘레 네 칸 평균)을 쌍선형으로
+func _dark_point(dark: Dictionary, p: Vector2) -> float:
+	var q := Vector2i(floori(p.x), floori(p.y))
+	var u := p.x - q.x
+	var v := p.y - q.y
+	var d00 := _corner_dark(dark, q, Vector2i(0, 0))
+	var d10 := _corner_dark(dark, q, Vector2i(1, 0))
+	var d01 := _corner_dark(dark, q, Vector2i(0, 1))
+	var d11 := _corner_dark(dark, q, Vector2i(1, 1))
+	return lerpf(lerpf(d00, d10, u), lerpf(d01, d11, u), v)
 
 
 ## 셰이더용 칸 데이터: info(RG8: 높이·바닥 있음), cells(RGBA8: 변형 a·b 묶음 첫 조각)
@@ -324,6 +444,9 @@ func _build_cell_textures() -> void:
 	fm.set_shader_parameter("info", _info_tex)
 	fm.set_shader_parameter("map_size", Vector2i(w, h))
 	fm.set_shader_parameter("atlas_px", _sheet_size("floors"))
+	# 자연 지형은 언덕(높이 차 1)을 넘어서도 바닥 종류를 섞는다
+	fm.set_shader_parameter("blend_dh", 1.0 if natural != null else 0.0)
+	fm.set_shader_parameter("shade_gain", 1.0 / TerrainNatural.FLOOR_BASE if natural != null else 1.0)
 	var om: ShaderMaterial = _mats["floors_overlay"]
 	om.set_shader_parameter("info", _info_tex)
 	om.set_shader_parameter("map_size", Vector2i(w, h))
@@ -444,6 +567,7 @@ func _refresh_surfaces() -> void:
 			else:
 				var node: Node3D = Kit3D.make(kit, a[1], a[2])
 				node.position = V.pos(c, h) + Vector3(0, 0.004 if node.rotation.x != 0.0 else 0.0, 0.25)
+				node.position.y = ground_at(Vector2(node.position.x, node.position.z)) + (0.004 if node.rotation.x != 0.0 else 0.0)
 				var col: Color = SURFACE_TINT.get(sid, Color.WHITE)
 				Kit3D.tint(node, Color(col.r * tint.r, col.g * tint.g, col.b * tint.b))
 				sorted.add_child(node)
@@ -463,6 +587,7 @@ func _refresh_surfaces() -> void:
 			var ref: String = obj.get("art", "barrel.intact")
 			var on: Node3D = Kit3D.make(kit, ref.get_slice(".", 0), ref.get_slice(".", 1))
 			on.position = V.pos(c, h) + Vector3(0, 0, 0.3)
+			on.position.y = ground_at(Vector2(on.position.x, on.position.z))
 			Kit3D.tint(on, tint)
 			sorted.add_child(on)
 			_surface_nodes.append(on)
@@ -492,7 +617,7 @@ func update_occlusion(actors: Array) -> void:
 		arr.append(Vector4(p.x, p.y, p.z, float(a[1])))
 	var count := arr.size()
 	arr.resize(24)
-	for key: String in ["wall_tops", "wall_faces"]:
+	for key: String in ["wall_tops", "wall_faces", "rock"]:
 		var mat: ShaderMaterial = _mats[key]
 		mat.set_shader_parameter("actors", arr)
 		mat.set_shader_parameter("actor_count", count)

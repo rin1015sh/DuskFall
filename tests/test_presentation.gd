@@ -126,6 +126,52 @@ func test_map_view_water_edges() -> void:
 	assert_eq(surf.get_pixel(0, 0).b8, 0, "표면 없음")
 
 
+## 자연 지형: 칸 가운데 = 규칙 높이, 이어진(높이 차 1) 이웃과 맞닿은 변은 같은 높이(틈 없음), 2단계 차는 바위 면
+func test_natural_terrain_slopes_and_cliffs() -> void:
+	const TerrainNatural := preload("res://scenes/battle/terrain_natural.gd")
+	var g := make_grid(["33333", "22333", "11000", "00000"])
+	var t: RefCounted = TerrainNatural.new(g)
+	for c: Vector2i in g.all_cells():
+		assert_near(t.ground_at(Vector2(c) + Vector2(0.5, 0.5)), float(g.height(c)), 0.001, "칸 가운데 = 규칙 높이 %s" % str(c))
+	assert_true(t.linked(Vector2i(0, 1), Vector2i(0, 2)), "높이 차 1은 이어진 비탈")
+	assert_false(t.linked(Vector2i(3, 1), Vector2i(3, 2)), "높이 차 3은 절벽")
+	# 이어진 이웃끼리 공유 변의 세 점이 같다
+	for c: Vector2i in g.all_cells():
+		for d: Vector2i in [Vector2i.RIGHT, Vector2i.DOWN]:
+			var n := c + d
+			if g.in_bounds(n) and t.linked(c, n):
+				var a: Array = t._edge(c, d)
+				var b: Array = t._edge(n, -d)
+				for i in 3:
+					assert_near((a[i] as Vector3).y, (b[i] as Vector3).y, 0.001, "틈 없음 %s→%s" % [str(c), str(n)])
+	# 비탈 변 가운데는 두 칸 평균
+	assert_near(t.ground_at(Vector2(0.5, 2.0)), 1.5, 0.001, "비탈 가운데 높이")
+	var edges: Array = t.cliff_edges()
+	assert_true(edges.has([Vector2i(3, 1), Vector2i(3, 2)]), "절벽 변 목록")
+	assert_false(edges.has([Vector2i(0, 1), Vector2i(0, 2)]), "비탈은 절벽이 아니다")
+	var cliffs: ArrayMesh = t.build_cliffs(func(_c: Vector2i) -> float: return 0.0)
+	assert_true(cliffs.get_surface_count() == 1, "바위 면 그물")
+
+
+## 자연 지형 맵: 바닥·바위 면·장식·사다리, 하이라이트가 쓰는 바닥 높이
+func test_map_view_natural_terrain() -> void:
+	var g := make_grid(["33333", "33333", "00000", "00000"])
+	g.set_flag(Vector2i(2, 2), "climb")
+	var root: Node3D = own(Node3D.new())
+	var view: Node3D = MapView.new()
+	root.add_child(view)
+	var sorted := Node3D.new()
+	root.add_child(sorted)
+	view.build(g, sorted, {"art": {"terrain": "natural"}})
+	assert_true(view.natural != null, "art.terrain = natural")
+	assert_true(view._rock_mi.mesh.get_surface_count() == 1, "바위 절벽 면")
+	assert_near(view.ground_at(Vector2(1.5, 0.5)), 3.0, 0.001)
+	var ladder := false
+	for n: Node in sorted.get_children():
+		ladder = ladder or n.get_meta("kit_id", "") == "ladder"
+	assert_true(ladder, "오르기 지점 절벽 면에 사다리")
+
+
 func _router() -> Array:
 	var r: RefCounted = InputRouter.new()
 	r.cell_at = func(pos: Vector2) -> Vector2i: return Vector2i(int(pos.x) / 100, int(pos.y) / 100)
@@ -216,6 +262,6 @@ func test_all_scene_scripts_compile() -> void:
 	for path: String in ["res://scenes/battle/battle_scene.gd", "res://scenes/battle/actor_view.gd", "res://scenes/battle/map_view.gd",
 			"res://scenes/battle/input_router.gd", "res://scenes/ui/character_creation.gd", "res://scenes/battle/test_roster.gd",
 			"res://scenes/ui/hotbar.gd", "res://scenes/ui/ui_style.gd", "res://scenes/ui/character_sheet.gd", "res://scenes/ui/minimap.gd", "res://scenes/battle/vfx.gd", "res://scenes/ui/action_icons.gd",
-			"res://scenes/battle/view3d.gd", "res://scenes/kit/kit3d.gd"]:
+			"res://scenes/battle/view3d.gd", "res://scenes/kit/kit3d.gd", "res://scenes/battle/terrain_natural.gd"]:
 		var s: Script = load(path)
 		assert_true(s != null and s.can_instantiate(), "%s 컴파일 실패" % path)

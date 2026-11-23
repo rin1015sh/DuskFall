@@ -24,6 +24,10 @@ uniform float warp = 0.36;
 // 종류 경계 혼합 띠 너비(칸)·맞닿은 자리 그늘
 uniform float blend_soft = 0.06;
 uniform float edge_shade = 0.18;
+// 섞을 수 있는 높이 차(블록 지형 0 = 같은 높이만, 자연 지형 1 = 언덕을 넘어서도)
+uniform float blend_dh = 0.0;
+// 정점 색 되돌림 배율(자연 지형: 평지 밝기를 1로, 빛 받는 비탈은 더 밝게)
+uniform float shade_gain = 1.0;
 
 varying vec3 wpos;
 
@@ -82,7 +86,7 @@ bool can_blend(ivec2 c, ivec2 c0) {
 		return false;
 	}
 	vec2 ic = cell_info(c);
-	return ic.g > 0.5 && ic.r == cell_info(c0).r;
+	return ic.g > 0.5 && abs(ic.r - cell_info(c0).r) <= blend_dh + 0.5;
 }
 
 void fragment() {
@@ -120,5 +124,5 @@ void fragment() {
 		// 맞닿은 자리에 옅은 그늘
 		col *= 1.0 - edge_shade * (1.0 - abs(2.0 * t - 1.0));
 	}
-	ALBEDO = col * COLOR.rgb;
+	ALBEDO = col * COLOR.rgb * shade_gain;
 }

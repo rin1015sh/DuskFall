@@ -140,11 +140,9 @@ class Highlights extends Node3D:
 		_tri(a, b, c, col)
 		_tri(a, c, d, col)
 
-	## 칸 평면 점(칸 단위) → 그 자리 칸 윗면 위
+	## 칸 평면 점(칸 단위) → 그 자리 바닥 위(자연 지형은 언덕 면을 따라)
 	func _at(p: Vector2) -> Vector3:
-		var c := Vector2i(floori(p.x), floori(p.y))
-		var h: float = V.cell_top(_g, c) if _g.in_bounds(c) else 0.0
-		return V.flat(p, h + V.LIFT * 2.0)
+		return V.flat(p, scene.map_view.ground_at(p) + V.LIFT * 2.0)
 
 	## 바닥 위 선(굵기 w 유닛). 점마다 그 칸 높이.
 	func _line(pts: Array, w: float, col: Color) -> void:
@@ -266,22 +264,27 @@ class Highlights extends Node3D:
 		_line(pts, 6.0 / V.T, Color(col, col.a * 0.35))
 		_line(pts, 2.0 / V.T, col)
 
-	## 칸 하나: 윗면 채움 + 테두리(2px 안쪽)
+	## 칸 하나: 윗면 채움 + 테두리(2px 안쪽). 바닥을 따라 4×4 조각으로 깐다(언덕에서도 묻히지 않게).
 	func _cell(g: Node, c: Vector2i, fill: Color, line: Color) -> void:
-		var y: float = V.cell_top(g, c) + V.LIFT * 2.0
 		var i := 2.0 / V.T
-		var x0 := c.x + i
-		var z0 := c.y + i
-		var x1 := c.x + 1 - i
-		var z1 := c.y + 1 - i
+		var o := Vector2(c) + Vector2(i, i)
+		var span := 1.0 - 2.0 * i
+		const N := 4
 		if fill.a > 0.0:
-			_quad(Vector3(x0, y, z0), Vector3(x1, y, z0), Vector3(x1, y, z1), Vector3(x0, y, z1), fill)
+			for zz in N:
+				for xx in N:
+					var p0 := o + Vector2(xx, zz) * span / N
+					var p1 := o + Vector2(xx + 1, zz + 1) * span / N
+					_quad(_at(p0), _at(Vector2(p1.x, p0.y)), _at(p1), _at(Vector2(p0.x, p1.y)), fill)
 		if line.a > 0.0:
-			var w := 2.0 / V.T
-			_quad(Vector3(x0, y, z0), Vector3(x1, y, z0), Vector3(x1, y, z0 + w), Vector3(x0, y, z0 + w), line)
-			_quad(Vector3(x0, y, z1 - w), Vector3(x1, y, z1 - w), Vector3(x1, y, z1), Vector3(x0, y, z1), line)
-			_quad(Vector3(x0, y, z0), Vector3(x0 + w, y, z0), Vector3(x0 + w, y, z1), Vector3(x0, y, z1), line)
-			_quad(Vector3(x1 - w, y, z0), Vector3(x1, y, z0), Vector3(x1, y, z1), Vector3(x1 - w, y, z1), line)
+			var pts := []
+			for k in N * 4 + 1:
+				var t := float(k) / N
+				var side := mini(int(t), 3)
+				var f := t - side
+				var corner := [Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1), Vector2(0, 0)]
+				pts.append(o + (corner[side] as Vector2).lerp(corner[side + 1], f) * span)
+			_line(pts, 2.0 / V.T, line)
 
 
 func _ready() -> void:
