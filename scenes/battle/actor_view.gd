@@ -199,6 +199,7 @@ func sync() -> void:
 	_ring_mat.albedo_color = Color(1, 0.85, 0.2) if current else Color(0.4, 0.8, 1.0)
 	_place_sprite()
 	_apply_color()
+	_tilt_ground_marks()
 	hud.queue_redraw()
 
 
@@ -272,6 +273,7 @@ func _process(delta: float) -> void:
 		if position.distance_to(target) < 0.01:
 			_pop_step()
 		_place_sprite()
+		_tilt_ground_marks()
 	if _flash > 0.0:
 		_flash -= delta
 		_apply_color()
@@ -282,6 +284,24 @@ func _pop_step() -> void:
 	_path.pop_front()
 	if _path.is_empty():
 		_apply_color()
+
+
+## 발밑 그림자·선택 고리를 그려진 바닥 기울기에 맞춘다(자연 지형 비탈에서 묻히지 않게)
+func _tilt_ground_marks() -> void:
+	if not ground.is_valid():
+		return
+	var p := Vector2(position.x, position.z)
+	var e := 0.2
+	var dx: float = (float(ground.call(p + Vector2(e, 0))) - float(ground.call(p - Vector2(e, 0)))) / (2.0 * e)
+	var dz: float = (float(ground.call(p + Vector2(0, e))) - float(ground.call(p - Vector2(0, e)))) / (2.0 * e)
+	var n := Vector3(-dx, 1.0, -dz).normalized()
+	if n.y < 0.6:
+		n = Vector3(n.x, 0.6, n.z).normalized()
+	var tilt := Basis(Quaternion(Vector3.UP, n))
+	_shadow.basis = tilt * Basis(Vector3.RIGHT, -PI / 2.0) * Basis.from_scale(Vector3(1, SHADOW_Z, 1))
+	_ring.basis = tilt
+	_shadow.position.y = 0.006 + 0.02 * (1.0 - n.y) * 4.0
+	_ring.position.y = 0.01 + 0.02 * (1.0 - n.y) * 4.0
 
 
 func is_moving() -> bool:

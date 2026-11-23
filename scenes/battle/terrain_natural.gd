@@ -33,6 +33,8 @@ const RELAX := 3
 ## 가파른 곳 울퉁불퉁함: 높이(유닛)·옆(유닛)
 const BUMP_Y := 0.32
 const BUMP_XZ := 0.12
+## 가장자리 치맛단 깊이(유닛)
+const SKIRT := 1.6
 ## 오목한 곳(절벽 발치) 그늘 세기·최소 밝기
 const AO_K := 2.2
 const AO_MIN := 0.6
@@ -385,6 +387,7 @@ func build_floor(dark_at: Callable) -> ArrayMesh:
 						cols.append(Color(v, v, v))
 					vi.append(map[k])
 				idx.append_array(PackedInt32Array([vi[0], vi[1], vi[2], vi[0], vi[2], vi[3]]))
+	_add_skirts(verts, nrms, cols, idx, map)
 	var m := ArrayMesh.new()
 	if verts.is_empty():
 		return m
@@ -398,14 +401,39 @@ func build_floor(dark_at: Callable) -> ArrayMesh:
 	return m
 
 
-## 바위 면은 지형 그물에 들어 있다(따로 세우지 않는다).
-func build_cliffs(_dark_of: Callable) -> ArrayMesh:
-	return ArrayMesh.new()
+## 가장자리 치맛단: 바닥 칸이 벽·맵 밖과 맞닿은 변에서 그물 끝을 SKIRT만큼 아래로 내린 바위 띠(언덕이 벽 앞에서 끊겨 빈틈이 보이지 않게).
+## 법선이 옆을 보므로 셰이더가 바위 그림을 입힌다.
+func _add_skirts(verts: PackedVector3Array, nrms: PackedVector3Array, cols: PackedColorArray, idx: PackedInt32Array, map: PackedInt32Array) -> void:
+	for c: Vector2i in vh:
+		for d: Vector2i in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+			var nb := c + d
+			if vh.has(nb) or not grid.in_bounds(nb):
+				continue  # 맵 밖과 맞닿은 변은 내릴 곳이 없다(아래로 비쳐 보이지 않게)
+			var floor_y := V.wall_base(grid, nb) - 0.05  # 벽이 서는 바닥까지만
+			var out := Vector3(d.x, 0, d.y)
+			for s in LR:
+				var a := _side_point(c, d, s)
+				var b := _side_point(c, d, s + 1)
+				var ka := _idx(a.x, a.y)
+				var kb := _idx(b.x, b.y)
+				var base := verts.size()
+				for k: int in [ka, kb]:
+					var top: Vector3 = _pos[k]
+					var col: Color = cols[map[k]] * 0.7
+					verts.append(top)
+					verts.append(Vector3(top.x, clampf(top.y - SKIRT, floor_y, top.y), top.z))
+					nrms.append(out)
+					nrms.append(out)
+					cols.append(col)
+					cols.append(col * 0.6)
+				idx.append_array(PackedInt32Array([base, base + 2, base + 3, base, base + 3, base + 1]))
 
 
-## 절벽 가장자리 테두리는 그물의 둥근 턱·음영이 대신한다.
-func build_rims() -> ArrayMesh:
-	return ArrayMesh.new()
+## 칸 c의 d쪽 변 위 s번째 격자 점(변을 따라 x 또는 z가 커지는 순서)
+func _side_point(c: Vector2i, d: Vector2i, s: int) -> Vector2i:
+	var i: int = c.x * LR + (s if d.y != 0 else (0 if d.x < 0 else LR))
+	var j: int = c.y * LR + (s if d.x != 0 else (0 if d.y < 0 else LR))
+	return Vector2i(i, j)
 
 
 ## 절벽 변 목록(장식·사다리용): [높은 칸, 낮은 칸]

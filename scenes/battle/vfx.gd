@@ -123,6 +123,7 @@ func sync_surfaces() -> void:
 		grad.set_color(1, Color(0.8, 0.2, 0.05, 0.0))
 		p.color_ramp = grad
 		p.position = V.pos(c, g.height(c)) + Vector3(0, 0.05, 0)
+		p.position.y = scene.map_view.ground_at(Vector2(p.position.x, p.position.z)) + 0.05  # 자연 지형은 비탈 위에서
 		p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		scene.add_child(p)
 		_fire[c] = p

@@ -11,6 +11,9 @@ const ENCOUNTERS := {
 	"example_3": {"note": "룰북 9단계 예시 전투 3(5레벨, 오우거 2 + 고블린 전사 4)", "level": 5, "map": "test_arena",
 		"foes": [["ogre", "goblin_a"], ["ogre", "goblin_c"], ["goblin_warrior", "goblin_b"], ["goblin_warrior", "goblin_d"],
 			["goblin_warrior", "x:9,9"], ["goblin_warrior", "x:13,6"]]},
+	"hill_path": {"note": "시범 맵 hill_path(1레벨, 고원 궁수 2·둔덕 1·지면 1 고블린 전사 + 동굴 입구 고블린 두목)", "level": 1, "map": "hill_path", "zone": "hill",
+		"foes": [["goblin_warrior", "hill_archer_a"], ["goblin_warrior", "hill_archer_b"], ["goblin_warrior", "mound_goblin"],
+			["goblin_boss", "cave_guard"], ["goblin_warrior", "path_goblin"]]},
 }
 ## SRD XP Budget per Character(낮음·보통·높음)
 const BUDGET := {1: [50, 75, 100], 2: [100, 150, 200], 3: [150, 225, 400], 4: [250, 375, 500], 5: [500, 750, 1100]}
@@ -95,7 +98,7 @@ func run_once(enc: Dictionary) -> Dictionary:
 			downs["n"] += 1
 	root.get_node("EventBus").on_hp_zero.connect(on_zero)
 	var tm: Node = w["turns"]
-	tm.start_combat("arena")
+	tm.start_combat(enc.get("zone", "arena"))
 	var steps := 0
 	while tm.in_combat and steps < 600:
 		steps += 1

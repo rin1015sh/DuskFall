@@ -58,6 +58,8 @@ static func is_low_wall(grid: Node, c: Vector2i) -> bool:
 ## 벽이 서는 바닥 높이: 남쪽(화면 앞)이 바닥이면 그 칸 높이, 아니면 동·서·북 바닥 중 가장 높은 것(없으면 자기 높이).
 ## 고지대 앞뒤의 벽이 땅에 묻히거나 떠 보이지 않게 한다.
 static func wall_base(grid: Node, c: Vector2i) -> float:
+	if is_low_wall(grid, c):
+		return float(grid.height(c))  # 방 남쪽의 낮은 벽은 앞 언덕에 들리지 않고 제자리(덩어리처럼 솟지 않게)
 	var south := c + Vector2i.DOWN
 	if grid.in_bounds(south) and not grid.has_flag(south, "wall"):
 		return float(grid.height(south))
