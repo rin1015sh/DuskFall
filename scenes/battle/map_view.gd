@@ -208,6 +208,53 @@ func _build_props() -> void:
 		if bool(art().get("cliff_decor", true)):
 			_build_cliff_decor()
 		_build_climb_art()
+		for n: Node3D in _prop_cells:
+			if String(n.get_meta("kit_layer", "")) == "stand" and n.get_meta("kit_id", "") != "ladder":
+				_blob_shadow(n)
+
+
+static var _blob_tex: Texture2D
+
+
+## 서 있는 소품 발밑 그림자(자연 지형): 그림 폭에 맞춘 부드러운 타원, 키가 클수록 햇빛 반대쪽(남동)으로 밀린다.
+func _blob_shadow(n: Node3D) -> void:
+	var sp: Variant = n.get_meta("sprite", null)
+	if not (sp is SpriteBase3D):
+		return
+	var size := Vector2(64, 64)
+	if sp is Sprite3D and (sp as Sprite3D).texture != null:
+		size = (sp as Sprite3D).texture.get_size()
+	elif sp is AnimatedSprite3D and (sp as AnimatedSprite3D).sprite_frames != null:
+		size = (sp as AnimatedSprite3D).sprite_frames.get_frame_texture(&"default", 0).get_size()
+	if _blob_tex == null:
+		var gr := Gradient.new()
+		gr.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
+		gr.colors = PackedColorArray([Color(0, 0, 0, 0.42), Color(0, 0, 0, 0.3), Color(0, 0, 0, 0)])
+		var gt := GradientTexture2D.new()
+		gt.gradient = gr
+		gt.fill = GradientTexture2D.FILL_RADIAL
+		gt.fill_from = Vector2(0.5, 0.5)
+		gt.fill_to = Vector2(1.0, 0.5)
+		gt.width = 64
+		gt.height = 64
+		_blob_tex = gt
+	var k: float = n.scale.x
+	var rad := clampf(size.x / V.T * 0.42 * k, 0.18, 1.3)
+	var tall := size.y / V.STEP_PX * k  # 그림 키(높이 단계)
+	var l := TerrainNatural.SUN.normalized()
+	var away := -Vector2(l.x, l.z).normalized() * minf(tall * 0.22, 1.1)
+	var s := Sprite3D.new()
+	s.texture = _blob_tex
+	s.pixel_size = rad * 2.0 / 64.0
+	s.shaded = false
+	s.double_sided = true
+	s.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED
+	s.render_priority = 1
+	s.rotation.x = -PI / 2.0
+	s.scale = Vector3(1.0 + minf(tall * 0.08, 0.6), 0.75, 1.0)
+	var at := Vector2(n.position.x, n.position.z) + away
+	s.position = Vector3(at.x, ground_at(at) + 0.008, at.y)
+	add_child(s)
 
 
 func _add_prop(id: String, variant: String, pos: Vector3, cell: Vector2i, opts: Dictionary = {}) -> Node3D:
