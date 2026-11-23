@@ -267,7 +267,16 @@
         },
         "amount": {
           "$comment": "temp_hp: source_spell_mod = 상태를 건 시전자의 주문 능력 수정치, heal: 회복량(정수 — 재생)",
-          "oneOf": [{"enum": ["source_spell_mod"]}, {"type": "integer"}]
+          "oneOf": [
+            {
+              "enum": [
+                "source_spell_mod"
+              ]
+            },
+            {
+              "type": "integer"
+            }
+          ]
         }
       }
     },
@@ -417,6 +426,15 @@
             },
             "no_climb": {
               "type": "boolean"
+            },
+            "action_minus_one": {
+              "type": "boolean"
+            },
+            "no_dex_ac": {
+              "type": "boolean"
+            },
+            "disarmed": {
+              "type": "boolean"
             }
           }
         },
@@ -485,10 +503,6 @@
           "$comment": "이 상태로 공격 굴림을 하면 끝난다(조롱당함)",
           "type": "boolean"
         },
-        "dice_upgrade": {
-          "$comment": "건 생물이 cap 능력 태그가 있으면 on_hit_by_source 피해 주사위를 dice로(적 처단자 — 사냥꾼의 표식 d10)",
-          "type": "object"
-        },
         "lifted_by_cap": {
           "$comment": "이 능력 태그가 있으면 이 상태의 no_spellcasting을 무시(야수 주문)",
           "type": "string"
@@ -500,6 +514,38 @@
         "reveals_defenses": {
           "$comment": "건 생물이 능력 태그 hunters_lore면 대상의 면역·저항·취약을 안다",
           "type": "boolean"
+        },
+        "ends_on_heal": {
+          "type": "boolean",
+          "description": "회복을 받으면 풀린다(BG3 출혈·불구 등)"
+        },
+        "ends_on_damage": {
+          "type": "boolean",
+          "description": "피해를 받으면 풀린다(BG3 균형 잃음)"
+        },
+        "helpable": {
+          "type": "boolean",
+          "description": "돕기 행동으로 풀린다(BG3)"
+        },
+        "immune_creature_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "이 생물 종류는 걸리지 않는다"
+        },
+        "hit_against_damage": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "amount": {
+              "type": "integer"
+            },
+            "damage_type": {
+              "type": "string"
+            }
+          },
+          "description": "이 생물을 맞힌 공격에 고정 피해 추가"
         }
       }
     }

@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 43 |
-| capability | 78 |
+| capability | 77 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -31,7 +31,6 @@
 | 1 | 분노 (rage) |  | 스크립트 rage |  |
 | 1 | 분노 연장 (extend_rage) |  | 스크립트 extend_rage |  |
 | 1 | 맨몸 방어 (unarmored_defense) |  | 태그 unarmored_defense_con |  |
-| 1 | 무기 마스터리 (weapon_mastery) |  | 처리: 생성기 — 클래스 weapon_mastery 표(2종, 4레벨 3종)와 명세 masteries |  |
 | 2 | 위험 감지 (danger_sense) |  | 부여 advantage |  |
 | 2 | 무모한 공격 (reckless_attack) |  | 스크립트 reckless_attack; 태그 reckless |  |
 | 3 | 원시 지식 (primal_knowledge) |  | 고르기(skill) |  |
@@ -98,7 +97,6 @@
 | --- | --- | --- | --- | --- |
 | 1 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
 | 1 | 재기의 숨결 (second_wind) |  | 스크립트 second_wind |  |
-| 1 | 무기 마스터리 (weapon_mastery) |  | 처리: 생성기 — 클래스 weapon_mastery 표(레벨별 개수)와 명세 masteries |  |
 | 2 | 행동 연쇄 (action_surge) |  | 스크립트 action_surge |  |
 | 2 | 전술적 판단 (tactical_mind) |  | 스크립트 tactical_mind; 태그 check_boost_d10 |  |
 | 3 | 향상된 치명타 (improved_critical) | champion | 부여 crit_threshold |  |
@@ -107,7 +105,6 @@
 | 5 | 전술적 이동 (tactical_shift) |  | 처리: second_wind 스크립트 안 |  |
 | 7 | 추가 전투 방식 (additional_fighting_style) | champion | 고르기(feat) |  |
 | 9 | 불굴 (indomitable) |  | 스크립트 indomitable |  |
-| 9 | 전술 대가 (tactical_master) |  | 태그 tactical_master; 설정 |  |
 | 10 | 영웅 전사 (heroic_warrior) | champion | 태그 heroic_warrior |  |
 | 11 | 추가 공격 2회 (two_extra_attacks) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 
@@ -142,7 +139,6 @@
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
 | 1 | 신성한 손길 (lay_on_hands) |  | 스크립트 lay_on_hands |  |
-| 1 | 무기 마스터리 (weapon_mastery) |  | 처리: 생성기 — 클래스 weapon_mastery 표(2종)와 명세 masteries |  |
 | 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
 | 2 | 팔라딘의 강타 (paladins_smite) |  | 처리: 클래스 always_prepared(신성한 강타) + 자원 innate_divine_smite(슬롯 없이 긴 휴식마다 1회 — 무료 횟수 먼저) |  |
 | 3 | 신성 변환 (channel_divinity) |  | 처리: 자원 channel_divinity(2회, 짧은 휴식에 1회 회복) — 하위 클래스 기능이 쓴다 |  |
@@ -162,7 +158,6 @@
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
 | 1 | 선호하는 적 (favored_enemy) |  | 처리: 클래스 always_prepared(사냥꾼의 표식) + 자원 innate_hunters_mark(슬롯 없이 긴 휴식마다 2회, 5레벨 3회 — 무료 횟수 먼저) |  |
-| 1 | 무기 마스터리 (weapon_mastery) |  | 처리: 생성기 — 클래스 weapon_mastery 표(2종)와 명세 masteries |  |
 | 2 | 노련한 탐험가 (deft_explorer) |  | 고르기(expertise) |  |
 | 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
 | 3 | 사냥꾼의 지식 (hunters_lore) | hunter | 태그 hunters_lore |  |
@@ -180,7 +175,6 @@
 | --- | --- | --- | --- | --- |
 | 1 | 전문화 (expertise) |  | 처리: 생성기 — 명세 expertise(숙련 기능의 숙련 보너스 2배) |  |
 | 1 | 급소 공격 (sneak_attack) |  | 스크립트 sneak_attack; 태그 sneak_attack; 설정 |  |
-| 1 | 무기 마스터리 (weapon_mastery) |  | 처리: 생성기 — 클래스 weapon_mastery 표(레벨별 개수)와 명세 masteries |  |
 | 2 | 교활한 행동 (cunning_action) |  | 태그 bonus_dash_disengage_hide |  |
 | 3 | 안정된 조준 (steady_aim) |  | 스크립트 steady_aim |  |
 | 3 | 빠른 손 (fast_hands) | thief | 태그 extra_bonus_action |  |
@@ -328,7 +322,6 @@
 | stealth_attack | 은신 공격 | rogue |
 | stunning_strike | 충격의 일격 | monk |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |
-| tactical_master | 전술 대가 | fighter |
 | two_weapon_fighting | 쌍수 전투 | 재주 two_weapon_fighting |
 | unarmored_defense_cha | 용의 비늘 | sorcerer |
 | unarmored_defense_con | 맨몸 방어(건강) | barbarian |

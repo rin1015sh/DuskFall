@@ -10,7 +10,7 @@ const Area := preload("res://scripts/rules/area.gd")
 
 ## 비무장 공격(SRD Unarmed Strike: 1 + 근력 수정치 타격).
 const UNARMED := {"id": "unarmed", "damage": "1", "damage_type": "bludgeoning", "properties": [],
-	"category": "simple_melee", "mastery": ""}
+	"category": "simple_melee"}
 
 
 # ======================================================================
@@ -156,20 +156,9 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		"bonus": mod + (c.proficiency_bonus if proficient else 0) + hit_bonus, "ability": ability, "ability_mod": mod,
 		"two_handed": opts.get("two_handed", false) or "two_handed" in props,
 		"kind": "ranged" if ranged else "melee", "weapon": true, "properties": props,
-		"mastery": _mastery_of(c, w),
 		"damage": [{"dice": expr, "damage_type": "force" if w["id"] == "unarmed" and c.has_cap("empowered_strikes") else w["damage_type"]}],
 		"extra_disadvantage": dis,
 		"range_tiles": w.get("range_tiles", [reach_of(c), reach_of(c)]) if ranged else [1, 1]}
-
-
-## 무기 마스터리 속성. 전술 대가(능력 태그 tactical_master — 전사 9레벨): 설정에서 고른 밀기·약화·둔화로 바꾼다.
-static func _mastery_of(c: Node, w: Dictionary) -> String:
-	if not c.weapon_masteries.has(w["id"]):
-		return ""
-	var pick := str(c.options.get("tactical_master", ""))
-	if pick in ["push", "sap", "slow"] and c.has_cap("tactical_master"):
-		return pick
-	return str(w.get("mastery", ""))
 
 
 ## 공격 상황: 격자 ctx + 사거리(먼 사거리 불리) + 근접 위협(원거리 공격 불리) + 무거운 무기.
@@ -228,6 +217,8 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 	if attacker.has_meta("beast_form") and not opts.has("weapon"):
 		return _beast_attack(world, attacker, target)
 	var wid: String = opts.get("weapon", attacker.weapon("main"))
+	if attacker.has_flag("disarmed"):
+		wid = "unarmed"  # 무기 놓침(무기 액션 무기 쳐내기): 맨손으로만
 	var atk := build_weapon_attack(attacker, wid, opts)
 	var res := _do_attack(world, attacker, target, atk)
 	if not res.get("ok", true):
@@ -236,7 +227,6 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 	attacker.turn["attacks_made"] = int(attacker.turn.get("attacks_made", 0)) + 1  # 무모한 공격: 첫 공격 전에만
 	if "light" in atk["properties"]:
 		attacker.turn["light_attack_done"] = true
-	apply_mastery(world, attacker, target, atk, res, opts)
 	_after_attack_features(world, attacker, target, res)
 	if not opts.get("horde_breaker", false):
 		_horde_breaker(world, attacker, target, wid, opts)
@@ -385,7 +375,7 @@ static func attack_object(world: Dictionary, attacker: Node, cell: Vector2i, opt
 
 
 ## 가벼운 무기 보조 공격(보너스 행동). 같은 턴 공격 행동에서 가벼운 무기로 공격했어야 한다.
-## 다른 가벼운 무기로, 피해에 능력 수정치 없음. Nick 마스터리면 보너스 행동 대신 공격 행동의 일부(턴당 1회).
+## 다른 가벼운 무기로, 피해에 능력 수정치 없음.
 static func offhand_attack(world: Dictionary, attacker: Node, target: Node) -> Dictionary:
 	var off: String = attacker.weapon("off")
 	var w := weapon_data(off)
@@ -393,15 +383,11 @@ static func offhand_attack(world: Dictionary, attacker: Node, target: Node) -> D
 		return _fail("양손에 가벼운 무기가 필요하다")
 	if not attacker.turn.get("light_attack_done", false):
 		return _fail("이번 턴 공격 행동에서 가벼운 무기로 공격해야 한다")
-	var nick: bool = w.get("mastery", "") == "nick" and attacker.weapon_masteries.has(off) and not attacker.turn.get("nick_used", false)
-	if nick:
-		attacker.turn["nick_used"] = true
-	elif not spend(attacker, "bonus"):
+	if not spend(attacker, "bonus"):
 		return _fail("보너스 행동이 없다")
 	var atk := build_weapon_attack(attacker, off, {"hand": "off"})
 	var res := _do_attack(world, attacker, target, atk)
 	attacker.turn["light_attack_done"] = false
-	apply_mastery(world, attacker, target, atk, res, {})
 	return res
 
 
@@ -422,9 +408,7 @@ static func opportunity_attack(world: Dictionary, attacker: Node, target: Node) 
 	var atk := build_weapon_attack(attacker, attacker.weapon_sets.get("melee", {}).get("main", ""))
 	atk["name"] = "기회 공격(%s)" % atk["name"]
 	atk["opportunity"] = true
-	var res := _do_attack(world, attacker, target, atk, true)
-	apply_mastery(world, attacker, target, atk, res, {})
-	return res
+	return _do_attack(world, attacker, target, atk, true)
 
 
 static func _do_attack(world: Dictionary, attacker: Node, target: Node, atk: Dictionary, skip_range: bool = false) -> Dictionary:
@@ -437,6 +421,8 @@ static func _do_attack(world: Dictionary, attacker: Node, target: Node, atk: Dic
 	res["ok"] = res["valid"]
 	if not res["valid"]:
 		res["reason"] = res.get("reason", "")
+	elif not attacker.has_meta("monster"):
+		load("res://scripts/rules/actions.gd").follow_through(attacker, target, atk, res)  # 끈기(무기 액션 반응)
 	return res
 
 
@@ -452,65 +438,7 @@ static func preview_attack(world: Dictionary, attacker: Node, target: Node, opts
 # 무기 마스터리(SRD 5.2.1 Mastery Properties, 명중·빗나감마다 상시 — 룰북 6단계 결정 2)
 # ======================================================================
 
-static func apply_mastery(world: Dictionary, attacker: Node, target: Node, atk: Dictionary, res: Dictionary,
-		opts: Dictionary) -> void:
-	var m: String = atk.get("mastery", "")
-	if m == "" or not res.get("valid", false):
-		return
-	var hit: bool = res.get("hit", false)
-	var dealt: int = int(res.get("damage", {}).get("total", 0))
-	match m:
-		"cleave":
-			if hit and atk["kind"] == "melee" and not attacker.turn.get("cleave_used", false):
-				var second: Node = opts.get("cleave_target", _cleave_target(world, attacker, target))
-				if second != null:
-					attacker.turn["cleave_used"] = true
-					var atk2 := build_weapon_attack(attacker, atk["weapon_id"], {"no_ability_damage": true})
-					atk2["mastery"] = ""
-					res["cleave"] = _do_attack(world, attacker, second, atk2)
-		"graze":
-			if not hit and atk.get("ability_mod", 0) > 0 and not target.dead:
-				res["graze"] = Resolver.apply_damage(target, [{"amount": atk["ability_mod"],
-					"damage_type": atk["damage"][0]["damage_type"]}])
-		"push":
-			if hit and not target.dead and world["grid"].size_of(target) <= 2:
-				res["push"] = _push_up_to(world, attacker, target, 2)
-		"sap":
-			if hit and not target.dead:
-				target.extra_modifiers.append({"effect": {"type": "advantage", "roll": "attack", "side": "self",
-					"value": "disadvantage"}, "source": "sap", "consume_on_attack": true, "until_turn_start_of": attacker})
-		"slow":
-			if hit and dealt > 0 and not target.dead:
-				for old in target.extra_modifiers.duplicate():
-					if old.get("source") == "slow":
-						target.extra_modifiers.erase(old)  # 여러 번 맞아도 10피트까지만
-				target.extra_modifiers.append({"effect": {"type": "modify", "stat": "speed_tiles", "add": -2},
-					"source": "slow", "until_turn_start_of": attacker})
-		"topple":
-			if hit and not target.dead:
-				var dc: int = 8 + int(atk["ability_mod"]) + attacker.proficiency_bonus
-				var s := Resolver.saving_throw(target, "con", dc, {"source": attacker})
-				res["topple"] = s
-				if not s["success"]:
-					target.apply_condition("prone", -1, attacker)
-		"vex":
-			if hit and dealt > 0 and not target.dead:
-				attacker.extra_modifiers.append({"effect": {"type": "advantage", "roll": "attack", "side": "self",
-					"value": "advantage"}, "source": "vex", "consume_on_attack": true, "target_only": target,
-					"turn_ends_left": 2})
-
-
-static func _cleave_target(world: Dictionary, attacker: Node, first: Node) -> Node:
-	var grid: Node = world["grid"]
-	for other: Node in grid.creatures():
-		if other == first or other == attacker or other.dead or not attacker.is_hostile_to(other):
-			continue
-		if grid.distance_between(first, other) <= 1 and grid.distance_between(attacker, other) <= reach_of(attacker):
-			return other
-	return null
-
-
-## Push 마스터리: 공격자에게서 곧장 멀어지는 쪽으로 최대 N칸(가능한 만큼). 강제 이동이라 기회 공격 없음.
+## 밀어내기: 공격자에게서 곧장 멀어지는 쪽으로 최대 N칸(가능한 만큼). 강제 이동이라 기회 공격 없음.
 static func _push_up_to(world: Dictionary, from: Node, target: Node, n: int) -> int:
 	var grid: Node = world["grid"]
 	var a: Vector2i = grid.cell_of(from)
@@ -669,6 +597,7 @@ static func dash(c: Node, cost: String = "action") -> Dictionary:
 	if not spend(c, cost):
 		return _fail("행동이 없다")
 	c.turn["movement"] = int(c.turn.get("movement", 0)) + c.speed()
+	c.turn["dashed"] = true
 	return {"ok": true}
 
 
@@ -679,16 +608,23 @@ static func disengage(c: Node, cost: String = "action") -> Dictionary:
 	return {"ok": true}
 
 
-## 돕기: 인접한 쓰러진 아군을 HP 1로 일으킨다(3단계, 7단계). 돕기의 다른 용도는 없다.
+## 돕기: 인접한 아군을 돕는다 — 쓰러졌으면 HP 1로 일으키고(3·7단계), 넘어짐·돕기로 풀리는 상태(helpable — BG3)를 푼다.
 static func help(world: Dictionary, c: Node, ally: Node, range_tiles: int = 1) -> Dictionary:
-	if not ally.is_down():
-		return _fail("쓰러진 아군에게만")
+	var helpable: Array = []
+	for a in ally.active_conditions():
+		if a["def"].get("helpable", false) or str(a["id"]) == "prone":
+			helpable.append(str(a["id"]))
+	if not ally.is_down() and helpable.is_empty():
+		return _fail("쓰러졌거나 돕기로 풀 상태가 있는 아군에게만")
 	if world["grid"].distance_between(c, ally) > range_tiles:
 		return _fail("너무 멀다")
 	if not spend(c, "action"):
 		return _fail("행동이 없다")
-	Resolver.heal(ally, 1, c)
-	return {"ok": true}
+	if ally.is_down():
+		Resolver.heal(ally, 1, c)
+	for cid: String in helpable:
+		ally.remove_condition(cid)  # BG3 돕기: 넘어짐·비틀거림·균형 잃음·힘 빠진 손을 풀어 준다
+	return {"ok": true, "removed": helpable}
 
 
 ## 숨기: 적 누구의 시야에도 없을 때만 민첩(은신) DC 15. 성공하면 숨은 상태(투명, source "hide").

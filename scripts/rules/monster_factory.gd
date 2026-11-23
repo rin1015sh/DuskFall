@@ -61,7 +61,11 @@ static func spawn(id: String, team: String = "enemy") -> Node:
 
 
 static func actions(c: Node) -> Array:
-	return c.get_meta("monster", {}).get("actions", []) if c.has_meta("monster") else []
+	var all: Array = c.get_meta("monster", {}).get("actions", []) if c.has_meta("monster") else []
+	if c.has_flag("disarmed"):
+		return all.filter(func(a: Dictionary) -> bool:  # 무기 놓침: 무기 이름의 공격은 못 쓴다
+			return not (a.get("type", "") == "attack" and RulesDB.has_entry("weapon", str(a["id"]))))
+	return all
 
 
 static func action(c: Node, id: String) -> Dictionary:

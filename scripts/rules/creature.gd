@@ -46,7 +46,6 @@ var active_set := "melee"
 ## 숙련 무기 분류: "simple", "martial" 또는 무기 ID
 var weapon_proficiencies: Array = ["simple"]
 ## 마스터리를 쓸 수 있는 무기 ID(6단계 무기 마스터리 기능)
-var weapon_masteries: Array = []
 ## 공격 행동 한 번의 공격 횟수(추가 공격이면 2)
 var attacks_per_action := 1
 ## 재주·기능 ID(표시·이름 조회용). 엔진 메커니즘은 caps로 검사한다.
@@ -190,7 +189,20 @@ func ac() -> int:
 			floor_ac = maxi(floor_ac, int(e.get("floor", 0)))  # AC 바닥값(나무껍질 피부)
 		elif e["type"] == "modify" and e["stat"] == "ac_base" and str(get_meta("armor", "")) == "":
 			value += 3  # Mage Armor: 갑옷이 없으면 10 + 민첩 → 13 + 민첩
+	if has_flag("no_dex_ac"):
+		value -= dex_ac_part()  # 비틀거림(무기 액션): AC에 민첩 보너스 없음
 	return maxi(value, floor_ac)
+
+
+## AC에 들어간 민첩 보너스(갑옷 dex_cap 반영, 음수는 그대로 두므로 0 이상만).
+func dex_ac_part() -> int:
+	var d := maxi(ability_mod("dex"), 0)
+	var armor_id := str(get_meta("armor", ""))
+	if armor_id != "":
+		var cap: Variant = RulesDB.get_entry("armor", armor_id).get("dex_cap")
+		if cap != null:
+			d = mini(d, int(cap))
+	return d
 
 
 func speed() -> int:
@@ -215,9 +227,11 @@ func reset_turn() -> void:
 	# 추가 보너스 행동(빠른 손 등 — changes.md 2026-11-22)
 	var bonus := (2 if has_cap("extra_bonus_action") else 1) if can_act else 0
 	turn = {"action": 1 if can_act else 0, "bonus": bonus, "movement": speed(),
-		"interaction": 1, "attacks_left": 0, "light_attack_done": false, "nick_used": false,
-		"cleave_used": false, "disengaged": false, "reaction": turn.get("reaction", 1),
+		"interaction": 1, "attacks_left": 0, "light_attack_done": false,
+		"disengaged": false, "dashed": false, "reaction": turn.get("reaction", 1),
 		"moved": false, "sneak_used": false, "savage_used": false, "free_move_no_oa": 0}
+	if has_flag("action_minus_one"):
+		turn["action"] = maxi(0, int(turn["action"]) - 1)  # 숨 막힘(무기 액션): 행동 하나 적음
 	if has_flag("one_thing_only"):
 		turn["bonus"] = 0  # 현혹(교묘한 일격): 이동·행동·보너스 행동 중 하나만 — 행동을 남기고 이동·보너스 행동을 막는다(1차)
 		turn["movement"] = 0
@@ -380,7 +394,7 @@ func apply_condition(id: String, turns: int = 0, source: Variant = null, params:
 	if def.is_empty():
 		push_error("모르는 상태 '%s'" % id)
 		return false
-	if dead or is_condition_immune(id):
+	if dead or is_condition_immune(id) or creature_type in def.get("immune_creature_types", []):
 		return false
 	if turns == 0:
 		turns = int(def.get("default_duration_turns", -1))

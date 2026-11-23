@@ -61,10 +61,11 @@ static func def_of(key: String) -> Dictionary:
 		if wa.is_empty():
 			return {}
 		var out := wa.duplicate(true)
-		out["target"] = "enemy"
+		out["target"] = str(wa.get("target", "enemy"))
+		out["cost"] = "free" if str(wa["cost"]) == "movement" else str(wa["cost"])
 		out["tab"] = "class"
-		out["explore"] = true
-		out["resource"] = key
+		out["explore"] = out["target"] == "enemy"
+		out["resource"] = "" if wa.get("unlimited", false) else key
 		out["weapon_action"] = true
 		return out
 	var parts := key.split(":")
@@ -111,7 +112,8 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 				continue
 			out["class"].append("feature:" + fid)
 	for wa: String in weapon_actions_for(c):
-		out["class"].append(wa)
+		if str(RulesDB.get_entry("weapon_action", wa)["cost"]) != "reaction":
+			out["class"].append(wa)  # 반응(끈기)은 상시 설정 — 단축 막대에 두지 않는다
 	for kind: String in ENTITY_ACTIONS:
 		if not SpellUtil.find_entity(c, kind).is_empty():
 			out["spells"].append("entity:" + kind)
@@ -145,10 +147,15 @@ static func unavailable(world: Dictionary, c: Node, key: String, explore: bool =
 		return "모르는 행동"
 	if c.dead or c.is_down():
 		return "쓰러졌다"
+	if key.begins_with("wa_"):
+		if not key in weapon_actions_for(c):  # 무기 액션 자원(짧은 휴식 1회)도 여기서 만든다
+			return "이 무기로는 쓸 수 없다"
 	if not explore:
 		var cost: String = d.get("cost", "action")
 		if key in ["attack", "ranged_attack"] and int(c.turn.get("attacks_left", 0)) > 0:
 			cost = "free"
+		if key.begins_with("wa_") and cost == "action" and int(c.turn.get("attacks_left", 0)) > 0:
+			cost = "free"  # 무기 액션은 공격 행동의 공격 하나(추가 공격과 이어진다 — BG3)
 		if cost != "free" and not Combat.can_spend(c, cost):
 			return {"action": "행동이 없다", "bonus": "보너스 행동이 없다", "reaction": "반응이 없다"}.get(cost, "비용이 없다")
 	if d.get("resource", "") != "" and c.resource(d["resource"]) <= 0:
@@ -182,6 +189,14 @@ static func unavailable(world: Dictionary, c: Node, key: String, explore: bool =
 		"offhand_attack":
 			if not c.turn.get("light_attack_done", false) and not explore:
 				return "먼저 가벼운 무기로 공격해야 한다"
+	if key.begins_with("wa_") and not explore:
+		var wa := RulesDB.get_entry("weapon_action", key)
+		if str(wa["cost"]) == "movement" and int(c.turn.get("movement", 0)) < int(wa.get("move_tiles", 0)):
+			return "이동력이 모자란다"
+		if wa.has("requires_turn") and not (wa["requires_turn"] as Array).any(func(f: String) -> bool: return c.turn.get(f, false)):
+			return "이번 턴에 질주나 이탈을 해야 한다"
+	if key.begins_with("wa_") and c.has_flag("disarmed"):
+		return "무기를 놓쳤다"
 	return ""
 
 
@@ -203,11 +218,14 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 				return {"valid": true, "lines": ["%s 공격(AC %d, HP %d)" % [obj.get("id", "물체"), int(obj.get("ac", 10)), int(obj.get("hp", 1))]], "object": true}
 			if t == null or not c.is_hostile_to(t) or t.dead:
 				return {"valid": false, "lines": ["적을 골라야 한다"]}
-		"ally", "ally_down":
+		"ally", "ally_down", "ally_help":
 			if t == null or c.is_hostile_to(t) or t.dead:
 				return {"valid": false, "lines": ["아군을 골라야 한다"]}
 			if d["target"] == "ally_down" and not t.is_down():
 				return {"valid": false, "lines": ["쓰러진 아군에게만"]}
+			if d["target"] == "ally_help" and not t.is_down() and not t.active_conditions().any(func(a: Dictionary) -> bool:
+					return a["def"].get("helpable", false) or str(a["id"]) == "prone"):
+				return {"valid": false, "lines": ["쓰러졌거나 돕기로 풀 상태가 있는 아군에게만"]}
 			if grid.distance_between(c, t) > 1 and key != "spell":
 				return {"valid": false, "lines": ["인접해야 한다"]}
 		"creature":
@@ -440,14 +458,14 @@ static func _throwable(world: Dictionary, c: Node) -> Dictionary:
 # 무기 액션(BG3 구조 참고 — data/rules/weapon_actions.json)
 # ======================================================================
 
-## 쥔 무기(근접·원거리 세트 주 무기)로 쓸 수 있는 무기 액션 ID. 그 무기에 숙련이 있어야 한다.
+## 쥔 무기(근접·원거리 세트 주 무기)로 쓸 수 있는 무기 액션 ID. 그 무기에 숙련이 있어야 한다(BG3 — 보조 손 무기는 주지 않는다).
 static func weapon_actions_for(c: Node) -> Array:
 	var out: Array = []
 	for wa: Dictionary in RulesDB.entries("weapon_action"):
 		if _wa_weapon(c, wa["id"]) != "":
 			out.append(wa["id"])
-			if not c.resources.has(wa["id"]):
-				c.resources[wa["id"]] = {"current": 1, "max": 1, "recharge": "short"}  # 짧은 휴식에 1회
+			if not wa.get("unlimited", false) and not c.resources.has(wa["id"]):
+				c.resources[wa["id"]] = {"current": 1, "max": 1, "recharge": "short"}  # 짧은 휴식에 1회(캐릭터마다)
 	return out
 
 
@@ -456,9 +474,14 @@ static func _wa_weapon(c: Node, key: String) -> String:
 	var wa := RulesDB.get_entry("weapon_action", key)
 	for set_name: String in ["melee", "ranged"]:
 		var wid: String = c.weapon_sets.get(set_name, {}).get("main", "")
-		if wid != "" and wid in wa.get("weapons", []) and _proficient(c, wid):
+		if wid != "" and _base_weapon(wid) in wa.get("weapons", []) and _proficient(c, wid):
 			return wid
 	return ""
+
+
+## 마법 무기(items.json base)면 바탕 무기 ID
+static func _base_weapon(wid: String) -> String:
+	return str(Combat.weapon_data(wid).get("id", wid))
 
 
 static func _proficient(c: Node, wid: String) -> bool:
@@ -467,46 +490,140 @@ static func _proficient(c: Node, wid: String) -> bool:
 	return c.weapon_proficiencies.has(cat) or c.weapon_proficiencies.has(str(w.get("id", wid))) or c.has_meta("monster")
 
 
-static func weapon_action_dc(c: Node, wid: String) -> int:
-	var atk := Combat.build_weapon_attack(c, wid)
-	return 8 + c.proficiency_bonus + int(atk.get("ability_mod", 0))
+## 무기 액션 DC(BG3) = 8 + 숙련 보너스 + 근력·민첩 중 높은 수정치 + dc_bonus.
+## dc "hybrid"면 (그것 + 2)와 주문 내성 DC 중 높은 쪽(울리는 일격).
+static func weapon_action_dc(c: Node, key: String) -> int:
+	var wa := RulesDB.get_entry("weapon_action", key)
+	var dc: int = 8 + c.proficiency_bonus + maxi(c.ability_mod("str"), c.ability_mod("dex")) + int(wa.get("dc_bonus", 0))
+	if str(wa.get("dc", "weapon")) == "hybrid":
+		var sdc: int = Spellcasting.spell_dc(c) if c.spellcasting_ability != "" else 0
+		dc = maxi(dc + 2, sdc)
+	return dc
+
+
+static func _size_rank(s: String) -> int:
+	return ["tiny", "small", "medium", "large", "huge", "gargantuan"].find(s)
+
+
+## 무기를 든 대상인가(무기 쳐내기): 캐릭터는 쥔 무기, 몬스터는 무기 이름의 공격이 있으면.
+static func _has_weapon(t: Node) -> bool:
+	if t.has_meta("monster"):
+		return preload("res://scripts/rules/monster_factory.gd").actions(t).any(func(a: Dictionary) -> bool:
+			return a.get("type", "") == "attack" and RulesDB.has_entry("weapon", str(a["id"])))
+	return t.weapon("main") != "" and t.weapon("main") != "unarmed"
 
 
 static func _weapon_action(world: Dictionary, c: Node, key: String, t: Node) -> Dictionary:
 	var wa := RulesDB.get_entry("weapon_action", key)
 	var wid := _wa_weapon(c, key)
-	if wid == "" or t == null:
+	if wid == "":
 		return {"ok": false, "reason": "이 무기로는 쓸 수 없다"}
-	var cost: String = wa.get("cost", "action")
-	if not Combat.spend(c, cost):
+	var cost := str(wa["cost"])
+	# 자세(버티기·조준·힘 모으기): 이동력을 쓰고 이번 턴 효과
+	if wa.has("stance"):
+		var mv := int(wa.get("move_tiles", 0))
+		if int(c.turn.get("movement", 0)) < mv:
+			return {"ok": false, "reason": "이동력이 모자란다"}
+		c.turn["movement"] = int(c.turn["movement"]) - mv
+		c.turn["stance_" + str(wa["stance"])] = true
+		c.spend_resource(key)
+		Dice.log_text("%s: %s" % [c.label(), wa["name"]["ko"]])
+		return {"ok": true}
+	if t == null or t.dead:
+		return {"ok": false, "reason": "대상이 없다"}
+	if wa.has("max_size") and _size_rank(str(t.size)) > _size_rank(str(wa["max_size"])):
+		return {"ok": false, "reason": "너무 큰 대상"}
+	if wa.get("needs_weapon", false) and not _has_weapon(t):
+		return {"ok": false, "reason": "무기를 든 대상만"}
+	var grid: Node = world["grid"]
+	# 돌진: 6칸 안 적에게 달려가 붙는다(이동력을 쓴다 — 기회 공격은 그대로)
+	if wa.has("charge_tiles") and grid.distance_between(c, t) > 1:
+		if grid.distance_between(c, t) > int(wa["charge_tiles"]):
+			return {"ok": false, "reason": "너무 멀다(%d칸까지)" % int(wa["charge_tiles"])}
+		var best := Vector2i(-1, -1)
+		var best_d := 999
+		for dd: Vector2i in grid.DIRS_8:
+			var cell: Vector2i = grid.cell_of(t) + dd
+			if grid.in_bounds(cell) and not grid.blocks_movement(cell) and grid.creature_at(cell) == null:
+				var d0: int = grid.distance(grid.cell_of(c), cell)
+				if d0 < best_d:
+					best_d = d0
+					best = cell
+		if best.x < 0 or not Combat.can_spend(c, "action") and int(c.turn.get("attacks_left", 0)) <= 0:
+			return {"ok": false, "reason": "달려갈 곳이 없다"}
+		var mres := Combat.move(world, c, best)
+		if not mres.get("ok", false) or c.dead or c.is_down() or grid.distance_between(c, t) > 1:
+			return {"ok": false, "reason": mres.get("reason", "닿지 못했다")}
+	# 비용: action은 공격 행동의 공격 하나(남은 추가 공격이 있으면 그것을 쓴다), 나머지는 그 비용
+	if cost == "action":
+		if int(c.turn.get("attacks_left", 0)) <= 0:
+			if not Combat.spend(c, "action"):
+				return {"ok": false, "reason": "행동이 없다"}
+			c.turn["attacks_left"] = c.attacks_per_action
+		c.turn["attacks_left"] = int(c.turn["attacks_left"]) - 1
+	elif not Combat.spend(c, cost):
 		return {"ok": false, "reason": "비용이 없다"}
 	var set_name := "ranged" if c.weapon_sets.get("ranged", {}).get("main", "") == wid else "melee"
 	if c.active_set != set_name:
 		Combat.switch_weapon_set(c)
 	var atk := Combat.build_weapon_attack(c, wid)
 	if wa.has("damage"):
-		atk["damage"] = [{"dice": "%s%+d" % [wa["damage"], int(atk["ability_mod"])], "damage_type": wa.get("damage_type", "bludgeoning")}]
+		var dtype := str(wa.get("damage_type", atk["damage"][0]["damage_type"]))
+		var mod := 0 if wa.get("no_mod", false) else int(atk["ability_mod"])
+		atk["damage"] = [{"dice": "%s%+d" % [wa["damage"], mod] if mod != 0 else str(wa["damage"]), "damage_type": dtype}]
+	if wa.get("half_damage", false):
+		atk["half_damage"] = true
 	atk["name"] = str(wa.get("name", {}).get("ko", wa["id"]))
 	var res := Combat._do_attack(world, c, t, atk)
 	if not res.get("ok", true):
 		return res
-	c.spend_resource(key)
-	Combat.apply_mastery(world, c, t, atk, res, {})
-	if res.get("hit", false) and wa.has("condition") and not t.dead:
-		var dc := weapon_action_dc(c, wid)
-		var sv := preload("res://scripts/rules/resolver.gd").saving_throw(t, wa["save"], dc)
-		if not sv["success"]:
-			t.apply_condition(wa["condition"], int(wa.get("turns", 1)), c)
-	if wa.get("cleave", false) and res.get("hit", false):
-		var second := Combat._cleave_target(world, c, t)
-		if second != null:
-			# 두 번째 대상: 능력 수정치 없이 무기 주사위만(약한 이어 베기)
-			var atk2 := Combat.build_weapon_attack(c, wid, {"no_ability_damage": true})
-			var r2 := Combat._do_attack(world, c, second, atk2)
-			res["second"] = r2
+	c.spend_resource(key)  # 빗나가도 쓴 것(BG3)
+	_wa_condition(c, key, t, res)
+	# 휩쓸기: 대상 곁(1칸)이면서 내 도달 안, 대상 쪽에 있는 적 최대 (cleave_targets - 1)명
+	if int(wa.get("cleave_targets", 0)) > 1:
+		var extra: Array = []
+		var me: Vector2i = grid.cell_of(c)
+		var dir: Vector2i = grid.cell_of(t) - me
+		for o: Node in grid.creatures():
+			if extra.size() >= int(wa["cleave_targets"]) - 1:
+				break
+			if o == t or o == c or o.dead or not c.is_hostile_to(o):
+				continue
+			var v: Vector2i = grid.cell_of(o) - me
+			if grid.distance_between(o, t) <= 1 and grid.distance_between(c, o) <= Combat.reach_of(c) and v.x * dir.x + v.y * dir.y >= 0:
+				extra.append(o)
+		res["cleave"] = []
+		for o: Node in extra:
+			var atk2 := atk.duplicate(true)
+			res["cleave"].append(Combat._do_attack(world, c, o, atk2))
 	if world.get("turns") != null:
 		world["turns"].notify_hostile_action(c)
 	return res
+
+
+static func _wa_condition(c: Node, key: String, t: Node, res: Dictionary) -> void:
+	var wa := RulesDB.get_entry("weapon_action", key)
+	if not res.get("hit", false) or not wa.has("condition") or t.dead:
+		return
+	var sv := Resolver.saving_throw(t, str(wa["save"]), weapon_action_dc(c, key), {"source": c})
+	res["wa_save"] = sv
+	if not sv["success"]:
+		t.apply_condition(str(wa["condition"]), int(wa.get("turns", 1)), c)
+
+
+## 끈기(무기 액션 반응, 횟수 제한 없음): 근접 무기 공격이 빗나가면 반응으로 근력 수정치(최소 1) 타격 피해.
+## 상시 설정 options["wa_follow_through"](기본 켬). Combat._do_attack 뒤 빗나감에서 부른다.
+static func follow_through(c: Node, t: Node, atk: Dictionary, res: Dictionary) -> void:
+	if res.get("hit", true) or not res.get("valid", false) or t == null or t.dead or atk.get("kind", "") != "melee" or not atk.get("weapon", false):
+		return
+	if str(c.options.get("wa_follow_through", "on")) != "on" or not c.can_react():
+		return
+	var wid := str(atk.get("weapon_id", ""))
+	if not "wa_follow_through" in weapon_actions_for(c) or _wa_weapon(c, "wa_follow_through") != wid:
+		return
+	c.turn["reaction"] = int(c.turn.get("reaction", 1)) - 1
+	res["follow_through"] = Resolver.apply_damage(t, [{"amount": maxi(1, c.ability_mod("str")), "damage_type": "bludgeoning"}], {"attacker": c})
+	Dice.log_text("%s 끈기: 빗나갔지만 %d" % [c.label(), maxi(1, c.ability_mod("str"))])
 
 
 ## 주문 두루마리(SRD 원문, 룰북 6단계): 내 클래스 주문 목록에 있는 주문이면 읽는다.
@@ -566,6 +683,12 @@ static func passives(c: Node) -> Array:
 		out.append({"id": "reaction:" + r, "name": reaction_name(c, r),
 			"state": {"ko": "자동" if st != "off" else "끄기", "en": "Auto" if st != "off" else "Off"},
 			"desc": {"ko": "반응 설정(누를 때마다 자동/끄기).", "en": "Reaction setting (click to toggle)."}})
+	# 반응형 무기 액션(끈기): 쥔 무기가 주면 상시 설정에
+	for wa: String in weapon_actions_for(c):
+		var d := RulesDB.get_entry("weapon_action", wa)
+		if str(d["cost"]) == "reaction":
+			var on := str(c.options.get(wa, "on")) == "on"
+			out.append({"id": wa, "name": d["name"], "state": {"ko": "자동" if on else "끄기", "en": "Auto" if on else "Off"}, "desc": d["desc"]})
 	return out
 
 
@@ -585,6 +708,9 @@ static func toggle_passive(c: Node, id: String) -> void:
 	if id.begins_with("reaction:"):
 		var r := id.trim_prefix("reaction:")
 		c.reaction_settings[r] = "auto" if c.reaction_setting(r) == "off" else "off"
+		return
+	if id.begins_with("wa_"):
+		c.options[id] = "off" if str(c.options.get(id, "on")) == "on" else "on"  # 끈기 켜기·끄기
 		return
 	var f: Dictionary = c.feature_data.get(id, {})
 	if not f.has("toggle"):

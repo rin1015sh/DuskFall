@@ -226,9 +226,6 @@ func _check_class_builds() -> void:
 				for v: Variant in sc["always_prepared"][lvk]:
 					if not entries.get("spell", {}).has(str(v)):
 						errors.append("%s: class '%s'/%s always_prepared 주문 '%s'가 없다" % [rec["file"], cid, sc.get("id", ""), v])
-		for v: Variant in b.get("masteries", []):
-			if not entries.get("weapon", {}).has(str(v)):
-				errors.append("%s.masteries: 무기 '%s'가 없다" % [where, v])
 		for slot: String in ["melee", "ranged"]:
 			for hand: String in ["main", "off"]:
 				var w := str(b.get("weapons", {}).get(slot, {}).get(hand, ""))

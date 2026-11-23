@@ -553,35 +553,192 @@
         {
           "type": "modify",
           "stat": "speed_tiles",
-          "add": -3
+          "multiply": 0.5
         }
       ],
-      "notes_ko": "무기 액션 '다리 베기·다리 쏘기': 속도 −3칸(절반).",
+      "ends_on_heal": true,
+      "notes_ko": "무기 액션 '다리 쏘기': 속도 절반. 회복하면 풀린다(BG3).",
       "source": "original"
     },
     {
-      "id": "staggered",
+      "id": "reeling",
       "name": {
-        "ko": "휘청임",
-        "en": "Staggered"
+        "ko": "비틀거림",
+        "en": "Reeling"
       },
       "category": "combat",
       "stack": "keep_longest",
-      "default_duration_turns": 1,
+      "default_duration_turns": 2,
       "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "wis"
+          ]
+        },
         {
           "type": "modify",
           "stat": "no_reactions"
         }
       ],
-      "notes_ko": "무기 액션 '손잡이 치기': 다음 자기 턴이 끝날 때까지 반응 불가.",
+      "flags": {
+        "no_dex_ac": true
+      },
+      "helpable": true,
+      "notes_ko": "무기 액션 '울리는 일격·손잡이 치기': 지혜 내성 불리, 반응 불가, AC에 민첩 보너스 없음. 돕기로 풀린다(BG3).",
       "source": "original"
     },
     {
-      "id": "exposed",
+      "id": "crippled",
       "name": {
-        "ko": "노출",
-        "en": "Exposed"
+        "ko": "불구",
+        "en": "Crippled"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "dex"
+          ]
+        }
+      ],
+      "flags": {
+        "speed_zero": true
+      },
+      "ends_on_heal": true,
+      "notes_ko": "무기 액션 '힘줄 끊기': 속도 0, 민첩 내성 불리. 회복하면 풀린다(BG3).",
+      "source": "original"
+    },
+    {
+      "id": "off_balance",
+      "name": {
+        "ko": "균형 잃음",
+        "en": "Off-Balance"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "str",
+            "dex"
+          ]
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "ends_on_damage": true,
+      "helpable": true,
+      "notes_ko": "무기 액션 '현란한 손놀림·돌진 찌르기': 근력·민첩 판정 불리, 이 생물을 노린 공격 유리. 피해를 받거나 돕기로 풀린다(BG3).",
+      "source": "original"
+    },
+    {
+      "id": "winded",
+      "name": {
+        "ko": "숨 막힘",
+        "en": "Winded"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "con"
+          ]
+        }
+      ],
+      "flags": {
+        "action_minus_one": true
+      },
+      "ends_on_heal": true,
+      "notes_ko": "무기 액션 '명치 치기': 건강 내성 불리, 턴마다 행동 하나 적음. 회복하면 풀린다(BG3).",
+      "source": "original"
+    },
+    {
+      "id": "bleeding",
+      "name": {
+        "ko": "출혈",
+        "en": "Bleeding"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "con"
+          ]
+        }
+      ],
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "damage",
+            "dice": "2",
+            "damage_type": "slashing"
+          }
+        ]
+      },
+      "ends_on_heal": true,
+      "immune_creature_types": [
+        "construct",
+        "elemental",
+        "plant",
+        "ooze",
+        "undead"
+      ],
+      "notes_ko": "무기 액션 '찢어 베기': 턴 시작마다 참격 2, 건강 내성 불리. 회복하면 풀린다. 구조물·원소·식물·점액·언데드는 걸리지 않는다(BG3).",
+      "source": "original"
+    },
+    {
+      "id": "open_wound",
+      "name": {
+        "ko": "벌어진 상처",
+        "en": "Open Wound"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "hit_against_damage": {
+        "amount": 2,
+        "damage_type": "piercing"
+      },
+      "ends_on_heal": true,
+      "notes_ko": "무기 액션 '꿰뚫기·관통 사격': 이 생물을 맞힌 공격은 관통 2 추가. 회복하면 풀린다(BG3).",
+      "source": "original"
+    },
+    {
+      "id": "weak_grip",
+      "name": {
+        "ko": "힘 빠진 손",
+        "en": "Loose Grip"
       },
       "category": "combat",
       "stack": "keep_longest",
@@ -590,11 +747,36 @@
         {
           "type": "advantage",
           "roll": "attack",
-          "side": "against",
-          "value": "advantage"
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "str"
+          ]
         }
       ],
-      "notes_ko": "무기 액션 '꿰뚫기': 이 생물을 노린 공격 굴림이 유리.",
+      "helpable": true,
+      "notes_ko": "무기 액션 '손목 치기': 공격 굴림·근력 내성 불리. 돕기로 풀린다(BG3).",
+      "source": "original"
+    },
+    {
+      "id": "disarmed",
+      "name": {
+        "ko": "무기 놓침",
+        "en": "Disarmed"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 1,
+      "flags": {
+        "disarmed": true
+      },
+      "notes_ko": "무기 액션 '무기 쳐내기': 다음 자기 턴이 끝날 때까지 무기 공격을 못 한다(무기를 줍는 데 턴을 쓴다 — BG3 무기 떨어뜨리기의 단순화).",
       "source": "original"
     },
     {

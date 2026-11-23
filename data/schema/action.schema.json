@@ -79,6 +79,7 @@
               "enemy",
               "ally",
               "ally_down",
+              "ally_help",
               "creature"
             ]
           },

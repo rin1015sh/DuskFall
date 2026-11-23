@@ -9,7 +9,7 @@ extends RefCounted
 ##   "skills": [클래스 기능], "species_skill": "perception", "expertise": [...], "extra_skills": [숙련 재주 등],
 ##   <고르는 기능 id>: 고른 것 — 기능 데이터 choice_kind(feat·expertise·option)대로. 예 "fighting_style": "defense", "divine_order": "protector", "scholar": "arcana",
 ##   "asi": {"4": {"str": 2}}(4레벨 능력치 향상 또는 {"feat": id}), "origin_feat": "alert"(인간),
-##   "masteries": [무기 ID], "cantrips": [...], "spells": [준비 주문 / 주문서],
+##   "cantrips": [...], "spells": [준비 주문 / 주문서],
 ##   "armor": "chain_mail", "shield": true, "weapons": {"melee": {"main", "off"}, "ranged": {"main"}}
 ## }
 
@@ -375,11 +375,6 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		c.skill_bonuses[sk] = int(c.skill_bonuses.get(sk, 0)) + maxi(1, c.ability_mod(skill_bonus_ability[sk]))
 	# 훈련·숙련
 	c.weapon_proficiencies = _weapon_profs(wt)
-	# 무기 마스터리: 레벨별 개수만큼(명세에 미리 적어 둔 다음 선택은 레벨이 오르면 열린다)
-	var mastery_n := 0
-	for e: Dictionary in entries:
-		mastery_n = maxi(mastery_n, _by_level(e["cls"].get("weapon_mastery", {}), int(e["level"]), 0))
-	c.weapon_masteries = spec.get("masteries", []).slice(0, mastery_n)
 	# HP: 1레벨 최대, 이후 평균 올림(룰북 6단계) + 건강 수정치, 드워프 +1/레벨
 	var con: int = c.ability_mod("con")
 	var hp: int = int(sp.get("hp_per_level", 0)) * lv

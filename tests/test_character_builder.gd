@@ -34,7 +34,6 @@ func test_fighter_1_to_5() -> void:
 	assert_eq(l1.hp_max, 12, "d10 최대 + 건강 2")
 	assert_eq(l1.resources["second_wind"]["max"], 1, "BG3: 짧은 휴식마다 1회")
 	assert_false(l1.resources.has("action_surge"), "행동 연쇄는 2레벨")
-	assert_eq(l1.weapon_masteries.size(), 3)
 	assert_eq(l1.ac(), 19, "사슬 갑옷 16 + 방패 2 + 방어 1")
 	assert_eq(l1.initiative_bonus, 2, "인간 출신 재주 경계")
 	var l5 := _build("fighter", 5)
@@ -43,7 +42,6 @@ func test_fighter_1_to_5() -> void:
 	assert_eq(l5.attacks_per_action, 2, "추가 공격")
 	assert_eq(l5.resources["second_wind"]["max"], 1, "BG3: 레벨과 상관없이 1회")
 	assert_eq(l5.resources["action_surge"]["max"], 1)
-	assert_eq(l5.weapon_masteries.size(), 4)
 	assert_eq(l5.crit_threshold, 19, "챔피언 향상된 치명타")
 	assert_eq(l5.abilities["str"], 19, "15 + 2 + 능력치 향상 2")
 
@@ -52,7 +50,6 @@ func test_rogue_1_to_5() -> void:
 	var l1 := _build("rogue", 1)
 	assert_true(l1.has_feature("sneak_attack"))
 	assert_eq(l1.skill_bonuses["stealth"], 4, "전문화: 숙련 2배")
-	assert_eq(l1.weapon_masteries.size(), 2)
 	assert_true("rapier" in l1.weapon_proficiencies and not "longsword" in l1.weapon_proficiencies, "교묘·가벼움 군용 무기만")
 	assert_true(l1.has_feature("halfling_luck"))
 	var l5 := _build("rogue", 5)

@@ -2,6 +2,7 @@ extends "res://tests/test_case.gd"
 ## 룰북 9단계 예시 전투 3(5레벨, 절벽 길)의 핵심: 고지 투창 70%, 오우거 밀치기 불가, Topple, Shield 반응.
 ## 오우거 수치는 SRD 5.2.1 Ogre(큼, AC 11, HP 68, 투창 +6). 오우거 무게는 SRD에 없어 300kg로 둔다(테스트용).
 
+const Actions := preload("res://scripts/rules/actions.gd")
 const Combat := preload("res://scripts/rules/combat.gd")
 const Physics := preload("res://scripts/rules/physics.gd")
 
@@ -39,7 +40,7 @@ func _wizard() -> Node:
 func _fighter() -> Node:
 	return make_creature({"team": "party", "is_player_character": true, "display_name": {"ko": "전사", "en": "Fighter"},
 		"ac_base": 19, "hp_max": 44, "abilities": {"str": 18, "dex": 12}, "proficiency_bonus": 3, "attacks_per_action": 2,
-		"weapon_proficiencies": ["simple", "martial"], "weapon_masteries": ["maul", "longsword", "greatsword", "shortbow"],
+		"weapon_proficiencies": ["simple", "martial"],
 		"weapon_sets": {"melee": {"main": "maul", "off": ""}, "ranged": {"main": "shortbow"}}})
 
 
@@ -71,7 +72,7 @@ func test_fighter_cannot_shove_ogre() -> void:
 	assert_eq(f.turn["bonus"], 1, "비용을 쓰지 않는다")
 
 
-## 4. 대신 몰(Topple) 2회 공격: 건강 내성 DC 15(8 + 근력 4 + 숙련 3)로 넘어뜨린다.
+## 4. 대신 몰 무기 액션 '짓눌러 넘기기'(BG3식): 1d4 + 근력, 근력 내성 DC 15(8 + 숙련 3 + 근력 4)로 2턴 넘어뜨린다.
 ## 5. 넘어진 오우거 옆의 로그는 유리.
 func test_topple_with_maul_then_advantage() -> void:
 	var w := _setup()
@@ -82,14 +83,14 @@ func test_topple_with_maul_then_advantage() -> void:
 	w["grid"].place(f, Vector2i(6, 3))
 	w["grid"].place(b, Vector2i(7, 3), 2)
 	w["grid"].place(rogue, Vector2i(9, 3))
-	Dice.force([14, 3, 4, 16])  # 1회: 명중, 2d6 = 7, 건강 내성 16 + 3 = 19 성공
-	var r1 := Combat.attack(w, f, b)
-	assert_eq(r1["topple"]["dc"], 15)
-	assert_false(b.has_condition("prone"))
-	Dice.force([12, 5, 5, 8])  # 2회: 명중, 2d6 = 10, 내성 8 + 3 = 11 실패
-	var r2 := Combat.attack(w, f, b)
+	f.reset_turn()
+	Dice.force([14, 3, 2])  # 명중, 1d4 = 3, 근력 내성 2 → 실패
+	var r1: Dictionary = Actions.execute(w, f, "wa_crushing_blow", Vector2i(7, 3))
+	assert_true(r1["hit"])
+	assert_eq(int(r1["wa_save"]["dc"]), 15)
 	assert_true(b.has_condition("prone"), "넘어짐")
-	assert_eq(b.hp, 68 - 11 - 14, "피해 (7+4) + (10+4)")
+	assert_eq(b.hp, 68 - 7, "피해 3 + 4")
+	assert_eq(int(f.turn["attacks_left"]), 1, "추가 공격이 남는다(무기 액션 = 공격 행동의 공격 하나)")
 	assert_eq(Combat.preview_attack(w, rogue, b)["mode"], 1, "넘어진 대상, 인접 공격 유리(2×2 둘레에서 인접)")
 
 

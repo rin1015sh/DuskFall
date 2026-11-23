@@ -14,7 +14,6 @@
       "properties": [
         "light"
       ],
-      "mastery": "slow",
       "weight_kg": 0.91,
       "price_gp": 0.1,
       "source": "SRD 5.2.1",
@@ -34,7 +33,6 @@
         "light",
         "thrown"
       ],
-      "mastery": "nick",
       "range_tiles": [
         4,
         12
@@ -56,7 +54,6 @@
       "properties": [
         "two_handed"
       ],
-      "mastery": "push",
       "weight_kg": 4.54,
       "price_gp": 0.2,
       "source": "SRD 5.2.1",
@@ -75,7 +72,6 @@
         "light",
         "thrown"
       ],
-      "mastery": "vex",
       "range_tiles": [
         4,
         12
@@ -97,7 +93,6 @@
       "properties": [
         "thrown"
       ],
-      "mastery": "slow",
       "range_tiles": [
         6,
         24
@@ -120,7 +115,6 @@
         "light",
         "thrown"
       ],
-      "mastery": "nick",
       "range_tiles": [
         4,
         12
@@ -140,7 +134,6 @@
       "damage": "1d6",
       "damage_type": "bludgeoning",
       "properties": [],
-      "mastery": "sap",
       "weight_kg": 1.81,
       "price_gp": 5,
       "source": "SRD 5.2.1",
@@ -158,7 +151,6 @@
       "properties": [
         "versatile"
       ],
-      "mastery": "topple",
       "versatile_damage": "1d8",
       "weight_kg": 1.81,
       "price_gp": 0.2,
@@ -177,7 +169,6 @@
       "properties": [
         "light"
       ],
-      "mastery": "nick",
       "weight_kg": 0.91,
       "price_gp": 1,
       "source": "SRD 5.2.1",
@@ -196,7 +187,6 @@
         "thrown",
         "versatile"
       ],
-      "mastery": "sap",
       "range_tiles": [
         4,
         12
@@ -220,7 +210,6 @@
         "finesse",
         "thrown"
       ],
-      "mastery": "vex",
       "range_tiles": [
         4,
         12
@@ -244,7 +233,6 @@
         "loading",
         "two_handed"
       ],
-      "mastery": "slow",
       "range_tiles": [
         16,
         64
@@ -268,7 +256,6 @@
         "ammunition",
         "two_handed"
       ],
-      "mastery": "vex",
       "range_tiles": [
         16,
         64
@@ -291,7 +278,6 @@
       "properties": [
         "ammunition"
       ],
-      "mastery": "slow",
       "range_tiles": [
         6,
         24
@@ -314,7 +300,6 @@
       "properties": [
         "versatile"
       ],
-      "mastery": "topple",
       "versatile_damage": "1d10",
       "weight_kg": 1.81,
       "price_gp": 10,
@@ -331,7 +316,6 @@
       "damage": "1d8",
       "damage_type": "bludgeoning",
       "properties": [],
-      "mastery": "sap",
       "weight_kg": 0.91,
       "price_gp": 10,
       "source": "SRD 5.2.1",
@@ -351,7 +335,6 @@
         "reach",
         "two_handed"
       ],
-      "mastery": "graze",
       "weight_kg": 2.72,
       "price_gp": 20,
       "source": "SRD 5.2.1",
@@ -370,7 +353,6 @@
         "heavy",
         "two_handed"
       ],
-      "mastery": "cleave",
       "weight_kg": 3.18,
       "price_gp": 30,
       "source": "SRD 5.2.1",
@@ -389,7 +371,6 @@
         "heavy",
         "two_handed"
       ],
-      "mastery": "graze",
       "weight_kg": 2.72,
       "price_gp": 50,
       "source": "SRD 5.2.1",
@@ -409,7 +390,6 @@
         "reach",
         "two_handed"
       ],
-      "mastery": "cleave",
       "weight_kg": 2.72,
       "price_gp": 20,
       "source": "SRD 5.2.1",
@@ -429,7 +409,6 @@
         "reach",
         "two_handed"
       ],
-      "mastery": "topple",
       "weight_kg": 2.72,
       "price_gp": 10,
       "source": "SRD 5.2.1",
@@ -447,7 +426,6 @@
       "properties": [
         "versatile"
       ],
-      "mastery": "sap",
       "versatile_damage": "1d10",
       "weight_kg": 1.36,
       "price_gp": 15,
@@ -467,7 +445,6 @@
         "heavy",
         "two_handed"
       ],
-      "mastery": "topple",
       "weight_kg": 4.54,
       "price_gp": 10,
       "source": "SRD 5.2.1",
@@ -483,7 +460,6 @@
       "damage": "1d8",
       "damage_type": "piercing",
       "properties": [],
-      "mastery": "sap",
       "weight_kg": 1.81,
       "price_gp": 15,
       "source": "SRD 5.2.1",
@@ -503,7 +479,6 @@
         "reach",
         "two_handed"
       ],
-      "mastery": "push",
       "weight_kg": 8.16,
       "price_gp": 5,
       "source": "SRD 5.2.1",
@@ -521,7 +496,6 @@
       "properties": [
         "finesse"
       ],
-      "mastery": "vex",
       "weight_kg": 0.91,
       "price_gp": 25,
       "source": "SRD 5.2.1",
@@ -540,7 +514,6 @@
         "finesse",
         "light"
       ],
-      "mastery": "nick",
       "weight_kg": 1.36,
       "price_gp": 25,
       "source": "SRD 5.2.1",
@@ -559,7 +532,6 @@
         "finesse",
         "light"
       ],
-      "mastery": "vex",
       "weight_kg": 0.91,
       "price_gp": 10,
       "source": "SRD 5.2.1",
@@ -578,7 +550,6 @@
         "thrown",
         "versatile"
       ],
-      "mastery": "topple",
       "range_tiles": [
         4,
         12
@@ -601,7 +572,6 @@
       "properties": [
         "versatile"
       ],
-      "mastery": "push",
       "versatile_damage": "1d10",
       "weight_kg": 2.27,
       "price_gp": 15,
@@ -620,7 +590,6 @@
       "properties": [
         "versatile"
       ],
-      "mastery": "sap",
       "versatile_damage": "1d10",
       "weight_kg": 0.91,
       "price_gp": 5,
@@ -640,7 +609,6 @@
         "finesse",
         "reach"
       ],
-      "mastery": "slow",
       "weight_kg": 1.36,
       "price_gp": 2,
       "source": "SRD 5.2.1",
@@ -659,7 +627,6 @@
         "ammunition",
         "loading"
       ],
-      "mastery": "vex",
       "range_tiles": [
         5,
         20
@@ -684,7 +651,6 @@
         "light",
         "loading"
       ],
-      "mastery": "vex",
       "range_tiles": [
         6,
         24
@@ -710,7 +676,6 @@
         "loading",
         "two_handed"
       ],
-      "mastery": "push",
       "range_tiles": [
         20,
         80
@@ -735,7 +700,6 @@
         "heavy",
         "two_handed"
       ],
-      "mastery": "slow",
       "range_tiles": [
         30,
         120
@@ -760,7 +724,6 @@
         "loading",
         "two_handed"
       ],
-      "mastery": "slow",
       "range_tiles": [
         8,
         24
@@ -783,7 +746,6 @@
         "ammunition",
         "loading"
       ],
-      "mastery": "vex",
       "range_tiles": [
         6,
         18

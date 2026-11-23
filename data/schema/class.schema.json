@@ -218,11 +218,33 @@
                 "type": "object"
               }
             },
-            "resistances": {"type": "array", "items": {"type": "string"}},
-            "ability_increase": {"type": "object"},
-            "save_proficiencies": {"type": "array", "items": {"type": "string"}},
-            "condition_immunities": {"type": "array", "items": {"type": "string"}},
-            "spell_damage_types": {"type": "array", "items": {"type": "string"}},
+            "resistances": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ability_increase": {
+              "type": "object"
+            },
+            "save_proficiencies": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "condition_immunities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "spell_damage_types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "weapon_hit_bonus": {
               "$comment": "턴당 1회 무기 명중 추가 피해 {dice_by_level, damage_types}(신성한 일격·원초의 일격)",
               "type": "object"
@@ -308,18 +330,38 @@
                   "type": "object"
                 }
               },
-              "resistances": {"type": "array", "items": {"type": "string"}},
-              "ability_increase": {"type": "object"},
-            "save_proficiencies": {"type": "array", "items": {"type": "string"}},
-            "ability_increase": {"type": "object"},
-            "save_proficiencies": {"type": "array", "items": {"type": "string"}},
-            "condition_immunities": {"type": "array", "items": {"type": "string"}},
-            "spell_damage_types": {"type": "array", "items": {"type": "string"}},
-            "weapon_hit_bonus": {
-              "$comment": "턴당 1회 무기 명중 추가 피해 {dice_by_level, damage_types}(신성한 일격·원초의 일격)",
-              "type": "object"
-            },
-            "hp_per_level": {
+              "resistances": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "ability_increase": {
+                "type": "object"
+              },
+              "save_proficiencies": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "condition_immunities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "spell_damage_types": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "weapon_hit_bonus": {
+                "$comment": "턴당 1회 무기 명중 추가 피해 {dice_by_level, damage_types}(신성한 일격·원초의 일격)",
+                "type": "object"
+              },
+              "hp_per_level": {
                 "$comment": "레벨당 최대 HP 추가(용의 회복력)",
                 "type": "integer"
               },
@@ -486,7 +528,9 @@
         "also_hooks": {
           "$comment": "같은 스크립트를 더 거는 훅들",
           "type": "array",
-          "items": {"type": "string"}
+          "items": {
+            "type": "string"
+          }
         },
         "aura": {
           "$comment": "오라 {range_by_level, save_bonus, immune} — scripts/rules/auras.gd",
@@ -503,7 +547,9 @@
         "spell_lists": {
           "$comment": "choice_kind spell의 주문 목록들",
           "type": "array",
-          "items": {"type": "string"}
+          "items": {
+            "type": "string"
+          }
         },
         "cast_trigger": {
           "$comment": "그 주문을 시전하면 오라 안 아군에게 상태 {spells, aura_condition, turns}",
@@ -512,11 +558,22 @@
         "protects_concentration": {
           "$comment": "피해로 집중이 깨지지 않는 주문들(끈질긴 사냥꾼)",
           "type": "array",
-          "items": {"type": "string"}
+          "items": {
+            "type": "string"
+          }
         },
-        "at_will": {"$comment": "choice_kind spell: 슬롯 없이 마음대로(주문 숙달)", "type": "boolean"},
-        "from_spellbook": {"$comment": "choice_kind spell: 주문서의 주문만", "type": "boolean"},
-        "recharge": {"$comment": "choice_kind spell: 무료 1회 회복(long·short)", "type": "string"},
+        "at_will": {
+          "$comment": "choice_kind spell: 슬롯 없이 마음대로(주문 숙달)",
+          "type": "boolean"
+        },
+        "from_spellbook": {
+          "$comment": "choice_kind spell: 주문서의 주문만",
+          "type": "boolean"
+        },
+        "recharge": {
+          "$comment": "choice_kind spell: 무료 1회 회복(long·short)",
+          "type": "string"
+        },
         "spell_level": {
           "$comment": "choice_kind spell: 이 레벨 주문만, 긴 휴식마다 슬롯 없이 1회(신비한 비전)",
           "type": "integer"
@@ -622,9 +679,6 @@
       "items": {
         "type": "string"
       }
-    },
-    "weapon_mastery": {
-      "type": "object"
     },
     "asi_levels": {
       "type": "array",

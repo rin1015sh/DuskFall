@@ -498,15 +498,6 @@
       "source": "original"
     },
     {
-      "id": "tactical_master",
-      "name": {
-        "ko": "전술 대가",
-        "en": "Tactical Master"
-      },
-      "note_ko": "마스터리 무기 공격의 속성을 설정에서 고른 밀기·약화·둔화로 바꾼다(combat._mastery_of)",
-      "source": "original"
-    },
-    {
       "id": "heroic_warrior",
       "name": {
         "ko": "영웅 전사",

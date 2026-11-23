@@ -162,11 +162,11 @@
         "en": "Help"
       },
       "desc": {
-        "ko": "인접한 쓰러진 아군을 HP 1로 일으킨다.",
-        "en": "Revive an adjacent downed ally at 1 HP."
+        "ko": "인접한 아군을 돕는다. 쓰러졌으면 HP 1로 일으키고, 넘어짐·비틀거림·균형 잃음·힘 빠진 손을 풀어 준다.",
+        "en": "Help an adjacent ally: revive a downed ally at 1 HP, and remove Prone, Reeling, Off-Balance and Loose Grip."
       },
       "cost": "action",
-      "target": "ally_down",
+      "target": "ally_help",
       "tab": "common",
       "icon": "res://assets/statuses/rally.webp",
       "explore": true,

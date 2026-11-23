@@ -36,9 +36,6 @@
     "medium",
     "shield"
   ],
-  "weapon_mastery": {
-    "1": 2
-  },
   "asi_levels": [
     4,
     8,
@@ -168,16 +165,6 @@
       "level": 1,
       "handled_by": "클래스 always_prepared(사냥꾼의 표식) + 자원 innate_hunters_mark(슬롯 없이 긴 휴식마다 2회, 5레벨 3회 — 무료 횟수 먼저)",
       "notes_ko": "원문 그대로. 사냥꾼의 표식을 항상 준비하고 슬롯 없이 시전.",
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "weapon_mastery",
-      "name": {
-        "ko": "무기 마스터리",
-        "en": "Weapon Mastery"
-      },
-      "level": 1,
-      "handled_by": "생성기 — 클래스 weapon_mastery 표(2종)와 명세 masteries",
       "source": "SRD 5.2.1"
     },
     {
@@ -423,10 +410,6 @@
       "lesser_restoration",
       "freedom_of_movement",
       "conjure_woodland_beings"
-    ],
-    "masteries": [
-      "longbow",
-      "shortsword"
     ],
     "asi": {
       "4": {

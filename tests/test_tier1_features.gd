@@ -28,15 +28,6 @@ func test_indomitable() -> void:
 	assert_false(Resolver.saving_throw(f, "wis", 15 + bonus)["success"], "횟수가 없으면 실패")
 
 
-func test_tactical_master() -> void:
-	var f := _pc("fighter", 9)
-	var atk := Combat.build_weapon_attack(f, "longsword")
-	assert_eq(atk["mastery"], "sap", "롱소드 기본 약화")
-	f.options["tactical_master"] = "push"
-	assert_eq(Combat.build_weapon_attack(f, "longsword")["mastery"], "push", "전술 대가: 밀기로")
-	assert_eq(_pc("fighter", 8, {"options": {}}).feature_data.has("tactical_master"), false)
-
-
 func test_champion_7_10() -> void:
 	var f := _pc("fighter", 10)
 	assert_true(f.has_cap("reroll_low_damage_two_handed") and f.ac() > 0, "추가 전투 방식(대형 무기 전투)")

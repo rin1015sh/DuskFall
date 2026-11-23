@@ -41,7 +41,9 @@
           "cost": {
             "enum": [
               "action",
-              "bonus"
+              "bonus",
+              "movement",
+              "reaction"
             ]
           },
           "weapons": {
@@ -49,9 +51,6 @@
             "items": {
               "type": "string"
             }
-          },
-          "cleave": {
-            "type": "boolean"
           },
           "damage": {
             "type": "string"
@@ -83,6 +82,68 @@
               "SRD 5.2.1",
               "original"
             ]
+          },
+          "glyph": {
+            "type": "string"
+          },
+          "dc_bonus": {
+            "type": "integer"
+          },
+          "dc": {
+            "enum": [
+              "weapon",
+              "hybrid"
+            ]
+          },
+          "max_size": {
+            "enum": [
+              "tiny",
+              "small",
+              "medium",
+              "large",
+              "huge",
+              "gargantuan"
+            ]
+          },
+          "move_tiles": {
+            "type": "integer"
+          },
+          "stance": {
+            "enum": [
+              "brace_melee",
+              "brace_ranged",
+              "prepare"
+            ]
+          },
+          "target": {
+            "enum": [
+              "enemy",
+              "self"
+            ]
+          },
+          "cleave_targets": {
+            "type": "integer"
+          },
+          "half_damage": {
+            "type": "boolean"
+          },
+          "no_mod": {
+            "type": "boolean"
+          },
+          "needs_weapon": {
+            "type": "boolean"
+          },
+          "charge_tiles": {
+            "type": "integer"
+          },
+          "unlimited": {
+            "type": "boolean"
+          },
+          "requires_turn": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }

@@ -2,7 +2,7 @@ extends Control
 ## 행동·주문 아이콘(표현 계층): 검은 바탕 위에 빛나는 두꺼운 붓획 문양(BG3 주문 아이콘 화풍 참고, 문양은 자체).
 ## 색은 계열별로 통일한다 — 공용 행동 호박, 교활한 행동 보라, 무기 액션 은청, 물약 다홍, 클래스 기능은 클래스 데이터 color(문양은 기능 glyph),
 ## 주문은 피해 종류 색(불·냉기·번개·산·독·사령·광휘·역장·정신·천둥·물리), 피해가 없으면 회복 초록 또는 학파 색.
-## kind = 행동 키(attack, wa_sweep, feature:second_wind, spell:fireball, drink:potion_of_healing ...).
+## kind = 행동 키(attack, wa_sweep(문양은 무기 액션 데이터 glyph), feature:second_wind, spell:fireball, drink:potion_of_healing ...).
 
 const S := preload("res://scenes/ui/ui_style.gd")
 
@@ -26,8 +26,6 @@ const ACTIONS := {
 	"cunning_dash": ["chevrons", "cunning"], "cunning_disengage": ["shield", "cunning"], "cunning_hide": ["eye_slash", "cunning"],
 	"sneak_melee": ["dagger_eye", "cunning"], "sneak_ranged": ["bow_eye", "cunning"],
 	"drink": ["flask", "item"], "feed": ["flask_hand", "item"], "throw_potion": ["flask_arc", "item"],
-	"wa_sweep": ["sweep", "weapon"], "wa_hamstring": ["hamstring", "weapon"], "wa_pommel": ["pommel", "weapon"],
-	"wa_topple": ["topple", "weapon"], "wa_impale": ["spear", "weapon"],
 	"entity:spiritual_weapon": ["sword", "force"], "entity:flaming_sphere": ["orb", "fire"], "entity:mage_hand": ["hand", "conjuration"],
 }
 
@@ -62,6 +60,8 @@ static func spec(key: String) -> Array:
 	var base := key.get_slice(":", 0)
 	if ACTIONS.has(base):
 		return [ACTIONS[base][0], FAM[ACTIONS[base][1]]]
+	if key.begins_with("wa_"):
+		return [str(RulesDB.get_entry("weapon_action", key).get("glyph", "sword")), FAM["weapon"]]  # 무기 액션 데이터 glyph
 	if key.begins_with("spell:"):
 		var sid := key.trim_prefix("spell:")
 		var sp := RulesDB.get_entry("spell", sid)

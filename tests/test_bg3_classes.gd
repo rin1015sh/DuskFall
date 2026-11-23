@@ -82,28 +82,6 @@ func test_sneak_attack_manual_mode() -> void:
 	assert_eq(r5.options["cunning_strike"], "poison", "교활한 일격 선택을 돌린다")
 
 
-func test_weapon_actions() -> void:
-	var w := make_world(["....", "...."])
-	var f := _pc("fighter", 1)  # 롱소드 + 투창
-	var e := make_creature({"team": "enemy", "hp_max": 50, "ac_base": 5, "abilities": {"dex": 1, "con": 1, "str": 1}})
-	w["grid"].place(f, Vector2i(0, 0))
-	w["grid"].place(e, Vector2i(1, 0))
-	var list: Array = Actions.list_for(w, f)["class"]
-	assert_true("wa_sweep" in list and "wa_pommel" in list, "롱소드: 휩쓸기·손잡이 치기")
-	assert_true("wa_impale" in list, "투창: 꿰뚫기")
-	f.reset_turn()
-	Dice.force([15, 2, 1])  # 명중, 1d4, 내성 1
-	var r: Dictionary = Actions.execute(w, f, "wa_pommel", Vector2i(1, 0))
-	assert_true(r["hit"])
-	assert_true(e.has_condition("staggered"), "손잡이 치기: 반응 불가")
-	assert_false(e.can_react())
-	assert_eq(f.turn["bonus"], 0, "보너스 행동")
-	assert_eq(Actions.unavailable(w, f, "wa_pommel"), "보너스 행동이 없다")
-	f.reset_turn()
-	assert_eq(Actions.unavailable(w, f, "wa_pommel"), "남은 횟수가 없다", "짧은 휴식에 1회")
-	assert_eq(Actions.weapon_action_dc(f, "longsword"), 8 + 2 + 3)
-
-
 func test_passives_reaction_toggle() -> void:
 	var wz := _pc("wizard", 1)
 	var ids: Array = Actions.passives(wz).map(func(p: Dictionary) -> String: return p["id"])

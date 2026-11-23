@@ -33,20 +33,6 @@
     "medium",
     "shield"
   ],
-  "weapon_mastery": {
-    "1": 2,
-    "2": 2,
-    "3": 2,
-    "4": 3,
-    "5": 3,
-    "6": 3,
-    "7": 3,
-    "8": 3,
-    "9": 3,
-    "10": 4,
-    "11": 4,
-    "12": 4
-  },
   "asi_levels": [
     4,
     8,
@@ -146,16 +132,6 @@
         "unarmored_defense_con"
       ],
       "notes_ko": "갑옷이 없으면 AC 10 + 민첩 + 건강(방패 가능).",
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "weapon_mastery",
-      "name": {
-        "ko": "무기 마스터리",
-        "en": "Weapon Mastery"
-      },
-      "level": 1,
-      "handled_by": "생성기 — 클래스 weapon_mastery 표(2종, 4레벨 3종)와 명세 masteries",
       "source": "SRD 5.2.1"
     },
     {
@@ -425,11 +401,6 @@
       "perception"
     ],
     "primal_knowledge": "intimidation",
-    "masteries": [
-      "greataxe",
-      "handaxe",
-      "javelin"
-    ],
     "asi": {
       "4": {
         "str": 2

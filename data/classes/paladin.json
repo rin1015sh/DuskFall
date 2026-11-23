@@ -35,9 +35,6 @@
     "heavy",
     "shield"
   ],
-  "weapon_mastery": {
-    "1": 2
-  },
   "asi_levels": [
     4,
     8,
@@ -212,16 +209,6 @@
       "ai": {
         "when": "hp_below_half"
       }
-    },
-    {
-      "id": "weapon_mastery",
-      "name": {
-        "ko": "무기 마스터리",
-        "en": "Weapon Mastery"
-      },
-      "level": 1,
-      "handled_by": "생성기 — 클래스 weapon_mastery 표(2종)와 명세 masteries",
-      "source": "SRD 5.2.1"
     },
     {
       "id": "fighting_style",
@@ -491,10 +478,6 @@
       "magic_weapon",
       "death_ward",
       "banishment"
-    ],
-    "masteries": [
-      "longsword",
-      "javelin"
     ],
     "asi": {
       "4": {

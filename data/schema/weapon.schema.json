@@ -25,7 +25,6 @@
           "damage",
           "damage_type",
           "properties",
-          "mastery",
           "weight_kg",
           "price_gp",
           "source"
@@ -105,18 +104,6 @@
           },
           "ammunition": {
             "type": "string"
-          },
-          "mastery": {
-            "enum": [
-              "cleave",
-              "graze",
-              "nick",
-              "push",
-              "sap",
-              "slow",
-              "topple",
-              "vex"
-            ]
           },
           "weight_kg": {
             "type": "number",

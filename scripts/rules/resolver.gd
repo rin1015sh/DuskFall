@@ -360,6 +360,14 @@ static func _attack_damage_parts(attacker: Node, atk: Dictionary, res: Dictionar
 static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dictionary) -> void:
 	if not res.has("extra_damage"):
 		res["extra_damage"] = []
+	# 대상 상태 hit_against_damage(벌어진 상처 — 무기 액션): 맞힌 공격에 고정 피해
+	for a in target.active_conditions():
+		var had: Dictionary = a["def"].get("hit_against_damage", {})
+		if not had.is_empty():
+			res["extra_damage"].append({"dice": str(int(had["amount"])), "damage_type": str(had["damage_type"])})
+	# 힘 모으기(무기 액션 자세 prepare): 이번 턴 근접 무기 명중마다 근력 수정치(최소 1)
+	if attacker.turn.get("stance_prepare", false) and atk.get("weapon", false) and atk.get("kind", "") == "melee":
+		res["extra_damage"].append({"dice": str(maxi(1, attacker.ability_mod("str"))), "damage_type": atk["damage"][0]["damage_type"]})
 	for a in target.active_conditions():
 		var src: Variant = a["instance"].get("source")
 		if not (src is Node) or src != attacker:  # 출처가 글자(함정 등)이거나 다른 생물
@@ -687,6 +695,8 @@ static func _roll_damage(attacker: Node, atk: Dictionary, parts: Array, res: Dic
 	if attacker.has_cap("weapon_damage_twice") and atk.get("weapon", false) and not attacker.turn.get("savage_used", false):
 		attacker.turn["savage_used"] = true
 		times = 2
+	if atk.get("weapon", false) and attacker.turn.get("stance_brace_" + str(atk.get("kind", "")), false):
+		times += 1  # 버티기·조준 자세(무기 액션): 이번 턴 그 종류 무기 피해를 한 번 더 굴려 큰 쪽(야만적 공격과 겹친다 — BG3)
 	var best: Array = []
 	var best_total := -1
 	for t in times:
@@ -699,6 +709,9 @@ static func _roll_damage(attacker: Node, atk: Dictionary, parts: Array, res: Dic
 		if total > best_total:
 			best_total = total
 			best = rolled
+	if atk.get("half_damage", false):
+		for i in mini(atk.get("damage", []).size(), best.size()):
+			best[i]["amount"] = int(best[i]["amount"]) / 2  # 휩쓸기(무기 액션): 무기 피해만 절반, 다른 추가 피해는 그대로
 	return best
 
 
@@ -827,7 +840,8 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 	EventBus.on_damage_taken.emit(info)
 	# 피해를 받으면 끝나는 상태(Sleep·Hypnotic Pattern — params.ends_on_damage)
 	for cond in target.conditions.duplicate():
-		if cond.get("params", {}).get("ends_on_damage", false):
+		if total > 0 and (cond.get("params", {}).get("ends_on_damage", false) \
+				or RulesDB.get_entry("condition", str(cond["id"])).get("ends_on_damage", false)):
 			target.remove_condition(cond["id"])
 	# 피해를 받으면 유리로 다시 내성(Hideous Laughter — params.save_on_damage)
 	for cond in target.conditions.duplicate():
@@ -916,6 +930,10 @@ static func heal(target: Node, amount: int, source: Variant = null) -> int:
 		target.death_saves = {"successes": 0, "failures": 0}
 		target.stable = false
 	Dice.log_text("%s 회복 %d → HP %d/%d" % [target.label(), gained, target.hp, target.hp_max])
+	if gained > 0:
+		for a in target.active_conditions():
+			if a["def"].get("ends_on_heal", false):
+				target.remove_condition(str(a["id"]))  # 출혈·불구·다리 부상 등(BG3): 회복하면 풀린다
 	EventBus.on_heal.emit({"target": target, "amount": gained, "source": source})
 	return gained
 

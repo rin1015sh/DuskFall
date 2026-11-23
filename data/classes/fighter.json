@@ -38,20 +38,6 @@
     "heavy",
     "shield"
   ],
-  "weapon_mastery": {
-    "1": 3,
-    "2": 3,
-    "3": 3,
-    "4": 4,
-    "5": 4,
-    "6": 4,
-    "7": 4,
-    "8": 4,
-    "9": 4,
-    "10": 5,
-    "11": 5,
-    "12": 5
-  },
   "asi_levels": [
     4,
     6,
@@ -130,16 +116,6 @@
       }
     },
     {
-      "id": "weapon_mastery",
-      "name": {
-        "ko": "무기 마스터리",
-        "en": "Weapon Mastery"
-      },
-      "level": 1,
-      "source": "SRD 5.2.1",
-      "handled_by": "생성기 — 클래스 weapon_mastery 표(레벨별 개수)와 명세 masteries"
-    },
-    {
       "id": "action_surge",
       "name": {
         "ko": "행동 연쇄",
@@ -211,55 +187,6 @@
       "resource": "indomitable",
       "notes_ko": "내성 실패 시 다시 굴려 전사 레벨을 더한다(새 굴림 사용). 긴 휴식마다 1회(13레벨 2회, 17레벨 3회). 다시 굴려 성공할 수 있을 때 자동.",
       "source": "SRD 5.2.1"
-    },
-    {
-      "id": "tactical_master",
-      "name": {
-        "ko": "전술 대가",
-        "en": "Tactical Master"
-      },
-      "level": 9,
-      "caps": [
-        "tactical_master"
-      ],
-      "notes_ko": "마스터리를 쓰는 무기로 공격할 때 그 속성 대신 밀기·약화·둔화를 쓸 수 있다(상시 설정).",
-      "source": "SRD 5.2.1",
-      "toggle": {
-        "values": [
-          {
-            "id": "",
-            "name": {
-              "ko": "무기 속성",
-              "en": "Weapon"
-            }
-          },
-          {
-            "id": "push",
-            "name": {
-              "ko": "밀기",
-              "en": "Push"
-            }
-          },
-          {
-            "id": "sap",
-            "name": {
-              "ko": "약화",
-              "en": "Sap"
-            }
-          },
-          {
-            "id": "slow",
-            "name": {
-              "ko": "둔화",
-              "en": "Slow"
-            }
-          }
-        ],
-        "desc": {
-          "ko": "마스터리 무기 공격에 쓸 속성(누를 때마다 바뀜).",
-          "en": "Mastery property to use with mastered weapons (click to cycle)."
-        }
-      }
     },
     {
       "id": "two_extra_attacks",
@@ -405,12 +332,6 @@
     "species_skill": "acrobatics",
     "origin_feat": "alert",
     "fighting_style": "defense",
-    "masteries": [
-      "longsword",
-      "greatsword",
-      "javelin",
-      "shortbow"
-    ],
     "asi": {
       "4": {
         "str": 2

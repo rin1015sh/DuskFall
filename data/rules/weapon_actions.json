@@ -1,55 +1,258 @@
 {
   "schema": "weapon_action_v1",
-  "note_ko": "무기 액션(BG3 구조 참고, 이름·설명은 자체). 그 무기에 숙련이 있으면 쓴다. 액션마다 짧은 휴식에 1회. 내성 DC = 8 + 숙련 보너스 + 공격 능력 수정치. 마스터리와 함께 쓴다(사용자 결정 2026-11-22).",
+  "note_ko": "무기 액션(BG3 기본 무기 액션 20종의 구조·수치, 이름·설명은 자체). 그 무기에 숙련이 있고 주 무기(근접·원거리 세트)로 쥐면 쓴다. 액션마다 짧은 휴식에 1회(unlimited 제외), 빗나가도 쓴 것. 내성 DC = 8 + 숙련 보너스 + 근력·민첩 중 높은 수정치 + dc_bonus, dc hybrid = 그것 + 2와 주문 내성 DC 중 높은 쪽. damage가 있으면 그 주사위 + 공격 능력 수정치(no_mod면 수정치 없음), 없으면 무기 피해. 비용 action은 공격 행동의 공격 하나로 친다(추가 공격과 이어짐). 사용자 결정 2026-11-23(무기 마스터리 대신).",
   "actions": [
+    {
+      "id": "wa_crushing_blow",
+      "name": {
+        "ko": "짓눌러 넘기기",
+        "en": "Crushing Takedown"
+      },
+      "desc": {
+        "ko": "1d4 + 근력·민첩 피해(무기 피해 종류). 명중하면 근력 내성(무기 액션 DC), 실패하면 2턴 동안 넘어짐. 큼 이하만.",
+        "en": "1d4 + STR/DEX damage. On hit: STR save (weapon action DC) or Prone for 2 turns. Large or smaller."
+      },
+      "cost": "action",
+      "weapons": [
+        "warhammer",
+        "maul"
+      ],
+      "damage": "1d4",
+      "save": "str",
+      "condition": "prone",
+      "turns": 2,
+      "max_size": "large",
+      "icon": "res://assets/statuses/suppress.webp",
+      "glyph": "topple",
+      "source": "original"
+    },
+    {
+      "id": "wa_set_stance",
+      "name": {
+        "ko": "버티기 자세",
+        "en": "Set Stance"
+      },
+      "desc": {
+        "ko": "이동력 4칸(6m)을 쓴다. 이번 턴 근접 무기 피해를 두 번 굴려 큰 쪽을 쓴다.",
+        "en": "Spend 4 tiles (6 m) of movement. This turn, roll melee weapon damage twice and use the higher."
+      },
+      "cost": "movement",
+      "weapons": [
+        "glaive",
+        "pike"
+      ],
+      "move_tiles": 4,
+      "stance": "brace_melee",
+      "target": "self",
+      "icon": "res://assets/statuses/shield_wall.webp",
+      "glyph": "shield",
+      "source": "original"
+    },
     {
       "id": "wa_sweep",
       "name": {
         "ko": "휩쓸기",
-        "en": "Sweeping Blow"
+        "en": "Sweeping Arc"
       },
       "desc": {
-        "ko": "대상을 베고, 곁에 있는 다른 적 하나도 이어서 벤다(두 번째는 피해 절반).",
-        "en": "Strike, then carry through to another adjacent foe (half damage)."
+        "ko": "앞쪽 호를 휩쓸어 최대 3명을 친다(대상과 그 곁, 내 도달 안 적). 무기 피해 주사위는 절반(고정 보너스는 그대로).",
+        "en": "Sweep an arc to strike up to 3 foes (the target and enemies next to it within reach). Weapon damage halved (flat bonuses are not)."
       },
       "cost": "action",
       "weapons": [
-        "greatsword",
-        "greataxe",
-        "glaive",
-        "halberd",
         "battleaxe",
-        "longsword"
+        "greataxe",
+        "halberd",
+        "greatsword"
       ],
-      "cleave": true,
+      "cleave_targets": 3,
+      "half_damage": true,
       "icon": "res://assets/statuses/blast_scorched.webp",
+      "glyph": "sweep",
       "source": "original"
     },
     {
-      "id": "wa_hamstring",
+      "id": "wa_ringing_blow",
       "name": {
-        "ko": "다리 베기",
-        "en": "Hamstring"
+        "ko": "울리는 일격",
+        "en": "Ringing Blow"
       },
       "desc": {
-        "ko": "명중하면 대상이 민첩 내성. 실패하면 2턴 동안 속도 절반.",
-        "en": "On hit: DEX save or speed halved for 2 turns."
+        "ko": "무기 피해. 명중하면 건강 내성(무기 액션 DC + 2와 주문 내성 DC 중 높은 쪽), 실패하면 2턴 동안 비틀거림.",
+        "en": "Weapon damage. On hit: CON save (higher of weapon action DC + 2 or spell save DC) or Reeling for 2 turns."
       },
       "cost": "action",
       "weapons": [
-        "scimitar",
-        "shortsword",
-        "handaxe",
-        "sickle",
-        "whip",
-        "shortbow",
-        "longbow",
-        "hand_crossbow"
+        "morningstar",
+        "club",
+        "light_hammer",
+        "mace",
+        "warhammer",
+        "greatclub",
+        "maul",
+        "flail"
       ],
-      "save": "dex",
-      "condition": "hamstrung",
+      "save": "con",
+      "condition": "reeling",
+      "turns": 2,
+      "dc": "hybrid",
+      "icon": "res://assets/statuses/daze.webp",
+      "glyph": "pommel",
+      "source": "original"
+    },
+    {
+      "id": "wa_crippling_cut",
+      "name": {
+        "ko": "힘줄 끊기",
+        "en": "Crippling Cut"
+      },
+      "desc": {
+        "ko": "1d4 + 근력·민첩 피해. 명중하면 건강 내성(무기 액션 DC + 2), 실패하면 2턴 동안 불구(속도 0, 민첩 내성 불리 — 회복하면 풀림).",
+        "en": "1d4 + STR/DEX damage. On hit: CON save (weapon action DC + 2) or Crippled for 2 turns (speed 0, DEX save disadvantage; healing ends it)."
+      },
+      "cost": "action",
+      "weapons": [
+        "war_pick",
+        "battleaxe"
+      ],
+      "damage": "1d4",
+      "save": "con",
+      "dc_bonus": 2,
+      "condition": "crippled",
       "turns": 2,
       "icon": "res://assets/statuses/snare.webp",
+      "glyph": "hamstring",
+      "source": "original"
+    },
+    {
+      "id": "wa_knock_aside",
+      "name": {
+        "ko": "무기 쳐내기",
+        "en": "Knock Aside"
+      },
+      "desc": {
+        "ko": "1d4 + 근력·민첩 피해. 명중하면 근력 내성(무기 액션 DC + 2), 실패하면 대상이 무기를 놓친다(다음 턴 끝까지 무기 공격 불가). 무기를 든 대상만.",
+        "en": "1d4 + STR/DEX damage. On hit: STR save (weapon action DC + 2) or the target drops its weapon (no weapon attacks until the end of its next turn). Armed targets only."
+      },
+      "cost": "action",
+      "weapons": [
+        "trident"
+      ],
+      "damage": "1d4",
+      "save": "str",
+      "dc_bonus": 2,
+      "condition": "disarmed",
+      "turns": 1,
+      "needs_weapon": true,
+      "icon": "res://assets/statuses/shield_arm.webp",
+      "glyph": "swap",
+      "source": "original"
+    },
+    {
+      "id": "wa_feint",
+      "name": {
+        "ko": "현란한 손놀림",
+        "en": "Dazzling Feint"
+      },
+      "desc": {
+        "ko": "보너스 행동. 1d4 타격 피해. 명중하면 민첩 내성(무기 액션 DC + 2), 실패하면 2턴 동안 균형 잃음.",
+        "en": "Bonus action. 1d4 bludgeoning. On hit: DEX save (weapon action DC + 2) or Off-Balance for 2 turns."
+      },
+      "cost": "bonus",
+      "weapons": [
+        "scimitar",
+        "shortsword",
+        "rapier"
+      ],
+      "damage": "1d4",
+      "damage_type": "bludgeoning",
+      "no_mod": true,
+      "save": "dex",
+      "dc_bonus": 2,
+      "condition": "off_balance",
+      "turns": 2,
+      "icon": "res://assets/statuses/f3_disoriented.webp",
+      "glyph": "swirl",
+      "source": "original"
+    },
+    {
+      "id": "wa_sternum_strike",
+      "name": {
+        "ko": "명치 치기",
+        "en": "Sternum Strike"
+      },
+      "desc": {
+        "ko": "1d4 + 근력·민첩 피해. 명중하면 건강 내성(무기 액션 DC + 2), 실패하면 2턴 동안 숨 막힘(건강 내성 불리, 행동 하나 적음 — 회복하면 풀림).",
+        "en": "1d4 + STR/DEX damage. On hit: CON save (weapon action DC + 2) or Winded for 2 turns (CON save disadvantage, one fewer action; healing ends it)."
+      },
+      "cost": "action",
+      "weapons": [
+        "morningstar"
+      ],
+      "damage": "1d4",
+      "save": "con",
+      "dc_bonus": 2,
+      "condition": "winded",
+      "turns": 2,
+      "icon": "res://assets/statuses/stun.webp",
+      "glyph": "heart",
+      "source": "original"
+    },
+    {
+      "id": "wa_rending_cut",
+      "name": {
+        "ko": "찢어 베기",
+        "en": "Rending Cut"
+      },
+      "desc": {
+        "ko": "무기 피해. 명중하면 건강 내성(무기 액션 DC + 2), 실패하면 2턴 동안 출혈(턴 시작마다 참격 2, 건강 내성 불리 — 회복하면 풀림).",
+        "en": "Weapon damage. On hit: CON save (weapon action DC + 2) or Bleeding for 2 turns (2 slashing at turn start, CON save disadvantage; healing ends it)."
+      },
+      "cost": "action",
+      "weapons": [
+        "handaxe",
+        "sickle",
+        "scimitar",
+        "battleaxe",
+        "longsword",
+        "glaive",
+        "greataxe",
+        "greatsword",
+        "halberd"
+      ],
+      "save": "con",
+      "dc_bonus": 2,
+      "condition": "bleeding",
+      "turns": 2,
+      "icon": "res://assets/statuses/bleeding.webp",
+      "glyph": "drops",
+      "source": "original"
+    },
+    {
+      "id": "wa_impale",
+      "name": {
+        "ko": "꿰뚫기",
+        "en": "Deep Thrust"
+      },
+      "desc": {
+        "ko": "무기 피해. 명중하면 건강 내성(무기 액션 DC + 2), 실패하면 2턴 동안 벌어진 상처(이 대상을 맞힌 공격은 관통 2 추가 — 회복하면 풀림).",
+        "en": "Weapon damage. On hit: CON save (weapon action DC + 2) or Open Wound for 2 turns (hits against it deal 2 extra piercing; healing ends it)."
+      },
+      "cost": "action",
+      "weapons": [
+        "dagger",
+        "rapier",
+        "shortsword",
+        "trident",
+        "pike",
+        "javelin"
+      ],
+      "save": "con",
+      "dc_bonus": 2,
+      "condition": "open_wound",
+      "turns": 2,
+      "icon": "res://assets/statuses/marked.webp",
+      "glyph": "spear",
       "source": "original"
     },
     {
@@ -59,80 +262,237 @@
         "en": "Pommel Bash"
       },
       "desc": {
-        "ko": "보너스 행동으로 손잡이로 친다(1d4 타격). 명중하면 건강 내성, 실패하면 반응 불가.",
-        "en": "Bonus action bash (1d4 bludgeoning). On hit: CON save or no reactions."
+        "ko": "보너스 행동. 1d4 타격 피해. 명중하면 건강 내성(무기 액션 DC + 2), 실패하면 2턴 동안 비틀거림.",
+        "en": "Bonus action. 1d4 bludgeoning. On hit: CON save (weapon action DC + 2) or Reeling for 2 turns."
       },
       "cost": "bonus",
       "weapons": [
         "longsword",
-        "shortsword",
-        "rapier",
-        "scimitar",
-        "dagger",
         "greatsword"
       ],
       "damage": "1d4",
       "damage_type": "bludgeoning",
+      "no_mod": true,
       "save": "con",
-      "condition": "staggered",
-      "turns": 1,
+      "dc_bonus": 2,
+      "condition": "reeling",
+      "turns": 2,
       "icon": "res://assets/statuses/daze.webp",
+      "glyph": "pommel",
+      "source": "original"
+    },
+    {
+      "id": "wa_gather_strength",
+      "name": {
+        "ko": "힘 모으기",
+        "en": "Gather Strength"
+      },
+      "desc": {
+        "ko": "이동력 4칸(6m)을 쓴다. 이번 턴 근접 무기 명중마다 근력 수정치(최소 1)만큼 피해 추가.",
+        "en": "Spend 4 tiles (6 m) of movement. This turn, each melee weapon hit deals extra damage equal to your STR modifier (minimum 1)."
+      },
+      "cost": "movement",
+      "weapons": [
+        "greataxe"
+      ],
+      "move_tiles": 4,
+      "stance": "prepare",
+      "target": "self",
+      "icon": "res://assets/statuses/winding_up.webp",
+      "glyph": "surge",
+      "source": "original"
+    },
+    {
+      "id": "wa_charging_thrust",
+      "name": {
+        "ko": "돌진 찌르기",
+        "en": "Charging Thrust"
+      },
+      "desc": {
+        "ko": "곧게 6칸까지 달려가 처음 만나는 적을 친다(이동력 사용). 1d4 + 근력·민첩 피해. 명중하면 근력 내성(무기 액션 DC), 실패하면 2턴 동안 균형 잃음.",
+        "en": "Charge up to 6 tiles in a straight line and strike the first foe (uses movement). 1d4 + STR/DEX damage. On hit: STR save (weapon action DC) or Off-Balance for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [
+        "longsword",
+        "spear",
+        "trident",
+        "glaive",
+        "halberd",
+        "pike"
+      ],
+      "damage": "1d4",
+      "save": "str",
+      "condition": "off_balance",
+      "turns": 2,
+      "charge_tiles": 6,
+      "icon": "res://assets/statuses/march_order.webp",
+      "glyph": "chevrons",
+      "source": "original"
+    },
+    {
+      "id": "wa_follow_through",
+      "name": {
+        "ko": "끈기",
+        "en": "Follow-Through"
+      },
+      "desc": {
+        "ko": "반응(횟수 제한 없음). 근접 공격이 빗나가도 근력 수정치(최소 1) 타격 피해를 준다. 상시 설정으로 켜고 끈다.",
+        "en": "Reaction (unlimited). When you miss a melee attack, still deal bludgeoning damage equal to your STR modifier (minimum 1). Toggle in passive settings."
+      },
+      "cost": "reaction",
+      "weapons": [
+        "morningstar",
+        "greatclub",
+        "maul",
+        "flail"
+      ],
+      "unlimited": true,
+      "target": "self",
+      "icon": "res://assets/statuses/counter_stance.webp",
+      "glyph": "counter",
       "source": "original"
     },
     {
       "id": "wa_topple",
       "name": {
-        "ko": "넘어뜨리기 일격",
-        "en": "Toppling Blow"
+        "ko": "넘어뜨리기",
+        "en": "Trip Sweep"
       },
       "desc": {
-        "ko": "명중하면 대상이 근력 내성. 실패하면 넘어진다.",
-        "en": "On hit: STR save or knocked prone."
+        "ko": "1d4 타격 피해. 명중하면 민첩 내성(무기 액션 DC + 2), 실패하면 1턴 동안 넘어짐.",
+        "en": "1d4 bludgeoning. On hit: DEX save (weapon action DC + 2) or Prone for 1 turn."
       },
       "cost": "action",
       "weapons": [
-        "maul",
-        "warhammer",
-        "mace",
-        "club",
-        "quarterstaff",
-        "flail",
-        "greatclub",
-        "light_hammer"
+        "quarterstaff"
       ],
-      "save": "str",
+      "damage": "1d4",
+      "damage_type": "bludgeoning",
+      "no_mod": true,
+      "save": "dex",
+      "dc_bonus": 2,
       "condition": "prone",
-      "turns": -1,
+      "turns": 1,
       "icon": "res://assets/statuses/suppress.webp",
+      "glyph": "topple",
       "source": "original"
     },
     {
-      "id": "wa_impale",
+      "id": "wa_wrist_strike",
       "name": {
-        "ko": "꿰뚫기",
-        "en": "Impale"
+        "ko": "손목 치기",
+        "en": "Wrist Strike"
       },
       "desc": {
-        "ko": "명중하면 대상이 건강 내성. 실패하면 2턴 동안 노출(이 대상을 노린 공격 유리).",
-        "en": "On hit: CON save or Exposed (attacks against it have advantage) for 2 turns."
+        "ko": "1d4 + 근력·민첩 피해. 명중하면 근력 내성(무기 액션 DC + 2), 실패하면 2턴 동안 힘 빠진 손(공격 굴림·근력 내성 불리).",
+        "en": "1d4 + STR/DEX damage. On hit: STR save (weapon action DC + 2) or Loose Grip for 2 turns (disadvantage on attack rolls and STR saves)."
       },
       "cost": "action",
       "weapons": [
-        "spear",
-        "pike",
         "rapier",
-        "trident",
-        "javelin",
-        "lance",
-        "morningstar",
         "war_pick",
-        "light_crossbow",
-        "heavy_crossbow"
+        "warhammer",
+        "flail"
+      ],
+      "damage": "1d4",
+      "save": "str",
+      "dc_bonus": 2,
+      "condition": "weak_grip",
+      "turns": 2,
+      "icon": "res://assets/statuses/debuff.webp",
+      "glyph": "down_arrows",
+      "source": "original"
+    },
+    {
+      "id": "wa_steady_aim",
+      "name": {
+        "ko": "조준 자세",
+        "en": "Steady Aim"
+      },
+      "desc": {
+        "ko": "이동력 4칸(6m)을 쓴다. 이번 턴 원거리 무기 피해를 두 번 굴려 큰 쪽을 쓴다.",
+        "en": "Spend 4 tiles (6 m) of movement. This turn, roll ranged weapon damage twice and use the higher."
+      },
+      "cost": "movement",
+      "weapons": [
+        "heavy_crossbow",
+        "longbow"
+      ],
+      "move_tiles": 4,
+      "stance": "brace_ranged",
+      "target": "self",
+      "icon": "res://assets/statuses/high_ground.webp",
+      "glyph": "crosshair",
+      "source": "original"
+    },
+    {
+      "id": "wa_hamstring",
+      "name": {
+        "ko": "다리 쏘기",
+        "en": "Leg Shot"
+      },
+      "desc": {
+        "ko": "무기 피해. 명중하면 건강 내성(무기 액션 DC + 2), 실패하면 2턴 동안 다리 부상(속도 절반 — 회복하면 풀림).",
+        "en": "Weapon damage. On hit: CON save (weapon action DC + 2) or Hamstrung for 2 turns (speed halved; healing ends it)."
+      },
+      "cost": "action",
+      "weapons": [
+        "shortbow",
+        "longbow"
       ],
       "save": "con",
-      "condition": "exposed",
+      "dc_bonus": 2,
+      "condition": "hamstrung",
+      "turns": 2,
+      "icon": "res://assets/statuses/snare.webp",
+      "glyph": "hamstring",
+      "source": "original"
+    },
+    {
+      "id": "wa_running_shot",
+      "name": {
+        "ko": "달리며 쏘기",
+        "en": "Running Shot"
+      },
+      "desc": {
+        "ko": "보너스 행동. 이번 턴 질주나 이탈을 했으면 원거리 무기로 한 번 쏜다.",
+        "en": "Bonus action. If you Dashed or Disengaged this turn, make one ranged weapon attack."
+      },
+      "cost": "bonus",
+      "weapons": [
+        "hand_crossbow"
+      ],
+      "requires_turn": [
+        "dashed",
+        "disengaged"
+      ],
+      "icon": "res://assets/statuses/haste.webp",
+      "glyph": "bow",
+      "source": "original"
+    },
+    {
+      "id": "wa_piercing_bolt",
+      "name": {
+        "ko": "관통 사격",
+        "en": "Piercing Bolt"
+      },
+      "desc": {
+        "ko": "무기 피해. 명중하면 건강 내성(무기 액션 DC + 2), 실패하면 2턴 동안 벌어진 상처.",
+        "en": "Weapon damage. On hit: CON save (weapon action DC + 2) or Open Wound for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [
+        "heavy_crossbow",
+        "light_crossbow",
+        "hand_crossbow"
+      ],
+      "save": "con",
+      "dc_bonus": 2,
+      "condition": "open_wound",
       "turns": 2,
       "icon": "res://assets/statuses/marked.webp",
+      "glyph": "arrow",
       "source": "original"
     }
   ]
