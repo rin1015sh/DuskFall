@@ -362,9 +362,10 @@ static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Diction
 		var castable: Array = spec.get("spells", []).filter(func(sid: Variant) -> bool:
 			return int(RulesDB.get_entry("spell", str(sid)).get("level", 99)) <= max_slot)
 		spells.append_array(castable.slice(0, _by_level(sc["prepared"], lv, 0)))
-	for k: String in sub.get("always_prepared", {}).keys():
-		if lv >= int(k):
-			spells.append_array(sub["always_prepared"][k])
+	for src: Dictionary in [cls, sub]:
+		for k: String in src.get("always_prepared", {}).keys():
+			if lv >= int(k):
+				spells.append_array(src["always_prepared"][k])  # 클래스·하위 클래스의 항상 준비 주문(준비 수에 세지 않음)
 	for s: Dictionary in sp.get("spells", []) + lin.get("spells", []):
 		if lv >= int(s["level"]):
 			spells.append(s["spell"])

@@ -57,6 +57,10 @@ signal on_fall(ctx: Dictionary)
 signal on_detect_radius(creature: Object, target: Object)
 ## NPC 시야 원뿔 안에서 절도가 일어날 때
 signal on_witness(witness: Object, thief: Object)
+## 상태를 건 생물이 그 상태의 대상을 맞혔다(상태 hooks.on_hit_by_source — 사냥꾼의 표식)
+signal on_hit_by_source(ctx: Dictionary)
+## 무기로 맞혔다(공격자 상태 hooks.on_weapon_hit — 얽어매는 일격)
+signal on_weapon_hit(ctx: Dictionary)
 ## 짧은 휴식
 signal on_short_rest()
 ## 긴 휴식
@@ -92,4 +96,7 @@ func hook_names() -> PackedStringArray:
 		"on_witness",
 		"on_short_rest",
 		"on_long_rest",
+		# 상태 훅(resolver._hit_riders — 신호 없이 명중 처리 중에 데이터를 읽는다)
+		"on_hit_by_source",  # 이 상태를 건 생물이 지닌 생물을 공격으로 맞힐 때(사냥꾼의 표식)
+		"on_weapon_hit",  # 이 상태를 지닌 생물이 무기로 맞힐 때(얽어매는 일격)
 	])

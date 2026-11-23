@@ -137,6 +137,11 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 		if f.is_valid():
 			f.call()
 	world["on_long_rest"] = []
+	# 긴 휴식에 사라지는 아이템(아이템 데이터 expires: long_rest — 좋은열매)
+	var inv: Dictionary = world.get("inventory", {})
+	for item: String in inv.keys():
+		if item != "gold" and str(RulesDB.get_entry("item", item).get("expires", "")) == "long_rest":
+			inv.erase(item)
 	EventBus.on_long_rest.emit()
 	Dice.log_text("긴 휴식%s" % ("" if full else "(부분)"))
 	return {"ok": true, "partial": not full}

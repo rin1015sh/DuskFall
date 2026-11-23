@@ -1,0 +1,297 @@
+{
+  "schema": "class_v1",
+  "id": "ranger",
+  "name": {
+    "ko": "레인저",
+    "en": "Ranger"
+  },
+  "hit_die": 10,
+  "primary": [
+    "dex",
+    "wis"
+  ],
+  "saves": [
+    "str",
+    "dex"
+  ],
+  "skills": {
+    "choose": 3,
+    "from": [
+      "animal_handling",
+      "athletics",
+      "insight",
+      "investigation",
+      "nature",
+      "perception",
+      "stealth",
+      "survival"
+    ]
+  },
+  "weapon_training": [
+    "simple",
+    "martial"
+  ],
+  "armor_training": [
+    "light",
+    "medium",
+    "shield"
+  ],
+  "weapon_mastery": {
+    "1": 2
+  },
+  "asi_levels": [
+    4
+  ],
+  "always_prepared": {
+    "1": [
+      "hunters_mark"
+    ]
+  },
+  "spellcasting": {
+    "ability": "wis",
+    "type": "prepared",
+    "list": "ranger",
+    "cantrips": {
+      "1": 0
+    },
+    "prepared": {
+      "1": 2,
+      "2": 3,
+      "3": 4,
+      "4": 5,
+      "5": 6
+    },
+    "slots": {
+      "1": [
+        2
+      ],
+      "2": [
+        2
+      ],
+      "3": [
+        3
+      ],
+      "4": [
+        3
+      ],
+      "5": [
+        4,
+        2
+      ]
+    }
+  },
+  "resources": [
+    {
+      "id": "innate_hunters_mark",
+      "name": {
+        "ko": "선호하는 적",
+        "en": "Favored Enemy"
+      },
+      "max": {
+        "1": 2,
+        "5": 3
+      },
+      "recharge": "long"
+    }
+  ],
+  "features": [
+    {
+      "id": "favored_enemy",
+      "name": {
+        "ko": "선호하는 적",
+        "en": "Favored Enemy"
+      },
+      "level": 1,
+      "handled_by": "클래스 always_prepared(사냥꾼의 표식) + 자원 innate_hunters_mark(슬롯 없이 긴 휴식마다 2회, 5레벨 3회 — 무료 횟수 먼저)",
+      "notes_ko": "원문 그대로. 사냥꾼의 표식을 항상 준비하고 슬롯 없이 시전.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "weapon_mastery",
+      "name": {
+        "ko": "무기 마스터리",
+        "en": "Weapon Mastery"
+      },
+      "level": 1,
+      "handled_by": "생성기 — 클래스 weapon_mastery 표(2종)와 명세 masteries",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "deft_explorer",
+      "name": {
+        "ko": "노련한 탐험가",
+        "en": "Deft Explorer"
+      },
+      "level": 2,
+      "choices": [
+        "animal_handling",
+        "athletics",
+        "insight",
+        "investigation",
+        "nature",
+        "perception",
+        "stealth",
+        "survival"
+      ],
+      "choice_kind": "expertise",
+      "notes_ko": "숙련 기능 1개 전문화(원문). 언어는 삭제(룰북 6단계 공통 규칙).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "fighting_style",
+      "name": {
+        "ko": "전투 방식",
+        "en": "Fighting Style"
+      },
+      "level": 2,
+      "choices": [
+        "archery",
+        "defense",
+        "great_weapon_fighting",
+        "two_weapon_fighting"
+      ],
+      "choice_kind": "feat",
+      "notes_ko": "전투 방식 재주 1. 드루이드 전사(드루이드 소마법) 선택지는 1차 제외(드루이드 주문 목록 없음).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "extra_attack",
+      "name": {
+        "ko": "추가 공격",
+        "en": "Extra Attack"
+      },
+      "level": 5,
+      "caps": [
+        "extra_attack"
+      ],
+      "grants": {
+        "attacks_per_action": 2
+      },
+      "source": "SRD 5.2.1"
+    }
+  ],
+  "subclasses": [
+    {
+      "id": "hunter",
+      "name": {
+        "ko": "사냥꾼",
+        "en": "Hunter"
+      },
+      "level": 3,
+      "features": [
+        {
+          "id": "hunters_lore",
+          "name": {
+            "ko": "사냥꾼의 지식",
+            "en": "Hunter's Lore"
+          },
+          "level": 3,
+          "status": "deferred",
+          "notes_ko": "표식 대상의 면역·저항·취약을 안다 — 정보 창 작업과 함께(보류).",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "hunters_prey",
+          "name": {
+            "ko": "사냥꾼의 먹잇감",
+            "en": "Hunter's Prey"
+          },
+          "level": 3,
+          "choices": [
+            "colossus_slayer",
+            "horde_breaker"
+          ],
+          "choice_kind": "option",
+          "choice_grants": {
+            "colossus_slayer": {
+              "caps": [
+                "extra_damage_wounded"
+              ]
+            },
+            "horde_breaker": {
+              "caps": [
+                "horde_breaker"
+              ]
+            }
+          },
+          "notes_ko": "거상 학살자: 턴당 1회 HP가 줄어든 대상에게 무기 명중 +1d8. 무리 파괴자: 턴당 1회 무기 공격 뒤 원래 대상 1칸 안 다른 적에게 같은 무기로 추가 공격 — 자동(단순화). 휴식 때 바꾸기는 1차 생략.",
+          "source": "SRD 5.2.1"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    }
+  ],
+  "ai_role": "ranged",
+  "art": {
+    "sheet": "res://assets/actors/beastkin.webp"
+  },
+  "color": "#62c46a",
+  "starting_equipment": {
+    "armor": "studded_leather_armor",
+    "shield": false,
+    "melee": {
+      "main": "scimitar",
+      "off": "shortsword"
+    },
+    "ranged": {
+      "main": "longbow"
+    }
+  },
+  "default_build": {
+    "subclass": "hunter",
+    "species": "elf",
+    "lineage": "elf_wood",
+    "background": "soldier",
+    "scores": {
+      "str": 10,
+      "dex": 15,
+      "con": 14,
+      "int": 8,
+      "wis": 14,
+      "cha": 8
+    },
+    "bonus": {
+      "dex": 2,
+      "wis": 1
+    },
+    "skills": [
+      "perception",
+      "stealth",
+      "survival"
+    ],
+    "species_skill": "insight",
+    "deft_explorer": "perception",
+    "fighting_style": "archery",
+    "hunters_prey": "colossus_slayer",
+    "spells": [
+      "cure_wounds",
+      "ensnaring_strike",
+      "goodberry",
+      "entangle",
+      "spike_growth",
+      "barkskin",
+      "pass_without_trace",
+      "lesser_restoration"
+    ],
+    "masteries": [
+      "longbow",
+      "shortsword"
+    ],
+    "asi": {
+      "4": {
+        "dex": 2
+      }
+    },
+    "armor": "studded_leather_armor",
+    "weapons": {
+      "melee": {
+        "main": "shortsword",
+        "off": "scimitar"
+      },
+      "ranged": {
+        "main": "longbow"
+      }
+    }
+  },
+  "source": "SRD 5.2.1"
+}

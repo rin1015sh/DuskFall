@@ -118,6 +118,8 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 		var e := RulesDB.get_entry("item", item) if item != "gold" else {}
 		if e.get("category", "") == "potion" and Interact.count(world, item) > 0:
 			for verb: String in ["drink", "feed", "throw_potion"]:
+				if verb == "throw_potion" and not bool(e.get("throwable", true)):
+					continue  # 던질 수 없는 것(좋은열매 등)
 				out["items"].append("%s:%s" % [verb, item])
 		elif e.get("category", "") == "scroll" and Interact.count(world, item) > 0 and can_read_scroll(c, e):
 			out["items"].append("read_scroll:" + item)

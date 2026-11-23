@@ -6,16 +6,16 @@
 
 | 종류 | 수 |
 | --- | --- |
-| class | 4 |
-| spell | 150 |
+| class | 5 |
+| spell | 156 |
 | weapon | 38 |
 | armor | 13 |
-| item | 9 |
+| item | 10 |
 | feat | 10 |
 | species | 15 |
 | background | 4 |
 | monster | 21 |
-| capability | 23 |
+| capability | 25 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -50,6 +50,18 @@
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 전술적 이동 (tactical_shift) |  | 처리: second_wind 스크립트 안 |  |
 
+### 레인저 (ranger) — 생명 주사위 d10, 역할 ranged
+
+| 레벨 | 기능 | 하위 | 장치 | 상태 |
+| --- | --- | --- | --- | --- |
+| 1 | 선호하는 적 (favored_enemy) |  | 처리: 클래스 always_prepared(사냥꾼의 표식) + 자원 innate_hunters_mark(슬롯 없이 긴 휴식마다 2회, 5레벨 3회 — 무료 횟수 먼저) |  |
+| 1 | 무기 마스터리 (weapon_mastery) |  | 처리: 생성기 — 클래스 weapon_mastery 표(2종)와 명세 masteries |  |
+| 2 | 노련한 탐험가 (deft_explorer) |  | 고르기(expertise) |  |
+| 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
+| 3 | 사냥꾼의 지식 (hunters_lore) | hunter |  | 보류(deferred) |
+| 3 | 사냥꾼의 먹잇감 (hunters_prey) | hunter | 고르기(option) |  |
+| 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
+
 ### 로그 (rogue) — 생명 주사위 d8, 역할 ranged
 
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
@@ -77,15 +89,15 @@
 
 ## 주문
 
-- 상태: included 131, excluded_v1 13, candidate_exclusion 6
-- 포함 주문 레벨별: 2레벨 41, 0레벨 20, 3레벨 30, 1레벨 40
-- 스크립트 주문 66개, 그중 포함인데 미구현: 없음
+- 상태: included 137, excluded_v1 13, candidate_exclusion 6
+- 포함 주문 레벨별: 2레벨 43, 0레벨 20, 3레벨 30, 1레벨 44
+- 스크립트 주문 67개, 그중 포함인데 미구현: 없음
 - 아이콘(icon) 없는 포함 주문(학파 색 별로 표시): 없음
-- 클래스 주문 목록: wizard 109, cleric 58
+- 클래스 주문 목록: wizard 109, cleric 58, ranger 32
 
 ## 아이템
 
-- 분류: potion 4, food 1, scroll 2, tool 2
+- 분류: potion 5, food 1, scroll 2, tool 2
 - 동작하는 분류: potion(마시기·먹이기·던지기), scroll(두루마리 읽기), food(캠프 보급품), tool(자물쇠·함정). **magic(장착 효과)은 아직 동작 없음** — 장비 칸 설계가 먼저 필요
 
 ## 능력 태그 사용
@@ -99,8 +111,10 @@
 | climber | 등반 | rogue |
 | crit_free_move | 치명타 뒤 이동 | fighter |
 | cunning_strike | 교활한 일격 | rogue |
-| extra_attack | 추가 공격 | fighter |
+| extra_attack | 추가 공격 | fighter, ranger |
 | extra_bonus_action | 추가 보너스 행동 | rogue |
+| extra_damage_wounded | 거상 학살자 | (몬스터 특성 또는 아직 없음) |
+| horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
 | initiative_proficiency | 경계 | 재주 alert |
 | jump_dex | 민첩 도약 | rogue |

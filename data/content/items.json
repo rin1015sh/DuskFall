@@ -185,6 +185,29 @@
       "save_dc": 13,
       "attack_bonus": 5,
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "goodberry",
+      "name": {
+        "ko": "좋은열매",
+        "en": "Goodberry"
+      },
+      "category": "potion",
+      "rarity": "common",
+      "weight_kg": 0.0,
+      "price_gp": 0,
+      "material": "grass",
+      "effects": [
+        {
+          "type": "heal",
+          "dice": "1"
+        }
+      ],
+      "drink_cost": "bonus_action",
+      "feed_cost": "action",
+      "throwable": false,
+      "expires": "long_rest",
+      "source": "SRD 5.2.1"
     }
   ]
 }

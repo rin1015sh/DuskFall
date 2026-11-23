@@ -664,6 +664,10 @@
       "$comment": "클래스 기능 아이콘 색(#rrggbb)",
       "type": "string",
       "pattern": "^#[0-9a-fA-F]{6}$"
+    },
+    "always_prepared": {
+      "$comment": "클래스 레벨 → 항상 준비 주문(준비 수에 세지 않음)",
+      "type": "object"
     }
   }
 }

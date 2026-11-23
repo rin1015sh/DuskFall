@@ -165,6 +165,10 @@
               "items": {
                 "$ref": "#/$defs/damage_type"
               }
+            },
+            "floor": {
+              "$comment": "stat ac: AC가 이보다 낮으면 이 값(나무껍질 피부)",
+              "type": "integer"
             }
           }
         }
@@ -183,7 +187,8 @@
             "heal",
             "temp_hp",
             "apply_condition",
-            "remove_condition"
+            "remove_condition",
+            "save"
           ]
         },
         "dice": {
@@ -200,6 +205,28 @@
           "enum": [
             "weapon_attack"
           ]
+        },
+        "save": {
+          "$comment": "on_weapon_hit: 대상 내성(실패 시 on_fail) — DC는 상태를 건 시전자의 주문 DC",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ability"
+          ],
+          "properties": {
+            "ability": {
+              "$ref": "#/$defs/ability"
+            },
+            "large_advantage": {
+              "type": "boolean"
+            }
+          }
+        },
+        "on_fail": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hook_effect"
+          }
         }
       }
     },
@@ -368,6 +395,24 @@
             "SRD 5.2.1",
             "original"
           ]
+        },
+        "transfer_on_drop": {
+          "$comment": "이 상태를 지닌 생물이 0 HP가 되면 건 시전자가 볼 수 있는 가장 가까운 적(range 칸 안)에게 자동으로 옮긴다(사냥꾼의 표식 — 사용자 결정 2026-11-23)",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "range"
+          ],
+          "properties": {
+            "range": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "consume_on_trigger": {
+          "$comment": "on_weapon_hit가 한 번 발동하면 이 상태를 지운다",
+          "type": "boolean"
         }
       }
     }

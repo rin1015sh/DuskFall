@@ -130,6 +130,10 @@
         },
         "tiles": {
           "$ref": "#/$defs/tiles_count"
+        },
+        "escape": {
+          "$comment": "apply_condition: 행동으로 근력(운동)·민첩(곡예) 판정(시전자 주문 DC)으로 풀 수 있다",
+          "type": "boolean"
         }
       }
     },

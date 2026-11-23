@@ -285,7 +285,10 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 		return {"ok": false, "reason": why}
 	var spell := RulesDB.get_entry("spell", spell_id)
 	var level := int(spell["level"])
-	var slot_id := _slot(caster, int(opts.get("slot", level))) if level > 0 and not opts.get("no_slot", false) and not opts.get("free", false) else ""
+	# 무료 횟수(타고난 시전 innate_<주문> — 선호하는 적·마법 입문)가 남아 있으면 먼저 쓴다(사용자 결정 2026-11-23)
+	var use_innate: bool = level > 0 and not opts.get("no_slot", false) and not opts.get("free", false) and not opts.has("slot") \
+		and caster.resource(innate_id(spell_id)) > 0
+	var slot_id := _slot(caster, int(opts.get("slot", level))) if level > 0 and not use_innate and not opts.get("no_slot", false) and not opts.get("free", false) else ""
 	var slot: int = int(slot_id.get_slice("_", 2)) if slot_id != "" else int(opts.get("slot", level))
 	var cost := _cost(spell)
 	if cost != "explore" and not opts.get("free", false):
@@ -299,8 +302,8 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 		return {"ok": true, "countered": true}
 	if slot_id != "":
 		caster.spend_resource(slot_id)
-	elif level > 0 and not opts.get("no_slot", false) and not opts.get("free", false) and caster.resource(innate_id(spell_id)) > 0:
-		caster.spend_resource(innate_id(spell_id))  # 슬롯이 없으면 타고난 시전 1회
+	elif use_innate:
+		caster.spend_resource(innate_id(spell_id))  # 타고난 시전 1회
 	Dice.log_text("%s: %s%s" % [caster.label(), spell["name"]["en"], " (%d레벨 슬롯)" % slot if slot > level else ""])
 	var inst := new_instance(world, caster, spell, slot)
 	if spell["concentration"]:
@@ -423,7 +426,10 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 		"temp_hp":
 			Resolver.grant_temp_hp(t, Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])["total"])
 		"apply_condition":
-			t.apply_condition(e["id"], int(e.get("turns", dur)), caster, {"instance": inst["id"]})
+			var cparams := {"instance": inst["id"]}
+			if e.get("escape", false):
+				cparams["escape_dc"] = spell_dc(caster)  # 행동으로 판정해 풀 수 있다(Entangle 등)
+			t.apply_condition(e["id"], int(e.get("turns", dur)), caster, cparams)
 		"remove_condition":
 			t.remove_condition(e["id"])
 		"modify", "advantage":

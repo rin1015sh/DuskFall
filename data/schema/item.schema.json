@@ -175,6 +175,12 @@
         "attack_bonus": {
           "$comment": "두루마리 주문 공격 보너스(SRD: 소마법·1레벨 +5)",
           "type": "integer"
+        },
+        "expires": {
+          "$comment": "long_rest: 긴 휴식에 사라진다(좋은열매)",
+          "enum": [
+            "long_rest"
+          ]
         }
       }
     },

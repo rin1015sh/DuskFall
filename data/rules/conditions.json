@@ -753,6 +753,99 @@
       "stack": "keep_longest",
       "notes_ko": "Bestow Curse: 효과는 시전 인스턴스(선택한 저주)가 붙인다.",
       "source": "original"
+    },
+    {
+      "id": "hunters_marked",
+      "name": {
+        "ko": "사냥꾼의 표식",
+        "en": "Hunter's Mark"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_hit_by_source": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "force"
+          }
+        ]
+      },
+      "transfer_on_drop": {
+        "range": 18
+      },
+      "notes_ko": "Hunter's Mark: 건 시전자가 공격으로 맞히면 +1d6 역장. 쓰러지면 18칸 안 가장 가까운 적에게 자동으로 옮긴다(사용자 결정).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "ensnaring_ready",
+      "name": {
+        "ko": "얽어매는 일격 준비",
+        "en": "Ensnaring Strike Ready"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "consume_on_trigger": true,
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "save",
+            "save": {
+              "ability": "str",
+              "large_advantage": true
+            },
+            "on_fail": [
+              {
+                "type": "apply_condition",
+                "id": "ensnared"
+              }
+            ]
+          }
+        ]
+      },
+      "notes_ko": "Ensnaring Strike: 다음 무기 명중에 대상 근력 내성(큰 생물 유리), 실패하면 휘감김. 발동하면 사라진다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "ensnared",
+      "name": {
+        "ko": "휘감김",
+        "en": "Ensnared"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "piercing"
+          }
+        ]
+      },
+      "notes_ko": "Ensnaring Strike: 속박 + 턴 시작마다 1d6 관통. 행동으로 근력(운동) 판정으로 풀린다(속박 풀기와 같다).",
+      "source": "SRD 5.2.1",
+      "includes": [
+        "restrained"
+      ]
+    },
+    {
+      "id": "barkskin",
+      "name": {
+        "ko": "나무껍질 피부",
+        "en": "Barkskin"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "ac",
+          "floor": 17
+        }
+      ],
+      "notes_ko": "Barkskin: AC가 17보다 낮으면 17.",
+      "source": "SRD 5.2.1"
     }
   ]
 }

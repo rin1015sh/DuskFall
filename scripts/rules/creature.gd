@@ -147,15 +147,17 @@ func save_bonus(ability: String) -> int:
 
 func ac() -> int:
 	var value := ac_base
+	var floor_ac := 0
 	for m in modifier_entries():
 		var e: Dictionary = m["effect"]
 		if e["type"] == "modify" and e["stat"] == "ac":
 			if e.has("set"):
 				value = e["set"]
 			value += int(e.get("add", 0))
+			floor_ac = maxi(floor_ac, int(e.get("floor", 0)))  # AC 바닥값(나무껍질 피부)
 		elif e["type"] == "modify" and e["stat"] == "ac_base" and str(get_meta("armor", "")) == "":
 			value += 3  # Mage Armor: 갑옷이 없으면 10 + 민첩 → 13 + 민첩
-	return value
+	return maxi(value, floor_ac)
 
 
 func speed() -> int:

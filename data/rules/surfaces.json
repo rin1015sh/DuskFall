@@ -319,6 +319,19 @@
       "blocks_sight": true,
       "source": "original",
       "notes_ko": "Silent Image·Major Image의 벽·물체 환영: 시야를 가린다(통과할 수 있음). 시전 인스턴스가 끝나면 걷힌다."
+    },
+    {
+      "id": "vines",
+      "layer": "ground",
+      "name": {
+        "ko": "휘감는 덩굴",
+        "en": "Grasping Vines"
+      },
+      "duration_turns": -1,
+      "difficult": true,
+      "flammable": true,
+      "source": "SRD 5.2.1",
+      "notes_ko": "Entangle: 어려운 지형. 속박 내성은 시전할 때만(원문). 지속은 주문을 따른다."
     }
   ]
 }

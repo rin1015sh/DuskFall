@@ -86,6 +86,7 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 		EventBus.on_hit.emit(res)
 		Features.hook("on_hit", attacker, {"res": res})
 		Features.hook("on_hit", target, {"res": res})
+		_hit_riders(attacker, target, atk, res)
 		if res["crit"]:
 			EventBus.on_crit.emit(res)
 			if attacker.has_cap("crit_free_move"):
@@ -288,6 +289,79 @@ static func _attack_damage_parts(attacker: Node, atk: Dictionary, res: Dictionar
 	return parts
 
 
+## 명중에 붙는 데이터 장치(주문·기능 이름을 모른다):
+## - 대상의 상태 hooks.on_hit_by_source: 그 상태를 건 생물이 맞히면 피해를 더한다(사냥꾼의 표식).
+## - 공격자의 상태 hooks.on_weapon_hit: 무기로 맞히면 대상 내성 → 실패 효과(얽어매는 일격). consume_on_trigger면 상태를 지운다.
+## - 능력 태그 extra_damage_wounded: 턴당 1회 HP가 줄어든 대상에게 무기 명중 +1d8(거상 학살자).
+static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dictionary) -> void:
+	if not res.has("extra_damage"):
+		res["extra_damage"] = []
+	for a in target.active_conditions():
+		var src: Variant = a["instance"].get("source")
+		if not (src is Node) or src != attacker:  # 출처가 글자(함정 등)이거나 다른 생물
+			continue
+		for e: Dictionary in a["def"].get("hooks", {}).get("on_hit_by_source", []):
+			if e["type"] == "damage":
+				res["extra_damage"].append({"dice": e["dice"], "damage_type": e["damage_type"]})
+		EventBus.on_hit_by_source.emit(res)
+	if atk.get("weapon", false):
+		for a in attacker.active_conditions():
+			var effs: Array = a["def"].get("hooks", {}).get("on_weapon_hit", [])
+			if effs.is_empty():
+				continue
+			var inst: Dictionary = a["instance"]
+			var caster: Variant = inst.get("source")
+			var dc: int = load("res://scripts/rules/spellcasting.gd").spell_dc(caster) if caster is Node else 13
+			var params := {"instance": inst.get("params", {}).get("instance"), "escape_dc": dc}
+			for e: Dictionary in effs:
+				if e["type"] != "save":
+					continue
+				var sopts := {}
+				if e["save"].get("large_advantage", false) and str(target.size) in ["large", "huge", "gargantuan"]:
+					sopts["advantage"] = ["큰 생물"]
+				var sv := saving_throw(target, str(e["save"]["ability"]), dc, sopts)
+				if not sv.get("success", false):
+					for f: Dictionary in e.get("on_fail", []):
+						if f["type"] == "apply_condition":
+							target.apply_condition(f["id"], -1, caster, params)
+			EventBus.on_weapon_hit.emit(res)
+			if a["def"].get("consume_on_trigger", false):
+				attacker.remove_condition(str(a["id"]))
+		if attacker.has_cap("extra_damage_wounded") and target.hp < target.hp_max and not attacker.turn.get("wounded_bonus_used", false):
+			attacker.turn["wounded_bonus_used"] = true
+			res["extra_damage"].append({"dice": "1d8", "damage_type": atk["damage"][0]["damage_type"]})
+
+
+## 0 HP가 된 생물의 상태 중 transfer_on_drop이 있는 것은 건 시전자가 볼 수 있는 가장 가까운 적(range 칸 안)에게 옮긴다(사냥꾼의 표식).
+static func _transfer_on_drop(target: Node) -> void:
+	for a in target.active_conditions():
+		var tr: Dictionary = a["def"].get("transfer_on_drop", {})
+		var caster: Variant = a["instance"].get("source")
+		if tr.is_empty() or not (caster is Node) or caster.dead:
+			continue
+		var inst_id: Variant = a["instance"].get("params", {}).get("instance")
+		var Sp: Variant = load("res://scripts/rules/spellcasting.gd")
+		if inst_id == null or not Sp.instances.has(inst_id):
+			continue
+		var world: Dictionary = Sp.instances[inst_id]["world"]
+		if not world.has("grid"):
+			continue
+		var grid: Node = world["grid"]
+		var best: Node = null
+		var best_d := 1 << 20
+		for o: Node in grid.creatures():
+			if o == target or o.dead or o.hp <= 0 or not caster.is_hostile_to(o) or not grid.can_see(caster, o):
+				continue
+			var dd: int = grid.distance_between(caster, o)
+			if dd <= int(tr["range"]) and dd < best_d:
+				best_d = dd
+				best = o
+		target.remove_condition(str(a["id"]))
+		if best != null:
+			best.apply_condition(str(a["id"]), int(a["instance"].get("turns_left", -1)), caster, a["instance"].get("params", {}).duplicate())
+			Dice.log_text("%s → %s로 옮김" % [a["def"]["name"]["ko"], best.label()])
+
+
 ## 피해 굴림(판정 순서 7). 야만적 공격(턴당 1회 무기 피해 두 번 굴려 큰 쪽), 대형 무기 전투(1·2 → 3).
 static func _roll_damage(attacker: Node, atk: Dictionary, parts: Array, res: Dictionary) -> Array:
 	var gwf: bool = attacker.has_cap("reroll_low_damage_two_handed") and atk.get("weapon", false) \
@@ -457,6 +531,7 @@ static func _hp_zero(target: Node, remainder: int, opts: Dictionary, out: Dictio
 		Features.hook("on_hp_zero", target, {"res": info})
 	if info["prevented"] or target.hp > 0:
 		return
+	_transfer_on_drop(target)
 	if not target.is_player_character:
 		_die(target, "몬스터는 0 HP에서 즉사")
 	elif remainder >= target.hp_max:
@@ -646,8 +721,10 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 					parts.append({"amount": rolled[key], "damage_type": e["damage_type"],
 						"multiplier": float(e.get("scale", 1.0))})
 				"apply_condition":
-					t.apply_condition(e["id"], int(e.get("turns", opts.get("duration", 0))), opts.get("source"),
-						opts.get("condition_params", {}))
+					var cp: Dictionary = opts.get("condition_params", {}).duplicate()
+					if e.get("escape", false):
+						cp["escape_dc"] = int(check.get("dc", 10))  # 행동으로 판정해 풀 수 있다(Entangle 등)
+					t.apply_condition(e["id"], int(e.get("turns", opts.get("duration", 0))), opts.get("source"), cp)
 		var dmg := apply_damage(t, parts, opts) if not parts.is_empty() else {}
 		out.append({"target": t, "save": s, "damage": dmg})
 	return out

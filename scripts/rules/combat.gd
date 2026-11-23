@@ -173,9 +173,35 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 		attacker.turn["light_attack_done"] = true
 	apply_mastery(world, attacker, target, atk, res, opts)
 	_after_attack_features(world, attacker, target, res)
+	if not opts.get("horde_breaker", false):
+		_horde_breaker(world, attacker, target, wid, opts)
 	if world.get("turns") != null:
 		world["turns"].notify_hostile_action(attacker)
 	return res
+
+
+## 무리 파괴자(능력 태그 horde_breaker): 턴당 1회 무기 공격 뒤, 원래 대상 1칸 안의 다른 적(이번 턴에 공격하지 않은)에게
+## 같은 무기로 공격 하나 더 — 자동(사용자 결정: 단순화). 공격 횟수·행동을 쓰지 않는다.
+static func _horde_breaker(world: Dictionary, attacker: Node, target: Node, wid: String, opts: Dictionary) -> void:
+	if not attacker.has_cap("horde_breaker") or attacker.turn.get("horde_used", false) or attacker.dead:
+		return
+	var grid: Node = world["grid"]
+	var attacked: Array = attacker.turn.get("attacked", [])
+	attacked.append(target)
+	attacker.turn["attacked"] = attacked
+	var reach := reach_of(attacker) if not is_ranged_weapon(RulesDB.get_entry("weapon", wid)) else 99
+	for o: Node in grid.creatures():
+		if o == target or o.dead or not attacker.is_hostile_to(o) or o in attacked:
+			continue
+		if grid.distance_between(o, target) <= 1 and grid.distance_between(attacker, o) <= reach and grid.can_see(attacker, o):
+			attacker.turn["horde_used"] = true
+			var o2 := opts.duplicate()
+			o2["horde_breaker"] = true
+			o2["weapon"] = wid
+			attacker.turn["attacks_left"] = int(attacker.turn.get("attacks_left", 0)) + 1  # 추가 공격은 남은 공격을 쓰지 않는다
+			Dice.log_text("%s 무리 파괴자" % attacker.label())
+			attack(world, attacker, o, o2)
+			return
 
 
 ## 공격 뒤 기능: 교활한 일격(급소 공격이 정해 둔 효과).
@@ -749,15 +775,21 @@ static func _monster_save_action(world: Dictionary, m: Node, a: Dictionary, targ
 
 ## 속박에서 빠져나오기(행동): 근력(운동) 또는 민첩(곡예) 판정 vs 속박의 escape_dc(붙잡기 대체 — 룰북 6단계).
 static func escape(world: Dictionary, c: Node) -> Dictionary:
-	var inst: Dictionary = c.condition_instance("restrained")
-	if inst.is_empty() or not inst.get("params", {}).has("escape_dc"):
+	# 속박 또는 속박을 포함하는 상태(휘감김 등) 중 풀 수 있는 것(escape_dc)
+	var inst: Dictionary = {}
+	for cond in c.conditions:
+		var def := RulesDB.get_entry("condition", str(cond["id"]))
+		if (cond["id"] == "restrained" or "restrained" in def.get("includes", [])) and cond.get("params", {}).has("escape_dc"):
+			inst = cond
+			break
+	if inst.is_empty():
 		return _fail("빠져나올 속박이 없다")
 	if not spend(c, "action"):
 		return _fail("행동이 없다")
 	var ability := "str" if c.ability_mod("str") + int(c.skill_bonuses.get("athletics", 0)) >= c.ability_mod("dex") + int(c.skill_bonuses.get("acrobatics", 0)) else "dex"
 	var r := Resolver.ability_check(c, ability, int(inst["params"]["escape_dc"]), {"skill": "athletics" if ability == "str" else "acrobatics"})
 	if r["success"]:
-		c.remove_condition("restrained")
+		c.remove_condition(str(inst["id"]))
 	return {"ok": true, "success": r["success"]}
 
 

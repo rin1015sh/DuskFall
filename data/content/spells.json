@@ -134,7 +134,8 @@
       "level": 2,
       "school": "abjuration",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -1566,7 +1567,8 @@
       "level": 1,
       "school": "abjuration",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -1730,7 +1732,8 @@
       "level": 2,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -1779,7 +1782,8 @@
       "level": 3,
       "school": "evocation",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -1878,7 +1882,8 @@
       "school": "divination",
       "classes": [
         "cleric",
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [
         "elf_high"
@@ -1923,7 +1928,8 @@
       "level": 1,
       "school": "divination",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -2063,7 +2069,8 @@
       "school": "abjuration",
       "classes": [
         "cleric",
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -2261,7 +2268,8 @@
       "school": "transmutation",
       "classes": [
         "cleric",
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -2689,7 +2697,8 @@
       "level": 2,
       "school": "divination",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -3034,7 +3043,8 @@
       "level": 1,
       "school": "conjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -3421,7 +3431,8 @@
       "level": 2,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -4113,7 +4124,8 @@
       "level": 1,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -4211,7 +4223,8 @@
       "level": 2,
       "school": "abjuration",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -4430,7 +4443,8 @@
       "school": "divination",
       "classes": [
         "cleric",
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -4473,7 +4487,8 @@
       "level": 1,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [
         "elf_wood"
@@ -4769,7 +4784,8 @@
       "level": 2,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -4931,7 +4947,8 @@
       "level": 3,
       "school": "transmutation",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -5281,7 +5298,8 @@
       "level": 3,
       "school": "abjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -5317,7 +5335,9 @@
       },
       "level": 2,
       "school": "abjuration",
-      "classes": [],
+      "classes": [
+        "ranger"
+      ],
       "granted_by": [
         "elf_wood"
       ],
@@ -5565,7 +5585,8 @@
       "school": "abjuration",
       "classes": [
         "cleric",
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -5656,7 +5677,8 @@
       "level": 2,
       "school": "abjuration",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -6023,7 +6045,8 @@
       "level": 3,
       "school": "necromancy",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -6592,7 +6615,8 @@
       "level": 2,
       "school": "illusion",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -6919,7 +6943,9 @@
       },
       "level": 1,
       "school": "divination",
-      "classes": [],
+      "classes": [
+        "ranger"
+      ],
       "granted_by": [
         "gnome_forest"
       ],
@@ -7726,7 +7752,8 @@
       "level": 3,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -7769,7 +7796,8 @@
       "level": 3,
       "school": "transmutation",
       "classes": [
-        "cleric"
+        "cleric",
+        "ranger"
       ],
       "granted_by": [],
       "cast": {
@@ -7924,6 +7952,330 @@
         "glyph": "eye",
         "family": "enchantment"
       }
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "hunters_mark",
+      "name": {
+        "ko": "사냥꾼의 표식",
+        "en": "Hunter's Mark"
+      },
+      "level": 1,
+      "school": "divination",
+      "classes": [
+        "ranger"
+      ],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 18
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": true,
+      "targets_max": 1,
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "hunters_marked"
+          }
+        ]
+      },
+      "icon": {
+        "glyph": "crosshair",
+        "family": "force"
+      },
+      "ai": {
+        "role": "none"
+      },
+      "notes_ko": "원문: 공격으로 맞힐 때마다 +1d6 역장, 찾기 판정 유리(생략), 대상이 쓰러지면 표식 옮기기 → 자동(사용자 결정 2026-11-23). 1시간 → 긴 휴식까지."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "ensnaring_strike",
+      "name": {
+        "ko": "얽어매는 일격",
+        "en": "Ensnaring Strike"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "ranger"
+      ],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "ensnaring_ready"
+          }
+        ]
+      },
+      "icon": {
+        "glyph": "chains",
+        "family": "conjuration"
+      },
+      "ai": {
+        "role": "none"
+      },
+      "notes_ko": "원문: 무기로 맞힌 직후 보너스 행동. 게임: 보너스 행동으로 준비해 두면 다음 무기 명중에 발동(BG3식) — 근력 내성(큰 생물 유리) 실패 시 속박 + 턴 시작 1d6 관통. 상위 슬롯 피해 증가는 1차 생략."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "entangle",
+      "name": {
+        "ko": "휘감기",
+        "en": "Entangle"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "ranger"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 18
+      },
+      "area": {
+        "shape": "square",
+        "size_tiles": 4
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "str",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "restrained",
+            "escape": true
+          }
+        ],
+        "success": [],
+        "apply": [
+          {
+            "type": "create_surface",
+            "id": "vines"
+          }
+        ]
+      },
+      "icon": {
+        "glyph": "leaf",
+        "family": "conjuration"
+      },
+      "notes_ko": "20피트 정사각형 = 4×4칸 어려운 지형(휘감는 덩굴), 시전할 때 안의 생물 근력 내성 실패 시 속박. 시전자 제외."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "goodberry",
+      "name": {
+        "ko": "좋은열매",
+        "en": "Goodberry"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "ranger"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "effects": {
+        "apply": []
+      },
+      "script": "goodberry",
+      "icon": {
+        "glyph": "heal_cross",
+        "family": "heal"
+      },
+      "ai": {
+        "role": "none"
+      },
+      "notes_ko": "좋은열매 10개(소지품): 보너스 행동으로 먹으면 HP 1. 24시간 → 긴 휴식에 사라짐. 하루치 음식은 1차 생략."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "barkskin",
+      "name": {
+        "ko": "나무껍질 피부",
+        "en": "Barkskin"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "ranger"
+      ],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "targets_max": 1,
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "barkskin"
+          }
+        ]
+      },
+      "icon": {
+        "glyph": "shield",
+        "family": "transmutation"
+      },
+      "ai": {
+        "role": "none"
+      },
+      "notes_ko": "AC가 17보다 낮으면 17. 1시간 → 긴 휴식까지(집중 없음, 2024)."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "spike_growth",
+      "name": {
+        "ko": "가시 성장",
+        "en": "Spike Growth"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "ranger"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 30
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 100
+      },
+      "concentration": true,
+      "effects": {
+        "apply": [
+          {
+            "type": "create_surface",
+            "id": "thorns"
+          }
+        ]
+      },
+      "icon": {
+        "glyph": "spike",
+        "family": "transmutation"
+      },
+      "notes_ko": "반지름 4칸 가시 표면(어려운 지형, 1칸 이동마다 2d4 관통). 위장(지각 판정) 규칙은 1차 생략."
     }
   ]
 }
