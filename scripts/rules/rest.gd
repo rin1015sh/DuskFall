@@ -54,6 +54,12 @@ static func short_rest(world: Dictionary, party: Array) -> Dictionary:
 					r["current"] = r["max"]
 				"short_one":
 					r["current"] = mini(r["max"], r["current"] + 1)
+		# 능력 태그 sorcerous_restoration(소서러 마법 회복): 짧은 휴식 뒤 마법 점수를 레벨 절반까지, 긴 휴식마다 1회(자동)
+		if c.has_cap("sorcerous_restoration") and c.resource("sorcerous_restoration") > 0 and c.resources.has("sorcery_points"):
+			var sp: Dictionary = c.resources["sorcery_points"]
+			if int(sp["current"]) < int(sp["max"]):
+				sp["current"] = mini(int(sp["max"]), int(sp["current"]) + c.level / 2)
+				c.spend_resource("sorcerous_restoration")
 	EventBus.on_short_rest.emit()
 	Dice.log_text("짧은 휴식(남은 %d회)" % world["short_rests_left"])
 	return {"ok": true}

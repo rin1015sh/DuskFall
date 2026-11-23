@@ -226,6 +226,8 @@ static func _add_adv(m: Dictionary, roll: String, side: String, owner: Node, oth
 		return
 	if e.has("skill") and not str(res.get("skill", "")) in e["skill"]:
 		return  # 기능 한정 유리(엘프 장화: 은신)
+	if e.get("spell_attack", false) and not res.get("attack", {}).has("spell"):
+		return  # 주문 공격 한정(타고난 마법)
 	if e.has("attacker_types") and (other == null or not other.creature_type in e["attacker_types"]):
 		return  # Protection from Evil and Good
 	var dist := int(res.get("distance", 1))

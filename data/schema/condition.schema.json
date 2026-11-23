@@ -130,6 +130,10 @@
               "items": {
                 "type": "string"
               }
+            },
+            "spell_attack": {
+              "$comment": "주문 공격에만",
+              "type": "boolean"
             }
           }
         },
@@ -153,7 +157,8 @@
                 "damage_immunity",
                 "no_reactions",
                 "jump_tiles",
-                "rage_damage"
+                "rage_damage",
+                "spell_dc"
               ]
             },
             "add": {

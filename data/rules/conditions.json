@@ -1202,6 +1202,31 @@
       ],
       "notes_ko": "Vicious Mockery: 다음 공격 굴림 하나 불리(자기 다음 턴 끝까지).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "innate_sorcery",
+      "name": {
+        "ko": "타고난 마법",
+        "en": "Innate Sorcery"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "spell_dc",
+          "add": 1
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "advantage",
+          "spell_attack": true
+        }
+      ],
+      "notes_ko": "소서러: 주문 DC +1, 주문 공격 유리(1분).",
+      "source": "SRD 5.2.1"
     }
   ]
 }

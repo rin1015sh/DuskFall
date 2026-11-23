@@ -70,7 +70,8 @@
       "level": 0,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -239,7 +240,8 @@
       "level": 2,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -699,7 +701,8 @@
       "classes": [
         "cleric",
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -760,7 +763,8 @@
       "level": 3,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -803,7 +807,8 @@
       "level": 2,
       "school": "illusion",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -853,7 +858,8 @@
       "level": 1,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -984,7 +990,8 @@
       "school": "enchantment",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -1045,7 +1052,8 @@
       "level": 0,
       "school": "necromancy",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [
         "tiefling_chthonic"
@@ -1105,7 +1113,8 @@
       "level": 1,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -1160,7 +1169,8 @@
       "classes": [
         "cleric",
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -1199,7 +1209,8 @@
       "school": "illusion",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -1321,7 +1332,8 @@
       "school": "divination",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -1420,7 +1432,8 @@
       "level": 3,
       "school": "abjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -1638,7 +1651,8 @@
       "school": "illusion",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [
         "elf_drow"
@@ -1691,7 +1705,8 @@
       "level": 2,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [
         "elf_drow",
@@ -1749,7 +1764,8 @@
       "school": "transmutation",
       "classes": [
         "wizard",
-        "ranger"
+        "ranger",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -1799,7 +1815,8 @@
       "school": "evocation",
       "classes": [
         "cleric",
-        "ranger"
+        "ranger",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -1902,7 +1919,8 @@
         "wizard",
         "ranger",
         "paladin",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [
         "elf_high"
@@ -1993,7 +2011,8 @@
       "school": "divination",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2048,7 +2067,8 @@
       "school": "illusion",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2093,7 +2113,8 @@
         "cleric",
         "wizard",
         "ranger",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2141,7 +2162,8 @@
       "level": 2,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2244,7 +2266,8 @@
       "level": 0,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2293,7 +2316,8 @@
         "cleric",
         "wizard",
         "ranger",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2349,7 +2373,8 @@
       "school": "transmutation",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2399,7 +2424,8 @@
       "level": 1,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2509,7 +2535,8 @@
       "level": 1,
       "school": "necromancy",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [
         "tiefling_chthonic"
@@ -2570,7 +2597,8 @@
       "school": "illusion",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2630,7 +2658,8 @@
       "school": "transmutation",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2770,7 +2799,8 @@
       "level": 0,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [
         "tiefling_infernal"
@@ -2835,7 +2865,8 @@
       "level": 3,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -2916,7 +2947,8 @@
       "level": 2,
       "school": "conjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -3024,7 +3056,8 @@
       "level": 3,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -3073,7 +3106,8 @@
       "school": "conjuration",
       "classes": [
         "wizard",
-        "ranger"
+        "ranger",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -3132,7 +3166,8 @@
       "level": 3,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -3278,7 +3313,8 @@
       "level": 1,
       "school": "conjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -3463,7 +3499,8 @@
       "school": "evocation",
       "classes": [
         "wizard",
-        "ranger"
+        "ranger",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -3519,7 +3556,8 @@
       "level": 3,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -3767,7 +3805,8 @@
       "classes": [
         "cleric",
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [
         "tiefling_abyssal"
@@ -3833,7 +3872,8 @@
       "school": "illusion",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -3897,7 +3937,8 @@
       "level": 1,
       "school": "conjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4107,7 +4148,8 @@
       "school": "illusion",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4163,7 +4205,8 @@
       "school": "transmutation",
       "classes": [
         "wizard",
-        "ranger"
+        "ranger",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4219,7 +4262,8 @@
       "school": "transmutation",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4306,7 +4350,8 @@
       "level": 2,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4358,7 +4403,8 @@
       "classes": [
         "cleric",
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4407,7 +4453,8 @@
       "level": 3,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4589,7 +4636,8 @@
       "level": 1,
       "school": "abjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4640,7 +4688,8 @@
       "school": "conjuration",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4735,7 +4784,8 @@
       "level": 1,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4833,7 +4883,8 @@
       "classes": [
         "wizard",
         "ranger",
-        "paladin"
+        "paladin",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -4888,7 +4939,8 @@
       "school": "illusion",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -5049,7 +5101,8 @@
       "classes": [
         "cleric",
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [
         "gnome_rock"
@@ -5094,7 +5147,8 @@
       "school": "transmutation",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -5203,7 +5257,8 @@
       "school": "illusion",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [
         "gnome_forest"
@@ -5253,7 +5308,8 @@
       "school": "illusion",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -5302,7 +5358,8 @@
       "level": 2,
       "school": "conjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [
         "elf_high"
@@ -5485,7 +5542,8 @@
       "level": 0,
       "school": "necromancy",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [
         "tiefling_abyssal"
@@ -5595,7 +5653,8 @@
       "school": "transmutation",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [
         "elf_high",
@@ -5643,7 +5702,8 @@
       "classes": [
         "cleric",
         "wizard",
-        "ranger"
+        "ranger",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -5884,7 +5944,8 @@
       "level": 0,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -5948,7 +6009,8 @@
       "level": 1,
       "school": "necromancy",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [
         "tiefling_abyssal"
@@ -6295,7 +6357,8 @@
       "level": 2,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -6356,7 +6419,8 @@
       "school": "divination",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -6445,7 +6509,8 @@
       "school": "evocation",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -6517,7 +6582,8 @@
       "level": 1,
       "school": "abjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -6622,7 +6688,8 @@
       "level": 0,
       "school": "evocation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -6732,7 +6799,8 @@
       "school": "illusion",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -6780,7 +6848,8 @@
       "school": "enchantment",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -6844,7 +6913,8 @@
       "level": 3,
       "school": "conjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -6915,7 +6985,8 @@
       "school": "transmutation",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -7116,7 +7187,8 @@
       "level": 2,
       "school": "transmutation",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -7292,7 +7364,8 @@
       "school": "conjuration",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -7359,7 +7432,8 @@
       "school": "enchantment",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -7472,7 +7546,8 @@
       "school": "evocation",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -7595,7 +7670,8 @@
       "classes": [
         "cleric",
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -7644,7 +7720,8 @@
       "school": "divination",
       "classes": [
         "wizard",
-        "bard"
+        "bard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -7729,7 +7806,8 @@
       "level": 3,
       "school": "necromancy",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -7831,7 +7909,8 @@
       "school": "transmutation",
       "classes": [
         "wizard",
-        "ranger"
+        "ranger",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -7875,7 +7954,8 @@
       "school": "transmutation",
       "classes": [
         "cleric",
-        "ranger"
+        "ranger",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {
@@ -7918,7 +7998,8 @@
       "level": 2,
       "school": "conjuration",
       "classes": [
-        "wizard"
+        "wizard",
+        "sorcerer"
       ],
       "granted_by": [],
       "cast": {

@@ -1,0 +1,391 @@
+{
+  "schema": "class_v1",
+  "id": "sorcerer",
+  "name": {
+    "ko": "소서러",
+    "en": "Sorcerer"
+  },
+  "hit_die": 6,
+  "primary": [
+    "cha"
+  ],
+  "saves": [
+    "con",
+    "cha"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "arcana",
+      "deception",
+      "insight",
+      "intimidation",
+      "persuasion",
+      "religion"
+    ]
+  },
+  "weapon_training": [
+    "simple"
+  ],
+  "armor_training": [],
+  "asi_levels": [
+    4
+  ],
+  "spellcasting": {
+    "ability": "cha",
+    "swap": {
+      "long_rest": 0,
+      "level_up": 1
+    },
+    "type": "prepared",
+    "list": "sorcerer",
+    "cantrips": {
+      "1": 4,
+      "4": 5
+    },
+    "prepared": {
+      "1": 2,
+      "2": 4,
+      "3": 6,
+      "4": 7,
+      "5": 9
+    },
+    "slots": {
+      "1": [
+        2
+      ],
+      "2": [
+        3
+      ],
+      "3": [
+        4,
+        2
+      ],
+      "4": [
+        4,
+        3
+      ],
+      "5": [
+        4,
+        3,
+        2
+      ]
+    }
+  },
+  "resources": [
+    {
+      "id": "innate_sorcery",
+      "name": {
+        "ko": "타고난 마법",
+        "en": "Innate Sorcery"
+      },
+      "max": {
+        "1": 2
+      },
+      "recharge": "long"
+    },
+    {
+      "id": "sorcery_points",
+      "name": {
+        "ko": "마법 점수",
+        "en": "Sorcery Points"
+      },
+      "max": {
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "recharge": "long"
+    },
+    {
+      "id": "sorcerous_restoration",
+      "name": {
+        "ko": "마법 회복",
+        "en": "Sorcerous Restoration"
+      },
+      "max": {
+        "5": 1
+      },
+      "recharge": "long"
+    }
+  ],
+  "features": [
+    {
+      "id": "innate_sorcery",
+      "name": {
+        "ko": "타고난 마법",
+        "en": "Innate Sorcery"
+      },
+      "level": 1,
+      "kind": "bonus_action",
+      "resource": "innate_sorcery",
+      "script": "innate_sorcery",
+      "notes_ko": "보너스 행동, 1분 동안 소서러 주문 DC +1·주문 공격 유리. 긴 휴식마다 2회.",
+      "source": "SRD 5.2.1",
+      "glyph": "sparkle",
+      "ai": {
+        "when": "foes_2plus"
+      }
+    },
+    {
+      "id": "font_of_magic",
+      "name": {
+        "ko": "마법의 샘",
+        "en": "Font of Magic"
+      },
+      "level": 2,
+      "handled_by": "자원 sorcery_points(레벨만큼, 긴 휴식) + 기능 슬롯→점수·점수→슬롯",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "convert_slot",
+      "name": {
+        "ko": "슬롯을 마법 점수로",
+        "en": "Convert Spell Slot"
+      },
+      "level": 2,
+      "kind": "free",
+      "script": "convert_slot",
+      "notes_ko": "행동 없이 가장 낮은 슬롯을 그 레벨만큼의 마법 점수로(최대치까지).",
+      "source": "SRD 5.2.1",
+      "glyph": "sparkle"
+    },
+    {
+      "id": "create_slot",
+      "name": {
+        "ko": "마법 점수로 슬롯",
+        "en": "Create Spell Slot"
+      },
+      "level": 2,
+      "kind": "bonus_action",
+      "script": "create_slot",
+      "notes_ko": "보너스 행동, 1레벨 2점·2레벨 3점(3레벨~)·3레벨 5점(5레벨~) — 낼 수 있는 가장 높은 슬롯. 만든 슬롯은 긴 휴식에 사라진다.",
+      "source": "SRD 5.2.1",
+      "glyph": "sparkle"
+    },
+    {
+      "id": "metamagic",
+      "name": {
+        "ko": "주문 변형",
+        "en": "Metamagic"
+      },
+      "level": 2,
+      "choices": [
+        "quickened",
+        "distant",
+        "heightened",
+        "extended"
+      ],
+      "choice_kind": "option",
+      "count": 2,
+      "choice_grants": {
+        "quickened": {
+          "caps": [
+            "metamagic_quickened"
+          ]
+        },
+        "distant": {
+          "caps": [
+            "metamagic_distant"
+          ]
+        },
+        "heightened": {
+          "caps": [
+            "metamagic_heightened"
+          ]
+        },
+        "extended": {
+          "caps": [
+            "metamagic_extended"
+          ]
+        }
+      },
+      "toggle": {
+        "values": [
+          {
+            "id": "none",
+            "name": {
+              "ko": "끄기",
+              "en": "Off"
+            }
+          },
+          {
+            "id": "quickened",
+            "name": {
+              "ko": "빠른 주문",
+              "en": "Quickened Spell"
+            }
+          },
+          {
+            "id": "distant",
+            "name": {
+              "ko": "원거리 주문",
+              "en": "Distant Spell"
+            }
+          },
+          {
+            "id": "heightened",
+            "name": {
+              "ko": "고양된 주문",
+              "en": "Heightened Spell"
+            }
+          },
+          {
+            "id": "extended",
+            "name": {
+              "ko": "연장된 주문",
+              "en": "Extended Spell"
+            }
+          }
+        ],
+        "desc": {
+          "ko": "다음 주문 하나에 쓸 변형(쓰면 꺼진다, 고른 변형만)",
+          "en": "Metamagic for your next spell (turns off after use)"
+        }
+      },
+      "notes_ko": "변형 2개를 고른다(빠른 2점·원거리 1점·고양된 2점·연장된 1점). 상시 설정에서 켜면 다음 주문 하나에 쓰고 꺼진다(BG3식). 쌍둥이·신중한·강화·은밀한·추적은 1차 생략. 빠른 주문의 '같은 턴 다른 주문 금지'는 생략.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sorcerous_restoration",
+      "name": {
+        "ko": "마법 회복",
+        "en": "Sorcerous Restoration"
+      },
+      "level": 5,
+      "caps": [
+        "sorcerous_restoration"
+      ],
+      "notes_ko": "짧은 휴식 뒤 마법 점수를 레벨 절반(내림)까지 자동 회복, 긴 휴식마다 1회.",
+      "source": "SRD 5.2.1"
+    }
+  ],
+  "subclasses": [
+    {
+      "id": "draconic",
+      "name": {
+        "ko": "용의 혈통",
+        "en": "Draconic Sorcery"
+      },
+      "level": 3,
+      "source": "SRD 5.2.1",
+      "always_prepared": {
+        "3": [
+          "alter_self",
+          "chromatic_orb",
+          "command",
+          "dragon_s_breath"
+        ],
+        "5": [
+          "fear",
+          "fly"
+        ]
+      },
+      "features": [
+        {
+          "id": "draconic_resilience",
+          "name": {
+            "ko": "용의 회복력",
+            "en": "Draconic Resilience"
+          },
+          "level": 3,
+          "caps": [
+            "unarmored_defense_cha"
+          ],
+          "grants": {
+            "hp_per_level": 1
+          },
+          "notes_ko": "최대 HP + 소서러 레벨(3레벨에 +3, 레벨마다 +1), 갑옷이 없으면 AC 10 + 민첩 + 매력.",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "draconic_spells",
+          "name": {
+            "ko": "용의 주문",
+            "en": "Draconic Spells"
+          },
+          "level": 3,
+          "handled_by": "하위 클래스 always_prepared(3레벨 변신·색채의 구슬·명령·용의 숨결, 5레벨 공포·비행)",
+          "source": "SRD 5.2.1"
+        }
+      ]
+    }
+  ],
+  "ai_role": "caster",
+  "art": {
+    "sheet": "res://assets/actors/human.webp"
+  },
+  "color": "#e0603a",
+  "starting_equipment": {
+    "armor": "",
+    "shield": false,
+    "melee": {
+      "main": "dagger",
+      "off": ""
+    },
+    "ranged": {
+      "main": "light_crossbow"
+    }
+  },
+  "default_build": {
+    "subclass": "draconic",
+    "species": "tiefling",
+    "lineage": "tiefling_infernal",
+    "background": "sage",
+    "scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 14,
+      "int": 10,
+      "wis": 10,
+      "cha": 15
+    },
+    "bonus": {
+      "cha": 2,
+      "con": 1
+    },
+    "skills": [
+      "arcana",
+      "persuasion"
+    ],
+    "metamagic": [
+      "quickened",
+      "distant"
+    ],
+    "cantrips": [
+      "fire_bolt",
+      "shocking_grasp",
+      "ray_of_frost",
+      "light",
+      "prestidigitation"
+    ],
+    "spells": [
+      "magic_missile",
+      "burning_hands",
+      "shield",
+      "sleep",
+      "scorching_ray",
+      "misty_step",
+      "fireball",
+      "haste",
+      "thunderwave"
+    ],
+    "asi": {
+      "4": {
+        "cha": 2
+      }
+    },
+    "armor": "",
+    "weapons": {
+      "melee": {
+        "main": "dagger",
+        "off": ""
+      },
+      "ranged": {
+        "main": "light_crossbow"
+      }
+    }
+  },
+  "source": "SRD 5.2.1"
+}

@@ -361,6 +361,60 @@
       },
       "note_ko": "연타 명중마다 넘어뜨리기·밀기·기회 공격 막기(스크립트 flurry_of_blows, 설정)",
       "source": "original"
+    },
+    {
+      "id": "unarmored_defense_cha",
+      "name": {
+        "ko": "용의 비늘",
+        "en": "Draconic Resilience AC"
+      },
+      "note_ko": "갑옷이 없으면 AC 10 + 민첩 + 매력(character_builder.armor_class)",
+      "source": "original"
+    },
+    {
+      "id": "sorcerous_restoration",
+      "name": {
+        "ko": "마법 회복",
+        "en": "Sorcerous Restoration"
+      },
+      "note_ko": "짧은 휴식 뒤 마법 점수 레벨 절반 회복, 긴 휴식마다 1회(rest.gd 자동)",
+      "source": "original"
+    },
+    {
+      "id": "metamagic_quickened",
+      "name": {
+        "ko": "빠른 주문",
+        "en": "Quickened Spell"
+      },
+      "note_ko": "주문 변형: 행동 주문을 보너스 행동으로(2점)",
+      "source": "original"
+    },
+    {
+      "id": "metamagic_distant",
+      "name": {
+        "ko": "원거리 주문",
+        "en": "Distant Spell"
+      },
+      "note_ko": "주문 변형: 사거리 2배·접촉은 6칸(1점)",
+      "source": "original"
+    },
+    {
+      "id": "metamagic_heightened",
+      "name": {
+        "ko": "고양된 주문",
+        "en": "Heightened Spell"
+      },
+      "note_ko": "주문 변형: 내성 불리(2점)",
+      "source": "original"
+    },
+    {
+      "id": "metamagic_extended",
+      "name": {
+        "ko": "연장된 주문",
+        "en": "Extended Spell"
+      },
+      "note_ko": "주문 변형: 1분 이상 지속 2배(1점)",
+      "source": "original"
     }
   ]
 }

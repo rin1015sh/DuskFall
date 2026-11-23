@@ -23,7 +23,11 @@ static func spell_mod(c: Node) -> int:
 static func spell_dc(c: Node) -> int:
 	if c.has_meta("scroll_cast"):
 		return int(c.get_meta("scroll_cast")["dc"])  # 주문 두루마리: 두루마리 DC(SRD)
-	return 8 + c.proficiency_bonus + spell_mod(c)
+	var add := 0
+	for m in c.modifier_entries():
+		if m["effect"]["type"] == "modify" and m["effect"]["stat"] == "spell_dc":
+			add += int(m["effect"].get("add", 0))  # 타고난 마법(소서러) +1
+	return 8 + c.proficiency_bonus + spell_mod(c) + add
 
 
 static func spell_attack_bonus(c: Node) -> int:
@@ -55,6 +59,39 @@ static func _cost(spell: Dictionary) -> String:
 		"explore":
 			return "explore"
 	return "action"
+
+
+## 주문 변형(소서러 메타매직, 설정 options.metamagic — 다음 주문 한 번에 쓰고 꺼진다). 값 = 마법 점수.
+## 능력 태그 metamagic_<id>(고른 변형)가 있어야 한다. 쌍둥이·신중한·강화 등은 1차 생략.
+const METAMAGIC := {"quickened": 2, "distant": 1, "heightened": 2, "extended": 1}
+
+
+static func metamagic_for(caster: Node, spell: Dictionary) -> String:
+	var m := str(caster.options.get("metamagic", "none"))
+	if not METAMAGIC.has(m) or not caster.has_cap("metamagic_" + m) or caster.resource("sorcery_points") < int(METAMAGIC[m]):
+		return ""
+	match m:
+		"quickened":
+			return m if str(spell["cast"]["cost"]) == "action" else ""
+		"distant":
+			return m if str(spell["range"]["type"]) in ["tiles", "touch"] else ""
+		"heightened":
+			return m if str(spell.get("effects", {}).get("check", {}).get("type", "")) == "save" else ""
+		"extended":
+			return m if str(spell["duration"]["type"]) == "turns" and int(spell["duration"].get("turns", 0)) >= 10 else ""
+	return ""
+
+
+## 빠른 주문이면 행동 → 보너스 행동.
+static func _mm_cost(caster: Node, spell: Dictionary) -> String:
+	if metamagic_for(caster, spell) == "quickened":
+		return "bonus"
+	return _cost(spell)
+
+
+static func _dur(spell: Dictionary, opts: Dictionary) -> int:
+	var d := duration_turns(spell)
+	return d * int(opts.get("duration_mult", 1)) if d > 0 else d
 
 
 static func range_tiles(spell: Dictionary) -> int:
@@ -210,7 +247,7 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 		var inst: Object = load("res://scripts/rules/features.gd").script_for(spell["script"])
 		if inst == null or not inst.is_implemented():
 			return "아직 구현하지 않은 주문"
-	var cost := _cost(spell)
+	var cost := _mm_cost(caster, spell)
 	if opts.get("free", false):
 		pass  # 불러오기로 다시 거는 주문(저장된 지속 주문) — 비용·슬롯 없음
 	elif cost == "explore":
@@ -233,6 +270,8 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 	var grid: Node = world["grid"]
 	if spell["range"]["type"] in ["tiles", "touch"]:
 		var rt := range_tiles(spell)
+		if metamagic_for(caster, spell) == "distant":
+			rt = 6 if spell["range"]["type"] == "touch" else rt * 2  # 원거리 주문: 사거리 2배, 접촉은 30피트
 		if grid.distance(grid.cell_of(caster), aim) > grid.effective_range(caster, aim, rt):
 			return "사거리 밖"
 		if not grid.has_line_of_sight(grid.cell_of(caster), aim):
@@ -311,9 +350,18 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 		and caster.resource(innate_id(spell_id)) > 0
 	var slot_id := _slot(caster, int(opts.get("slot", level))) if level > 0 and not use_innate and not opts.get("no_slot", false) and not opts.get("free", false) else ""
 	var slot: int = int(slot_id.get_slice("_", 2)) if slot_id != "" else int(opts.get("slot", level))
-	var cost := _cost(spell)
+	var cost := _mm_cost(caster, spell)
 	if cost != "explore" and not opts.get("free", false):
 		Combat.spend(caster, cost)
+	var mm := metamagic_for(caster, spell)
+	if mm != "" and not opts.get("free", false):
+		caster.resources["sorcery_points"]["current"] = caster.resource("sorcery_points") - int(METAMAGIC[mm])
+		caster.options["metamagic"] = "none"  # 한 번 쓰면 꺼진다(BG3식)
+		opts = opts.duplicate()
+		opts["metamagic"] = mm
+		if mm == "extended":
+			opts["duration_mult"] = 2
+		Dice.log_text("%s: 주문 변형 — %s" % [caster.label(), mm])
 	# 시전 시작(on_spell_cast): Counterspell 같은 반응이 끊을 수 있다. 끊기면 슬롯은 쓰지 않는다(원문).
 	var cast_ctx := {"caster": caster, "spell": spell_id, "aim": aim, "slot": slot, "countered": false, "world": world}
 	EventBus.on_spell_cast.emit(cast_ctx)
@@ -328,7 +376,7 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 	Dice.log_text("%s: %s%s" % [caster.label(), spell["name"]["en"], " (%d레벨 슬롯)" % slot if slot > level else ""])
 	var inst := new_instance(world, caster, spell, slot)
 	if spell["concentration"]:
-		caster.start_concentration(spell_id, {"instance": inst["id"], "turns_left": duration_turns(spell)})
+		caster.start_concentration(spell_id, {"instance": inst["id"], "turns_left": _dur(spell, opts)})
 	if world.get("turns") != null:
 		world["turns"].notify_hostile_action(caster)
 	var ctx := {"world": world, "self": caster, "spell": spell, "aim": aim, "opts": opts, "instance": inst, "slot": slot}
@@ -391,7 +439,8 @@ static func resolve_effects(ctx: Dictionary) -> Dictionary:
 		if spell.get("repeat_save", false):
 			cparams["repeat_save"] = {"ability": check["ability"], "dc": spell_dc(caster)}
 		results = Resolver.save_effect(targets, {"ability": check["ability"], "dc": spell_dc(caster)},
-			fail, success, {"source": caster, "rolled": rolled, "duration": duration_turns(spell), "condition_params": cparams})
+			fail, success, {"source": caster, "rolled": rolled, "duration": _dur(spell, opts), "condition_params": cparams,
+				"disadvantage": ["고양된 주문"] if opts.get("metamagic", "") == "heightened" else []})
 		for r: Dictionary in results:
 			var t: Node = r["target"]
 			if not r["save"]["success"]:
@@ -429,7 +478,7 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 	var inst: Dictionary = ctx["instance"]
 	var slot: int = ctx["slot"]
 	var opts: Dictionary = ctx.get("opts", {})
-	var dur := duration_turns(spell)
+	var dur := _dur(spell, opts)
 	match e["type"]:
 		"damage":
 			var r := Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])

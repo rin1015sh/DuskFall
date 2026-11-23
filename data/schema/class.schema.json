@@ -217,6 +217,10 @@
               "items": {
                 "type": "object"
               }
+            },
+            "hp_per_level": {
+              "$comment": "레벨당 최대 HP 추가(용의 회복력)",
+              "type": "integer"
             }
           }
         },
@@ -272,6 +276,10 @@
                 "items": {
                   "type": "object"
                 }
+              },
+              "hp_per_level": {
+                "$comment": "레벨당 최대 HP 추가(용의 회복력)",
+                "type": "integer"
               }
             }
           }

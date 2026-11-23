@@ -227,6 +227,11 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		if f.has("grants"):
 			grants.append([fid, f["grants"]])
 		var kind := str(f.get("choice_kind", ""))
+		if kind == "option" and spec.get(fid) is Array:
+			for pick: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
+				if f.get("choice_grants", {}).has(str(pick)):
+					grants.append([fid, f["choice_grants"][str(pick)]])  # 여러 개 고르기(소서러 주문 변형 2)
+			continue
 		if kind == "skill" and spec.get(fid) is Array:
 			for pick: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
 				if str(pick) in f.get("choices", []):
@@ -258,6 +263,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var wt: Array = cls["weapon_training"].duplicate()
 	var armor_training: Array = cls["armor_training"].duplicate()
 	var extra_cantrips := 0
+	var hp_per_level := 0
 	for g: Array in grants:
 		var gr: Dictionary = g[1]
 		c.attacks_per_action = maxi(c.attacks_per_action, int(gr.get("attacks_per_action", 1)))
@@ -265,6 +271,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		wt.append_array(gr.get("weapon_training", []))
 		armor_training.append_array(gr.get("armor_training", []))
 		extra_cantrips += int(gr.get("extra_cantrips", 0))
+		hp_per_level += int(gr.get("hp_per_level", 0))
 		c.caps.append_array(gr.get("caps", []))
 		for adv: Dictionary in gr.get("advantage", []):
 			c.extra_modifiers.append({"effect": adv.duplicate(true), "source": g[0], "builder": true})
@@ -288,6 +295,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var hd: int = cls["hit_die"]
 	var con: int = c.ability_mod("con")
 	var hp: int = hd + con + (lv - 1) * (hd / 2 + 1 + con) + int(sp.get("hp_per_level", 0)) * lv
+	hp += hp_per_level * lv  # 기능 부여 hp_per_level(용의 회복력: 레벨당 +1)
 	c.hp_max = maxi(hp, lv)
 	c.hp = c.hp_max
 	# 자원
@@ -368,6 +376,8 @@ static func armor_class(c: Node, armor_id: String, shield: bool, training: Array
 	var ac := 10 + dex
 	if armor_id == "" and c.has_cap("unarmored_defense_con"):
 		ac += c.ability_mod("con")  # 바바리안 맨몸 방어: 10 + 민첩 + 건강(방패 가능)
+	if armor_id == "" and c.has_cap("unarmored_defense_cha"):
+		ac += c.ability_mod("cha")  # 용의 회복력(소서러): 갑옷이 없으면 10 + 민첩 + 매력
 	if armor_id == "" and not shield and c.has_cap("unarmored_defense_wis"):
 		ac += c.ability_mod("wis")  # 몽크 맨몸 방어: 10 + 민첩 + 지혜(방패 없이)
 	if armor_id != "":
