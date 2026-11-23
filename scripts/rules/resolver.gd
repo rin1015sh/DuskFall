@@ -744,6 +744,9 @@ static func grant_temp_hp(target: Node, amount: int) -> void:
 ##   "natural_rules": bool(대화 중 내성·집중 유지 내성만 true — 2단계 결정 1), "source": Node}
 ## 결과: {"success", "natural", "total", "dc", "mode", "auto"}
 static func saving_throw(creature: Node, ability: String, dc: int, opts: Dictionary = {}) -> Dictionary:
+	var src: Variant = opts.get("source")
+	if src is Node and src.has_condition("raging") and src.is_hostile_to(creature):
+		src.turn["rage_kept"] = true  # 분노 연장: 적에게 내성을 강요했다
 	var res := _save_setup(creature, ability, dc, opts)
 	if res["auto"]:
 		Dice.log_text("%s %s 내성 자동 실패 vs DC %d" % [creature.label(), ability, dc])
@@ -818,6 +821,10 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		"bonus": creature.ability_mod(ability) + _skill_bonus(creature, str(opts.get("skill", ""))) + int(opts.get("bonus", 0)),
 		"advantage": opts.get("advantage", []).duplicate(), "disadvantage": opts.get("disadvantage", []).duplicate(),
 		"success": false, "natural": 0, "total": 0, "mode": 0, "ctx": {}, "skill": str(opts.get("skill", ""))}
+	if str(opts.get("skill", "")) == "stealth":
+		var armor := str(creature.get_meta("armor", ""))
+		if armor != "" and bool(RulesDB.get_entry("armor", armor).get("stealth_disadvantage", false)):
+			res["disadvantage"].append("갑옷(은신 불리)")  # SRD 갑옷 표 Stealth Disadvantage
 	if opts.get("requires_sight", false) and creature.has_flag("fails_sight_checks"):
 		res["auto"] = true
 	else:

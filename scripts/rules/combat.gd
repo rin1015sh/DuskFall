@@ -110,8 +110,9 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	var proficient: bool = w["id"] == "unarmed" or c.weapon_proficiencies.has(w["id"]) \
 		or c.weapon_proficiencies.has(str(w.get("category", "")).get_slice("_", 0))
 	var dice: String = w["damage"]
-	if "versatile" in props and opts.get("two_handed", false) and c.weapon("off") == "":
-		dice = w["versatile_damage"]
+	var free_off: bool = c.weapon("off") == "" and not bool(c.get_meta("shield", false))
+	if "versatile" in props and not ranged and (opts.get("two_handed", false) or free_off):
+		dice = w["versatile_damage"]  # 다용도 무기: 보조 손이 비면 두 손으로(BG3식 자동, SRD Versatile)
 	var martial_die := ""
 	if martial:
 		martial_die = martial_arts_die(c)
@@ -356,6 +357,8 @@ static func opportunity_attack(world: Dictionary, attacker: Node, target: Node) 
 
 
 static func _do_attack(world: Dictionary, attacker: Node, target: Node, atk: Dictionary, skip_range: bool = false) -> Dictionary:
+	if attacker.has_condition("raging") and attacker.is_hostile_to(target):
+		attacker.turn["rage_kept"] = true  # 분노 연장: 적을 공격했다
 	var ctx := attack_context(world, attacker, target, atk)
 	if ctx.has("invalid") and not skip_range:
 		return _fail(ctx["invalid"])

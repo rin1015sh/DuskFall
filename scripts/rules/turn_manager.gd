@@ -299,6 +299,10 @@ func begin_turn(c: Node) -> void:
 ## 턴 끝(3단계 턴 순서 4): 턴 종료 효과 → 상태 지속시간 감소. 기습은 첫 턴이 끝나면 풀린다.
 func end_turn(c: Node) -> void:
 	EventBus.on_turn_end.emit(c)
+	# 분노(원문): 이번 턴에 적을 공격·내성 강요·분노 연장을 하지 않았거나 무력화면 끝난다
+	if c.has_condition("raging") and (not c.turn.get("rage_kept", false) or c.is_incapacitated()):
+		c.remove_condition("raging")
+		Dice.log_text("%s: 분노가 끝났다" % c.label())
 	if c.dead and not c.has_meta("died_round"):
 		c.set_meta("died_round", round_number)
 	c.tick_conditions()

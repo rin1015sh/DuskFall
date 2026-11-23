@@ -24,7 +24,7 @@ func test_weapon_attack_building() -> void:
 	var f := _fighter()
 	var atk := Combat.build_weapon_attack(f, "longsword")
 	assert_eq(atk["bonus"], 5, "근력 +3 + 숙련 2")
-	assert_eq(atk["damage"][0]["dice"], "1d8+3")
+	assert_eq(atk["damage"][0]["dice"], "1d10+3", "다용도: 보조 손이 비면 두 손(1d10)")
 	assert_eq(Combat.build_weapon_attack(f, "longsword", {"two_handed": true})["damage"][0]["dice"], "1d10+3", "다용도 양손")
 	assert_eq(Combat.build_weapon_attack(f, "shortbow")["ability"], "dex", "원거리 무기는 민첩")
 	var rogue := make_creature({"abilities": {"str": 10, "dex": 16}, "weapon_proficiencies": ["simple", "martial"]})

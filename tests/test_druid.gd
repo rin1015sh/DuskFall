@@ -19,7 +19,7 @@ func _dru(lv: int) -> Node:
 func test_build_order_land() -> void:
 	var d := _dru(5)
 	assert_true(d.spells.has("speak_with_animals"), "드루이드어")
-	assert_true(d.spells.has("misty_step") and d.spells.has("lightning_bolt"), "온대 땅 주문")
+	assert_true(d.spells.has("burning_hands") and d.spells.has("fireball"), "건조한 땅 주문")
 	assert_eq(int(d.skill_bonuses.get("nature", 0)), maxi(1, d.ability_mod("wis")), "마법사: 자연 + 지혜")
 	assert_eq(d.spells.filter(func(s: String) -> bool: return int(RulesDB.get_entry("spell", s)["level"]) == 0).size(), 4 + 1, "소마법 3 + 마법사 1 + 땅 소마법")
 	assert_eq(d.prep_swaps, -1, "긴 휴식 뒤 전부 교체")

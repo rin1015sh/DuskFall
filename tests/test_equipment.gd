@@ -203,3 +203,20 @@ func test_character_sheet_drop_and_menu() -> void:
 		labels.append(sheet.menu.get_item_text(i))
 	assert_true(labels.size() >= 3, "장착·넘기기·캠프로 보내기 %s" % str(labels))
 	sheet.menu.hide()
+
+
+## 다용도 무기(보조 손이 비면 두 손 주사위), 갑옷 은신 불리, 근력 요구치 미달 속도 −2칸.
+func test_versatile_stealth_strength() -> void:
+	var w := {}
+	var f := _pc("fighter", 1, {"weapons": {"melee": {"main": "longsword", "off": ""}, "ranged": {"main": "javelin"}}, "shield": false})
+	assert_eq(Combat.build_weapon_attack(f, "longsword")["damage"][0]["dice"].get_slice("+", 0).get_slice("-", 0), "1d10", "두 손 롱소드 1d10")
+	f.inventory = {"shield": 1}
+	Equipment.equip(w, f, "shield")
+	assert_eq(Combat.build_weapon_attack(f, "longsword")["damage"][0]["dice"].get_slice("+", 0).get_slice("-", 0), "1d8", "방패를 들면 1d8")
+	Dice.force([10, 10])
+	assert_eq(int(Resolver.ability_check(f, "dex", 10, {"skill": "stealth"})["mode"]), -1, "사슬 갑옷: 은신 불리")
+	var wz := _pc("wizard")
+	wz.inventory = {"plate_armor": 1}
+	var sp: int = wz.speed_tiles
+	Equipment.equip(w, wz, "plate_armor")
+	assert_eq(wz.speed_tiles, sp - 2, "판금 근력 15 미달: −2칸")

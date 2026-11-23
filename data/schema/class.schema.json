@@ -365,6 +365,7 @@
                 "before_attack",
                 "after_attack",
                 "ally_buff",
+                "end_of_turn",
                 "never"
               ]
             },

@@ -329,6 +329,9 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	Equipment.apply_to(c, slots)
 	c.ac_base = armor_class(c, str(c.get_meta("armor")), bool(c.get_meta("shield")), armor_training)
 	Equipment.sync_conditions(c)  # 숙련 없는 갑옷·무게 상태(BG3식)
+	var worn := str(c.get_meta("armor"))
+	if worn != "" and int(c.abilities.get("str", 10)) < int(RulesDB.get_entry("armor", worn).get("str_required", 0)):
+		c.speed_tiles = maxi(0, c.speed_tiles - 2)  # 근력 요구치 미달: 속도 −10피트(SRD 갑옷 표)
 	if c.has_cap("fast_movement") and not _heavy(str(c.get_meta("armor"))):
 		c.speed_tiles += 2  # 빠른 이동: 중갑이 아니면 +10피트
 	if c.has_cap("unarmored_movement") and str(c.get_meta("armor")) == "" and not bool(c.get_meta("shield")):

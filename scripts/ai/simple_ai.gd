@@ -101,6 +101,9 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 	var f := _nearest_foe(world, c)
 	if f != null and not c.dead and grid.distance_between(c, f) > 1:
 		_approach(world, c, f)
+	# 4. 턴 끝 기능(ai.when end_of_turn — 분노 연장: 스크립트가 필요할 때만 쓴다)
+	if not c.dead:
+		_use_when(world, c, "end_of_turn", null)
 
 
 ## ai.when이 그 시점인 기능을 우선순위(ai.priority) 순서로 하나 쓴다(자원·비용이 없으면 다음).

@@ -348,23 +348,24 @@
     ],
     "species_skill": "survival",
     "primal_order": "magician",
-    "circle_land_spells": "temperate",
+    "circle_land_spells": "arid",
     "cantrips": [
       "produce_flame",
-      "guidance",
-      "poison_spray"
+      "starry_wisp",
+      "guidance"
     ],
     "spells": [
-      "cure_wounds",
-      "faerie_fire",
-      "thunderwave",
-      "entangle",
       "healing_word",
-      "lesser_restoration",
+      "thunderwave",
+      "ice_knife",
+      "cure_wounds",
+      "flaming_sphere",
       "barkskin",
       "spike_growth",
-      "sleet_storm",
-      "dispel_magic"
+      "lesser_restoration",
+      "revivify",
+      "dispel_magic",
+      "entangle"
     ],
     "asi": {
       "4": {
