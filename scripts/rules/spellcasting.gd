@@ -442,11 +442,31 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 	var r := _cast(world, caster, spell_id, aim, opts)
 	if r.get("ok", false) and int(RulesDB.get_entry("spell", spell_id).get("level", 0)) == 0 and caster.has_cap("war_magic") and not opts.get("granted", false):
 		caster.turn["war_magic_ready"] = true  # 전쟁 마법(엘드리치 나이트형): 소마법을 쓴 턴에 보너스 행동 무기 공격
+	if r.get("ok", false) and caster.has_cap("reaper") and not opts.get("reaper", false) and world.has("grid"):
+		_reaper(world, caster, spell_id, aim)
 	if had:
 		caster.set_meta("casting_ability", prev)
 	elif is_instance_valid(caster):
 		caster.remove_meta("casting_ability")
 	return r
+
+
+## 수확자(죽음 영역, 능력 태그 reaper): 한 생물만 노리는 사령술 소마법은 한 생물을 더 — 원래 대상에 가장 가까운 다른 적에게 한 번 더(무료).
+static func _reaper(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i) -> void:
+	var sp := RulesDB.get_entry("spell", spell_id)
+	if int(sp.get("level", 1)) != 0 or str(sp.get("school", "")) != "necromancy" or sp.get("area") != null:
+		return
+	var grid: Node = world["grid"]
+	var best: Node = null
+	for o: Node in grid.creatures():
+		if o.dead or not caster.is_hostile_to(o) or grid.cell_of(o) == aim:
+			continue
+		if grid.distance(grid.cell_of(caster), grid.cell_of(o)) > range_tiles(sp):
+			continue
+		if best == null or grid.distance(grid.cell_of(o), aim) < grid.distance(grid.cell_of(best), aim):
+			best = o
+	if best != null:
+		cast(world, caster, spell_id, grid.cell_of(best), {"free": true, "reaper": true})
 
 
 static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i, opts: Dictionary = {}) -> Dictionary:
@@ -616,6 +636,8 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 			var dtype: String = e["damage_type"] if e["damage_type"] != "chosen" else opts.get("choice", "fire")
 			var r := Dice.roll(damage_dice(caster, spell, e["dice"], slot, dtype), spell["name"]["en"], false,
 				2 if dtype in Resolver.adept_types(caster) else 0)  # 원소 통달: 1 → 2
+			if Resolver.destructive_max(caster, dtype):
+				r["total"] = int(DiceExpr.stats(damage_dice(caster, spell, e["dice"], slot, dtype))["max"])  # 파괴의 분노
 			Resolver.apply_damage(t, [{"amount": r["total"], "damage_type": dtype}], {"attacker": caster})
 		"heal":
 			var amount: int = Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])["total"]

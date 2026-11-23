@@ -308,6 +308,12 @@
               "items": {
                 "type": "string"
               }
+            },
+            "ignore_resistance": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
@@ -457,6 +463,12 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "ignore_resistance": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -567,7 +579,17 @@
         "trigger": {
           "$comment": "kind reaction: enemy_attack_hit = 사거리 안 적이 명중하면(reaction_queue 제3자 반응)",
           "enum": [
-            "enemy_attack_hit"
+            "enemy_attack_hit",
+            "attack_before_disadvantage",
+            "ally_elemental_damage",
+            "hit_by_melee_retaliate",
+            "ally_attack_missed_bonus",
+            "enemy_attacks_ally_before",
+            "self_hit_melee",
+            "enemy_attacks_ally",
+            "enemy_casts_adjacent",
+            "enemy_enters_reach",
+            "dex_save_spell"
           ]
         },
         "range_tiles": {
@@ -659,6 +681,18 @@
         },
         "group": {
           "type": "string"
+        },
+        "also_proficiency": {
+          "type": "boolean"
+        },
+        "include_self": {
+          "type": "boolean"
+        },
+        "ally_range_tiles": {
+          "type": "integer"
+        },
+        "attack_bonus": {
+          "type": "integer"
         }
       }
     }

@@ -248,6 +248,8 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 		return res
 	attacker.turn["attacks_left"] -= 1
 	attacker.turn["attacks_made"] = int(attacker.turn.get("attacks_made", 0)) + 1  # 무모한 공격: 첫 공격 전에만
+	if not attacker.turn.get("war_priest_used", false):
+		attacker.turn["weapon_attacked"] = true  # 전쟁 사제: 공격 행동으로 무기 공격한 턴
 	if atk["kind"] == "melee" and attacker.has_cap("polearm_haft") and str(atk.get("weapon_id", "")) in POLEARMS and not attacker.turn.get("haft_used", false):
 		attacker.turn["haft_ready"] = true  # 장병기 달인: 이번 턴 자루 공격(보너스 행동)
 	if atk["kind"] == "melee":

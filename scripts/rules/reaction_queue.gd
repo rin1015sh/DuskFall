@@ -126,6 +126,26 @@ func _on_before_attack_roll(res: Dictionary) -> void:
 	var target: Node = res["target"]
 	if not grid.creatures().has(attacker) or not grid.creatures().has(target):
 		return
+	# 경고의 섬광(빛 영역, trigger attack_before_disadvantage): 나(include_self) 또는 ally_range_tiles 안 아군을 노린 보이는 적의 공격에 반응 + 자원으로 불리
+	for o: Node in grid.creatures():
+		if o.dead or o == attacker or not o.is_hostile_to(attacker) or o.is_hostile_to(target) or not o.can_react():
+			continue
+		for fid0: String in o.feature_data:
+			var f0: Dictionary = o.feature_data[fid0]
+			if str(f0.get("kind", "")) != "reaction" or str(f0.get("trigger", "")) != "attack_before_disadvantage":
+				continue
+			var ok0: bool = (o == target and f0.get("include_self", false)) \
+				or (o != target and int(f0.get("ally_range_tiles", 0)) > 0 and grid.distance_between(o, target) <= int(f0["ally_range_tiles"]))
+			var rid := str(f0.get("resource", ""))
+			if not ok0 or not grid.can_see(o, attacker) or (rid != "" and o.resource(rid) <= 0) or "섬광" in res["disadvantage"]:
+				continue
+			if offer(o, fid0, {"attack": res}, func() -> void:
+				o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+				if rid != "":
+					o.spend_resource(rid)
+				res["disadvantage"].append("섬광")
+				Dice.log_text("%s 경고의 섬광: %s의 공격이 불리" % [o.label(), attacker.label()])):
+				break
 	for o: Node in grid.creatures():
 		if o == target or o.dead or not o.is_hostile_to(attacker) or o.is_hostile_to(target) or not o.can_react():
 			continue
@@ -196,6 +216,9 @@ func after_attack(res: Dictionary) -> void:
 	var target: Node = res.get("target")
 	if attacker == null or target == null or not grid.creatures().has(attacker) or attacker.dead:
 		return
+	_storm_retaliate(res, grid)
+	if attacker.dead:
+		return
 	if _trigger_feature(target, "enemy_attacks_ally") != "":
 		return  # 대상이 파수를 가졌으면 다른 파수는 반응하지 않는다(BG3)
 	var Combat: Variant = load("res://scripts/rules/combat.gd")
@@ -211,6 +234,62 @@ func after_attack(res: Dictionary) -> void:
 			atk["name"] = "파수(%s)" % atk["name"]
 			Combat._do_attack(world, o, attacker, atk, true))
 		if attacker.dead:
+			return
+
+
+## 폭풍의 분노(폭풍 영역, trigger hit_by_melee_retaliate): 1칸 안 적의 근접 공격에 맞으면 반응 + 자원으로 그 적에게
+## 2d8 번개 또는 천둥(상시 설정), 민첩 내성 성공 시 절반(주문 내성 DC).
+func _storm_retaliate(res: Dictionary, grid: Node) -> void:
+	var t: Node = res["target"]
+	var attacker: Node = res["attacker"]
+	if not res.get("hit", false) or t.dead or str(res.get("attack", {}).get("kind", "")) != "melee" or not t.is_hostile_to(attacker):
+		return
+	var fid := _trigger_feature(t, "hit_by_melee_retaliate")
+	if fid == "" or not t.can_react() or grid.distance_between(t, attacker) > 1:
+		return
+	var rid := str(t.feature_data[fid].get("resource", ""))
+	if rid != "" and t.resource(rid) <= 0:
+		return
+	offer(t, fid, {"target": attacker}, func() -> void:
+		t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
+		if rid != "":
+			t.spend_resource(rid)
+		var dt := str(t.options.get(fid, "lightning"))
+		var Spellcasting: Variant = load("res://scripts/rules/spellcasting.gd")
+		load("res://scripts/rules/resolver.gd").save_effect([attacker], {"ability": "dex", "dc": Spellcasting.spell_dc(t)},
+			[{"type": "damage", "dice": "2d8", "damage_type": dt}], [{"type": "damage", "dice": "2d8", "damage_type": dt, "scale": 0.5}],
+			{"source": t, "magic": true})
+		Dice.log_text("%s 폭풍의 분노(%s)" % [t.label(), dt]))
+
+
+## 빗나간 공격 보정(Resolver.attack이 빗나감 직후 부른다): 전쟁 신의 축복(trigger ally_attack_missed_bonus — 반응 + 자원으로 아군 공격 +N).
+## 10 이내로 빗나갔을 때만(그래야 맞힐 수 있다).
+func miss_bonus(res: Dictionary) -> void:
+	if res.get("preview", false) or not world.has("grid") or res.get("hit", false) or int(res.get("natural", 0)) == 1:
+		return
+	var grid: Node = world["grid"]
+	var attacker: Node = res["attacker"]
+	if not grid.creatures().has(attacker):
+		return
+	for o: Node in grid.creatures():
+		if o.dead or o.is_hostile_to(attacker) or not o.can_react():
+			continue
+		var fid := _trigger_feature(o, "ally_attack_missed_bonus")
+		if fid == "":
+			continue
+		var f: Dictionary = o.feature_data[fid]
+		var add := int(f.get("attack_bonus", 10))
+		var rid := str(f.get("resource", ""))
+		if (rid != "" and o.resource(rid) <= 0) or grid.distance_between(o, attacker) > int(f.get("range_tiles", 6)) \
+				or res["total"] + add < res["ac"] + res["ac_bonus"]:
+			continue
+		if offer(o, fid, {"attack": res, "would_hit": true}, func() -> void:
+			o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+			if rid != "":
+				o.spend_resource(rid)
+			res["total"] += add
+			res["hit"] = true
+			Dice.log_text("%s %s: %s의 공격 +%d" % [o.label(), str(f.get("name", {}).get("ko", fid)), attacker.label(), add])):
 			return
 
 

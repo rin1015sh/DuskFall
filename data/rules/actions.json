@@ -515,6 +515,28 @@
       "requires_turn": [
         "war_magic_ready"
       ]
+    },
+    {
+      "id": "war_priest_attack",
+      "name": {
+        "ko": "전쟁 사제 공격",
+        "en": "War Priest Strike"
+      },
+      "desc": {
+        "ko": "전쟁 사제: 공격 행동으로 무기 공격한 턴에 보너스 행동으로 무기 공격 1회(지혜 수정치 회/긴 휴식).",
+        "en": "War Priest: after attacking with a weapon this turn, make one weapon attack as a bonus action."
+      },
+      "cost": "bonus",
+      "target": "enemy",
+      "tab": "class",
+      "icon": "res://assets/statuses/whetted.webp",
+      "explore": false,
+      "source": "original",
+      "requires": "war_priest",
+      "requires_turn": [
+        "weapon_attacked"
+      ],
+      "resource": "war_priest"
     }
   ]
 }

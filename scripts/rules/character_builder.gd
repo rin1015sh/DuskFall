@@ -349,6 +349,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			for pick: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
 				if str(pick) in f.get("choices", []) or f.get("choices", []).is_empty():
 					expertise.append(str(pick))  # 여러 개 고르기(로그 6레벨 전문화 2)
+					if f.get("also_proficiency", false):
+						extra_skill.append(str(pick))  # 숙련 + 전문화(앎의 축복)
 			continue
 		if kind == "skill" and spec.get(fid) is Array:
 			for pick: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
@@ -436,6 +438,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var extra_saves: Array = []
 	var init_bonus := 0
 	c.remove_meta("elemental_adept")
+	c.remove_meta("ignore_resistance")
 	wt.append_array(feat_weapons)  # 무기 수련: 고른 무기 4종
 	for g: Array in grants:
 		var gr: Dictionary = g[1]
@@ -482,6 +485,10 @@ static func apply(c: Node, spec: Dictionary) -> void:
 					sl.append(sa)  # 정해진 특수 공격(지저분한 수법)
 			c.set_meta("special_attacks", sl)
 		c.speed_tiles += int(gr.get("speed_tiles", 0))  # 날랜 발 +2칸
+		if gr.has("ignore_resistance"):
+			var ir: Array = c.get_meta("ignore_resistance", []).duplicate()
+			ir.append_array(gr["ignore_resistance"])
+			c.set_meta("ignore_resistance", ir)  # 피할 수 없는 파괴(죽음 영역): 사령 저항 무시
 		if gr.has("elemental_adept"):
 			var ea: Array = c.get_meta("elemental_adept", []).duplicate()
 			ea.append(str(gr["elemental_adept"]))

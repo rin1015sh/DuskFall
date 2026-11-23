@@ -364,6 +364,12 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 			return _bonus_weapon_attack(world, c, t)
 		"war_magic_attack":
 			return _bonus_weapon_attack(world, c, t, "war_magic_ready")
+		"war_priest_attack":
+			var wr := _bonus_weapon_attack(world, c, t, "weapon_attacked")
+			if wr.get("ok", true) and wr.has("hit"):
+				c.spend_resource("war_priest")
+				c.turn["war_priest_used"] = true
+			return wr
 		"haft_strike":
 			return _haft_strike(world, c, t)
 		"charger_attack", "charger_shove":

@@ -135,6 +135,12 @@
             "spell_attack": {
               "$comment": "주문 공격에만",
               "type": "boolean"
+            },
+            "skill": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },

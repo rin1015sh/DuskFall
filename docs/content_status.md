@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 43 |
-| capability | 116 |
+| capability | 122 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -64,12 +64,33 @@
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
 | 1 | 신성한 서열 (divine_order) |  | 고르기(option) |  |
-| 1 | 생명의 제자 (disciple_of_life) | life | 태그 spell_heal_bonus |  |
-| 2 | 신성 변환 (channel_divinity) |  | 처리: 자원 channel_divinity — 신성한 불꽃·언데드 퇴치·생명 보존이 쓴다(choices는 안내용) |  |
-| 2 | 신성한 불꽃 (divine_spark) |  | 스크립트 divine_spark |  |
-| 2 | 언데드 퇴치 (turn_undead) |  | 스크립트 turn_undead |  |
+| 1 | 사기꾼의 축복 (blessing_of_the_trickster) | trickery | 스크립트 blessing_of_the_trickster |  |
+| 1 | 폭풍의 분노 (wrath_of_the_storm) | tempest | 부여 armor_training, weapon_training; 설정; 반응 |  |
+| 1 | 전쟁 사제 (war_priest) | war | 태그 war_priest; 부여 armor_training, weapon_training |  |
+| 1 | 생명의 제자 (disciple_of_life) | life | 태그 spell_heal_bonus; 부여 armor_training |  |
+| 1 | 자연의 시종 (acolyte_of_nature) | nature | 부여 armor_training; 고르기(spell_pick) |  |
+| 1 | 수확자 (reaper) | death | 태그 reaper; 부여 weapon_training |  |
+| 1 | 경고의 섬광 (warding_flare) | light | 반응 |  |
+| 1 | 앎의 축복 (blessings_of_knowledge) | knowledge | 고르기(expertise) |  |
+| 2 | 이중 존재 (invoke_duplicity) | trickery | 스크립트 invoke_duplicity |  |
+| 2 | 파괴의 분노 (destructive_wrath) | tempest | 태그 destructive_wrath; 설정 |  |
+| 2 | 짐승·식물 매혹 (charm_animals_and_plants) | nature | 스크립트 charm_animals_and_plants |  |
+| 2 | 인도된 일격 (guided_strike) | war | 태그 guided_strike; 설정 |  |
+| 2 | 시대의 지식 (knowledge_of_the_ages) | knowledge | 스크립트 knowledge_of_the_ages; 설정 |  |
+| 2 | 새벽의 광휘 (radiance_of_the_dawn) | light | 스크립트 radiance_of_the_dawn |  |
 | 2 | 생명 보존 (preserve_life) | life | 스크립트 preserve_life |  |
+| 2 | 죽음의 손길 (touch_of_death) | death | 태그 touch_of_death; 설정 |  |
+| 2 | 언데드 퇴치 (turn_undead) |  | 스크립트 turn_undead |  |
+| 2 | 신성한 불꽃 (divine_spark) |  | 스크립트 divine_spark |  |
+| 2 | 신성 변환 (channel_divinity) |  | 처리: 자원 channel_divinity — 신성한 불꽃·언데드 퇴치·생명 보존이 쓴다(choices는 안내용) |  |
 | 5 | 언데드 소각 (sear_undead) |  | 처리: turn_undead 스크립트 안 |  |
+| 6 | 전쟁 신의 축복 (war_gods_blessing) | war | 반응 |  |
+| 6 | 피할 수 없는 파괴 (inescapable_destruction) | death | 부여 ignore_resistance |  |
+| 6 | 그림자 망토 (cloak_of_shadows) | trickery | 스크립트 cloak_of_shadows |  |
+| 6 | 벼락 일격 (thunderbolt_strike) | tempest | 태그 thunderbolt_strike |  |
+| 6 | 원소 누그러뜨리기 (dampen_elements) | nature | 반응 |  |
+| 6 | 생각 읽기 (read_thoughts) | knowledge |  | 보류(deferred) |
+| 6 | 넓어진 섬광 (improved_warding_flare) | light | 반응 |  |
 | 6 | 축복받은 치유자 (blessed_healer) | life | 태그 blessed_healer |  |
 | 7 | 축복받은 일격 (blessed_strikes) |  | 고르기(option) |  |
 | 10 | 신성 개입 (divine_intervention) |  | 태그 free_cast_class_spell; 설정 |  |
@@ -293,6 +314,7 @@
 | curving_shot | 휘는 화살 | fighter |
 | dark_ones_blessing | 어둠의 축복 | warlock |
 | dash_ignores_difficult | 질주 험지 무시 | (몬스터 특성 또는 아직 없음) |
+| destructive_wrath | 파괴의 분노 | cleric |
 | dual_wield_ac | 쌍수 방어 | (몬스터 특성 또는 아직 없음) |
 | dual_wield_any | 무거운 쌍수 | (몬스터 특성 또는 아직 없음) |
 | dueling | 결투 | 재주 dueling |
@@ -309,6 +331,7 @@
 | fast_movement | 빠른 이동 | barbarian, ranger |
 | free_cast_class_spell | 신성 개입 | cleric, druid |
 | frenzy | 광란 | barbarian |
+| guided_strike | 인도된 일격 | cleric |
 | gwm_all_in | 강타 | (몬스터 특성 또는 아직 없음) |
 | half_proficiency_physical | 절반 숙련(신체) | fighter |
 | heavy_armor_damage_reduction | 중갑 피해 감소 | (몬스터 특성 또는 아직 없음) |
@@ -352,6 +375,7 @@
 | prepare_swap_short_rest | 주문 암기 | wizard |
 | rakish_sneak | 대담한 급소 | rogue |
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |
+| reaper | 수확자 | cleric |
 | reckless | 무모한 공격 | barbarian |
 | reliable_talent | 믿음직한 재능 | rogue |
 | repelling_blast | 밀어내는 화살 | (몬스터 특성 또는 아직 없음) |
@@ -378,6 +402,8 @@
 | stunning_strike | 충격의 일격 | monk |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |
 | surprise_immune | 기습 면역 | (몬스터 특성 또는 아직 없음) |
+| thunderbolt_strike | 벼락 일격 | cleric |
+| touch_of_death | 죽음의 손길 | cleric |
 | trap_sense | 함정 감각 | (몬스터 특성 또는 아직 없음) |
 | two_weapon_fighting | 쌍수 전투 | 재주 two_weapon_fighting |
 | unarmored_defense_cha | 용의 비늘 | sorcerer |
@@ -387,3 +413,4 @@
 | uncanny_metabolism | 신비한 대사 | monk |
 | war_caster_oa | 주문 기회 공격 | (몬스터 특성 또는 아직 없음) |
 | war_magic | 전쟁 마법 | fighter |
+| war_priest | 전쟁 사제 | cleric |

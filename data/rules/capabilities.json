@@ -1045,6 +1045,60 @@
       },
       "note_ko": "숨은 채 쓴 주문 내성 불리(resolver.saving_throw)",
       "source": "original"
+    },
+    {
+      "id": "destructive_wrath",
+      "name": {
+        "ko": "파괴의 분노",
+        "en": "Destructive Wrath"
+      },
+      "note_ko": "번개·천둥 피해 굴림을 신성 변환으로 최대(resolver.destructive_max)",
+      "source": "original"
+    },
+    {
+      "id": "thunderbolt_strike",
+      "name": {
+        "ko": "벼락 일격",
+        "en": "Thunderbolt Strike"
+      },
+      "note_ko": "번개·천둥 피해를 준 큼 이하 생물 2칸 밀기(resolver.apply_damage)",
+      "source": "original"
+    },
+    {
+      "id": "war_priest",
+      "name": {
+        "ko": "전쟁 사제",
+        "en": "War Priest"
+      },
+      "note_ko": "무기 공격한 턴 보너스 행동 공격(행동 war_priest_attack)",
+      "source": "original"
+    },
+    {
+      "id": "guided_strike",
+      "name": {
+        "ko": "인도된 일격",
+        "en": "Guided Strike"
+      },
+      "note_ko": "빗나간 공격 +10(신성 변환, resolver.attack)",
+      "source": "original"
+    },
+    {
+      "id": "reaper",
+      "name": {
+        "ko": "수확자",
+        "en": "Reaper"
+      },
+      "note_ko": "단일 대상 사령술 소마법을 한 생물 더(spellcasting._reaper)",
+      "source": "original"
+    },
+    {
+      "id": "touch_of_death",
+      "name": {
+        "ko": "죽음의 손길",
+        "en": "Touch of Death"
+      },
+      "note_ko": "근접 명중 신성 변환 사령 5 + 레벨 × 2(resolver._hit_riders)",
+      "source": "original"
     }
   ]
 }

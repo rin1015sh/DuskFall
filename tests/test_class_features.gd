@@ -179,8 +179,8 @@ func test_divine_spark_and_preserve_life() -> void:
 	f.hp = 4
 	r2.hp = 3
 	assert_true(Features.use(w, cleric, "preserve_life")["ok"])
-	assert_eq(r2.hp, r2.hp_max / 2, "HP 비율이 낮은 로그부터 최대 HP 절반까지(3 → 12)")
-	assert_eq(f.hp, 4 + 15 - 9, "남은 6이 전사에게(레벨 3 × 5 = 15)")
+	assert_eq(r2.hp, mini(3 + 9, r2.hp_max / 2), "BG3: 아군 각자 클레릭 레벨 × 3(최대 HP 절반까지)")
+	assert_eq(f.hp, mini(4 + 9, f.hp_max / 2), "전사도 따로 9")
 	assert_eq(cleric.resource("channel_divinity"), 1)
 	cleric.reset_turn()
 	f.hp = 5

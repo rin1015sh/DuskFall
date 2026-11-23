@@ -1918,6 +1918,48 @@
       ],
       "notes_ko": "허세(스워시버클러형): 건 생물 아닌 생물을 노린 공격이 불리. 피해를 받으면 풀린다.",
       "source": "original"
+    },
+    {
+      "id": "duplicity_distracted",
+      "name": {
+        "ko": "환영에 홀림",
+        "en": "Duped"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 10,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "notes_ko": "이중 존재(속임 영역): 이 생물을 노린 공격 유리.",
+      "source": "original"
+    },
+    {
+      "id": "tricksters_blessing",
+      "name": {
+        "ko": "사기꾼의 축복",
+        "en": "Trickster's Blessing"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "advantage",
+          "skill": [
+            "stealth"
+          ]
+        }
+      ],
+      "notes_ko": "사기꾼의 축복: 긴 휴식까지 은신 판정 유리.",
+      "source": "original"
     }
   ]
 }

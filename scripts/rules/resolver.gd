@@ -81,6 +81,17 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 			var pr: int = Dice.roll(pdie, "정밀 공격")["total"]
 			res["total"] += pr
 			_decide_hit(res)
+	if not res["hit"] and res["natural"] != 1 and attacker.has_cap("guided_strike") and str(attacker.options.get("guided_strike", "on")) == "on" \
+			and attacker.resource("channel_divinity") > 0 and res["total"] + 10 >= res["ac"] + res["ac_bonus"]:
+		attacker.spend_resource("channel_divinity")  # 인도된 일격(전쟁 영역): 신성 변환으로 빗나간 공격 +10
+		res["total"] += 10
+		Dice.log_text("%s 인도된 일격: +10" % attacker.label())
+		_decide_hit(res)
+	if not res["hit"]:
+		var rq0: Node = EventBus.reaction_queue
+		if rq0 != null and is_instance_valid(rq0):
+			rq0.miss_bonus(res)  # 전쟁 신의 축복(반응)
+			_decide_hit(res)
 	if not res["hit"] and lucky(attacker, "공격"):
 		var nat := Dice.die(20)
 		if nat > int(res["natural"]):  # 행운의 별: 다시 굴려 좋은 쪽(유리)
@@ -415,6 +426,11 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 		var had: Dictionary = a["def"].get("hit_against_damage", {})
 		if not had.is_empty():
 			res["extra_damage"].append({"dice": str(int(had["amount"])), "damage_type": str(had["damage_type"])})
+	# 죽음의 손길(죽음 영역, 능력 태그 touch_of_death, 설정 켬): 근접 명중에 신성 변환 — 사령 5 + 클레릭 레벨 × 2
+	if attacker.has_cap("touch_of_death") and str(atk.get("kind", "")) == "melee" and str(attacker.options.get("touch_of_death", "on")) == "on" \
+			and attacker.resource("channel_divinity") > 0:
+		attacker.spend_resource("channel_divinity")
+		res["extra_damage"].append({"dice": str(5 + 2 * attacker.feature_level("touch_of_death")), "damage_type": "necrotic"})
 	# 힘 모으기(무기 액션 자세 prepare): 이번 턴 근접 무기 명중마다 근력 수정치(최소 1)
 	if attacker.turn.get("stance_prepare", false) and atk.get("weapon", false) and atk.get("kind", "") == "melee":
 		res["extra_damage"].append({"dice": str(maxi(1, attacker.ability_mod("str"))), "damage_type": atk["damage"][0]["damage_type"]})
@@ -776,10 +792,49 @@ static func _roll_damage(attacker: Node, atk: Dictionary, parts: Array, res: Dic
 		if total > best_total:
 			best_total = total
 			best = rolled
+	for i in best.size():
+		if i < parts.size() and str(parts[i]["damage_type"]) in ["lightning", "thunder"] and destructive_max(attacker, str(parts[i]["damage_type"])):
+			best[i]["amount"] = int(DiceExpr.stats(str(parts[i]["dice"]))["max"]) * (2 if res["crit"] else 1)
+			break
 	if atk.get("half_damage", false):
 		for i in mini(atk.get("damage", []).size(), best.size()):
 			best[i]["amount"] = int(best[i]["amount"]) / 2  # 휩쓸기(무기 액션): 무기 피해만 절반, 다른 추가 피해는 그대로
 	return best
+
+
+## 원소 누그러뜨리기(자연 영역, 반응 trigger ally_elemental_damage): 나 또는 6칸 안 아군이 산·냉기·화염·번개·천둥 피해를 받으면
+## 반응으로 그 피해를 절반(저항). 자동 설정이면 그 종류 피해가 있을 때 쓴다.
+static func _dampen_elements(target: Node, raw: Dictionary, opts: Dictionary) -> void:
+	var kinds: Array = raw.keys().filter(func(t: String) -> bool: return t in ["acid", "cold", "fire", "lightning", "thunder"] and int(raw[t]) > 0 \
+		and not target.resists(t) and not target.immune_to(t))
+	var rq: Node = EventBus.reaction_queue
+	if kinds.is_empty() or rq == null or not is_instance_valid(rq) or not rq.world.has("grid") or EventBus.realtime:
+		return
+	var grid: Node = rq.world["grid"]
+	if not grid.creatures().has(target):
+		return
+	for o: Node in grid.creatures():
+		if o.dead or o.is_hostile_to(target) or not o.can_react() or grid.distance_between(o, target) > 6:
+			continue
+		var fid: String = rq._trigger_feature(o, "ally_elemental_damage")
+		if fid == "":
+			continue
+		if rq.offer(o, fid, {"target": target}, func() -> void:
+			o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+			for t: String in kinds:
+				raw[t] = int(raw[t]) / 2
+			Dice.log_text("%s 원소 누그러뜨리기: %s 피해 절반" % [o.label(), target.label()])):
+			return
+
+
+## 파괴의 분노(폭풍 영역, 능력 태그 destructive_wrath, 설정 켬): 번개·천둥 피해를 굴릴 때 신성 변환으로 최대. 쓰면 true.
+static func destructive_max(c: Variant, dtype: String) -> bool:
+	if not (c is Node) or not dtype in ["lightning", "thunder"] or not c.has_cap("destructive_wrath") \
+			or str(c.options.get("destructive_wrath", "on")) != "on" or c.resource("channel_divinity") <= 0:
+		return false
+	c.spend_resource("channel_divinity")
+	Dice.log_text("%s 파괴의 분노: %s 피해 최대" % [c.label(), dtype])
+	return true
 
 
 ## 원소 통달(재주): 저항을 무시하고 주문 피해 주사위 1을 2로 치는 피해 종류
@@ -880,6 +935,7 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 		var t: String = p["damage_type"]
 		var amount := maxi(floori(int(p["amount"]) * float(p.get("multiplier", 1.0))), 0)
 		raw[t] = raw.get(t, 0) + amount
+	_dampen_elements(target, raw, opts)
 	var total := 0
 	for t: String in raw.keys():
 		var v := int(modify_amount(target, raw[t], t, 1.0, true))
@@ -887,12 +943,18 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 			heal(target, int(raw[t]), "fire_absorption")  # 화염 흡수(강철 골렘): 화염 피해만큼 회복
 			v = 0
 		var src: Variant = opts.get("attacker")
-		if src is Node and t in adept_types(src) and target.resists(t) and not target.immune_to(t) and not target.vulnerable_to(t):
+		if src is Node and (t in adept_types(src) or t in src.get_meta("ignore_resistance", [])) and target.resists(t) and not target.immune_to(t) and not target.vulnerable_to(t):
 			v = int(raw[t])  # 원소 통달: 그 원소 저항 무시
 		out["by_type"][t] = v
 		total += v
 	out["total"] = total
 	target.set_meta("last_damage_total", total)
+	var tsrc: Variant = opts.get("attacker")
+	if tsrc is Node and tsrc != target and tsrc.has_cap("thunderbolt_strike") and (int(out["by_type"].get("lightning", 0)) > 0 or int(out["by_type"].get("thunder", 0)) > 0) \
+			and ["tiny", "small", "medium", "large"].has(str(target.size)):
+		var rq1: Node = EventBus.reaction_queue
+		if rq1 != null and is_instance_valid(rq1) and rq1.world.has("grid") and rq1.world["grid"].creatures().has(target) and rq1.world["grid"].creatures().has(tsrc):
+			load("res://scripts/rules/combat.gd")._push_up_to(rq1.world, tsrc, target, 2)  # 벼락 일격(폭풍 영역): 2칸(3m) 밀기
 	target.set_meta("last_damage_types", out["by_type"].keys())
 	for t: String in out["by_type"].keys():
 		if t in ["acid", "fire"] and out["by_type"][t] > 0:
@@ -1253,6 +1315,8 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 						var src_c: Variant = opts.get("source")
 						rolled[key] = Dice.roll(e["dice"], "효과 피해", false,
 							2 if src_c is Node and str(e["damage_type"]) in adept_types(src_c) else 0)["total"]
+						if destructive_max(src_c, str(e["damage_type"])):
+							rolled[key] = int(DiceExpr.stats(str(e["dice"]))["max"])
 					var trap_half: float = 0.5 if opts.get("trap", false) and t.has_cap("trap_sense") else 1.0  # 함정 감각: 함정 피해 저항
 					parts.append({"amount": rolled[key], "damage_type": e["damage_type"],
 						"multiplier": float(e.get("scale", 1.0)) * trap_half})

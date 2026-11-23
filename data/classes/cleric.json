@@ -173,6 +173,36 @@
         "10": 1
       },
       "recharge": "long"
+    },
+    {
+      "id": "warding_flare",
+      "name": {
+        "ko": "경고의 섬광",
+        "en": "Warding Flare"
+      },
+      "max": "ability_mod:wis",
+      "recharge": "long",
+      "subclass": "light"
+    },
+    {
+      "id": "wrath_of_the_storm",
+      "name": {
+        "ko": "폭풍의 분노",
+        "en": "Wrath of the Storm"
+      },
+      "max": "ability_mod:wis",
+      "recharge": "long",
+      "subclass": "tempest"
+    },
+    {
+      "id": "war_priest",
+      "name": {
+        "ko": "전쟁 사제",
+        "en": "War Priest"
+      },
+      "max": "ability_mod:wis",
+      "recharge": "long",
+      "subclass": "war"
     }
   ],
   "features": [
@@ -350,11 +380,11 @@
           "lesser_restoration"
         ],
         "5": [
-          "mass_healing_word",
-          "revivify"
+          "revivify",
+          "beacon_of_hope"
         ],
         "7": [
-          "aura_of_life",
+          "guardian_of_faith",
           "death_ward"
         ],
         "9": [
@@ -370,11 +400,16 @@
             "en": "Disciple of Life"
           },
           "level": 1,
-          "notes_ko": "[BG3] 생명 영역을 1레벨에(원문 2024는 3레벨). 생명의 제자 1레벨, 생명 보존 2레벨(신성 변환과 함께) — 사용자 결정 2026-11-22.",
-          "source": "SRD 5.2.1",
           "caps": [
             "spell_heal_bonus"
-          ]
+          ],
+          "grants": {
+            "armor_training": [
+              "heavy"
+            ]
+          },
+          "notes_ko": "BG3: 회복 주문에 2 + 주문 레벨. 중갑 숙련.",
+          "source": "original"
         },
         {
           "id": "preserve_life",
@@ -386,10 +421,11 @@
           "kind": "action",
           "resource": "channel_divinity",
           "script": "preserve_life",
-          "notes_ko": "레벨 × 5 HP를 6칸 안 피투성이 생물에게 자동 분배(HP 비율 낮은 순), 최대 HP 절반까지.",
-          "source": "SRD 5.2.1",
           "icon": "statuses/vitality_drain.webp",
-          "glyph": "heart"
+          "glyph": "heart",
+          "target": "self",
+          "notes_ko": "BG3: 행동 + 신성 변환, 6칸 안 아군 각자 클레릭 레벨 × 3(최대 HP 절반까지).",
+          "source": "original"
         },
         {
           "id": "blessed_healer",
@@ -401,8 +437,704 @@
           "caps": [
             "blessed_healer"
           ],
-          "notes_ko": "슬롯을 쓴 주문으로 다른 생물을 회복시키면 자신도 2 + 슬롯 레벨 회복(시전마다 1회).",
-          "source": "SRD 5.2.1"
+          "notes_ko": "남을 회복시키면 나도 2 + 슬롯 레벨.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "light",
+      "name": {
+        "ko": "새벽 영역",
+        "en": "Dawn Domain"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "light",
+          "burning_hands",
+          "faerie_fire"
+        ],
+        "3": [
+          "flaming_sphere",
+          "scorching_ray"
+        ],
+        "5": [
+          "daylight",
+          "fireball"
+        ],
+        "7": [
+          "guardian_of_faith",
+          "wall_of_fire"
+        ],
+        "9": [
+          "flame_strike"
+        ]
+      },
+      "features": [
+        {
+          "id": "warding_flare",
+          "name": {
+            "ko": "경고의 섬광",
+            "en": "Warding Flare"
+          },
+          "level": 1,
+          "kind": "reaction",
+          "trigger": "attack_before_disadvantage",
+          "include_self": true,
+          "resource": "warding_flare",
+          "notes_ko": "BG3: 반응(지혜 수정치 회/긴 휴식) — 나를 노린 보이는 적의 공격에 불리.",
+          "source": "original"
+        },
+        {
+          "id": "radiance_of_the_dawn",
+          "name": {
+            "ko": "새벽의 광휘",
+            "en": "Radiance of the Dawn"
+          },
+          "level": 2,
+          "kind": "action",
+          "resource": "channel_divinity",
+          "script": "radiance_of_the_dawn",
+          "icon": "statuses/heat.webp",
+          "glyph": "sun",
+          "target": "self",
+          "notes_ko": "BG3: 행동 + 신성 변환, 6칸 안 적 건강 내성 — 2d10 + 레벨 광휘(성공 절반), 마법 어둠 제거.",
+          "source": "original"
+        },
+        {
+          "id": "improved_warding_flare",
+          "name": {
+            "ko": "넓어진 섬광",
+            "en": "Improved Warding Flare"
+          },
+          "level": 6,
+          "kind": "reaction",
+          "trigger": "attack_before_disadvantage",
+          "ally_range_tiles": 6,
+          "resource": "warding_flare",
+          "notes_ko": "BG3: 6칸 안 아군을 노린 공격에도 경고의 섬광.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "knowledge",
+      "name": {
+        "ko": "앎 영역",
+        "en": "Lore Domain"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "command",
+          "sleep"
+        ],
+        "3": [
+          "calm_emotions",
+          "hold_person"
+        ],
+        "5": [
+          "slow",
+          "speak_with_dead"
+        ],
+        "6": [
+          "speak_with_animals"
+        ],
+        "7": [
+          "confusion",
+          "resilient_sphere"
+        ],
+        "9": [
+          "dominate_person",
+          "telekinesis"
+        ]
+      },
+      "features": [
+        {
+          "id": "blessings_of_knowledge",
+          "name": {
+            "ko": "앎의 축복",
+            "en": "Blessings of Knowledge"
+          },
+          "level": 1,
+          "choice_kind": "expertise",
+          "choices": [
+            "arcana",
+            "history",
+            "nature",
+            "religion"
+          ],
+          "count": 2,
+          "also_proficiency": true,
+          "notes_ko": "BG3: 비전·역사·자연·종교 중 2개 숙련 + 전문화.",
+          "source": "original"
+        },
+        {
+          "id": "knowledge_of_the_ages",
+          "name": {
+            "ko": "시대의 지식",
+            "en": "Knowledge of the Ages"
+          },
+          "level": 2,
+          "kind": "action",
+          "resource": "channel_divinity",
+          "script": "knowledge_of_the_ages",
+          "icon": "statuses/riddle_empowered.webp",
+          "glyph": "book",
+          "target": "self",
+          "explore": true,
+          "toggle": {
+            "values": [
+              {
+                "id": "int",
+                "name": {
+                  "ko": "지능",
+                  "en": "Intelligence"
+                }
+              },
+              {
+                "id": "wis",
+                "name": {
+                  "ko": "지혜",
+                  "en": "Wisdom"
+                }
+              },
+              {
+                "id": "cha",
+                "name": {
+                  "ko": "매력",
+                  "en": "Charisma"
+                }
+              },
+              {
+                "id": "dex",
+                "name": {
+                  "ko": "민첩",
+                  "en": "Dexterity"
+                }
+              },
+              {
+                "id": "str",
+                "name": {
+                  "ko": "근력",
+                  "en": "Strength"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "시대의 지식으로 숙련할 능력",
+              "en": "Ability for Knowledge of the Ages"
+            }
+          },
+          "notes_ko": "BG3: 행동 + 신성 변환, 고른 능력(상시 설정)의 모든 기능에 긴 휴식까지 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "read_thoughts",
+          "name": {
+            "ko": "생각 읽기",
+            "en": "Read Thoughts"
+          },
+          "level": 6,
+          "status": "deferred",
+          "notes_ko": "BG3: 대화 중 생각 읽기 — 대화 장치가 생기면 넣는다.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "nature",
+      "name": {
+        "ko": "숲 영역",
+        "en": "Wild Domain"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "speak_with_animals"
+        ],
+        "3": [
+          "barkskin",
+          "spike_growth"
+        ],
+        "5": [
+          "sleet_storm"
+        ],
+        "7": [
+          "dominate_beast"
+        ],
+        "9": [
+          "insect_plague",
+          "wall_of_stone"
+        ]
+      },
+      "features": [
+        {
+          "id": "acolyte_of_nature",
+          "name": {
+            "ko": "자연의 시종",
+            "en": "Acolyte of Nature"
+          },
+          "level": 1,
+          "grants": {
+            "armor_training": [
+              "heavy"
+            ]
+          },
+          "choice_kind": "spell_pick",
+          "choices": [
+            "druidcraft",
+            "guidance",
+            "mending",
+            "poison_spray",
+            "resistance",
+            "spare_the_dying",
+            "starry_wisp",
+            "produce_flame"
+          ],
+          "notes_ko": "BG3: 드루이드 소마법 하나, 중갑 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "charm_animals_and_plants",
+          "name": {
+            "ko": "짐승·식물 매혹",
+            "en": "Charm Animals and Plants"
+          },
+          "level": 2,
+          "kind": "action",
+          "resource": "channel_divinity",
+          "script": "charm_animals_and_plants",
+          "icon": "statuses/charm.webp",
+          "glyph": "leaf",
+          "target": "self",
+          "notes_ko": "BG3: 행동 + 신성 변환, 6칸 안 적 짐승·식물 지혜 내성 → 10턴 매혹(피해로 풀림).",
+          "source": "original"
+        },
+        {
+          "id": "dampen_elements",
+          "name": {
+            "ko": "원소 누그러뜨리기",
+            "en": "Dampen Elements"
+          },
+          "level": 6,
+          "kind": "reaction",
+          "trigger": "ally_elemental_damage",
+          "notes_ko": "BG3: 반응 — 나 또는 6칸 안 아군이 산·냉기·화염·번개·천둥 피해를 받으면 절반.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "tempest",
+      "name": {
+        "ko": "뇌우 영역",
+        "en": "Storm Domain"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "thunderwave",
+          "fog_cloud"
+        ],
+        "3": [
+          "gust_of_wind",
+          "shatter"
+        ],
+        "5": [
+          "sleet_storm"
+        ],
+        "7": [
+          "freedom_of_movement",
+          "ice_storm"
+        ],
+        "9": [
+          "insect_plague"
+        ]
+      },
+      "features": [
+        {
+          "id": "wrath_of_the_storm",
+          "name": {
+            "ko": "폭풍의 분노",
+            "en": "Wrath of the Storm"
+          },
+          "level": 1,
+          "grants": {
+            "armor_training": [
+              "heavy"
+            ],
+            "weapon_training": [
+              "martial"
+            ]
+          },
+          "kind": "reaction",
+          "trigger": "hit_by_melee_retaliate",
+          "resource": "wrath_of_the_storm",
+          "toggle": {
+            "values": [
+              {
+                "id": "lightning",
+                "name": {
+                  "ko": "번개",
+                  "en": "Lightning"
+                }
+              },
+              {
+                "id": "thunder",
+                "name": {
+                  "ko": "천둥",
+                  "en": "Thunder"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "폭풍의 분노 피해 종류",
+              "en": "Wrath of the Storm damage type"
+            }
+          },
+          "notes_ko": "BG3: 중갑·군용 무기 숙련. 반응(지혜 수정치 회/긴 휴식) — 1칸 안 적의 근접 공격에 맞으면 2d8 번개·천둥(설정), 민첩 내성 절반.",
+          "source": "original"
+        },
+        {
+          "id": "destructive_wrath",
+          "name": {
+            "ko": "파괴의 분노",
+            "en": "Destructive Wrath"
+          },
+          "level": 2,
+          "caps": [
+            "destructive_wrath"
+          ],
+          "toggle": {
+            "values": [
+              {
+                "id": "on",
+                "name": {
+                  "ko": "켬",
+                  "en": "On"
+                }
+              },
+              {
+                "id": "off",
+                "name": {
+                  "ko": "끔",
+                  "en": "Off"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "번개·천둥 피해에 신성 변환을 자동으로",
+              "en": "Spend Channel Divinity to maximise lightning/thunder damage"
+            }
+          },
+          "notes_ko": "BG3: 켜 두면 번개·천둥 피해를 굴릴 때 신성 변환으로 최대.",
+          "source": "original"
+        },
+        {
+          "id": "thunderbolt_strike",
+          "name": {
+            "ko": "벼락 일격",
+            "en": "Thunderbolt Strike"
+          },
+          "level": 6,
+          "caps": [
+            "thunderbolt_strike"
+          ],
+          "notes_ko": "BG3: 번개·천둥 피해를 준 큼 이하 생물을 2칸(3m) 민다.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "trickery",
+      "name": {
+        "ko": "속임 영역",
+        "en": "Guile Domain"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "charm_person",
+          "disguise_self"
+        ],
+        "3": [
+          "mirror_image",
+          "pass_without_trace"
+        ],
+        "5": [
+          "bestow_curse",
+          "fear"
+        ],
+        "7": [
+          "dimension_door",
+          "polymorph"
+        ],
+        "9": [
+          "dominate_person",
+          "seeming"
+        ]
+      },
+      "features": [
+        {
+          "id": "blessing_of_the_trickster",
+          "name": {
+            "ko": "사기꾼의 축복",
+            "en": "Trickster's Blessing"
+          },
+          "level": 1,
+          "kind": "action",
+          "script": "blessing_of_the_trickster",
+          "icon": "statuses/hidden.webp",
+          "glyph": "mask",
+          "target": "ally",
+          "explore": true,
+          "notes_ko": "BG3: 행동, 곁의 다른 생물이 긴 휴식까지 은신 판정 유리.",
+          "source": "original"
+        },
+        {
+          "id": "invoke_duplicity",
+          "name": {
+            "ko": "이중 존재",
+            "en": "Invoke Duplicity"
+          },
+          "level": 2,
+          "kind": "action",
+          "resource": "channel_divinity",
+          "script": "invoke_duplicity",
+          "icon": "statuses/f3_hallucination.webp",
+          "glyph": "mask",
+          "target": "cell",
+          "notes_ko": "BG3: 행동 + 신성 변환, 6칸 안 칸에 환영 — 그 둘레 2칸 적을 노린 공격 유리(10턴, 단순화).",
+          "source": "original"
+        },
+        {
+          "id": "cloak_of_shadows",
+          "name": {
+            "ko": "그림자 망토",
+            "en": "Cloak of Shadows"
+          },
+          "level": 6,
+          "kind": "action",
+          "resource": "channel_divinity",
+          "script": "cloak_of_shadows",
+          "icon": "statuses/smoke_cover.webp",
+          "glyph": "eye_slash",
+          "target": "self",
+          "explore": true,
+          "notes_ko": "BG3: 행동 + 신성 변환, 2턴 투명(공격·주문으로 풀림).",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "war",
+      "name": {
+        "ko": "전장 영역",
+        "en": "Battle Domain"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "divine_favor",
+          "shield_of_faith"
+        ],
+        "3": [
+          "magic_weapon",
+          "spiritual_weapon"
+        ],
+        "5": [
+          "spirit_guardians"
+        ],
+        "7": [
+          "freedom_of_movement",
+          "stoneskin"
+        ],
+        "9": [
+          "flame_strike",
+          "hold_monster"
+        ]
+      },
+      "features": [
+        {
+          "id": "war_priest",
+          "name": {
+            "ko": "전쟁 사제",
+            "en": "War Priest"
+          },
+          "level": 1,
+          "grants": {
+            "armor_training": [
+              "heavy"
+            ],
+            "weapon_training": [
+              "martial"
+            ]
+          },
+          "caps": [
+            "war_priest"
+          ],
+          "notes_ko": "BG3: 중갑·군용 무기 숙련. 공격 행동으로 무기 공격한 턴에 보너스 행동 무기 공격(지혜 수정치 회/긴 휴식).",
+          "source": "original"
+        },
+        {
+          "id": "guided_strike",
+          "name": {
+            "ko": "인도된 일격",
+            "en": "Guided Strike"
+          },
+          "level": 2,
+          "caps": [
+            "guided_strike"
+          ],
+          "toggle": {
+            "values": [
+              {
+                "id": "on",
+                "name": {
+                  "ko": "켬",
+                  "en": "On"
+                }
+              },
+              {
+                "id": "off",
+                "name": {
+                  "ko": "끔",
+                  "en": "Off"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "빗나간 공격에 신성 변환 +10",
+              "en": "Spend Channel Divinity for +10 on a miss"
+            }
+          },
+          "notes_ko": "BG3: 켜 두면 빗나간 공격(10 이내)에 신성 변환으로 +10.",
+          "source": "original"
+        },
+        {
+          "id": "war_gods_blessing",
+          "name": {
+            "ko": "전쟁 신의 축복",
+            "en": "War God's Blessing"
+          },
+          "level": 6,
+          "kind": "reaction",
+          "trigger": "ally_attack_missed_bonus",
+          "resource": "channel_divinity",
+          "attack_bonus": 10,
+          "range_tiles": 6,
+          "notes_ko": "BG3: 반응 + 신성 변환 — 6칸 안 아군의 빗나간 공격(10 이내)에 +10.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "death",
+      "name": {
+        "ko": "종말 영역",
+        "en": "Grave Domain"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "chill_touch",
+          "false_life",
+          "ray_of_sickness"
+        ],
+        "3": [
+          "blindness_deafness",
+          "ray_of_enfeeblement"
+        ],
+        "5": [
+          "animate_dead",
+          "vampiric_touch"
+        ],
+        "7": [
+          "blight",
+          "death_ward"
+        ],
+        "9": [
+          "cloudkill",
+          "contagion"
+        ]
+      },
+      "features": [
+        {
+          "id": "reaper",
+          "name": {
+            "ko": "수확자",
+            "en": "Reaper"
+          },
+          "level": 1,
+          "grants": {
+            "weapon_training": [
+              "martial"
+            ]
+          },
+          "caps": [
+            "reaper"
+          ],
+          "notes_ko": "BG3: 군용 무기 숙련. 한 생물만 노리는 사령술 소마법이 가장 가까운 다른 적에게도(무료). 냉기 손길 항상 준비.",
+          "source": "original"
+        },
+        {
+          "id": "touch_of_death",
+          "name": {
+            "ko": "죽음의 손길",
+            "en": "Touch of Death"
+          },
+          "level": 2,
+          "caps": [
+            "touch_of_death"
+          ],
+          "toggle": {
+            "values": [
+              {
+                "id": "on",
+                "name": {
+                  "ko": "켬",
+                  "en": "On"
+                }
+              },
+              {
+                "id": "off",
+                "name": {
+                  "ko": "끔",
+                  "en": "Off"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "근접 명중에 신성 변환 사령 피해",
+              "en": "Spend Channel Divinity for necrotic damage on a melee hit"
+            }
+          },
+          "notes_ko": "BG3: 켜 두면 근접 명중에 신성 변환 — 사령 5 + 클레릭 레벨 × 2.",
+          "source": "original"
+        },
+        {
+          "id": "inescapable_destruction",
+          "name": {
+            "ko": "피할 수 없는 파괴",
+            "en": "Inescapable Destruction"
+          },
+          "level": 6,
+          "grants": {
+            "ignore_resistance": [
+              "necrotic"
+            ]
+          },
+          "notes_ko": "BG3: 내 사령 피해는 저항을 무시한다.",
+          "source": "original"
         }
       ]
     }

@@ -191,6 +191,17 @@ func _set_cloud(c: Vector2i, id: String, opts: Dictionary) -> void:
 	_changed += 1
 
 
+## 반경 안의 그 종류 구름을 걷어 낸다(새벽의 광휘 — 마법 어둠).
+func clear_clouds_near(center: Vector2i, radius: int, cloud_id: String) -> void:
+	for x in range(center.x - radius, center.x + radius + 1):
+		for y in range(center.y - radius, center.y + radius + 1):
+			var c := Vector2i(x, y)
+			var cl: Variant = grid.cloud(c) if grid.in_bounds(c) else null
+			if cl is Dictionary and str(cl.get("id", "")) == cloud_id:
+				grid.set_cloud(c, null)
+				_changed += 1
+
+
 func _material_flammable(c: Vector2i) -> bool:
 	return RulesDB.get_entry("material", grid.material(c)).get("flammable", false)
 

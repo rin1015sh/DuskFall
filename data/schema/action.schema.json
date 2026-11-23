@@ -117,6 +117,9 @@
               "bonus",
               "action"
             ]
+          },
+          "resource": {
+            "type": "string"
           }
         }
       }
