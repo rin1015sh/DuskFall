@@ -152,7 +152,8 @@
                 "damage_vulnerability",
                 "damage_immunity",
                 "no_reactions",
-                "jump_tiles"
+                "jump_tiles",
+                "rage_damage"
               ]
             },
             "add": {

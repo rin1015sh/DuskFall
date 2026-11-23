@@ -191,7 +191,7 @@ static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Di
 static func _collect_attack_mods(attacker: Node, target: Node, res: Dictionary) -> void:
 	var ctx: Dictionary = res["ctx"]
 	for m in attacker.modifier_entries():
-		_add_adv(m, "attack", "self", attacker, target, res)
+		_add_adv(m, "attack", "self", attacker, target, res, str(res.get("attack", {}).get("ability", "")))  # 능력 한정(무모한 공격: 근력)
 	for m in target.modifier_entries():
 		_add_adv(m, "attack", "against", target, attacker, res)
 	res["advantage"].append_array(ctx.get("advantage", []))
@@ -334,9 +334,23 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 			EventBus.on_weapon_hit.emit(res)
 			if a["def"].get("consume_on_trigger", false):
 				attacker.remove_condition(str(a["id"]))
+		# 능력 태그 frenzy(광전사 광란): 분노 중 무모한 공격이면 턴의 첫 근력 명중에 (분노 피해)d6
+		if attacker.has_cap("frenzy") and attacker.has_condition("raging") and attacker.turn.get("reckless", false) \
+				and str(atk.get("ability", "")) == "str" and not attacker.turn.get("frenzy_used", false):
+			attacker.turn["frenzy_used"] = true
+			res["extra_damage"].append({"dice": "%dd6" % rage_bonus(attacker), "damage_type": atk["damage"][0]["damage_type"]})
 		if attacker.has_cap("extra_damage_wounded") and target.hp < target.hp_max and not attacker.turn.get("wounded_bonus_used", false):
 			attacker.turn["wounded_bonus_used"] = true
 			res["extra_damage"].append({"dice": "1d8", "damage_type": atk["damage"][0]["damage_type"]})
+
+
+## 분노 피해 보너스(수정치 stat rage_damage의 합 — 분노 상태 데이터).
+static func rage_bonus(c: Node) -> int:
+	var n := 0
+	for m in c.modifier_entries():
+		if m["effect"]["type"] == "modify" and m["effect"]["stat"] == "rage_damage":
+			n += int(m["effect"].get("add", 0))
+	return n
 
 
 ## 무기 명중 피해 장치(on_weapon_hit damage — 강타·신의 은총): dice + 상위 슬롯마다 per_slot, 대상 종류가 bonus_vs.types면 + bonus_vs.dice.
@@ -707,7 +721,7 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		res["auto"] = true
 	else:
 		for m in creature.modifier_entries():
-			_add_adv(m, "ability_check", "self", creature, opts.get("other"), res)
+			_add_adv(m, "ability_check", "self", creature, opts.get("other"), res, ability)  # 능력 한정(분노: 근력 판정)
 		var other: Node = opts.get("other")
 		if other != null and opts.get("social", false):
 			for m in other.modifier_entries():

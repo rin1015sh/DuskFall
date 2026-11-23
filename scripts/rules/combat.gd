@@ -95,7 +95,10 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		var me: Dictionary = m["effect"]
 		if me["type"] == "modify" and me["stat"] == "weapon_attack_and_damage":
 			dmg_bonus += int(me.get("add", 0))  # Magic Weapon +1(명중·피해)
-	var expr := dice if dmg_mod + dmg_bonus == 0 else "%s%+d" % [dice, dmg_mod + dmg_bonus]
+	var str_bonus := 0
+	if ability == "str":
+		str_bonus = Resolver.rage_bonus(c)  # 분노: 근력 공격 피해 +2
+	var expr := dice if dmg_mod + dmg_bonus + str_bonus == 0 else "%s%+d" % [dice, dmg_mod + dmg_bonus + str_bonus]
 	if w["id"] == "unarmed":
 		expr = str(maxi(1 + mod, 0)) if mod != 0 else "1"
 	var hit_bonus := dmg_bonus
@@ -182,6 +185,7 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 	if not res.get("ok", true):
 		return res
 	attacker.turn["attacks_left"] -= 1
+	attacker.turn["attacks_made"] = int(attacker.turn.get("attacks_made", 0)) + 1  # 무모한 공격: 첫 공격 전에만
 	if "light" in atk["properties"]:
 		attacker.turn["light_attack_done"] = true
 	apply_mastery(world, attacker, target, atk, res, opts)

@@ -1,0 +1,271 @@
+{
+  "schema": "class_v1",
+  "id": "barbarian",
+  "name": {
+    "ko": "바바리안",
+    "en": "Barbarian"
+  },
+  "hit_die": 12,
+  "primary": [
+    "str"
+  ],
+  "saves": [
+    "str",
+    "con"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "animal_handling",
+      "athletics",
+      "intimidation",
+      "nature",
+      "perception",
+      "survival"
+    ]
+  },
+  "weapon_training": [
+    "simple",
+    "martial"
+  ],
+  "armor_training": [
+    "light",
+    "medium",
+    "shield"
+  ],
+  "weapon_mastery": {
+    "1": 2,
+    "4": 3
+  },
+  "asi_levels": [
+    4
+  ],
+  "resources": [
+    {
+      "id": "rage",
+      "name": {
+        "ko": "분노",
+        "en": "Rage"
+      },
+      "max": {
+        "1": 2,
+        "3": 3
+      },
+      "recharge": "short_one"
+    }
+  ],
+  "features": [
+    {
+      "id": "rage",
+      "name": {
+        "ko": "분노",
+        "en": "Rage"
+      },
+      "level": 1,
+      "kind": "bonus_action",
+      "resource": "rage",
+      "script": "rage",
+      "notes_ko": "보너스 행동, 중갑 불가. 타격·관통·참격 저항, 근력 공격 피해 +2, 근력 판정·내성 유리, 주문·집중 불가. 10턴(BG3식 — 원문은 매 턴 공격·내성 강요·보너스 행동으로 연장, 최대 10분). 짧은 휴식에 1회, 긴 휴식에 전부.",
+      "source": "SRD 5.2.1",
+      "glyph": "fist",
+      "ai": {
+        "when": "foes_2plus"
+      }
+    },
+    {
+      "id": "unarmored_defense",
+      "name": {
+        "ko": "맨몸 방어",
+        "en": "Unarmored Defense"
+      },
+      "level": 1,
+      "caps": [
+        "unarmored_defense_con"
+      ],
+      "notes_ko": "갑옷이 없으면 AC 10 + 민첩 + 건강(방패 가능).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "weapon_mastery",
+      "name": {
+        "ko": "무기 마스터리",
+        "en": "Weapon Mastery"
+      },
+      "level": 1,
+      "handled_by": "생성기 — 클래스 weapon_mastery 표(2종, 4레벨 3종)와 명세 masteries",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "danger_sense",
+      "name": {
+        "ko": "위험 감지",
+        "en": "Danger Sense"
+      },
+      "level": 2,
+      "grants": {
+        "advantage": [
+          {
+            "type": "advantage",
+            "roll": "save",
+            "side": "self",
+            "value": "advantage",
+            "ability": [
+              "dex"
+            ]
+          }
+        ]
+      },
+      "notes_ko": "민첩 내성 유리(무력화 중 예외는 1차 생략).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "reckless_attack",
+      "name": {
+        "ko": "무모한 공격",
+        "en": "Reckless Attack"
+      },
+      "level": 2,
+      "kind": "free",
+      "script": "reckless_attack",
+      "caps": [
+        "reckless"
+      ],
+      "notes_ko": "턴의 첫 공격 전에(행동 없음) 다음 자기 턴 시작까지 근력 공격 유리, 나를 노리는 공격 유리.",
+      "source": "SRD 5.2.1",
+      "glyph": "axe"
+    },
+    {
+      "id": "primal_knowledge",
+      "name": {
+        "ko": "원시 지식",
+        "en": "Primal Knowledge"
+      },
+      "level": 3,
+      "choices": [
+        "animal_handling",
+        "athletics",
+        "intimidation",
+        "nature",
+        "perception",
+        "survival"
+      ],
+      "choice_kind": "skill",
+      "notes_ko": "바바리안 기능 숙련 하나 더. 분노 중 근력으로 다른 기능 판정하기는 1차 생략.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "extra_attack",
+      "name": {
+        "ko": "추가 공격",
+        "en": "Extra Attack"
+      },
+      "level": 5,
+      "caps": [
+        "extra_attack"
+      ],
+      "grants": {
+        "attacks_per_action": 2
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "fast_movement",
+      "name": {
+        "ko": "빠른 이동",
+        "en": "Fast Movement"
+      },
+      "level": 5,
+      "caps": [
+        "fast_movement"
+      ],
+      "notes_ko": "중갑이 아니면 속도 +10피트(2칸).",
+      "source": "SRD 5.2.1"
+    }
+  ],
+  "subclasses": [
+    {
+      "id": "berserker",
+      "name": {
+        "ko": "광전사의 길",
+        "en": "Path of the Berserker"
+      },
+      "level": 3,
+      "source": "SRD 5.2.1",
+      "features": [
+        {
+          "id": "frenzy",
+          "name": {
+            "ko": "광란",
+            "en": "Frenzy"
+          },
+          "level": 3,
+          "caps": [
+            "frenzy"
+          ],
+          "notes_ko": "분노 중 무모한 공격이면 턴의 첫 근력 명중에 (분노 피해 보너스)d6 추가 피해.",
+          "source": "SRD 5.2.1"
+        }
+      ]
+    }
+  ],
+  "ai_role": "melee",
+  "art": {
+    "sheet": "res://assets/actors/barbarian.webp"
+  },
+  "color": "#c8553d",
+  "starting_equipment": {
+    "armor": "",
+    "shield": false,
+    "melee": {
+      "main": "greataxe",
+      "off": ""
+    },
+    "ranged": {
+      "main": "handaxe"
+    }
+  },
+  "default_build": {
+    "subclass": "berserker",
+    "species": "orc",
+    "background": "soldier",
+    "scores": {
+      "str": 15,
+      "dex": 13,
+      "con": 15,
+      "int": 8,
+      "wis": 12,
+      "cha": 8
+    },
+    "bonus": {
+      "str": 2,
+      "con": 1
+    },
+    "skills": [
+      "athletics",
+      "perception"
+    ],
+    "primal_knowledge": "intimidation",
+    "masteries": [
+      "greataxe",
+      "handaxe",
+      "javelin"
+    ],
+    "asi": {
+      "4": {
+        "str": 2
+      }
+    },
+    "armor": "",
+    "shield": false,
+    "weapons": {
+      "melee": {
+        "main": "greataxe",
+        "off": ""
+      },
+      "ranged": {
+        "main": "handaxe"
+      }
+    }
+  },
+  "source": "SRD 5.2.1"
+}

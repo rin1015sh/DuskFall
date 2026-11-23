@@ -253,6 +253,51 @@
       },
       "note_ko": "짧은 휴식 뒤 준비 주문 1개 교체(spell_prep.open_window short)",
       "source": "original"
+    },
+    {
+      "id": "unarmored_defense_con",
+      "name": {
+        "ko": "맨몸 방어(건강)",
+        "en": "Unarmored Defense (Con)"
+      },
+      "note_ko": "갑옷이 없으면 AC 10 + 민첩 + 건강, 방패 가능(character_builder.armor_class)",
+      "source": "original"
+    },
+    {
+      "id": "unarmored_defense_wis",
+      "name": {
+        "ko": "맨몸 방어(지혜)",
+        "en": "Unarmored Defense (Wis)"
+      },
+      "note_ko": "갑옷·방패가 없으면 AC 10 + 민첩 + 지혜(character_builder.armor_class)",
+      "source": "original"
+    },
+    {
+      "id": "fast_movement",
+      "name": {
+        "ko": "빠른 이동",
+        "en": "Fast Movement"
+      },
+      "note_ko": "중갑이 아니면 속도 +2칸(생성기)",
+      "source": "original"
+    },
+    {
+      "id": "frenzy",
+      "name": {
+        "ko": "광란",
+        "en": "Frenzy"
+      },
+      "note_ko": "분노 중 무모한 공격이면 턴의 첫 근력 명중에 (분노 피해)d6(resolver._hit_riders)",
+      "source": "original"
+    },
+    {
+      "id": "reckless",
+      "name": {
+        "ko": "무모한 공격",
+        "en": "Reckless Attack"
+      },
+      "note_ko": "턴의 첫 공격 전에: 다음 자기 턴 시작까지 근력 공격 유리, 나를 노리는 공격 유리(스크립트 reckless_attack)",
+      "source": "original"
     }
   ]
 }

@@ -210,10 +210,11 @@
           }
         },
         "choice_kind": {
-          "$comment": "choices를 고르는 방식: feat = 재주를 얻음, expertise = 그 기능에 전문화, option = choice_grants의 효과. 명세 키는 기능 id",
+          "$comment": "choices를 고르는 방식: feat = 재주를 얻음, expertise = 그 기능에 전문화, skill = 기능 숙련 하나 더, option = choice_grants의 효과. 명세 키는 기능 id",
           "enum": [
             "feat",
-            "expertise",
+            "skill",
+              "expertise",
             "option"
           ]
         },

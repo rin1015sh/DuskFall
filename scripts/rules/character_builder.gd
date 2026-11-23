@@ -220,6 +220,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		_add_feature(c, f)
 	# 고르는 기능(choice_kind): 명세 키 = 기능 id. feat = 재주, expertise = 전문화, option = choice_grants 효과
 	var expertise: Array = spec.get("expertise", []).duplicate()
+	var extra_skill: Array = []
 	var grants: Array = []  # [출처 기능 id, grants]
 	for fid: String in c.feature_data:
 		var f: Dictionary = c.feature_data[fid]
@@ -234,6 +235,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 				feats.append(chosen)
 			"expertise":
 				expertise.append(chosen)
+			"skill":
+				extra_skill.append(chosen)  # 기능 숙련 하나 더(바바리안 원시 지식)
 			"option":
 				if f.get("choice_grants", {}).has(chosen):
 					grants.append([fid, f["choice_grants"][chosen]])
@@ -268,6 +271,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	if spec.get("species_skill", "") != "":
 		skills.append(spec["species_skill"])
 	skills.append_array(spec.get("extra_skills", []))
+	skills.append_array(extra_skill)
 	c.skill_bonuses = {}
 	for s: String in skills:
 		c.skill_bonuses[s] = c.proficiency_bonus * (2 if s in expertise else 1)  # 전문화는 숙련 기능에만
@@ -292,6 +296,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	Equipment.apply_to(c, slots)
 	c.ac_base = armor_class(c, str(c.get_meta("armor")), bool(c.get_meta("shield")), armor_training)
 	Equipment.sync_conditions(c)  # 숙련 없는 갑옷·무게 상태(BG3식)
+	if c.has_cap("fast_movement") and not _heavy(str(c.get_meta("armor"))):
+		c.speed_tiles += 2  # 빠른 이동: 중갑이 아니면 +10피트
 	# 주문
 	_apply_spells(c, cls, sub, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)
@@ -350,6 +356,10 @@ static func _add_feature(c: Node, f: Dictionary) -> void:
 static func armor_class(c: Node, armor_id: String, shield: bool, training: Array = []) -> int:
 	var dex: int = c.ability_mod("dex")
 	var ac := 10 + dex
+	if armor_id == "" and c.has_cap("unarmored_defense_con"):
+		ac += c.ability_mod("con")  # 바바리안 맨몸 방어: 10 + 민첩 + 건강(방패 가능)
+	if armor_id == "" and not shield and c.has_cap("unarmored_defense_wis"):
+		ac += c.ability_mod("wis")  # 몽크 맨몸 방어: 10 + 민첩 + 지혜(방패 없이)
 	if armor_id != "":
 		var a := RulesDB.get_entry("armor", armor_id)
 		var cap: Variant = a.get("dex_cap")
@@ -360,6 +370,10 @@ static func armor_class(c: Node, armor_id: String, shield: bool, training: Array
 	if shield:
 		ac += 2
 	return ac
+
+
+static func _heavy(armor_id: String) -> bool:
+	return armor_id != "" and str(RulesDB.get_entry("armor", armor_id).get("category", "")) == "heavy"
 
 
 static func _weapon_profs(training: Array) -> Array:
