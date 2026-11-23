@@ -743,7 +743,13 @@
       "thunderwave",
       "greater_invisibility",
       "ice_storm",
-      "cone_of_cold"
+      "cone_of_cold",
+      "chain_lightning",
+      "disintegrate",
+      "finger_of_death",
+      "fire_storm",
+      "incendiary_cloud",
+      "sunburst"
     ],
     "asi": {
       "4": {

@@ -772,7 +772,13 @@
       "entangle",
       "ice_storm",
       "conjure_woodland_beings",
-      "mass_cure_wounds"
+      "mass_cure_wounds",
+      "sunbeam",
+      "heal",
+      "fire_storm",
+      "regenerate",
+      "incendiary_cloud",
+      "sunburst"
     ],
     "asi": {
       "4": {

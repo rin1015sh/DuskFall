@@ -1405,7 +1405,16 @@
         "main": "light_crossbow"
       }
     },
-    "fiendish_resilience": "fire"
+    "fiendish_resilience": "fire",
+    "mystic_arcanum_6": [
+      "circle_of_death"
+    ],
+    "mystic_arcanum_7": [
+      "finger_of_death"
+    ],
+    "mystic_arcanum_8": [
+      "power_word_stun"
+    ]
   },
   "source": "SRD 5.2.1",
   "multiclass": {

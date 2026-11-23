@@ -1184,6 +1184,8 @@ static func start_turn(creature: Node, ctx: Dictionary = {}) -> void:
 			if e["type"] == "damage":
 				var r := Dice.roll(str(a["instance"].get("params", {}).get("dice", e["dice"])), "%s(%s)" % [a["id"], creature.label()])
 				parts.append({"amount": r["total"], "damage_type": e["damage_type"]})
+			elif e["type"] == "heal" and not creature.dead and creature.hp > 0:
+				heal(creature, int(e.get("amount", 1)), a["id"])  # 재생(Regenerate)
 			elif e["type"] == "temp_hp" and e.get("amount", "") == "source_spell_mod":
 				var src: Variant = a["instance"].get("source")
 				if src is Node:  # 영웅심: 턴 시작마다 시전자 주문 능력 수정치만큼 임시 HP

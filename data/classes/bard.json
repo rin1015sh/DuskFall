@@ -543,7 +543,13 @@
       "mass_healing_word",
       "greater_invisibility",
       "dimension_door",
-      "hold_monster"
+      "hold_monster",
+      "irresistible_dance",
+      "heroes_feast",
+      "prismatic_spray",
+      "regenerate",
+      "mind_blank",
+      "power_word_stun"
     ],
     "asi": {
       "4": {

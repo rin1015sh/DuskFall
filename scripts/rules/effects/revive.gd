@@ -16,11 +16,11 @@ func apply(ctx: Dictionary) -> Dictionary:
 	if t == null or not t.dead:
 		return {"ok": false, "reason": "죽은 생물만"}
 	var tm: Variant = ctx["world"].get("turns")
-	var limit: bool = ctx["spell"]["id"] != "raise_dead"  # Raise Dead: 10일 — 게임 안 날짜가 없어 제한 없음
+	var limit: bool = not ctx["spell"]["id"] in ["raise_dead", "resurrection"]  # Raise Dead: 10일 — 게임 안 날짜가 없어 제한 없음
 	if limit and tm != null and t.has_meta("died_round") and tm.round_number - int(t.get_meta("died_round")) > 10:
 		return {"ok": false, "reason": "죽은 지 10턴이 넘었다"}
 	t.dead = false
-	t.hp = 1
+	t.hp = t.hp_max if ctx["spell"]["id"] == "resurrection" else 1  # Resurrection: 최대 HP로
 	t.death_saves = {"successes": 0, "failures": 0}
 	t.stable = false
 	t.remove_condition("unconscious")

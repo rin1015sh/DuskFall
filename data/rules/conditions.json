@@ -1504,6 +1504,126 @@
       ],
       "notes_ko": "반엄폐(AC +2), 팔라딘의 다음 턴 시작까지.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "feasted",
+      "name": {
+        "ko": "영웅들의 만찬",
+        "en": "Heroes' Feast"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "condition_immunities": [
+        "poisoned",
+        "frightened"
+      ],
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "poison"
+          ]
+        }
+      ],
+      "notes_ko": "Heroes' Feast: 독 저항, 중독·공포 면역 — 긴 휴식까지(최대 HP +11은 주문 효과로).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dancing",
+      "name": {
+        "ko": "춤",
+        "en": "Dancing"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "also_applies": [
+        "charmed"
+      ],
+      "flags": {
+        "speed_zero": true
+      },
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "dex"
+          ]
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "notes_ko": "Irresistible Dance: 매혹, 제자리 춤(속도 0), 민첩 내성·공격 불리, 받는 공격 유리.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "regenerating",
+      "name": {
+        "ko": "재생",
+        "en": "Regenerating"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "heal",
+            "amount": 1
+          }
+        ]
+      },
+      "notes_ko": "Regenerate: 턴 시작마다 1 회복.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "befuddled",
+      "name": {
+        "ko": "정신 착란",
+        "en": "Befuddled"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "flags": {
+        "no_spellcasting": true
+      },
+      "notes_ko": "Befuddlement: 주문·마법 행동 불가(긴 휴식까지).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mind_blanked",
+      "name": {
+        "ko": "정신 차단",
+        "en": "Mind Blank"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "condition_immunities": [
+        "charmed"
+      ],
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_immunity",
+          "damage_types": [
+            "psychic"
+          ]
+        }
+      ],
+      "notes_ko": "Mind Blank: 정신 피해·매혹 면역.",
+      "source": "SRD 5.2.1"
     }
   ]
 }

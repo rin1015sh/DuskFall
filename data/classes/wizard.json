@@ -500,7 +500,13 @@
       "ice_storm",
       "greater_invisibility",
       "cone_of_cold",
-      "cloudkill"
+      "cloudkill",
+      "chain_lightning",
+      "disintegrate",
+      "finger_of_death",
+      "delayed_blast_fireball",
+      "sunburst",
+      "power_word_stun"
     ],
     "asi": {
       "4": {

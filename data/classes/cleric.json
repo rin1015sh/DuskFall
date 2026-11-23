@@ -605,7 +605,13 @@
       "dispel_magic",
       "death_ward",
       "banishment",
-      "flame_strike"
+      "flame_strike",
+      "heal",
+      "harm",
+      "fire_storm",
+      "divine_word",
+      "holy_aura",
+      "sunburst"
     ],
     "asi": {
       "4": {

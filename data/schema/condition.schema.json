@@ -266,10 +266,8 @@
           }
         },
         "amount": {
-          "$comment": "temp_hp: source_spell_mod = 상태를 건 시전자의 주문 능력 수정치",
-          "enum": [
-            "source_spell_mod"
-          ]
+          "$comment": "temp_hp: source_spell_mod = 상태를 건 시전자의 주문 능력 수정치, heal: 회복량(정수 — 재생)",
+          "oneOf": [{"enum": ["source_spell_mod"]}, {"type": "integer"}]
         }
       }
     },
