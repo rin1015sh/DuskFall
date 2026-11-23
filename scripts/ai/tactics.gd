@@ -50,10 +50,10 @@ static func _drink(world: Dictionary, c: Node) -> bool:
 	if float(c.hp) / maxf(c.hp_max, 1) > 0.3 or int(c.turn.get("bonus", 0)) <= 0:
 		return false
 	for item: String in ["potion_of_healing", "potion_of_greater_healing", "potion_of_superior_healing"]:
-		if Interact.count(world, item) > 0:
+		if Interact.count(world, item, c) > 0:
 			var r := Combat.drink_potion(c, RulesDB.get_entry("item", item).get("effects", []), null, world)
 			if r.get("ok", false):
-				Interact.take(world, item)
+				Interact.take(world, item, 1, c)
 				return true
 	return false
 

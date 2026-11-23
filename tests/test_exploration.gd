@@ -178,19 +178,19 @@ func test_disarm_lock_and_tools() -> void:
 	var trap := {"id": "dart", "cell": [3, 0], "dc_find": 12, "dc_disarm": 15, "found": true,
 		"effects": [{"type": "damage", "dice": "1d4", "damage_type": "piercing"}], "state": "armed"}
 	assert_false(Interact.disarm(w, p, trap)["ok"], "도구가 없으면 못 한다")
-	Interact.give(w, "trap_disarm_kit", 2)
+	Interact.give(w, "trap_disarm_kit", 2, p)
 	Dice.force([18])
 	var r := Interact.disarm(w, p, trap)
 	assert_true(r["success"])
 	assert_eq(trap["state"], "disarmed")
-	assert_eq(Interact.count(w, "trap_disarm_kit"), 2, "성공하면 도구가 남는다")
+	assert_eq(Interact.count(w, "trap_disarm_kit", p), 2, "성공하면 도구가 남는다")
 	# 자물쇠: 실패하면 도둑 도구 소모, 열쇠가 있으면 굴림 없이
 	g.place_object(Vector2i(1, 0), {"id": "chest", "lock": {"dc": 15, "key": "chest_key", "locked": true}})
-	Interact.give(w, "thieves_tools", 1)
+	Interact.give(w, "thieves_tools", 1, p)
 	Dice.force([2])
 	assert_false(Interact.open_lock(w, p, Vector2i(1, 0))["success"])
-	assert_eq(Interact.count(w, "thieves_tools"), 0, "실패하면 도구가 부서진다")
-	Interact.give(w, "chest_key")
+	assert_eq(Interact.count(w, "thieves_tools", p), 0, "실패하면 도구가 부서진다")
+	Interact.give(w, "chest_key", 1, p)
 	assert_true(Interact.open_lock(w, p, Vector2i(1, 0))["key"])
 	assert_false(g.object_at(Vector2i(1, 0))["lock"]["locked"])
 
@@ -201,11 +201,11 @@ func test_failed_disarm_triggers_and_blocks_retry() -> void:
 	w["grid"].place(p, Vector2i(3, 0))
 	var trap := {"id": "dart", "cell": [3, 0], "dc_find": 12, "dc_disarm": 15, "found": true,
 		"effects": [{"type": "damage", "dice": "1d4", "damage_type": "piercing"}], "state": "armed"}
-	Interact.give(w, "trap_disarm_kit", 2)
+	Interact.give(w, "trap_disarm_kit", 2, p)
 	Dice.force([3, 4])
 	Interact.disarm(w, p, trap)
 	assert_eq(trap["state"], "spent", "실패하면 발동")
-	assert_eq(Interact.count(w, "trap_disarm_kit"), 1, "실패하면 도구 소모")
+	assert_eq(Interact.count(w, "trap_disarm_kit", p), 1, "실패하면 도구 소모")
 	assert_eq(p.hp, 26)
 
 

@@ -55,8 +55,9 @@ func test_ranger_one_swap_and_free_empty_slot() -> void:
 
 
 func test_wizard_spellbook_scroll_learning_and_reactions() -> void:
-	var w := {"inventory": {"gold": 120, "spell_scroll_magic_missile": 1}}
+	var w := {}
 	var wz := _pc("wizard", 1, {"spells": ["shield", "sleep", "burning_hands"]})
+	wz.inventory = {"gold": 120, "spell_scroll_magic_missile": 1}
 	assert_eq(wz.spellbook, ["shield", "sleep", "burning_hands"])
 	assert_false("magic_missile" in SpellPrep.pool(wz), "주문서에 없는 주문은 준비할 수 없다")
 	assert_true("shield" in wz.known_reactions)
@@ -64,8 +65,8 @@ func test_wizard_spellbook_scroll_learning_and_reactions() -> void:
 	assert_false("shield" in wz.known_reactions, "준비에서 빼면 반응 목록에서도 빠진다")
 	assert_eq(SpellPrep.learn_blocked(w, wz, "spell_scroll_cure_wounds"), "두루마리가 없다")
 	assert_true(SpellPrep.learn_from_scroll(w, wz, "spell_scroll_magic_missile")["ok"])
-	assert_eq(int(w["inventory"]["gold"]), 70, "1레벨 × 50gp")
-	assert_false(w["inventory"].has("spell_scroll_magic_missile"), "두루마리는 사라진다(BG3식)")
+	assert_eq(int(wz.inventory["gold"]), 70, "1레벨 × 50gp(배우는 캐릭터의 금화)")
+	assert_false(wz.inventory.has("spell_scroll_magic_missile"), "두루마리는 사라진다(BG3식)")
 	assert_true("magic_missile" in wz.spellbook and "magic_missile" in SpellPrep.pool(wz))
 	assert_true(SpellPrep.toggle(w, wz, "magic_missile")["ok"])
 	assert_true(SpellPrep.toggle(w, wz, "shield")["ok"])
@@ -75,7 +76,7 @@ func test_wizard_spellbook_scroll_learning_and_reactions() -> void:
 	spec["level"] = 2
 	Builder.apply(wz, spec)
 	assert_true("magic_missile" in wz.spellbook and wz.spells.has("magic_missile"), "배운 주문 유지")
-	w["inventory"]["spell_scroll_magic_missile"] = 1
+	wz.inventory["spell_scroll_magic_missile"] = 1
 	assert_eq(SpellPrep.learn_blocked(w, wz, "spell_scroll_magic_missile"), "이미 주문서에 있다")
 
 
@@ -114,8 +115,8 @@ func test_ritual_casting_and_ritual_adept() -> void:
 func test_save_restore_keeps_prepared_and_spellbook() -> void:
 	var SaveGame := preload("res://scripts/rules/save_game.gd")
 	var w := make_world(["....."])
-	w["inventory"] = {"gold": 100, "spell_scroll_magic_missile": 1}
 	var wz := _pc("wizard", 1, {"spells": ["shield", "sleep", "burning_hands"]})
+	wz.inventory = {"gold": 100, "spell_scroll_magic_missile": 1}
 	wz.name = "wz"
 	w["grid"].place(wz, Vector2i(0, 0))
 	SpellPrep.learn_from_scroll(w, wz, "spell_scroll_magic_missile")

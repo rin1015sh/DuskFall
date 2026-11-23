@@ -67,7 +67,15 @@ static func build(map_id: String, opts: Dictionary = {}) -> Dictionary:
 	world["examines"] = loaded["examines"]
 	world["zone_rewards"] = loaded.get("zone_rewards", {})
 	world["map_id"] = map_id
-	world["inventory"] = {"thieves_tools": 1, "trap_disarm_kit": 1, "rations": 4, "gold": 40, "potion_of_healing": 2}
+	# 시작 소지품(BG3식 캐릭터마다): 금화는 나눠 갖고, 도구·식량은 앞 캐릭터, 치유 물약은 앞 두 명에게 1개씩
+	world["stash"] = {}
+	for i in party.size():
+		var inv: Dictionary = party[i].inventory
+		inv["gold"] = int(inv.get("gold", 0)) + 40 / party.size()
+		if i == 0:
+			inv.merge({"thieves_tools": 1, "trap_disarm_kit": 1, "rations": 4})
+		if i < 2:
+			inv["potion_of_healing"] = int(inv.get("potion_of_healing", 0)) + 1
 	world["inspiration"] = 0
 	world["xp"] = int(Progression_xp(level))
 	world["party"] = party

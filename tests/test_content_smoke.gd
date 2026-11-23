@@ -41,7 +41,7 @@ func _arena() -> Dictionary:
 	w["grid"].place(ally, Vector2i(3, 1))
 	w["grid"].place(foe, Vector2i(6, 1))
 	w["grid"].place(undead, Vector2i(7, 2))
-	w["inventory"] = {"gold": 1000}
+	c.inventory = {"gold": 1000}
 	return {"world": w, "caster": c, "ally": ally, "foe": foe}
 
 
@@ -113,7 +113,7 @@ func test_every_usable_item_works() -> void:
 			w["grid"].remove(c)
 			w["grid"].place(nc, Vector2i(2, 1))
 			c = nc
-		w["inventory"][iid] = 3
+		c.inventory[iid] = 3
 		var before := log.count
 		var keys: Array = Actions.list_for(w, c)["items"]
 		var used := 0

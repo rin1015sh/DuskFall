@@ -167,9 +167,9 @@ func _slot(sid: String, toggles: bool) -> Control:
 func _scrolls() -> void:
 	body.add_child(S.title(UiText.t("learn_scrolls"), 15))
 	var any := false
-	for item: String in world.get("inventory", {}):
+	for item: String in creature.inventory:
 		var e := RulesDB.get_entry("item", item)
-		if e.get("category", "") != "scroll" or int(world["inventory"][item]) <= 0:
+		if e.get("category", "") != "scroll" or int(creature.inventory[item]) <= 0:
 			continue
 		var sid := str(e.get("spell", ""))
 		var sp := RulesDB.get_entry("spell", sid)

@@ -177,7 +177,7 @@ static func learn_blocked(world: Dictionary, c: Node, item_id: String) -> String
 		return "주문서가 없다"
 	if item.get("category", "") != "scroll" or sp.is_empty():
 		return "주문 두루마리가 아니다"
-	if int(world.get("inventory", {}).get(item_id, 0)) <= 0:
+	if int(c.inventory.get(item_id, 0)) <= 0:
 		return "두루마리가 없다"
 	if not str(_sc(c).get("list", "")) in sp.get("classes", []):
 		return "내 클래스 주문 목록에 없는 주문"
@@ -189,7 +189,7 @@ static func learn_blocked(world: Dictionary, c: Node, item_id: String) -> String
 		return "이미 주문서에 있다"
 	if in_combat(world):
 		return "전투 중에는 적을 수 없다"
-	if int(world.get("inventory", {}).get("gold", 0)) < learn_cost(sid):
+	if int(c.inventory.get("gold", 0)) < learn_cost(sid):
 		return "금화가 모자라다(%dgp)" % learn_cost(sid)
 	return ""
 
@@ -199,8 +199,10 @@ static func learn_from_scroll(world: Dictionary, c: Node, item_id: String) -> Di
 	if why != "":
 		return {"ok": false, "reason": why}
 	var sid := str(RulesDB.get_entry("item", item_id)["spell"])
-	var inv: Dictionary = world["inventory"]
+	var inv: Dictionary = c.inventory  # 배우는 캐릭터의 두루마리·금화(BG3식 캐릭터별)
 	inv["gold"] = int(inv["gold"]) - learn_cost(sid)
+	if int(inv["gold"]) <= 0:
+		inv.erase("gold")
 	inv[item_id] = int(inv[item_id]) - 1
 	if int(inv[item_id]) <= 0:
 		inv.erase(item_id)

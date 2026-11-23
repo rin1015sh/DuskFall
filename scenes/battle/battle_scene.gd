@@ -340,9 +340,9 @@ func _ready() -> void:
 	if args.has("sheet"):
 		sheet.show_for(world, selected)
 	if args.has("spellbook"):
-		world["inventory"]["spell_scroll_magic_missile"] = 1  # 시험용: 배우기 단추가 보이게
 		var bi := int(str(args["spellbook"])) if str(args["spellbook"]).is_valid_int() else 0
 		selected = party[clampi(bi, 0, party.size() - 1)]
+		selected.inventory["spell_scroll_magic_missile"] = 1  # 시험용: 배우기 단추가 보이게
 		_refresh()
 		spellbook.show_for(world, selected)
 	if args.has("camp"):
@@ -913,7 +913,7 @@ func _explore_preview(cell: Vector2i) -> Dictionary:
 		"lock":
 			var lk: Dictionary = a["obj"]["lock"]
 			var pv := Interact.preview_check(selected, "dex", "sleight_of_hand", int(lk["dc"]))
-			lines.append(UiText.t("pick_lock") % [int(lk["dc"]), roundi(pv["chance"] * 100), Interact.count(world, "thieves_tools")])
+			lines.append(UiText.t("pick_lock") % [int(lk["dc"]), roundi(pv["chance"] * 100), Interact.count(world, "thieves_tools", selected)])
 		"loot":
 			lines.append(UiText.t("loot"))
 			if a["obj"].get("owner", "") != "":
@@ -921,7 +921,7 @@ func _explore_preview(cell: Vector2i) -> Dictionary:
 		"disarm":
 			var t: Dictionary = a["trap"]
 			var pv := Interact.preview_check(selected, "dex", "sleight_of_hand", int(t["dc_disarm"]))
-			lines.append(UiText.t("disarm") % [int(t["dc_disarm"]), roundi(pv["chance"] * 100), Interact.count(world, "trap_disarm_kit")])
+			lines.append(UiText.t("disarm") % [int(t["dc_disarm"]), roundi(pv["chance"] * 100), Interact.count(world, "trap_disarm_kit", selected)])
 		"examine":
 			var e: Dictionary = a["examine"]
 			var pv := Interact.preview_check(selected, e.get("ability", "int"), e.get("skill", "investigation"), int(e["dc"]))
@@ -987,7 +987,7 @@ func _explore_execute(cell: Vector2i) -> void:
 					_refresh()
 				if lk.get("key", "") != "" and Interact.count(world, lk["key"]) > 0:
 					open_with.call({})
-				elif Interact.count(world, "thieves_tools") <= 0:
+				elif Interact.count(world, "thieves_tools", selected) <= 0:
 					_notify({"ok": false, "reason": "도둑 도구가 없다"})
 				else:
 					_visible_roll(c0, "dex", "sleight_of_hand", int(lk["dc"]), UiText.t("pick_lock").get_slice(" DC", 0), open_with)
@@ -1004,7 +1004,7 @@ func _explore_execute(cell: Vector2i) -> void:
 			if _approach(cell):
 				var trap: Dictionary = a["trap"]
 				var c1: Node = selected
-				if Interact.count(world, "trap_disarm_kit") <= 0:
+				if Interact.count(world, "trap_disarm_kit", selected) <= 0:
 					_notify({"ok": false, "reason": "함정 해체 도구가 없다"})
 				elif trap.get("retry_blocked", false):
 					_notify({"ok": false, "reason": "이 함정은 다시 시도할 수 없다"})
@@ -1181,7 +1181,7 @@ func _open_shop(shop_id: String) -> void:
 	var head := HBoxContainer.new()
 	head.add_child(S.title(UiText.name_of(shop.get("name", {"ko": shop_id, "en": shop_id})), 20))
 	var gold := Label.new()
-	gold.text = "   %s %d" % [UiText.t("gold"), Interact.count(world, "gold")]
+	gold.text = "   %s · %s %d" % [selected.label(), UiText.t("gold"), Interact.count(world, "gold", selected)]  # 거래하는 캐릭터의 금화
 	gold.add_theme_color_override("font_color", S.GOLD)
 	head.add_child(gold)
 	v.add_child(head)
@@ -1194,24 +1194,24 @@ func _open_shop(shop_id: String) -> void:
 	for row: Dictionary in Shop.stock(world, shop_id):
 		var b := Button.new()
 		b.text = "%s ×%d — %dgp" % [UiText.name_of(RulesDB.get_entry("item", row["item"]).get("name", {})), int(row["count"]), int(row["price"])]
-		b.disabled = int(row["count"]) <= 0 or Interact.count(world, "gold") < int(row["price"])
+		b.disabled = int(row["count"]) <= 0 or Interact.count(world, "gold", selected) < int(row["price"])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.pressed.connect(func() -> void:
-			_notify(Shop.buy(world, shop_id, row["item"]))
+			_notify(Shop.buy(world, shop_id, row["item"], selected))
 			_open_shop(shop_id))
 		buy.add_child(b)
 	cols.add_child(buy)
 	var sell := VBoxContainer.new()
 	sell.custom_minimum_size = Vector2(300, 0)
 	sell.add_child(S.title(UiText.t("sell"), 15))
-	for item: String in world.get("inventory", {}):
-		if Interact.count(world, item) <= 0 or RulesDB.get_entry("item", item).get("category", "currency") == "currency":
+	for item: String in selected.inventory.keys():
+		if Interact.count(world, item, selected) <= 0 or RulesDB.get_entry("item", item).get("category", "currency") == "currency":
 			continue
 		var b := Button.new()
-		b.text = "%s ×%d — %dgp" % [UiText.name_of(RulesDB.get_entry("item", item).get("name", {})), Interact.count(world, item), Shop.sell_price(shop_id, item)]
+		b.text = "%s ×%d — %dgp" % [UiText.name_of(RulesDB.get_entry("item", item).get("name", {})), Interact.count(world, item, selected), Shop.sell_price(shop_id, item)]
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.pressed.connect(func() -> void:
-			_notify(Shop.sell(world, shop_id, item))
+			_notify(Shop.sell(world, shop_id, item, selected))
 			_open_shop(shop_id))
 		sell.add_child(b)
 	cols.add_child(sell)
@@ -1511,6 +1511,7 @@ func _build_ui() -> void:
 func _refresh() -> void:
 	var tm: Node = world["turns"]
 	party = world.get("party", party)
+	world["active"] = selected  # 받는 사람을 안 정한 소지품(대화 보상 등)은 고른 캐릭터에게
 	for v in views.values():
 		v.current = v.creature in tm.current_group()
 		v.selected = v.creature == selected
@@ -1548,7 +1549,7 @@ func _refresh() -> void:
 		hotbar.visible = false
 	if exploring and selected != null:
 		status_label.text = UiText.t("explore_status") % [selected.label(), selected.level, int(world.get("xp", 0)), int(world.get("inspiration", 0)),
-			Interact.count(world, "gold"), Interact.count(world, "thieves_tools"), Interact.count(world, "trap_disarm_kit")]
+			Interact.count(world, "gold", selected), Interact.count(world, "thieves_tools", selected), Interact.count(world, "trap_disarm_kit", selected)]
 	elif busy:
 		status_label.text = UiText.t("enemy_turn")
 	else:

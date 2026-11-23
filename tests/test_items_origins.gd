@@ -20,7 +20,8 @@ func test_spell_scroll_reads_only_class_list_and_is_consumed() -> void:
 	w["grid"].place(wiz, Vector2i(0, 0))
 	w["grid"].place(fighter, Vector2i(1, 0))
 	w["grid"].place(foe, Vector2i(4, 0))
-	w["inventory"] = {"spell_scroll_magic_missile": 1}
+	wiz.inventory = {"spell_scroll_magic_missile": 1}
+	fighter.inventory = {"spell_scroll_magic_missile": 1}
 	var keys: Array = Actions.list_for(w, wiz)["items"]
 	assert_true("read_scroll:spell_scroll_magic_missile" in keys, "위저드는 마법 화살 두루마리를 읽는다")
 	assert_false("read_scroll:spell_scroll_magic_missile" in Actions.list_for(w, fighter)["items"], "전사는 못 읽는다(클래스 주문 목록)")
@@ -32,7 +33,7 @@ func test_spell_scroll_reads_only_class_list_and_is_consumed() -> void:
 	var r: Dictionary = Actions.execute(w, wiz, "read_scroll:spell_scroll_magic_missile", Vector2i(4, 0))
 	assert_true(r.get("ok", false), "슬롯 없이 두루마리로 시전 %s" % str(r))
 	assert_true(foe.hp < hp, "마법 화살 피해")
-	assert_eq(int(w["inventory"].get("spell_scroll_magic_missile", 0)), 0, "두루마리는 사라진다")
+	assert_eq(int(wiz.inventory.get("spell_scroll_magic_missile", 0)), 0, "두루마리는 사라진다")
 	assert_false(wiz.has_meta("scroll_cast"), "두루마리 DC 설정은 시전 뒤 지운다")
 
 

@@ -2,7 +2,7 @@ extends RefCounted
 ## 휴식·캠프(룰북 7단계). 상태 없음 — 파티 상태는 world에.
 ##   world["short_rests_left"]: 긴 휴식 사이 남은 짧은 휴식(기본 2)
 ##   world["party_resources"]["camp_supplies"]: 보급품 수치(Create Food and Water 등) + 소지품 음식의 camp_supplies
-##   world["inventory"]["gold"]: 캠프 서비스(부활 200gp·재분배 100gp)
+##   캠프 서비스(부활 200gp·재분배 100gp): 파티 금화를 모아 낸다(고른 캐릭터 먼저)
 ##   world["inspiration"]: 파티 공용 영감(최대 4)
 
 const SpellPrep := preload("res://scripts/rules/spell_prep.gd")
@@ -61,15 +61,27 @@ static func short_rest(world: Dictionary, party: Array) -> Dictionary:
 
 # ---------- 긴 휴식 ----------
 
+## 보급품을 찾는 가방: 파티·쉬는 동료의 소지품과 캠프 보관함(BG3: 캠프에서는 모두의 음식을 쓴다).
+static func _bags(world: Dictionary) -> Array:
+	var out: Array = []
+	for c: Variant in world.get("party", []) + world.get("roster", []):
+		if c is Node and is_instance_valid(c):
+			out.append(c.inventory)
+	if not world.has("stash"):
+		world["stash"] = {}
+	out.append(world["stash"])
+	return out
+
+
 static func supplies(world: Dictionary) -> int:
 	var total := int(world.get("party_resources", {}).get("camp_supplies", 0))
-	for item: String in world.get("inventory", {}):
-		var e := RulesDB.get_entry("item", item)
-		total += int(e.get("camp_supplies", 0)) * Interact.count(world, item)
+	for bag: Dictionary in _bags(world):
+		for item: String in bag:
+			total += int(RulesDB.get_entry("item", item).get("camp_supplies", 0)) * int(bag[item])
 	return total
 
 
-## 보급품을 쓴다: 주문으로 만든 보급품 → 음식(값이 작은 것부터).
+## 보급품을 쓴다: 주문으로 만든 보급품 → 음식(값이 작은 것부터, 보관함 먼저).
 static func _spend_supplies(world: Dictionary, need: int) -> void:
 	var pr: Dictionary = world.get("party_resources", {})
 	var from_pool := mini(need, int(pr.get("camp_supplies", 0)))
@@ -77,13 +89,20 @@ static func _spend_supplies(world: Dictionary, need: int) -> void:
 		pr["camp_supplies"] = int(pr["camp_supplies"]) - from_pool
 		need -= from_pool
 	var foods: Array = []
-	for item: String in world.get("inventory", {}):
-		var e := RulesDB.get_entry("item", item)
-		if int(e.get("camp_supplies", 0)) > 0:
-			foods.append([int(e["camp_supplies"]), item])
-	foods.sort()
+	var bags := _bags(world)
+	bags.push_front(bags.pop_back())  # 보관함 먼저
+	for bag: Dictionary in bags:
+		for item: String in bag:
+			var v := int(RulesDB.get_entry("item", item).get("camp_supplies", 0))
+			if v > 0:
+				foods.append([v, item, bag])
+	foods.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
 	for f: Array in foods:
-		while need > 0 and Interact.take(world, f[1]):
+		var bag: Dictionary = f[2]
+		while need > 0 and int(bag.get(f[1], 0)) > 0:
+			bag[f[1]] = int(bag[f[1]]) - 1
+			if int(bag[f[1]]) <= 0:
+				bag.erase(f[1])
 			need -= int(f[0])
 
 
@@ -141,10 +160,14 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 			f.call()
 	world["on_long_rest"] = []
 	# 긴 휴식에 사라지는 아이템(아이템 데이터 expires: long_rest — 좋은열매)
-	var inv: Dictionary = world.get("inventory", {})
-	for item: String in inv.keys():
-		if str(RulesDB.get_entry("item", item).get("expires", "")) == "long_rest":
-			inv.erase(item)
+	var bags := _bags(world)
+	for c: Node in everyone:
+		if not c.inventory in bags:
+			bags.append(c.inventory)
+	for inv: Dictionary in bags:
+		for item: String in inv.keys():
+			if str(RulesDB.get_entry("item", item).get("expires", "")) == "long_rest":
+				inv.erase(item)
 	EventBus.on_long_rest.emit()
 	Dice.log_text("긴 휴식%s" % ("" if full else "(부분)"))
 	return {"ok": true, "partial": not full}

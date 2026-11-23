@@ -3,7 +3,7 @@ extends RefCounted
 ##   world["traps"]: [{"id","cell","dc_find","dc_disarm","save":{"ability","dc"},"effects":[...],"radius","state":"armed|disarmed|spent",
 ##                     "found": bool, "checked": {생물: true}, "retry_blocked": bool}]
 ##   world["examines"]: [{"id","cell","ability","skill","dc","success":{...},"fail":{...},"done": bool}]
-##   world["inventory"]: {아이템 ID: 개수} — 금화도 아이템 gold(category currency)
+##   소지품은 캐릭터마다 c.inventory(아래 '소지품'), 캠프 보관함은 world["stash"]
 ## 자물쇠는 물체의 "lock": {"dc", "key", "locked"}.
 ## 도구 숙련은 없다 — 자물쇠·함정은 손재주(민첩)로 통일(5단계 결정 1).
 
@@ -18,23 +18,122 @@ const THIEVES_TOOLS := "thieves_tools"
 const DISARM_KIT := "trap_disarm_kit"
 
 
-# ---------- 소지품 ----------
+# ---------- 소지품(BG3식: 캐릭터마다 — 사용자 결정 2026-11-23) ----------
+## 생물의 c.inventory {아이템 ID: 개수}. 금화도 아이템 gold(캐릭터마다). c를 주면 그 캐릭터만, 안 주면 파티 전체.
+## 받는 사람을 안 정하면 world["active"](화면에서 고른 캐릭터) → 첫 파티원. 파티가 없으면 캠프 보관함(world["stash"]).
+## 캠프 보관함: 어디서나 보낼 수 있고(BG3 '캠프로 보내기'), 꺼내기는 캠프에서만.
 
-static func count(world: Dictionary, item: String) -> int:
-	return int(world.get("inventory", {}).get(item, 0))
-
-
-static func give(world: Dictionary, item: String, n: int = 1) -> void:
-	if not world.has("inventory"):
-		world["inventory"] = {}
-	world["inventory"][item] = count(world, item) + n
+static func party_members(world: Dictionary) -> Array:
+	return world.get("party", []).filter(func(p: Variant) -> bool: return p is Node and is_instance_valid(p))
 
 
-static func take(world: Dictionary, item: String, n: int = 1) -> bool:
-	if count(world, item) < n:
+static func receiver(world: Dictionary) -> Node:
+	var a: Variant = world.get("active")
+	var party := party_members(world)
+	if a is Node and is_instance_valid(a) and a in party:
+		return a
+	for p: Node in party:
+		if not p.dead:
+			return p
+	return party[0] if not party.is_empty() else null
+
+
+static func count(world: Dictionary, item: String, c: Node = null) -> int:
+	if c != null:
+		return int(c.inventory.get(item, 0))
+	var n := 0
+	for p: Node in party_members(world):
+		n += int(p.inventory.get(item, 0))
+	return n
+
+
+static func give(world: Dictionary, item: String, n: int = 1, c: Node = null) -> void:
+	var who := c if c != null else receiver(world)
+	if who == null:
+		stash_add(world, item, n)
+		return
+	who.inventory[item] = int(who.inventory.get(item, 0)) + n
+	if int(who.inventory[item]) <= 0:
+		who.inventory.erase(item)
+
+
+## c를 주면 그 캐릭터에게서만, 안 주면 파티 전체에서(고른 캐릭터 먼저). 모자라면 아무것도 빼지 않고 false.
+static func take(world: Dictionary, item: String, n: int = 1, c: Node = null) -> bool:
+	if count(world, item, c) < n:
 		return false
-	world["inventory"][item] = count(world, item) - n
+	var order: Array = [c] if c != null else [receiver(world)] + party_members(world)
+	var need := n
+	for p: Variant in order:
+		if need <= 0:
+			break
+		if p == null:
+			continue
+		var have := int(p.inventory.get(item, 0))
+		var k := mini(have, need)
+		if k > 0:
+			give(world, item, -k, p)
+			need -= k
 	return true
+
+
+## 캐릭터끼리 넘기기(BG3 끌어다 놓기). 무게 한계는 보여 주기만 한다(룰북에 초과 벌칙 없음).
+static func transfer(world: Dictionary, from: Node, to: Node, item: String, n: int = 1) -> bool:
+	if from == to or not take(world, item, n, from):
+		return false
+	give(world, item, n, to)
+	return true
+
+
+static func stash_count(world: Dictionary, item: String) -> int:
+	return int(world.get("stash", {}).get(item, 0))
+
+
+static func stash_add(world: Dictionary, item: String, n: int = 1) -> void:
+	if not world.has("stash"):
+		world["stash"] = {}
+	world["stash"][item] = stash_count(world, item) + n
+	if int(world["stash"][item]) <= 0:
+		world["stash"].erase(item)
+
+
+## 캠프로 보내기(어디서나).
+static func send_to_stash(world: Dictionary, c: Node, item: String, n: int = 1) -> bool:
+	if not take(world, item, n, c):
+		return false
+	stash_add(world, item, n)
+	return true
+
+
+## 보관함에서 꺼내기(캠프에서만).
+static func take_from_stash(world: Dictionary, c: Node, item: String, n: int = 1) -> bool:
+	if not world.get("at_camp", false) or stash_count(world, item) < n:
+		return false
+	stash_add(world, item, -n)
+	give(world, item, n, c)
+	return true
+
+
+## 소지품 무게(kg, 장비 포함)와 운반 한계(SRD: 근력 × 15파운드 = 근력 × 6.8kg).
+static func carried_kg(c: Node) -> float:
+	var total := 0.0
+	for item: String in c.inventory:
+		total += _item_kg(item) * int(c.inventory[item])
+	for slot: String in c.equipment:
+		if str(c.equipment[slot]) != "":
+			total += _item_kg(str(c.equipment[slot]))
+	return total
+
+
+static func capacity_kg(c: Node) -> float:
+	return float(c.abilities.get("str", 10)) * 6.8
+
+
+static func _item_kg(id: String) -> float:
+	for kind: String in ["item", "weapon", "armor"]:
+		var e := RulesDB.get_entry(kind, id)
+		if not e.is_empty():
+			return float(e.get("weight_kg", 0.0))
+	return 0.0
 
 
 # ---------- 함정 ----------
@@ -97,13 +196,13 @@ static func disarm(world: Dictionary, c: Node, t: Dictionary, opts: Dictionary =
 		return {"ok": false, "reason": "해제할 함정이 없다"}
 	if t.get("retry_blocked", false):
 		return {"ok": false, "reason": "이 함정은 다시 시도할 수 없다"}
-	if count(world, DISARM_KIT) <= 0:
+	if count(world, DISARM_KIT, c) <= 0:
 		return {"ok": false, "reason": "함정 해체 도구가 없다"}
 	var r := visible_check(world, c, "dex", "sleight_of_hand", int(t["dc_disarm"]), opts)
 	if r["success"]:
 		t["state"] = "disarmed"
 	else:
-		take(world, DISARM_KIT)
+		take(world, DISARM_KIT, 1, c)
 		t["retry_blocked"] = true
 		trigger(world, t, c, true)
 	return {"ok": true, "success": r["success"], "check": r}
@@ -118,17 +217,17 @@ static func open_lock(world: Dictionary, c: Node, cell: Vector2i, opts: Dictiona
 	var lock: Dictionary = obj.get("lock", {})
 	if lock.is_empty() or not lock.get("locked", false):
 		return {"ok": false, "reason": "잠겨 있지 않다"}
-	if lock.get("key", "") != "" and count(world, lock["key"]) > 0:
+	if lock.get("key", "") != "" and (count(world, lock["key"], c) > 0 or count(world, lock["key"]) > 0):  # 열쇠는 파티 누구에게 있어도
 		lock["locked"] = false
 		return {"ok": true, "success": true, "key": true}
-	if count(world, THIEVES_TOOLS) <= 0:
+	if count(world, THIEVES_TOOLS, c) <= 0:
 		return {"ok": false, "reason": "도둑 도구가 없다"}
 	var r := visible_check(world, c, "dex", "sleight_of_hand", int(lock["dc"]), opts)
 	if r["success"]:
 		lock["locked"] = false
 		Goals.complete(world, "pick_lock")
 	else:
-		take(world, THIEVES_TOOLS)
+		take(world, THIEVES_TOOLS, 1, c)
 	return {"ok": true, "success": r["success"], "check": r}
 
 
@@ -154,7 +253,7 @@ static func take_loot(world: Dictionary, c: Node, cell: Vector2i) -> Dictionary:
 				witness = o
 				break
 	for item: String in obj["loot"]:
-		give(world, item, int(obj["loot"][item]))
+		give(world, item, int(obj["loot"][item]), c)  # 가져간 캐릭터에게
 	obj["loot"] = {}
 	if witness != null:
 		Dice.log_text("%s가 절도를 목격했다" % witness.label())
@@ -179,7 +278,7 @@ static func examine(world: Dictionary, c: Node, ex: Dictionary, opts: Dictionary
 			world["dialogue_tags"] = {}
 		world["dialogue_tags"][tag] = true
 	for item: String in out.get("items", []):
-		give(world, item)
+		give(world, item, 1, c)
 	if out.has("goal"):
 		Goals.complete(world, out["goal"])
 	return {"ok": true, "success": r["success"], "check": r, "result": out}

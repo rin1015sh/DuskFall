@@ -6,7 +6,7 @@ const WorldBuilder := preload("res://scripts/rules/world_builder.gd")
 const SaveGame := preload("res://scripts/rules/save_game.gd")
 
 ## 맵을 넘어 들고 가는 세계 값
-const CARRY := ["inventory", "inspiration", "short_rests_left", "party_resources", "dialogue_tags", "flags",
+const CARRY := ["stash", "inspiration", "short_rests_left", "party_resources", "dialogue_tags", "flags",
 	"goals_done", "xp", "options", "roster", "map_states", "shop_stock", "return_to"]
 
 

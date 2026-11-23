@@ -82,7 +82,7 @@ func test_detected_by_talker_opens_dialogue_not_combat() -> void:
 	# 평화 해결 → 세력 전원 중립, 구역 보상
 	w.erase("pending_dialogue")
 	w["zone_rewards"] = {"road": 100}
-	w["inventory"] = {"gold": 0}
+	p.inventory["gold"] = 0
 	Dice.force([20, 20])  # 통찰 성공, 위협 성공
 	var d: RefCounted = Dialogue.start(w, "goblin_toll", p, boss)
 	var idx: int = d.options().filter(func(o: Dictionary) -> bool: return o["text"]["en"].begins_with("[Intimidation]"))[0]["index"]
@@ -264,7 +264,7 @@ func test_decisions_awareness_decay_feather_fall_disarmer() -> void:
 	# 해제 실패: 옆 칸 해제자도 맞는다
 	var trap := {"id": "dart", "cell": [1, 0], "dc_find": 12, "dc_disarm": 15, "found": true, "radius": 0,
 		"effects": [{"type": "damage", "dice": "1d4", "damage_type": "piercing"}], "state": "armed"}
-	Interact.give(w, "trap_disarm_kit", 1)
+	Interact.give(w, "trap_disarm_kit", 1, p)
 	Dice.force([2, 4])
 	Interact.disarm(w, p, trap)
 	assert_eq(p.hp, 26, "해제 실패로 터진 함정에 해제자가 맞는다")

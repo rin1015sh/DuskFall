@@ -7,10 +7,10 @@ extends RefCounted
 const VERSION := 1
 const SAVE_DIR := "user://saves"
 ## 세계에서 그대로 저장하는 값
-const WORLD_KEYS := ["inventory", "inspiration", "short_rests_left", "party_resources", "dialogue_tags", "flags",
+const WORLD_KEYS := ["stash", "inspiration", "short_rests_left", "party_resources", "dialogue_tags", "flags",
 	"goals_done", "xp", "options", "map_id", "traps", "examines", "zones_cleared"]
 const CREATURE_KEYS := ["hp", "hp_max", "temp_hp", "dead", "stable", "death_saves", "team", "sneaking", "level", "faction",
-	"spells", "spellbook", "prepared", "prep_swaps", "prep_base", "known_reactions"]
+	"spells", "spellbook", "prepared", "prep_swaps", "prep_base", "known_reactions", "inventory", "equipment"]
 ## 생물 메타 중 저장하는 것(대화를 이미 했는지, 경험치를 이미 줬는지, 레벨 업 명세)
 const CREATURE_METAS := ["dialogue_done", "xp_given", "spec"]
 
@@ -138,6 +138,12 @@ static func restore(world: Dictionary, snap: Dictionary, opts: Dictionary = {}) 
 		world["roster"] = snap.get("roster", []).filter(func(n3: String) -> bool: return by_name.has(n3)).map(func(n3: String) -> Node: return by_name[n3])
 		if world.get("explore") != null:
 			world["explore"].party = world["party"].duplicate()
+	# 옛 저장(공용 가방 world.inventory) → 고른 캐릭터 소지품으로 옮긴다(캐릭터별 소지품 2026-11-23)
+	if world.has("inventory"):
+		var old_bag: Dictionary = world["inventory"]
+		world.erase("inventory")
+		for item: String in old_bag:
+			load("res://scripts/rules/interact.gd").give(world, item, int(old_bag[item]))
 	for cell in grid.all_cells():
 		if not grid.object_at(cell).is_empty():
 			grid.remove_object(cell)

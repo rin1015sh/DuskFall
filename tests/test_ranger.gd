@@ -102,14 +102,13 @@ func test_entangle_barkskin_goodberry() -> void:
 	r.reset_turn()
 	assert_true(Spellcasting.cast(w, r, "barkskin", Vector2i(1, 0)).get("ok", false))
 	assert_eq(ally.ac(), 17, "AC 17 바닥")
-	w["inventory"] = {}
 	r.reset_turn()
 	assert_true(Spellcasting.cast(w, r, "goodberry", Vector2i(0, 0)).get("ok", false))
-	assert_eq(int(w["inventory"].get("goodberry", 0)), 10, "좋은열매 10개")
+	assert_eq(int(r.inventory.get("goodberry", 0)), 10, "좋은열매 10개(시전자 소지품)")
 	var keys: Array = Actions.list_for(w, r)["items"]
 	assert_true("drink:goodberry" in keys and not "throw_potion:goodberry" in keys, "먹기는 되고 던지기는 없다")
 	Rest.long_rest(w, [r], {"tiny_hut": true})
-	assert_eq(int(w["inventory"].get("goodberry", 0)), 0, "긴 휴식에 사라진다")
+	assert_eq(int(r.inventory.get("goodberry", 0)), 0, "긴 휴식에 사라진다")
 
 
 func test_hunters_prey_options() -> void:

@@ -55,7 +55,8 @@ func test_long_rest_supplies_and_partial() -> void:
 	w["grid"].place(c, Vector2i(0, 0))
 	c.hp = 3
 	w["short_rests_left"] = 0
-	Interact.give(w, "rations", 3)  # 30
+	w["party"] = [c]
+	Interact.give(w, "rations", 3, c)  # 30 — 캐릭터 소지품의 음식도 쓴다
 	assert_eq(Rest.supplies(w), 30)
 	var r := Rest.long_rest(w, [c])
 	assert_true(r["partial"], "보급품이 모자라면 부분 휴식")
@@ -71,7 +72,7 @@ func test_long_rest_supplies_and_partial() -> void:
 	assert_eq(w["short_rests_left"], 2)
 	assert_eq(w["inspiration"], 1, "인간 기지: 긴 휴식에 공용 영감 +1")
 	assert_eq(w["party_resources"]["camp_supplies"], 0, "주문 보급품을 먼저 쓴다")
-	assert_eq(Interact.count(w, "rations"), 0, "15 + 식량 3개 = 45 ≥ 40")
+	assert_eq(Interact.count(w, "rations", c), 0, "15 + 식량 3개 = 45 ≥ 40")
 
 
 func test_no_camp_zone_and_tiny_hut() -> void:
@@ -84,8 +85,10 @@ func test_no_camp_zone_and_tiny_hut() -> void:
 
 
 func test_camp_revive_and_inspiration_cap() -> void:
-	var w := {"inventory": {"gold": 250}}
+	var payer := _hero()
+	payer.inventory = {"gold": 250}
 	var c := _hero()
+	var w := {"party": [payer, c]}
 	c.dead = true
 	assert_true(Rest.camp_revive(w, c)["ok"])
 	assert_false(c.dead)
@@ -112,7 +115,7 @@ func test_dialogue_check_auto_insight_and_tags() -> void:
 	var c := _hero({"abilities": {"cha": 14, "wis": 14}, "background_id": "soldier"})
 	w["grid"].place(c, Vector2i(0, 0))
 	w["party"] = [c]
-	w["inventory"] = {"gold": 20}
+	c.inventory = {"gold": 20}
 	Dice.force([15])  # 자동 통찰 15 + 2 ≥ 12
 	var d: RefCounted = Dialogue.start(w, "goblin_toll", c)
 	assert_true(d != null)
@@ -141,7 +144,7 @@ func test_dialogue_spell_unlock_and_hostile() -> void:
 	for cell in w["grid"].all_cells():
 		w["grid"].add_zone(cell, "road")
 	w["dialogue_tags"] = {"thoughts": true}
-	w["inventory"] = {"gold": 20}
+	c.inventory = {"gold": 20}
 	Dice.force([2])  # 통찰 실패
 	var d: RefCounted = Dialogue.start(w, "goblin_toll", c, npc)
 	assert_eq(d.options().size(), 4, "통찰 실패: 위협 숨김, 속마음 읽기 보임")
@@ -201,7 +204,7 @@ func test_save_and_restore() -> void:
 	c.name = "hero"
 	g.place(c, Vector2i(0, 0))
 	g.place_object(Vector2i(3, 0), {"id": "chest", "lock": {"dc": 15, "key": "", "locked": true}})
-	w["inventory"] = {"gold": 12, "rations": 2}
+	c.inventory = {"gold": 12, "rations": 2}
 	w["inspiration"] = 2
 	w["options"] = {"seed_lock": true}
 	c.apply_condition("prone", -1)
@@ -211,13 +214,13 @@ func test_save_and_restore() -> void:
 	# 바꾼 뒤 되돌리기
 	c.hp = 1
 	g.move_creature(c, Vector2i(4, 0))
-	w["inventory"]["gold"] = 0
+	c.inventory["gold"] = 0
 	g.object_at(Vector2i(3, 0))["lock"]["locked"] = false
 	c.remove_condition("prone")
 	assert_true(SaveGame.restore(w, JSON.parse_string(text)))
 	assert_eq(c.hp, 20)
 	assert_eq(g.cell_of(c), Vector2i(0, 0))
-	assert_eq(Interact.count(w, "gold"), 12)
+	assert_eq(Interact.count(w, "gold", c), 12, "캐릭터 소지품 복원")
 	assert_true(g.object_at(Vector2i(3, 0))["lock"]["locked"])
 	assert_true(c.has_condition("prone"))
 	assert_eq(Dice.roll("1d20")["total"], a, "시드 고정 옵션: 불러와도 같은 굴림")

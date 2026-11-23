@@ -152,7 +152,7 @@ func play() -> Dictionary:
 		# 죽은 동료는 캠프 부활(200gp), 레벨 업, 캠프로 돌아가 긴 휴식
 		for p: Node in w["party"]:
 			if p.dead:
-				w["inventory"]["gold"] = int(w["inventory"].get("gold", 0)) + 200
+				load("res://scripts/rules/interact.gd").give(w, "gold", 200)
 				Rest.camp_revive(w, p)
 		_level_all(w)
 		if leader.dead or leader.is_down():

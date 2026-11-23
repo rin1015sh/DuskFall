@@ -325,7 +325,7 @@ func _slot(world: Dictionary, c: Node, key: String, explore: bool) -> Control:
 	b.add_child(dot)
 	var count := -1
 	if d.has("item"):
-		count = int(world.get("inventory", {}).get(d["item"], 0))
+		count = int(c.inventory.get(d["item"], 0))
 	elif d.get("resource", "") != "":
 		count = c.resource(d["resource"])
 	if count >= 0:

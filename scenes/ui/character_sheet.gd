@@ -189,7 +189,7 @@ func _right(world: Dictionary, c: Node) -> Control:
 	g.add_theme_constant_override("v_separation", 4)
 	v.add_child(g)
 	var total_kg := 0.0
-	var inv: Dictionary = world.get("inventory", {})
+	var inv: Dictionary = c.inventory  # 캐릭터별 소지품(BG3)
 	var shown := 0
 	for item: String in inv:
 		var n := int(inv[item])

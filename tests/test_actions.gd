@@ -15,7 +15,7 @@ func test_lists_by_tab() -> void:
 	var f := _pc("fighter", 2)
 	var r := _pc("rogue", 2)
 	w["grid"].place(f, Vector2i(0, 0))
-	w["inventory"] = {"potion_of_healing": 2}
+	f.inventory = {"potion_of_healing": 2}
 	var lf: Dictionary = Actions.list_for(w, f)
 	assert_true("jump" in lf["common"] and "shove" in lf["common"] and "dash" in lf["common"])
 	assert_true("feature:second_wind" in lf["class"] and "feature:action_surge" in lf["class"])
@@ -45,11 +45,11 @@ func test_costs_and_execute() -> void:
 	assert_eq(w["grid"].cell_of(f), Vector2i(3, 1))
 	assert_eq(Actions.unavailable(w, f, "shove"), "보너스 행동이 없다")
 	f.hp = 3
-	w["inventory"] = {"potion_of_healing": 1}
+	f.inventory = {"potion_of_healing": 1}
 	f.reset_turn()
 	assert_true(Actions.execute(w, f, "drink:potion_of_healing", Vector2i(3, 1))["ok"])
 	assert_true(f.hp > 3)
-	assert_eq(int(w["inventory"]["potion_of_healing"]), 0)
+	assert_eq(int(f.inventory.get("potion_of_healing", 0)), 0, "마신 캐릭터의 물약이 줄었다")
 
 
 func test_explore_hidden_attack_has_advantage_and_starts_combat() -> void:

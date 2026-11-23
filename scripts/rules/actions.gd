@@ -114,14 +114,14 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 	for kind: String in ENTITY_ACTIONS:
 		if not SpellUtil.find_entity(c, kind).is_empty():
 			out["spells"].append("entity:" + kind)
-	for item: String in world.get("inventory", {}):
+	for item: String in c.inventory:
 		var e := RulesDB.get_entry("item", item)
-		if e.get("category", "") == "potion" and Interact.count(world, item) > 0:
+		if e.get("category", "") == "potion" and Interact.count(world, item, c) > 0:
 			for verb: String in ["drink", "feed", "throw_potion"]:
 				if verb == "throw_potion" and not bool(e.get("throwable", true)):
 					continue  # 던질 수 없는 것(좋은열매 등)
 				out["items"].append("%s:%s" % [verb, item])
-		elif e.get("category", "") == "scroll" and Interact.count(world, item) > 0 and can_read_scroll(c, e):
+		elif e.get("category", "") == "scroll" and Interact.count(world, item, c) > 0 and can_read_scroll(c, e):
 			out["items"].append("read_scroll:" + item)
 	for sid: String in c.spells:
 		if not RulesDB.get_entry("spell", sid).is_empty():
@@ -373,13 +373,13 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 			var who: Node = c if parts[0] == "drink" else t
 			var r := Combat.drink_potion(c, item.get("effects", []), who, world)
 			if r.get("ok", false):
-				Interact.take(world, parts[1])
+				Interact.take(world, parts[1], 1, c)
 			return r
 		"throw_potion":
 			var item := RulesDB.get_entry("item", parts[1])
 			if not Combat.spend(c, "action"):
 				return {"ok": false, "reason": "행동이 없다"}
-			Interact.take(world, parts[1])
+			Interact.take(world, parts[1], 1, c)
 			Physics.throw_potion(grid, cell, item.get("effects", []), t)
 			return {"ok": true}
 	return {"ok": false, "reason": "모르는 행동"}
@@ -491,7 +491,7 @@ static func can_read_scroll(c: Node, item: Dictionary) -> bool:
 ## 두루마리로 한 번 시전: 슬롯 없이, 두루마리 DC·공격 보너스로. 시전하면 두루마리가 사라진다.
 static func read_scroll(world: Dictionary, c: Node, item_id: String, cell: Vector2i) -> Dictionary:
 	var item := RulesDB.get_entry("item", item_id)
-	if item.get("category", "") != "scroll" or Interact.count(world, item_id) <= 0:
+	if item.get("category", "") != "scroll" or Interact.count(world, item_id, c) <= 0:
 		return {"ok": false, "reason": "두루마리가 없다"}
 	if not can_read_scroll(c, item):
 		return {"ok": false, "reason": "내 클래스 주문 목록에 없는 주문"}
@@ -499,7 +499,7 @@ static func read_scroll(world: Dictionary, c: Node, item_id: String, cell: Vecto
 	var r: Dictionary = Spellcasting.cast(world, c, str(item["spell"]), cell, {"no_slot": true})
 	c.remove_meta("scroll_cast")
 	if r.get("ok", false):
-		Interact.take(world, item_id)
+		Interact.take(world, item_id, 1, c)
 	return r
 
 

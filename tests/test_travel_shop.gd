@@ -19,7 +19,8 @@ func test_travel_to_camp_and_back_keeps_state() -> void:
 	var party: Array = b["party"]
 	var gob: Node = b["foes"].filter(func(c: Node) -> bool: return c.name == "cave_gob_a")[0]
 	gob.dead = true
-	w["inventory"]["gold"] = 123
+	party[0].inventory["gold"] = 123
+	w["stash"] = {"rations": 7}
 	w["return_to"] = {"map": "fallen_watch", "cell": [6, 6]}
 	var carry := Travel.leave(w)
 	for c: Node in party:
@@ -27,7 +28,8 @@ func test_travel_to_camp_and_back_keeps_state() -> void:
 	var camp := Travel.enter("camp", party, carry, "camp_entry")
 	_own_all(camp)
 	assert_eq(camp["world"]["map_id"], "camp")
-	assert_eq(int(camp["world"]["inventory"]["gold"]), 123, "소지품을 들고 간다")
+	assert_eq(int(party[0].inventory["gold"]), 123, "캐릭터가 소지품을 들고 간다")
+	assert_eq(int(camp["world"]["stash"]["rations"]), 7, "캠프 보관함도 따라온다")
 	assert_true(camp["world"]["grid"].creatures().has(party[0]))
 	assert_eq(camp["foes"].size(), 1, "캠프지기")
 	var back_carry := Travel.leave(camp["world"])
@@ -43,15 +45,17 @@ func test_travel_to_camp_and_back_keeps_state() -> void:
 
 
 func test_shop_buy_sell_stock_limit() -> void:
-	var w := {"inventory": {"gold": 120}}
+	var buyer := make_creature({"team": "party"})
+	buyer.inventory = {"gold": 120}
+	var w := {"party": [buyer]}
 	var rows: Array = Shop.stock(w, "camp_quartermaster")
 	assert_true(rows.size() >= 4)
 	assert_eq(Shop.buy_price("camp_quartermaster", "rations"), 1, "식량 0.5gp × 2 = 1(올림)")
 	assert_true(Shop.buy(w, "camp_quartermaster", "potion_of_healing")["ok"])
-	assert_eq(int(w["inventory"]["gold"]), 70)
-	assert_eq(int(w["inventory"]["potion_of_healing"]), 1)
+	assert_eq(int(buyer.inventory["gold"]), 70, "사는 캐릭터의 금화")
+	assert_eq(int(buyer.inventory["potion_of_healing"]), 1)
 	assert_true(Shop.sell(w, "camp_quartermaster", "potion_of_healing")["ok"])
-	assert_eq(int(w["inventory"]["gold"]), 95, "되팔기 절반")
+	assert_eq(int(buyer.inventory["gold"]), 95, "되팔기 절반")
 	for i in 4:
 		Shop.buy(w, "camp_quartermaster", "rations")
 	assert_false(Shop.buy(w, "camp_quartermaster", "rations")["ok"], "재고 제한")
@@ -64,11 +68,11 @@ func test_camp_keeper_dialogue_revive_and_shop() -> void:
 	dead.dead = true
 	w["grid"].place(c, Vector2i(0, 0))
 	w["party"] = [c, dead]
-	w["inventory"] = {"gold": 250}
+	c.inventory = {"gold": 250}
 	var d: RefCounted = Dialogue.start(w, "camp_keeper", c)
 	d.choose(0)
 	assert_false(dead.dead, "부활(200gp)")
-	assert_eq(int(w["inventory"]["gold"]), 50)
+	assert_eq(int(c.inventory["gold"]), 50)
 	d.choose(0)
 	d.choose(1)
 	assert_eq(w["pending_ui"], {"shop": "camp_quartermaster"})

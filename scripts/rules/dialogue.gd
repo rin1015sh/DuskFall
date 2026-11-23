@@ -61,7 +61,7 @@ func options() -> Array:
 	var opts: Array = node().get("options", [])
 	for i in opts.size():
 		var o: Dictionary = opts[i]
-		if not _has_all(o.get("requires", [])) or Interact.count(world, "gold") < int(o.get("cost_gold", 0)):
+		if not _has_all(o.get("requires", [])) or Interact.count(world, "gold", speaker) < int(o.get("cost_gold", 0)):
 			continue
 		var row := {"index": i, "text": o["text"], "kind": "goto"}
 		if o.has("check"):
@@ -156,9 +156,9 @@ func _apply(effects: Array) -> void:
 					world["flags"] = {}
 				world["flags"][e["flag"]] = true
 			"give_item":
-				Interact.give(world, e["item"], int(e.get("count", 1)))
+				Interact.give(world, e["item"], int(e.get("count", 1)), speaker)
 			"gold":
-				Interact.give(world, "gold", maxi(int(e["add"]), -Interact.count(world, "gold")))
+				Interact.give(world, "gold", maxi(int(e["add"]), -Interact.count(world, "gold", speaker)), speaker)
 			"inspiration_goal":
 				Goals.complete(world, e["goal"])
 			"hostile":

@@ -71,12 +71,12 @@ func test_ranged_takes_high_ground_and_drinks() -> void:
 	w["grid"].place(e, Vector2i(8, 2))
 	Tactics.pre_turn(w, r)
 	assert_eq(w["grid"].height(w["grid"].cell_of(r)), 3, "원거리 공격자는 고지로")
-	w["inventory"] = {"potion_of_healing": 1}
+	r.inventory = {"potion_of_healing": 1}
 	r.reset_turn()
 	r.hp = 2
 	Tactics.pre_turn(w, r)
 	assert_true(r.hp > 2, "위급하면 물약")
-	assert_eq(int(w["inventory"]["potion_of_healing"]), 0)
+	assert_eq(int(r.inventory.get("potion_of_healing", 0)), 0)
 
 
 func test_searching_enemy_walks_to_last_position() -> void:

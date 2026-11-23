@@ -34,24 +34,27 @@ static func sell_price(shop_id: String, item: String) -> int:
 	return maxi(1, floori(float(RulesDB.get_entry("item", item).get("price_gp", 1)) * rate))
 
 
-static func buy(world: Dictionary, shop_id: String, item: String) -> Dictionary:
+## 사고팔기는 거래하는 캐릭터(c, 없으면 고른 캐릭터)의 금화·소지품으로(BG3식 캐릭터별 금화).
+static func buy(world: Dictionary, shop_id: String, item: String, c: Node = null) -> Dictionary:
+	c = c if c != null else Interact.receiver(world)
 	stock(world, shop_id)
 	var left := int(world["shop_stock"][shop_id].get(item, 0))
 	if left <= 0:
 		return {"ok": false, "reason": "재고가 없다"}
 	var price := buy_price(shop_id, item)
-	if not Interact.take(world, "gold", price):
+	if not Interact.take(world, "gold", price, c):
 		return {"ok": false, "reason": "골드가 모자란다"}
 	world["shop_stock"][shop_id][item] = left - 1
-	Interact.give(world, item)
+	Interact.give(world, item, 1, c)
 	return {"ok": true, "price": price}
 
 
-static func sell(world: Dictionary, shop_id: String, item: String) -> Dictionary:
-	if RulesDB.get_entry("item", item).get("category", "") == "currency" or not Interact.take(world, item):
+static func sell(world: Dictionary, shop_id: String, item: String, c: Node = null) -> Dictionary:
+	c = c if c != null else Interact.receiver(world)
+	if RulesDB.get_entry("item", item).get("category", "") == "currency" or not Interact.take(world, item, 1, c):
 		return {"ok": false, "reason": "팔 물건이 없다"}
 	var price := sell_price(shop_id, item)
-	Interact.give(world, "gold", price)
+	Interact.give(world, "gold", price, c)
 	stock(world, shop_id)
 	world["shop_stock"][shop_id][item] = int(world["shop_stock"][shop_id].get(item, 0)) + 1
 	return {"ok": true, "price": price}
