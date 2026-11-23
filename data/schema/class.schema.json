@@ -218,6 +218,10 @@
                 "type": "object"
               }
             },
+            "weapon_hit_bonus": {
+              "$comment": "턴당 1회 무기 명중 추가 피해 {dice_by_level, damage_types}(신성한 일격·원초의 일격)",
+              "type": "object"
+            },
             "hp_per_level": {
               "$comment": "레벨당 최대 HP 추가(용의 회복력)",
               "type": "integer"
@@ -298,7 +302,11 @@
                   "type": "object"
                 }
               },
-              "hp_per_level": {
+              "weapon_hit_bonus": {
+              "$comment": "턴당 1회 무기 명중 추가 피해 {dice_by_level, damage_types}(신성한 일격·원초의 일격)",
+              "type": "object"
+            },
+            "hp_per_level": {
                 "$comment": "레벨당 최대 HP 추가(용의 회복력)",
                 "type": "integer"
               },
@@ -457,6 +465,10 @@
         "bonus_by_level": {
           "$comment": "레벨 → 수치(분노 피해 +2/+3/+4, 맨몸 이동 칸 수)",
           "type": "object"
+        },
+        "max_spell_level": {
+          "$comment": "무료 시전 기능의 최대 주문 레벨(신성 개입 5)",
+          "type": "integer"
         }
       }
     }

@@ -105,6 +105,15 @@ static func _careful_targets(caster: Node, targets: Array) -> Array:
 	return allies.slice(0, maxi(1, caster.ability_mod("cha")))
 
 
+## 내성 효과에서 보호할 아군: 신중한 주문(소서러) + 주문 조각(능력 태그 sculpt_spells — 방출학파 6레벨: 방출학파 주문, 1 + 주문 레벨명).
+static func _protected_targets(caster: Node, spell: Dictionary, targets: Array, opts: Dictionary) -> Array:
+	var out: Array = _careful_targets(caster, targets) if opts.get("metamagic", "") == "careful" else []
+	if caster.has_cap("sculpt_spells") and str(spell.get("school", "")) == "evocation":
+		var allies: Array = targets.filter(func(t: Node) -> bool: return not t in out and (t == caster or not t.is_hostile_to(caster)))
+		out.append_array(allies.slice(0, 1 + level_of(spell)))
+	return out
+
+
 ## 빠른 주문이면 행동 → 보너스 행동.
 static func _mm_cost(caster: Node, spell: Dictionary) -> String:
 	if metamagic_for(caster, spell) == "quickened":
@@ -145,6 +154,22 @@ static func scaled_dice(c: Node, spell: Dictionary, dice: String, slot: int) -> 
 			var n: int = base["dice"][0]["count"] + add["dice"][0]["count"] * extra
 			out = "%dd%d%s" % [n, base["dice"][0]["sides"], ("%+d" % base["flat"]) if base["flat"] != 0 else ""]
 	return out
+
+
+## 주문 피해 주사위 = 올려 쓴 주사위 + 기능 보너스(강력한 주문 시전: 소마법 + 주문 능력, 강화된 방출: 방출학파 + 주문 능력).
+static func damage_dice(c: Node, spell: Dictionary, dice: String, slot: int) -> String:
+	var out := scaled_dice(c, spell, dice, slot)
+	var b := damage_bonus(c, spell)
+	return out + ("%+d" % b) if b != 0 else out
+
+
+static func damage_bonus(c: Node, spell: Dictionary) -> int:
+	var n := 0
+	if int(spell.get("level", 0)) == 0 and c.has_cap("cantrip_add_mod"):
+		n += spell_mod(c)
+	if str(spell.get("school", "")) == "evocation" and c.has_cap("evocation_add_mod"):
+		n += spell_mod(c)
+	return n
 
 
 static func max_targets(spell: Dictionary, slot: int) -> int:
@@ -261,7 +286,7 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 	var spell := RulesDB.get_entry("spell", spell_id)
 	if spell.is_empty() or not (caster.spells.has(spell_id) or ritual_from_book(world, caster, spell_id)):
 		return "모르는 주문"
-	if ritual_free(world, spell, opts) or spell_id in caster.get_meta("at_will", []):
+	if ritual_free(world, spell, opts) or spell_id in caster.get_meta("at_will", []) or free_cast_feature(caster, spell) != "":
 		opts = opts.duplicate()
 		opts["no_slot"] = true
 	if spell["game_status"] != "included":
@@ -299,6 +324,23 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 			return "사거리 밖"
 		if not grid.has_line_of_sight(grid.cell_of(caster), aim):
 			return "보이지 않는다"
+	return ""
+
+
+## 능력 태그 free_cast_class_spell(신성 개입 — 클레릭 10레벨): 설정을 켜 두면 다음 그 클래스 주문(1 ~ max_spell_level, 반응 주문 제외)을
+## 슬롯 없이 자원 1회로 시전하고 설정이 꺼진다(BG3식 토글 — 주문 변형과 같은 방식). 해당 기능 id, 없으면 "".
+static func free_cast_feature(c: Node, spell: Dictionary) -> String:
+	if int(spell.get("level", 0)) < 1 or _cost(spell) == "reaction":
+		return ""
+	for fid: String in c.feature_data:
+		var f: Dictionary = c.feature_data[fid]
+		if not "free_cast_class_spell" in f.get("caps", []) or str(c.options.get(fid, "off")) != "on":
+			continue
+		if c.resource(str(f.get("resource", ""))) <= 0 or int(spell["level"]) > int(f.get("max_spell_level", 5)):
+			continue
+		var cls := RulesDB.get_entry("class", str(c.feature_class.get(fid, c.class_id)))
+		if str(cls.get("spellcasting", {}).get("list", "")) in spell.get("classes", []):
+			return fid
 	return ""
 
 
@@ -341,7 +383,7 @@ static func _spell_attack(caster: Node, spell: Dictionary, slot: int) -> Diction
 	var hit: Array = []
 	for e: Dictionary in spell["effects"].get("hit", []):
 		if e["type"] == "damage":
-			hit.append({"dice": scaled_dice(caster, spell, e["dice"], slot), "damage_type": e["damage_type"]})
+			hit.append({"dice": damage_dice(caster, spell, e["dice"], slot), "damage_type": e["damage_type"]})
 	return {"name": spell["name"]["en"], "bonus": spell_attack_bonus(caster), "weapon": false, "spell": spell["id"],
 		"kind": spell["effects"]["check"].get("kind", "ranged"), "damage": hit}
 
@@ -386,6 +428,10 @@ static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector
 	if spell_id in caster.get_meta("at_will", []):
 		opts = opts.duplicate()
 		opts["no_slot"] = true  # 영창의 무료 시전(그림자 갑옷 등)
+	var free_fid := free_cast_feature(caster, spell) if not opts.get("no_slot", false) and not opts.get("free", false) else ""
+	if free_fid != "":
+		opts = opts.duplicate()
+		opts["no_slot"] = true
 	# 무료 횟수(타고난 시전 innate_<주문> — 선호하는 적·마법 입문)가 남아 있으면 먼저 쓴다(사용자 결정 2026-11-23)
 	var use_innate: bool = level > 0 and not opts.get("no_slot", false) and not opts.get("free", false) and not opts.has("slot") \
 		and caster.resource(innate_id(spell_id)) > 0
@@ -411,6 +457,10 @@ static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector
 	if cast_ctx["countered"]:
 		Dice.log_text("%s의 %s가 끊겼다" % [caster.label(), spell["name"]["en"]])
 		return {"ok": true, "countered": true}
+	if free_fid != "":
+		caster.spend_resource(str(caster.feature_data[free_fid]["resource"]))
+		caster.options[free_fid] = "off"  # 한 번 쓰면 꺼진다
+		Dice.log_text("%s: %s — 슬롯 없이 시전" % [caster.label(), caster.feature_data[free_fid]["name"]["ko"]])
 	if slot_id != "":
 		caster.spend_resource(slot_id)
 	elif use_innate:
@@ -487,7 +537,7 @@ static func resolve_effects(ctx: Dictionary) -> Dictionary:
 		results = Resolver.save_effect(targets, {"ability": check["ability"], "dc": spell_dc(caster)},
 			fail, success, {"source": caster, "rolled": rolled, "duration": _dur(spell, opts), "condition_params": cparams,
 				"disadvantage": ["고양된 주문"] if opts.get("metamagic", "") == "heightened" else [],
-				"careful": _careful_targets(caster, targets) if opts.get("metamagic", "") == "careful" else []})
+				"careful": _protected_targets(caster, spell, targets, opts)})
 		for r: Dictionary in results:
 			var t: Node = r["target"]
 			if not r["save"]["success"]:
@@ -528,7 +578,7 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 	var dur := _dur(spell, opts)
 	match e["type"]:
 		"damage":
-			var r := Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])
+			var r := Dice.roll(damage_dice(caster, spell, e["dice"], slot), spell["name"]["en"])
 			var dtype: String = e["damage_type"] if e["damage_type"] != "chosen" else opts.get("choice", "fire")
 			Resolver.apply_damage(t, [{"amount": r["total"], "damage_type": dtype}], {"attacker": caster})
 		"heal":
@@ -540,6 +590,9 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 			if has_max_healing(t):
 				amount = _max_heal(caster, spell, e, slot)  # Beacon of Hope
 			Resolver.heal(t, amount, caster)
+			if level_of(spell) > 0 and t != caster and caster.has_cap("blessed_healer") and not inst.get("blessed_healer", false):
+				inst["blessed_healer"] = true  # 축복받은 치유자(생명 영역 6레벨): 남을 치유하면 나도 2 + 슬롯 레벨
+				Resolver.heal(caster, 2 + slot, caster)
 		"temp_hp":
 			Resolver.grant_temp_hp(t, Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])["total"])
 		"apply_condition":
@@ -656,7 +709,7 @@ static func _scaled(caster: Node, spell: Dictionary, effects: Array, slot: int, 
 	for e: Dictionary in effects:
 		var c := e.duplicate()
 		if c["type"] == "damage":
-			c["dice"] = scaled_dice(caster, spell, c["dice"], slot)
+			c["dice"] = damage_dice(caster, spell, c["dice"], slot)
 			if c["damage_type"] == "chosen":
 				c["damage_type"] = opts.get("choice", "fire")
 		out.append(c)

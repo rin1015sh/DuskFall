@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 22 |
-| capability | 55 |
+| capability | 65 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -61,6 +61,9 @@
 | 2 | 언데드 퇴치 (turn_undead) |  | 스크립트 turn_undead |  |
 | 2 | 생명 보존 (preserve_life) | life | 스크립트 preserve_life |  |
 | 5 | 언데드 소각 (sear_undead) |  | 처리: turn_undead 스크립트 안 |  |
+| 6 | 축복받은 치유자 (blessed_healer) | life | 태그 blessed_healer |  |
+| 7 | 축복받은 일격 (blessed_strikes) |  | 고르기(option) |  |
+| 10 | 신성 개입 (divine_intervention) |  | 태그 free_cast_class_spell; 설정 |  |
 
 ### 드루이드 (druid) — 생명 주사위 d8, 역할 caster
 
@@ -88,6 +91,10 @@
 | 3 | 뛰어난 운동선수 (remarkable_athlete) | champion | 태그 crit_free_move, jump_plus_1; 부여 advantage |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 전술적 이동 (tactical_shift) |  | 처리: second_wind 스크립트 안 |  |
+| 7 | 추가 전투 방식 (additional_fighting_style) | champion | 고르기(feat) |  |
+| 9 | 불굴 (indomitable) |  | 스크립트 indomitable |  |
+| 9 | 전술 대가 (tactical_master) |  | 태그 tactical_master; 설정 |  |
+| 10 | 영웅 전사 (heroic_warrior) | champion | 태그 heroic_warrior |  |
 
 ### 몽크 (monk) — 생명 주사위 d8, 역할 melee
 
@@ -148,6 +155,10 @@
 | 3 | 2층 작업 (second_story_work) | thief | 태그 climber, jump_dex, jump_plus_1 |  |
 | 5 | 교활한 일격 (cunning_strike) |  | 스크립트 cunning_strike; 태그 cunning_strike; 설정 |  |
 | 5 | 교묘한 회피 (uncanny_dodge) |  | 스크립트 uncanny_dodge; 반응 |  |
+| 6 | 전문화(6레벨) (expertise_6) |  | 고르기(expertise) |  |
+| 7 | 회피 (evasion) |  | 태그 evasion |  |
+| 7 | 믿음직한 재능 (reliable_talent) |  | 태그 reliable_talent |  |
+| 9 | 최상급 은신 (supreme_sneak) | thief | 태그 stealth_attack; 설정 |  |
 
 ### 소서러 (sorcerer) — 생명 주사위 d6, 역할 caster
 
@@ -189,6 +200,8 @@
 | 3 | 방출 학자 (evocation_savant) | evoker | 부여 spellbook_school |  |
 | 3 | 강력한 소마법 (potent_cantrip) | evoker | 태그 cantrip_half_on_miss |  |
 | 5 | 주문 암기 (memorize_spell) |  | 태그 prepare_swap_short_rest |  |
+| 6 | 주문 조각 (sculpt_spells) | evoker | 태그 sculpt_spells |  |
+| 10 | 강화된 방출 (empowered_evocation) | evoker | 태그 evocation_add_mod |  |
 
 ## 주문
 
@@ -209,7 +222,9 @@
 | --- | --- | --- |
 | agonizing_blast | 고통의 화살 | (몬스터 특성 또는 아직 없음) |
 | armor_ac_plus_1 | 방어 | 재주 defense |
+| blessed_healer | 축복받은 치유자 | cleric |
 | bonus_dash_disengage_hide | 교활한 행동 | rogue |
+| cantrip_add_mod | 강력한 주문 시전 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_miss | 강력한 소마법 | wizard |
 | check_boost_d10 | 전술적 판단 | fighter |
 | climber | 등반 | rogue |
@@ -217,11 +232,15 @@
 | cunning_strike | 교활한 일격 | rogue |
 | dark_ones_blessing | 어둠의 축복 | warlock |
 | eldritch_mind | 섬뜩한 정신 | (몬스터 특성 또는 아직 없음) |
+| evasion | 회피 | rogue |
+| evocation_add_mod | 강화된 방출 | wizard |
 | extra_attack | 추가 공격 | barbarian, fighter, monk, paladin, ranger |
 | extra_bonus_action | 추가 보너스 행동 | rogue |
 | extra_damage_wounded | 거상 학살자 | (몬스터 특성 또는 아직 없음) |
 | fast_movement | 빠른 이동 | barbarian |
+| free_cast_class_spell | 신성 개입 | cleric |
 | frenzy | 광란 | barbarian |
+| heroic_warrior | 영웅 전사 | fighter |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
 | hunters_lore | 사냥꾼의 지식 | ranger |
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
@@ -245,16 +264,20 @@
 | prepare_swap_short_rest | 주문 암기 | wizard |
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |
 | reckless | 무모한 공격 | barbarian |
+| reliable_talent | 믿음직한 재능 | rogue |
 | repelling_blast | 밀어내는 화살 | (몬스터 특성 또는 아직 없음) |
 | reroll_low_damage_two_handed | 대형 무기 전투 | 재주 great_weapon_fighting |
 | reroll_natural_1 | 행운 | 종족 halfling |
 | ritual_from_spellbook | 의식 숙련 | wizard |
+| sculpt_spells | 주문 조각 | wizard |
 | slow_fall | 느린 낙하 | monk |
 | sneak_attack | 급소 공격 | rogue |
 | sorcerous_restoration | 마법 회복 | sorcerer |
 | spell_heal_bonus | 생명의 제자 | cleric |
+| stealth_attack | 은신 공격 | rogue |
 | stunning_strike | 충격의 일격 | monk |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |
+| tactical_master | 전술 대가 | fighter |
 | two_weapon_fighting | 쌍수 전투 | 재주 two_weapon_fighting |
 | unarmored_defense_cha | 용의 비늘 | sorcerer |
 | unarmored_defense_con | 맨몸 방어(건강) | barbarian |

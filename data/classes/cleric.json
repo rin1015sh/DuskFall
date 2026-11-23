@@ -271,6 +271,17 @@
         "20": 4
       },
       "recharge": "short_one"
+    },
+    {
+      "id": "divine_intervention",
+      "name": {
+        "ko": "신성 개입",
+        "en": "Divine Intervention"
+      },
+      "max": {
+        "10": 1
+      },
+      "recharge": "long"
     }
   ],
   "features": [
@@ -357,6 +368,77 @@
       "notes_ko": "언데드 퇴치 실패 대상에게 지혜 수정치만큼 d8 광휘.",
       "source": "SRD 5.2.1",
       "handled_by": "turn_undead 스크립트 안"
+    },
+    {
+      "id": "blessed_strikes",
+      "name": {
+        "ko": "축복받은 일격",
+        "en": "Blessed Strikes"
+      },
+      "level": 7,
+      "choice_kind": "option",
+      "choices": [
+        "divine_strike",
+        "potent_spellcasting"
+      ],
+      "choice_grants": {
+        "divine_strike": {
+          "weapon_hit_bonus": {
+            "dice_by_level": {
+              "7": "1d8",
+              "14": "2d8"
+            },
+            "damage_types": [
+              "radiant",
+              "necrotic"
+            ]
+          }
+        },
+        "potent_spellcasting": {
+          "caps": [
+            "cantrip_add_mod"
+          ]
+        }
+      },
+      "notes_ko": "신성한 일격: 턴당 1회 무기 명중 +1d8 광휘 또는 사령(14레벨 2d8 — 대상이 저항하지 않는 쪽 자동). 강력한 주문 시전: 클레릭 소마법 피해 + 지혜 수정치.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "divine_intervention",
+      "name": {
+        "ko": "신성 개입",
+        "en": "Divine Intervention"
+      },
+      "level": 10,
+      "caps": [
+        "free_cast_class_spell"
+      ],
+      "max_spell_level": 5,
+      "resource": "divine_intervention",
+      "notes_ko": "켜 두면 다음 클레릭 주문(5레벨 이하, 반응 제외)을 슬롯 없이 시전한다. 긴 휴식마다 1회. 원문은 아무 클레릭 주문 — 준비한 주문 중에서 고른다.",
+      "source": "SRD 5.2.1",
+      "toggle": {
+        "values": [
+          {
+            "id": "off",
+            "name": {
+              "ko": "끔",
+              "en": "Off"
+            }
+          },
+          {
+            "id": "on",
+            "name": {
+              "ko": "다음 주문",
+              "en": "Next spell"
+            }
+          }
+        ],
+        "desc": {
+          "ko": "다음 클레릭 주문을 슬롯 없이(한 번 쓰면 꺼짐).",
+          "en": "Next Cleric spell costs no slot (turns off after use)."
+        }
+      }
     }
   ],
   "subclasses": [
@@ -410,6 +492,19 @@
           "source": "SRD 5.2.1",
           "icon": "statuses/vitality_drain.webp",
           "glyph": "heart"
+        },
+        {
+          "id": "blessed_healer",
+          "name": {
+            "ko": "축복받은 치유자",
+            "en": "Blessed Healer"
+          },
+          "level": 6,
+          "caps": [
+            "blessed_healer"
+          ],
+          "notes_ko": "슬롯을 쓴 주문으로 다른 생물을 회복시키면 자신도 2 + 슬롯 레벨 회복(시전마다 1회).",
+          "source": "SRD 5.2.1"
         }
       ]
     }
@@ -492,7 +587,8 @@
       "ranged": {
         "main": "light_crossbow"
       }
-    }
+    },
+    "blessed_strikes": "divine_strike"
   },
   "source": "SRD 5.2.1",
   "multiclass": {

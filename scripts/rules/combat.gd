@@ -156,9 +156,19 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		"bonus": mod + (c.proficiency_bonus if proficient else 0) + hit_bonus, "ability": ability, "ability_mod": mod,
 		"two_handed": opts.get("two_handed", false) or "two_handed" in props,
 		"kind": "ranged" if ranged else "melee", "weapon": true, "properties": props,
-		"mastery": w.get("mastery", "") if c.weapon_masteries.has(w["id"]) else "",
+		"mastery": _mastery_of(c, w),
 		"damage": [{"dice": expr, "damage_type": w["damage_type"]}], "extra_disadvantage": dis,
 		"range_tiles": w.get("range_tiles", [reach_of(c), reach_of(c)]) if ranged else [1, 1]}
+
+
+## 무기 마스터리 속성. 전술 대가(능력 태그 tactical_master — 전사 9레벨): 설정에서 고른 밀기·약화·둔화로 바꾼다.
+static func _mastery_of(c: Node, w: Dictionary) -> String:
+	if not c.weapon_masteries.has(w["id"]):
+		return ""
+	var pick := str(c.options.get("tactical_master", ""))
+	if pick in ["push", "sap", "slow"] and c.has_cap("tactical_master"):
+		return pick
+	return str(w.get("mastery", ""))
 
 
 ## 공격 상황: 격자 ctx + 사거리(먼 사거리 불리) + 근접 위협(원거리 공격 불리) + 무거운 무기.

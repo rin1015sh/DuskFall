@@ -70,12 +70,43 @@ static func level_up(world: Dictionary, c: Node, cid: String = "", extra: Dictio
 			ne.merge(extra, true)
 			spec["classes"].append(ne)
 		spec["level"] = c.level + 1
+	fill_choices(c, spec)
 	if not Builder.validate(spec).is_empty():
 		return false
 	Builder.reapply(c, spec)
 	SpellPrep.open_window(c, "level_up")
 	Dice.log_text("%s: %d레벨이 되었다" % [c.label(), c.level])
 	return true
+
+
+## 새로 얻은 고르는 기능(choice_kind)의 선택이 명세에 없으면 채운다: 그 클래스 추천 빌드 값 → 첫 선택지(재주는 이미 고른 것 빼고).
+## 전문화 선택지가 비어 있으면(로그 6레벨) 전문화하지 않은 숙련 기능에서 고른다.
+static func fill_choices(c: Node, spec: Dictionary) -> void:
+	for e: Dictionary in Builder.class_entries(spec):
+		var cls: Dictionary = e["cls"]
+		var feats: Array = cls.get("features", []).duplicate()
+		feats.append_array((e["sub"] as Dictionary).get("features", []))
+		var db: Dictionary = cls.get("default_build", {})
+		for f: Dictionary in feats:
+			var fid := str(f["id"])
+			var kind := str(f.get("choice_kind", ""))
+			if kind == "" or int(f["level"]) > int(e["level"]) or spec.has(fid):
+				continue
+			var n := int(f.get("count", 1))
+			if db.has(fid):
+				spec[fid] = db[fid].duplicate() if db[fid] is Array else db[fid]
+				continue
+			var opts: Array = f.get("choices", []).duplicate()
+			if kind == "expertise" and opts.is_empty():
+				var expert: Array = spec.get("expertise", [])
+				for sk: String in c.skill_bonuses:
+					if int(c.skill_bonuses[sk]) == c.proficiency_bonus and not sk in expert:
+						opts.append(sk)
+			if kind == "feat":
+				opts = opts.filter(func(o: String) -> bool: return not spec.values().has(o))
+			if opts.is_empty():
+				continue
+			spec[fid] = opts.slice(0, n) if n > 1 else opts[0]
 
 
 ## 새 클래스에 처음 들어갈 때 명세 항목에 넣을 기본 선택(그 클래스 추천 빌드 — 하위 클래스·소마법·주문·멀티클래스 기능 숙련).

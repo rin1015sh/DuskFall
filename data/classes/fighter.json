@@ -92,6 +92,19 @@
         "17": 2
       },
       "recharge": "short"
+    },
+    {
+      "id": "indomitable",
+      "name": {
+        "ko": "불굴",
+        "en": "Indomitable"
+      },
+      "max": {
+        "9": 1,
+        "13": 2,
+        "17": 3
+      },
+      "recharge": "long"
     }
   ],
   "features": [
@@ -199,6 +212,68 @@
       "notes_ko": "재기의 숨결 보너스 행동 사용 시 속도 절반 이동, 기회 공격 없음.",
       "source": "SRD 5.2.1",
       "handled_by": "second_wind 스크립트 안"
+    },
+    {
+      "id": "indomitable",
+      "name": {
+        "ko": "불굴",
+        "en": "Indomitable"
+      },
+      "level": 9,
+      "hook": "on_save_failed",
+      "script": "indomitable",
+      "resource": "indomitable",
+      "notes_ko": "내성 실패 시 다시 굴려 전사 레벨을 더한다(새 굴림 사용). 긴 휴식마다 1회(13레벨 2회, 17레벨 3회). 다시 굴려 성공할 수 있을 때 자동.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "tactical_master",
+      "name": {
+        "ko": "전술 대가",
+        "en": "Tactical Master"
+      },
+      "level": 9,
+      "caps": [
+        "tactical_master"
+      ],
+      "notes_ko": "마스터리를 쓰는 무기로 공격할 때 그 속성 대신 밀기·약화·둔화를 쓸 수 있다(상시 설정).",
+      "source": "SRD 5.2.1",
+      "toggle": {
+        "values": [
+          {
+            "id": "",
+            "name": {
+              "ko": "무기 속성",
+              "en": "Weapon"
+            }
+          },
+          {
+            "id": "push",
+            "name": {
+              "ko": "밀기",
+              "en": "Push"
+            }
+          },
+          {
+            "id": "sap",
+            "name": {
+              "ko": "약화",
+              "en": "Sap"
+            }
+          },
+          {
+            "id": "slow",
+            "name": {
+              "ko": "둔화",
+              "en": "Slow"
+            }
+          }
+        ],
+        "desc": {
+          "ko": "마스터리 무기 공격에 쓸 속성(누를 때마다 바뀜).",
+          "en": "Mastery property to use with mastered weapons (click to cycle)."
+        }
+      }
     }
   ],
   "subclasses": [
@@ -247,6 +322,36 @@
               }
             ]
           }
+        },
+        {
+          "id": "additional_fighting_style",
+          "name": {
+            "ko": "추가 전투 방식",
+            "en": "Additional Fighting Style"
+          },
+          "level": 7,
+          "choices": [
+            "archery",
+            "defense",
+            "great_weapon_fighting",
+            "two_weapon_fighting"
+          ],
+          "choice_kind": "feat",
+          "notes_ko": "전투 방식 재주 하나 더.",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "heroic_warrior",
+          "name": {
+            "ko": "영웅 전사",
+            "en": "Heroic Warrior"
+          },
+          "level": 10,
+          "caps": [
+            "heroic_warrior"
+          ],
+          "notes_ko": "전투 중 자기 턴 시작에 영웅적 영감이 없으면 얻는다. 영웅적 영감은 실패한 d20 시험을 자동으로 한 번 다시 굴린다(BG3식).",
+          "source": "SRD 5.2.1"
         }
       ]
     }
@@ -319,7 +424,8 @@
       "ranged": {
         "main": "javelin"
       }
-    }
+    },
+    "additional_fighting_style": "great_weapon_fighting"
   },
   "source": "SRD 5.2.1",
   "multiclass": {

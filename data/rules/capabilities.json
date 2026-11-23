@@ -496,6 +496,96 @@
       },
       "note_ko": "집중 유지 내성 유리(resolver.concentration_check)",
       "source": "original"
+    },
+    {
+      "id": "tactical_master",
+      "name": {
+        "ko": "전술 대가",
+        "en": "Tactical Master"
+      },
+      "note_ko": "마스터리 무기 공격의 속성을 설정에서 고른 밀기·약화·둔화로 바꾼다(combat._mastery_of)",
+      "source": "original"
+    },
+    {
+      "id": "heroic_warrior",
+      "name": {
+        "ko": "영웅 전사",
+        "en": "Heroic Warrior"
+      },
+      "note_ko": "전투 중 턴 시작에 영웅적 영감(상태 heroic_inspiration)이 없으면 얻는다(resolver.start_turn)",
+      "source": "original"
+    },
+    {
+      "id": "evasion",
+      "name": {
+        "ko": "회피",
+        "en": "Evasion"
+      },
+      "note_ko": "성공 시 절반인 민첩 내성 피해: 성공 0, 실패 절반. 무력화 중엔 없음(resolver.save_effect)",
+      "source": "original"
+    },
+    {
+      "id": "reliable_talent",
+      "name": {
+        "ko": "믿음직한 재능",
+        "en": "Reliable Talent"
+      },
+      "note_ko": "숙련 기능 판정 d20 9 이하를 10으로(resolver._reliable)",
+      "source": "original"
+    },
+    {
+      "id": "stealth_attack",
+      "name": {
+        "ko": "은신 공격",
+        "en": "Stealth Attack"
+      },
+      "note_ko": "숨은 채 급소 공격하면 주사위 1개를 더 써서 숨기를 유지(resolver.attack, 스크립트 sneak_attack, 설정 on/off)",
+      "source": "original"
+    },
+    {
+      "id": "blessed_healer",
+      "name": {
+        "ko": "축복받은 치유자",
+        "en": "Blessed Healer"
+      },
+      "note_ko": "슬롯 회복 주문으로 남을 치유하면 자신도 2 + 슬롯 레벨(spellcasting.apply_effect)",
+      "source": "original"
+    },
+    {
+      "id": "cantrip_add_mod",
+      "name": {
+        "ko": "강력한 주문 시전",
+        "en": "Potent Spellcasting"
+      },
+      "note_ko": "소마법 피해 + 주문 능력 수정치(spellcasting.damage_dice)",
+      "source": "original"
+    },
+    {
+      "id": "evocation_add_mod",
+      "name": {
+        "ko": "강화된 방출",
+        "en": "Empowered Evocation"
+      },
+      "note_ko": "방출학파 주문 피해 + 주문 능력 수정치(spellcasting.damage_dice)",
+      "source": "original"
+    },
+    {
+      "id": "sculpt_spells",
+      "name": {
+        "ko": "주문 조각",
+        "en": "Sculpt Spells"
+      },
+      "note_ko": "방출학파 내성 주문에서 아군 1 + 주문 레벨명 자동 성공·피해 없음(spellcasting._protected_targets)",
+      "source": "original"
+    },
+    {
+      "id": "free_cast_class_spell",
+      "name": {
+        "ko": "신성 개입",
+        "en": "Divine Intervention"
+      },
+      "note_ko": "설정을 켜면 다음 그 클래스 주문(max_spell_level 이하)을 슬롯 없이 기능 resource로(spellcasting.free_cast_feature)",
+      "source": "original"
     }
   ]
 }

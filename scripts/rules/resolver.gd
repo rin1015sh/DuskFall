@@ -61,6 +61,12 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	if not res["hit"] and res["natural"] != 1:
 		res["total"] += inspire(attacker)  # 바드의 영감: 실패한 d20 시험에 주사위를 더한다
 		_decide_hit(res)
+	if not res["hit"] and heroic(attacker):
+		var d2 := luck(attacker, Dice.d20(res["mode"], "%s 공격(영웅적 영감)" % attacker.label()))
+		res["rolls"] = d2["rolls"]
+		res["natural"] = d2["natural"]
+		res["total"] = res["natural"] + res["attack_bonus"] + bonus_dice
+		_decide_hit(res)
 	# 받는 쪽의 '다음 공격을 받으면 사라지는' 수정치(Guiding Bolt)
 	for m in target.extra_modifiers.duplicate():
 		if m.get("consume_on_attacked", false):
@@ -74,8 +80,11 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 		if m.get("consume_on_attack", false) and (m.get("target_only") == null or m.get("target_only") == target):
 			attacker.extra_modifiers.erase(m)
 	# 숨기로 얻은 투명은 공격 굴림을 하면 풀린다(원문 Hide, 5단계 은신 공격).
+	# 최상급 은신(능력 태그 stealth_attack, 설정 켬): 급소 공격 주사위 1개를 쓰면 숨기가 풀리지 않는다 — 명중 처리 뒤에 정한다.
 	var hide: Dictionary = attacker.condition_instance("invisible")
-	if not hide.is_empty() and hide["source"] is String and hide["source"] == "hide":
+	var hidden: bool = not hide.is_empty() and hide["source"] is String and hide["source"] == "hide"
+	var keep_hide: bool = hidden and attacker.has_cap("stealth_attack") and str(attacker.options.get("supreme_sneak", "on")) == "on"
+	if hidden and not keep_hide:
 		attacker.remove_condition("invisible")
 	# 5. 명중 직후 반응(Shield 등)
 	EventBus.on_after_attack_roll.emit(res)
@@ -96,6 +105,8 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 				attacker.turn["free_move_no_oa"] = maxi(int(attacker.turn.get("free_move_no_oa", 0)), attacker.speed() / 2)
 	else:
 		EventBus.on_miss.emit(res)
+	if keep_hide and not res.get("stealth_attack", false):
+		attacker.remove_condition("invisible")
 	# 12. 로그(굴림 줄)
 	Dice.log_text("%s → %s %s%s: %d + %d = %d vs AC %d → %s" % [
 		attacker.label(), target.label(), atk.get("name", "공격"), _mode_note(res["mode"], res["rolls"]),
@@ -352,9 +363,36 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 				and str(atk.get("ability", "")) == "str" and not attacker.turn.get("frenzy_used", false):
 			attacker.turn["frenzy_used"] = true
 			res["extra_damage"].append({"dice": "%dd6" % rage_bonus(attacker), "damage_type": atk["damage"][0]["damage_type"]})
+		_feature_hit_bonus(attacker, target, atk, res)
 		if attacker.has_cap("extra_damage_wounded") and target.hp < target.hp_max and not attacker.turn.get("wounded_bonus_used", false):
 			attacker.turn["wounded_bonus_used"] = true
 			res["extra_damage"].append({"dice": "1d8", "damage_type": atk["damage"][0]["damage_type"]})
+
+
+## 기능 부여 weapon_hit_bonus(신성한 일격·원초의 일격): 턴당 1회 무기 명중에 dice_by_level(기능의 클래스 레벨) 추가 피해.
+## damage_types 중 대상이 면역·저항이 아닌 첫 종류(BG3식 자동 고르기).
+static func _feature_hit_bonus(attacker: Node, target: Node, atk: Dictionary, res: Dictionary) -> void:
+	for hb: Dictionary in attacker.get_meta("weapon_hit_bonus", []):
+		var key := "hit_bonus_" + str(hb["feature"])
+		if attacker.turn.get(key, false):
+			continue
+		var dice := ""
+		var best_lv := 0
+		var lv: int = attacker.feature_level(str(hb["feature"]))
+		for k: String in hb.get("dice_by_level", {}):
+			if lv >= int(k) and int(k) >= best_lv:
+				best_lv = int(k)
+				dice = str(hb["dice_by_level"][k])
+		if dice == "":
+			continue
+		var types: Array = hb.get("damage_types", ["radiant"])
+		var dtype := str(types[0])
+		for t: String in types:
+			if not t in target.damage_immunities and not t in target.damage_resistances:
+				dtype = t
+				break
+		attacker.turn[key] = true
+		res["extra_damage"].append({"dice": dice, "damage_type": dtype})
 
 
 ## 능력 태그 stunning_strike(몽크 충격의 일격): 턴당 1회, 무술 공격 명중 + 설정 on + 기 1 → 건강 내성(DC 8 + 지혜 + 숙련).
@@ -415,6 +453,23 @@ static func inspire(c: Node) -> int:
 	c.remove_condition("bardic_inspiration")
 	Dice.log_text("%s: 바드의 영감 +%d" % [c.label(), n])
 	return n
+
+
+## 영웅적 영감(상태 플래그 reroll_failed_d20 — 챔피언 영웅 전사): 실패한 d20 시험을 한 번 다시 굴린다(BG3식 자동). 썼으면 true.
+static func heroic(c: Node) -> bool:
+	for a in c.active_conditions():
+		if a["def"].get("flags", {}).get("reroll_failed_d20", false):
+			c.remove_condition(a["id"])
+			Dice.log_text("%s: 영웅적 영감 — 다시 굴린다" % c.label())
+			return true
+	return false
+
+
+## 믿음직한 재능(능력 태그 reliable_talent): 숙련 기능 판정의 d20 9 이하를 10으로(자연 1·20 판정은 원래 눈으로).
+static func _reliable(c: Node, skill: String, natural: int) -> int:
+	if skill != "" and c.skill_bonuses.has(skill) and c.has_cap("reliable_talent"):
+		return maxi(natural, 10)
+	return natural
 
 
 ## 레벨표에서 그 레벨의 값(가장 가까운 아래 레벨).
@@ -774,6 +829,15 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 	if not res["success"]:
 		res["total"] += inspire(creature)
 		res["success"] = res["total"] >= dc
+	if not res["success"] and heroic(creature):
+		d = luck(creature, Dice.d20(res["mode"], "%s %s 내성(영웅적 영감)" % [creature.label(), ability]))
+		res["natural"] = d["natural"]
+		res["total"] = d["natural"] + res["bonus"] + roll_bonus_dice(creature, "saving_throw")
+		res["success"] = res["total"] >= dc
+	if not res["success"]:
+		res["rolls"] = d["rolls"]
+		Features.hook("on_save_failed", creature, {"res": res})  # 불굴(전사 9레벨) 등 — 스크립트가 res를 고친다
+		d["natural"] = int(res["natural"])
 	if opts.get("natural_rules", false):
 		if d["natural"] == 20:
 			res["success"] = true
@@ -852,11 +916,16 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 		var d := luck(creature, Dice.d20(res["mode"], "%s %s 판정" % [creature.label(), ability]))
 		res["natural"] = d["natural"]
-		res["total"] = d["natural"] + res["bonus"]
+		res["total"] = _reliable(creature, res["skill"], d["natural"]) + res["bonus"]
 		res["success"] = d["natural"] == 20 or (d["natural"] != 1 and res["total"] >= dc)
 		if not res["success"] and d["natural"] != 1:
 			res["total"] += inspire(creature)
 			res["success"] = res["total"] >= dc
+		if not res["success"] and heroic(creature):
+			d = luck(creature, Dice.d20(res["mode"], "%s %s 판정(영웅적 영감)" % [creature.label(), ability]))
+			res["natural"] = d["natural"]
+			res["total"] = _reliable(creature, res["skill"], d["natural"]) + res["bonus"]
+			res["success"] = d["natural"] == 20 or (d["natural"] != 1 and res["total"] >= dc)
 	Dice.log_text("%s %s 판정: %s vs DC %d → %s" % [creature.label(), ability,
 		"자동 실패" if res["auto"] else "%d + %d = %d" % [res["natural"], res["bonus"], res["total"]],
 		dc, "성공" if res["success"] else "실패"])
@@ -892,6 +961,18 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 		var effects: Array = success if s["success"] else fail
 		if s.get("careful", false):
 			effects = effects.filter(func(e: Dictionary) -> bool: return e["type"] != "damage")
+		# 회피(능력 태그 evasion — 로그·몽크 7레벨): 성공 시 절반인 민첩 내성 피해 → 성공 0, 실패 절반. 무력화되면 못 쓴다.
+		var evade: bool = str(check.get("ability", "")) == "dex" and t.has_cap("evasion") and not t.is_incapacitated() \
+			and success.any(func(e: Dictionary) -> bool: return e["type"] == "damage")
+		if evade and s["success"]:
+			effects = effects.filter(func(e: Dictionary) -> bool: return e["type"] != "damage")
+		elif evade:
+			effects = effects.map(func(e: Dictionary) -> Dictionary:
+				if e["type"] != "damage":
+					return e
+				var h := e.duplicate()
+				h["scale"] = float(e.get("scale", 1.0)) * 0.5
+				return h)
 		var parts: Array = []
 		for e: Dictionary in effects:
 			match e["type"]:
@@ -919,6 +1000,8 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 ## 반응 회복과 재충전은 3단계 TurnManager가 맡는다.
 static func start_turn(creature: Node, ctx: Dictionary = {}) -> void:
 	EventBus.on_turn_start.emit(creature)
+	if ctx.get("in_combat", false) and creature.has_cap("heroic_warrior") and not creature.has_condition("heroic_inspiration"):
+		creature.apply_condition("heroic_inspiration", -1, creature)  # 영웅 전사(챔피언 10레벨): 전투 중 턴 시작마다
 	var regen: Dictionary = creature.feature_data.get("regeneration", {})
 	if not regen.is_empty() and not creature.dead:
 		if creature.get_meta("regen_blocked", false):

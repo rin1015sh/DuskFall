@@ -358,6 +358,32 @@
           "caps": [
             "cantrip_half_on_miss"
           ]
+        },
+        {
+          "id": "sculpt_spells",
+          "name": {
+            "ko": "주문 조각",
+            "en": "Sculpt Spells"
+          },
+          "level": 6,
+          "caps": [
+            "sculpt_spells"
+          ],
+          "notes_ko": "방출학파 내성 주문의 범위 안 아군(자신 포함) 1 + 주문 레벨명은 자동 성공, 성공 시 절반인 피해도 받지 않는다(자동 — 가까운 순이 아니라 범위 목록 순).",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "empowered_evocation",
+          "name": {
+            "ko": "강화된 방출",
+            "en": "Empowered Evocation"
+          },
+          "level": 10,
+          "caps": [
+            "evocation_add_mod"
+          ],
+          "notes_ko": "방출학파 주문 피해 굴림 + 지능 수정치(효과 모델 주문 — 대상마다 굴리는 주문은 굴림마다).",
+          "source": "SRD 5.2.1"
         }
       ]
     }

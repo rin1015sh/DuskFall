@@ -225,6 +225,45 @@
       "script": "uncanny_dodge",
       "notes_ko": "볼 수 있는 공격자에게 맞으면 반응으로 피해 절반(반응 설정 대상).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "expertise_6",
+      "name": {
+        "ko": "전문화(6레벨)",
+        "en": "Expertise (level 6)"
+      },
+      "level": 6,
+      "choice_kind": "expertise",
+      "count": 2,
+      "choices": [],
+      "notes_ko": "숙련 기능 2개 더 전문화.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "evasion",
+      "name": {
+        "ko": "회피",
+        "en": "Evasion"
+      },
+      "level": 7,
+      "caps": [
+        "evasion"
+      ],
+      "notes_ko": "성공하면 절반인 민첩 내성 효과: 성공 시 피해 없음, 실패 시 절반. 무력화되면 못 쓴다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "reliable_talent",
+      "name": {
+        "ko": "믿음직한 재능",
+        "en": "Reliable Talent"
+      },
+      "level": 7,
+      "caps": [
+        "reliable_talent"
+      ],
+      "notes_ko": "숙련 기능 판정에서 d20 9 이하를 10으로.",
+      "source": "SRD 5.2.1"
     }
   ],
   "subclasses": [
@@ -264,6 +303,41 @@
             "jump_dex",
             "jump_plus_1"
           ]
+        },
+        {
+          "id": "supreme_sneak",
+          "name": {
+            "ko": "최상급 은신",
+            "en": "Supreme Sneak"
+          },
+          "level": 9,
+          "caps": [
+            "stealth_attack"
+          ],
+          "notes_ko": "교활한 일격 '은신 공격'(급소 공격 주사위 1개): 숨기로 얻은 투명 상태로 급소 공격을 하면 숨기가 풀리지 않는다. 턴 끝 엄폐 조건은 생략.",
+          "source": "SRD 5.2.1",
+          "toggle": {
+            "values": [
+              {
+                "id": "on",
+                "name": {
+                  "ko": "켬",
+                  "en": "On"
+                }
+              },
+              {
+                "id": "off",
+                "name": {
+                  "ko": "끔",
+                  "en": "Off"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "숨어서 급소 공격할 때 주사위 1개로 숨기 유지.",
+              "en": "Spend a Sneak Attack die to stay hidden."
+            }
+          }
         }
       ]
     }
@@ -336,7 +410,11 @@
       "ranged": {
         "main": "shortbow"
       }
-    }
+    },
+    "expertise_6": [
+      "acrobatics",
+      "investigation"
+    ]
   },
   "source": "SRD 5.2.1",
   "multiclass": {

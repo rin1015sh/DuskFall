@@ -33,6 +33,12 @@ func apply(ctx: Dictionary) -> Dictionary:
 	if option != "" and c.has_cap("cunning_strike") and count > COST:
 		count -= COST
 		res["cunning_strike"] = option
+	# 최상급 은신(도둑 9레벨): 숨은 채 공격했으면 주사위 1개를 더 써서 숨기를 유지한다(resolver가 res.stealth_attack을 본다)
+	var hide: Dictionary = c.condition_instance("invisible")
+	if c.has_cap("stealth_attack") and str(c.options.get("supreme_sneak", "on")) == "on" and count > COST \
+			and not hide.is_empty() and hide["source"] is String and hide["source"] == "hide":
+		count -= COST
+		res["stealth_attack"] = true
 	c.turn["sneak_used"] = true
 	if not res.has("extra_damage"):
 		res["extra_damage"] = []

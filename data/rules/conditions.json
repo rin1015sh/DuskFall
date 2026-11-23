@@ -1290,6 +1290,20 @@
       },
       "notes_ko": "마름쇠: 속도 0(자기 다음 턴 시작까지 — 이번 턴 끝에 풀린다).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "heroic_inspiration",
+      "name": {
+        "ko": "영웅적 영감",
+        "en": "Heroic Inspiration"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "flags": {
+        "reroll_failed_d20": true
+      },
+      "notes_ko": "실패한 d20 시험(공격·내성·능력 판정)을 한 번 자동으로 다시 굴리고 사라진다(BG3식 자동 — 원문은 아무 주사위나 다시 굴림).",
+      "source": "SRD 5.2.1"
     }
   ]
 }

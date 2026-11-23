@@ -358,6 +358,9 @@
             "speed_zero": {
               "type": "boolean"
             },
+            "reroll_failed_d20": {
+              "type": "boolean"
+            },
             "auto_fail_saves": {
               "type": "array",
               "items": {

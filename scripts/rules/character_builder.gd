@@ -253,6 +253,11 @@ static func apply(c: Node, spec: Dictionary) -> void:
 				if f.get("choice_grants", {}).has(str(pick)):
 					grants.append([fid, f["choice_grants"][str(pick)]])  # 여러 개 고르기(소서러 주문 변형 2)
 			continue
+		if kind == "expertise" and spec.get(fid) is Array:
+			for pick: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
+				if str(pick) in f.get("choices", []) or f.get("choices", []).is_empty():
+					expertise.append(str(pick))  # 여러 개 고르기(로그 6레벨 전문화 2)
+			continue
 		if kind == "skill" and spec.get(fid) is Array:
 			for pick: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
 				if str(pick) in f.get("choices", []):
@@ -291,6 +296,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var at_will: Array = []
 	var grant_spells: Array = []
 	var skill_bonus_ability := {}
+	var hit_bonus: Array = []
 	for g: Array in grants:
 		var gr: Dictionary = g[1]
 		c.attacks_per_action = maxi(c.attacks_per_action, int(gr.get("attacks_per_action", 1)))
@@ -310,6 +316,10 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			if not c.senses.has("darkvision"):
 				c.senses.append("darkvision")
 		c.caps.append_array(gr.get("caps", []))
+		if gr.has("weapon_hit_bonus"):
+			var hb: Dictionary = gr["weapon_hit_bonus"].duplicate(true)
+			hb["feature"] = str(g[0])
+			hit_bonus.append(hb)  # 신성한 일격·원초의 일격: 턴당 1회 무기 명중 추가 피해(resolver._hit_riders)
 		for adv: Dictionary in gr.get("advantage", []):
 			c.extra_modifiers.append({"effect": adv.duplicate(true), "source": g[0], "builder": true})
 	if c.has_cap("initiative_proficiency"):
@@ -383,6 +393,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	_apply_spells(c, entries, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)
 	c.set_meta("at_will", at_will)
+	c.set_meta("weapon_hit_bonus", hit_bonus)
 	for sid: String in at_will + grant_spells:
 		if not c.spells.has(sid) and not RulesDB.get_entry("spell", sid).is_empty():
 			c.spells.append(sid)
