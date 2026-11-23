@@ -186,12 +186,51 @@
     "armor_leather",
     "weapon_shortsword"
   ],
-  "proficiency_bonus": {
-    "1": 2,
-    "2": 2,
-    "3": 2,
-    "4": 2,
-    "5": 3
+  "default_build": {
+    "subclass": "thief",
+    "species": "halfling",
+    "background": "criminal",
+    "scores": {
+      "str": 8,
+      "dex": 15,
+      "con": 14,
+      "int": 12,
+      "wis": 13,
+      "cha": 10
+    },
+    "bonus": {
+      "dex": 2,
+      "con": 1
+    },
+    "skills": [
+      "acrobatics",
+      "perception",
+      "investigation",
+      "deception"
+    ],
+    "expertise": [
+      "stealth",
+      "perception"
+    ],
+    "masteries": [
+      "shortsword",
+      "dagger"
+    ],
+    "asi": {
+      "4": {
+        "dex": 2
+      }
+    },
+    "armor": "leather_armor",
+    "weapons": {
+      "melee": {
+        "main": "shortsword",
+        "off": "dagger"
+      },
+      "ranged": {
+        "main": "shortbow"
+      }
+    }
   },
   "source": "SRD 5.2.1"
 }

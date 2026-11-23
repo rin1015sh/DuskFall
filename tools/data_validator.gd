@@ -80,9 +80,46 @@ func run() -> bool:
 	info.append("JSON %d개 검사" % loader.files_loaded)
 	_check_refs()
 	_check_stamps()
+	_check_class_builds()
 	_check_scripts()
 	_check_banned_names()
 	return errors.is_empty()
+
+
+# ---------- 3-2. 클래스 추천 빌드(default_build) 교차 참조 ----------
+
+func _check_class_builds() -> void:
+	for cid: String in entries.get("class", {}).keys():
+		var rec: Dictionary = entries["class"][cid]
+		var cls: Dictionary = rec["entry"]
+		var where := "%s: class '%s' default_build" % [rec["file"], cid]
+		var b: Dictionary = cls.get("default_build", {})
+		if b.is_empty():
+			errors.append("%s: class '%s'에 default_build(추천 빌드)가 없다 — 동료·시험·생성 화면이 쓴다" % [rec["file"], cid])
+			continue
+		var refs := [["species", "species"], ["lineage", "species"], ["background", "background"], ["armor", "armor"], ["origin_feat", "feat"]]
+		for r: Array in refs:
+			var v := str(b.get(r[0], ""))
+			if v != "" and not entries.get(r[1], {}).has(v):
+				errors.append("%s.%s: %s '%s'가 없다" % [where, r[0], r[1], v])
+		for k: String in ["spells", "cantrips"]:
+			for v: Variant in b.get(k, []):
+				if not entries.get("spell", {}).has(str(v)):
+					errors.append("%s.%s: 주문 '%s'가 없다" % [where, k, v])
+		for v: Variant in b.get("masteries", []):
+			if not entries.get("weapon", {}).has(str(v)):
+				errors.append("%s.masteries: 무기 '%s'가 없다" % [where, v])
+		for slot: String in ["melee", "ranged"]:
+			for hand: String in ["main", "off"]:
+				var w := str(b.get("weapons", {}).get(slot, {}).get(hand, ""))
+				if w != "" and not entries.get("weapon", {}).has(w):
+					errors.append("%s.weapons.%s.%s: 무기 '%s'가 없다" % [where, slot, hand, w])
+		var subs: Array = cls.get("subclasses", []).map(func(x: Dictionary) -> String: return str(x.get("id", "")))
+		if str(b.get("subclass", "")) != "" and not str(b["subclass"]) in subs:
+			errors.append("%s.subclass: 하위 클래스 '%s'가 없다" % [where, b["subclass"]])
+		for sk: Variant in b.get("skills", []):
+			if not str(sk) in cls.get("skills", {}).get("from", []):
+				errors.append("%s.skills: '%s'는 클래스 기능 목록에 없다" % [where, sk])
 
 
 # ---------- 3-1. 지형 도장(맵 stamps → terrain_preset) ----------

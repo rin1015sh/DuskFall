@@ -76,4 +76,4 @@ static func build(map_id: String, opts: Dictionary = {}) -> Dictionary:
 
 
 static func Progression_xp(level: int) -> int:
-	return int(load("res://scripts/rules/progression.gd").XP_TABLE.get(level, 0))
+	return load("res://scripts/rules/levels.gd").xp_for(level)

@@ -14,6 +14,7 @@ extends RefCounted
 ## }
 
 const CreatureScript := preload("res://scripts/rules/creature.gd")
+const Levels := preload("res://scripts/rules/levels.gd")
 
 const POINT_COST := {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9}
 const POINT_BUDGET := 27
@@ -46,8 +47,8 @@ static func validate(spec: Dictionary) -> PackedStringArray:
 		e.append("모르는 클래스 '%s'" % spec.get("class", ""))
 		return e
 	var lv := int(spec.get("level", 1))
-	if lv < 1 or lv > 5:
-		e.append("1차 레벨 범위는 1~5")
+	if lv < 1 or lv > Levels.level_cap():
+		e.append("레벨 범위는 1~%d(data/rules/progression.json)" % Levels.level_cap())
 	var sp := RulesDB.get_entry("species", spec.get("species", ""))
 	if sp.is_empty():
 		e.append("모르는 종족 '%s'" % spec.get("species", ""))
@@ -125,7 +126,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	c.species_id = sp["id"]
 	c.lineage_id = lin.get("id", "")
 	c.background_id = bg["id"]
-	c.proficiency_bonus = _by_level(cls["proficiency_bonus"], lv, 2)
+	c.proficiency_bonus = Levels.proficiency_bonus(lv)
 	# 능력치: 포인트 구매 + 보너스 + 4레벨 능력치 향상(최대 20)
 	var ab := {}
 	for a: String in ABILITIES:
@@ -328,37 +329,13 @@ static func _resource_max(mx: Variant, lv: int, pb: int) -> int:
 	return int(mx)
 
 
-## 기본 명세(동료·시험용). 클래스마다 SRD 추천을 따른다.
+## 기본 명세(동료·시험·생성 화면 시작값): 클래스 데이터의 default_build(추천 빌드)에 클래스·레벨·편을 붙인다.
+## 클래스 목록을 코드에 두지 않는다 — 새 클래스는 데이터에 default_build만 있으면 된다(룰북 1단계 '클래스 확장 원칙').
 static func default_spec(class_id: String, level: int = 1) -> Dictionary:
 	var base := {"level": level, "team": "party"}
-	match class_id:
-		"fighter":
-			base.merge({"class": "fighter", "subclass": "champion", "species": "human", "background": "soldier",
-				"scores": {"str": 15, "dex": 13, "con": 14, "int": 8, "wis": 12, "cha": 10}, "bonus": {"str": 2, "con": 1},
-				"skills": ["perception", "survival"], "species_skill": "acrobatics", "origin_feat": "alert",
-				"fighting_style": "defense", "masteries": ["longsword", "greatsword", "javelin", "shortbow"],
-				"asi": {"4": {"str": 2}}, "armor": "chain_mail", "shield": true,
-				"weapons": {"melee": {"main": "longsword", "off": ""}, "ranged": {"main": "javelin"}}})
-		"rogue":
-			base.merge({"class": "rogue", "subclass": "thief", "species": "halfling", "background": "criminal",
-				"scores": {"str": 8, "dex": 15, "con": 14, "int": 12, "wis": 13, "cha": 10}, "bonus": {"dex": 2, "con": 1},
-				"skills": ["acrobatics", "perception", "investigation", "deception"], "expertise": ["stealth", "perception"],
-				"masteries": ["shortsword", "dagger"], "asi": {"4": {"dex": 2}}, "armor": "leather_armor",
-				"weapons": {"melee": {"main": "shortsword", "off": "dagger"}, "ranged": {"main": "shortbow"}}})
-		"cleric":
-			base.merge({"class": "cleric", "subclass": "life", "species": "dwarf", "background": "acolyte",
-				"scores": {"str": 14, "dex": 8, "con": 13, "int": 10, "wis": 15, "cha": 12}, "bonus": {"wis": 2, "con": 1},
-				"skills": ["medicine", "persuasion"], "divine_order": "protector",
-				"cantrips": ["sacred_flame", "guidance", "spare_the_dying", "light"],
-				"spells": ["healing_word", "guiding_bolt", "shield_of_faith", "sanctuary", "spiritual_weapon", "hold_person", "spirit_guardians", "mass_healing_word", "dispel_magic"],
-				"asi": {"4": {"wis": 2}}, "armor": "chain_mail", "shield": true,
-				"weapons": {"melee": {"main": "mace", "off": ""}, "ranged": {"main": "light_crossbow"}}})
-		"wizard":
-			base.merge({"class": "wizard", "subclass": "evoker", "species": "elf", "lineage": "elf_high", "background": "sage",
-				"scores": {"str": 8, "dex": 14, "con": 13, "int": 15, "wis": 12, "cha": 10}, "bonus": {"int": 2, "dex": 1},
-				"skills": ["investigation", "insight"], "species_skill": "perception", "scholar": "arcana",
-				"cantrips": ["fire_bolt", "dancing_lights", "ray_of_frost", "light"],
-				"spells": ["magic_missile", "shield", "burning_hands", "sleep", "scorching_ray", "misty_step", "fireball", "counterspell", "haste"],
-				"asi": {"4": {"int": 2}}, "armor": "",
-				"weapons": {"melee": {"main": "quarterstaff", "off": ""}, "ranged": {"main": "dagger"}}})
+	var cls := RulesDB.get_entry("class", class_id)
+	if cls.is_empty():
+		return base
+	base.merge((cls.get("default_build", {}) as Dictionary).duplicate(true))
+	base["class"] = class_id
 	return base

@@ -192,12 +192,61 @@
     "robe",
     "weapon_staff"
   ],
-  "proficiency_bonus": {
-    "1": 2,
-    "2": 2,
-    "3": 2,
-    "4": 2,
-    "5": 3
+  "default_build": {
+    "subclass": "evoker",
+    "species": "elf",
+    "lineage": "elf_high",
+    "background": "sage",
+    "scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 13,
+      "int": 15,
+      "wis": 12,
+      "cha": 10
+    },
+    "bonus": {
+      "int": 2,
+      "dex": 1
+    },
+    "skills": [
+      "investigation",
+      "insight"
+    ],
+    "species_skill": "perception",
+    "scholar": "arcana",
+    "cantrips": [
+      "fire_bolt",
+      "dancing_lights",
+      "ray_of_frost",
+      "light"
+    ],
+    "spells": [
+      "magic_missile",
+      "shield",
+      "burning_hands",
+      "sleep",
+      "scorching_ray",
+      "misty_step",
+      "fireball",
+      "counterspell",
+      "haste"
+    ],
+    "asi": {
+      "4": {
+        "int": 2
+      }
+    },
+    "armor": "",
+    "weapons": {
+      "melee": {
+        "main": "quarterstaff",
+        "off": ""
+      },
+      "ranged": {
+        "main": "dagger"
+      }
+    }
   },
   "source": "SRD 5.2.1"
 }

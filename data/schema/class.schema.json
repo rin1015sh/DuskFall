@@ -163,7 +163,6 @@
     "armor_training",
     "features",
     "subclasses",
-    "proficiency_bonus",
     "source"
   ],
   "properties": {
@@ -392,13 +391,21 @@
     "sprite_parts": {
       "type": "array"
     },
-    "proficiency_bonus": {
-      "type": "object"
-    },
     "source": {
       "enum": [
         "SRD 5.2.1",
         "original"
+      ]
+    },
+    "default_build": {
+      "$comment": "추천 빌드(동료·시험·생성 화면 시작값): 생성 명세(character_builder.gd 머리말)에서 class·level·team을 뺀 것.",
+      "type": "object",
+      "required": [
+        "species",
+        "background",
+        "scores",
+        "bonus",
+        "skills"
       ]
     }
   }

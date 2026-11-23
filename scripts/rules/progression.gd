@@ -1,21 +1,20 @@
 extends RefCounted
 ## 경험치·레벨 업·동료 영입(룰북 7단계 '캠프와 동료': 영입한 동료 전원이 같은 경험치, 레벨업은 전투 밖 언제나,
-## SRD 경험치 표, 1차 상한 5레벨). 경험치는 파티 공용 world["xp"].
+## SRD 경험치 표·상한은 data/rules/progression.json). 경험치는 파티 공용 world["xp"].
 
 const Builder := preload("res://scripts/rules/character_builder.gd")
 
-## SRD 5.2.1 Character Advancement(레벨 → 필요 경험치)
-const XP_TABLE := {1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500}
-const LEVEL_CAP := 5
+const Levels := preload("res://scripts/rules/levels.gd")
 const PARTY_MAX := 4
 
 
+## 레벨 상한(data/rules/progression.json)
+static func level_cap() -> int:
+	return Levels.level_cap()
+
+
 static func level_for(xp: int) -> int:
-	var lv := 1
-	for l: int in XP_TABLE:
-		if xp >= int(XP_TABLE[l]):
-			lv = maxi(lv, l)
-	return mini(lv, LEVEL_CAP)
+	return Levels.level_for(xp)
 
 
 static func award(world: Dictionary, xp: int, why: String = "") -> void:

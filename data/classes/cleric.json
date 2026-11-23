@@ -220,12 +220,60 @@
     "weapon_mace",
     "shield"
   ],
-  "proficiency_bonus": {
-    "1": 2,
-    "2": 2,
-    "3": 2,
-    "4": 2,
-    "5": 3
+  "default_build": {
+    "subclass": "life",
+    "species": "dwarf",
+    "background": "acolyte",
+    "scores": {
+      "str": 14,
+      "dex": 8,
+      "con": 13,
+      "int": 10,
+      "wis": 15,
+      "cha": 12
+    },
+    "bonus": {
+      "wis": 2,
+      "con": 1
+    },
+    "skills": [
+      "medicine",
+      "persuasion"
+    ],
+    "divine_order": "protector",
+    "cantrips": [
+      "sacred_flame",
+      "guidance",
+      "spare_the_dying",
+      "light"
+    ],
+    "spells": [
+      "healing_word",
+      "guiding_bolt",
+      "shield_of_faith",
+      "sanctuary",
+      "spiritual_weapon",
+      "hold_person",
+      "spirit_guardians",
+      "mass_healing_word",
+      "dispel_magic"
+    ],
+    "asi": {
+      "4": {
+        "wis": 2
+      }
+    },
+    "armor": "chain_mail",
+    "shield": true,
+    "weapons": {
+      "melee": {
+        "main": "mace",
+        "off": ""
+      },
+      "ranged": {
+        "main": "light_crossbow"
+      }
+    }
   },
   "source": "SRD 5.2.1"
 }
