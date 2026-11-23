@@ -306,7 +306,12 @@ func _right(c: Node) -> Control:
 	wl.text = "%s %.1f / %.0f kg" % [UiText.t("weight"), kg, cap]
 	wl.add_theme_font_size_override("font_size", 12)
 	if kg > cap:
-		wl.add_theme_color_override("font_color", Color(0.9, 0.45, 0.35))
+		wl.add_theme_color_override("font_color", Color(0.9, 0.45, 0.35))  # 짐 매우 무거움
+	elif kg > Interact.load_limit_kg(c, "encumbered"):
+		wl.add_theme_color_override("font_color", Color(0.9, 0.7, 0.35))  # 짐 무거움
+	wl.tooltip_text = "%s > %.0f kg · %s > %.0f kg" % [UiText.name_of(RulesDB.get_entry("condition", "encumbered")["name"]), Interact.load_limit_kg(c, "encumbered"),
+		UiText.name_of(RulesDB.get_entry("condition", "heavily_encumbered")["name"]), cap]
+	wl.mouse_filter = Control.MOUSE_FILTER_PASS
 	wrow.add_child(wl)
 	var wb := S.bar(S.GOLD_SOFT, Vector2(150, 8))
 	wb.max_value = cap

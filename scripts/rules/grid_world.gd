@@ -253,7 +253,7 @@ func blocks_movement(c: Vector2i) -> bool:
 ## 대각선: 양옆 직교 칸 중 하나라도 벽·통행 불가면 불가(생물은 모서리로 치지 않는다).
 ## 높이: 1단계는 그냥 걷고, 2단계 이상 오르기는 오르기 지점에서만, 2단계 이상 내려가기는 불가
 ## (점프·낙하로만, changes.md 2026-11-22).
-func can_step(from: Vector2i, to: Vector2i, climber: bool = false) -> bool:
+func can_step(from: Vector2i, to: Vector2i, climber: bool = false, no_climb: bool = false) -> bool:
 	var d := to - from
 	if absi(d.x) > 1 or absi(d.y) > 1 or d == Vector2i.ZERO:
 		return false
@@ -266,7 +266,7 @@ func can_step(from: Vector2i, to: Vector2i, climber: bool = false) -> bool:
 	if climber and absi(dh) >= 2:
 		return true  # 등반 속도(로그 2층 작업): 오르기 지점이 아니어도 오르내린다
 	if dh >= 2:
-		return has_flag(from, "climb") or has_flag(to, "climb")
+		return not no_climb and (has_flag(from, "climb") or has_flag(to, "climb"))  # 짐 매우 무거움: 오르기 불가
 	if dh <= -2:
 		return false
 	return true
@@ -296,9 +296,10 @@ func is_difficult(c: Vector2i) -> bool:
 func can_step_sized(from_anchor: Vector2i, to_anchor: Vector2i, creature_size: int, mover: Node = null,
 		ignore: Array = []) -> bool:
 	var d := to_anchor - from_anchor
-	var climber: bool = mover != null and mover.is_climber()
+	var climber: bool = mover != null and mover.is_climber() and not mover.has_flag("no_climb")
+	var no_climb: bool = mover != null and mover.has_flag("no_climb")
 	for c in footprint(from_anchor, creature_size):
-		if not can_step(c, c + d, climber):
+		if not can_step(c, c + d, climber, no_climb):
 			return false
 	for c in footprint(to_anchor, creature_size):
 		var other := creature_at(c)

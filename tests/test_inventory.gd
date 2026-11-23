@@ -61,10 +61,36 @@ func test_weight_and_old_save_migration() -> void:
 	var a: Node = w["party"][0]
 	a.inventory = {"rations": 2}
 	assert_true(absf(Interact.carried_kg(a) - 1.8) < 0.01, "식량 2개 = 1.8kg")
-	assert_true(absf(Interact.capacity_kg(a) - 68.0) < 0.01, "근력 10 × 6.8kg")
+	assert_true(absf(Interact.capacity_kg(a) - 81.6) < 0.01, "운반 한계(BG3식): 근력 10 × 8.16kg")
 	var snap: Dictionary = JSON.parse_string(JSON.stringify(SaveGame.snapshot(w)))
 	snap["world"]["inventory"] = {"gold": 9}  # 옛 저장 형식
 	a.inventory = {}
 	assert_true(SaveGame.restore(w, snap))
 	assert_eq(int(a.inventory.get("gold", 0)), 9, "옛 공용 가방은 캐릭터에게 옮긴다")
 	assert_false(w.has("inventory"))
+
+
+## 무게 초과(BG3식): 근력 × 6.35kg 넘으면 짐 무거움(이동 2/3·도약 절반), × 8.16kg 넘으면 짐 매우 무거움(이동 1/3·도약·오르기 불가·불리).
+func test_encumbrance_bg3() -> void:
+	var w := _party(1)
+	var a: Node = w["party"][0]
+	a.speed_tiles = 6
+	a.inventory = {}
+	Interact.give(w, "rations", 70, a)  # 63kg > 63.5? 아니다 — 근력 10 × 6.35 = 63.5
+	assert_false(a.has_condition("encumbered"), "63kg는 아직")
+	Interact.give(w, "rations", 2, a)  # 64.8kg
+	assert_true(a.has_condition("encumbered"))
+	assert_eq(a.speed(), 4, "이동 6 → 4")
+	assert_eq(load("res://scripts/rules/combat.gd").jump_distance(a), 1, "도약 3 → 1(절반 내림)")
+	Interact.give(w, "rations", 20, a)  # 82.8kg > 81.6
+	assert_true(a.has_condition("heavily_encumbered") and not a.has_condition("encumbered"), "가장 무거운 것 하나만")
+	assert_eq(a.speed(), 2, "이동 6 → 2")
+	assert_true(a.has_flag("no_jump") and a.has_flag("no_climb"))
+	w["grid"].set_height(Vector2i(4, 0), 2)
+	w["grid"].set_flag(Vector2i(4, 0), "climb")
+	assert_false(w["grid"].can_step_sized(Vector2i(3, 0), Vector2i(4, 0), 1, a), "오르기 지점도 못 오른다")
+	Dice.force([15, 5])
+	var r: Dictionary = load("res://scripts/rules/resolver.gd").saving_throw(a, "con", 10)
+	assert_eq(int(r["mode"]), -1, "건강 내성 불리")
+	Interact.send_to_stash(w, a, "rations", 92)
+	assert_false(a.has_condition("heavily_encumbered") or a.has_condition("encumbered"), "내려놓으면 풀린다")

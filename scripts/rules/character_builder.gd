@@ -291,6 +291,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	c.set_meta("armor_training", armor_training)
 	Equipment.apply_to(c, slots)
 	c.ac_base = armor_class(c, str(c.get_meta("armor")), bool(c.get_meta("shield")), armor_training)
+	Equipment.sync_conditions(c)  # 숙련 없는 갑옷·무게 상태(BG3식)
 	# 주문
 	_apply_spells(c, cls, sub, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)

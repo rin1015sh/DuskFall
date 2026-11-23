@@ -151,7 +151,8 @@
                 "damage_resistance",
                 "damage_vulnerability",
                 "damage_immunity",
-                "no_reactions"
+                "no_reactions",
+                "jump_tiles"
               ]
             },
             "add": {
@@ -169,6 +170,10 @@
             "floor": {
               "$comment": "stat ac: AC가 이보다 낮으면 이 값(나무껍질 피부)",
               "type": "integer"
+            },
+            "multiply": {
+              "$comment": "곱하기(무게 초과 이동·도약 — 더하기 뒤에 곱하고 내림)",
+              "type": "number"
             }
           }
         }
@@ -358,6 +363,15 @@
             },
             "water_walk": {
               "type": "boolean"
+            },
+            "no_spellcasting": {
+              "type": "boolean"
+            },
+            "no_jump": {
+              "type": "boolean"
+            },
+            "no_climb": {
+              "type": "boolean"
             }
           }
         },
@@ -413,6 +427,10 @@
         "consume_on_trigger": {
           "$comment": "on_weapon_hit가 한 번 발동하면 이 상태를 지운다",
           "type": "boolean"
+        },
+        "load_kg_per_str": {
+          "$comment": "무게 상태(BG3식 — interact.update_load): 들고 있는 kg이 근력 × 이 값을 넘으면 자동으로 건다",
+          "type": "number"
         }
       }
     }

@@ -586,6 +586,8 @@ static func shove(world: Dictionary, c: Node, target: Node) -> Dictionary:
 static func jump(world: Dictionary, c: Node, to: Vector2i) -> Dictionary:
 	var grid: Node = world["grid"]
 	var from: Vector2i = grid.cell_of(c)
+	if c.has_flag("no_jump"):
+		return _fail("짐이 너무 무거워 도약할 수 없다")
 	var reach := jump_distance(c)
 	if grid.distance(from, to) > reach:
 		return _fail("너무 멀다(%d칸)" % reach)
@@ -614,8 +616,12 @@ static func jump_distance(c: Node) -> int:
 	base += c.cap_count("jump_plus_1")  # BG3식 도약 보너스(2층 작업·뛰어난 운동선수 — 겹친다)
 	for m in c.modifier_entries():
 		var e: Dictionary = m["effect"]
-		if e["type"] == "modify" and e["stat"] == "jump_tiles":
+		if e["type"] == "modify" and e["stat"] == "jump_tiles" and e.has("set"):
 			base = maxi(base, int(e.get("set", 0)))  # Jump 주문: 6칸
+	for m in c.modifier_entries():
+		var e: Dictionary = m["effect"]
+		if e["type"] == "modify" and e["stat"] == "jump_tiles" and e.has("multiply"):
+			base = floori(base * float(e["multiply"]))  # 짐 무거움: 도약 절반
 	return base
 
 

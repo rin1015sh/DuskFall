@@ -846,6 +846,110 @@
       ],
       "notes_ko": "Barkskin: AC가 17보다 낮으면 17.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "armor_unproficient",
+      "name": {
+        "ko": "숙련 없는 갑옷",
+        "en": "Armour Inexperience"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "disadvantage"
+        }
+      ],
+      "flags": {
+        "no_spellcasting": true
+      },
+      "notes_ko": "BG3식: 숙련 없는 갑옷·방패를 입으면 공격·능력 판정·내성 불리, 주문 시전 불가(장비가 자동으로 건다).",
+      "source": "original"
+    },
+    {
+      "id": "encumbered",
+      "name": {
+        "ko": "짐 무거움",
+        "en": "Encumbered"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "load_kg_per_str": 6.35,
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "multiply": 0.667
+        },
+        {
+          "type": "modify",
+          "stat": "jump_tiles",
+          "multiply": 0.5
+        }
+      ],
+      "notes_ko": "BG3식: 들고 있는 무게가 근력 × 6.35kg(BG3 근력 × 14lb)을 넘으면. 이동 2/3(이동 비용 1.5배), 도약 절반.",
+      "source": "original"
+    },
+    {
+      "id": "heavily_encumbered",
+      "name": {
+        "ko": "짐 매우 무거움",
+        "en": "Heavily Encumbered"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "load_kg_per_str": 8.16,
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "multiply": 0.334
+        },
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "str",
+            "dex",
+            "con"
+          ]
+        }
+      ],
+      "flags": {
+        "no_jump": true,
+        "no_climb": true
+      },
+      "notes_ko": "BG3식: 근력 × 8.16kg(BG3 근력 × 18lb)을 넘으면. 이동 1/3, 도약·오르기 불가, 공격·능력 판정·근력·민첩·건강 내성 불리.",
+      "source": "original"
     }
   ]
 }

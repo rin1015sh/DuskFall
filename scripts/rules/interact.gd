@@ -55,6 +55,7 @@ static func give(world: Dictionary, item: String, n: int = 1, c: Node = null) ->
 	who.inventory[item] = int(who.inventory.get(item, 0)) + n
 	if int(who.inventory[item]) <= 0:
 		who.inventory.erase(item)
+	update_load(who)
 
 
 ## c를 주면 그 캐릭터에게서만, 안 주면 파티 전체에서(고른 캐릭터 먼저). 모자라면 아무것도 빼지 않고 false.
@@ -124,8 +125,28 @@ static func carried_kg(c: Node) -> float:
 	return total
 
 
+## 운반 한계(BG3식): 이 무게를 넘으면 '짐 매우 무거움'. 무게 상태는 상태 데이터 load_kg_per_str가 정한다.
 static func capacity_kg(c: Node) -> float:
-	return float(c.abilities.get("str", 10)) * 6.8
+	return load_limit_kg(c, "heavily_encumbered")
+
+
+static func load_limit_kg(c: Node, cond: String) -> float:
+	return float(c.abilities.get("str", 10)) * float(RulesDB.get_entry("condition", cond).get("load_kg_per_str", 6.8))
+
+
+## 무게 상태를 맞춘다(소지품·장비·근력이 바뀔 때): 가장 무거운 것 하나만 건다.
+static func update_load(c: Node) -> void:
+	var kg := carried_kg(c)
+	var want := ""
+	if kg > load_limit_kg(c, "heavily_encumbered"):
+		want = "heavily_encumbered"
+	elif kg > load_limit_kg(c, "encumbered"):
+		want = "encumbered"
+	for id: String in ["encumbered", "heavily_encumbered"]:
+		if id != want and c.has_condition(id):
+			c.remove_condition(id)
+	if want != "" and not c.has_condition(want):
+		c.apply_condition(want, -1, "load")
 
 
 static func _item_kg(id: String) -> float:

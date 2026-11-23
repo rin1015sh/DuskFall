@@ -177,11 +177,14 @@ func speed() -> int:
 	if has_flag("speed_zero"):
 		return 0
 	var value := speed_tiles
+	var mult := 1.0
 	for m in modifier_entries():
 		var e: Dictionary = m["effect"]
 		if e["type"] == "modify" and e["stat"] == "speed_tiles":
 			value += int(e.get("add", 0))
-	return maxi(value, 0)
+			if e.has("multiply"):
+				mult = minf(mult, float(e["multiply"]))  # 무게 초과(BG3): 가장 무거운 것 하나만
+	return maxi(floori(value * mult), 0)
 
 
 # ---------- 턴 자원 ----------

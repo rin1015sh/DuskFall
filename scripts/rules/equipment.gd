@@ -155,13 +155,28 @@ static func equip_blocked(world: Dictionary, c: Node, id: String, slot: String =
 	var s := slot if slot != "" else pick_slot(c, id)
 	if s == "armor" and in_combat(world):
 		return "전투 중에는 갑옷을 바꿀 수 없다"
-	var k := kind_of(id)
-	if k in ["armor", "shield"]:
-		var a := RulesDB.get_entry("armor", base_of(id))
-		var training: Array = c.get_meta("armor_training", [])
-		if not str(a["category"]) in training:
-			return "훈련하지 않은 갑옷"  # 벌칙 규칙이 없어 입지 못하게 한다(changes.md)
-	return ""
+	return ""  # 숙련 없는 갑옷·방패도 입는다(BG3식 — 벌칙은 상태 armor_unproficient)
+
+
+## 숙련 없는 갑옷·방패를 입었나(BG3식 벌칙 대상).
+static func unproficient(c: Node) -> bool:
+	var training: Array = c.get_meta("armor_training", [])
+	for s: String in ["armor", "melee_off"]:
+		var id := str(c.equipment.get(s, ""))
+		var k := kind_of(id)
+		if k in ["armor", "shield"] and not str(RulesDB.get_entry("armor", base_of(id))["category"]) in training:
+			return true
+	return false
+
+
+## 장비에 따른 상태를 맞춘다: 숙련 없는 갑옷(armor_unproficient), 무게(interact.update_load).
+static func sync_conditions(c: Node) -> void:
+	var bad := unproficient(c)
+	if bad and not c.has_condition("armor_unproficient"):
+		c.apply_condition("armor_unproficient", -1, "equipment")
+	elif not bad and c.has_condition("armor_unproficient"):
+		c.remove_condition("armor_unproficient")
+	load("res://scripts/rules/interact.gd").update_load(c)
 
 
 ## 알맞은 칸: 비어 있는 첫 칸, 다 차 있으면 첫 칸.
