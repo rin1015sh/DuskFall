@@ -775,6 +775,397 @@
       },
       "notes_ko": "행동: 2칸 안 2×2칸에 뿌린다(민첩 DC 10, 넘어짐).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shortbow_plus_1",
+      "name": {
+        "ko": "단궁 +1",
+        "en": "Shortbow +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.91,
+      "price_gp": 425,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "shortbow",
+      "bonus": 1,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "shortbow_plus_2",
+      "name": {
+        "ko": "단궁 +2",
+        "en": "Shortbow +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 0.91,
+      "price_gp": 4025,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "shortbow",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "dagger_plus_2",
+      "name": {
+        "ko": "단검 +2",
+        "en": "Dagger +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 0.45,
+      "price_gp": 4002,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "dagger",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "mithril_dagger"
+    },
+    {
+      "id": "longbow_plus_2",
+      "name": {
+        "ko": "장궁 +2",
+        "en": "Longbow +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 0.91,
+      "price_gp": 4050,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "longbow",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "world_tree_bow"
+    },
+    {
+      "id": "greataxe_plus_1",
+      "name": {
+        "ko": "대도끼 +1",
+        "en": "Greataxe +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 3.18,
+      "price_gp": 430,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "greataxe",
+      "bonus": 1,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "greataxe_plus_2",
+      "name": {
+        "ko": "대도끼 +2",
+        "en": "Greataxe +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 3.18,
+      "price_gp": 4030,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "greataxe",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "light_crossbow_plus_1",
+      "name": {
+        "ko": "경쇠뇌 +1",
+        "en": "Light Crossbow +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 2.27,
+      "price_gp": 425,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "light_crossbow",
+      "bonus": 1,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "light_crossbow_plus_2",
+      "name": {
+        "ko": "경쇠뇌 +2",
+        "en": "Light Crossbow +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 2.27,
+      "price_gp": 4025,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "light_crossbow",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "mace_plus_2",
+      "name": {
+        "ko": "메이스 +2",
+        "en": "Mace +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 1.81,
+      "price_gp": 4005,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "mace",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "mithril_mace"
+    },
+    {
+      "id": "shortsword_plus_2",
+      "name": {
+        "ko": "소검 +2",
+        "en": "Shortsword +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 0.91,
+      "price_gp": 4010,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "shortsword",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "moonstone_sword"
+    },
+    {
+      "id": "scimitar_plus_1",
+      "name": {
+        "ko": "시미터 +1",
+        "en": "Scimitar +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 1.36,
+      "price_gp": 425,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "scimitar",
+      "bonus": 1,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "scimitar_plus_2",
+      "name": {
+        "ko": "시미터 +2",
+        "en": "Scimitar +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 1.36,
+      "price_gp": 4025,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "scimitar",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "longsword_plus_2",
+      "name": {
+        "ko": "장검 +2",
+        "en": "Longsword +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 1.36,
+      "price_gp": 4015,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "longsword",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "javelin_plus_1",
+      "name": {
+        "ko": "투창 +1",
+        "en": "Javelin +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.91,
+      "price_gp": 400,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "javelin",
+      "bonus": 1,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "javelin_plus_2",
+      "name": {
+        "ko": "투창 +2",
+        "en": "Javelin +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 0.91,
+      "price_gp": 4000,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "javelin",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "handaxe_plus_1",
+      "name": {
+        "ko": "손도끼 +1",
+        "en": "Handaxe +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.91,
+      "price_gp": 405,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "handaxe",
+      "bonus": 1,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "handaxe_plus_2",
+      "name": {
+        "ko": "손도끼 +2",
+        "en": "Handaxe +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 0.91,
+      "price_gp": 4005,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "handaxe",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "lightium_sword"
+    },
+    {
+      "id": "quarterstaff_plus_2",
+      "name": {
+        "ko": "육척봉 +2",
+        "en": "Quarterstaff +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 1.81,
+      "price_gp": 4000,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "quarterstaff",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "world_tree_staff"
+    },
+    {
+      "id": "studded_leather_armor_plus_2",
+      "name": {
+        "ko": "징 박은 가죽 갑옷 +2",
+        "en": "Studded Leather Armor +2"
+      },
+      "category": "magic",
+      "rarity": "very_rare",
+      "weight_kg": 5.9,
+      "price_gp": 40045,
+      "material": "cloth",
+      "slot": "armor",
+      "base": "studded_leather_armor",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "wyvern_leather_armor"
+    },
+    {
+      "id": "chain_mail_plus_2",
+      "name": {
+        "ko": "사슬 갑옷 +2",
+        "en": "Chain Mail +2"
+      },
+      "category": "magic",
+      "rarity": "very_rare",
+      "weight_kg": 24.95,
+      "price_gp": 40075,
+      "material": "metal",
+      "slot": "armor",
+      "base": "chain_mail",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "mithril_chainmail"
+    },
+    {
+      "id": "leather_armor_plus_1",
+      "name": {
+        "ko": "가죽 갑옷 +1",
+        "en": "Leather Armor +1"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 4.54,
+      "price_gp": 4010,
+      "material": "cloth",
+      "slot": "armor",
+      "base": "leather_armor",
+      "bonus": 1,
+      "source": "SRD 5.2.1",
+      "icon": "mithril_chainmail"
+    },
+    {
+      "id": "leather_armor_plus_2",
+      "name": {
+        "ko": "가죽 갑옷 +2",
+        "en": "Leather Armor +2"
+      },
+      "category": "magic",
+      "rarity": "very_rare",
+      "weight_kg": 4.54,
+      "price_gp": 40010,
+      "material": "cloth",
+      "slot": "armor",
+      "base": "leather_armor",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "mithril_chainmail"
+    },
+    {
+      "id": "shield_plus_2",
+      "name": {
+        "ko": "방패 +2",
+        "en": "Shield +2"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 2.72,
+      "price_gp": 4010,
+      "material": "wood",
+      "slot": "shield",
+      "base": "shield",
+      "bonus": 2,
+      "source": "SRD 5.2.1",
+      "icon": "mithril_shield"
     }
   ]
 }
