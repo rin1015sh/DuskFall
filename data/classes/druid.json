@@ -193,9 +193,12 @@
         "en": "Wild Companion"
       },
       "level": 2,
-      "status": "deferred",
-      "notes_ko": "슬롯·야생 변신으로 친구 찾기(요정). 친구 찾기 주문(소환물 조종)이 1차 제외라 보류.",
-      "source": "SRD 5.2.1"
+      "notes_ko": "행동, 야생 변신 1회(없으면 주문 슬롯)로 사역마(요정 올빼미) 소환, 긴 휴식에 사라짐.",
+      "source": "SRD 5.2.1",
+      "kind": "action",
+      "script": "wild_companion",
+      "explore": true,
+      "glyph": "wing"
     },
     {
       "id": "wild_resurgence",

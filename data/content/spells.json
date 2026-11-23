@@ -9147,6 +9147,52 @@
         "family": "fire"
       },
       "notes_ko": "원문: 보너스 행동으로 손에 불꽃(빛), 마법 행동으로 던지기. 게임: 던지기만(원거리 주문 공격 1d8 화염). 손의 빛은 1차 생략."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "find_steed",
+      "name": {
+        "ko": "탈것 찾기",
+        "en": "Find Steed"
+      },
+      "level": 2,
+      "school": "conjuration",
+      "classes": [
+        "paladin"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "effects": {},
+      "script": "summon",
+      "icon": {
+        "glyph": "wing",
+        "family": "conjuration"
+      },
+      "ai": {
+        "role": "none"
+      },
+      "notes_ko": "이계의 탈것을 부른다(천상체, 긴 휴식까지, 다시 부르면 바뀜). 올라타기 없음 — BG3식 동료로 싸운다. 형태 고르기·생명의 유대·치유의 손길은 1차 생략."
     }
   ]
 }

@@ -477,6 +477,10 @@
         "ends_on_attack": {
           "$comment": "이 상태로 공격 굴림을 하면 끝난다(조롱당함)",
           "type": "boolean"
+        },
+        "reveals_defenses": {
+          "$comment": "건 생물이 능력 태그 hunters_lore면 대상의 면역·저항·취약을 안다",
+          "type": "boolean"
         }
       }
     }

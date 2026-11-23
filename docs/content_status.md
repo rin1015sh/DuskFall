@@ -7,15 +7,15 @@
 | 종류 | 수 |
 | --- | --- |
 | class | 12 |
-| spell | 167 |
+| spell | 168 |
 | weapon | 38 |
 | armor | 13 |
 | item | 30 |
 | feat | 10 |
 | species | 15 |
 | background | 4 |
-| monster | 21 |
-| capability | 50 |
+| monster | 22 |
+| capability | 51 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -69,7 +69,7 @@
 | 1 | 원초의 질서 (primal_order) |  | 고르기(option) |  |
 | 2 | 야생 변신 (wild_shape) |  | 스크립트 wild_shape |  |
 | 2 | 변신 풀기 (revert_wild_shape) |  | 스크립트 revert_wild_shape |  |
-| 2 | 야생 동료 (wild_companion) |  |  | 보류(deferred) |
+| 2 | 야생 동료 (wild_companion) |  | 스크립트 wild_companion |  |
 | 3 | 대지 회합 주문 (circle_land_spells) | land | 고르기(option) |  |
 | 3 | 땅의 도움 (lands_aid) | land | 스크립트 lands_aid |  |
 | 5 | 야생의 부활 (wild_resurgence) |  | 스크립트 wild_resurgence |  |
@@ -116,11 +116,11 @@
 | 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
 | 2 | 팔라딘의 강타 (paladins_smite) |  | 처리: 클래스 always_prepared(신성한 강타) + 자원 innate_divine_smite(슬롯 없이 긴 휴식마다 1회 — 무료 횟수 먼저) |  |
 | 3 | 신성 변환 (channel_divinity) |  | 처리: 자원 channel_divinity(2회, 짧은 휴식에 1회 회복) — 하위 클래스 기능이 쓴다 |  |
-| 3 | 신성 감지 (divine_sense) |  |  | 보류(deferred) |
+| 3 | 신성 감지 (divine_sense) |  | 스크립트 divine_sense |  |
 | 3 | 헌신의 맹세 주문 (oath_spells_devotion) | devotion | 처리: 하위 클래스 always_prepared(3레벨 악과 선 보호·신앙의 방패, 5레벨 원조·진실의 구역) |  |
 | 3 | 신성한 무기 (sacred_weapon) | devotion | 스크립트 sacred_weapon |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
-| 5 | 충직한 탈것 (faithful_steed) |  |  | 보류(deferred) |
+| 5 | 충직한 탈것 (faithful_steed) |  | 처리: 클래스 always_prepared(탈것 찾기) + 자원 innate_find_steed(슬롯 없이 긴 휴식마다 1회). 올라타기 없음(BG3식 동료) |  |
 
 ### 레인저 (ranger) — 생명 주사위 d10, 역할 ranged
 
@@ -130,7 +130,7 @@
 | 1 | 무기 마스터리 (weapon_mastery) |  | 처리: 생성기 — 클래스 weapon_mastery 표(2종)와 명세 masteries |  |
 | 2 | 노련한 탐험가 (deft_explorer) |  | 고르기(expertise) |  |
 | 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
-| 3 | 사냥꾼의 지식 (hunters_lore) | hunter |  | 보류(deferred) |
+| 3 | 사냥꾼의 지식 (hunters_lore) | hunter | 태그 hunters_lore |  |
 | 3 | 사냥꾼의 먹잇감 (hunters_prey) | hunter | 고르기(option) |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 
@@ -186,11 +186,11 @@
 
 ## 주문
 
-- 상태: included 148, excluded_v1 13, candidate_exclusion 6
-- 포함 주문 레벨별: 2레벨 44, 0레벨 24, 3레벨 30, 1레벨 50
-- 스크립트 주문 68개, 그중 포함인데 미구현: 없음
+- 상태: included 149, excluded_v1 13, candidate_exclusion 6
+- 포함 주문 레벨별: 2레벨 45, 0레벨 24, 3레벨 30, 1레벨 50
+- 스크립트 주문 69개, 그중 포함인데 미구현: 없음
 - 아이콘(icon) 없는 포함 주문(학파 색 별로 표시): 없음
-- 클래스 주문 목록: wizard 109, sorcerer 81, cleric 58, ranger 32, paladin 23, bard 65, druid 50, warlock 39
+- 클래스 주문 목록: wizard 109, sorcerer 81, cleric 58, ranger 32, paladin 24, bard 65, druid 50, warlock 39
 
 ## 아이템
 
@@ -216,6 +216,7 @@
 | fast_movement | 빠른 이동 | barbarian |
 | frenzy | 광란 | barbarian |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
+| hunters_lore | 사냥꾼의 지식 | ranger |
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
 | initiative_proficiency | 경계 | 재주 alert |
 | jack_of_all_trades | 만물박사 | bard |

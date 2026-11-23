@@ -44,6 +44,9 @@
   "always_prepared": {
     "2": [
       "divine_smite"
+    ],
+    "5": [
+      "find_steed"
     ]
   },
   "spellcasting": {
@@ -119,6 +122,17 @@
         "3": 2
       },
       "recharge": "short_one"
+    },
+    {
+      "id": "innate_find_steed",
+      "name": {
+        "ko": "충직한 탈것",
+        "en": "Faithful Steed"
+      },
+      "max": {
+        "5": 1
+      },
+      "recharge": "long"
     }
   ],
   "features": [
@@ -195,9 +209,13 @@
         "en": "Divine Sense"
       },
       "level": 3,
-      "status": "deferred",
-      "notes_ko": "60피트 안 천상체·악마·언데드 위치·종류 감지(신성 변환). 감지 화면이 생기면 붙인다.",
-      "source": "SRD 5.2.1"
+      "notes_ko": "신성 변환 1회, 보너스 행동: 12칸 안 천상체·악마·언데드의 위치·종류를 안다(10분 표시, 숨어 있어도 드러남). 축성·모독 장소 감지 생략.",
+      "source": "SRD 5.2.1",
+      "kind": "bonus_action",
+      "resource": "channel_divinity",
+      "script": "divine_sense",
+      "explore": true,
+      "glyph": "eye"
     },
     {
       "id": "extra_attack",
@@ -221,9 +239,9 @@
         "en": "Faithful Steed"
       },
       "level": 5,
-      "status": "deferred",
-      "notes_ko": "탈것 찾기 항상 준비 + 긴 휴식마다 1회 무료. 탈것(올라타기) 규칙이 없어 보류.",
-      "source": "SRD 5.2.1"
+      "notes_ko": "탈것 찾기 항상 준비 + 긴 휴식마다 1회 무료. 탈것은 동료로 싸운다(올라타기 규칙 없음).",
+      "source": "SRD 5.2.1",
+      "handled_by": "클래스 always_prepared(탈것 찾기) + 자원 innate_find_steed(슬롯 없이 긴 휴식마다 1회). 올라타기 없음(BG3식 동료)"
     }
   ],
   "subclasses": [

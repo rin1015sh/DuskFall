@@ -377,6 +377,26 @@ static func _stunning_strike(attacker: Node, target: Node, atk: Dictionary) -> v
 			"source": "stunning_strike", "consume_on_attacked": true, "until_turn_start_of": attacker})
 
 
+## 능력 태그 hunters_lore(사냥꾼의 지식): 내가 건 표식(상태 데이터 reveals_defenses)이 있는 대상의 면역·저항·취약을 안다.
+static func lore_lines(c: Node, t: Node) -> Array:
+	if not c.has_cap("hunters_lore") or t == c:
+		return []
+	var marked := false
+	for a in t.active_conditions():
+		if a["instance"].get("source") == c and a["def"].get("reveals_defenses", false):
+			marked = true
+	if not marked:
+		return []
+	var parts: Array = []
+	if not t.damage_immunities.is_empty():
+		parts.append("면역 " + ", ".join(t.damage_immunities))
+	if not t.damage_resistances.is_empty():
+		parts.append("저항 " + ", ".join(t.damage_resistances))
+	if not t.damage_vulnerabilities.is_empty():
+		parts.append("취약 " + ", ".join(t.damage_vulnerabilities))
+	return ["사냥꾼의 지식: " + ("; ".join(parts) if not parts.is_empty() else "면역·저항·취약 없음")]
+
+
 ## 기능 판정 보너스: 숙련이면 그 값, 아니면 능력 태그 jack_of_all_trades(바드 만물박사)로 숙련 보너스 절반(내림).
 static func _skill_bonus(c: Node, skill: String) -> int:
 	if skill == "":

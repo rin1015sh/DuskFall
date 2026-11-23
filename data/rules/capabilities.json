@@ -451,6 +451,15 @@
       },
       "note_ko": "적이 0 HP가 되면 임시 HP(resolver._dark_ones_blessing)",
       "source": "original"
+    },
+    {
+      "id": "hunters_lore",
+      "name": {
+        "ko": "사냥꾼의 지식",
+        "en": "Hunter's Lore"
+      },
+      "note_ko": "내가 건 표식(reveals_defenses) 대상의 면역·저항·취약을 미리보기에 보여 준다(resolver.lore_lines)",
+      "source": "original"
     }
   ]
 }

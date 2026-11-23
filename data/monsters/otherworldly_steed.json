@@ -1,0 +1,75 @@
+{
+  "schema": "monster_v1",
+  "id": "otherworldly_steed",
+  "name": {
+    "ko": "이계의 탈것",
+    "en": "Otherworldly Steed"
+  },
+  "size": "large",
+  "creature_type": "celestial",
+  "cr": 0,
+  "xp": 0,
+  "proficiency_bonus": 2,
+  "ac": 12,
+  "hp": 25,
+  "speed_tiles": 12,
+  "abilities": {
+    "str": 18,
+    "dex": 12,
+    "con": 14,
+    "int": 6,
+    "wis": 12,
+    "cha": 8
+  },
+  "saves": {
+    "str": 4,
+    "dex": 1,
+    "con": 2,
+    "int": -2,
+    "wis": 1,
+    "cha": -1
+  },
+  "actions": [
+    {
+      "id": "otherworldly_slam",
+      "name": {
+        "ko": "이계의 강타",
+        "en": "Otherworldly Slam"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 5,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "1d8+2",
+          "damage_type": "radiant"
+        }
+      ]
+    }
+  ],
+  "weight_kg": 450,
+  "weight_note_ko": "SRD에 무게가 없어 큰 말 크기로 추정.",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/frost_wolf.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 0
+  },
+  "traits": [
+    {
+      "id": "life_bond",
+      "name": {
+        "ko": "생명의 유대",
+        "en": "Life Bond"
+      },
+      "notes_ko": "1차 생략(시전자 회복 공유)."
+    }
+  ],
+  "ai": {
+    "style": "melee"
+  },
+  "notes_ko": "탈것 찾기 소환(천상체 형태 고정). AC = 10 + 주문 레벨, HP = 5 + 10 × 주문 레벨, 강타 명중 = 시전자 주문 공격 보너스, 피해 1d8 + 주문 레벨(소환 때 정함). 올라타기 없음(BG3식 동료)."
+}

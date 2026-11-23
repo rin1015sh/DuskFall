@@ -49,7 +49,9 @@
   },
   "spellcasting": {
     "ability": "wis",
-    "swap": {"long_rest": 1},
+    "swap": {
+      "long_rest": 1
+    },
     "type": "prepared",
     "list": "ranger",
     "cantrips": {
@@ -187,9 +189,11 @@
             "en": "Hunter's Lore"
           },
           "level": 3,
-          "status": "deferred",
-          "notes_ko": "표식 대상의 면역·저항·취약을 안다 — 정보 창 작업과 함께(보류).",
-          "source": "SRD 5.2.1"
+          "notes_ko": "사냥꾼의 표식을 건 대상의 면역·저항·취약을 안다(조준 미리보기에 표시).",
+          "source": "SRD 5.2.1",
+          "caps": [
+            "hunters_lore"
+          ]
         },
         {
           "id": "hunters_prey",

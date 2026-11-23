@@ -124,3 +124,30 @@ func test_heroism_and_sacred_weapon() -> void:
 	assert_true(Features.use(w, p, "sacred_weapon")["ok"])
 	assert_eq(p.resource("channel_divinity"), 1)
 	assert_eq(int(Combat.build_weapon_attack(p, "longsword")["bonus"]), before + maxi(1, p.ability_mod("cha")), "명중 + 매력")
+
+
+func test_divine_sense_and_faithful_steed() -> void:
+	var w := make_world([".........", "........."])
+	var p := _pal(5)
+	var undead := _foe(30, {"creature_type": "undead"})
+	var orc := _foe(30)
+	w["grid"].place(p, Vector2i(0, 0))
+	w["grid"].place(undead, Vector2i(6, 0))
+	w["grid"].place(orc, Vector2i(6, 1))
+	undead.apply_condition("invisible", -1, "hide")
+	p.reset_turn()
+	assert_true(Features.use(w, p, "divine_sense")["ok"])
+	assert_true(undead.has_condition("divine_sensed") and not undead.has_condition("invisible"), "언데드가 드러난다")
+	assert_false(orc.has_condition("divine_sensed"))
+	p.reset_turn()
+	var r: Dictionary = Spellcasting.cast(w, p, "find_steed", Vector2i(1, 1))
+	assert_true(r.get("ok", false), str(r))
+	assert_eq(p.resource("innate_find_steed"), 0, "무료 1회 먼저")
+	var steeds: Array = w.get("summons", []).filter(func(m: Node) -> bool: return m.name.begins_with("otherworldly_steed"))
+	assert_eq(steeds.size(), 1)
+	for m: Node in w["summons"]:
+		own(m)  # 테스트가 끝나면 지운다
+	assert_eq(steeds[0].ac_base, 12, "AC 10 + 2")
+	assert_eq(steeds[0].hp_max, 25)
+	assert_eq(steeds[0].team, p.team, "아군")
+	load("res://scripts/rules/spellcasting.gd").instances.clear()

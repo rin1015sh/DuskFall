@@ -92,3 +92,16 @@ func test_lands_aid_and_resurgence() -> void:
 	d.resources["wild_shape"]["current"] = 0
 	assert_true(Features.use(w, d, "wild_resurgence")["ok"])
 	assert_eq(d.resource("wild_shape"), 1, "슬롯 → 야생 변신")
+
+
+func test_wild_companion() -> void:
+	var w := make_world([".....", "....."])
+	var d := _dru(2)
+	w["grid"].place(d, Vector2i(0, 0))
+	d.reset_turn()
+	var r := Features.use(w, d, "wild_companion")
+	assert_true(r["ok"], str(r))
+	own(r["summon"])
+	assert_eq(d.resource("wild_shape"), 1, "야생 변신 1회")
+	assert_eq(r["summon"].creature_type, "fey", "요정 사역마")
+	load("res://scripts/rules/spellcasting.gd").instances.clear()

@@ -775,7 +775,8 @@
         "range": 18
       },
       "notes_ko": "Hunter's Mark: 건 시전자가 공격으로 맞히면 +1d6 역장. 쓰러지면 18칸 안 가장 가까운 적에게 자동으로 옮긴다(사용자 결정).",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "reveals_defenses": true
     },
     {
       "id": "ensnaring_ready",
@@ -1263,6 +1264,17 @@
         "no_spellcasting": true
       },
       "notes_ko": "드루이드 야생 변신 중: 주문 시전 불가(집중은 유지). 짐승 능력치·공격은 wild_shape.gd.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "divine_sensed",
+      "name": {
+        "ko": "신성 감지됨",
+        "en": "Divinely Sensed"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "팔라딘 신성 감지: 위치·종류가 드러났다(표시). 숨어도 감춰지지 않는다(신성 감지가 숨기 투명을 지운다).",
       "source": "SRD 5.2.1"
     }
   ]

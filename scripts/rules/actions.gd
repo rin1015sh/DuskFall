@@ -9,6 +9,7 @@ extends RefCounted
 ## 탐험 중 적대 행동은 먼저 처리하고 전투를 시작한다(숨은 채 하면 알아채지 못한 적은 기습 — 5단계).
 
 const Combat := preload("res://scripts/rules/combat.gd")
+const Resolver := preload("res://scripts/rules/resolver.gd")
 const Physics := preload("res://scripts/rules/physics.gd")
 const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
 const Features := preload("res://scripts/rules/features.gd")
@@ -188,6 +189,8 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 		return {"valid": false, "lines": [why]}
 	var t: Node = grid.creature_at(cell)
 	var out := {"valid": true, "lines": []}
+	if t != null:
+		out["lines"].append_array(Resolver.lore_lines(c, t))  # 사냥꾼의 지식: 표식한 대상의 저항·면역·취약
 	match d.get("target", "self"):
 		"enemy":
 			if t == null and key in ["attack", "ranged_attack"] and not grid.object_at(cell).is_empty():

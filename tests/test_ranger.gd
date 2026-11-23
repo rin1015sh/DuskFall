@@ -136,3 +136,17 @@ func test_hunters_prey_options() -> void:
 	assert_true(h.turn.get("horde_used", false), "무리 파괴자로 한 번 더")
 	assert_true(b.hp < hp_before, "옆의 다른 적도 맞았다")
 	assert_eq(int(h.turn.get("attacks_left", 0)), 0, "공격 횟수는 그대로(1회 공격)")
+
+
+func test_hunters_lore_preview() -> void:
+	var w := make_world(["......"])
+	var r := _ranger(3)
+	var foe := _foe(40)
+	foe.damage_resistances = ["cold"]
+	w["grid"].place(r, Vector2i(0, 0))
+	w["grid"].place(foe, Vector2i(4, 0))
+	assert_eq(Resolver.lore_lines(r, foe), [], "표식 전에는 모른다")
+	r.reset_turn()
+	Spellcasting.cast(w, r, "hunters_mark", Vector2i(4, 0))
+	var lines: Array = Resolver.lore_lines(r, foe)
+	assert_true(lines.size() == 1 and "cold" in lines[0], "저항이 보인다 %s" % str(lines))
