@@ -112,7 +112,8 @@
         "en": "Weapon Mastery"
       },
       "level": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "handled_by": "생성기 — 클래스 weapon_mastery 표(레벨별 개수)와 명세 masteries"
     },
     {
       "id": "action_surge",
@@ -171,7 +172,8 @@
       },
       "level": 5,
       "notes_ko": "재기의 숨결 보너스 행동 사용 시 속도 절반 이동, 기회 공격 없음.",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "handled_by": "second_wind 스크립트 안"
     }
   ],
   "subclasses": [

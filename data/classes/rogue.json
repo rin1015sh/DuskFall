@@ -53,7 +53,8 @@
         "en": "Expertise"
       },
       "level": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "handled_by": "생성기 — 명세 expertise(숙련 기능의 숙련 보너스 2배)"
     },
     {
       "id": "sneak_attack",
@@ -104,7 +105,8 @@
         "en": "Weapon Mastery"
       },
       "level": 1,
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "handled_by": "생성기 — 클래스 weapon_mastery 표(레벨별 개수)와 명세 masteries"
     },
     {
       "id": "cunning_action",

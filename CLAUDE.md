@@ -30,12 +30,16 @@ BG3류 CRPG. 타일 격자 + 2D 일러스트 3/4 탑뷰(위에서 살짝 비스�
 - 모든 규칙 데이터는 효과 모델로 쓴다: 훅 → 조건 → 대상·범위 → 효과 목록.
   효과 종류는 룰북 8단계 목록 안에서만 쓴다. 새 종류가 필요하면 엔진에 먼저 추가하고 `changes.md`에 기록한다.
 - 효과 모델로 표현이 안 되는 것만 데이터에 `"script": "<id>"`를 달고 `res://scripts/rules/effects/<id>.gd`에 구현한다.
+- 클래스·종족 기능은 코드에 이름을 적지 않는다(룰북 1단계 클래스 확장 원칙): 엔진은 `has_cap("<능력 태그>")`로 검사하고,
+  기능 데이터가 `caps`·`grants`·`choice_kind`·`toggle`·`kind reaction`·`icon/glyph/target/explore`·`ai.when`으로 장치를 고른다(`/add-class` 표).
+  추천 빌드는 클래스 `default_build`, AI 주문은 주문 데이터로 분류(scripts/ai/spell_roles.gd), 주문 아이콘은 주문 `icon`.
 
 ## 폴더
 
 ```text
 res://
   data/rules/     conditions.json surfaces.json reactions.json materials.json actions.json weapon_actions.json
+                  progression.json(레벨 상한·XP·숙련 보너스 단일 출처) capabilities.json(능력 태그 — 엔진 메커니즘 이름)
   data/content/   spells.json weapons.json armor.json items.json feats.json backgrounds.json species.json shops.json terrain_presets.json
   data/classes/   <class>.json
   data/monsters/  <monster>.json
@@ -56,6 +60,8 @@ res://
 - 화면에 보이는 텍스트는 `{"ko": ..., "en": ...}` 둘 다 둔다.
 - 콘텐츠 추가는 스킬로 한다: `/add-item` `/add-spell` `/add-class` `/add-origin` `/add-monster` `/add-surface` `/add-map`.
   점검은 `/rules-check`, 밸런스는 `/balance-check`, 검증은 `/verify`(커밋 직전에 자동 실행).
+  자동 점검 테스트(새 콘텐츠 자동 포함): tests/test_class_pipeline.gd(모든 클래스 1~상한 레벨 생성·데이터만으로 만든 클래스), tests/test_content_smoke.gd(포함 주문 전부 시전·쓰는 아이템 전부 사용).
+  콘텐츠 현황표: `godot --headless --path . -s res://tools/content_report.gd` → docs/content_status.md(기능별 동작 장치, '설명만'·미구현 표시).
 - 규칙 코드를 바꾸면 `tests/`에 테스트를 더한다.
 - 한 번에 한 기능. 큰 작업은 계획을 먼저 보여 주고 확인받는다.
 - 작업이 끝나면 바꾼 것, 관련 룰북 항목, 남은 일을 짧게 보고한다.
