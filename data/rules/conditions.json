@@ -1227,6 +1227,29 @@
       ],
       "notes_ko": "소서러: 주문 DC +1, 주문 공격 유리(1분).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "hexed",
+      "name": {
+        "ko": "저주",
+        "en": "Hexed"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_hit_by_source": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "necrotic"
+          }
+        ]
+      },
+      "transfer_on_drop": {
+        "range": 18
+      },
+      "notes_ko": "Hex: 시전자가 공격으로 맞힐 때마다 +1d6 사령. 대상이 쓰러지면 가장 가까운 적에게 자동으로 옮긴다(사냥꾼의 표식과 같음). 고른 능력 판정 불리는 1차 생략.",
+      "source": "SRD 5.2.1"
     }
   ]
 }

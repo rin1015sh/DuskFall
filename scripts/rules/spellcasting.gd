@@ -238,7 +238,7 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 	var spell := RulesDB.get_entry("spell", spell_id)
 	if spell.is_empty() or not (caster.spells.has(spell_id) or ritual_from_book(world, caster, spell_id)):
 		return "모르는 주문"
-	if ritual_free(world, spell, opts):
+	if ritual_free(world, spell, opts) or spell_id in caster.get_meta("at_will", []):
 		opts = opts.duplicate()
 		opts["no_slot"] = true
 	if spell["game_status"] != "included":
@@ -345,6 +345,9 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 		opts = opts.duplicate()
 		opts["no_slot"] = true
 		Dice.log_text("%s: 의식으로 시전(슬롯 없음)" % caster.label())
+	if spell_id in caster.get_meta("at_will", []):
+		opts = opts.duplicate()
+		opts["no_slot"] = true  # 영창의 무료 시전(그림자 갑옷 등)
 	# 무료 횟수(타고난 시전 innate_<주문> — 선호하는 적·마법 입문)가 남아 있으면 먼저 쓴다(사용자 결정 2026-11-23)
 	var use_innate: bool = level > 0 and not opts.get("no_slot", false) and not opts.get("free", false) and not opts.has("slot") \
 		and caster.resource(innate_id(spell_id)) > 0

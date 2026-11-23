@@ -1,0 +1,467 @@
+{
+  "schema": "class_v1",
+  "id": "warlock",
+  "name": {
+    "ko": "워락",
+    "en": "Warlock"
+  },
+  "hit_die": 8,
+  "primary": [
+    "cha"
+  ],
+  "saves": [
+    "wis",
+    "cha"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "arcana",
+      "deception",
+      "history",
+      "intimidation",
+      "investigation",
+      "nature",
+      "religion"
+    ]
+  },
+  "weapon_training": [
+    "simple"
+  ],
+  "armor_training": [
+    "light"
+  ],
+  "asi_levels": [
+    4
+  ],
+  "spellcasting": {
+    "ability": "cha",
+    "swap": {
+      "long_rest": 0,
+      "level_up": 1
+    },
+    "type": "prepared",
+    "list": "warlock",
+    "slot_recharge": "short",
+    "cantrips": {
+      "1": 2,
+      "4": 3
+    },
+    "prepared": {
+      "1": 2,
+      "2": 3,
+      "3": 4,
+      "4": 5,
+      "5": 6
+    },
+    "slots": {
+      "1": [
+        1
+      ],
+      "2": [
+        2
+      ],
+      "3": [
+        0,
+        2
+      ],
+      "4": [
+        0,
+        2
+      ],
+      "5": [
+        0,
+        0,
+        2
+      ]
+    }
+  },
+  "resources": [
+    {
+      "id": "magical_cunning",
+      "name": {
+        "ko": "마법적 기지",
+        "en": "Magical Cunning"
+      },
+      "max": {
+        "2": 1
+      },
+      "recharge": "long"
+    }
+  ],
+  "features": [
+    {
+      "id": "pact_magic",
+      "name": {
+        "ko": "계약 마법",
+        "en": "Pact Magic"
+      },
+      "level": 1,
+      "handled_by": "클래스 spellcasting — 슬롯이 모두 같은 레벨(1·2·3), 짧은 휴식에 회복(slot_recharge short), 낮은 주문은 그 레벨로 올려 시전",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "eldritch_invocations",
+      "name": {
+        "ko": "섬뜩한 영창",
+        "en": "Eldritch Invocations"
+      },
+      "level": 1,
+      "choices": [
+        "agonizing_blast",
+        "repelling_blast",
+        "armor_of_shadows",
+        "devils_sight",
+        "fiendish_vigor",
+        "otherworldly_leap",
+        "pact_of_the_blade",
+        "thirsting_blade"
+      ],
+      "choice_kind": "option",
+      "count": 1,
+      "choice_grants": {
+        "agonizing_blast": {
+          "caps": [
+            "agonizing_blast"
+          ]
+        },
+        "repelling_blast": {
+          "caps": [
+            "repelling_blast"
+          ]
+        },
+        "armor_of_shadows": {
+          "at_will": [
+            "mage_armor"
+          ]
+        },
+        "devils_sight": {
+          "darkvision_tiles": 24
+        },
+        "fiendish_vigor": {
+          "at_will": [
+            "false_life"
+          ]
+        },
+        "otherworldly_leap": {
+          "at_will": [
+            "jump"
+          ]
+        },
+        "pact_of_the_blade": {
+          "caps": [
+            "pact_blade"
+          ],
+          "weapon_training": [
+            "martial"
+          ]
+        },
+        "thirsting_blade": {
+          "caps": [
+            "extra_attack"
+          ],
+          "attacks_per_action": 2
+        }
+      },
+      "choice_min_level": {
+        "agonizing_blast": 2,
+        "repelling_blast": 2,
+        "devils_sight": 2,
+        "fiendish_vigor": 2,
+        "otherworldly_leap": 2,
+        "thirsting_blade": 5
+      },
+      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "eldritch_invocations_2",
+      "name": {
+        "ko": "섬뜩한 영창(2레벨)",
+        "en": "Eldritch Invocations (Lv2)"
+      },
+      "level": 2,
+      "choices": [
+        "agonizing_blast",
+        "repelling_blast",
+        "armor_of_shadows",
+        "devils_sight",
+        "fiendish_vigor",
+        "otherworldly_leap",
+        "pact_of_the_blade",
+        "thirsting_blade"
+      ],
+      "choice_kind": "option",
+      "count": 2,
+      "choice_grants": {
+        "agonizing_blast": {
+          "caps": [
+            "agonizing_blast"
+          ]
+        },
+        "repelling_blast": {
+          "caps": [
+            "repelling_blast"
+          ]
+        },
+        "armor_of_shadows": {
+          "at_will": [
+            "mage_armor"
+          ]
+        },
+        "devils_sight": {
+          "darkvision_tiles": 24
+        },
+        "fiendish_vigor": {
+          "at_will": [
+            "false_life"
+          ]
+        },
+        "otherworldly_leap": {
+          "at_will": [
+            "jump"
+          ]
+        },
+        "pact_of_the_blade": {
+          "caps": [
+            "pact_blade"
+          ],
+          "weapon_training": [
+            "martial"
+          ]
+        },
+        "thirsting_blade": {
+          "caps": [
+            "extra_attack"
+          ],
+          "attacks_per_action": 2
+        }
+      },
+      "choice_min_level": {
+        "agonizing_blast": 2,
+        "repelling_blast": 2,
+        "devils_sight": 2,
+        "fiendish_vigor": 2,
+        "otherworldly_leap": 2,
+        "thirsting_blade": 5
+      },
+      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "eldritch_invocations_5",
+      "name": {
+        "ko": "섬뜩한 영창(5레벨)",
+        "en": "Eldritch Invocations (Lv5)"
+      },
+      "level": 5,
+      "choices": [
+        "agonizing_blast",
+        "repelling_blast",
+        "armor_of_shadows",
+        "devils_sight",
+        "fiendish_vigor",
+        "otherworldly_leap",
+        "pact_of_the_blade",
+        "thirsting_blade"
+      ],
+      "choice_kind": "option",
+      "count": 2,
+      "choice_grants": {
+        "agonizing_blast": {
+          "caps": [
+            "agonizing_blast"
+          ]
+        },
+        "repelling_blast": {
+          "caps": [
+            "repelling_blast"
+          ]
+        },
+        "armor_of_shadows": {
+          "at_will": [
+            "mage_armor"
+          ]
+        },
+        "devils_sight": {
+          "darkvision_tiles": 24
+        },
+        "fiendish_vigor": {
+          "at_will": [
+            "false_life"
+          ]
+        },
+        "otherworldly_leap": {
+          "at_will": [
+            "jump"
+          ]
+        },
+        "pact_of_the_blade": {
+          "caps": [
+            "pact_blade"
+          ],
+          "weapon_training": [
+            "martial"
+          ]
+        },
+        "thirsting_blade": {
+          "caps": [
+            "extra_attack"
+          ],
+          "attacks_per_action": 2
+        }
+      },
+      "choice_min_level": {
+        "agonizing_blast": 2,
+        "repelling_blast": 2,
+        "devils_sight": 2,
+        "fiendish_vigor": 2,
+        "otherworldly_leap": 2,
+        "thirsting_blade": 5
+      },
+      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "magical_cunning",
+      "name": {
+        "ko": "마법적 기지",
+        "en": "Magical Cunning"
+      },
+      "level": 2,
+      "kind": "free",
+      "resource": "magical_cunning",
+      "script": "magical_cunning",
+      "explore": true,
+      "notes_ko": "1분 의식(탐험 중) — 슬롯을 최대치 절반(올림)까지 회복, 긴 휴식마다 1회.",
+      "source": "SRD 5.2.1",
+      "glyph": "sparkle"
+    }
+  ],
+  "subclasses": [
+    {
+      "id": "fiend",
+      "name": {
+        "ko": "악마 후원자",
+        "en": "Fiend Patron"
+      },
+      "level": 3,
+      "source": "SRD 5.2.1",
+      "always_prepared": {
+        "3": [
+          "burning_hands",
+          "command",
+          "scorching_ray",
+          "suggestion"
+        ],
+        "5": [
+          "fireball",
+          "stinking_cloud"
+        ]
+      },
+      "features": [
+        {
+          "id": "dark_ones_blessing",
+          "name": {
+            "ko": "어둠의 축복",
+            "en": "Dark One's Blessing"
+          },
+          "level": 3,
+          "caps": [
+            "dark_ones_blessing"
+          ],
+          "notes_ko": "적을 0 HP로 만들면(또는 2칸 안에서 누가 만들면) 임시 HP = 매력 + 워락 레벨.",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "fiend_spells",
+          "name": {
+            "ko": "악마의 주문",
+            "en": "Fiend Spells"
+          },
+          "level": 3,
+          "handled_by": "하위 클래스 always_prepared(3레벨 불타는 손·명령·작열 광선·암시, 5레벨 화염구·악취 구름)",
+          "source": "SRD 5.2.1"
+        }
+      ]
+    }
+  ],
+  "ai_role": "caster",
+  "art": {
+    "sheet": "res://assets/actors/human.webp"
+  },
+  "color": "#8a5bd6",
+  "starting_equipment": {
+    "armor": "leather_armor",
+    "shield": false,
+    "melee": {
+      "main": "sickle",
+      "off": ""
+    },
+    "ranged": {
+      "main": "light_crossbow"
+    }
+  },
+  "default_build": {
+    "subclass": "fiend",
+    "species": "tiefling",
+    "lineage": "tiefling_infernal",
+    "background": "sage",
+    "scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 14,
+      "int": 10,
+      "wis": 10,
+      "cha": 15
+    },
+    "bonus": {
+      "cha": 2,
+      "con": 1
+    },
+    "skills": [
+      "arcana",
+      "deception"
+    ],
+    "eldritch_invocations": [
+      "armor_of_shadows"
+    ],
+    "eldritch_invocations_2": [
+      "agonizing_blast",
+      "repelling_blast"
+    ],
+    "eldritch_invocations_5": [
+      "devils_sight",
+      "fiendish_vigor"
+    ],
+    "cantrips": [
+      "eldritch_blast",
+      "prestidigitation",
+      "minor_illusion"
+    ],
+    "spells": [
+      "hex",
+      "charm_person",
+      "misty_step",
+      "invisibility",
+      "hold_person",
+      "counterspell"
+    ],
+    "asi": {
+      "4": {
+        "cha": 2
+      }
+    },
+    "armor": "leather_armor",
+    "weapons": {
+      "melee": {
+        "main": "sickle",
+        "off": ""
+      },
+      "ranged": {
+        "main": "light_crossbow"
+      }
+    }
+  },
+  "source": "SRD 5.2.1"
+}

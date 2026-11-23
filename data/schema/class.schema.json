@@ -221,6 +221,16 @@
             "hp_per_level": {
               "$comment": "레벨당 최대 HP 추가(용의 회복력)",
               "type": "integer"
+            },
+            "at_will": {
+              "$comment": "슬롯 없이 마음대로 쓰는 주문(워락 영창)",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "darkvision_tiles": {
+              "type": "integer"
             }
           }
         },
@@ -279,6 +289,16 @@
               },
               "hp_per_level": {
                 "$comment": "레벨당 최대 HP 추가(용의 회복력)",
+                "type": "integer"
+              },
+              "at_will": {
+                "$comment": "슬롯 없이 마음대로 쓰는 주문(워락 영창)",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "darkvision_tiles": {
                 "type": "integer"
               }
             }
@@ -388,6 +408,13 @@
         "range_tiles": {
           "type": "integer",
           "minimum": 1
+        },
+        "choice_min_level": {
+          "$comment": "선택지별 최소 레벨(영창 선행 조건)",
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
         }
       }
     }

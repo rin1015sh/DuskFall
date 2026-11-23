@@ -104,6 +104,8 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	var martial := martial_arts_applies(c, w)
 	if ("finesse" in props or martial) and c.ability_mod("dex") > c.ability_mod("str"):
 		ability = "dex"  # 교묘 무기, 몽크 무술(민첩 공격)
+	if c.has_cap("pact_blade") and not is_ranged_weapon(w) and w["id"] != "unarmed" and c.ability_mod("cha") > c.ability_mod(ability):
+		ability = "cha"  # 계약의 칼날(워락): 근접 무기에 매력
 	var mod: int = c.ability_mod(ability)
 	var proficient: bool = w["id"] == "unarmed" or c.weapon_proficiencies.has(w["id"]) \
 		or c.weapon_proficiencies.has(str(w.get("category", "")).get_slice("_", 0))

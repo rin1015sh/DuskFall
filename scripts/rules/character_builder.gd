@@ -229,6 +229,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		var kind := str(f.get("choice_kind", ""))
 		if kind == "option" and spec.get(fid) is Array:
 			for pick: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
+				if lv < int(f.get("choice_min_level", {}).get(str(pick), 0)):
+					continue  # 선행 레벨이 안 된 선택지(워락 영창)
 				if f.get("choice_grants", {}).has(str(pick)):
 					grants.append([fid, f["choice_grants"][str(pick)]])  # 여러 개 고르기(소서러 주문 변형 2)
 			continue
@@ -264,6 +266,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var armor_training: Array = cls["armor_training"].duplicate()
 	var extra_cantrips := 0
 	var hp_per_level := 0
+	var at_will: Array = []
 	for g: Array in grants:
 		var gr: Dictionary = g[1]
 		c.attacks_per_action = maxi(c.attacks_per_action, int(gr.get("attacks_per_action", 1)))
@@ -272,6 +275,11 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		armor_training.append_array(gr.get("armor_training", []))
 		extra_cantrips += int(gr.get("extra_cantrips", 0))
 		hp_per_level += int(gr.get("hp_per_level", 0))
+		at_will.append_array(gr.get("at_will", []))  # 슬롯 없이 마음대로 쓰는 주문(워락 영창)
+		if int(gr.get("darkvision_tiles", 0)) > c.darkvision_tiles:
+			c.darkvision_tiles = int(gr["darkvision_tiles"])  # 악마의 시야
+			if not c.senses.has("darkvision"):
+				c.senses.append("darkvision")
 		c.caps.append_array(gr.get("caps", []))
 		for adv: Dictionary in gr.get("advantage", []):
 			c.extra_modifiers.append({"effect": adv.duplicate(true), "source": g[0], "builder": true})
@@ -319,6 +327,10 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	# 주문
 	_apply_spells(c, cls, sub, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)
+	c.set_meta("at_will", at_will)
+	for sid: String in at_will:
+		if not c.spells.has(sid) and not RulesDB.get_entry("spell", sid).is_empty():
+			c.spells.append(sid)
 	# 반응
 	c.known_reactions = ["opportunity_attack"]
 	for sid: String in c.spells:

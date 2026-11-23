@@ -435,6 +435,25 @@ static func _weapon_hit_damage(attacker: Node, target: Node, inst: Dictionary, e
 		target.apply_condition(f["id"], int(f.get("turns", -1)), caster, p)
 
 
+## 능력 태그 dark_ones_blessing(악마 후원자): 적을 0 HP로 만들면(또는 2칸 안에서 누가 만들면) 임시 HP = 매력 + 워락 레벨(최소 1).
+static func _dark_ones_blessing(target: Node, opts: Dictionary) -> void:
+	var cands: Array = []
+	var atk: Variant = opts.get("attacker")
+	if atk is Node and atk.has_cap("dark_ones_blessing"):
+		cands.append(atk)
+	var rq: Node = EventBus.reaction_queue
+	if rq != null and is_instance_valid(rq) and rq.world.has("grid"):
+		var grid: Node = rq.world["grid"]
+		if grid.creatures().has(target):
+			for o: Node in grid.creatures():
+				if o != target and not o.dead and o.has_cap("dark_ones_blessing") and not o in cands and grid.distance_between(o, target) <= 2:
+					cands.append(o)
+	for o: Node in cands:
+		if o.is_hostile_to(target):
+			grant_temp_hp(o, maxi(1, o.ability_mod("cha") + o.level))
+			Dice.log_text("%s 어둠의 축복: 임시 HP" % o.label())
+
+
 ## 0 HP가 된 생물의 상태 중 transfer_on_drop이 있는 것은 건 시전자가 볼 수 있는 가장 가까운 적(range 칸 안)에게 옮긴다(사냥꾼의 표식).
 static func _transfer_on_drop(target: Node) -> void:
 	for a in target.active_conditions():
@@ -635,6 +654,7 @@ static func _hp_zero(target: Node, remainder: int, opts: Dictionary, out: Dictio
 	if info["prevented"] or target.hp > 0:
 		return
 	_transfer_on_drop(target)
+	_dark_ones_blessing(target, opts)
 	if not target.is_player_character:
 		_die(target, "몬스터는 0 HP에서 즉사")
 	elif remainder >= target.hp_max:
