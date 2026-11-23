@@ -16,8 +16,9 @@ func _initialize() -> void:
 	root.add_child(bg)
 	var Icons: Variant = load("res://scenes/ui/action_icons.gd")
 	var keys: Array = Icons.ACTIONS.keys()
-	for sid: String in Icons.SPELLS.keys():
-		keys.append("spell:" + sid)
+	for sid: String in root.get_node("RulesDB").ids("spell"):
+		if root.get_node("RulesDB").get_entry("spell", sid).has("icon"):
+			keys.append("spell:" + sid)  # 주문 데이터 icon
 	var x := 0
 	var y := 0
 	for k: String in keys:

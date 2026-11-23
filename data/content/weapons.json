@@ -5,7 +5,7 @@
     {
       "id": "club",
       "name": {
-        "ko": null,
+        "ko": "곤봉",
         "en": "Club"
       },
       "category": "simple_melee",
@@ -22,7 +22,7 @@
     {
       "id": "dagger",
       "name": {
-        "ko": null,
+        "ko": "단검",
         "en": "Dagger"
       },
       "category": "simple_melee",
@@ -45,7 +45,7 @@
     {
       "id": "greatclub",
       "name": {
-        "ko": null,
+        "ko": "대곤봉",
         "en": "Greatclub"
       },
       "category": "simple_melee",
@@ -62,7 +62,7 @@
     {
       "id": "handaxe",
       "name": {
-        "ko": null,
+        "ko": "손도끼",
         "en": "Handaxe"
       },
       "category": "simple_melee",
@@ -84,7 +84,7 @@
     {
       "id": "javelin",
       "name": {
-        "ko": null,
+        "ko": "투창",
         "en": "Javelin"
       },
       "category": "simple_melee",
@@ -105,7 +105,7 @@
     {
       "id": "light_hammer",
       "name": {
-        "ko": null,
+        "ko": "경량 망치",
         "en": "Light Hammer"
       },
       "category": "simple_melee",
@@ -127,7 +127,7 @@
     {
       "id": "mace",
       "name": {
-        "ko": null,
+        "ko": "메이스",
         "en": "Mace"
       },
       "category": "simple_melee",
@@ -142,7 +142,7 @@
     {
       "id": "quarterstaff",
       "name": {
-        "ko": null,
+        "ko": "육척봉",
         "en": "Quarterstaff"
       },
       "category": "simple_melee",
@@ -160,7 +160,7 @@
     {
       "id": "sickle",
       "name": {
-        "ko": null,
+        "ko": "낫",
         "en": "Sickle"
       },
       "category": "simple_melee",
@@ -177,7 +177,7 @@
     {
       "id": "spear",
       "name": {
-        "ko": null,
+        "ko": "창",
         "en": "Spear"
       },
       "category": "simple_melee",
@@ -200,7 +200,7 @@
     {
       "id": "dart",
       "name": {
-        "ko": null,
+        "ko": "다트",
         "en": "Dart"
       },
       "category": "simple_ranged",
@@ -222,7 +222,7 @@
     {
       "id": "light_crossbow",
       "name": {
-        "ko": null,
+        "ko": "경쇠뇌",
         "en": "Light Crossbow"
       },
       "category": "simple_ranged",
@@ -246,7 +246,7 @@
     {
       "id": "shortbow",
       "name": {
-        "ko": null,
+        "ko": "단궁",
         "en": "Shortbow"
       },
       "category": "simple_ranged",
@@ -269,7 +269,7 @@
     {
       "id": "sling",
       "name": {
-        "ko": null,
+        "ko": "투석구",
         "en": "Sling"
       },
       "category": "simple_ranged",
@@ -291,7 +291,7 @@
     {
       "id": "battleaxe",
       "name": {
-        "ko": null,
+        "ko": "전투도끼",
         "en": "Battleaxe"
       },
       "category": "martial_melee",
@@ -309,7 +309,7 @@
     {
       "id": "flail",
       "name": {
-        "ko": null,
+        "ko": "도리깨",
         "en": "Flail"
       },
       "category": "martial_melee",
@@ -324,7 +324,7 @@
     {
       "id": "glaive",
       "name": {
-        "ko": null,
+        "ko": "글레이브",
         "en": "Glaive"
       },
       "category": "martial_melee",
@@ -343,7 +343,7 @@
     {
       "id": "greataxe",
       "name": {
-        "ko": null,
+        "ko": "대도끼",
         "en": "Greataxe"
       },
       "category": "martial_melee",
@@ -361,7 +361,7 @@
     {
       "id": "greatsword",
       "name": {
-        "ko": null,
+        "ko": "대검",
         "en": "Greatsword"
       },
       "category": "martial_melee",
@@ -379,7 +379,7 @@
     {
       "id": "halberd",
       "name": {
-        "ko": null,
+        "ko": "핼버드",
         "en": "Halberd"
       },
       "category": "martial_melee",
@@ -398,7 +398,7 @@
     {
       "id": "lance",
       "name": {
-        "ko": null,
+        "ko": "랜스",
         "en": "Lance"
       },
       "category": "martial_melee",
@@ -417,7 +417,7 @@
     {
       "id": "longsword",
       "name": {
-        "ko": null,
+        "ko": "장검",
         "en": "Longsword"
       },
       "category": "martial_melee",
@@ -435,7 +435,7 @@
     {
       "id": "maul",
       "name": {
-        "ko": null,
+        "ko": "대형 망치",
         "en": "Maul"
       },
       "category": "martial_melee",
@@ -453,7 +453,7 @@
     {
       "id": "morningstar",
       "name": {
-        "ko": null,
+        "ko": "모닝스타",
         "en": "Morningstar"
       },
       "category": "martial_melee",
@@ -468,7 +468,7 @@
     {
       "id": "pike",
       "name": {
-        "ko": null,
+        "ko": "장창",
         "en": "Pike"
       },
       "category": "martial_melee",
@@ -487,7 +487,7 @@
     {
       "id": "rapier",
       "name": {
-        "ko": null,
+        "ko": "레이피어",
         "en": "Rapier"
       },
       "category": "martial_melee",
@@ -504,7 +504,7 @@
     {
       "id": "scimitar",
       "name": {
-        "ko": null,
+        "ko": "시미터",
         "en": "Scimitar"
       },
       "category": "martial_melee",
@@ -522,7 +522,7 @@
     {
       "id": "shortsword",
       "name": {
-        "ko": null,
+        "ko": "소검",
         "en": "Shortsword"
       },
       "category": "martial_melee",
@@ -540,7 +540,7 @@
     {
       "id": "trident",
       "name": {
-        "ko": null,
+        "ko": "삼지창",
         "en": "Trident"
       },
       "category": "martial_melee",
@@ -563,7 +563,7 @@
     {
       "id": "warhammer",
       "name": {
-        "ko": null,
+        "ko": "전쟁 망치",
         "en": "Warhammer"
       },
       "category": "martial_melee",
@@ -581,7 +581,7 @@
     {
       "id": "war_pick",
       "name": {
-        "ko": null,
+        "ko": "전쟁 곡괭이",
         "en": "War Pick"
       },
       "category": "martial_melee",
@@ -599,7 +599,7 @@
     {
       "id": "whip",
       "name": {
-        "ko": null,
+        "ko": "채찍",
         "en": "Whip"
       },
       "category": "martial_melee",
@@ -617,7 +617,7 @@
     {
       "id": "blowgun",
       "name": {
-        "ko": null,
+        "ko": "취관",
         "en": "Blowgun"
       },
       "category": "martial_ranged",
@@ -640,7 +640,7 @@
     {
       "id": "hand_crossbow",
       "name": {
-        "ko": null,
+        "ko": "손쇠뇌",
         "en": "Hand Crossbow"
       },
       "category": "martial_ranged",
@@ -664,7 +664,7 @@
     {
       "id": "heavy_crossbow",
       "name": {
-        "ko": null,
+        "ko": "중쇠뇌",
         "en": "Heavy Crossbow"
       },
       "category": "martial_ranged",
@@ -689,7 +689,7 @@
     {
       "id": "longbow",
       "name": {
-        "ko": null,
+        "ko": "장궁",
         "en": "Longbow"
       },
       "category": "martial_ranged",
@@ -713,7 +713,7 @@
     {
       "id": "musket",
       "name": {
-        "ko": null,
+        "ko": "머스킷",
         "en": "Musket"
       },
       "category": "martial_ranged",
@@ -737,7 +737,7 @@
     {
       "id": "pistol",
       "name": {
-        "ko": null,
+        "ko": "권총",
         "en": "Pistol"
       },
       "category": "martial_ranged",

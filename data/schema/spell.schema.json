@@ -509,6 +509,46 @@
         },
         "repeat_save": {
           "type": "boolean"
+        },
+        "ai": {
+          "$comment": "AI 주문 역할 덮어쓰기(scripts/ai/spell_roles.gd): 없으면 효과로 분류",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role"
+          ],
+          "properties": {
+            "role": {
+              "enum": [
+                "heal",
+                "attack_cantrip",
+                "area",
+                "aura",
+                "light",
+                "none"
+              ]
+            },
+            "priority": {
+              "type": "integer"
+            }
+          }
+        },
+        "icon": {
+          "$comment": "행동 아이콘(scenes/ui/action_icons.gd): 문양과 색 계열(피해 종류·heal·학파 등 FAM 키). 없으면 학파 색 별",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "glyph",
+            "family"
+          ],
+          "properties": {
+            "glyph": {
+              "type": "string"
+            },
+            "family": {
+              "type": "string"
+            }
+          }
         }
       }
     }

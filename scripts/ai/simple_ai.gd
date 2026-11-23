@@ -3,6 +3,7 @@ extends RefCounted
 ## 쓰러진 아군 돕기 → 회복(Healing Word) → 근접 공격 → 사거리 주문·원거리 공격 → 다가가기.
 ## 적 AI의 난이도·성격은 5단계 이후에 데이터로 옮긴다.
 
+const SpellRoles := preload("res://scripts/ai/spell_roles.gd")
 const Combat := preload("res://scripts/rules/combat.gd")
 const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
 
@@ -23,8 +24,13 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 	# 1. 쓰러진 아군
 	for ally: Node in _allies(world, c):
 		if ally.is_down():
-			if c.spells.has("healing_word") and Spellcasting.can_cast(world, c, "healing_word", grid.cell_of(ally)) == "":
-				Spellcasting.cast(world, c, "healing_word", grid.cell_of(ally))
+			var heal := ""
+			for sid: String in SpellRoles.known(c, "heal"):
+				if Spellcasting.can_cast(world, c, sid, grid.cell_of(ally)) == "":
+					heal = sid
+					break
+			if heal != "":
+				Spellcasting.cast(world, c, heal, grid.cell_of(ally))
 			elif grid.distance_between(c, ally) <= 1:
 				Combat.help(world, c, ally)
 			else:
@@ -60,7 +66,7 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 			continue
 		# 주문 공격(소마법)
 		var cast := false
-		for sid: String in ["fire_bolt", "sacred_flame", "ray_of_frost"]:
+		for sid: String in SpellRoles.known(c, "attack_cantrip"):
 			if c.spells.has(sid) and Spellcasting.can_cast(world, c, sid, grid.cell_of(foe)) == "" and grid.can_see(c, foe):
 				Spellcasting.cast(world, c, sid, grid.cell_of(foe))
 				cast = true
@@ -218,15 +224,16 @@ static func _light_up(world: Dictionary, c: Node) -> void:
 		if allies.any(func(a: Node) -> bool: return grid.can_see(a, f)):
 			continue
 		var cell: Vector2i = grid.cell_of(f)
-		if c.spells.has("dancing_lights") and Spellcasting.can_cast(world, c, "dancing_lights", cell) == "":
-			Spellcasting.cast(world, c, "dancing_lights", cell)
-			return
+		for sid: String in SpellRoles.known(c, "light"):
+			if Spellcasting.can_cast(world, c, sid, cell) == "":
+				Spellcasting.cast(world, c, sid, cell)
+				return
 
 
 ## 범위 주문: 아군을 맞히지 않고 적을 둘 이상 맞히는 조준을 찾는다(높은 레벨 주문부터).
 static func _cast_best_area(world: Dictionary, c: Node) -> void:
 	var grid: Node = world["grid"]
-	var order := ["spirit_guardians", "fireball", "lightning_bolt", "shatter", "burning_hands", "thunderwave", "sleep", "hypnotic_pattern"]
+	var order: Array = SpellRoles.known(c, "aura") + SpellRoles.known(c, "area")  # 주문 데이터로 분류(높은 레벨부터)
 	for sid: String in order:
 		if not c.spells.has(sid) or int(c.turn.get("action", 0)) <= 0:
 			continue
@@ -247,8 +254,9 @@ static func _cast_best_area(world: Dictionary, c: Node) -> void:
 			var hit: Array = preload("res://scripts/rules/area.gd").creatures_in(grid, cells)
 			var foes := hit.filter(func(o: Node) -> bool: return c.is_hostile_to(o) and not o.dead).size()
 			var friends := hit.filter(func(o: Node) -> bool: return not c.is_hostile_to(o) and o != c).size()
-			if sid == "spirit_guardians":
-				foes = _foes(world, c).filter(func(o: Node) -> bool: return grid.distance_between(c, o) <= 4).size()
+			if SpellRoles.role_of(spell) == "aura":
+				var rad := int(spell.get("area", {}).get("radius_tiles", 3)) + 1
+				foes = _foes(world, c).filter(func(o: Node) -> bool: return grid.distance_between(c, o) <= rad).size()
 				friends = 0
 			if friends == 0 and foes > best:
 				best = foes

@@ -275,14 +275,12 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	_apply_spells(c, cls, sub, sp, lin, spec, lv, extra_cantrips)
 	# 반응
 	c.known_reactions = ["opportunity_attack"]
-	if c.spells.has("shield"):
-		c.known_reactions.append("shield")
+	for sid: String in c.spells:
+		if str(RulesDB.get_entry("spell", sid).get("cast", {}).get("cost", "")) == "reaction":
+			c.known_reactions.append(sid)  # 반응 주문(주문 데이터 cast.cost — 반응 처리는 reaction_queue)
 	for fid: String in c.feature_data:
 		if str(c.feature_data[fid].get("kind", "")) == "reaction":
 			c.known_reactions.append(fid)  # 반응 기능(교묘한 회피 등)
-	for r: String in ["hellish_rebuke", "counterspell", "feather_fall"]:
-		if c.spells.has(r):
-			c.known_reactions.append(r)
 	c.set_meta("spec", spec.duplicate(true))
 	c.reset_turn()
 

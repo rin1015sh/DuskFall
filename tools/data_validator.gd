@@ -82,9 +82,36 @@ func run() -> bool:
 	_check_stamps()
 	_check_class_builds()
 	_check_caps()
+	_check_names()
 	_check_scripts()
 	_check_banned_names()
 	return errors.is_empty()
+
+
+# ---------- 3-4. 화면 텍스트: 이름은 ko·en 둘 다(CLAUDE.md 작업 규칙) ----------
+
+func _check_names() -> void:
+	for kind: String in entries.keys():
+		for id: String in entries[kind].keys():
+			var rec: Dictionary = entries[kind][id]
+			_names_in("%s: %s '%s'" % [rec["file"], kind, id], rec["entry"])
+
+
+func _names_in(where: String, node: Variant) -> void:
+	if typeof(node) == TYPE_DICTIONARY:
+		var d: Dictionary = node
+		var nm: Variant = d.get("name")
+		if typeof(nm) == TYPE_DICTIONARY and (nm as Dictionary).has("en"):
+			for lang: String in ["ko", "en"]:
+				var v: Variant = (nm as Dictionary).get(lang)
+				if v == null or str(v).strip_edges() == "":
+					errors.append("%s%s: name.%s가 비어 있다(화면 텍스트는 ko·en 둘 다)" % [where, "" if not d.has("id") else " / " + str(d["id"]), lang])
+		for k: Variant in d.keys():
+			if k != "name":
+				_names_in(where, d[k])
+	elif typeof(node) == TYPE_ARRAY:
+		for v: Variant in node:
+			_names_in(where, v)
 
 
 # ---------- 3-3. 능력 태그(caps)·고르는 기능 ----------

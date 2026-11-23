@@ -43,53 +43,6 @@ static func _feature_icon(fid: String) -> Array:
 	return ["sparkle", FAM["common"]]
 
 
-## 주문: [문양, 계열]
-const SPELLS := {
-	"acid_arrow": ["arrow", "acid"], "acid_splash": ["drops", "acid"], "aid": ["heart_plus", "heal"], "animate_dead": ["skull", "necromancy"],
-	"arcane_lock": ["lock", "abjuration"], "augury": ["eye", "divination"], "bane": ["down_arrows", "enchantment"],
-	"beacon_of_hope": ["sun", "radiant"], "bestow_curse": ["skull", "necrotic"], "bless": ["up_arrows", "radiant"],
-	"blindness_deafness": ["eye_slash", "necromancy"], "blink": ["swirl", "transmutation"], "blur": ["mask", "illusion"],
-	"burning_hands": ["flame_cone", "fire"], "calm_emotions": ["heart", "enchantment"], "charm_person": ["heart", "enchantment"],
-	"chill_touch": ["hand", "necrotic"], "chromatic_orb": ["orb", "force"], "color_spray": ["sparkle", "illusion"],
-	"command": ["voice", "enchantment"], "comprehend_languages": ["book", "divination"], "continual_flame": ["flame", "radiant"],
-	"counterspell": ["counter", "abjuration"], "create_food_and_water": ["drop", "conjuration"], "create_or_destroy_water": ["drop", "transmutation"],
-	"cure_wounds": ["heal_cross", "heal"], "dancing_lights": ["sparkle", "radiant"], "darkness": ["moon", "illusion"],
-	"darkvision": ["eye", "transmutation"], "daylight": ["sun", "radiant"], "detect_evil_and_good": ["eye", "divination"],
-	"detect_magic": ["eye", "divination"], "detect_poison_and_disease": ["eye", "poison"], "detect_thoughts": ["spiral", "psychic"],
-	"disguise_self": ["mask", "illusion"], "dispel_magic": ["counter", "abjuration"], "dragon_s_breath": ["flame_cone", "fire"],
-	"druidcraft": ["leaf", "transmutation"], "elementalism": ["sparkle", "transmutation"], "enhance_ability": ["up_arrows", "transmutation"],
-	"enlarge_reduce": ["resize", "transmutation"], "expeditious_retreat": ["chevrons", "transmutation"], "faerie_fire": ["sparkle", "radiant"],
-	"false_life": ["heart", "necrotic"], "fear": ["skull", "illusion"], "feather_fall": ["feather", "transmutation"],
-	"find_familiar": ["wing", "conjuration"], "find_traps": ["eye", "divination"], "fire_bolt": ["flame", "fire"],
-	"fireball": ["fireball", "fire"], "flaming_sphere": ["orb", "fire"], "fly": ["wing", "transmutation"], "fog_cloud": ["cloud", "conjuration"],
-	"glyph_of_warding": ["rune", "abjuration"], "grease": ["drops", "conjuration"], "guidance": ["star", "divination"],
-	"guiding_bolt": ["star", "radiant"], "gust_of_wind": ["wind", "physical"], "haste": ["chevrons", "transmutation"],
-	"healing_word": ["heal_cross", "heal"], "hellish_rebuke": ["flame", "fire"], "hideous_laughter": ["spiral", "enchantment"],
-	"hold_person": ["chains", "enchantment"], "hypnotic_pattern": ["spiral", "illusion"], "ice_knife": ["shard", "cold"],
-	"inflict_wounds": ["hand", "necrotic"], "invisibility": ["eye_slash", "illusion"], "jump": ["jump", "transmutation"],
-	"knock": ["key", "transmutation"], "lesser_restoration": ["heal_cross", "heal"], "levitate": ["feather", "transmutation"],
-	"light": ["sun", "radiant"], "lightning_bolt": ["bolt", "lightning"], "locate_object": ["eye", "divination"],
-	"longstrider": ["chevrons", "transmutation"], "mage_armor": ["shield", "abjuration"], "mage_hand": ["hand", "conjuration"],
-	"magic_missile": ["darts", "force"], "magic_weapon": ["sword", "transmutation"], "major_image": ["mask", "illusion"],
-	"mass_healing_word": ["heal_cross", "heal"], "mending": ["mend", "transmutation"], "mind_spike": ["spike", "psychic"],
-	"minor_illusion": ["mask", "illusion"], "mirror_image": ["mask", "illusion"], "misty_step": ["swirl", "conjuration"],
-	"pass_without_trace": ["eye_slash", "abjuration"], "poison_spray": ["drops", "poison"], "prayer_of_healing": ["heal_cross", "heal"],
-	"prestidigitation": ["sparkle", "transmutation"], "protection_from_energy": ["shield", "abjuration"],
-	"protection_from_evil_and_good": ["shield", "abjuration"], "protection_from_poison": ["shield", "poison"],
-	"ray_of_enfeeblement": ["down_arrows", "necrotic"], "ray_of_frost": ["snowflake", "cold"], "ray_of_sickness": ["drops", "poison"],
-	"remove_curse": ["counter", "abjuration"], "resistance": ["shield", "abjuration"], "revivify": ["heart", "heal"],
-	"sacred_flame": ["flame", "radiant"], "sanctuary": ["shield", "abjuration"], "scorching_ray": ["rays", "fire"],
-	"see_invisibility": ["eye", "divination"], "shatter": ["waves", "thunder"], "shield": ["shield", "abjuration"],
-	"shield_of_faith": ["shield", "radiant"], "shocking_grasp": ["bolt", "lightning"], "silence": ["voice_slash", "illusion"],
-	"silent_image": ["mask", "illusion"], "sleep": ["moon", "enchantment"], "sleet_storm": ["snowflake", "cold"],
-	"slow": ["down_arrows", "transmutation"], "spare_the_dying": ["heart", "heal"], "speak_with_animals": ["voice", "divination"],
-	"speak_with_dead": ["skull", "necromancy"], "spider_climb": ["web", "transmutation"], "spirit_guardians": ["wing", "radiant"],
-	"spiritual_weapon": ["sword", "force"], "stinking_cloud": ["cloud", "poison"], "suggestion": ["voice", "enchantment"],
-	"thaumaturgy": ["sparkle", "transmutation"], "thunderwave": ["waves", "thunder"], "tiny_hut": ["dome", "evocation"],
-	"tongues": ["voice", "divination"], "true_strike": ["crosshair", "divination"], "vampiric_touch": ["hand", "necrotic"],
-	"warding_bond": ["chains", "abjuration"], "water_breathing": ["drop", "transmutation"], "water_walk": ["drop", "transmutation"],
-	"web": ["web", "conjuration"], "zone_of_truth": ["eye", "enchantment"],
-}
 
 var kind := ""
 var dim := false
@@ -111,9 +64,9 @@ static func spec(key: String) -> Array:
 		return [ACTIONS[base][0], FAM[ACTIONS[base][1]]]
 	if key.begins_with("spell:"):
 		var sid := key.trim_prefix("spell:")
-		if SPELLS.has(sid):
-			return [SPELLS[sid][0], FAM[SPELLS[sid][1]]]
 		var sp := RulesDB.get_entry("spell", sid)
+		if sp.has("icon"):
+			return [str(sp["icon"]["glyph"]), FAM.get(str(sp["icon"]["family"]), FAM["evocation"])]  # 주문 데이터 icon
 		return ["star", FAM.get(sp.get("school", ""), FAM["evocation"])]
 	if key.begins_with("feature:"):
 		return _feature_icon(key.trim_prefix("feature:"))
