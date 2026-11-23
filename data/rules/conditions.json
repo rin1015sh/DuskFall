@@ -950,6 +950,179 @@
       },
       "notes_ko": "BG3식: 근력 × 8.16kg(BG3 근력 × 18lb)을 넘으면. 이동 1/3, 도약·오르기 불가, 공격·능력 판정·근력·민첩·건강 내성 불리.",
       "source": "original"
+    },
+    {
+      "id": "divine_smite_ready",
+      "name": {
+        "ko": "신성한 강타 준비",
+        "en": "Divine Smite Ready"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "consume_on_trigger": true,
+      "melee_only": true,
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "2d8",
+            "damage_type": "radiant",
+            "per_slot": "1d8",
+            "bonus_vs": {
+              "types": [
+                "fiend",
+                "undead"
+              ],
+              "dice": "1d8"
+            }
+          }
+        ]
+      },
+      "notes_ko": "Divine Smite: 다음 근접 무기·비무장 명중에 2d8 광휘(+슬롯마다 1d8, 악마·언데드 +1d8). 발동하면 사라진다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "searing_smite_ready",
+      "name": {
+        "ko": "타오르는 강타 준비",
+        "en": "Searing Smite Ready"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "consume_on_trigger": true,
+      "melee_only": true,
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "fire",
+            "per_slot": "1d6",
+            "apply": [
+              {
+                "id": "seared",
+                "turns": 10,
+                "repeat_save": {
+                  "ability": "con"
+                },
+                "dot_dice": "1d6"
+              }
+            ]
+          }
+        ]
+      },
+      "notes_ko": "Searing Smite: 다음 근접 명중에 1d6 화염(+슬롯마다 1d6), 대상은 타오름.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "seared",
+      "name": {
+        "ko": "타오름",
+        "en": "Seared"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "fire"
+          }
+        ]
+      },
+      "notes_ko": "Searing Smite: 턴 시작마다 1d6 화염(올린 슬롯만큼 커짐), 턴 끝 건강 내성 성공하면 끝.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shining_smite_ready",
+      "name": {
+        "ko": "빛나는 강타 준비",
+        "en": "Shining Smite Ready"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "consume_on_trigger": true,
+      "melee_only": true,
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "2d6",
+            "damage_type": "radiant",
+            "per_slot": "1d6",
+            "apply": [
+              {
+                "id": "shining",
+                "turns": 10
+              }
+            ]
+          }
+        ]
+      },
+      "notes_ko": "Shining Smite: 다음 근접 명중에 2d6 광휘(+슬롯마다 1d6), 대상은 빛남(집중).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shining",
+      "name": {
+        "ko": "빛남",
+        "en": "Shining"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "notes_ko": "Shining Smite: 이 생물을 노리는 공격 유리. 빛 5피트·투명 불가는 1차 생략.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "divine_favor",
+      "name": {
+        "ko": "신의 은총",
+        "en": "Divine Favor"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "radiant"
+          }
+        ]
+      },
+      "notes_ko": "Divine Favor: 무기 명중마다 1d4 광휘(1분, 집중 없음 — 2024).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "heroism",
+      "name": {
+        "ko": "영웅심",
+        "en": "Heroism"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "condition_immunities": [
+        "frightened"
+      ],
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "temp_hp",
+            "amount": "source_spell_mod"
+          }
+        ]
+      },
+      "notes_ko": "Heroism: 공포 면역, 턴 시작마다 임시 HP = 시전자 주문 능력 수정치(최소 1).",
+      "source": "SRD 5.2.1"
     }
   ]
 }

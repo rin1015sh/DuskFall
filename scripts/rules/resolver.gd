@@ -315,7 +315,12 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 			var caster: Variant = inst.get("source")
 			var dc: int = load("res://scripts/rules/spellcasting.gd").spell_dc(caster) if caster is Node else 13
 			var params := {"instance": inst.get("params", {}).get("instance"), "escape_dc": dc}
+			if a["def"].get("melee_only", false) and atk.get("kind", "") != "melee":
+				continue  # 강타: 근접 무기·비무장 공격만(원거리 명중에는 남겨 둔다)
 			for e: Dictionary in effs:
+				if e["type"] == "damage":
+					_weapon_hit_damage(attacker, target, inst, e, params, res)
+					continue
 				if e["type"] != "save":
 					continue
 				var sopts := {}
@@ -332,6 +337,35 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 		if attacker.has_cap("extra_damage_wounded") and target.hp < target.hp_max and not attacker.turn.get("wounded_bonus_used", false):
 			attacker.turn["wounded_bonus_used"] = true
 			res["extra_damage"].append({"dice": "1d8", "damage_type": atk["damage"][0]["damage_type"]})
+
+
+## 무기 명중 피해 장치(on_weapon_hit damage — 강타·신의 은총): dice + 상위 슬롯마다 per_slot, 대상 종류가 bonus_vs.types면 + bonus_vs.dice.
+## apply: 맞힌 대상에게 상태(repeat_save {ability}면 턴 끝 내성 — 시전자 DC, 지속 피해 주사위는 올린 슬롯만큼 함께 커진다).
+static func _weapon_hit_damage(attacker: Node, target: Node, inst: Dictionary, e: Dictionary, params: Dictionary, res: Dictionary) -> void:
+	var Sp: Variant = load("res://scripts/rules/spellcasting.gd")
+	var extra := 0
+	var spell_inst: Dictionary = Sp.instances.get(params.get("instance", -1), {})
+	if not spell_inst.is_empty():
+		extra = maxi(0, int(spell_inst.get("slot", 0)) - int(RulesDB.get_entry("spell", str(spell_inst["spell"])).get("level", 0)))
+	var dice := str(e["dice"])
+	for i in extra:
+		dice += "+" + str(e.get("per_slot", ""))
+	dice = dice.trim_suffix("+")
+	var bonus: Dictionary = e.get("bonus_vs", {})
+	if not bonus.is_empty() and str(target.creature_type) in bonus.get("types", []):
+		dice += "+" + str(bonus["dice"])
+	res["extra_damage"].append({"dice": dice, "damage_type": e["damage_type"]})
+	var caster: Variant = inst.get("source")
+	for f: Dictionary in e.get("apply", []):
+		var p := params.duplicate()
+		if f.has("repeat_save") and caster is Node:
+			p["repeat_save"] = {"ability": f["repeat_save"]["ability"], "dc": Sp.spell_dc(caster)}
+		if f.has("dot_dice"):
+			var dot := str(f["dot_dice"])
+			for i in extra:
+				dot += "+" + str(f["dot_dice"])
+			p["dice"] = dot
+		target.apply_condition(f["id"], int(f.get("turns", -1)), caster, p)
 
 
 ## 0 HP가 된 생물의 상태 중 transfer_on_drop이 있는 것은 건 시전자가 볼 수 있는 가장 가까운 적(range 칸 안)에게 옮긴다(사냥꾼의 표식).
@@ -755,8 +789,12 @@ static func start_turn(creature: Node, ctx: Dictionary = {}) -> void:
 		var parts: Array = []
 		for e: Dictionary in a["def"].get("hooks", {}).get("on_turn_start", []):
 			if e["type"] == "damage":
-				var r := Dice.roll(e["dice"], "%s(%s)" % [a["id"], creature.label()])
+				var r := Dice.roll(str(a["instance"].get("params", {}).get("dice", e["dice"])), "%s(%s)" % [a["id"], creature.label()])
 				parts.append({"amount": r["total"], "damage_type": e["damage_type"]})
+			elif e["type"] == "temp_hp" and e.get("amount", "") == "source_spell_mod":
+				var src: Variant = a["instance"].get("source")
+				if src is Node:  # 영웅심: 턴 시작마다 시전자 주문 능력 수정치만큼 임시 HP
+					grant_temp_hp(creature, maxi(1, load("res://scripts/rules/spellcasting.gd").spell_mod(src)))
 		if not parts.is_empty():
 			apply_damage(creature, parts, ctx)
 	if creature.is_player_character and creature.is_down() and not creature.stable:

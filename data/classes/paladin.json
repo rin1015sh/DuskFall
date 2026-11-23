@@ -1,0 +1,348 @@
+{
+  "schema": "class_v1",
+  "id": "paladin",
+  "name": {
+    "ko": "팔라딘",
+    "en": "Paladin"
+  },
+  "hit_die": 10,
+  "primary": [
+    "str",
+    "cha"
+  ],
+  "saves": [
+    "wis",
+    "cha"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "athletics",
+      "insight",
+      "intimidation",
+      "medicine",
+      "persuasion",
+      "religion"
+    ]
+  },
+  "weapon_training": [
+    "simple",
+    "martial"
+  ],
+  "armor_training": [
+    "light",
+    "medium",
+    "heavy",
+    "shield"
+  ],
+  "weapon_mastery": {
+    "1": 2
+  },
+  "asi_levels": [
+    4
+  ],
+  "always_prepared": {
+    "2": [
+      "divine_smite"
+    ]
+  },
+  "spellcasting": {
+    "ability": "cha",
+    "swap": {
+      "long_rest": 1
+    },
+    "type": "prepared",
+    "list": "paladin",
+    "cantrips": {
+      "1": 0
+    },
+    "prepared": {
+      "1": 2,
+      "2": 3,
+      "3": 4,
+      "4": 5,
+      "5": 6
+    },
+    "slots": {
+      "1": [
+        2
+      ],
+      "2": [
+        2
+      ],
+      "3": [
+        3
+      ],
+      "4": [
+        3
+      ],
+      "5": [
+        4,
+        2
+      ]
+    }
+  },
+  "resources": [
+    {
+      "id": "lay_on_hands",
+      "name": {
+        "ko": "신성한 손길",
+        "en": "Lay On Hands"
+      },
+      "max": {
+        "1": 5,
+        "2": 10,
+        "3": 15,
+        "4": 20,
+        "5": 25
+      },
+      "recharge": "long"
+    },
+    {
+      "id": "innate_divine_smite",
+      "name": {
+        "ko": "팔라딘의 강타",
+        "en": "Paladin's Smite"
+      },
+      "max": {
+        "2": 1
+      },
+      "recharge": "long"
+    },
+    {
+      "id": "channel_divinity",
+      "name": {
+        "ko": "신성 변환",
+        "en": "Channel Divinity"
+      },
+      "max": {
+        "3": 2
+      },
+      "recharge": "short_one"
+    }
+  ],
+  "features": [
+    {
+      "id": "lay_on_hands",
+      "name": {
+        "ko": "신성한 손길",
+        "en": "Lay On Hands"
+      },
+      "level": 1,
+      "kind": "bonus_action",
+      "resource": "lay_on_hands",
+      "script": "lay_on_hands",
+      "target": "ally",
+      "notes_ko": "치유 풀(팔라딘 레벨 × 5, 긴 휴식). 보너스 행동으로 만진 생물(자신 포함)의 잃은 HP만큼 풀에서 회복. 중독이면 풀 5로 먼저 해독(BG3식 자동).",
+      "source": "SRD 5.2.1",
+      "glyph": "hand",
+      "explore": true,
+      "ai": {
+        "when": "hp_below_half"
+      }
+    },
+    {
+      "id": "weapon_mastery",
+      "name": {
+        "ko": "무기 마스터리",
+        "en": "Weapon Mastery"
+      },
+      "level": 1,
+      "handled_by": "생성기 — 클래스 weapon_mastery 표(2종)와 명세 masteries",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "fighting_style",
+      "name": {
+        "ko": "전투 방식",
+        "en": "Fighting Style"
+      },
+      "level": 2,
+      "choices": [
+        "archery",
+        "defense",
+        "great_weapon_fighting",
+        "two_weapon_fighting"
+      ],
+      "choice_kind": "feat",
+      "notes_ko": "전투 방식 재주 1. 축복받은 전사(클레릭 소마법 2) 선택지는 1차 제외.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "paladins_smite",
+      "name": {
+        "ko": "팔라딘의 강타",
+        "en": "Paladin's Smite"
+      },
+      "level": 2,
+      "handled_by": "클래스 always_prepared(신성한 강타) + 자원 innate_divine_smite(슬롯 없이 긴 휴식마다 1회 — 무료 횟수 먼저)",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "channel_divinity",
+      "name": {
+        "ko": "신성 변환",
+        "en": "Channel Divinity"
+      },
+      "level": 3,
+      "handled_by": "자원 channel_divinity(2회, 짧은 휴식에 1회 회복) — 하위 클래스 기능이 쓴다",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "divine_sense",
+      "name": {
+        "ko": "신성 감지",
+        "en": "Divine Sense"
+      },
+      "level": 3,
+      "status": "deferred",
+      "notes_ko": "60피트 안 천상체·악마·언데드 위치·종류 감지(신성 변환). 감지 화면이 생기면 붙인다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "extra_attack",
+      "name": {
+        "ko": "추가 공격",
+        "en": "Extra Attack"
+      },
+      "level": 5,
+      "caps": [
+        "extra_attack"
+      ],
+      "grants": {
+        "attacks_per_action": 2
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "faithful_steed",
+      "name": {
+        "ko": "충직한 탈것",
+        "en": "Faithful Steed"
+      },
+      "level": 5,
+      "status": "deferred",
+      "notes_ko": "탈것 찾기 항상 준비 + 긴 휴식마다 1회 무료. 탈것(올라타기) 규칙이 없어 보류.",
+      "source": "SRD 5.2.1"
+    }
+  ],
+  "subclasses": [
+    {
+      "id": "devotion",
+      "name": {
+        "ko": "헌신의 맹세",
+        "en": "Oath of Devotion"
+      },
+      "level": 3,
+      "source": "SRD 5.2.1",
+      "always_prepared": {
+        "3": [
+          "protection_from_evil_and_good",
+          "shield_of_faith"
+        ],
+        "5": [
+          "aid",
+          "zone_of_truth"
+        ]
+      },
+      "features": [
+        {
+          "id": "oath_spells_devotion",
+          "name": {
+            "ko": "헌신의 맹세 주문",
+            "en": "Oath of Devotion Spells"
+          },
+          "level": 3,
+          "handled_by": "하위 클래스 always_prepared(3레벨 악과 선 보호·신앙의 방패, 5레벨 원조·진실의 구역)",
+          "source": "SRD 5.2.1"
+        },
+        {
+          "id": "sacred_weapon",
+          "name": {
+            "ko": "신성한 무기",
+            "en": "Sacred Weapon"
+          },
+          "level": 3,
+          "kind": "free",
+          "resource": "channel_divinity",
+          "script": "sacred_weapon",
+          "notes_ko": "신성 변환 1회: 10분(100턴) 동안 무기 명중 굴림 + 매력 수정치(최소 +1). 원문은 공격 행동 때 — 게임은 자기 턴에 행동 없이. 광휘 피해 선택·빛은 1차 생략.",
+          "source": "SRD 5.2.1",
+          "glyph": "sword",
+          "explore": true
+        }
+      ]
+    }
+  ],
+  "ai_role": "melee",
+  "art": {
+    "sheet": "res://assets/actors/human.webp"
+  },
+  "color": "#e8c25a",
+  "starting_equipment": {
+    "armor": "chain_mail",
+    "shield": true,
+    "melee": {
+      "main": "longsword",
+      "off": ""
+    },
+    "ranged": {
+      "main": "javelin"
+    }
+  },
+  "default_build": {
+    "subclass": "devotion",
+    "species": "human",
+    "background": "acolyte",
+    "scores": {
+      "str": 15,
+      "dex": 10,
+      "con": 13,
+      "int": 8,
+      "wis": 10,
+      "cha": 15
+    },
+    "bonus": {
+      "str": 2,
+      "cha": 1
+    },
+    "skills": [
+      "athletics",
+      "persuasion"
+    ],
+    "species_skill": "perception",
+    "origin_feat": "alert",
+    "fighting_style": "defense",
+    "spells": [
+      "bless",
+      "cure_wounds",
+      "divine_favor",
+      "heroism",
+      "searing_smite",
+      "shining_smite",
+      "lesser_restoration",
+      "magic_weapon"
+    ],
+    "masteries": [
+      "longsword",
+      "javelin"
+    ],
+    "asi": {
+      "4": {
+        "str": 2
+      }
+    },
+    "armor": "chain_mail",
+    "shield": true,
+    "weapons": {
+      "melee": {
+        "main": "longsword",
+        "off": ""
+      },
+      "ranged": {
+        "main": "javelin"
+      }
+    }
+  },
+  "source": "SRD 5.2.1"
+}

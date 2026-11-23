@@ -99,6 +99,9 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	if w["id"] == "unarmed":
 		expr = str(maxi(1 + mod, 0)) if mod != 0 else "1"
 	var hit_bonus := dmg_bonus
+	for m in c.modifier_entries():
+		if m["effect"]["type"] == "modify" and m["effect"]["stat"] == "weapon_attack":
+			hit_bonus += int(m["effect"].get("add", 0))  # 신성한 무기: 명중만
 	if ranged and is_ranged_weapon(w) and c.has_cap("ranged_weapon_attack_bonus"):
 		hit_bonus += 2  # 궁술: 원거리 무기 명중 +2
 	var dis: Array = []

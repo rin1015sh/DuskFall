@@ -135,7 +135,8 @@
       "school": "abjuration",
       "classes": [
         "cleric",
-        "ranger"
+        "ranger",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -631,7 +632,8 @@
       "level": 1,
       "school": "enchantment",
       "classes": [
-        "cleric"
+        "cleric",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -1246,7 +1248,8 @@
       "level": 1,
       "school": "enchantment",
       "classes": [
-        "cleric"
+        "cleric",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -1568,7 +1571,8 @@
       "school": "abjuration",
       "classes": [
         "cleric",
-        "ranger"
+        "ranger",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -1838,7 +1842,8 @@
       "level": 1,
       "school": "divination",
       "classes": [
-        "cleric"
+        "cleric",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -1883,7 +1888,8 @@
       "classes": [
         "cleric",
         "wizard",
-        "ranger"
+        "ranger",
+        "paladin"
       ],
       "granted_by": [
         "elf_high"
@@ -1929,7 +1935,8 @@
       "school": "divination",
       "classes": [
         "cleric",
-        "ranger"
+        "ranger",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -3152,7 +3159,8 @@
       "school": "necromancy",
       "classes": [
         "cleric",
-        "wizard"
+        "wizard",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -4224,7 +4232,8 @@
       "school": "abjuration",
       "classes": [
         "cleric",
-        "ranger"
+        "ranger",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -4444,7 +4453,8 @@
       "classes": [
         "cleric",
         "wizard",
-        "ranger"
+        "ranger",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -4785,7 +4795,8 @@
       "school": "transmutation",
       "classes": [
         "wizard",
-        "ranger"
+        "ranger",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -5490,7 +5501,8 @@
       "level": 2,
       "school": "abjuration",
       "classes": [
-        "cleric"
+        "cleric",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -5635,7 +5647,8 @@
       "school": "abjuration",
       "classes": [
         "cleric",
-        "wizard"
+        "wizard",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -5678,7 +5691,8 @@
       "school": "abjuration",
       "classes": [
         "cleric",
-        "ranger"
+        "ranger",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -5730,7 +5744,8 @@
       "level": 1,
       "school": "transmutation",
       "classes": [
-        "cleric"
+        "cleric",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -6507,7 +6522,8 @@
       "level": 1,
       "school": "abjuration",
       "classes": [
-        "cleric"
+        "cleric",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -7711,7 +7727,8 @@
       "level": 2,
       "school": "abjuration",
       "classes": [
-        "cleric"
+        "cleric",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -7903,7 +7920,8 @@
       "level": 2,
       "school": "enchantment",
       "classes": [
-        "cleric"
+        "cleric",
+        "paladin"
       ],
       "granted_by": [],
       "cast": {
@@ -8276,6 +8294,267 @@
         "family": "transmutation"
       },
       "notes_ko": "반지름 4칸 가시 표면(어려운 지형, 1칸 이동마다 2d4 관통). 위장(지각 판정) 규칙은 1차 생략."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "divine_smite",
+      "name": {
+        "ko": "신성한 강타",
+        "en": "Divine Smite"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [
+        "paladin"
+      ],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "divine_smite_ready"
+          }
+        ]
+      },
+      "icon": {
+        "glyph": "sun",
+        "family": "evocation"
+      },
+      "ai": {
+        "role": "none"
+      },
+      "notes_ko": "원문: 근접 명중 직후 보너스 행동. 게임: 보너스 행동으로 준비해 두면 다음 근접 무기·비무장 명중에 발동(얽어매는 일격과 같은 방식). 2d8 광휘 + 상위 슬롯마다 1d8, 악마·언데드 +1d8."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "searing_smite",
+      "name": {
+        "ko": "타오르는 강타",
+        "en": "Searing Smite"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [
+        "paladin"
+      ],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "searing_smite_ready"
+          }
+        ]
+      },
+      "icon": {
+        "glyph": "flame",
+        "family": "evocation"
+      },
+      "ai": {
+        "role": "none"
+      },
+      "notes_ko": "준비해 두면 다음 근접 명중에 1d6 화염 + 타오름(턴 시작 1d6, 턴 끝 건강 내성으로 끝 — 원문은 턴 시작 내성). 상위 슬롯마다 모든 피해 +1d6."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": false,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "shining_smite",
+      "name": {
+        "ko": "빛나는 강타",
+        "en": "Shining Smite"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "paladin"
+      ],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "shining_smite_ready"
+          }
+        ]
+      },
+      "icon": {
+        "glyph": "sun",
+        "family": "transmutation"
+      },
+      "ai": {
+        "role": "none"
+      },
+      "notes_ko": "준비해 두면 다음 근접 명중에 2d6 광휘 + 빛남(노리는 공격 유리, 집중 1분). 상위 슬롯마다 +1d6. 빛·투명 불가는 1차 생략."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "divine_favor",
+      "name": {
+        "ko": "신의 은총",
+        "en": "Divine Favor"
+      },
+      "level": 1,
+      "school": "transmutation",
+      "classes": [
+        "paladin"
+      ],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "divine_favor"
+          }
+        ]
+      },
+      "icon": {
+        "glyph": "sword",
+        "family": "transmutation"
+      },
+      "ai": {
+        "role": "none"
+      },
+      "notes_ko": "1분 동안 무기 명중마다 1d4 광휘(2024: 집중 없음)."
+    },
+    {
+      "granted_by": [],
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "game_status": "included",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "id": "heroism",
+      "name": {
+        "ko": "영웅심",
+        "en": "Heroism"
+      },
+      "level": 1,
+      "school": "enchantment",
+      "classes": [
+        "paladin"
+      ],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "heroism"
+          }
+        ]
+      },
+      "icon": {
+        "glyph": "heart",
+        "family": "enchantment"
+      },
+      "ai": {
+        "role": "none"
+      },
+      "notes_ko": "만진 생물 공포 면역 + 턴 시작마다 임시 HP(주문 능력 수정치). 상위 슬롯 추가 대상은 1차 생략.",
+      "targets_max": 1
     }
   ]
 }

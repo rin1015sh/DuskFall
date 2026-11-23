@@ -6,11 +6,11 @@
 
 | 종류 | 수 |
 | --- | --- |
-| class | 5 |
-| spell | 156 |
+| class | 6 |
+| spell | 161 |
 | weapon | 38 |
 | armor | 13 |
-| item | 11 |
+| item | 30 |
 | feat | 10 |
 | species | 15 |
 | background | 4 |
@@ -49,6 +49,21 @@
 | 3 | 뛰어난 운동선수 (remarkable_athlete) | champion | 태그 crit_free_move, jump_plus_1; 부여 advantage |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 전술적 이동 (tactical_shift) |  | 처리: second_wind 스크립트 안 |  |
+
+### 팔라딘 (paladin) — 생명 주사위 d10, 역할 melee
+
+| 레벨 | 기능 | 하위 | 장치 | 상태 |
+| --- | --- | --- | --- | --- |
+| 1 | 신성한 손길 (lay_on_hands) |  | 스크립트 lay_on_hands |  |
+| 1 | 무기 마스터리 (weapon_mastery) |  | 처리: 생성기 — 클래스 weapon_mastery 표(2종)와 명세 masteries |  |
+| 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
+| 2 | 팔라딘의 강타 (paladins_smite) |  | 처리: 클래스 always_prepared(신성한 강타) + 자원 innate_divine_smite(슬롯 없이 긴 휴식마다 1회 — 무료 횟수 먼저) |  |
+| 3 | 신성 변환 (channel_divinity) |  | 처리: 자원 channel_divinity(2회, 짧은 휴식에 1회 회복) — 하위 클래스 기능이 쓴다 |  |
+| 3 | 신성 감지 (divine_sense) |  |  | 보류(deferred) |
+| 3 | 헌신의 맹세 주문 (oath_spells_devotion) | devotion | 처리: 하위 클래스 always_prepared(3레벨 악과 선 보호·신앙의 방패, 5레벨 원조·진실의 구역) |  |
+| 3 | 신성한 무기 (sacred_weapon) | devotion | 스크립트 sacred_weapon |  |
+| 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
+| 5 | 충직한 탈것 (faithful_steed) |  |  | 보류(deferred) |
 
 ### 레인저 (ranger) — 생명 주사위 d10, 역할 ranged
 
@@ -89,15 +104,15 @@
 
 ## 주문
 
-- 상태: included 137, excluded_v1 13, candidate_exclusion 6
-- 포함 주문 레벨별: 2레벨 43, 0레벨 20, 3레벨 30, 1레벨 44
+- 상태: included 142, excluded_v1 13, candidate_exclusion 6
+- 포함 주문 레벨별: 2레벨 44, 0레벨 20, 3레벨 30, 1레벨 48
 - 스크립트 주문 67개, 그중 포함인데 미구현: 없음
 - 아이콘(icon) 없는 포함 주문(학파 색 별로 표시): 없음
-- 클래스 주문 목록: wizard 109, cleric 58, ranger 32
+- 클래스 주문 목록: wizard 109, cleric 58, ranger 32, paladin 23
 
 ## 아이템
 
-- 분류: currency 1, potion 5, food 1, scroll 2, tool 2
+- 분류: magic 19, currency 1, potion 5, food 1, scroll 2, tool 2
 - 동작하는 분류: potion(마시기·먹이기·던지기), scroll(두루마리 읽기), food(캠프 보급품), tool(자물쇠·함정). **magic(장착 효과)은 아직 동작 없음** — 장비 칸 설계가 먼저 필요
 
 ## 능력 태그 사용
@@ -111,7 +126,7 @@
 | climber | 등반 | rogue |
 | crit_free_move | 치명타 뒤 이동 | fighter |
 | cunning_strike | 교활한 일격 | rogue |
-| extra_attack | 추가 공격 | fighter, ranger |
+| extra_attack | 추가 공격 | fighter, paladin, ranger |
 | extra_bonus_action | 추가 보너스 행동 | rogue |
 | extra_damage_wounded | 거상 학살자 | (몬스터 특성 또는 아직 없음) |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |

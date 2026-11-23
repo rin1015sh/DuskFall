@@ -232,6 +232,38 @@
           "items": {
             "$ref": "#/$defs/hook_effect"
           }
+        },
+        "per_slot": {
+          "$comment": "on_weapon_hit damage: 상위 슬롯마다 더하는 주사위",
+          "type": "string"
+        },
+        "bonus_vs": {
+          "$comment": "대상 종류가 types면 dice를 더한다",
+          "type": "object",
+          "properties": {
+            "types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dice": {
+              "type": "string"
+            }
+          }
+        },
+        "apply": {
+          "$comment": "on_weapon_hit damage: 맞힌 대상에게 상태 {id, turns, repeat_save{ability}, dot_dice}",
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "amount": {
+          "$comment": "temp_hp: source_spell_mod = 상태를 건 시전자의 주문 능력 수정치",
+          "enum": [
+            "source_spell_mod"
+          ]
         }
       }
     },
@@ -431,6 +463,10 @@
         "load_kg_per_str": {
           "$comment": "무게 상태(BG3식 — interact.update_load): 들고 있는 kg이 근력 × 이 값을 넘으면 자동으로 건다",
           "type": "number"
+        },
+        "melee_only": {
+          "$comment": "on_weapon_hit: 근접 무기·비무장 명중에만(강타)",
+          "type": "boolean"
         }
       }
     }

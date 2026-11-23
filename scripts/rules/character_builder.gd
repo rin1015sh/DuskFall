@@ -259,7 +259,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		extra_cantrips += int(gr.get("extra_cantrips", 0))
 		c.caps.append_array(gr.get("caps", []))
 		for adv: Dictionary in gr.get("advantage", []):
-			c.extra_modifiers.append({"effect": adv.duplicate(true), "source": g[0]})
+			c.extra_modifiers.append({"effect": adv.duplicate(true), "source": g[0], "builder": true})
 	if c.has_cap("initiative_proficiency"):
 		c.initiative_bonus = c.proficiency_bonus
 	# 내성·기능 숙련
@@ -321,8 +321,8 @@ static func reapply(c: Node, spec: Dictionary) -> void:
 	var active: String = c.active_set
 	var window := [c.prep_swaps, c.prep_base.duplicate()]
 	for m in c.extra_modifiers.duplicate():
-		if not m.has("instance") and m.get("source", "") is String and not str(m.get("source", "")).begins_with("spell"):
-			c.extra_modifiers.erase(m)
+		if m.get("builder", false):
+			c.extra_modifiers.erase(m)  # 생성기가 단 것(기능 grants·장비)만 걷어 낸다
 	apply(c, spec)
 	c.hp = 0 if was_down else maxi(1, c.hp_max - lost)
 	for id: String in c.resources:

@@ -278,7 +278,8 @@
             "creature",
             "enemy",
             "cell"
-          ]
+          ,
+              "ally"]
         },
         "explore": {
           "$comment": "탐험 중에도 쓴다",

@@ -129,11 +129,11 @@ static func apply_to(c: Node, slots: Dictionary) -> void:
 		var k := kind_of(str(slots[row[0]]))
 		var ac_add := int(eq.get("ac", 0)) + (int(item.get("bonus", 0)) if k in ["armor", "shield"] else 0)
 		if ac_add != 0:
-			c.extra_modifiers.append({"effect": {"type": "modify", "stat": "ac", "add": ac_add}, "source": src})
+			c.extra_modifiers.append({"effect": {"type": "modify", "stat": "ac", "add": ac_add}, "source": src, "builder": true})
 		if int(eq.get("saves", 0)) != 0:
-			c.extra_modifiers.append({"effect": {"type": "modify", "stat": "saving_throw_flat", "add": int(eq["saves"])}, "source": src})
+			c.extra_modifiers.append({"effect": {"type": "modify", "stat": "saving_throw_flat", "add": int(eq["saves"])}, "source": src, "builder": true})
 		for adv: Dictionary in eq.get("advantage", []):
-			c.extra_modifiers.append({"effect": adv.duplicate(true), "source": src})
+			c.extra_modifiers.append({"effect": adv.duplicate(true), "source": src, "builder": true})
 		c.caps.append_array(eq.get("caps", []))
 
 
