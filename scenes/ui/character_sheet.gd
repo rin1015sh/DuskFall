@@ -130,7 +130,13 @@ func _left(c: Node) -> Control:
 	var sp := RulesDB.get_entry("species", c.species_id)
 	v.add_child(S.title(c.label(), 22))
 	var sub := Label.new()
-	sub.text = "%d%s %s · %s" % [c.level, UiText.t("lv"), UiText.name_of(cls.get("name", {"ko": "", "en": ""})), UiText.name_of(sp.get("name", {"ko": "", "en": ""}))]
+	var cls_text := UiText.name_of(cls.get("name", {"ko": "", "en": ""}))
+	if c.class_levels.size() > 1:
+		var parts: Array = []
+		for k: String in c.class_levels:
+			parts.append("%s %d" % [UiText.name_of(RulesDB.get_entry("class", k).get("name", {"ko": k, "en": k})), int(c.class_levels[k])])
+		cls_text = " / ".join(parts)  # 멀티클래스: 전사 3 / 로그 2
+	sub.text = "%d%s %s · %s" % [c.level, UiText.t("lv"), cls_text, UiText.name_of(sp.get("name", {"ko": "", "en": ""}))]
 	sub.add_theme_color_override("font_color", S.TEXT_DIM)
 	v.add_child(sub)
 	v.add_child(_rule())

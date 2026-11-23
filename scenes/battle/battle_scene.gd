@@ -338,6 +338,11 @@ func _ready() -> void:
 		var gp: PackedStringArray = args["goto"].split(",")
 		explore.move_to(selected, Vector2i(int(gp[0]), int(gp[1])))
 	_refresh()
+	if args.has("levelup"):
+		for cid: String in str(args["levelup"]).split(","):
+			world["xp"] = 999999  # 시험용: --levelup=클래스,클래스(고른 캐릭터를 그 클래스로 레벨 업 — 멀티클래스 확인)
+			var ex: Dictionary = {} if selected.class_levels.has(cid) else Progression.new_class_extra(selected, cid)
+			Progression.level_up(world, selected, cid, ex)
 	if args.has("give"):
 		for it: String in str(args["give"]).split(","):
 			selected.inventory[it] = int(selected.inventory.get(it, 0)) + 1  # 시험용: --give=아이템,아이템
@@ -1714,12 +1719,34 @@ func _on_explore_button(id: String) -> void:
 		"long_rest":
 			_go_camp()
 		"level_up":
-			Progression.level_up(world, selected)
-			_refresh()
+			_open_level_up()
 		"save":
 			_save()
 		"load":
 			_load()
+
+
+## 레벨 업: 올릴 클래스 고르기(지금 클래스 + 새 클래스 — 멀티클래스, 선행 조건 없음 BG3식).
+func _open_level_up() -> void:
+	var menu := PopupMenu.new()
+	add_child(menu)
+	var choices: Array = Progression.level_up_choices(selected)
+	for i in choices.size():
+		var cid: String = choices[i]
+		var name := UiText.name_of(RulesDB.get_entry("class", cid).get("name", {"ko": cid, "en": cid}))
+		var lv: int = selected.class_level(cid) if selected.class_levels.has(cid) or cid == selected.class_id else 0
+		menu.add_item("%s %d → %d" % [name, lv, lv + 1] if lv > 0 else UiText.t("new_class") % name, i)
+	menu.id_pressed.connect(func(idx: int) -> void:
+		var cid: String = choices[idx]
+		var extra: Dictionary = {} if selected.class_levels.has(cid) or cid == selected.class_id else Progression.new_class_extra(selected, cid)
+		Progression.level_up(world, selected, cid, extra)
+		menu.queue_free()
+		_refresh())
+	menu.popup_hide.connect(func() -> void:
+		if is_instance_valid(menu):
+			menu.queue_free())
+	menu.position = Vector2i(get_viewport().get_mouse_position())
+	menu.popup()
 
 
 ## 단축 막대에서 행동을 골랐다: 자신 대상이면 바로 실행, 아니면 대상 고르기(미리보기 → 확정).

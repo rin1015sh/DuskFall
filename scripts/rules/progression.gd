@@ -78,6 +78,39 @@ static func level_up(world: Dictionary, c: Node, cid: String = "", extra: Dictio
 	return true
 
 
+## 새 클래스에 처음 들어갈 때 명세 항목에 넣을 기본 선택(그 클래스 추천 빌드 — 하위 클래스·소마법·주문·멀티클래스 기능 숙련).
+static func new_class_extra(c: Node, cid: String) -> Dictionary:
+	var cls := RulesDB.get_entry("class", cid)
+	var db: Dictionary = cls.get("default_build", {})
+	var out := {"subclass": str(db.get("subclass", ""))}
+	if db.has("cantrips"):
+		out["cantrips"] = db["cantrips"].duplicate()
+	if db.has("spells"):
+		out["spells"] = db["spells"].duplicate()
+	var mc: Dictionary = cls.get("multiclass", {}).get("skills", {})
+	if int(mc.get("choose", 0)) > 0:
+		var from: Array = cls.get("skills", {}).get("from", []) if str(mc.get("from", "class")) == "class" else Builder.SKILL_ABILITY.keys()
+		var pick: Array = []
+		for s: String in db.get("skills", []) + from:
+			if not c.skill_bonuses.has(s) and not s in pick:
+				pick.append(s)
+		out["skills"] = pick.slice(0, int(mc["choose"]))
+	return out
+
+
+## 레벨 업 때 고를 수 있는 클래스: 지금 클래스들(주 클래스 먼저) + 아직 없는 모든 클래스(선행 조건 없음 — BG3식).
+static func level_up_choices(c: Node) -> Array:
+	var have: Array = [str(c.class_id)]
+	for k: String in c.class_levels:
+		if not k in have:
+			have.append(k)
+	var out: Array = have.duplicate()
+	for k: String in RulesDB.ids("class"):
+		if not k in out:
+			out.append(k)
+	return out
+
+
 # ---------- 동료 영입 ----------
 
 ## 동료를 영입한다. 활성 파티가 4명이면 캠프에서 쉰다(world["roster"]).

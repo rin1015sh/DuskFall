@@ -103,6 +103,7 @@ const TEXT := {
 	"target_creature": {"ko": "생물", "en": "Creature"},
 	"regroup": {"ko": "모이기", "en": "Regroup"},
 	"level_up": {"ko": "레벨 업 → %d", "en": "Level Up → %d"},
+	"new_class": {"ko": "새 클래스: %s 1레벨", "en": "New class: %s level 1"},
 	"explore_status": {"ko": "%s (%d레벨, 경험치 %d) — 영감 %d · 골드 %d · 도둑 도구 %d · 해체 도구 %d", "en": "%s (Lv %d, XP %d) — Inspiration %d · Gold %d · Thieves' tools %d · Disarm kits %d"},
 	"close": {"ko": "닫기", "en": "Close"},
 	"use_inspiration": {"ko": "실패하면 영감으로 다시 굴림 (영감 %d)", "en": "Reroll failures with Inspiration (%d)"},

@@ -80,17 +80,17 @@ func _rebuild(note: String = "") -> void:
 	status = Label.new()
 	status.add_theme_font_size_override("font_size", 13)
 	body.add_child(status)
-	var t := SpellPrep.prep_type(c)
-	if t == "":
+	var ks: Array = SpellPrep.prep_classes(c)
+	if ks.is_empty():
 		status.text = UiText.t("swap_none")
 	else:
-		var line := UiText.t("prepared_n") % [c.prepared.size(), SpellPrep.max_prepared(c)]
-		var why := SpellPrep.change_blocked(world, c)
+		var why := SpellPrep.change_blocked(world, c, ks[0])
+		var line := ""
 		if why == "":
 			var left := SpellPrep.swaps_left(c)
-			line += "  ·  " + (UiText.t("swap_all") if left < 0 else UiText.t("swap_left") % left)
+			line = UiText.t("swap_all") if left < 0 else UiText.t("swap_left") % left
 		else:
-			line += "  ·  " + UiText.reason(why)
+			line = UiText.reason(why)
 		status.text = line + ("\n" + note if note != "" else "")
 	status.add_theme_color_override("font_color", S.GOLD_SOFT if note == "" else Color(0.9, 0.5, 0.4))
 	# 소마법·항상 준비(보기만)
@@ -100,9 +100,21 @@ func _rebuild(note: String = "") -> void:
 	var fixed := SpellPrep.fixed_spells(c)
 	if not fixed.is_empty():
 		_row(UiText.t("always_prepared"), fixed, false)
-	# 준비할 수 있는 주문(레벨별)
-	var pool := SpellPrep.pool(c)
-	for sid: String in c.prepared:
+	# 클래스마다 준비할 수 있는 주문(레벨별) — 멀티클래스면 클래스 제목을 붙인다
+	for k: String in ks:
+		_class_section(c, k, ks.size() > 1)
+	if SpellPrep._book_class(c) != "":
+		_scrolls()
+
+
+func _class_section(c: Node, k: String, titled: bool) -> void:
+	var prepared: Array = SpellPrep.prepared_of(c, k)
+	var head := UiText.t("prepared_n") % [prepared.size(), SpellPrep.max_prepared(c, k)]
+	if titled:
+		head = "%s — %s" % [UiText.name_of(RulesDB.get_entry("class", k).get("name", {"ko": k, "en": k})), head]
+	body.add_child(S.title(head, 16))
+	var pool := SpellPrep.pool(c, k)
+	for sid: String in prepared:
 		if not sid in pool:
 			pool.append(sid)
 	var by_level := {}
@@ -116,12 +128,10 @@ func _rebuild(note: String = "") -> void:
 	for lv: int in levels:
 		var ids: Array = by_level[lv]
 		ids.sort_custom(func(a: String, b: String) -> bool: return UiText.name_of(RulesDB.get_entry("spell", a)["name"]) < UiText.name_of(RulesDB.get_entry("spell", b)["name"]))
-		_row(UiText.t("spell_level_n") % lv, ids, true)
-	if t == "spellbook":
-		_scrolls()
+		_row(UiText.t("spell_level_n") % lv, ids, true, k, prepared)
 
 
-func _row(title: String, ids: Array, toggles: bool) -> void:
+func _row(title: String, ids: Array, toggles: bool, cid: String = "", prepared: Array = []) -> void:
 	var l := S.title(title, 15)
 	body.add_child(l)
 	var flow := HFlowContainer.new()
@@ -129,13 +139,13 @@ func _row(title: String, ids: Array, toggles: bool) -> void:
 	flow.add_theme_constant_override("v_separation", 6)
 	body.add_child(flow)
 	for sid: String in ids:
-		flow.add_child(_slot(sid, toggles))
+		flow.add_child(_slot(sid, toggles, cid, prepared))
 
 
-func _slot(sid: String, toggles: bool) -> Control:
+func _slot(sid: String, toggles: bool, cid: String = "", prepared: Array = []) -> Control:
 	var c := creature
 	var sp := RulesDB.get_entry("spell", sid)
-	var on: bool = c.spells.has(sid)
+	var on: bool = (sid in prepared) if toggles and cid != "" else c.spells.has(sid)
 	var p := Button.new()
 	p.custom_minimum_size = Vector2(52, 52)
 	p.focus_mode = Control.FOCUS_NONE
@@ -158,7 +168,7 @@ func _slot(sid: String, toggles: bool) -> Control:
 	p.tooltip_text = tip
 	if toggles:
 		p.pressed.connect(func() -> void:
-			var r: Dictionary = SpellPrep.toggle(world, c, sid)
+			var r: Dictionary = SpellPrep.toggle(world, c, sid, cid)
 			_rebuild("" if r.get("ok", false) else UiText.reason(str(r.get("reason", ""))))
 			changed.emit())
 	return p
