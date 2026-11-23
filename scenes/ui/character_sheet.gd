@@ -158,7 +158,7 @@ func _weapon_box(c: Node, set_name: String) -> Control:
 	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	tr.material = S.icon_material()
 	slot.add_child(tr)
-	slot.tooltip_text = UiText.name_of(RulesDB.get_entry("weapon", wid).get("name", {"ko": "-", "en": "-"}))
+	slot.tooltip_text = UiText.name_of(Combat.weapon_data(wid).get("name", {"ko": "-", "en": "-"})) if wid != "" else "-"
 	v.add_child(slot)
 	if wid != "":
 		var atk: Dictionary = Combat.build_weapon_attack(c, wid)

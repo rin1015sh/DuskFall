@@ -175,7 +175,7 @@ func _draw_weapons(c: Node) -> void:
 		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tr.material = S.icon_material(not active)
 		b.add_child(tr)
-		var w := RulesDB.get_entry("weapon", wid)
+		var w: Dictionary = preload("res://scripts/rules/combat.gd").weapon_data(wid)
 		b.tooltip_text = "%s: %s" % [UiText.t("set_" + set_name), UiText.name_of(w.get("name", {"ko": "-", "en": "-"}))]
 		b.pressed.connect(func() -> void:
 			if c.active_set != set_name:
@@ -188,6 +188,7 @@ static func _weapon_icon(wid: String, set_name: String) -> String:
 		"dagger": "items/beast_bone_dagger.webp", "mace": "items/beast_bone_mace.webp", "quarterstaff": "items/artene_staff.webp",
 		"greatsword": "items/mithril_greatsword.webp", "shortbow": "items/hunting_bow.webp", "longbow": "items/ironwood_bow.webp",
 		"light_crossbow": "items/ironwood_crossbow.webp", "javelin": "items/airilje_spear.webp"}
+	wid = preload("res://scripts/rules/equipment.gd").base_of(wid)  # 마법 무기는 바탕 무기 그림
 	var p: String = "res://assets/" + map.get(wid, "items/hunting_bow.webp" if set_name == "ranged" else "items/fortress_knight_sword.webp")
 	return p if ResourceLoader.exists(p) else "res://assets/items/fortress_knight_sword.webp"
 

@@ -434,9 +434,9 @@ static func _wa_weapon(c: Node, key: String) -> String:
 
 
 static func _proficient(c: Node, wid: String) -> bool:
-	var w := RulesDB.get_entry("weapon", wid)
+	var w := Combat.weapon_data(wid)
 	var cat: String = str(w.get("category", "")).get_slice("_", 0)
-	return c.weapon_proficiencies.has(cat) or c.weapon_proficiencies.has(wid) or c.has_meta("monster")
+	return c.weapon_proficiencies.has(cat) or c.weapon_proficiencies.has(str(w.get("id", wid))) or c.has_meta("monster")
 
 
 static func weapon_action_dc(c: Node, wid: String) -> int:

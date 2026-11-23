@@ -221,6 +221,371 @@
       "throwable": false,
       "expires": "long_rest",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "longsword_plus_1",
+      "name": {
+        "ko": "롱소드 +1",
+        "en": "Longsword +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 1.36,
+      "price_gp": 415,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "longsword",
+      "bonus": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shortsword_plus_1",
+      "name": {
+        "ko": "쇼트소드 +1",
+        "en": "Shortsword +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.91,
+      "price_gp": 410,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "shortsword",
+      "bonus": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "longbow_plus_1",
+      "name": {
+        "ko": "롱보우 +1",
+        "en": "Longbow +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.91,
+      "price_gp": 450,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "longbow",
+      "bonus": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mace_plus_1",
+      "name": {
+        "ko": "메이스 +1",
+        "en": "Mace +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 1.81,
+      "price_gp": 405,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "mace",
+      "bonus": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "quarterstaff_plus_1",
+      "name": {
+        "ko": "쿼터스태프 +1",
+        "en": "Quarterstaff +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 1.81,
+      "price_gp": 400.2,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "quarterstaff",
+      "bonus": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dagger_plus_1",
+      "name": {
+        "ko": "대거 +1",
+        "en": "Dagger +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.45,
+      "price_gp": 402,
+      "material": "metal",
+      "slot": "weapon",
+      "base": "dagger",
+      "bonus": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "studded_leather_armor_plus_1",
+      "name": {
+        "ko": "징 박은 가죽 갑옷 +1",
+        "en": "Studded Leather Armor +1"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 5.9,
+      "price_gp": 4045,
+      "material": "cloth",
+      "slot": "armor",
+      "base": "studded_leather_armor",
+      "bonus": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "chain_mail_plus_1",
+      "name": {
+        "ko": "사슬 갑옷 +1",
+        "en": "Chain Mail +1"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 24.95,
+      "price_gp": 4075,
+      "material": "metal",
+      "slot": "armor",
+      "base": "chain_mail",
+      "bonus": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "shield_plus_1",
+      "name": {
+        "ko": "방패 +1",
+        "en": "Shield +1"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 2.72,
+      "price_gp": 400,
+      "material": "wood",
+      "slot": "shield",
+      "base": "shield",
+      "bonus": 1,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sentinel_shield",
+      "name": {
+        "ko": "파수꾼의 방패",
+        "en": "Sentinel Shield"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 2.72,
+      "price_gp": 400,
+      "material": "wood",
+      "slot": "shield",
+      "base": "shield",
+      "equip": {
+        "advantage": [
+          {
+            "type": "advantage",
+            "roll": "initiative",
+            "side": "self",
+            "value": "advantage"
+          },
+          {
+            "type": "advantage",
+            "roll": "ability_check",
+            "side": "self",
+            "value": "advantage",
+            "skill": [
+              "perception"
+            ]
+          }
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "ring_of_protection",
+      "name": {
+        "ko": "보호의 반지",
+        "en": "Ring of Protection"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 0.0,
+      "price_gp": 4000,
+      "material": "metal",
+      "slot": "ring",
+      "equip": {
+        "ac": 1,
+        "saves": 1
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "cloak_of_protection",
+      "name": {
+        "ko": "보호의 망토",
+        "en": "Cloak of Protection"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.45,
+      "price_gp": 400,
+      "material": "cloth",
+      "slot": "cloak",
+      "equip": {
+        "ac": 1,
+        "saves": 1
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "boots_of_elvenkind",
+      "name": {
+        "ko": "엘프의 장화",
+        "en": "Boots of Elvenkind"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.45,
+      "price_gp": 400,
+      "material": "cloth",
+      "slot": "feet",
+      "equip": {
+        "advantage": [
+          {
+            "type": "advantage",
+            "roll": "ability_check",
+            "side": "self",
+            "value": "advantage",
+            "skill": [
+              "stealth"
+            ]
+          }
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "cloak_of_elvenkind",
+      "name": {
+        "ko": "엘프의 망토",
+        "en": "Cloak of Elvenkind"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.45,
+      "price_gp": 400,
+      "material": "cloth",
+      "slot": "cloak",
+      "equip": {
+        "advantage": [
+          {
+            "type": "advantage",
+            "roll": "ability_check",
+            "side": "self",
+            "value": "advantage",
+            "skill": [
+              "stealth"
+            ]
+          }
+        ]
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "gauntlets_of_ogre_power",
+      "name": {
+        "ko": "오우거 힘의 건틀릿",
+        "en": "Gauntlets of Ogre Power"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.9,
+      "price_gp": 400,
+      "material": "metal",
+      "slot": "hands",
+      "equip": {
+        "ability_min": {
+          "str": 19
+        }
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "headband_of_intellect",
+      "name": {
+        "ko": "지능의 머리띠",
+        "en": "Headband of Intellect"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.1,
+      "price_gp": 400,
+      "material": "cloth",
+      "slot": "head",
+      "equip": {
+        "ability_min": {
+          "int": 19
+        }
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "amulet_of_health",
+      "name": {
+        "ko": "건강의 목걸이",
+        "en": "Amulet of Health"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 0.1,
+      "price_gp": 4000,
+      "material": "metal",
+      "slot": "amulet",
+      "equip": {
+        "ability_min": {
+          "con": 19
+        }
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "bracers_of_defense",
+      "name": {
+        "ko": "방어의 팔찌",
+        "en": "Bracers of Defense"
+      },
+      "category": "magic",
+      "rarity": "rare",
+      "weight_kg": 0.45,
+      "price_gp": 4000,
+      "material": "metal",
+      "slot": "hands",
+      "equip": {
+        "ac": 2,
+        "requires": {
+          "no_armor": true,
+          "no_shield": true
+        }
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "gloves_of_swimming_and_climbing",
+      "name": {
+        "ko": "수영과 등반의 장갑",
+        "en": "Gloves of Swimming and Climbing"
+      },
+      "category": "magic",
+      "rarity": "uncommon",
+      "weight_kg": 0.1,
+      "price_gp": 400,
+      "material": "cloth",
+      "slot": "hands",
+      "equip": {
+        "caps": [
+          "climber"
+        ]
+      },
+      "source": "SRD 5.2.1"
     }
   ]
 }

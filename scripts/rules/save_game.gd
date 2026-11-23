@@ -99,10 +99,10 @@ static func restore(world: Dictionary, snap: Dictionary, opts: Dictionary = {}) 
 		if c == null or n in opts.get("skip", []):
 			continue
 		var e: Dictionary = snap["creatures"][n]
-		# 레벨이 다르면(새로 만든 세계에 불러오기) 저장된 명세로 캐릭터를 다시 만든다
+		# 저장된 명세로 캐릭터를 다시 만든다(레벨·장비 — 파생 값: AC·무기 묶음·착용 효과)
 		var spec: Variant = e.get("metas", {}).get("spec")
-		if spec is Dictionary and int(spec.get("level", 1)) != c.level:
-			load("res://scripts/rules/character_builder.gd").apply(c, spec)
+		if spec is Dictionary:
+			load("res://scripts/rules/character_builder.gd").apply(c, spec)  # 레벨·장비 등 명세로 다시 만든다
 		for k: String in CREATURE_KEYS:
 			if e.has(k):
 				c.set(k, _typed(c.get(k), e[k]))

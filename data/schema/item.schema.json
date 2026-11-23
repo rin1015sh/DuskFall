@@ -65,7 +65,8 @@
             "food",
             "tool",
             "magic",
-            "misc", "currency"
+            "misc",
+            "currency"
           ]
         },
         "rarity": {
@@ -181,6 +182,71 @@
           "enum": [
             "long_rest"
           ]
+        },
+        "slot": {
+          "$comment": "마법 물품 장비 칸(equipment.gd): head·cloak·hands·feet·amulet·ring, 무기·갑옷·방패 변형은 weapon·armor·shield",
+          "enum": [
+            "head",
+            "cloak",
+            "hands",
+            "feet",
+            "amulet",
+            "ring",
+            "weapon",
+            "armor",
+            "shield"
+          ]
+        },
+        "base": {
+          "$comment": "무기·갑옷·방패 변형의 바탕 아이템 ID(weapons.json·armor.json)",
+          "type": "string"
+        },
+        "bonus": {
+          "$comment": "무기 명중·피해 / 갑옷·방패 AC 보너스(SRD +1·+2·+3)",
+          "type": "integer"
+        },
+        "equip": {
+          "$comment": "착용 효과(equipment.gd): ac, saves, ability_min{능력: 값}, caps, advantage[효과 모델], requires{no_armor, no_shield}",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ac": {
+              "type": "integer"
+            },
+            "saves": {
+              "type": "integer"
+            },
+            "ability_min": {
+              "type": "object"
+            },
+            "caps": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "advantage": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "type"
+                ]
+              }
+            },
+            "requires": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "no_armor": {
+                  "type": "boolean"
+                },
+                "no_shield": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
         }
       }
     },

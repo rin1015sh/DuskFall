@@ -41,10 +41,20 @@ static func _fail(reason: String) -> Dictionary:
 # 무기 공격
 # ======================================================================
 
+## 무기 데이터. 마법 무기(items.json "base" + "bonus")면 바탕 무기에 magic_bonus·item_id·이름을 얹는다.
 static func weapon_data(id: String) -> Dictionary:
 	if id == "" or id == "unarmed":
 		return UNARMED
-	return RulesDB.get_entry("weapon", id)
+	if RulesDB.has_entry("weapon", id):
+		return RulesDB.get_entry("weapon", id)
+	var item := RulesDB.get_entry("item", id)
+	if item.has("base") and RulesDB.has_entry("weapon", str(item["base"])):
+		var w: Dictionary = RulesDB.get_entry("weapon", str(item["base"])).duplicate(true)
+		w["magic_bonus"] = int(item.get("bonus", 0))
+		w["item_id"] = id
+		w["name"] = item["name"]
+		return w
+	return {}
 
 
 static func is_ranged_weapon(w: Dictionary) -> bool:
@@ -80,7 +90,7 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		dmg_mod = 0
 	if opts.get("no_ability_damage", false) and mod > 0:
 		dmg_mod = 0
-	var dmg_bonus := 0
+	var dmg_bonus := int(w.get("magic_bonus", 0))  # 마법 무기 +N(명중·피해)
 	for m in c.modifier_entries():
 		var me: Dictionary = m["effect"]
 		if me["type"] == "modify" and me["stat"] == "weapon_attack_and_damage":
@@ -189,7 +199,7 @@ static func _horde_breaker(world: Dictionary, attacker: Node, target: Node, wid:
 	var attacked: Array = attacker.turn.get("attacked", [])
 	attacked.append(target)
 	attacker.turn["attacked"] = attacked
-	var reach := reach_of(attacker) if not is_ranged_weapon(RulesDB.get_entry("weapon", wid)) else 99
+	var reach := reach_of(attacker) if not is_ranged_weapon(weapon_data(wid)) else 99
 	for o: Node in grid.creatures():
 		if o == target or o.dead or not attacker.is_hostile_to(o) or o in attacked:
 			continue

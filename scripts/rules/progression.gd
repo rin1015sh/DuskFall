@@ -51,23 +51,8 @@ static func level_up(world: Dictionary, c: Node) -> bool:
 	spec["level"] = c.level + 1
 	if not Builder.validate(spec).is_empty():
 		return false
-	var lost: int = c.hp_max - c.hp
-	var keep_res := {}
-	for id: String in c.resources:
-		keep_res[id] = int(c.resources[id]["max"]) - int(c.resources[id]["current"])
-	# 기능이 붙인 수정치는 다시 붙으므로 걷어 낸다(주문·상태가 붙인 것은 남긴다)
-	for m in c.extra_modifiers.duplicate():
-		if not m.has("instance") and m.get("source", "") is String and not str(m.get("source", "")).begins_with("spell"):
-			c.extra_modifiers.erase(m)
-	var window := [c.prep_swaps, c.prep_base.duplicate()]
-	Builder.apply(c, spec)
-	c.prep_swaps = window[0]  # 생성기가 연 새 캐릭터 창 대신 원래 창 + 레벨 업 창
-	c.prep_base = window[1]
+	Builder.reapply(c, spec)
 	SpellPrep.open_window(c, "level_up")
-	c.hp = maxi(1, c.hp_max - lost)
-	for id: String in c.resources:
-		if keep_res.has(id):
-			c.resources[id]["current"] = maxi(0, int(c.resources[id]["max"]) - int(keep_res[id]))
 	Dice.log_text("%s: %d레벨이 되었다" % [c.label(), c.level])
 	return true
 

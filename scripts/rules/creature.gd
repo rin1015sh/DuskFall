@@ -148,9 +148,14 @@ func ability_mod(ability: String) -> int:
 
 
 func save_bonus(ability: String) -> int:
+	var flat := 0
+	for m in modifier_entries():
+		var e: Dictionary = m["effect"]
+		if e["type"] == "modify" and e["stat"] == "saving_throw_flat":
+			flat += int(e.get("add", 0))  # 보호의 반지·망토 +1
 	if save_overrides.has(ability):
-		return int(save_overrides[ability])
-	return ability_mod(ability) + (proficiency_bonus if save_proficiencies.has(ability) else 0)
+		return int(save_overrides[ability]) + flat
+	return ability_mod(ability) + (proficiency_bonus if save_proficiencies.has(ability) else 0) + flat
 
 
 func ac() -> int:

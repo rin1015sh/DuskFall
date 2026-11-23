@@ -91,6 +91,7 @@ func run() -> bool:
 	_check_stamps()
 	_check_class_builds()
 	_check_caps()
+	_check_magic_items()
 	_check_names()
 	_check_scripts()
 	_check_banned_names()
@@ -164,6 +165,37 @@ func _check_caps() -> void:
 		var req := str(entries["action"][aid]["entry"].get("requires", ""))
 		if req != "":
 			check.call("%s: action '%s' requires" % [entries["action"][aid]["file"], aid], req)
+
+
+# ---------- 마법 물품(equipment.gd): 바탕 아이템·칸·착용 효과 ----------
+
+func _check_magic_items() -> void:
+	const ACC := ["head", "cloak", "hands", "feet", "amulet", "ring"]
+	for iid: String in entries.get("item", {}).keys():
+		var rec: Dictionary = entries["item"][iid]
+		var e: Dictionary = rec["entry"]
+		if e.get("category", "") != "magic":
+			continue
+		var where := "%s: item '%s'" % [rec["file"], iid]
+		var slot := str(e.get("slot", ""))
+		if slot == "":
+			errors.append("%s: 마법 물품은 slot이 있어야 한다(장비 칸)" % where)
+			continue
+		if slot in ACC:
+			if e.has("base"):
+				errors.append("%s: 장신구(%s)는 base를 쓰지 않는다" % [where, slot])
+			continue
+		var base := str(e.get("base", ""))
+		var target := "weapon" if slot == "weapon" else "armor"
+		if not entries.get(target, {}).has(base):
+			errors.append("%s: base '%s'가 %s 데이터에 없다" % [where, base, target])
+			continue
+		var cat := str(entries[target][base]["entry"].get("category", ""))
+		if slot == "shield" and cat != "shield" or slot == "armor" and cat == "shield":
+			errors.append("%s: slot %s와 base '%s'(%s)가 맞지 않는다" % [where, slot, base, cat])
+		for cap: Variant in e.get("equip", {}).get("caps", []):
+			if not entries.get("capability", {}).has(str(cap)):
+				errors.append("%s: 능력 태그 '%s'가 없다" % [where, cap])
 
 
 # ---------- 3-2. 클래스 추천 빌드(default_build) 교차 참조 ----------

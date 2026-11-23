@@ -214,6 +214,8 @@ static func _add_adv(m: Dictionary, roll: String, side: String, owner: Node, oth
 		return
 	if e.has("ability") and not ability in e["ability"]:
 		return
+	if e.has("skill") and not str(res.get("skill", "")) in e["skill"]:
+		return  # 기능 한정 유리(엘프 장화: 은신)
 	if e.has("attacker_types") and (other == null or not other.creature_type in e["attacker_types"]):
 		return  # Protection from Evil and Good
 	var dist := int(res.get("distance", 1))
@@ -666,7 +668,7 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 	var res := {"creature": creature, "ability": ability, "dc": dc, "auto": false,
 		"bonus": creature.ability_mod(ability) + int(creature.skill_bonuses.get(opts.get("skill", ""), 0)) + int(opts.get("bonus", 0)),
 		"advantage": opts.get("advantage", []).duplicate(), "disadvantage": opts.get("disadvantage", []).duplicate(),
-		"success": false, "natural": 0, "total": 0, "mode": 0, "ctx": {}}
+		"success": false, "natural": 0, "total": 0, "mode": 0, "ctx": {}, "skill": str(opts.get("skill", ""))}
 	if opts.get("requires_sight", false) and creature.has_flag("fails_sight_checks"):
 		res["auto"] = true
 	else:

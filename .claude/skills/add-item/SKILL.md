@@ -25,9 +25,12 @@ description: 무기·갑옷·물약·두루마리·도구·음식(보급품)·�
    - **두루마리**(`category: scroll`): `spell`(주문 id), `save_dc`, `attack_bonus`(SRD: 소마법·1레벨 13 / +5). 내 클래스 주문 목록에 있으면 '두루마리 읽기'가 뜨고 슬롯 없이 시전, 쓰면 사라진다. 주문서형 클래스(위저드)는 주문 준비 창(K)에서 배울 수 있다(두루마리 소모 + 주문 레벨 × 50gp).
    - **음식**(`category: food`): `camp_supplies`(긴 휴식 1회 = 40).
    - **도구**(`category: tool`): 도둑 도구·함정 해체 도구(지금은 이 둘만 엔진이 쓴다).
-   - **마법 물품**(`category: magic`): **아직 동작 없음** — 장비 칸(장착 효과) 설계가 먼저다. 넣기 전에 사용자에게 묻는다.
+   - **마법 물품**(`category: magic`, scripts/rules/equipment.gd — BG3 장비 칸, 조율 없음): `slot`(head·cloak·hands·feet·amulet·ring, 또는 weapon·armor·shield).
+     무기·갑옷·방패 변형은 `base`(바탕 아이템 ID) + `bonus`(무기 명중·피해 / AC). 착용 효과는 `equip`: `ac`, `saves`, `ability_min`({"str": 19}),
+     `caps`(능력 태그), `advantage`(효과 모델 advantage — `skill: ["stealth"]`로 기능 한정), `requires`({"no_armor", "no_shield"}).
+     이 안에서 표현이 안 되는 효과(발동형·충전식)는 아직 장치가 없다 — 사용자에게 묻는다. 값은 SRD 희귀도 표(고급 400gp·희귀 4,000gp).
 5. 효과는 8단계 효과 모델로 쓴다. 표현이 안 되면 `script` + 효과 스크립트 + 테스트를 만든다.
-6. `/verify` — `tests/test_content_smoke.gd`가 쓰는 아이템(물약·두루마리)을 모두 행동 목록에서 써 본다.
+6. `/verify` — `tests/test_content_smoke.gd`가 쓰는 아이템(물약·두루마리)을 모두 행동 목록에서 써 보고, `tests/test_equipment.gd`가 마법 물품을 모두 장착해 본다.
 
 ## 보고
 

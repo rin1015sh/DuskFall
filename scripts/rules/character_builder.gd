@@ -16,6 +16,7 @@ extends RefCounted
 const CreatureScript := preload("res://scripts/rules/creature.gd")
 const Levels := preload("res://scripts/rules/levels.gd")
 const SpellPrep := preload("res://scripts/rules/spell_prep.gd")
+const Equipment := preload("res://scripts/rules/equipment.gd")
 
 const POINT_COST := {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9}
 const POINT_BUDGET := 27
@@ -191,6 +192,11 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			else:
 				for a: String in pick.keys():
 					ab[a] = mini(int(ab[a]) + int(pick[a]), 20)
+	# 장비(equipment.gd): 착용 능력치 최소값(오우거 힘의 건틀릿 등)
+	var slots := Equipment.from_spec(spec, cls)
+	var mins := Equipment.ability_mins(slots)
+	for a: String in mins:
+		ab[a] = maxi(int(ab[a]), int(mins[a]))
 	c.abilities = ab
 	# 크기·속도·감각
 	c.size = spec.get("size", sp.get("size", "medium"))
@@ -281,17 +287,10 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		var mx := _resource_max(r["max"], lv, c.proficiency_bonus)
 		if mx > 0:
 			c.resources[r["id"]] = {"current": mx, "max": mx, "recharge": r["recharge"]}
-	# 장비·AC
-	var eq: Dictionary = cls.get("starting_equipment", {})
-	var armor_id: String = spec.get("armor", eq.get("armor", ""))
-	var shield: bool = spec.get("shield", eq.get("shield", false))
-	c.set_meta("armor", armor_id)
-	c.set_meta("shield", shield)
-	c.ac_base = armor_class(c, armor_id, shield, armor_training)
-	var ws: Dictionary = spec.get("weapons", {"melee": eq.get("melee", {"main": "", "off": ""}), "ranged": eq.get("ranged", {"main": ""})})
-	c.weapon_sets = ws.duplicate(true)
-	if not c.weapon_sets.has("ranged"):
-		c.weapon_sets["ranged"] = {"main": ""}
+	# 장비·AC: 칸에서 갑옷·방패·무기 묶음과 착용 효과(마법 보너스·반지·망토 등은 수정치 source "item:<칸>")
+	c.set_meta("armor_training", armor_training)
+	Equipment.apply_to(c, slots)
+	c.ac_base = armor_class(c, str(c.get_meta("armor")), bool(c.get_meta("shield")), armor_training)
 	# 주문
 	_apply_spells(c, cls, sub, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)
@@ -307,6 +306,31 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	# 새로 만든 캐릭터는 막 쉰 것처럼 준비 교체 창이 열려 있다(spell_prep.gd)
 	SpellPrep.open_window(c, "long")
 	c.reset_turn()
+
+
+## 명세를 다시 적용한다(장비 바꾸기·레벨 업): 잃은 HP·쓴 자원·턴 상태·고른 무기 묶음·준비 교체 창은 그대로 둔다.
+## 기능·장비가 붙인 수정치는 다시 붙으므로 걷어 낸다(주문·상태가 붙인 것은 남긴다).
+static func reapply(c: Node, spec: Dictionary) -> void:
+	var lost: int = c.hp_max - c.hp
+	var was_down: bool = c.hp <= 0
+	var used := {}
+	for id: String in c.resources:
+		used[id] = int(c.resources[id]["max"]) - int(c.resources[id]["current"])
+	var turn: Dictionary = c.turn.duplicate(true)
+	var active: String = c.active_set
+	var window := [c.prep_swaps, c.prep_base.duplicate()]
+	for m in c.extra_modifiers.duplicate():
+		if not m.has("instance") and m.get("source", "") is String and not str(m.get("source", "")).begins_with("spell"):
+			c.extra_modifiers.erase(m)
+	apply(c, spec)
+	c.hp = 0 if was_down else maxi(1, c.hp_max - lost)
+	for id: String in c.resources:
+		if used.has(id):
+			c.resources[id]["current"] = maxi(0, int(c.resources[id]["max"]) - int(used[id]))
+	c.turn = turn
+	c.active_set = active
+	c.prep_swaps = window[0]
+	c.prep_base = window[1]
 
 
 static func _add_feature(c: Node, f: Dictionary) -> void:
