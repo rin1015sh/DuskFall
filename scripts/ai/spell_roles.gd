@@ -1,6 +1,7 @@
 extends RefCounted
 ## AI가 쓸 주문 고르기(주문 이름 목록 대신 주문 데이터로 분류). 주문 데이터 "ai": {"role", "priority"}가 있으면 그것을 따른다.
-## 역할: heal(회복 — 쓰러진 아군), attack_cantrip(공격 소마법), area(범위 피해·제압 — 적 둘 이상), aura(자신 중심 지속 범위),
+## 역할: heal(회복 — 쓰러진 아군), attack_cantrip(공격 소마법), area(범위 피해·제압 — 적 둘 이상 또는 강한 적 하나), aura(자신 중심 지속 범위),
+##       single(단일 대상 슬롯 주문 — HP가 많은 적에게),
 ##       light(빛 — 보이지 않는 적 밝히기), none(AI가 쓰지 않음).
 
 
@@ -22,6 +23,9 @@ static func role_of(spell: Dictionary) -> String:
 		return "aura" if str(spell.get("range", {}).get("type", "")) == "self" and str(spell.get("duration", {}).get("type", "")) != "instant" else "area"
 	if int(spell.get("level", 0)) == 0 and area == null and check in ["attack", "save"] and "damage" in types:
 		return "attack_cantrip"
+	if int(spell.get("level", 0)) > 0 and area == null and check in ["attack", "save"] and ("damage" in types or "apply_condition" in types) \
+			and str(spell.get("range", {}).get("type", "")) != "self":
+		return "single"  # 단일 대상 슬롯 주문(고사·괴물 속박·추방 등) — 강한 적에게
 	return "none"
 
 
@@ -46,7 +50,7 @@ static func known(c: Node, role: String) -> Array:
 		var pb := int(b.get("ai", {}).get("priority", 0))
 		if pa != pb:
 			return pa > pb
-		if role == "area":
+		if role in ["area", "single"]:
 			var da := _deals_damage(a)
 			var db := _deals_damage(b)
 			if da != db:

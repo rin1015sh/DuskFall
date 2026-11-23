@@ -52,6 +52,7 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 					break  # 바드의 영감 등: 받을 수 있는 첫 아군
 	Tactics.pre_turn(world, c)
 	_cast_best_area(world, c)
+	_cast_best_single(world, c)
 	_light_up(world, c)
 	# 2. 공격 행동(기능 ai.when before_attack — 인접한 적이 있으면 먼저: 무모한 공격)
 	var first := Tactics.pick_target(world, c)
@@ -261,6 +262,15 @@ static func _light_up(world: Dictionary, c: Node) -> void:
 
 
 ## 범위 주문: 아군을 맞히지 않고 적을 둘 이상 맞히는 조준을 찾는다(높은 레벨 주문부터).
+## 슬롯을 쓸 만한 강한 적(지금 HP 기준 — 사용자 결정 전 1차 기준값).
+const WORTHY_HP := 40
+
+
+## 지금 집중 중이면 다른 집중 주문은 쓰지 않는다(쓰면 먼저 건 집중이 끊긴다).
+static func _breaks_concentration(c: Node, spell: Dictionary) -> bool:
+	return bool(spell.get("concentration", false)) and not c.concentration.is_empty()
+
+
 static func _cast_best_area(world: Dictionary, c: Node) -> void:
 	var grid: Node = world["grid"]
 	var order: Array = SpellRoles.known(c, "aura") + SpellRoles.known(c, "area")  # 주문 데이터로 분류(높은 레벨부터)
@@ -268,6 +278,8 @@ static func _cast_best_area(world: Dictionary, c: Node) -> void:
 		if not c.spells.has(sid) or int(c.turn.get("action", 0)) <= 0:
 			continue
 		var spell := RulesDB.get_entry("spell", sid)
+		if _breaks_concentration(c, spell):
+			continue
 		var best_cell := Vector2i(-1, -1)
 		var best := 1
 		var candidates: Array = []
@@ -288,9 +300,51 @@ static func _cast_best_area(world: Dictionary, c: Node) -> void:
 				var rad := int(spell.get("area", {}).get("radius_tiles", 3)) + 1
 				foes = _foes(world, c).filter(func(o: Node) -> bool: return grid.distance_between(c, o) <= rad).size()
 				friends = 0
-			if friends == 0 and foes > best:
-				best = foes
+			# 적 둘 이상, 또는 강한 적 하나(HP WORTHY_HP 이상 — 큰 몬스터에게도 범위 주문을 쓴다)
+			var score := foes
+			if foes == 1 and SpellRoles.role_of(spell) == "area":
+				var one: Array = hit.filter(func(o: Node) -> bool: return c.is_hostile_to(o) and not o.dead)
+				if not one.is_empty() and int(one[0].hp) >= WORTHY_HP and _deals_area_damage(spell):
+					score = 2
+			if friends == 0 and score > best:
+				best = score
 				best_cell = cell
 		if best_cell.x >= 0:
 			Spellcasting.cast(world, c, sid, best_cell)
 			return
+
+
+static func _deals_area_damage(spell: Dictionary) -> bool:
+	for e: Dictionary in spell.get("effects", {}).get("fail", []):
+		if str(e.get("type", "")) == "damage":
+			return true
+	return false
+
+
+## 단일 대상 슬롯 주문: 사거리 안 보이는 적 중 HP가 가장 많은 적(WORTHY_HP 이상)에게 가장 높은 레벨 주문 하나.
+static func _cast_best_single(world: Dictionary, c: Node) -> void:
+	if int(c.turn.get("action", 0)) <= 0:
+		return
+	var grid: Node = world["grid"]
+	var foes: Array = _foes(world, c).filter(func(o: Node) -> bool: return int(o.hp) >= WORTHY_HP and grid.can_see(c, o))
+	if foes.is_empty():
+		return
+	foes.sort_custom(func(a: Node, b: Node) -> bool: return a.hp > b.hp)
+	for sid: String in SpellRoles.known(c, "single"):
+		var spell := RulesDB.get_entry("spell", sid)
+		if _breaks_concentration(c, spell):
+			continue
+		for f: Node in foes:
+			if _already_has(f, spell):
+				continue
+			if Spellcasting.can_cast(world, c, sid, grid.cell_of(f)) == "":
+				Spellcasting.cast(world, c, sid, grid.cell_of(f), {"targets": [f]})
+				return
+
+
+## 같은 상태를 이미 건 대상에게는 또 걸지 않는다(속박·추방 등).
+static func _already_has(t: Node, spell: Dictionary) -> bool:
+	for e: Dictionary in spell.get("effects", {}).get("fail", []):
+		if str(e.get("type", "")) == "apply_condition" and t.has_condition(str(e["id"])):
+			return true
+	return false

@@ -99,3 +99,28 @@ func test_cloudkill_zone() -> void:
 	Dice.force([1])
 	w["turns"].end_turn(foe)
 	assert_true(foe.hp < hp, "안에서 턴을 끝내면 다시 피해")
+
+
+## AI: 강한 적 하나에게는 단일 대상 슬롯 주문(또는 피해 범위 주문)을 쓰고, 집중 중이면 다른 집중 주문은 쓰지 않는다.
+func test_ai_uses_slots_on_big_foe() -> void:
+	var AI: Variant = load("res://scripts/ai/simple_ai.gd")
+	var Roles: Variant = load("res://scripts/ai/spell_roles.gd")
+	assert_eq(Roles.role_of(RulesDB.get_entry("spell", "blight")), "single")
+	assert_eq(Roles.role_of(RulesDB.get_entry("spell", "hold_monster")), "single")
+	var w := make_world(["..............", "..............", ".............."])
+	var c: Node = own(Builder.build(Builder.default_spec("wizard", 9))["creature"])
+	var foe := make_creature({"team": "enemy", "hp_max": 150})
+	w["grid"].place(c, Vector2i(0, 1))
+	w["grid"].place(foe, Vector2i(10, 1))
+	c.reset_turn()
+	var before := 0
+	for i in range(1, 6):
+		before += c.resource("spell_slot_%d" % i)
+	AI.take_turn(w, c)
+	var after := 0
+	for i in range(1, 6):
+		after += c.resource("spell_slot_%d" % i)
+	assert_eq(after, before - 1, "강한 적 하나에게 슬롯 주문 1개")
+	var hold := RulesDB.get_entry("spell", "hold_monster")
+	c.concentration = {"spell": "haste"}
+	assert_true(AI._breaks_concentration(c, hold), "집중 중이면 다른 집중 주문 안 씀")
