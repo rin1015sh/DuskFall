@@ -455,6 +455,14 @@
           "type": "integer",
           "minimum": 1
         },
+        "no_sight": {
+          "$comment": "보이지 않는 칸도 겨눌 수 있다(차원 문)",
+          "type": "boolean"
+        },
+        "area_targets": {
+          "$comment": "범위 주문의 대상 거르기: allies = 시전자에게 적대하지 않는 생물만(생명의 오라·집단 상처 치료)",
+          "enum": ["allies"]
+        },
         "upcast": {
           "type": "object",
           "additionalProperties": false,

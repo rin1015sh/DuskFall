@@ -577,6 +577,9 @@
         "5": [
           "fear",
           "fly"
+        ],
+        "7": [
+          "charm_monster"
         ]
       },
       "features": [
@@ -726,7 +729,10 @@
       "misty_step",
       "fireball",
       "haste",
-      "thunderwave"
+      "thunderwave",
+      "greater_invisibility",
+      "ice_storm",
+      "cone_of_cold"
     ],
     "asi": {
       "4": {

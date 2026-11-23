@@ -257,8 +257,10 @@ static func targets_for(world: Dictionary, caster: Node, spell: Dictionary, aim:
 	var grid: Node = world["grid"]
 	if spell.get("area") != null:
 		var hostile_only: bool = spell["effects"].has("check")
-		return Area.creatures_in(grid, cells).filter(func(c: Node) -> bool:
-			return not c.dead and (c != caster or not hostile_only))
+		var allies_only: bool = str(spell.get("area_targets", "")) == "allies"  # 아군만(생명의 오라·집단 상처 치료)
+		var found: Array = Area.creatures_in(grid, cells).filter(func(c: Node) -> bool:
+			return not c.dead and (c != caster or not hostile_only) and (not allies_only or not c.is_hostile_to(caster)))
+		return found.slice(0, max_targets(spell, slot)) if spell.has("targets_max") and allies_only else found
 	if spell["range"]["type"] == "self":
 		return [caster]
 	var list: Array = opts.get("targets", [])
@@ -325,8 +327,8 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 			rt = 6 if spell["range"]["type"] == "touch" else rt * 2  # 원거리 주문: 사거리 2배, 접촉은 30피트
 		if grid.distance(grid.cell_of(caster), aim) > grid.effective_range(caster, aim, rt):
 			return "사거리 밖"
-		if not grid.has_line_of_sight(grid.cell_of(caster), aim):
-			return "보이지 않는다"
+		if not grid.has_line_of_sight(grid.cell_of(caster), aim) and not spell.get("no_sight", false):
+			return "보이지 않는다"  # no_sight: 보이지 않는 곳도(차원 문)
 	return ""
 
 
@@ -623,7 +625,7 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 			var grid: Node = world["grid"]
 			var to: Vector2i = ctx["aim"]
 			if grid.distance(grid.cell_of(caster), to) <= int(e["tiles"]) and not grid.blocks_movement(to) \
-					and grid.creature_at(to) == null and grid.has_line_of_sight(grid.cell_of(caster), to):
+					and grid.creature_at(to) == null and (e.get("no_los", false) or grid.has_line_of_sight(grid.cell_of(caster), to)):
 				grid.remove(caster)
 				grid.place(caster, to)
 				EventBus.on_enter_tile.emit(caster, to)

@@ -525,7 +525,10 @@
       "shatter",
       "invisibility",
       "hypnotic_pattern",
-      "mass_healing_word"
+      "mass_healing_word",
+      "greater_invisibility",
+      "dimension_door",
+      "hold_monster"
     ],
     "asi": {
       "4": {

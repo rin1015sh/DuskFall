@@ -1094,6 +1094,13 @@
         "5": [
           "fireball",
           "stinking_cloud"
+        ],
+        "7": [
+          "fire_shield",
+          "wall_of_fire"
+        ],
+        "9": [
+          "insect_plague"
         ]
       },
       "features": [
@@ -1285,7 +1292,10 @@
       "misty_step",
       "invisibility",
       "hold_person",
-      "counterspell"
+      "counterspell",
+      "banishment",
+      "hold_monster",
+      "dimension_door"
     ],
     "asi": {
       "4": {

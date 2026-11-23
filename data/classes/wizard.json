@@ -450,7 +450,11 @@
       "misty_step",
       "fireball",
       "counterspell",
-      "haste"
+      "haste",
+      "ice_storm",
+      "greater_invisibility",
+      "cone_of_cold",
+      "cloudkill"
     ],
     "asi": {
       "4": {

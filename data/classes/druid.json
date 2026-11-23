@@ -491,6 +491,9 @@
                 ],
                 "5": [
                   "fireball"
+                ],
+                "7": [
+                  "blight"
                 ]
               }
             },
@@ -503,6 +506,12 @@
                 ],
                 "5": [
                   "sleet_storm"
+                ],
+                "7": [
+                  "ice_storm"
+                ],
+                "9": [
+                  "cone_of_cold"
                 ]
               }
             },
@@ -515,6 +524,9 @@
                 ],
                 "5": [
                   "lightning_bolt"
+                ],
+                "7": [
+                  "freedom_of_movement"
                 ]
               }
             },
@@ -527,6 +539,9 @@
                 ],
                 "5": [
                   "stinking_cloud"
+                ],
+                "9": [
+                  "insect_plague"
                 ]
               }
             }
@@ -714,7 +729,10 @@
       "lesser_restoration",
       "revivify",
       "dispel_magic",
-      "entangle"
+      "entangle",
+      "ice_storm",
+      "conjure_woodland_beings",
+      "mass_cure_wounds"
     ],
     "asi": {
       "4": {

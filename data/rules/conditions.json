@@ -1304,6 +1304,156 @@
       },
       "notes_ko": "실패한 d20 시험(공격·내성·능력 판정)을 한 번 자동으로 다시 굴리고 사라진다(BG3식 자동 — 원문은 아무 주사위나 다시 굴림).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "banished",
+      "name": {
+        "ko": "추방",
+        "en": "Banished"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "flags": {
+        "incapacitated": true,
+        "ethereal": true
+      },
+      "notes_ko": "Banishment: 무해한 다른 차원 — 무력화, 공격·범위의 대상이 되지 않는다. 주문이 끝나면 돌아온다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "death_warded",
+      "name": {
+        "ko": "죽음 방비",
+        "en": "Death Ward"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "flags": {
+        "death_ward": true
+      },
+      "notes_ko": "Death Ward: 처음 0 HP가 될 때 1 HP로 남고 끝난다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "free_movement",
+      "name": {
+        "ko": "이동의 자유",
+        "en": "Freedom of Movement"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "condition_immunities": [
+        "paralyzed",
+        "restrained"
+      ],
+      "removes_on_apply": [
+        "paralyzed",
+        "restrained"
+      ],
+      "notes_ko": "Freedom of Movement: 마비·속박 면역(걸려 있던 것도 풀린다 — 원문은 주문·마법 효과만).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "nightmare",
+      "name": {
+        "ko": "악몽",
+        "en": "Nightmare"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "disadvantage"
+        }
+      ],
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "damage",
+            "dice": "4d10",
+            "damage_type": "psychic"
+          }
+        ]
+      },
+      "notes_ko": "Phantasmal Killer: 공격·능력 판정 불리, 턴 시작마다 4d10 정신, 턴 끝 지혜 내성 성공하면 끝.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "acid_burn",
+      "name": {
+        "ko": "산성 화상",
+        "en": "Acid Burn"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "damage",
+            "dice": "5d4",
+            "damage_type": "acid"
+          }
+        ]
+      },
+      "notes_ko": "Vitriolic Sphere: 다음 턴 시작에 5d4 산.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "fire_shield_warm",
+      "name": {
+        "ko": "따뜻한 방패",
+        "en": "Warm Shield"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "cold"
+          ]
+        }
+      ],
+      "retaliate": {
+        "dice": "2d8",
+        "damage_type": "fire"
+      },
+      "notes_ko": "Fire Shield: 냉기 저항, 1칸 안에서 근접 공격으로 맞힌 생물에게 2d8 화염.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "fire_shield_chill",
+      "name": {
+        "ko": "차가운 방패",
+        "en": "Chill Shield"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "fire"
+          ]
+        }
+      ],
+      "retaliate": {
+        "dice": "2d8",
+        "damage_type": "cold"
+      },
+      "notes_ko": "Fire Shield: 화염 저항, 1칸 안에서 근접 공격으로 맞힌 생물에게 2d8 냉기.",
+      "source": "SRD 5.2.1"
     }
   ]
 }

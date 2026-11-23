@@ -462,6 +462,14 @@
         "5": [
           "mass_healing_word",
           "revivify"
+        ],
+        "7": [
+          "aura_of_life",
+          "death_ward"
+        ],
+        "9": [
+          "greater_restoration",
+          "mass_cure_wounds"
         ]
       },
       "features": [
@@ -570,7 +578,10 @@
       "hold_person",
       "spirit_guardians",
       "mass_healing_word",
-      "dispel_magic"
+      "dispel_magic",
+      "death_ward",
+      "banishment",
+      "flame_strike"
     ],
     "asi": {
       "4": {

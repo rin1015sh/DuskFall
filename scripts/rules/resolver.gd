@@ -97,6 +97,7 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 		res["auto_crit"] = true
 	if res["hit"]:
 		EventBus.on_hit.emit(res)
+		_retaliate(attacker, target, atk, res)
 		if target.has_cap("multiattack_defense") and attacker != target:
 			# 다중 공격 방어(사냥꾼 방어 전술 7레벨): 나를 맞힌 생물은 이번 턴 남은 나에 대한 공격이 불리
 			target.extra_modifiers.append({"effect": {"type": "advantage", "roll": "attack", "side": "against", "value": "disadvantage"},
@@ -213,6 +214,18 @@ static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Di
 	_brutal_strike_setup(attacker, atk, res, preview)
 	res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 	return res
+
+
+## 상태 retaliate {dice, damage_type}(화염 방패): 1칸 안 생물이 근접 공격으로 나를 맞히면 그 생물이 피해를 받는다.
+static func _retaliate(attacker: Node, target: Node, atk: Dictionary, res: Dictionary) -> void:
+	if str(atk.get("kind", "")) != "melee" or int(res.get("distance", 1)) > 1 or attacker == target:
+		return
+	for a in target.active_conditions():
+		var r: Dictionary = a["def"].get("retaliate", {})
+		if r.is_empty():
+			continue
+		var n: int = Dice.roll(str(r["dice"]), a["id"])["total"]
+		apply_damage(attacker, [{"amount": n, "damage_type": str(r["damage_type"])}], {"attacker": target})
 
 
 ## 잔혹한 일격(능력 태그 brutal_strike — 바바리안 9레벨): 무모한 공격 중 턴의 근력 공격 하나에서 유리를 버리면(불리가 없을 때)
@@ -809,6 +822,12 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 ## 0 HP가 되었을 때(on_hp_zero). 리스너가 info["prevented"] = true로 막을 수 있다(끈질긴 인내 등).
 static func _hp_zero(target: Node, remainder: int, opts: Dictionary, out: Dictionary) -> void:
 	var info := {"creature": target, "remainder": remainder, "opts": opts, "prevented": false}
+	for a in target.active_conditions():
+		if a["def"].get("flags", {}).get("death_ward", false):
+			target.hp = 1  # 죽음 방비(Death Ward): 처음 0 HP가 될 때 1 HP로 남고 끝난다
+			target.remove_condition(a["id"])
+			Dice.log_text("%s: 죽음 방비 — HP 1" % target.label())
+			return
 	EventBus.on_hp_zero.emit(info)
 	if not info["prevented"]:
 		Features.hook("on_hp_zero", target, {"res": info})

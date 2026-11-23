@@ -30,7 +30,7 @@ func _db() -> Node:
 func _arena() -> Dictionary:
 	var w := make_world(["..........", "..........", "..........", ".........."])
 	var c: Node = own(Builder.build(Builder.default_spec("wizard", 5))["creature"])
-	for lv in range(1, 4):
+	for lv in range(1, 10):
 		c.resources["spell_slot_%d" % lv] = {"current": 9, "max": 9, "recharge": "long"}
 	var ally := make_creature({"team": "party", "hp_max": 30})
 	ally.hp = 10
@@ -83,7 +83,7 @@ func test_every_included_spell_casts_without_script_errors() -> void:
 			pass  # 이 장면에서 조건이 안 맞는 주문(시체·물체 필요 등) — 오류만 아니면 된다
 	OS.remove_logger(log)
 	assert_eq(broken.size(), 0, "스크립트 오류가 난 주문 %d개: %s" % [broken.size(), "; ".join(PackedStringArray(broken.slice(0, 5)))])
-	assert_true(cast_ok >= 120, "시험 장면에서 실제로 시전된 주문 %d개" % cast_ok)
+	assert_true(cast_ok >= 140, "시험 장면에서 실제로 시전된 주문 %d개" % cast_ok)
 
 
 ## 쓰는 아이템(물약·두루마리·모험 장비)은 모두 행동 목록에 뜨고 써도 오류가 없다

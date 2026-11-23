@@ -448,6 +448,10 @@
         "5": [
           "aid",
           "zone_of_truth"
+        ],
+        "9": [
+          "beacon_of_hope",
+          "dispel_magic"
         ]
       },
       "features": [
@@ -541,7 +545,9 @@
       "searing_smite",
       "shining_smite",
       "lesser_restoration",
-      "magic_weapon"
+      "magic_weapon",
+      "death_ward",
+      "banishment"
     ],
     "masteries": [
       "longsword",

@@ -1,6 +1,8 @@
 extends "res://scripts/rules/effect_script.gd"
-## Spirit Guardians(SRD): 시전자를 따라다니는 반경 3칸 발산. 적이 들어오거나 그 안에서 턴을 끝내면 지혜 내성,
-## 실패 3d8 광휘(성공 절반), 한 턴에 한 번. 안의 적은 속도 절반(1차는 피해만 — 속도 절반은 이동 비용 작업에서).
+## 지속 범위 피해(주문 데이터로): 적이 범위에 들어오거나 그 안에서 턴을 끝내면 내성(check), 실패 = effects.fail 피해, 성공 = success. 한 턴에 한 번.
+## 사거리 self(발산): 시전자를 따라다닌다 — Spirit Guardians(3칸 지혜 3d8 광휘), Conjure Woodland Beings(2칸 지혜 5d8 역장).
+## 사거리가 있으면 겨눈 칸에 고정 — Cloudkill(4칸 건강 5d8 독), Insect Plague(4칸 건강 4d10 관통). 시전할 때 범위 안 생물도 굴린다(효과 모델).
+## 반경 = area.radius_tiles. 안의 적 속도 절반·가려짐은 생략(1차 — 피해만).
 const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
 const Resolver := preload("res://scripts/rules/resolver.gd")
 const Area := preload("res://scripts/rules/area.gd")
@@ -14,23 +16,35 @@ func apply(ctx: Dictionary) -> Dictionary:
 	var c: Node = ctx["self"]
 	var inst: Dictionary = ctx["instance"]
 	var spell: Dictionary = ctx["spell"]
-	var dice := Spellcasting.scaled_dice(c, spell, "3d8", int(ctx["slot"]))
+	var slot := int(ctx["slot"])
+	var eff: Dictionary = spell["effects"]
+	var fail: Array = Spellcasting._scaled(c, spell, eff.get("fail", []), slot, ctx.get("opts", {}))
+	var success: Array = Spellcasting._scaled(c, spell, eff.get("success", []), slot, ctx.get("opts", {}))
+	var ability := str(eff.get("check", {}).get("ability", "wis"))
+	var radius := int(spell.get("area", {}).get("radius_tiles", 3))
+	var follow: bool = spell["range"]["type"] == "self"
+	var anchor: Vector2i = ctx["aim"]
 	var dc := Spellcasting.spell_dc(c)
 	var hit_marks := {}
 	var trigger := func(world: Dictionary, o: Node) -> void:
 		if o.dead or o == c or not o.is_hostile_to(c) or c.dead:
 			return
 		var grid: Node = world["grid"]
-		if grid.distance_between(c, o) > 3 and not (Area.circle(grid, grid.cell_of(c), 3).has(grid.cell_of(o))):
-			return
-		if not Area.circle(grid, grid.cell_of(c), 3).has(grid.cell_of(o)):
+		var center: Vector2i = grid.cell_of(c) if follow else anchor
+		if not Area.circle(grid, center, radius).has(grid.cell_of(o)):
 			return
 		var key: String = "%d:%d" % [o.get_instance_id(), world["turns"].round_number if world.get("turns") != null else 0]
 		if hit_marks.has(key):
 			return
 		hit_marks[key] = true
-		Resolver.save_effect([o], {"ability": "wis", "dc": dc},
-			[{"type": "damage", "dice": dice, "damage_type": "radiant"}],
-			[{"type": "damage", "dice": dice, "damage_type": "radiant", "scale": 0.5}], {"source": c})
+		Resolver.save_effect([o], {"ability": ability, "dc": dc}, fail, success, {"source": c})
 	inst["auras"].append({"on_enter": trigger, "on_turn_end": trigger})
+	if not follow:
+		var r := Spellcasting.resolve_effects(ctx)  # 처음 나타날 때 범위 안 생물
+		var grid: Node = ctx["world"]["grid"]
+		var round_now: int = ctx["world"]["turns"].round_number if ctx["world"].get("turns") != null else 0
+		for row: Dictionary in r.get("results", []):
+			hit_marks["%d:%d" % [row["target"].get_instance_id(), round_now]] = true
+		r["ok"] = true
+		return r
 	return {"ok": true}

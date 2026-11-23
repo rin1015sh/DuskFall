@@ -11,6 +11,7 @@ func is_implemented() -> bool:
 
 
 const LESSER := ["paralyzed", "poisoned", "blinded"]
+const GREATER := ["charmed", "petrified"]
 
 
 func apply(ctx: Dictionary) -> Dictionary:
@@ -23,7 +24,14 @@ func apply(ctx: Dictionary) -> Dictionary:
 				t.remove_condition(cond["id"])
 		return {"ok": true}
 	var pick: String = ctx["opts"].get("choice", "")
-	for id: String in ([pick] if pick != "" else LESSER):
+	var order: Array = LESSER
+	if ctx["spell"]["id"] == "greater_restoration":
+		order = GREATER  # 상급 회복: 매혹·석화·저주(탈진·능력치·최대 HP 감소 규칙은 없음)
+		for cond in t.conditions.duplicate():
+			if cond.get("params", {}).get("curse", false) and pick == "":
+				t.remove_condition(cond["id"])
+				return {"ok": true, "removed": cond["id"]}
+	for id: String in ([pick] if pick != "" else order):
 		if t.has_condition(id):
 			t.remove_condition(id)
 			return {"ok": true, "removed": id}
