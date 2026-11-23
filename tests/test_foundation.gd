@@ -11,7 +11,7 @@ func test_event_bus_declares_every_hook_as_signal() -> void:
 	var bus: Node = tree.root.get_node("EventBus")
 	var names: PackedStringArray = bus.hook_names()
 	# 룰북 8단계 이벤트 훅 표: 21행, '·'로 묶인 것을 풀면 25개 + on_fall(changes.md).
-	assert_eq(names.size(), 29, "훅 개수")
+	assert_eq(names.size(), 30, "훅 개수")
 	for n in names:
 		assert_true(bus.has_signal(n), "시그널 %s" % n)
 

@@ -429,6 +429,41 @@
       },
       "source": "SRD 5.2.1",
       "notes_ko": "오라 안 자신과 아군은 공포 면역."
+    },
+    {
+      "id": "radiant_strikes",
+      "name": {
+        "ko": "빛나는 일격",
+        "en": "Radiant Strikes"
+      },
+      "level": 11,
+      "grants": {
+        "weapon_hit_bonus": {
+          "dice_by_level": {
+            "11": "1d8"
+          },
+          "damage_types": [
+            "radiant"
+          ],
+          "every_hit": true,
+          "melee_only": true
+        }
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "근접 무기·비무장 공격 명중마다 +1d8 광휘."
+    },
+    {
+      "id": "restoring_touch",
+      "name": {
+        "ko": "회복의 손길",
+        "en": "Restoring Touch"
+      },
+      "level": 14,
+      "caps": [
+        "restoring_touch"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "신성한 손길로 풀 5마다 실명·매혹·공포·마비·기절 하나씩 해제(자동, 그 5는 회복하지 않음). 귀먹음은 없는 상태."
     }
   ],
   "subclasses": [
@@ -494,6 +529,23 @@
           },
           "source": "SRD 5.2.1",
           "notes_ko": "오라 안 자신과 아군은 매혹 면역."
+        },
+        {
+          "id": "smite_of_protection",
+          "name": {
+            "ko": "보호의 강타",
+            "en": "Smite of Protection"
+          },
+          "level": 15,
+          "cast_trigger": {
+            "spells": [
+              "divine_smite"
+            ],
+            "aura_condition": "smite_protection",
+            "turns": 1
+          },
+          "source": "SRD 5.2.1",
+          "notes_ko": "신성한 강타를 시전하면 다음 내 턴 시작까지 보호의 오라 안 자신·아군 반엄폐(AC +2)."
         }
       ]
     }

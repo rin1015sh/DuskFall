@@ -668,6 +668,17 @@
             }
           },
           "notes_ko": "용의 원소(산·냉기·화염·번개·독) 하나: 그 피해 저항, 그 종류 주문 피해 + 매력 수정치(효과 모델 주문)."
+        },
+        {
+          "id": "dragon_wings",
+          "name": {
+            "ko": "용의 날개",
+            "en": "Dragon Wings"
+          },
+          "level": 14,
+          "status": "deferred",
+          "source": "SRD 5.2.1",
+          "notes_ko": "비행 속도 60피트 — 비행 장치와 함께 다음에."
         }
       ]
     }

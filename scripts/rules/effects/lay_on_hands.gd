@@ -23,6 +23,15 @@ func apply(ctx: Dictionary) -> Dictionary:
 		t.remove_condition("poisoned")
 		pool -= CURE_COST
 		cured = true
+	# 회복의 손길(팔라딘 14레벨): 풀 5마다 실명·매혹·공포·마비·기절 하나씩 해제(그 5는 회복하지 않는다)
+	var lifted: Array = []
+	if c.has_cap("restoring_touch"):
+		for cid: String in ["paralyzed", "stunned", "frightened", "charmed", "blinded"]:
+			if t.has_condition(cid) and pool >= CURE_COST:
+				t.remove_condition(cid)
+				pool -= CURE_COST
+				lifted.append(cid)
+				cured = true
 	var want: int = t.hp_max - t.hp
 	var amount := mini(pool, want)
 	if amount <= 0 and not cured:

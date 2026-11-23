@@ -78,7 +78,15 @@ func roll_initiative(c: Node) -> int:
 	var d := Dice.d20(Resolver.mode_of(res["advantage"], res["disadvantage"]), "%s 이니셔티브" % c.label())
 	c.initiative = d["natural"] + c.ability_mod("dex") + c.initiative_bonus
 	_tiebreak[c] = Dice.die(1000)
+	var had: int = c.resource("uncanny_metabolism")
 	_uncanny_metabolism(c)
+	if c.has_cap("perfect_focus") and c.resource("uncanny_metabolism") == had and c.resources.has("focus"):
+		var f: Dictionary = c.resources["focus"]
+		f["current"] = maxi(int(f["current"]), mini(4, int(f["max"])))  # 완벽한 집중(몽크 15레벨): 기가 3 이하면 4까지
+	if c.has_cap("persistent_rage") and c.resource("persistent_rage") > 0 and c.resources.has("rage") \
+			and int(c.resources["rage"]["current"]) < int(c.resources["rage"]["max"]):
+		c.resources["rage"]["current"] = c.resources["rage"]["max"]  # 끈질긴 분노(바바리안 15레벨): 이니셔티브 때 분노 전부, 긴 휴식 1회
+		c.spend_resource("persistent_rage")
 	return c.initiative
 
 
@@ -300,7 +308,8 @@ func begin_turn(c: Node) -> void:
 func end_turn(c: Node) -> void:
 	EventBus.on_turn_end.emit(c)
 	# 분노(원문): 이번 턴에 적을 공격·내성 강요·분노 연장을 하지 않았거나 무력화면 끝난다
-	if c.has_condition("raging") and (not c.turn.get("rage_kept", false) or c.is_incapacitated()):
+	var keep_rage: bool = c.has_cap("persistent_rage") and not c.has_condition("unconscious")  # 끈질긴 분노: 연장 없이 10분
+	if c.has_condition("raging") and not keep_rage and (not c.turn.get("rage_kept", false) or c.is_incapacitated()):
 		c.remove_condition("raging")
 		Dice.log_text("%s: 분노가 끝났다" % c.label())
 	if c.dead and not c.has_meta("died_round"):

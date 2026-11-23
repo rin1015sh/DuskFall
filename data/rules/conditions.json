@@ -1454,6 +1454,56 @@
       },
       "notes_ko": "Fire Shield: 화염 저항, 1칸 안에서 근접 공격으로 맞힌 생물에게 2d8 냉기.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dazed",
+      "name": {
+        "ko": "현혹",
+        "en": "Dazed"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "flags": {
+        "one_thing_only": true
+      },
+      "notes_ko": "교묘한 일격 현혹: 다음 턴에 이동·행동·보너스 행동 중 하나만 — 1차는 행동만 남긴다.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "sanctuary_grove",
+      "name": {
+        "ko": "자연의 성소",
+        "en": "Nature's Sanctuary"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "ac",
+          "add": 2
+        }
+      ],
+      "notes_ko": "반엄폐(AC +2) + 자연의 수호 저항(수정치로).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "smite_protection",
+      "name": {
+        "ko": "보호의 강타",
+        "en": "Smite of Protection"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "ac",
+          "add": 2
+        }
+      ],
+      "notes_ko": "반엄폐(AC +2), 팔라딘의 다음 턴 시작까지.",
+      "source": "SRD 5.2.1"
     }
   ]
 }

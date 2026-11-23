@@ -219,6 +219,7 @@
               }
             },
             "resistances": {"type": "array", "items": {"type": "string"}},
+            "save_proficiencies": {"type": "array", "items": {"type": "string"}},
             "condition_immunities": {"type": "array", "items": {"type": "string"}},
             "spell_damage_types": {"type": "array", "items": {"type": "string"}},
             "weapon_hit_bonus": {
@@ -307,6 +308,8 @@
                 }
               },
               "resistances": {"type": "array", "items": {"type": "string"}},
+              "save_proficiencies": {"type": "array", "items": {"type": "string"}},
+            "save_proficiencies": {"type": "array", "items": {"type": "string"}},
             "condition_immunities": {"type": "array", "items": {"type": "string"}},
             "spell_damage_types": {"type": "array", "items": {"type": "string"}},
             "weapon_hit_bonus": {
@@ -498,6 +501,19 @@
           "$comment": "choice_kind spell의 주문 목록들",
           "type": "array",
           "items": {"type": "string"}
+        },
+        "cast_trigger": {
+          "$comment": "그 주문을 시전하면 오라 안 아군에게 상태 {spells, aura_condition, turns}",
+          "type": "object"
+        },
+        "protects_concentration": {
+          "$comment": "피해로 집중이 깨지지 않는 주문들(끈질긴 사냥꾼)",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "spell_level": {
+          "$comment": "choice_kind spell: 이 레벨 주문만, 긴 휴식마다 슬롯 없이 1회(신비한 비전)",
+          "type": "integer"
         },
         "free_cast_from": {
           "$comment": "무료 시전 범위(subclass = 하위 클래스 항상 준비 주문)",

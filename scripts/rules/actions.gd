@@ -512,6 +512,8 @@ static func _weapon_action(world: Dictionary, c: Node, key: String, t: Node) -> 
 ## 주문 두루마리(SRD 원문, 룰북 6단계): 내 클래스 주문 목록에 있는 주문이면 읽는다.
 static func can_read_scroll(c: Node, item: Dictionary) -> bool:
 	var sp := RulesDB.get_entry("spell", str(item.get("spell", "")))
+	if not sp.is_empty() and c.has_cap("use_any_scroll"):
+		return true  # 마법 장치 사용(도둑 13레벨): 어떤 주문 두루마리든(지능 사용 — 두루마리 DC를 쓰므로 같다). 높은 레벨 판정은 생략
 	var list := str(RulesDB.get_entry("class", c.class_id).get("spellcasting", {}).get("list", ""))
 	return not sp.is_empty() and list != "" and list in sp.get("classes", [])
 
@@ -589,7 +591,10 @@ static func toggle_passive(c: Node, id: String) -> void:
 	var f: Dictionary = c.feature_data.get(id, {})
 	if not f.has("toggle"):
 		return
-	var ids: Array = f["toggle"]["values"].map(func(v: Dictionary) -> String: return str(v["id"]))
+	var mins: Dictionary = f.get("choice_min_level", {})
+	var lv: int = c.feature_level(id)
+	var ids: Array = f["toggle"]["values"].map(func(v: Dictionary) -> String: return str(v["id"])).filter(
+		func(v: String) -> bool: return lv >= int(mins.get(v, 0)))  # 레벨이 안 된 선택지는 건너뛴다(교묘한 일격 14레벨 등)
 	var cur := str(c.options.get(id, ids[0]))
 	c.options[id] = ids[(ids.find(cur) + 1) % ids.size()]
 

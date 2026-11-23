@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 31 |
-| capability | 76 |
+| capability | 89 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -39,10 +39,14 @@
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 빠른 이동 (fast_movement) |  | 태그 fast_movement |  |
 | 6 | 광기 없는 분노 (mindless_rage) | berserker | 태그 mindless_rage |  |
-| 7 | 야생의 본능 (feral_instinct) |  | 부여 advantage |  |
 | 7 | 본능적 도약 (instinctive_pounce) |  | 태그 instinctive_pounce |  |
+| 7 | 야생의 본능 (feral_instinct) |  | 부여 advantage |  |
 | 9 | 잔혹한 일격 (brutal_strike) |  | 태그 brutal_strike; 설정 |  |
 | 10 | 보복 (retaliation) | berserker | 태그 retaliation; 반응 |  |
+| 11 | 끈질긴 분노 (relentless_rage) |  | 스크립트 relentless_rage |  |
+| 13 | 향상된 잔혹한 일격 (improved_brutal_strike) |  | 처리: 잔혹한 일격 설정에 비틀거리게 하는 일격·가르는 일격 추가(13레벨부터 — choice_min_level) |  |
+| 14 | 위협적인 존재감 (intimidating_presence) | berserker | 스크립트 intimidating_presence; 태그 rage_refuel |  |
+| 15 | 끈질긴 분노 유지 (persistent_rage) |  | 태그 persistent_rage |  |
 
 ### 바드 (bard) — 생명 주사위 d8, 역할 caster
 
@@ -58,6 +62,7 @@
 | 7 | 대항 매혹 (countercharm) |  | 태그 countercharm; 반응 |  |
 | 9 | 전문화(9레벨) (expertise_9) |  | 고르기(expertise) |  |
 | 10 | 마법의 비밀 (magical_secrets) |  | 처리: 클래스 spellcasting.extra_lists — 10레벨부터 준비 주문을 클레릭·드루이드·위저드 목록에서도 고른다(주문 창·생성기 검사) |  |
+| 14 | 비할 데 없는 기술 (peerless_skill) | lore | 스크립트 peerless_skill |  |
 
 ### 클레릭 (cleric) — 생명 주사위 d8, 역할 healer
 
@@ -73,6 +78,7 @@
 | 6 | 축복받은 치유자 (blessed_healer) | life | 태그 blessed_healer |  |
 | 7 | 축복받은 일격 (blessed_strikes) |  | 고르기(option) |  |
 | 10 | 신성 개입 (divine_intervention) |  | 태그 free_cast_class_spell; 설정 |  |
+| 14 | 향상된 축복받은 일격 (improved_blessed_strikes) |  | 고르기(option) |  |
 
 ### 드루이드 (druid) — 생명 주사위 d8, 역할 caster
 
@@ -90,6 +96,8 @@
 | 6 | 자연 회복: 무료 시전 (natural_recovery_cast) | land | 태그 free_cast_class_spell; 설정 |  |
 | 7 | 원소의 격노 (elemental_fury) |  | 고르기(option) |  |
 | 10 | 자연의 수호 (natures_ward) | land | 고르기(option) |  |
+| 14 | 자연의 성소 (natures_sanctuary) | land | 스크립트 natures_sanctuary |  |
+| 15 | 향상된 원소의 격노 (improved_elemental_fury) |  | 고르기(option) |  |
 
 ### 전사 (fighter) — 생명 주사위 d10, 역할 melee
 
@@ -108,6 +116,9 @@
 | 9 | 불굴 (indomitable) |  | 스크립트 indomitable |  |
 | 9 | 전술 대가 (tactical_master) |  | 태그 tactical_master; 설정 |  |
 | 10 | 영웅 전사 (heroic_warrior) | champion | 태그 heroic_warrior |  |
+| 11 | 추가 공격 2회 (two_extra_attacks) |  | 태그 extra_attack; 부여 attacks_per_action |  |
+| 13 | 연구된 공격 (studied_attacks) |  | 태그 studied_attacks |  |
+| 15 | 우월한 치명타 (superior_critical) | champion | 부여 crit_threshold |  |
 
 ### 몽크 (monk) — 생명 주사위 d8, 역할 melee
 
@@ -125,14 +136,18 @@
 | 3 | 공격 쳐내기 (deflect_attacks) |  | 스크립트 deflect_attacks; 반응 |  |
 | 3 | 열린 손 기법 (open_hand_technique) | open_hand | 태그 open_hand_technique; 설정 |  |
 | 4 | 느린 낙하 (slow_fall) |  | 태그 slow_fall; 반응 |  |
-| 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 충격의 일격 (stunning_strike) |  | 태그 stunning_strike; 설정 |  |
+| 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 6 | 강화된 타격 (empowered_strikes) |  | 태그 empowered_strikes |  |
 | 6 | 몸의 완전함 (wholeness_of_body) | open_hand | 스크립트 wholeness_of_body |  |
 | 7 | 회피 (evasion) |  | 태그 evasion |  |
 | 9 | 곡예 이동 (acrobatic_movement) |  | 태그 climber |  |
 | 10 | 고양된 집중 (heightened_focus) |  | 태그 heightened_focus |  |
 | 10 | 자기 회복 (self_restoration) |  | 태그 self_restoration |  |
+| 11 | 날랜 걸음 (fleet_step) | open_hand |  | 보류(deferred) |
+| 13 | 에너지 쳐내기 (deflect_energy) |  | 태그 deflect_energy |  |
+| 14 | 수련된 생존자 (disciplined_survivor) |  | 스크립트 disciplined_survivor; 부여 save_proficiencies |  |
+| 15 | 완벽한 집중 (perfect_focus) |  | 태그 perfect_focus |  |
 
 ### 팔라딘 (paladin) — 생명 주사위 d10, 역할 melee
 
@@ -144,14 +159,17 @@
 | 2 | 팔라딘의 강타 (paladins_smite) |  | 처리: 클래스 always_prepared(신성한 강타) + 자원 innate_divine_smite(슬롯 없이 긴 휴식마다 1회 — 무료 횟수 먼저) |  |
 | 3 | 신성 변환 (channel_divinity) |  | 처리: 자원 channel_divinity(2회, 짧은 휴식에 1회 회복) — 하위 클래스 기능이 쓴다 |  |
 | 3 | 신성 감지 (divine_sense) |  | 스크립트 divine_sense |  |
-| 3 | 헌신의 맹세 주문 (oath_spells_devotion) | devotion | 처리: 하위 클래스 always_prepared(3레벨 악과 선 보호·신앙의 방패, 5레벨 원조·진실의 구역) |  |
 | 3 | 신성한 무기 (sacred_weapon) | devotion | 스크립트 sacred_weapon |  |
+| 3 | 헌신의 맹세 주문 (oath_spells_devotion) | devotion | 처리: 하위 클래스 always_prepared(3레벨 악과 선 보호·신앙의 방패, 5레벨 원조·진실의 구역) |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 충직한 탈것 (faithful_steed) |  | 처리: 클래스 always_prepared(탈것 찾기) + 자원 innate_find_steed(슬롯 없이 긴 휴식마다 1회). 올라타기 없음(BG3식 동료) |  |
 | 6 | 보호의 오라 (aura_of_protection) |  | 오라(auras.gd) |  |
 | 7 | 헌신의 오라 (aura_of_devotion) | devotion | 오라(auras.gd) |  |
 | 9 | 적 퇴치 (abjure_foes) |  | 스크립트 abjure_foes |  |
 | 10 | 용기의 오라 (aura_of_courage) |  | 오라(auras.gd) |  |
+| 11 | 빛나는 일격 (radiant_strikes) |  | 부여 weapon_hit_bonus |  |
+| 14 | 회복의 손길 (restoring_touch) |  | 태그 restoring_touch |  |
+| 15 | 보호의 강타 (smite_of_protection) | devotion |  | **설명만** |
 
 ### 레인저 (ranger) — 생명 주사위 d10, 역할 ranged
 
@@ -168,6 +186,10 @@
 | 7 | 방어 전술 (defensive_tactics) | hunter | 고르기(option) |  |
 | 9 | 전문화(9레벨) (expertise_9) |  | 고르기(expertise) |  |
 | 10 | 지치지 않음 (tireless) |  | 스크립트 tireless |  |
+| 11 | 뛰어난 사냥꾼의 먹잇감 (superior_hunters_prey) | hunter | 태그 mark_spread |  |
+| 13 | 끈질긴 사냥꾼 (relentless_hunter) |  |  | **설명만** |
+| 14 | 자연의 장막 (natures_veil) |  | 스크립트 natures_veil |  |
+| 15 | 뛰어난 사냥꾼의 방어 (superior_hunters_defense) | hunter | 태그 hunters_defense; 반응 |  |
 
 ### 로그 (rogue) — 생명 주사위 d8, 역할 ranged
 
@@ -178,14 +200,18 @@
 | 1 | 무기 마스터리 (weapon_mastery) |  | 처리: 생성기 — 클래스 weapon_mastery 표(레벨별 개수)와 명세 masteries |  |
 | 2 | 교활한 행동 (cunning_action) |  | 태그 bonus_dash_disengage_hide |  |
 | 3 | 안정된 조준 (steady_aim) |  | 스크립트 steady_aim |  |
-| 3 | 빠른 손 (fast_hands) | thief | 태그 extra_bonus_action |  |
 | 3 | 2층 작업 (second_story_work) | thief | 태그 climber, jump_dex, jump_plus_1 |  |
+| 3 | 빠른 손 (fast_hands) | thief | 태그 extra_bonus_action |  |
 | 5 | 교활한 일격 (cunning_strike) |  | 스크립트 cunning_strike; 태그 cunning_strike; 설정 |  |
 | 5 | 교묘한 회피 (uncanny_dodge) |  | 스크립트 uncanny_dodge; 반응 |  |
 | 6 | 전문화(6레벨) (expertise_6) |  | 고르기(expertise) |  |
-| 7 | 회피 (evasion) |  | 태그 evasion |  |
 | 7 | 믿음직한 재능 (reliable_talent) |  | 태그 reliable_talent |  |
+| 7 | 회피 (evasion) |  | 태그 evasion |  |
 | 9 | 최상급 은신 (supreme_sneak) | thief | 태그 stealth_attack; 설정 |  |
+| 11 | 향상된 교활한 일격 (improved_cunning_strike) |  | 태그 improved_cunning_strike; 설정 |  |
+| 13 | 마법 장치 사용 (use_magic_device) | thief | 태그 use_any_scroll |  |
+| 14 | 교묘한 일격 (devious_strikes) |  | 처리: 교활한 일격 설정에 현혹(2d6 — 건강 내성, 다음 턴 하나만)·기절시키기(6d6 — 건강 내성, 의식 잃음 10턴·피해 받으면 끝)·시야 가리기(3d6 — 민첩 내성, 실명 1턴) |  |
+| 15 | 미끄러운 정신 (slippery_mind) |  | 부여 save_proficiencies |  |
 
 ### 소서러 (sorcerer) — 생명 주사위 d6, 역할 caster
 
@@ -202,6 +228,7 @@
 | 6 | 원소 친화 (elemental_affinity) | draconic | 고르기(option) |  |
 | 7 | 마법의 화신 (sorcery_incarnate) |  | 태그 sorcery_incarnate |  |
 | 10 | 주문 변형(10레벨) (metamagic_10) |  | 고르기(option) |  |
+| 14 | 용의 날개 (dragon_wings) | draconic |  | 보류(deferred) |
 
 ### 워락 (warlock) — 생명 주사위 d8, 역할 caster
 
@@ -209,8 +236,8 @@
 | --- | --- | --- | --- | --- |
 | 1 | 계약 마법 (pact_magic) |  | 처리: 클래스 spellcasting — 슬롯이 모두 같은 레벨(1·2·3), 짧은 휴식에 회복(slot_recharge short), 낮은 주문은 그 레벨로 올려 시전 |  |
 | 1 | 섬뜩한 영창 (eldritch_invocations) |  | 고르기(option) |  |
-| 2 | 섬뜩한 영창(2레벨) (eldritch_invocations_2) |  | 고르기(option) |  |
 | 2 | 마법적 기지 (magical_cunning) |  | 스크립트 magical_cunning |  |
+| 2 | 섬뜩한 영창(2레벨) (eldritch_invocations_2) |  | 고르기(option) |  |
 | 3 | 어둠의 축복 (dark_ones_blessing) | fiend | 태그 dark_ones_blessing |  |
 | 3 | 악마의 주문 (fiend_spells) | fiend | 처리: 하위 클래스 always_prepared(3레벨 불타는 손·명령·작열 광선·암시, 5레벨 화염구·악취 구름) |  |
 | 5 | 섬뜩한 영창(5레벨) (eldritch_invocations_5) |  | 고르기(option) |  |
@@ -219,8 +246,12 @@
 | 9 | 섬뜩한 영창(9레벨) (eldritch_invocations_9) |  | 고르기(option) |  |
 | 9 | 후원자와 접촉 (contact_patron) |  |  | 보류(deferred) |
 | 10 | 악마의 회복력 (fiendish_resilience) | fiend | 고르기(option) |  |
+| 11 | 신비한 비전(6레벨) (mystic_arcanum_6) |  | 고르기(spell) |  |
 | 12 | 섬뜩한 영창(12레벨) (eldritch_invocations_12) |  | 고르기(option) |  |
+| 13 | 신비한 비전(7레벨) (mystic_arcanum_7) |  | 고르기(spell) |  |
+| 14 | 지옥으로 내던지기 (hurl_through_hell) | fiend | 스크립트 hurl_through_hell; 설정 |  |
 | 15 | 섬뜩한 영창(15레벨) (eldritch_invocations_15) |  | 고르기(option) |  |
+| 15 | 신비한 비전(8레벨) (mystic_arcanum_8) |  | 고르기(spell) |  |
 | 18 | 섬뜩한 영창(18레벨) (eldritch_invocations_18) |  | 고르기(option) |  |
 
 ### 위저드 (wizard) — 생명 주사위 d6, 역할 caster
@@ -235,6 +266,7 @@
 | 5 | 주문 암기 (memorize_spell) |  | 태그 prepare_swap_short_rest |  |
 | 6 | 주문 조각 (sculpt_spells) | evoker | 태그 sculpt_spells |  |
 | 10 | 강화된 방출 (empowered_evocation) | evoker | 태그 evocation_add_mod |  |
+| 14 | 과충전 (overchannel) | evoker | 태그 overchannel; 설정 |  |
 
 ## 주문
 
@@ -260,18 +292,21 @@
 | brutal_strike | 잔혹한 일격 | barbarian |
 | cantrip_add_mod | 강력한 주문 시전 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_miss | 강력한 소마법 | wizard |
+| cantrip_long_range | 소마법 사거리 | (몬스터 특성 또는 아직 없음) |
+| cantrip_vitality | 소마법 활력 | (몬스터 특성 또는 아직 없음) |
 | check_boost_d10 | 전술적 판단 | fighter |
 | climber | 등반 | monk, ranger, rogue |
 | countercharm | 대항 매혹 | bard |
 | crit_free_move | 치명타 뒤 이동 | fighter |
 | cunning_strike | 교활한 일격 | rogue |
 | dark_ones_blessing | 어둠의 축복 | warlock |
+| deflect_energy | 에너지 쳐내기 | monk |
 | eldritch_mind | 섬뜩한 정신 | (몬스터 특성 또는 아직 없음) |
 | empowered_strikes | 강화된 타격 | monk |
 | escape_the_horde | 무리 탈출 | (몬스터 특성 또는 아직 없음) |
 | evasion | 회피 | monk, rogue |
 | evocation_add_mod | 강화된 방출 | wizard |
-| extra_attack | 추가 공격 | barbarian, fighter, monk, paladin, ranger |
+| extra_attack | 추가 공격 | barbarian, fighter, fighter, monk, paladin, ranger |
 | extra_bonus_action | 추가 보너스 행동 | rogue |
 | extra_damage_wounded | 거상 학살자 | (몬스터 특성 또는 아직 없음) |
 | fast_movement | 빠른 이동 | barbarian, ranger |
@@ -280,14 +315,17 @@
 | heightened_focus | 고양된 집중 | monk |
 | heroic_warrior | 영웅 전사 | fighter |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
+| hunters_defense | 뛰어난 사냥꾼의 방어 | ranger |
 | hunters_lore | 사냥꾼의 지식 | ranger |
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
+| improved_cunning_strike | 향상된 교활한 일격 | rogue |
 | initiative_proficiency | 경계 | 재주 alert |
 | instinctive_pounce | 본능적 도약 | barbarian |
 | jack_of_all_trades | 만물박사 | bard |
 | jump_dex | 민첩 도약 | rogue |
 | jump_plus_1 | 도약 +1칸 | fighter, rogue |
 | long_rest_inspiration | 기지 | 종족 human |
+| mark_spread | 먹잇감 확산 | ranger |
 | martial_arts | 무술 | monk |
 | metamagic_careful | 신중한 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_distant | 원거리 주문 | (몬스터 특성 또는 아직 없음) |
@@ -300,15 +338,20 @@
 | multiattack_defense | 다중 공격 방어 | (몬스터 특성 또는 아직 없음) |
 | nimble_escape | 날렵한 탈출 | (몬스터 특성 또는 아직 없음) |
 | open_hand_technique | 열린 손 기법 | monk |
+| overchannel | 과충전 | wizard |
 | pack_tactics | 무리 전술 | (몬스터 특성 또는 아직 없음) |
 | pact_blade | 계약의 칼날 | (몬스터 특성 또는 아직 없음) |
+| perfect_focus | 완벽한 집중 | monk |
+| persistent_rage | 끈질긴 분노 유지 | barbarian |
 | prepare_swap_short_rest | 주문 암기 | wizard |
+| rage_refuel | 분노로 다시 쓰기 | barbarian |
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |
 | reckless | 무모한 공격 | barbarian |
 | reliable_talent | 믿음직한 재능 | rogue |
 | repelling_blast | 밀어내는 화살 | (몬스터 특성 또는 아직 없음) |
 | reroll_low_damage_two_handed | 대형 무기 전투 | 재주 great_weapon_fighting |
 | reroll_natural_1 | 행운 | 종족 halfling |
+| restoring_touch | 회복의 손길 | paladin |
 | retaliation | 보복 | barbarian |
 | ritual_from_spellbook | 의식 숙련 | wizard |
 | sculpt_spells | 주문 조각 | wizard |
@@ -319,6 +362,7 @@
 | sorcery_incarnate | 마법의 화신 | sorcerer |
 | spell_heal_bonus | 생명의 제자 | cleric |
 | stealth_attack | 은신 공격 | rogue |
+| studied_attacks | 연구된 공격 | fighter |
 | stunning_strike | 충격의 일격 | monk |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |
 | tactical_master | 전술 대가 | fighter |
@@ -328,4 +372,5 @@
 | unarmored_defense_wis | 맨몸 방어(지혜) | monk |
 | unarmored_movement | 맨몸 이동 | monk |
 | uncanny_metabolism | 신비한 대사 | monk |
+| use_any_scroll | 마법 장치 사용 | rogue |
 | weapon_damage_twice | 야만적 공격 | 재주 savage_attacker |

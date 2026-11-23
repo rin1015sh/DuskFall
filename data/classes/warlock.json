@@ -235,6 +235,17 @@
       },
       "max": "ability_mod:cha",
       "recharge": "long"
+    },
+    {
+      "id": "hurl_through_hell",
+      "name": {
+        "ko": "지옥으로 내던지기",
+        "en": "Hurl Through Hell"
+      },
+      "max": {
+        "14": 1
+      },
+      "recharge": "long"
     }
   ],
   "features": [
@@ -1073,6 +1084,54 @@
       "status": "deferred",
       "source": "SRD 5.2.1",
       "notes_ko": "다른 세계와 접촉(5레벨 주문) 항상 준비·무료 1회 — 서술형 주문이라 대화 분기와 함께 다음에."
+    },
+    {
+      "id": "mystic_arcanum_6",
+      "name": {
+        "ko": "신비한 비전(6레벨)",
+        "en": "Mystic Arcanum (level 6)"
+      },
+      "level": 11,
+      "choice_kind": "spell",
+      "count": 1,
+      "spell_lists": [
+        "warlock"
+      ],
+      "spell_level": 6,
+      "source": "SRD 5.2.1",
+      "notes_ko": "6레벨 워락 주문 하나 — 긴 휴식마다 슬롯 없이 1회(innate)."
+    },
+    {
+      "id": "mystic_arcanum_7",
+      "name": {
+        "ko": "신비한 비전(7레벨)",
+        "en": "Mystic Arcanum (level 7)"
+      },
+      "level": 13,
+      "choice_kind": "spell",
+      "count": 1,
+      "spell_lists": [
+        "warlock"
+      ],
+      "spell_level": 7,
+      "source": "SRD 5.2.1",
+      "notes_ko": "7레벨 워락 주문 하나 — 긴 휴식마다 슬롯 없이 1회(innate)."
+    },
+    {
+      "id": "mystic_arcanum_8",
+      "name": {
+        "ko": "신비한 비전(8레벨)",
+        "en": "Mystic Arcanum (level 8)"
+      },
+      "level": 15,
+      "choice_kind": "spell",
+      "count": 1,
+      "spell_lists": [
+        "warlock"
+      ],
+      "spell_level": 8,
+      "source": "SRD 5.2.1",
+      "notes_ko": "8레벨 워락 주문 하나 — 긴 휴식마다 슬롯 없이 1회(innate)."
     }
   ],
   "subclasses": [
@@ -1229,6 +1288,40 @@
             }
           },
           "notes_ko": "역장 외 피해 종류 하나에 저항. 원문은 휴식마다 바꿈 — 명세 선택으로(BG3식 고정)."
+        },
+        {
+          "id": "hurl_through_hell",
+          "name": {
+            "ko": "지옥으로 내던지기",
+            "en": "Hurl Through Hell"
+          },
+          "level": 14,
+          "hook": "on_hit",
+          "script": "hurl_through_hell",
+          "source": "SRD 5.2.1",
+          "notes_ko": "턴당 1회 공격 명중 시 매력 내성, 실패 시 8d10 정신(악마 제외) + 다음 내 턴 끝까지 추방. 긴 휴식 1회, 없으면 계약 슬롯으로(자동).",
+          "toggle": {
+            "values": [
+              {
+                "id": "on",
+                "name": {
+                  "ko": "켬",
+                  "en": "On"
+                }
+              },
+              {
+                "id": "off",
+                "name": {
+                  "ko": "끔",
+                  "en": "Off"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "공격 명중 때 자동으로 지옥으로 내던지기(횟수 없으면 계약 슬롯).",
+              "en": "Auto Hurl Through Hell on hit (uses a Pact slot if needed)."
+            }
+          }
         }
       ]
     }

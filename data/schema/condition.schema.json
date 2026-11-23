@@ -364,6 +364,9 @@
             "death_ward": {
               "type": "boolean"
             },
+            "one_thing_only": {
+              "type": "boolean"
+            },
             "auto_fail_saves": {
               "type": "array",
               "items": {

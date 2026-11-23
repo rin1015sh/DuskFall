@@ -68,6 +68,9 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 		res["natural"] = d2["natural"]
 		res["total"] = res["natural"] + res["attack_bonus"] + bonus_dice
 		_decide_hit(res)
+	if not res["hit"] and res["natural"] != 1:
+		Features.hook("on_attack_missed", attacker, {"res": res})  # 비할 데 없는 기술(지식 학파 14레벨) — 스크립트가 total을 고친다
+		_decide_hit(res)
 	# 받는 쪽의 '다음 공격을 받으면 사라지는' 수정치(Guiding Bolt)
 	for m in target.extra_modifiers.duplicate():
 		if m.get("consume_on_attacked", false):
@@ -80,6 +83,11 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	for m in attacker.extra_modifiers.duplicate():
 		if m.get("consume_on_attack", false) and (m.get("target_only") == null or m.get("target_only") == target):
 			attacker.extra_modifiers.erase(m)
+	if not res["hit"] and attacker.has_cap("studied_attacks") and attacker != target:
+		# 연구된 공격(전사 13레벨): 빗나가면 다음 내 턴 끝까지 그 대상에 대한 다음 공격 유리
+		attacker.extra_modifiers.append({"effect": {"type": "advantage", "roll": "attack", "side": "self", "value": "advantage"},
+			"source": "studied_attacks", "target_only": target, "consume_on_attack": true,
+			"expires_after_turn_end_of": attacker, "turn_end_count": 2})
 	# 숨기로 얻은 투명은 공격 굴림을 하면 풀린다(원문 Hide, 5단계 은신 공격).
 	# 최상급 은신(능력 태그 stealth_attack, 설정 켬): 급소 공격 주사위 1개를 쓰면 숨기가 풀리지 않는다 — 명중 처리 뒤에 정한다.
 	var hide: Dictionary = attacker.condition_instance("invisible")
@@ -364,6 +372,8 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 		for e: Dictionary in a["def"].get("hooks", {}).get("on_hit_by_source", []):
 			if e["type"] == "damage":
 				res["extra_damage"].append({"dice": e["dice"], "damage_type": e["damage_type"]})
+				if attacker.has_cap("mark_spread") and not attacker.turn.get("mark_spread_used", false):
+					_mark_spread(attacker, target, e)
 		EventBus.on_hit_by_source.emit(res)
 	if atk.get("weapon", false):
 		for a in attacker.active_conditions():
@@ -415,6 +425,15 @@ static func _brutal_effect(attacker: Node, target: Node, opt: String) -> void:
 			if rq != null and is_instance_valid(rq) and rq.world.has("grid"):
 				load("res://scripts/rules/combat.gd")._push_up_to(rq.world, attacker, target, 3)
 			attacker.turn["free_move_no_oa"] = maxi(int(attacker.turn.get("free_move_no_oa", 0)), attacker.speed() / 2)
+		"staggering":
+			# 비틀거리게 하는 일격(13레벨): 다음 내 턴 시작까지 내성 불리·기회 공격 못 함
+			target.extra_modifiers.append({"effect": {"type": "advantage", "roll": "save", "side": "self", "value": "disadvantage"},
+				"source": "staggering_blow", "until_turn_start_of": attacker})
+			target.set_meta("no_opportunity_until", attacker)
+		"sundering":
+			# 가르는 일격(13레벨): 다음 내 턴 시작 전 그 대상을 노리는 다음 공격 +5(AC −5로 — 한 번)
+			target.extra_modifiers.append({"effect": {"type": "modify", "stat": "ac", "add": -5}, "source": "sundering_blow",
+				"consume_on_attacked": true, "until_turn_start_of": attacker})
 		"hamstring":
 			for old in target.extra_modifiers.duplicate():
 				if old.get("source") == "hamstring":
@@ -423,13 +442,33 @@ static func _brutal_effect(attacker: Node, target: Node, opt: String) -> void:
 				"source": "hamstring", "until_turn_start_of": attacker})
 
 
+## 뛰어난 사냥꾼의 먹잇감(사냥꾼 11레벨): 턴당 1회 표식 추가 피해를 첫 대상 6칸 안의 보이는 다른 적에게도.
+static func _mark_spread(attacker: Node, target: Node, e: Dictionary) -> void:
+	var rq: Node = EventBus.reaction_queue
+	if rq == null or not is_instance_valid(rq) or not rq.world.has("grid"):
+		return
+	var grid: Node = rq.world["grid"]
+	var best: Node = null
+	for o: Node in grid.creatures():
+		if o == target or o.dead or not o.is_hostile_to(attacker) or grid.distance_between(o, target) > 6 or not grid.can_see(attacker, o):
+			continue
+		if best == null or grid.distance_between(o, target) < grid.distance_between(best, target):
+			best = o
+	if best == null:
+		return
+	attacker.turn["mark_spread_used"] = true
+	apply_damage(best, [{"amount": Dice.roll(str(e["dice"]), "먹잇감 확산")["total"], "damage_type": str(e["damage_type"])}], {"attacker": attacker})
+
+
 ## 기능 부여 weapon_hit_bonus(신성한 일격·원초의 일격): 턴당 1회 무기 명중에 dice_by_level(기능의 클래스 레벨) 추가 피해.
 ## damage_types 중 대상이 면역·저항이 아닌 첫 종류(BG3식 자동 고르기).
 static func _feature_hit_bonus(attacker: Node, target: Node, atk: Dictionary, res: Dictionary) -> void:
 	for hb: Dictionary in attacker.get_meta("weapon_hit_bonus", []):
 		var key := "hit_bonus_" + str(hb["feature"])
-		if attacker.turn.get(key, false):
+		if attacker.turn.get(key, false) and not hb.get("every_hit", false):
 			continue
+		if hb.get("melee_only", false) and str(atk.get("kind", "")) != "melee":
+			continue  # 빛나는 일격(팔라딘 11레벨): 근접 무기·비무장 명중마다
 		var dice := ""
 		var best_lv := 0
 		var lv: int = attacker.feature_level(str(hb["feature"]))
@@ -507,6 +546,27 @@ static func inspire(c: Node) -> int:
 	c.remove_condition("bardic_inspiration")
 	Dice.log_text("%s: 바드의 영감 +%d" % [c.label(), n])
 	return n
+
+
+## 뛰어난 사냥꾼의 방어(능력 태그 hunters_defense — 사냥꾼 15레벨): 피해를 받을 때 반응으로 그 종류 저항(이번 턴 끝까지).
+## 반응 설정 대상(자동 기본) — 가장 큰 피해 종류, 이미 저항·면역이면 쓰지 않는다. 피해 10 이상일 때만 자동으로 쓴다.
+static func _hunters_defense(target: Node, parts: Array, opts: Dictionary) -> void:
+	if not target.has_cap("hunters_defense") or not target.can_react() or opts.get("attacker") == null:
+		return
+	var by := {}
+	for p: Dictionary in parts:
+		by[str(p["damage_type"])] = int(by.get(str(p["damage_type"]), 0)) + int(float(p["amount"]) * float(p.get("multiplier", 1.0)))
+	var best := ""
+	for t: String in by:
+		if (best == "" or int(by[t]) > int(by[best])) and not t in target.damage_resistances and not t in target.damage_immunities:
+			best = t
+	if best == "" or int(by[best]) < 10:
+		return
+	Features.offer_reaction(target, "superior_hunters_defense", {"type": best}, func() -> void:
+		target.turn["reaction"] = 0
+		target.extra_modifiers.append({"effect": {"type": "modify", "stat": "damage_resistance", "damage_types": [best]},
+			"source": "hunters_defense", "turn_ends_left": 1})
+		Dice.log_text("%s 뛰어난 사냥꾼의 방어: %s 저항" % [target.label(), best]))
 
 
 ## 대항 매혹(능력 태그 countercharm — 바드 7레벨): 자신 또는 6칸 안 생물이 매혹·공포를 거는 효과의 내성에 실패하면
@@ -751,6 +811,7 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 		"died": false, "concentration": {}}
 	if target.dead:
 		return out
+	_hunters_defense(target, parts, opts)
 	# 8. 피해 수정(유형별로 모아서 한 번에 — 저항은 한 피해에 한 번만 적용된다)
 	# 배율(내성 성공 절반 등)은 부분마다 먼저 적용하고 내림, 그다음 유형별로 합쳐 저항·취약.
 	var raw := {}
@@ -976,6 +1037,10 @@ static func _save_setup(creature: Node, ability: String, dc: int, opts: Dictiona
 
 ## 집중 유지 내성: 건강, DC = max(10, 피해 절반 내림), 최대 30. 자연 20·1 적용(2단계 결정 1).
 static func concentration_check(creature: Node, damage: int) -> Dictionary:
+	var held := str(creature.concentration.get("spell", ""))
+	for f: Dictionary in creature.feature_data.values():
+		if held != "" and held in f.get("protects_concentration", []):
+			return {"success": true, "auto": true}  # 끈질긴 사냥꾼(레인저 13레벨): 피해로 사냥꾼의 표식 집중이 깨지지 않는다
 	var dc := clampi(maxi(CONCENTRATION_DC_MIN, damage / 2), CONCENTRATION_DC_MIN, CONCENTRATION_DC_MAX)
 	var copts := {"natural_rules": true}
 	if creature.has_cap("eldritch_mind") or bool(creature.concentration.get("advantage", false)):
@@ -1095,6 +1160,11 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 ## 반응 회복과 재충전은 3단계 TurnManager가 맡는다.
 static func start_turn(creature: Node, ctx: Dictionary = {}) -> void:
 	EventBus.on_turn_start.emit(creature)
+	var rq: Node = EventBus.reaction_queue
+	if rq != null and is_instance_valid(rq) and rq.world.has("grid"):
+		for o: Node in rq.world["grid"].creatures():
+			if o.has_meta("no_opportunity_until") and o.get_meta("no_opportunity_until") == creature:
+				o.remove_meta("no_opportunity_until")
 	if ctx.get("in_combat", false) and creature.has_cap("heroic_warrior") and not creature.has_condition("heroic_inspiration"):
 		creature.apply_condition("heroic_inspiration", -1, creature)  # 영웅 전사(챔피언 10레벨): 전투 중 턴 시작마다
 	var regen: Dictionary = creature.feature_data.get("regeneration", {})

@@ -218,6 +218,9 @@ func reset_turn() -> void:
 		"interaction": 1, "attacks_left": 0, "light_attack_done": false, "nick_used": false,
 		"cleave_used": false, "disengaged": false, "reaction": turn.get("reaction", 1),
 		"moved": false, "sneak_used": false, "savage_used": false, "free_move_no_oa": 0}
+	if has_flag("one_thing_only"):
+		turn["bonus"] = 0  # 현혹(교묘한 일격): 이동·행동·보너스 행동 중 하나만 — 행동을 남기고 이동·보너스 행동을 막는다(1차)
+		turn["movement"] = 0
 
 
 func has_feature(id: String) -> bool:

@@ -349,10 +349,11 @@ static func _horde_breaker(world: Dictionary, attacker: Node, target: Node, wid:
 
 ## 공격 뒤 기능: 교활한 일격(급소 공격이 정해 둔 효과).
 static func _after_attack_features(world: Dictionary, attacker: Node, target: Node, res: Dictionary) -> void:
-	if res.get("cunning_strike", "") != "":
-		var Features := preload("res://scripts/rules/features.gd")
-		Features.run("cunning_strike", {"world": world, "self": attacker, "target": target, "res": res,
-			"opts": {"option": res["cunning_strike"]}})
+	var Features := preload("res://scripts/rules/features.gd")
+	for k: String in ["cunning_strike", "cunning_strike_2"]:  # 향상된 교활한 일격(로그 11레벨): 효과 둘
+		if str(res.get(k, "")) != "":
+			Features.run("cunning_strike", {"world": world, "self": attacker, "target": target, "res": res,
+				"opts": {"option": res[k]}})
 
 
 ## 물체 공격(4단계 물체 AC·HP): 쥔 무기 세트로 칸의 물체를 친다. 맞으면 무기 피해를 칸 피해로(재질 반응·파괴·내용물).
@@ -596,6 +597,8 @@ static func _provokers(world: Dictionary, mover: Node, cur: Vector2i, nxt: Vecto
 	for e: Node in grid.creatures():
 		if e == mover or e.dead or not e.is_hostile_to(mover) or not e.can_react():
 			continue
+		if e.has_meta("no_opportunity_until"):
+			continue  # 비틀거리게 하는 일격(바바리안 13레벨): 다음 그 바바리안 턴 시작까지 기회 공격 못 함
 		if e.has_meta("monster"):
 			if preload("res://scripts/rules/monster_factory.gd").melee_reach(e) <= 0:
 				continue

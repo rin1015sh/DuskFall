@@ -92,6 +92,39 @@
         "20": 6
       },
       "recharge": "short_one"
+    },
+    {
+      "id": "relentless_rage",
+      "name": {
+        "ko": "끈질긴 분노",
+        "en": "Relentless Rage"
+      },
+      "max": {
+        "11": 20
+      },
+      "recharge": "short"
+    },
+    {
+      "id": "persistent_rage",
+      "name": {
+        "ko": "끈질긴 분노 유지",
+        "en": "Persistent Rage"
+      },
+      "max": {
+        "15": 1
+      },
+      "recharge": "long"
+    },
+    {
+      "id": "intimidating_presence",
+      "name": {
+        "ko": "위협적인 존재감",
+        "en": "Intimidating Presence"
+      },
+      "max": {
+        "14": 1
+      },
+      "recharge": "long"
     }
   ],
   "features": [
@@ -329,13 +362,66 @@
               "ko": "오금 베기",
               "en": "Hamstring Blow"
             }
+          },
+          {
+            "id": "staggering",
+            "name": {
+              "ko": "비틀거리게 하는 일격",
+              "en": "Staggering Blow"
+            }
+          },
+          {
+            "id": "sundering",
+            "name": {
+              "ko": "가르는 일격",
+              "en": "Sundering Blow"
+            }
           }
         ],
         "desc": {
           "ko": "무모한 공격 중 첫 근력 공격에서 유리 대신 잔혹한 일격(누를 때마다 바뀜).",
           "en": "Trade Advantage for a Brutal Strike on your first Strength attack while Reckless."
         }
+      },
+      "choice_min_level": {
+        "staggering": 13,
+        "sundering": 13
       }
+    },
+    {
+      "id": "relentless_rage",
+      "name": {
+        "ko": "끈질긴 분노",
+        "en": "Relentless Rage"
+      },
+      "level": 11,
+      "hook": "on_hp_zero",
+      "script": "relentless_rage",
+      "source": "SRD 5.2.1",
+      "notes_ko": "분노 중 0 HP가 되면 건강 내성 DC 10(쓸 때마다 +5, 짧은 휴식에 초기화) — 성공하면 HP = 바바리안 레벨 × 2."
+    },
+    {
+      "id": "improved_brutal_strike",
+      "name": {
+        "ko": "향상된 잔혹한 일격",
+        "en": "Improved Brutal Strike"
+      },
+      "level": 13,
+      "source": "SRD 5.2.1",
+      "handled_by": "잔혹한 일격 설정에 비틀거리게 하는 일격·가르는 일격 추가(13레벨부터 — choice_min_level)"
+    },
+    {
+      "id": "persistent_rage",
+      "name": {
+        "ko": "끈질긴 분노 유지",
+        "en": "Persistent Rage"
+      },
+      "level": 15,
+      "caps": [
+        "persistent_rage"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "이니셔티브 때 분노 횟수 전부 회복(긴 휴식 1회), 분노는 연장 없이 10분(의식을 잃으면 끝)."
     }
   ],
   "subclasses": [
@@ -387,6 +473,32 @@
           ],
           "source": "SRD 5.2.1",
           "notes_ko": "1칸 안 생물에게 피해를 받으면 반응으로 그 생물에게 근접 공격 1회(반응 설정 대상)."
+        },
+        {
+          "id": "intimidating_presence",
+          "name": {
+            "ko": "위협적인 존재감",
+            "en": "Intimidating Presence"
+          },
+          "level": 14,
+          "kind": "bonus_action",
+          "resource": "intimidating_presence",
+          "alt_cost": {
+            "resource": "rage",
+            "amount": 1,
+            "cap": "rage_refuel"
+          },
+          "caps": [
+            "rage_refuel"
+          ],
+          "script": "intimidating_presence",
+          "icon": "statuses/fear.webp",
+          "glyph": "skull_rays",
+          "ai": {
+            "when": "foes_2plus"
+          },
+          "source": "SRD 5.2.1",
+          "notes_ko": "6칸 안 적 지혜 내성(DC 8 + 근력 + 숙련), 실패 시 공포 10턴(턴 끝 내성). 긴 휴식 1회, 없으면 분노 1회로."
         }
       ]
     }

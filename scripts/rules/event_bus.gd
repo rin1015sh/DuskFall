@@ -45,6 +45,8 @@ signal on_save(ctx: Dictionary)
 signal on_check_failed(ctx: Dictionary)
 ## 내성 굴림 실패 직후(기능 훅 — 불굴)
 signal on_save_failed(ctx: Dictionary)
+## 공격이 빗나간 직후(기능 훅 — 비할 데 없는 기술)
+signal on_attack_missed(ctx: Dictionary)
 ## 시전 시작
 signal on_spell_cast(ctx: Dictionary)
 ## 상태가 붙음
@@ -90,6 +92,7 @@ func hook_names() -> PackedStringArray:
 		"on_save",
 		"on_check_failed",
 		"on_save_failed",
+		"on_attack_missed",
 		"on_spell_cast",
 		"on_condition_applied",
 		"on_condition_removed",

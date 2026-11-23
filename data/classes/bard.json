@@ -461,6 +461,21 @@
           ],
           "source": "SRD 5.2.1",
           "notes_ko": "클레릭·드루이드·위저드 목록에서 주문 2개(소마법이거나 가진 슬롯 레벨 이하) — 항상 준비. 레벨 업 때 바꾸기는 생략(명세에서 바꿈)."
+        },
+        {
+          "id": "peerless_skill",
+          "name": {
+            "ko": "비할 데 없는 기술",
+            "en": "Peerless Skill"
+          },
+          "level": 14,
+          "hook": "on_check_failed",
+          "also_hooks": [
+            "on_attack_missed"
+          ],
+          "script": "peerless_skill",
+          "source": "SRD 5.2.1",
+          "notes_ko": "능력 판정·공격 굴림에 실패하면 바드의 영감 1회로 주사위를 더한다(성공할 수 있을 때 자동, 그래도 실패면 쓰지 않음)."
         }
       ]
     }

@@ -274,6 +274,35 @@
           "en": "Mastery property to use with mastered weapons (click to cycle)."
         }
       }
+    },
+    {
+      "id": "two_extra_attacks",
+      "name": {
+        "ko": "추가 공격 2회",
+        "en": "Two Extra Attacks"
+      },
+      "level": 11,
+      "caps": [
+        "extra_attack"
+      ],
+      "grants": {
+        "attacks_per_action": 3
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "공격 행동에 3회."
+    },
+    {
+      "id": "studied_attacks",
+      "name": {
+        "ko": "연구된 공격",
+        "en": "Studied Attacks"
+      },
+      "level": 13,
+      "caps": [
+        "studied_attacks"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "공격이 빗나가면 다음 내 턴 끝까지 그 대상에 대한 다음 공격 유리."
     }
   ],
   "subclasses": [
@@ -352,6 +381,19 @@
           ],
           "notes_ko": "전투 중 자기 턴 시작에 영웅적 영감이 없으면 얻는다. 영웅적 영감은 실패한 d20 시험을 자동으로 한 번 다시 굴린다(BG3식).",
           "source": "SRD 5.2.1"
+        },
+        {
+          "id": "superior_critical",
+          "name": {
+            "ko": "우월한 치명타",
+            "en": "Superior Critical"
+          },
+          "level": 15,
+          "grants": {
+            "crit_threshold": 18
+          },
+          "source": "SRD 5.2.1",
+          "notes_ko": "치명타 18~20."
         }
       ]
     }

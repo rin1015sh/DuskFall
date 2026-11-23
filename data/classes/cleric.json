@@ -439,6 +439,30 @@
           "en": "Next Cleric spell costs no slot (turns off after use)."
         }
       }
+    },
+    {
+      "id": "improved_blessed_strikes",
+      "name": {
+        "ko": "향상된 축복받은 일격",
+        "en": "Improved Blessed Strikes"
+      },
+      "level": 14,
+      "choice_kind": "option",
+      "choice_from": "blessed_strikes",
+      "choices": [
+        "divine_strike",
+        "potent_spellcasting"
+      ],
+      "choice_grants": {
+        "divine_strike": {},
+        "potent_spellcasting": {
+          "caps": [
+            "cantrip_vitality"
+          ]
+        }
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "신성한 일격 2d8(축복받은 일격 레벨표). 강력한 주문 시전: 클레릭 소마법이 피해를 주면 12칸 안 가장 다친 아군(자신 포함)에게 지혜 × 2 임시 HP."
     }
   ],
   "subclasses": [

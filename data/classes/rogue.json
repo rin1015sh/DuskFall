@@ -205,12 +205,38 @@
               "ko": "물러나기",
               "en": "Withdraw"
             }
+          },
+          {
+            "id": "daze",
+            "name": {
+              "ko": "현혹(2d6)",
+              "en": "Daze (2d6)"
+            }
+          },
+          {
+            "id": "knock_out",
+            "name": {
+              "ko": "기절시키기(6d6)",
+              "en": "Knock Out (6d6)"
+            }
+          },
+          {
+            "id": "obscure",
+            "name": {
+              "ko": "시야 가리기(3d6)",
+              "en": "Obscure (3d6)"
+            }
           }
         ],
         "desc": {
           "ko": "급소 공격 주사위 1개를 써서 효과를 더한다(누를 때마다 바뀜).",
           "en": "Spend one Sneak Attack die for an effect (click to cycle)."
         }
+      },
+      "choice_min_level": {
+        "daze": 14,
+        "knock_out": 14,
+        "obscure": 14
       }
     },
     {
@@ -264,6 +290,107 @@
       ],
       "notes_ko": "숙련 기능 판정에서 d20 9 이하를 10으로.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "improved_cunning_strike",
+      "name": {
+        "ko": "향상된 교활한 일격",
+        "en": "Improved Cunning Strike"
+      },
+      "level": 11,
+      "caps": [
+        "improved_cunning_strike"
+      ],
+      "source": "SRD 5.2.1",
+      "choice_min_level": {
+        "daze": 14,
+        "knock_out": 14,
+        "obscure": 14
+      },
+      "notes_ko": "급소 공격에 교활한 일격 효과 둘(각각 비용). 두 번째 효과는 이 설정에서.",
+      "toggle": {
+        "values": [
+          {
+            "id": "",
+            "name": {
+              "ko": "끔",
+              "en": "Off"
+            }
+          },
+          {
+            "id": "poison",
+            "name": {
+              "ko": "독",
+              "en": "Poison"
+            }
+          },
+          {
+            "id": "trip",
+            "name": {
+              "ko": "넘어뜨리기",
+              "en": "Trip"
+            }
+          },
+          {
+            "id": "withdraw",
+            "name": {
+              "ko": "물러나기",
+              "en": "Withdraw"
+            }
+          },
+          {
+            "id": "daze",
+            "name": {
+              "ko": "현혹(2d6)",
+              "en": "Daze (2d6)"
+            }
+          },
+          {
+            "id": "knock_out",
+            "name": {
+              "ko": "기절시키기(6d6)",
+              "en": "Knock Out (6d6)"
+            }
+          },
+          {
+            "id": "obscure",
+            "name": {
+              "ko": "시야 가리기(3d6)",
+              "en": "Obscure (3d6)"
+            }
+          }
+        ],
+        "desc": {
+          "ko": "두 번째 교활한 일격 효과(첫 번째와 달라야 함).",
+          "en": "Second Cunning Strike effect (must differ from the first)."
+        }
+      }
+    },
+    {
+      "id": "devious_strikes",
+      "name": {
+        "ko": "교묘한 일격",
+        "en": "Devious Strikes"
+      },
+      "level": 14,
+      "source": "SRD 5.2.1",
+      "handled_by": "교활한 일격 설정에 현혹(2d6 — 건강 내성, 다음 턴 하나만)·기절시키기(6d6 — 건강 내성, 의식 잃음 10턴·피해 받으면 끝)·시야 가리기(3d6 — 민첩 내성, 실명 1턴)"
+    },
+    {
+      "id": "slippery_mind",
+      "name": {
+        "ko": "미끄러운 정신",
+        "en": "Slippery Mind"
+      },
+      "level": 15,
+      "grants": {
+        "save_proficiencies": [
+          "wis",
+          "cha"
+        ]
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "지혜·매력 내성 숙련."
     }
   ],
   "subclasses": [
@@ -338,6 +465,19 @@
               "en": "Spend a Sneak Attack die to stay hidden."
             }
           }
+        },
+        {
+          "id": "use_magic_device",
+          "name": {
+            "ko": "마법 장치 사용",
+            "en": "Use Magic Device"
+          },
+          "level": 13,
+          "caps": [
+            "use_any_scroll"
+          ],
+          "source": "SRD 5.2.1",
+          "notes_ko": "어떤 주문 두루마리든 읽는다(높은 레벨 판정 생략). 조율은 없는 규칙, 충전 아끼기는 충전 물품이 없어 생략."
         }
       ]
     }

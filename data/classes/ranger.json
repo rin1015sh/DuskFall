@@ -226,6 +226,15 @@
       },
       "max": "ability_mod:wis",
       "recharge": "long"
+    },
+    {
+      "id": "natures_veil",
+      "name": {
+        "ko": "자연의 장막",
+        "en": "Nature's Veil"
+      },
+      "max": "ability_mod:wis",
+      "recharge": "long"
     }
   ],
   "features": [
@@ -345,6 +354,37 @@
       "explore": true,
       "source": "SRD 5.2.1",
       "notes_ko": "임시 HP 1d8 + 지혜(최소 1). 지혜 수정치(최소 1)회, 긴 휴식. 탈진 감소는 생략."
+    },
+    {
+      "id": "relentless_hunter",
+      "name": {
+        "ko": "끈질긴 사냥꾼",
+        "en": "Relentless Hunter"
+      },
+      "level": 13,
+      "protects_concentration": [
+        "hunters_mark"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "피해로 사냥꾼의 표식 집중이 깨지지 않는다."
+    },
+    {
+      "id": "natures_veil",
+      "name": {
+        "ko": "자연의 장막",
+        "en": "Nature's Veil"
+      },
+      "level": 14,
+      "kind": "bonus_action",
+      "resource": "natures_veil",
+      "script": "natures_veil",
+      "icon": "statuses/invisible.webp",
+      "glyph": "eye_slash",
+      "ai": {
+        "when": "hp_below_half"
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "다음 내 턴 끝까지 투명. 지혜 수정치(최소 1)회, 긴 휴식."
     }
   ],
   "subclasses": [
@@ -422,6 +462,33 @@
             }
           },
           "notes_ko": "무리 탈출: 나에 대한 기회 공격 불리. 다중 공격 방어: 나를 맞힌 생물은 이번 턴 남은 나에 대한 공격 불리. 휴식 때 바꾸기는 생략."
+        },
+        {
+          "id": "superior_hunters_prey",
+          "name": {
+            "ko": "뛰어난 사냥꾼의 먹잇감",
+            "en": "Superior Hunter's Prey"
+          },
+          "level": 11,
+          "caps": [
+            "mark_spread"
+          ],
+          "source": "SRD 5.2.1",
+          "notes_ko": "턴당 1회 사냥꾼의 표식 추가 피해를 첫 대상 6칸 안 보이는 다른 적(가장 가까운)에게도."
+        },
+        {
+          "id": "superior_hunters_defense",
+          "name": {
+            "ko": "뛰어난 사냥꾼의 방어",
+            "en": "Superior Hunter's Defense"
+          },
+          "level": 15,
+          "kind": "reaction",
+          "caps": [
+            "hunters_defense"
+          ],
+          "source": "SRD 5.2.1",
+          "notes_ko": "피해를 받을 때 반응으로 그 종류 저항(턴 끝까지). 피해 10 이상일 때 자동(반응 설정 대상)."
         }
       ],
       "source": "SRD 5.2.1"

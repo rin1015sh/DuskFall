@@ -685,6 +685,123 @@
       },
       "note_ko": "타고난 마법 횟수가 없으면 기능 alt_cost(마법 점수 2)로(features.use)",
       "source": "original"
+    },
+    {
+      "id": "rage_refuel",
+      "name": {
+        "ko": "분노로 다시 쓰기",
+        "en": "Rage Refuel"
+      },
+      "note_ko": "기능 alt_cost가 분노를 쓸 수 있게 하는 표시 태그(위협적인 존재감)",
+      "source": "original"
+    },
+    {
+      "id": "persistent_rage",
+      "name": {
+        "ko": "끈질긴 분노 유지",
+        "en": "Persistent Rage"
+      },
+      "note_ko": "이니셔티브 때 분노 회복(긴 휴식 1회), 분노 연장 불필요(turn_manager)",
+      "source": "original"
+    },
+    {
+      "id": "cantrip_vitality",
+      "name": {
+        "ko": "소마법 활력",
+        "en": "Potent Vitality"
+      },
+      "note_ko": "클레릭 소마법이 피해를 주면 지혜 × 2 임시 HP(spellcasting._after_damage_features)",
+      "source": "original"
+    },
+    {
+      "id": "cantrip_long_range",
+      "name": {
+        "ko": "소마법 사거리",
+        "en": "Cantrip Range"
+      },
+      "note_ko": "사거리 2칸 이상 소마법 +60칸(spellcasting.can_cast)",
+      "source": "original"
+    },
+    {
+      "id": "studied_attacks",
+      "name": {
+        "ko": "연구된 공격",
+        "en": "Studied Attacks"
+      },
+      "note_ko": "빗나가면 그 대상에 대한 다음 공격 유리(resolver.attack)",
+      "source": "original"
+    },
+    {
+      "id": "deflect_energy",
+      "name": {
+        "ko": "에너지 쳐내기",
+        "en": "Deflect Energy"
+      },
+      "note_ko": "공격 쳐내기를 모든 피해 종류에(스크립트 deflect_attacks)",
+      "source": "original"
+    },
+    {
+      "id": "perfect_focus",
+      "name": {
+        "ko": "완벽한 집중",
+        "en": "Perfect Focus"
+      },
+      "note_ko": "이니셔티브 때 기 4까지(turn_manager.roll_initiative)",
+      "source": "original"
+    },
+    {
+      "id": "restoring_touch",
+      "name": {
+        "ko": "회복의 손길",
+        "en": "Restoring Touch"
+      },
+      "note_ko": "신성한 손길로 상태 해제(스크립트 lay_on_hands)",
+      "source": "original"
+    },
+    {
+      "id": "mark_spread",
+      "name": {
+        "ko": "먹잇감 확산",
+        "en": "Superior Hunter's Prey"
+      },
+      "note_ko": "표식 추가 피해를 근처 다른 적에게도(resolver._mark_spread)",
+      "source": "original"
+    },
+    {
+      "id": "hunters_defense",
+      "name": {
+        "ko": "뛰어난 사냥꾼의 방어",
+        "en": "Superior Hunter's Defense"
+      },
+      "note_ko": "피해를 받을 때 반응으로 그 종류 저항(resolver._hunters_defense)",
+      "source": "original"
+    },
+    {
+      "id": "improved_cunning_strike",
+      "name": {
+        "ko": "향상된 교활한 일격",
+        "en": "Improved Cunning Strike"
+      },
+      "note_ko": "교활한 일격 효과 둘(스크립트 sneak_attack, 설정)",
+      "source": "original"
+    },
+    {
+      "id": "use_any_scroll",
+      "name": {
+        "ko": "마법 장치 사용",
+        "en": "Use Magic Device"
+      },
+      "note_ko": "어떤 주문 두루마리든 읽는다(actions.can_read_scroll)",
+      "source": "original"
+    },
+    {
+      "id": "overchannel",
+      "name": {
+        "ko": "과충전",
+        "en": "Overchannel"
+      },
+      "note_ko": "다음 위저드 피해 주문 최대 피해 + 대가(spellcasting._overchannel_start, 설정)",
+      "source": "original"
     }
   ]
 }

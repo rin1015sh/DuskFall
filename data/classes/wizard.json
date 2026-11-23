@@ -255,6 +255,17 @@
         "1": 1
       },
       "recharge": "long"
+    },
+    {
+      "id": "overchannel",
+      "name": {
+        "ko": "과충전",
+        "en": "Overchannel"
+      },
+      "max": {
+        "14": 20
+      },
+      "recharge": "long"
     }
   ],
   "features": [
@@ -384,6 +395,41 @@
           ],
           "notes_ko": "방출학파 주문 피해 굴림 + 지능 수정치(효과 모델 주문 — 대상마다 굴리는 주문은 굴림마다).",
           "source": "SRD 5.2.1"
+        },
+        {
+          "id": "overchannel",
+          "name": {
+            "ko": "과충전",
+            "en": "Overchannel"
+          },
+          "level": 14,
+          "caps": [
+            "overchannel"
+          ],
+          "source": "SRD 5.2.1",
+          "notes_ko": "켜 두면 다음 1~5레벨 슬롯 위저드 피해 주문의 피해가 최대. 긴 휴식 뒤 첫 번째는 대가 없음, 그 뒤로 슬롯 레벨마다 2d12(+1d12씩) 사령(저항 무시).",
+          "toggle": {
+            "values": [
+              {
+                "id": "off",
+                "name": {
+                  "ko": "끔",
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "on",
+                "name": {
+                  "ko": "다음 주문",
+                  "en": "Next spell"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "다음 위저드 피해 주문 최대 피해(한 번 쓰면 꺼짐).",
+              "en": "Max damage on your next Wizard damage spell (turns off after use)."
+            }
+          }
         }
       ]
     }

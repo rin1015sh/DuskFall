@@ -455,6 +455,30 @@
         }
       },
       "notes_ko": "강력한 주문 시전: 드루이드 소마법 피해 + 지혜. 원초의 일격: 턴당 1회 무기·야수 형태 공격 명중 +1d8 냉기·화염·번개·천둥(대상이 저항하지 않는 쪽 자동, 15레벨 2d8)."
+    },
+    {
+      "id": "improved_elemental_fury",
+      "name": {
+        "ko": "향상된 원소의 격노",
+        "en": "Improved Elemental Fury"
+      },
+      "level": 15,
+      "choice_kind": "option",
+      "choice_from": "elemental_fury",
+      "choices": [
+        "potent_spellcasting",
+        "primal_strike"
+      ],
+      "choice_grants": {
+        "potent_spellcasting": {
+          "caps": [
+            "cantrip_long_range"
+          ]
+        },
+        "primal_strike": {}
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "강력한 주문 시전: 사거리 10피트 이상 소마법 +300피트. 원초의 일격: 2d8(원소의 격노 레벨표)."
     }
   ],
   "subclasses": [
@@ -669,6 +693,22 @@
             }
           },
           "notes_ko": "중독 면역 + 대지 종류의 저항(건조 화염·극지 냉기·온대 번개·열대 독)."
+        },
+        {
+          "id": "natures_sanctuary",
+          "name": {
+            "ko": "자연의 성소",
+            "en": "Nature's Sanctuary"
+          },
+          "level": 14,
+          "kind": "action",
+          "resource": "wild_shape",
+          "script": "natures_sanctuary",
+          "target": "cell",
+          "icon": "statuses/buff.webp",
+          "glyph": "leaf",
+          "source": "SRD 5.2.1",
+          "notes_ko": "야생 변신 1회. 24칸 안 3×3칸의 자신·아군에게 10턴 반엄폐(AC +2)와 자연의 수호 저항. 옮기기·드나들기는 생략."
         }
       ]
     }

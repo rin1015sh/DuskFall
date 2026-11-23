@@ -4,6 +4,8 @@ extends "res://scripts/rules/effect_script.gd"
 ## 교활한 일격(5레벨): turn["cunning_strike"]에 고른 효과가 있으면 주사위 1개를 쓴다.
 
 const COST := 1
+## 효과별 주사위 비용(SRD): 기본 1d6, 교묘한 일격(14레벨) 현혹 2d6·기절시키기 6d6·시야 가리기 3d6
+const COSTS := {"poison": 1, "trip": 1, "withdraw": 1, "daze": 2, "knock_out": 6, "obscure": 3}
 
 
 func is_implemented() -> bool:
@@ -30,9 +32,13 @@ func apply(ctx: Dictionary) -> Dictionary:
 		return {"ok": false}
 	var count := _dice_count(c)
 	var option: String = c.turn.get("cunning_strike", c.options.get("cunning_strike", ""))
-	if option != "" and c.has_cap("cunning_strike") and count > COST:
-		count -= COST
+	if option != "" and c.has_cap("cunning_strike") and count > int(COSTS.get(option, COST)):
+		count -= int(COSTS.get(option, COST))
 		res["cunning_strike"] = option
+	var option2 := str(c.options.get("improved_cunning_strike", ""))
+	if option2 != "" and option2 != option and c.has_cap("improved_cunning_strike") and count > int(COSTS.get(option2, COST)):
+		count -= int(COSTS.get(option2, COST))  # 향상된 교활한 일격(11레벨): 두 번째 효과도 비용을 낸다
+		res["cunning_strike_2"] = option2
 	# 최상급 은신(도둑 9레벨): 숨은 채 공격했으면 주사위 1개를 더 써서 숨기를 유지한다(resolver가 res.stealth_attack을 본다)
 	var hide: Dictionary = c.condition_instance("invisible")
 	if c.has_cap("stealth_attack") and str(c.options.get("supreme_sneak", "on")) == "on" and count > COST \

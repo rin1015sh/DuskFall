@@ -310,6 +310,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var skill_bonus_ability := {}
 	var hit_bonus: Array = []
 	var type_bonus: Array = []
+	var extra_saves: Array = []
 	for g: Array in grants:
 		var gr: Dictionary = g[1]
 		c.attacks_per_action = maxi(c.attacks_per_action, int(gr.get("attacks_per_action", 1)))
@@ -335,7 +336,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		for ci: String in gr.get("condition_immunities", []):
 			if not ci in c.condition_immunities:
 				c.condition_immunities.append(ci)
-		type_bonus.append_array(gr.get("spell_damage_types", []))  # 원소 친화: 그 종류 주문 피해 + 주문 능력
+		type_bonus.append_array(gr.get("spell_damage_types", []))
+		extra_saves.append_array(gr.get("save_proficiencies", []))  # 수련된 생존자(전부)·미끄러운 정신(지혜·매력)  # 원소 친화: 그 종류 주문 피해 + 주문 능력
 		if gr.has("weapon_hit_bonus"):
 			var hb: Dictionary = gr["weapon_hit_bonus"].duplicate(true)
 			hb["feature"] = str(g[0])
@@ -346,6 +348,9 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		c.initiative_bonus = c.proficiency_bonus
 	# 내성·기능 숙련
 	c.save_proficiencies = cls["saves"].duplicate()
+	for sv: String in extra_saves:
+		if not sv in c.save_proficiencies:
+			c.save_proficiencies.append(sv)
 	var skills: Array = spec.get("skills", []).duplicate() + bg["skills"]
 	if spec.get("species_skill", "") != "":
 		skills.append(spec["species_skill"])
@@ -605,7 +610,13 @@ static func _apply_spells(c: Node, entries: Array, sp: Dictionary, lin: Dictiona
 			continue
 		for sid: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
 			var spd := RulesDB.get_entry("spell", str(sid))
-			if spd.is_empty() or int(spd["level"]) > top_slot:
+			if spd.is_empty():
+				continue
+			if f.has("spell_level"):
+				if int(spd["level"]) != int(f["spell_level"]):
+					continue  # 신비한 비전(워락): 정해진 레벨의 주문 하나, 긴 휴식마다 슬롯 없이 1회
+				c.resources["innate_" + str(sid)] = {"current": 1, "max": 1, "recharge": "long"}
+			elif int(spd["level"]) > top_slot:
 				continue
 			if not (f.get("spell_lists", []) as Array).any(func(l: String) -> bool: return l in spd.get("classes", [])):
 				continue

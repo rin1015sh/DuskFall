@@ -400,6 +400,54 @@
       ],
       "source": "SRD 5.2.1",
       "notes_ko": "턴 끝마다 매혹·공포·중독 중 하나를 푼다."
+    },
+    {
+      "id": "deflect_energy",
+      "name": {
+        "ko": "에너지 쳐내기",
+        "en": "Deflect Energy"
+      },
+      "level": 13,
+      "caps": [
+        "deflect_energy"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "공격 쳐내기를 모든 피해 종류에."
+    },
+    {
+      "id": "disciplined_survivor",
+      "name": {
+        "ko": "수련된 생존자",
+        "en": "Disciplined Survivor"
+      },
+      "level": 14,
+      "grants": {
+        "save_proficiencies": [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      },
+      "hook": "on_save_failed",
+      "script": "disciplined_survivor",
+      "source": "SRD 5.2.1",
+      "notes_ko": "모든 내성 숙련. 내성 실패 시 기 1로 다시 굴림(성공할 수 있을 때 자동)."
+    },
+    {
+      "id": "perfect_focus",
+      "name": {
+        "ko": "완벽한 집중",
+        "en": "Perfect Focus"
+      },
+      "level": 15,
+      "caps": [
+        "perfect_focus"
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "이니셔티브 때 신비한 대사를 쓰지 않았고 기가 3 이하면 4로."
     }
   ],
   "subclasses": [
@@ -472,6 +520,17 @@
           },
           "source": "SRD 5.2.1",
           "notes_ko": "무술 주사위 + 지혜 수정치(최소 1) 회복. 지혜 수정치(최소 1)회, 긴 휴식."
+        },
+        {
+          "id": "fleet_step",
+          "name": {
+            "ko": "날랜 걸음",
+            "en": "Fleet Step"
+          },
+          "level": 11,
+          "status": "deferred",
+          "source": "SRD 5.2.1",
+          "notes_ko": "다른 보너스 행동 뒤 바람 걸음을 바로 — 보너스 행동 연계 장치와 함께 다음에."
         }
       ]
     }

@@ -159,8 +159,74 @@ static func scaled_dice(c: Node, spell: Dictionary, dice: String, slot: int) -> 
 ## 주문 피해 주사위 = 올려 쓴 주사위 + 기능 보너스(강력한 주문 시전: 소마법 + 주문 능력, 강화된 방출: 방출학파 + 주문 능력).
 static func damage_dice(c: Node, spell: Dictionary, dice: String, slot: int, dtype: String = "") -> String:
 	var out := scaled_dice(c, spell, dice, slot)
+	if c.has_meta("overchannel"):
+		out = str(int(DiceExpr.stats(out)["max"]))  # 과충전(방출학파 14레벨): 이번 주문 피해 최대
 	var b := damage_bonus(c, spell, dtype)
 	return out + ("%+d" % b) if b != 0 else out
+
+
+## 과충전(능력 태그 overchannel — 방출학파 14레벨): 설정을 켜면 다음 1~5레벨 슬롯 위저드 피해 주문의 피해가 최대.
+## 긴 휴식 뒤 첫 번째는 대가 없음, 그 뒤로는 슬롯 레벨마다 2d12(쓸 때마다 +1d12) 사령 — 저항·면역 무시(자원 overchannel: 쓴 횟수).
+static func _overchannel_start(c: Node, spell: Dictionary, slot: int) -> bool:
+	if not c.has_cap("overchannel") or str(c.options.get("overchannel", "off")) != "on" or slot < 1 or slot > 5:
+		return false
+	if not _deals_damage_spell(spell) or not "wizard" in spell.get("classes", []):
+		return false
+	c.set_meta("overchannel", true)
+	c.options["overchannel"] = "off"
+	return true
+
+
+static func _deals_damage_spell(spell: Dictionary) -> bool:
+	var eff: Dictionary = spell.get("effects", {})
+	for k: String in ["fail", "hit", "apply"]:
+		for e: Dictionary in eff.get(k, []):
+			if str(e.get("type", "")) == "damage":
+				return true
+	return false
+
+
+## 시전 뒤 기능: 과충전 대가, 강력한 주문 시전의 활력(클레릭 14레벨 — 소마법이 피해를 주면 지혜 × 2 임시 HP를 가장 다친 아군·자신에게).
+static func _after_damage_features(world: Dictionary, caster: Node, spell: Dictionary, slot: int, r: Dictionary, oc: bool) -> void:
+	if oc:
+		caster.remove_meta("overchannel")
+		if caster.resources.has("overchannel"):
+			var res: Dictionary = caster.resources["overchannel"]
+			var uses: int = int(res["max"]) - int(res["current"])
+			res["current"] = maxi(0, int(res["current"]) - 1)
+			if uses > 0:
+				var n: int = Dice.roll("%dd12" % ((1 + uses) * slot), "과충전 대가")["total"]
+				caster.hp = maxi(0, caster.hp - n)  # 저항·면역 무시
+				Dice.log_text("%s 과충전 대가: 사령 %d" % [caster.label(), n])
+				if caster.hp == 0:
+					Resolver.apply_damage(caster, [{"amount": 0, "damage_type": "necrotic"}])
+	if int(spell["level"]) == 0 and caster.has_cap("cantrip_vitality") and world.has("grid"):
+		var dealt := false
+		for row: Dictionary in r.get("results", []):
+			var d: Dictionary = row.get("damage", {}) if row.has("damage") else row.get("res", {}).get("damage", {})
+			if int(d.get("total", 0)) > 0 or int(row.get("damage", {}).get("total", 0)) > 0:
+				dealt = true
+		if dealt:
+			var grid: Node = world["grid"]
+			var best: Node = caster
+			for o: Node in grid.creatures():
+				if not o.dead and not o.is_hostile_to(caster) and grid.distance_between(caster, o) <= 12 \
+						and float(o.hp) / maxf(1.0, o.hp_max) < float(best.hp) / maxf(1.0, best.hp_max):
+					best = o
+			Resolver.grant_temp_hp(best, 2 * maxi(1, caster.ability_mod("wis")))
+
+
+## 기능 cast_trigger {spells, aura_condition, turns}: 그 주문을 시전하면 오라 안 자신·아군에게 상태(보호의 강타 — 헌신 15레벨: 반엄폐).
+static func _cast_triggers(world: Dictionary, caster: Node, spell_id: String) -> void:
+	for f: Dictionary in caster.feature_data.values():
+		var ct: Dictionary = f.get("cast_trigger", {})
+		if ct.is_empty() or not spell_id in ct.get("spells", []) or not world.has("grid"):
+			continue
+		var grid: Node = world["grid"]
+		var rng: int = maxi(1, load("res://scripts/rules/auras.gd").range_of(caster))
+		for o: Node in grid.creatures():
+			if not o.dead and not o.is_hostile_to(caster) and (o == caster or grid.distance_between(caster, o) <= rng):
+				o.apply_condition(str(ct["aura_condition"]), int(ct.get("turns", 1)), caster)
 
 
 ## 원소 친화(소서러 용의 혈통 6레벨 — 생물 meta spell_type_bonus): 그 피해 종류 주문 + 주문 능력 수정치.
@@ -323,6 +389,8 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 	var grid: Node = world["grid"]
 	if spell["range"]["type"] in ["tiles", "touch"]:
 		var rt := range_tiles(spell)
+		if int(spell["level"]) == 0 and rt >= 2 and caster.has_cap("cantrip_long_range"):
+			rt += 60  # 향상된 원소의 격노(드루이드 15레벨, 강력한 주문 시전): 소마법 사거리 +300피트
 		if metamagic_for(caster, spell) == "distant":
 			rt = 6 if spell["range"]["type"] == "touch" else rt * 2  # 원거리 주문: 사거리 2배, 접촉은 30피트
 		if grid.distance(grid.cell_of(caster), aim) > grid.effective_range(caster, aim, rt):
@@ -475,6 +543,7 @@ static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector
 	elif use_innate:
 		caster.spend_resource(innate_id(spell_id))  # 타고난 시전 1회
 	Dice.log_text("%s: %s%s" % [caster.label(), spell["name"]["en"], " (%d레벨 슬롯)" % slot if slot > level else ""])
+	_cast_triggers(world, caster, spell_id)
 	var inst := new_instance(world, caster, spell, slot)
 	if spell["concentration"]:
 		caster.start_concentration(spell_id, {"instance": inst["id"], "turns_left": _dur(spell, opts),
@@ -487,7 +556,9 @@ static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector
 		r["ok"] = r.get("ok", true)
 		_finish_instance(inst)
 		return r
+	var oc := _overchannel_start(caster, spell, slot)
 	var r2 := resolve_effects(ctx)
+	_after_damage_features(world, caster, spell, slot, r2, oc)
 	_finish_instance(inst)
 	return r2
 
