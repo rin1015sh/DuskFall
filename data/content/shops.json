@@ -31,6 +31,30 @@
         {
           "item": "trap_disarm_kit",
           "count": 2
+        },
+        {
+          "item": "alchemists_fire",
+          "count": 2
+        },
+        {
+          "item": "acid_vial",
+          "count": 2
+        },
+        {
+          "item": "holy_water",
+          "count": 1
+        },
+        {
+          "item": "oil_flask",
+          "count": 3
+        },
+        {
+          "item": "caltrops",
+          "count": 1
+        },
+        {
+          "item": "ball_bearings",
+          "count": 1
         }
       ]
     }

@@ -380,6 +380,40 @@
       "icon": "res://assets/statuses/riddle_empowered.webp",
       "explore": true,
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "throw_item",
+      "name": {
+        "ko": "투척",
+        "en": "Throw Item"
+      },
+      "desc": {
+        "ko": "공격 하나 대신 산·연금술사의 불·성수·기름을 던진다(4칸).",
+        "en": "Throw a flask in place of one attack."
+      },
+      "cost": "action",
+      "target": "cell",
+      "tab": "items",
+      "icon": "res://assets/items/greater_potion.webp",
+      "explore": true,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "spread_item",
+      "name": {
+        "ko": "뿌리기",
+        "en": "Spread"
+      },
+      "desc": {
+        "ko": "마름쇠·쇠구슬을 가까운 칸에 뿌린다.",
+        "en": "Spread caltrops or ball bearings."
+      },
+      "cost": "action",
+      "target": "cell",
+      "tab": "items",
+      "icon": "res://assets/items/iron_scrap.webp",
+      "explore": true,
+      "source": "SRD 5.2.1"
     }
   ]
 }

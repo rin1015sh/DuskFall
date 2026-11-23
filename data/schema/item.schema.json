@@ -66,7 +66,8 @@
             "tool",
             "magic",
             "misc",
-            "currency"
+            "currency",
+            "gear"
           ]
         },
         "rarity": {
@@ -250,6 +251,13 @@
         },
         "icon": {
           "$comment": "그림 파일 이름(assets/items/<icon>.webp — 화면 소지품·장비 칸)",
+          "type": "string"
+        },
+        "use": {
+          "$comment": "모험 장비 사용(combat.use_gear): throw{range_tiles, save, fail[효과], creature_types, surface} = 공격 하나 대신 던지기, spread{range_tiles, size, surface, dc} = 행동으로 뿌리기",
+          "type": "object"
+        },
+        "notes_ko": {
           "type": "string"
         }
       }

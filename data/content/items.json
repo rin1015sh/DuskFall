@@ -616,6 +616,165 @@
       },
       "source": "SRD 5.2.1",
       "icon": "drake_gloves"
+    },
+    {
+      "id": "acid_vial",
+      "name": {
+        "ko": "산 약병",
+        "en": "Acid"
+      },
+      "category": "gear",
+      "rarity": "common",
+      "weight_kg": 0.45,
+      "price_gp": 25,
+      "material": "glass",
+      "icon": "empty_bottle",
+      "use": {
+        "throw": {
+          "range_tiles": 4,
+          "save": "dex",
+          "fail": [
+            {
+              "type": "damage",
+              "dice": "2d6",
+              "damage_type": "acid"
+            }
+          ]
+        }
+      },
+      "notes_ko": "공격 하나 대신 던진다(4칸): 민첩 내성(8 + 민첩 + 숙련) 실패 시 2d6 산.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "alchemists_fire",
+      "name": {
+        "ko": "연금술사의 불",
+        "en": "Alchemist's Fire"
+      },
+      "category": "gear",
+      "rarity": "common",
+      "weight_kg": 0.45,
+      "price_gp": 50,
+      "material": "glass",
+      "icon": "greater_potion",
+      "use": {
+        "throw": {
+          "range_tiles": 4,
+          "save": "dex",
+          "fail": [
+            {
+              "type": "damage",
+              "dice": "1d4",
+              "damage_type": "fire"
+            },
+            {
+              "type": "apply_condition",
+              "id": "burning"
+            }
+          ]
+        }
+      },
+      "notes_ko": "공격 하나 대신 던진다(4칸): 실패 시 1d4 화염 + 연소.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "holy_water",
+      "name": {
+        "ko": "성수",
+        "en": "Holy Water"
+      },
+      "category": "gear",
+      "rarity": "common",
+      "weight_kg": 0.45,
+      "price_gp": 25,
+      "material": "glass",
+      "icon": "fortress_holy_water",
+      "use": {
+        "throw": {
+          "range_tiles": 4,
+          "save": "dex",
+          "creature_types": [
+            "fiend",
+            "undead"
+          ],
+          "fail": [
+            {
+              "type": "damage",
+              "dice": "2d8",
+              "damage_type": "radiant"
+            }
+          ]
+        }
+      },
+      "notes_ko": "공격 하나 대신 던진다(4칸): 악마·언데드가 실패하면 2d8 광휘.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "oil_flask",
+      "name": {
+        "ko": "기름병",
+        "en": "Oil"
+      },
+      "category": "gear",
+      "rarity": "common",
+      "weight_kg": 0.45,
+      "price_gp": 0.1,
+      "material": "glass",
+      "icon": "empty_bottle",
+      "use": {
+        "throw": {
+          "range_tiles": 4,
+          "surface": "oil"
+        }
+      },
+      "notes_ko": "공격 하나 대신 던진다(4칸): 맞은 칸에 기름 표면(BG3식 — 원문은 생물에 기름을 묻혀 화염 +5).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "caltrops",
+      "name": {
+        "ko": "마름쇠",
+        "en": "Caltrops"
+      },
+      "category": "gear",
+      "rarity": "common",
+      "weight_kg": 0.9,
+      "price_gp": 1,
+      "material": "metal",
+      "icon": "iron_scrap",
+      "use": {
+        "spread": {
+          "range_tiles": 1,
+          "size": 1,
+          "surface": "caltrops",
+          "dc": 15
+        }
+      },
+      "notes_ko": "행동: 1칸 안 한 칸에 뿌린다(민첩 DC 15, 관통 1 + 속도 0).",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "ball_bearings",
+      "name": {
+        "ko": "쇠구슬",
+        "en": "Ball Bearings"
+      },
+      "category": "gear",
+      "rarity": "common",
+      "weight_kg": 0.9,
+      "price_gp": 1,
+      "material": "metal",
+      "icon": "iron_scrap",
+      "use": {
+        "spread": {
+          "range_tiles": 2,
+          "size": 2,
+          "surface": "ball_bearings",
+          "dc": 10
+        }
+      },
+      "notes_ko": "행동: 2칸 안 2×2칸에 뿌린다(민첩 DC 10, 넘어짐).",
+      "source": "SRD 5.2.1"
     }
   ]
 }

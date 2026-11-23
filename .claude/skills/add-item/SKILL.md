@@ -24,6 +24,8 @@ description: 무기·갑옷·물약·두루마리·도구·음식(보급품)·�
    - **물약**(`category: potion`): `effects`(효과 모델), `drink_cost`, `feed_cost`, `throwable`, `throw{area, removes}` — 행동 목록에 마시기·먹이기·던지기가 자동으로 뜬다.
    - **두루마리**(`category: scroll`): `spell`(주문 id), `save_dc`, `attack_bonus`(SRD: 소마법·1레벨 13 / +5). 내 클래스 주문 목록에 있으면 '두루마리 읽기'가 뜨고 슬롯 없이 시전, 쓰면 사라진다. 주문서형 클래스(위저드)는 주문 준비 창(K)에서 배울 수 있다(두루마리 소모 + 주문 레벨 × 50gp).
    - **음식**(`category: food`): `camp_supplies`(긴 휴식 1회 = 40).
+   - **모험 장비**(`category: gear`, combat.throw_gear·spread_gear): `use.throw`{`range_tiles`, `save`, `fail`[효과], `creature_types`, `surface`} = 공격 하나 대신 던지기(민첩 내성 DC 8 + 민첩 + 숙련),
+     `use.spread`{`range_tiles`, `size`, `surface`, `dc`} = 행동으로 뿌려 표면. 행동 목록에 '투척'·'뿌리기'가 자동으로 뜬다(`tests/test_content_smoke.gd`가 써 본다).
    - **도구**(`category: tool`): 도둑 도구·함정 해체 도구(지금은 이 둘만 엔진이 쓴다).
    - **마법 물품**(`category: magic`, scripts/rules/equipment.gd — BG3 장비 칸, 조율 없음): `slot`(head·cloak·hands·feet·amulet·ring, 또는 weapon·armor·shield).
      무기·갑옷·방패 변형은 `base`(바탕 아이템 ID) + `bonus`(무기 명중·피해 / AC). 착용 효과는 `equip`: `ac`, `saves`, `ability_min`({"str": 19}),

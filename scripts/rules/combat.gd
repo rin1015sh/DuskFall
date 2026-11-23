@@ -234,6 +234,63 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 	return res
 
 
+## 모험 장비 던지기(SRD 산·연금술사의 불·성수·기름): 공격 행동의 공격 하나를 쓴다(첫 번째면 행동). 4칸 안 보이는 칸.
+## 생물이면 민첩 내성(DC 8 + 민첩 + 숙련) 실패 시 fail 효과(creature_types가 있으면 그 종류만), surface가 있으면 그 칸에 표면.
+static func throw_gear(world: Dictionary, c: Node, item_id: String, cell: Vector2i) -> Dictionary:
+	var item := RulesDB.get_entry("item", item_id)
+	var th: Dictionary = item.get("use", {}).get("throw", {})
+	if th.is_empty() or int(c.inventory.get(item_id, 0)) <= 0:
+		return _fail("던질 것이 없다")
+	var grid: Node = world["grid"]
+	if grid.distance(grid.cell_of(c), cell) > int(th.get("range_tiles", 4)) or not grid.has_line_of_sight(grid.cell_of(c), cell):
+		return _fail("4칸 안 보이는 곳만")
+	if int(c.turn.get("attacks_left", 0)) <= 0:
+		if not spend(c, "action"):
+			return _fail("행동이 없다")
+		c.turn["attacks_left"] = c.attacks_per_action
+	c.turn["attacks_left"] -= 1
+	c.inventory[item_id] = int(c.inventory[item_id]) - 1
+	if int(c.inventory[item_id]) <= 0:
+		c.inventory.erase(item_id)
+	var t: Node = grid.creature_at(cell)
+	var out := {"ok": true}
+	if t != null and th.has("fail") and (not th.has("creature_types") or str(t.creature_type) in th["creature_types"]):
+		var dc: int = 8 + c.ability_mod("dex") + c.proficiency_bonus
+		out["result"] = Resolver.save_effect([t], {"ability": str(th.get("save", "dex")), "dc": dc}, th["fail"], [], {"source": c, "attacker": c})
+	if th.has("surface") and world.has("surfaces"):
+		world["surfaces"].place_surface([cell], str(th["surface"]), {"source": c})
+	Dice.log_text("%s: %s 던지기" % [c.label(), item["name"]["ko"]])
+	if world.get("turns") != null and t != null and c.is_hostile_to(t):
+		world["turns"].notify_hostile_action(c)
+	return out
+
+
+## 모험 장비 뿌리기(SRD 마름쇠·쇠구슬): 행동. range_tiles 안 칸을 모서리로 size×size 칸에 표면(내성 DC = dc).
+static func spread_gear(world: Dictionary, c: Node, item_id: String, cell: Vector2i) -> Dictionary:
+	var item := RulesDB.get_entry("item", item_id)
+	var sp: Dictionary = item.get("use", {}).get("spread", {})
+	if sp.is_empty() or int(c.inventory.get(item_id, 0)) <= 0:
+		return _fail("뿌릴 것이 없다")
+	var grid: Node = world["grid"]
+	if grid.distance(grid.cell_of(c), cell) > int(sp.get("range_tiles", 1)):
+		return _fail("너무 멀다")
+	if not spend(c, "action"):
+		return _fail("행동이 없다")
+	c.inventory[item_id] = int(c.inventory[item_id]) - 1
+	if int(c.inventory[item_id]) <= 0:
+		c.inventory.erase(item_id)
+	var cells: Array = []
+	var n := int(sp.get("size", 1))
+	for dy in n:
+		for dx in n:
+			var cc := cell + Vector2i(dx, dy)
+			if grid.in_bounds(cc) and not grid.blocks_movement(cc):
+				cells.append(cc)
+	world["surfaces"].place_surface(cells, str(sp["surface"]), {"source": c, "dc": int(sp.get("dc", 10))})
+	Dice.log_text("%s: %s 뿌리기" % [c.label(), item["name"]["ko"]])
+	return {"ok": true, "cells": cells}
+
+
 ## 야생 변신 중 공격: 짐승의 첫 근접 공격(명중 보너스·피해·맞으면 효과는 몬스터 데이터 그대로).
 static func _beast_attack(world: Dictionary, attacker: Node, target: Node) -> Dictionary:
 	var m := RulesDB.get_entry("monster", str(attacker.get_meta("beast_form")))

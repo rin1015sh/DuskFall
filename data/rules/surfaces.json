@@ -332,6 +332,53 @@
       "flammable": true,
       "source": "SRD 5.2.1",
       "notes_ko": "Entangle: 어려운 지형. 속박 내성은 시전할 때만(원문). 지속은 주문을 따른다."
+    },
+    {
+      "id": "caltrops",
+      "layer": "ground",
+      "name": {
+        "ko": "마름쇠",
+        "en": "Caltrops"
+      },
+      "duration_turns": -1,
+      "save": {
+        "ability": "dex",
+        "on_enter_only": true,
+        "on_fail": [
+          {
+            "type": "damage",
+            "dice": "1",
+            "damage_type": "piercing"
+          },
+          {
+            "type": "apply_condition",
+            "id": "hobbled"
+          }
+        ]
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "들어가면 민첩 내성 DC 15, 실패하면 관통 1 + 속도 0(턴 끝까지). 맵에 남는다(회수 10분은 생략)."
+    },
+    {
+      "id": "ball_bearings",
+      "layer": "ground",
+      "name": {
+        "ko": "쇠구슬",
+        "en": "Ball Bearings"
+      },
+      "duration_turns": -1,
+      "save": {
+        "ability": "dex",
+        "on_enter_only": true,
+        "on_fail": [
+          {
+            "type": "apply_condition",
+            "id": "prone"
+          }
+        ]
+      },
+      "source": "SRD 5.2.1",
+      "notes_ko": "들어가면 민첩 내성 DC 10, 실패하면 넘어짐. 맵에 남는다."
     }
   ]
 }

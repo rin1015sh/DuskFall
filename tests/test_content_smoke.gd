@@ -86,7 +86,7 @@ func test_every_included_spell_casts_without_script_errors() -> void:
 	assert_true(cast_ok >= 120, "시험 장면에서 실제로 시전된 주문 %d개" % cast_ok)
 
 
-## 쓰는 아이템(물약·두루마리)은 모두 행동 목록에 뜨고 써도 오류가 없다
+## 쓰는 아이템(물약·두루마리·모험 장비)은 모두 행동 목록에 뜨고 써도 오류가 없다
 func test_every_usable_item_works() -> void:
 	var Actions := load("res://scripts/rules/actions.gd")
 	var log := SpellErrors.new()
@@ -95,7 +95,7 @@ func test_every_usable_item_works() -> void:
 	for iid: String in _db().ids("item"):
 		var item: Dictionary = _db().get_entry("item", iid)
 		var cat := str(item.get("category", ""))
-		if not cat in ["potion", "scroll"]:
+		if not cat in ["potion", "scroll", "gear"]:
 			continue
 		var a := _arena()
 		var w: Dictionary = a["world"]
@@ -122,6 +122,8 @@ func test_every_usable_item_works() -> void:
 				continue
 			c.reset_turn()
 			var target: Vector2i = w["grid"].cell_of(a["foe"]) if key.begins_with("read_scroll") or key.begins_with("throw") else w["grid"].cell_of(a["ally"])
+			if key.begins_with("spread"):
+				target = w["grid"].cell_of(c) + Vector2i(0, 1)  # 뿌리기: 바로 옆 칸
 			if key.begins_with("drink"):
 				target = w["grid"].cell_of(c)
 			Actions.execute(w, c, key, target)

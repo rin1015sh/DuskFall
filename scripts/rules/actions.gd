@@ -122,6 +122,11 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 				if verb == "throw_potion" and not bool(e.get("throwable", true)):
 					continue  # 던질 수 없는 것(좋은열매 등)
 				out["items"].append("%s:%s" % [verb, item])
+		elif e.get("category", "") == "gear" and Interact.count(world, item, c) > 0:
+			if e.get("use", {}).has("throw"):
+				out["items"].append("throw_item:" + item)  # 산·연금술사의 불·성수·기름
+			if e.get("use", {}).has("spread"):
+				out["items"].append("spread_item:" + item)  # 마름쇠·쇠구슬
 		elif e.get("category", "") == "scroll" and Interact.count(world, item, c) > 0 and can_read_scroll(c, e):
 			out["items"].append("read_scroll:" + item)
 	for sid: String in c.spells:
@@ -208,7 +213,7 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 		"creature":
 			if t == null or t.dead:
 				return {"valid": false, "lines": ["생물을 골라야 한다"]}
-	match key:
+	match key.get_slice(":", 0):  # 아이템 행동(throw_potion:물약 등)은 앞부분으로
 		"attack", "ranged_attack", "offhand_attack", "sneak_melee", "sneak_ranged":
 			var opts := {}
 			if key == "ranged_attack" or key == "sneak_ranged":
@@ -249,6 +254,21 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 			if w > Physics.max_throw_kg(c):
 				return {"valid": false, "lines": ["너무 무겁다"]}
 			out["lines"].append("%s 던지기 · 피해 %s" % [obj.get("id", ""), Physics.throw_damage_dice(w)])
+		"throw_item":
+			var th: Dictionary = RulesDB.get_entry("item", key.get_slice(":", 1)).get("use", {}).get("throw", {})
+			if grid.distance(grid.cell_of(c), cell) > int(th.get("range_tiles", 4)):
+				return {"valid": false, "lines": ["4칸 안"]}
+			out["lines"].append("민첩 내성 DC %d" % (8 + c.ability_mod("dex") + c.proficiency_bonus))
+		"spread_item":
+			var sp: Dictionary = RulesDB.get_entry("item", key.get_slice(":", 1)).get("use", {}).get("spread", {})
+			var n := int(sp.get("size", 1))
+			var cells2: Array = []
+			for dy in n:
+				for dx in n:
+					cells2.append(cell + Vector2i(dx, dy))
+			out["area"] = cells2
+			if grid.distance(grid.cell_of(c), cell) > int(sp.get("range_tiles", 1)):
+				return {"valid": false, "lines": ["너무 멀다"]}
 		"throw_potion":
 			var cells: Array = [cell]
 			for dd: Vector2i in grid.DIRS_4:
@@ -379,6 +399,10 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 			if r.get("ok", false):
 				Interact.take(world, parts[1], 1, c)
 			return r
+		"throw_item":
+			return Combat.throw_gear(world, c, parts[1], cell)
+		"spread_item":
+			return Combat.spread_gear(world, c, parts[1], cell)
 		"throw_potion":
 			var item := RulesDB.get_entry("item", parts[1])
 			if not Combat.spend(c, "action"):

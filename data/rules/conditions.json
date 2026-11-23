@@ -1276,6 +1276,20 @@
       "stack": "keep_longest",
       "notes_ko": "팔라딘 신성 감지: 위치·종류가 드러났다(표시). 숨어도 감춰지지 않는다(신성 감지가 숨기 투명을 지운다).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "hobbled",
+      "name": {
+        "ko": "발이 묶임",
+        "en": "Hobbled"
+      },
+      "category": "environment",
+      "stack": "keep_longest",
+      "flags": {
+        "speed_zero": true
+      },
+      "notes_ko": "마름쇠: 속도 0(자기 다음 턴 시작까지 — 이번 턴 끝에 풀린다).",
+      "source": "SRD 5.2.1"
     }
   ]
 }
