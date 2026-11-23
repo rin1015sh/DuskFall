@@ -87,6 +87,41 @@ static func validate(spec: Dictionary) -> PackedStringArray:
 		e.append_array(validate_spells(ce["cls"], spec if ce["primary"] else ce["entry"], int(ce["level"])))
 	e.append_array(validate_feat_spells(spec))
 	e.append_array(validate_feats(spec, entries))
+	e.append_array(validate_sub_spells(spec, entries))
+	return e
+
+
+## 하위 클래스 주문(subclass_spells): 하위 클래스 주문 목록, 슬롯 레벨 이하, 학파 제한(schools 밖은 free_school_by_level개까지)
+static func validate_sub_spells(spec: Dictionary, entries: Array) -> PackedStringArray:
+	var e := PackedStringArray()
+	for ce: Dictionary in entries:
+		var sub: Dictionary = {}
+		var picked := str(spec.get("subclass", "")) if ce["primary"] and spec.get("classes", []).is_empty() else str(ce["entry"].get("subclass", ""))
+		for sc: Dictionary in ce["cls"].get("subclasses", []):
+			if str(sc["id"]) == picked:
+				sub = sc
+		var scs: Dictionary = sub.get("spellcasting", {})
+		if scs.is_empty():
+			continue
+		var src: Dictionary = (spec if ce["primary"] else ce["entry"]).get("subclass_spells", {})
+		var free := _by_level(scs.get("free_school_by_level", {}), int(ce["level"]), 99)
+		var outside := 0
+		var nk := _by_level(scs.get("known", {}), int(ce["level"]), 0)
+		var top := _by_level_arr(scs.get("slots", {}), int(ce["level"])).size()
+		var learned: Array = (src.get("spells", []) as Array).filter(func(s: Variant) -> bool:
+			return int(RulesDB.get_entry("spell", str(s)).get("level", 99)) <= top).slice(0, nk)  # 지금 레벨에서 실제로 아는 주문만
+		for k: String in ["cantrips", "spells"]:
+			for sid: Variant in (src.get(k, []) if k == "cantrips" else learned):
+				var sp := RulesDB.get_entry("spell", str(sid))
+				if sp.is_empty() or not str(scs["list"]) in sp.get("classes", []):
+					e.append("%s: %s는 %s 주문 목록에 없다" % [sub["id"], sid, scs["list"]])
+					continue
+				if (int(sp["level"]) == 0) != (k == "cantrips"):
+					e.append("%s: %s는 %s가 아니다" % [sub["id"], sid, "소마법" if k == "cantrips" else "레벨 주문"])
+				if k == "spells" and not scs.get("schools", []).is_empty() and not str(sp.get("school", "")) in scs["schools"]:
+					outside += 1
+		if outside > free:
+			e.append("%s: %s 학파 밖 주문은 %d개까지" % [sub["id"], "·".join(scs["schools"]), free])
 	return e
 
 
@@ -692,16 +727,28 @@ static func _apply_spells(c: Node, entries: Array, sp: Dictionary, lin: Dictiona
 	c.prepared = []
 	c.prepared_by_class = {}
 	c.spell_class = {}
+	c.set_meta("spell_ability", {})
 	var casters: Array = entries.filter(func(e: Dictionary) -> bool: return not e["cls"].get("spellcasting", {}).is_empty())
 	var normal: Array = casters.filter(func(e: Dictionary) -> bool: return str(e["cls"]["spellcasting"].get("progression", "full")) != "pact")
 	var pact: Array = casters.filter(func(e: Dictionary) -> bool: return str(e["cls"]["spellcasting"].get("progression", "full")) == "pact")
-	if normal.size() >= 2:
+	# 하위 클래스 주문 시전(엘드리치 나이트·아케인 트릭스터 — 1/3 시전자): 클래스에 주문 시전이 없고 하위 클래스에 있으면
+	var subcasters: Array = entries.filter(func(e: Dictionary) -> bool:
+		return e["cls"].get("spellcasting", {}).is_empty() and not (e["sub"] as Dictionary).get("spellcasting", {}).is_empty() \
+			and int(e["level"]) >= int(e["sub"].get("level", 3)))
+	if normal.size() + subcasters.size() >= 2:
 		var clv := 0
 		for e: Dictionary in normal:
 			clv += int(e["level"]) if str(e["cls"]["spellcasting"].get("progression", "full")) == "full" else ceili(int(e["level"]) / 2.0)
+		for e: Dictionary in subcasters:
+			clv += int(e["level"]) / 3  # 1/3 시전자(SRD 멀티클래스 표: 내림)
 		var table: Array = Levels.multiclass_slots(clv)
 		for i in table.size():
 			c.resources["spell_slot_%d" % (i + 1)] = {"current": table[i], "max": table[i], "recharge": "long"}
+	elif normal.is_empty() and subcasters.size() == 1:
+		var scs: Dictionary = subcasters[0]["sub"]["spellcasting"]
+		var ts: Array = _by_level_arr(scs.get("slots", {}), int(subcasters[0]["level"]))
+		for i in ts.size():
+			c.resources["spell_slot_%d" % (i + 1)] = {"current": ts[i], "max": ts[i], "recharge": "long"}
 	elif normal.size() == 1:
 		var sc0: Dictionary = normal[0]["cls"]["spellcasting"]
 		var t0: Array = sc0["slots"].get(str(normal[0]["level"]), [])
@@ -719,6 +766,26 @@ static func _apply_spells(c: Node, entries: Array, sp: Dictionary, lin: Dictiona
 		spells.append_array(cs)
 		if c.spellcasting_ability == "" or e["primary"]:
 			c.spellcasting_ability = str(e["cls"]["spellcasting"]["ability"])
+	# 하위 클래스 주문: 명세 subclass_spells {cantrips, spells} — 레벨표 수만큼, 항상 준비(아는 주문), 시전 능력은 하위 클래스 것
+	var sab: Dictionary = c.get_meta("spell_ability", {})
+	for e: Dictionary in subcasters:
+		var scs2: Dictionary = e["sub"]["spellcasting"]
+		var src2: Dictionary = (spec if e["primary"] else e["entry"]).get("subclass_spells", {})
+		var nc := _by_level(scs2.get("cantrips", {}), int(e["level"]), 0)
+		var nk := _by_level(scs2.get("known", {}), int(e["level"]), 0)
+		var top := _by_level_arr(scs2.get("slots", {}), int(e["level"])).size()
+		var picks: Array = (src2.get("cantrips", []) as Array).slice(0, nc)
+		for sid: Variant in (src2.get("spells", []) as Array):
+			if picks.size() >= nc + nk:
+				break
+			if int(RulesDB.get_entry("spell", str(sid)).get("level", 99)) <= top:
+				picks.append(sid)
+		for sid: Variant in picks:
+			spells.append(str(sid))
+			sab[str(sid)] = str(scs2["ability"])
+		if c.spellcasting_ability == "":
+			c.spellcasting_ability = str(scs2["ability"])
+	c.set_meta("spell_ability", sab)
 	for e: Dictionary in entries:
 		for src: Dictionary in [e["cls"], e["sub"]]:
 			for k: String in src.get("always_prepared", {}).keys():
@@ -865,7 +932,6 @@ static func total_level(spec: Dictionary) -> int:
 ## 주문 재주(마법 입문 등 — 재주 데이터 spell_list·cantrips·level1_spells): 명세 키 = 재주 id, 값 {"cantrips": [...], "spells": [...]}.
 ## 소마법은 그냥 쓰고, 1레벨 주문은 슬롯이 있으면 슬롯으로, 없으면 긴 휴식마다 1회(innate_<주문>).
 static func _apply_feat_spells(c: Node, feats: Array, spec: Dictionary) -> void:
-	c.set_meta("spell_ability", {})
 	for fid: String in feats:
 		var ft := RulesDB.get_entry("feat", fid)
 		if not ft.has("spell_list"):
@@ -884,6 +950,17 @@ static func _apply_feat_spells(c: Node, feats: Array, spec: Dictionary) -> void:
 				c.resources["innate_" + s] = {"current": 1, "max": 1, "recharge": "long"}
 		if c.spellcasting_ability == "":
 			c.spellcasting_ability = str(ft.get("casting_ability", pick.get("ability", "")))
+
+
+## 레벨표에서 배열 값(하위 클래스 주문 슬롯표)
+static func _by_level_arr(table: Dictionary, lv: int) -> Array:
+	var best: Array = []
+	var best_lv := 0
+	for k: String in table:
+		if lv >= int(k) and int(k) >= best_lv:
+			best_lv = int(k)
+			best = table[k]
+	return best
 
 
 static func _by_level(table: Variant, lv: int, default: int) -> int:

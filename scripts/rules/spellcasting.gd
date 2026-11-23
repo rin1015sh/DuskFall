@@ -440,6 +440,8 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 	var prev: Variant = caster.get_meta("casting_ability", "")
 	caster.set_meta("casting_ability", ability_for(caster, spell_id))
 	var r := _cast(world, caster, spell_id, aim, opts)
+	if r.get("ok", false) and int(RulesDB.get_entry("spell", spell_id).get("level", 0)) == 0 and caster.has_cap("war_magic") and not opts.get("granted", false):
+		caster.turn["war_magic_ready"] = true  # 전쟁 마법(엘드리치 나이트형): 소마법을 쓴 턴에 보너스 행동 무기 공격
 	if had:
 		caster.set_meta("casting_ability", prev)
 	elif is_instance_valid(caster):

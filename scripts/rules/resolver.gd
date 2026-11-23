@@ -131,6 +131,8 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 				"source": "multiattack_defense", "target_only": attacker, "expires_after_turn_end_of": attacker, "turn_end_count": 1})
 		Features.hook("on_hit", attacker, {"res": res})
 		Features.hook("on_hit", target, {"res": res})
+		if attacker.has_cap("eldritch_strike") and atk.get("weapon", false):
+			target.set_meta("eldritch_strike", attacker)
 		_hit_riders(attacker, target, atk, res)
 		if res["crit"]:
 			EventBus.on_crit.emit(res)
@@ -1034,6 +1036,10 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 	var res := _save_setup(creature, ability, dc, opts)
 	if src is Node and opts.get("magic", false) and creature.has_cap("mage_slayer") and _adjacent(src, creature):
 		res["advantage"].append("마법사 사냥꾼")  # 곁에서 시전한 주문의 내성 유리
+	if src is Node and opts.get("magic", false) and creature.has_meta("eldritch_strike") and creature.get_meta("eldritch_strike") == src:
+		creature.remove_meta("eldritch_strike")
+		res["advantage"].erase("마법사 사냥꾼")
+		res["disadvantage"].append("비전 일격")  # 비전 일격: 내 무기에 맞은 생물의 다음 내 주문 내성 불리
 	if ability == "dex" and creature.has_cap("shield_dex_save_bonus") and bool(creature.get_meta("shield", false)):
 		res["bonus"] += 2  # 방패 달인: 방패를 들면 민첩 내성 +2
 	if res["auto"]:

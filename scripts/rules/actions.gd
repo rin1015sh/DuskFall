@@ -362,6 +362,8 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 	match key:
 		"bonus_weapon_attack":
 			return _bonus_weapon_attack(world, c, t)
+		"war_magic_attack":
+			return _bonus_weapon_attack(world, c, t, "war_magic_ready")
 		"haft_strike":
 			return _haft_strike(world, c, t)
 		"charger_attack", "charger_shove":
@@ -850,9 +852,16 @@ static func follow_through(c: Node, t: Node, atk: Dictionary, res: Dictionary) -
 # ======================================================================
 
 ## 강타 추가 공격(대형 무기 강타): 치명타·처치 뒤 보너스 행동으로 쥔 근접 무기 공격 1회.
-static func _bonus_weapon_attack(world: Dictionary, c: Node, t: Node) -> Dictionary:
-	if t == null or not c.turn.get("bonus_attack_ready", false):
+static func _bonus_weapon_attack(world: Dictionary, c: Node, t: Node, flag: String = "bonus_attack_ready") -> Dictionary:
+	if t == null or not c.turn.get(flag, false):
 		return {"ok": false, "reason": "지금은 쓸 수 없다"}
+	if flag != "bonus_attack_ready":
+		if not Combat.spend(c, "bonus"):
+			return {"ok": false, "reason": "보너스 행동이 없다"}
+		c.turn[flag] = false
+		var watk := Combat.build_weapon_attack(c, c.weapon("main"))
+		watk["name"] = "전쟁 마법 공격"
+		return Combat._do_attack(world, c, t, watk)
 	if c.active_set != "melee":
 		Combat.switch_weapon_set(c)
 	if not Combat.spend(c, "bonus"):

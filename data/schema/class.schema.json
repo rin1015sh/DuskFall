@@ -955,6 +955,9 @@
               "SRD 5.2.1",
               "original"
             ]
+          },
+          "spellcasting": {
+            "type": "object"
           }
         }
       }

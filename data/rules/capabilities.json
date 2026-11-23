@@ -991,6 +991,24 @@
       },
       "note_ko": "근접 공격이 빗나가면 반응 + 우월 주사위 반격(reaction_queue._on_miss)",
       "source": "original"
+    },
+    {
+      "id": "war_magic",
+      "name": {
+        "ko": "전쟁 마법",
+        "en": "Battle Magic"
+      },
+      "note_ko": "소마법을 쓴 턴에 보너스 행동 무기 공격(spellcasting.cast — turn war_magic_ready)",
+      "source": "original"
+    },
+    {
+      "id": "eldritch_strike",
+      "name": {
+        "ko": "비전 일격",
+        "en": "Arcane Strike"
+      },
+      "note_ko": "무기로 맞힌 생물은 내 다음 주문 내성 불리(resolver)",
+      "source": "original"
     }
   ]
 }

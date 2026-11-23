@@ -169,3 +169,44 @@ func test_martial_adept() -> void:
 	var bm := _pc(4, {"subclass": "battle_master", "manoeuvres": ["wa_m_pushing_attack"], "asi": {"4": {"feat": "martial_adept"}}, "martial_adept": ["wa_m_trip_attack", "wa_m_rally"]})
 	assert_eq(bm.resource("superiority_dice"), 5, "배틀 마스터 4 + 1")
 	assert_eq(Actions.special_die(bm, "superiority_dice"), "1d8", "큰 주사위")
+
+
+const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
+
+
+func _ek(lv: int, sp: Dictionary) -> Node:
+	return _pc(lv, {"subclass": "eldritch_knight", "subclass_spells": sp,
+		"scores": {"str": 15, "dex": 12, "con": 14, "int": 13, "wis": 10, "cha": 8}, "bonus": {"str": 2, "int": 1}})
+
+
+func test_eldritch_knight_spellcasting() -> void:
+	var c := _ek(3, {"cantrips": ["fire_bolt", "shocking_grasp"], "spells": ["shield", "magic_missile", "sleep", "burning_hands"]})
+	assert_eq(c.resource("spell_slot_1"), 2, "3레벨 1레벨 슬롯 2")
+	assert_true(c.spells.has("fire_bolt") and c.spells.has("shield") and c.spells.has("sleep"))
+	assert_false(c.spells.has("burning_hands"), "아는 주문 3개까지")
+	assert_eq(Spellcasting.ability_for(c, "fire_bolt"), "int")
+	var c7 := _ek(7, {"cantrips": ["fire_bolt", "shocking_grasp"], "spells": ["shield", "magic_missile", "sleep", "burning_hands", "thunderwave", "scorching_ray"]})
+	assert_eq(c7.resource("spell_slot_2"), 2, "7레벨 2레벨 슬롯 2")
+	assert_true(c7.spells.has("scorching_ray"))
+	var bad := Builder.default_spec("fighter", 3)
+	bad["subclass"] = "eldritch_knight"
+	bad["subclass_spells"] = {"cantrips": ["fire_bolt"], "spells": ["sleep", "charm_person", "shield"]}
+	assert_true(Array(Builder.validate(bad)).any(func(e: String) -> bool: return e.contains("학파")), "3레벨 학파 밖 주문은 하나만")
+
+
+func test_war_magic_and_eldritch_strike() -> void:
+	var c := _ek(10, {"cantrips": ["fire_bolt", "shocking_grasp", "light"], "spells": ["shield", "magic_missile", "sleep"]})
+	var e := _foe({"abilities": {"str": 10, "dex": 10, "con": 10, "wis": 10}})
+	var w := make_world(["......", "......"])
+	w["grid"].place(c, Vector2i(0, 0))
+	w["grid"].place(e, Vector2i(1, 0))
+	c.reset_turn()
+	Dice.force([15, 3, 3])
+	assert_true(Spellcasting.cast(w, c, "shocking_grasp", Vector2i(1, 0)).get("ok", false))
+	assert_eq(Actions.unavailable(w, c, "war_magic_attack"), "", "전쟁 마법: 보너스 행동 공격")
+	Dice.force([15, 4])
+	assert_true(Actions.execute(w, c, "war_magic_attack", Vector2i(1, 0)).get("hit", false))
+	assert_true(e.has_meta("eldritch_strike") and e.get_meta("eldritch_strike") == c, "비전 일격 표시")
+	var s := Resolver.saving_throw(e, "wis", 10, {"source": c, "magic": true})
+	assert_eq(int(s["mode"]), -1, "다음 주문 내성 불리")
+	assert_true(c.is_condition_immune("disarmed"), "무기 결속")

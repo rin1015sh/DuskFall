@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 43 |
-| capability | 110 |
+| capability | 112 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -99,6 +99,8 @@
 | 1 | 재기의 숨결 (second_wind) |  | 스크립트 second_wind |  |
 | 2 | 행동 연쇄 (action_surge) |  | 스크립트 action_surge |  |
 | 2 | 전술적 판단 (tactical_mind) |  | 스크립트 tactical_mind; 태그 check_boost_d10 |  |
+| 3 | 무기 결속 (weapon_bond) | eldritch_knight | 부여 condition_immunities |  |
+| 3 | 주문 시전(비전 기사) (ek_spellcasting) | eldritch_knight | 처리: 생성기 — 하위 클래스 spellcasting(1/3 시전자, 위저드 목록, 지능, 명세 subclass_spells) |  |
 | 3 | 비전 사격 (arcane_shot) | arcane_archer | 고르기(special_attack) |  |
 | 3 | 비전 궁수의 지식 (arcane_archer_lore) | arcane_archer | 부여 skills; 고르기(spell_pick) |  |
 | 3 | 기법 (manoeuvres) | battle_master | 고르기(special_attack) |  |
@@ -106,10 +108,12 @@
 | 3 | 향상된 치명타 (improved_critical) | champion | 부여 crit_threshold |  |
 | 5 | 전술적 이동 (tactical_shift) |  | 처리: second_wind 스크립트 안 |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
+| 7 | 전쟁 마법 (war_magic) | eldritch_knight | 태그 war_magic |  |
 | 7 | 뛰어난 운동선수 (remarkable_athlete) | champion | 태그 jump_plus_1, jump_plus_1, half_proficiency_physical |  |
 | 7 | 휘는 화살 (curving_shot) | arcane_archer | 태그 curving_shot; 설정 |  |
 | 7 | 마법 화살 (magic_arrow) | arcane_archer | 태그 magic_ranged |  |
 | 9 | 불굴 (indomitable) |  | 스크립트 indomitable |  |
+| 10 | 비전 일격 (eldritch_strike) | eldritch_knight | 태그 eldritch_strike |  |
 | 10 | 추가 전투 방식 (additional_fighting_style) | champion | 고르기(feat) |  |
 | 11 | 추가 공격 2회 (two_extra_attacks) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 
@@ -282,6 +286,7 @@
 | dual_wield_any | 무거운 쌍수 | (몬스터 특성 또는 아직 없음) |
 | dueling | 결투 | 재주 dueling |
 | eldritch_mind | 섬뜩한 정신 | (몬스터 특성 또는 아직 없음) |
+| eldritch_strike | 비전 일격 | fighter |
 | empowered_strikes | 강화된 타격 | monk |
 | escape_the_horde | 무리 탈출 | (몬스터 특성 또는 아직 없음) |
 | evasion | 회피 | monk, rogue |
@@ -367,3 +372,4 @@
 | unarmored_movement | 맨몸 이동 | monk |
 | uncanny_metabolism | 신비한 대사 | monk |
 | war_caster_oa | 주문 기회 공격 | (몬스터 특성 또는 아직 없음) |
+| war_magic | 전쟁 마법 | fighter |
