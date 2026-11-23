@@ -65,6 +65,7 @@ var _rock_mi: MeshInstance3D
 var natural: RefCounted
 ## 지형 도장이 덮은 칸(바닥 그림 floor) — 규칙 쪽 map_stamps.gd와 같은 계산
 var _stamp_cells := {}
+var _height_key := ""
 ## 칸 데이터 텍스처(셰이더용): 높이·바닥 있음 / 바닥 조각 / 표면 조각
 var _info_tex: ImageTexture
 var _cells_tex: ImageTexture
@@ -141,6 +142,12 @@ func build(g: Node, sorted_layer: Node3D, map_data: Dictionary = {}) -> void:
 	_mats["rock"].set_shader_parameter("atlas_px", _sheet_size("wall_faces"))
 	if String(art().get("terrain", "block")) == "natural":
 		natural = TerrainNatural.new(grid)
+		_height_key = _make_height_key()
+		var fm: ShaderMaterial = _mats["floors"]
+		fm.set_shader_parameter("rock_on", true)
+		fm.set_shader_parameter("rock_tex", kit._sheet("wall_faces"))
+		fm.set_shader_parameter("rock_frame", Vector4(float(rock_f[0]), float(rock_f[1]), float(rock_f[2]), float(rock_f[3])))
+		fm.set_shader_parameter("rock_atlas", _sheet_size("wall_faces"))
 	var rim_mat := StandardMaterial3D.new()
 	rim_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	rim_mat.vertex_color_use_as_albedo = true
@@ -365,6 +372,13 @@ func refresh() -> void:
 			Kit3D.tint(n, V.light_tint(grid, _prop_cells[n]))
 
 
+func _make_height_key() -> String:
+	var parts := PackedStringArray()
+	for c: Vector2i in grid.all_cells():
+		parts.append(str(grid.height(c)))
+	return ",".join(parts)
+
+
 func _make_terrain_key() -> String:
 	var parts := PackedStringArray()
 	for c: Vector2i in grid.all_cells():
@@ -411,8 +425,9 @@ func _build_terrain() -> void:
 	var cliff_frame: Array = kit.info("wall_%s" % art().get("cliff", wall_kind)).get("variants", {}).get("clean", {"frames": [face_frame]})["frames"][0]
 	var t := float(V.T)
 	var rims := MeshBuilder.new()
-	if natural != null:
-		natural = TerrainNatural.new(grid)  # 높이가 바뀌었을 수 있다
+	if natural != null and _make_height_key() != _height_key:
+		natural = TerrainNatural.new(grid)  # 높이가 바뀌었다(빛만 바뀌면 그물을 다시 만들지 않는다)
+		_height_key = _make_height_key()
 	for c: Vector2i in grid.all_cells():
 		var x0 := float(c.x)
 		var z0 := float(c.y)
@@ -672,7 +687,7 @@ func update_occlusion(actors: Array) -> void:
 		arr.append(Vector4(p.x, p.y, p.z, float(a[1])))
 	var count := arr.size()
 	arr.resize(24)
-	for key: String in ["wall_tops", "wall_faces", "rock"]:
+	for key: String in ["wall_tops", "wall_faces", "rock", "floors"]:
 		var mat: ShaderMaterial = _mats[key]
 		mat.set_shader_parameter("actors", arr)
 		mat.set_shader_parameter("actor_count", count)

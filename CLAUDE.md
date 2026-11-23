@@ -71,7 +71,8 @@ res://
 - 시점: 3/4 탑뷰, 표현 계층은 3D(scenes/battle/view3d.gd — 1칸 = 1유닛, 높이 1단계 = 1유닛, 직교 카메라가 남쪽 위 51.3°에서 내려다봄, 회전 없음).
   확대 1에서 가로 1칸 = 64px, 높이 1단계 = 40px, 바닥 세로 1칸 ≈ 50px. 벽 2.8유닛(방 남쪽 벽은 0.5로 잘라 냄). 칸 고르기는 카메라 광선(view3d.pick).
   바닥·벽·절벽은 그물(map_view.gd, terrain.gdshader — 캐릭터 앞 벽은 체크무늬로 비침, floor.gdshader — 종류가 다른 바닥 경계를 흔들어 맞물리고 변형 a·b를 얼룩으로 섞음, overlay.gdshader — 물·얼음·진흙 가장자리를 웅덩이처럼), 캐릭터·소품은 세운 판(Sprite3D, 세로 1.6배 — scenes/kit/kit3d.gd), 바닥 무늬는 눕힌 판.
-  자연 지형(맵 `art.terrain: "natural"`, terrain_natural.gd·rock.gdshader): 높이 차 1단계 이웃은 부드러운 비탈, 2단계 이상은 들쭉날쭉한 바위 절벽(`art.cliff_rock` = wall_cave 등),
+  자연 지형(맵 `art.terrain: "natural"`, terrain_natural.gd): 맵 전체를 칸당 5×5 점의 한 그물로 — 높이 차 1단계 이웃은 부드러운 비탈, 2단계 이상은
+  외곽선을 잡음으로 흔들고 그물을 다듬어 둥글고 울퉁불퉁한 가파른 바위 경사(floor.gdshader가 기울기로 바위 그림 `art.cliff_rock` = wall_cave 등을 섞음),
   절벽 위·아래 풀·바위 자동 장식(`art.cliff_decor`), 오르기 지점 절벽 면에 사다리(`art.climb_art`). 비탈은 이어진 칸 높이를 넓게 평균해 곧고 완만하게 그리고,
   캐릭터·소품·하이라이트는 그려진 바닥(map_view.ground_at)에 선다. 규칙 높이는 칸 정수 그대로. 그림자는 북서쪽 햇빛 하나로(드리운 그림자·면 음영).
   지형 프리셋 도장: 맵 `stamps`(`data/content/terrain_presets.json`, scripts/rules/map_stamps.gd — 높이·재질·오르기 지점·빛·바닥·소품을 한꺼번에, 돌리기·뒤집기·base). 모음 맵 terrain_presets_demo, 시범 맵 hill_path.

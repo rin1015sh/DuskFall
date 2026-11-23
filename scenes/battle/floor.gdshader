@@ -4,6 +4,8 @@
 //   높이가 다른 칸·벽 칸에서는 가져오지 않는다(절벽 가장자리는 그대로).
 // - 같은 바닥의 두 변형(a·b): 세계 좌표 잡음 얼룩으로 섞는다(경계는 그림 밝기로 비틀어 또렷하게). 변형 b는 2칸 밀어 깐다.
 // 그림 조각은 세계 좌표로 고르므로(4칸 묶음 그림의 나머지 조각) 칸 경계를 넘어도 무늬가 이어진다.
+// - 자연 지형(rock_on): 가파른 곳(법선이 누운 곳)은 바위 그림(키트 바위 벽면)을 세계 좌표로 입혀 섞는다 — 절벽이 바닥과 한 그물.
+//   캐릭터 앞(남쪽)을 가리는 가파른 곳은 체크무늬로 비친다(terrain.gdshader와 같다).
 // 정점 색 = 음영·어둠. 빛 없음.
 shader_type spatial;
 render_mode unshaded, cull_disabled;
@@ -29,7 +31,16 @@ uniform float blend_dh = 0.0;
 // 정점 색 되돌림 배율(자연 지형: 평지 밝기를 1로, 빛 받는 비탈은 더 밝게)
 uniform float shade_gain = 1.0;
 
+// 자연 지형 바위: 켜기, 그림(벽면 시트), 묶음(px: x, y, 너비, 높이), 시트 크기
+uniform bool rock_on = false;
+uniform sampler2D rock_tex : source_color, filter_nearest;
+uniform vec4 rock_frame = vec4(0.0, 0.0, 256.0, 160.0);
+uniform vec2 rock_atlas = vec2(1024.0, 1024.0);
+uniform vec4 actors[24];
+uniform int actor_count = 0;
+
 varying vec3 wpos;
+varying vec3 wnormal;
 
 float hash(vec2 p) {
 	p = fract(p * vec2(0.1031, 0.1030));
@@ -78,6 +89,7 @@ vec3 floor_color(ivec2 c, vec2 p) {
 
 void vertex() {
 	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	wnormal = (MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz;
 }
 
 // 칸 c가 칸 c0와 섞일 수 있는가(지도 안·바닥·같은 높이)
@@ -123,6 +135,35 @@ void fragment() {
 		col = mix(own, other, t);
 		// 맞닿은 자리에 옅은 그늘
 		col *= 1.0 - edge_shade * (1.0 - abs(2.0 * t - 1.0));
+	}
+	if (rock_on) {
+		vec3 n = normalize(wnormal);
+		float rw = smoothstep(0.58, 0.38, n.y);
+		if (rw > 0.001) {
+			// 면 방향으로 감기: 남북을 보면 x, 동서를 보면 z를 따라. 단(160px)마다 가로로 어긋나게.
+			float along = abs(n.z) >= abs(n.x) ? p.x : p.y;
+			float band = floor(wpos.y * 40.0 / (rock_frame.w - 1.0));
+			float u = rock_frame.x + mod(along * 64.0 + band * 97.0, rock_frame.z);
+			float v = rock_frame.y + rock_frame.w - 0.5 - mod(wpos.y * 40.0, rock_frame.w - 1.0);
+			vec3 rock = texture(rock_tex, vec2(u, v) / rock_atlas).rgb;
+			vec2 q = vec2(along, wpos.y);
+			rock *= mix(0.74, 1.08, vnoise(q * 0.8 + 5.0) * 0.7 + vnoise(q * 2.9) * 0.3);
+			col = mix(col, rock, rw);
+			if (rw > 0.35) {
+				for (int i = 0; i < actor_count; i++) {
+					vec4 a = actors[i];
+					if (wpos.z > a.z + 0.35) {
+						vec3 av = (VIEW_MATRIX * vec4(a.xyz, 1.0)).xyz;
+						vec2 d = VERTEX.xy - av.xy;
+						if (abs(d.x) < 0.42 * a.w && d.y > -0.3 && d.y < 1.6 * a.w) {
+							if (mod(floor(FRAGCOORD.x) + floor(FRAGCOORD.y), 2.0) < 1.0) {
+								discard;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	ALBEDO = col * COLOR.rgb * shade_gain;
 }

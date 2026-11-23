@@ -126,30 +126,27 @@ func test_map_view_water_edges() -> void:
 	assert_eq(surf.get_pixel(0, 0).b8, 0, "표면 없음")
 
 
-## 자연 지형: 칸 가운데는 규칙 높이 가까이(±0.35), 이어진(높이 차 1) 이웃과 맞닿은 변은 같은 높이(틈 없음), 2단계 차는 바위 면,
-## 2칸마다 1단계씩 오르는 길은 계단 없이 고르게 오른다
+## 자연 지형: 그려진 면은 칸 가운데에서 규칙 높이 가까이, 평지는 그대로, 2단계 차는 가파른 바위(가파름 높음),
+## 2칸마다 1단계씩 오르는 길은 계단 없이 고르게 오르고, 절벽 외곽선은 칸 경계에 붙지 않는다(흔들림)
 func test_natural_terrain_slopes_and_cliffs() -> void:
 	const TerrainNatural := preload("res://scenes/battle/terrain_natural.gd")
-	var g := make_grid(["33333", "22333", "11000", "00000"])
+	var g := make_grid(["000000", "033330", "033330", "033330", "000000", "000000"])
 	var t: RefCounted = TerrainNatural.new(g)
-	for c: Vector2i in g.all_cells():
-		assert_near(t.ground_at(Vector2(c) + Vector2(0.5, 0.5)), float(g.height(c)), 0.35, "칸 가운데 ≈ 규칙 높이 %s" % str(c))
-	assert_near(t.ground_at(Vector2(4.5, 3.5)), 0.0, 0.001, "평지는 그대로")
-	assert_true(t.linked(Vector2i(0, 1), Vector2i(0, 2)), "높이 차 1은 이어진 비탈")
-	assert_false(t.linked(Vector2i(3, 1), Vector2i(3, 2)), "높이 차 3은 절벽")
-	for c: Vector2i in g.all_cells():
-		for d: Vector2i in [Vector2i.RIGHT, Vector2i.DOWN]:
-			var n := c + d
-			if g.in_bounds(n) and t.linked(c, n):
-				var a: Array = t._edge(c, d)
-				var b: Array = t._edge(n, -d)
-				for i in a.size():
-					assert_near((a[i] as Vector3).y, (b[i] as Vector3).y, 0.001, "틈 없음 %s→%s" % [str(c), str(n)])
-	var edges: Array = t.cliff_edges()
-	assert_true(edges.has([Vector2i(3, 1), Vector2i(3, 2)]), "절벽 변 목록")
-	assert_false(edges.has([Vector2i(0, 1), Vector2i(0, 2)]), "비탈은 절벽이 아니다")
-	var cliffs: ArrayMesh = t.build_cliffs(func(_c: Vector2i) -> float: return 0.0)
-	assert_true(cliffs.get_surface_count() == 1, "바위 면 그물")
+	assert_near(t.ground_at(Vector2(2.5, 2.5)), 3.0, 0.3, "고원 가운데 ≈ 3")
+	assert_near(t.ground_at(Vector2(0.5, 5.5)), 0.0, 0.05, "먼 평지는 그대로")
+	assert_true(t.linked(Vector2i(0, 4), Vector2i(0, 5)), "같은 높이는 이어짐")
+	assert_false(t.linked(Vector2i(2, 3), Vector2i(2, 4)), "높이 차 3은 절벽")
+	assert_true(t.cliff_edges().has([Vector2i(2, 3), Vector2i(2, 4)]), "절벽 변 목록")
+	assert_true(t.steep_at(Vector2(2.5, 4.0)) > 0.5, "절벽 자리는 가파르다")
+	assert_true(t.steep_at(Vector2(0.5, 5.5)) < 0.01, "평지는 가파르지 않다")
+	# 절벽 외곽선이 칸 경계(z = 4)를 따라 곧지 않다: 경계 위 높이가 x마다 다르다
+	var hs := []
+	for k in 13:
+		hs.append(t.ground_at(Vector2(1.5 + k * 0.25, 4.0)))
+	assert_true(hs.max() - hs.min() > 0.3, "외곽선이 흔들린다(%.2f)" % (hs.max() - hs.min()))
+	var mesh: ArrayMesh = t.build_floor(func(_p: Vector2) -> float: return 0.0)
+	assert_true(mesh.get_surface_count() == 1, "바닥·절벽 한 그물")
+	assert_true(mesh.surface_get_arrays(0)[Mesh.ARRAY_NORMAL].size() > 0, "법선(바위 그림 고르기)")
 	# 계단 없는 비탈: 높이 3,3,2,2,1,1,0,0 길을 따라 내려가는 기울기가 고르다(평평한 층이 없다)
 	var r := make_grid(["3", "3", "2", "2", "1", "1", "0", "0", "0"])
 	var tr: RefCounted = TerrainNatural.new(r)
@@ -172,8 +169,8 @@ func test_map_view_natural_terrain() -> void:
 	root.add_child(sorted)
 	view.build(g, sorted, {"art": {"terrain": "natural"}})
 	assert_true(view.natural != null, "art.terrain = natural")
-	assert_true(view._rock_mi.mesh.get_surface_count() == 1, "바위 절벽 면")
-	assert_near(view.ground_at(Vector2(1.5, 0.5)), 3.0, 0.001)
+	assert_true(view._floor_mi.mesh.get_surface_count() == 1, "지형 그물(바닥·절벽)")
+	assert_near(view.ground_at(Vector2(1.5, 0.5)), 3.0, 0.3)
 	var ladder := false
 	for n: Node in sorted.get_children():
 		ladder = ladder or n.get_meta("kit_id", "") == "ladder"
