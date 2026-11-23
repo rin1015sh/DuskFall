@@ -158,7 +158,8 @@
               "enum": [
                 "skills",
                 "weapons",
-                "spells"
+                "spells",
+                "special_attacks"
               ]
             },
             "count": {
@@ -169,6 +170,9 @@
               "items": {
                 "type": "string"
               }
+            },
+            "group": {
+              "type": "string"
             }
           }
         },
@@ -199,6 +203,12 @@
         },
         "resources": {
           "type": "array"
+        },
+        "resource": {
+          "type": "string"
+        },
+        "dice_by_level": {
+          "type": "object"
         }
       }
     },

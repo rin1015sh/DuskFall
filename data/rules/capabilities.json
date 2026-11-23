@@ -946,6 +946,51 @@
       },
       "note_ko": "돌격 공격·돌격 밀치기 행동",
       "source": "original"
+    },
+    {
+      "id": "half_proficiency_physical",
+      "name": {
+        "ko": "절반 숙련(신체)",
+        "en": "Remarkable Athlete"
+      },
+      "note_ko": "숙련 아닌 근력·민첩·건강 판정에 숙련 보너스 절반(resolver.ability_check)",
+      "source": "original"
+    },
+    {
+      "id": "curving_shot",
+      "name": {
+        "ko": "휘는 화살",
+        "en": "Curving Shot"
+      },
+      "note_ko": "원거리 무기 빗나감 → 보너스 행동으로 가까운 다른 적(combat._curving_shot)",
+      "source": "original"
+    },
+    {
+      "id": "magic_ranged",
+      "name": {
+        "ko": "마법 화살",
+        "en": "Magic Arrow"
+      },
+      "note_ko": "원거리 무기 공격이 마법 공격(atk.magical)",
+      "source": "original"
+    },
+    {
+      "id": "precision_attack",
+      "name": {
+        "ko": "정밀 공격",
+        "en": "Precision Strike"
+      },
+      "note_ko": "빗나간 무기 공격에 우월 주사위(resolver.attack)",
+      "source": "original"
+    },
+    {
+      "id": "riposte",
+      "name": {
+        "ko": "반격",
+        "en": "Riposte"
+      },
+      "note_ko": "근접 공격이 빗나가면 반응 + 우월 주사위 반격(reaction_queue._on_miss)",
+      "source": "original"
     }
   ]
 }

@@ -1191,6 +1191,41 @@
       "trigger": "enemy_attacks_ally_before",
       "requires_shield": true,
       "source": "original"
+    },
+    {
+      "id": "martial_adept",
+      "name": {
+        "ko": "전투 기법 입문",
+        "en": "Tactician's Training"
+      },
+      "desc": {
+        "ko": "기법 2개를 배우고 우월 주사위 1개(d6, 이미 있으면 그 크기)를 더 얻는다. 짧은 휴식에 회복.",
+        "en": "Learn two manoeuvres and gain one superiority die (d6, or your existing size). Regained on a short rest."
+      },
+      "category": "general",
+      "choose": {
+        "kind": "special_attacks",
+        "count": 2,
+        "group": "maneuver"
+      },
+      "resources": [
+        {
+          "id": "superiority_dice",
+          "name": {
+            "ko": "우월 주사위",
+            "en": "Superiority Dice"
+          },
+          "max": 1,
+          "recharge": "short",
+          "add": true
+        }
+      ],
+      "kind": "passive",
+      "resource": "superiority_dice",
+      "dice_by_level": {
+        "1": "1d6"
+      },
+      "source": "original"
     }
   ]
 }

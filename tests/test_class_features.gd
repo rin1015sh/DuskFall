@@ -72,7 +72,6 @@ func test_improved_critical_19() -> void:
 	Dice.force([19, 1, 1])
 	var r := Combat.attack(w, f, g)
 	assert_true(r["crit"], "챔피언: 19도 치명타")
-	assert_eq(f.turn["free_move_no_oa"], 3, "뛰어난 운동선수: 치명타 뒤 속도 절반")
 
 
 func test_sneak_attack_conditions() -> void:

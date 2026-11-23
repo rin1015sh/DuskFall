@@ -73,6 +73,14 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	if not res["hit"] and res["natural"] != 1:
 		Features.hook("on_attack_missed", attacker, {"res": res})  # 비할 데 없는 기술(지식 학파 14레벨) — 스크립트가 total을 고친다
 		_decide_hit(res)
+	if not res["hit"] and res["natural"] != 1 and attacker.has_cap("precision_attack") and atk.get("weapon", false) \
+			and str(attacker.options.get("wa_m_precision_attack", "on")) == "on" and attacker.resource("superiority_dice") > 0:
+		var pdie: String = load("res://scripts/rules/actions.gd").special_die(attacker, "superiority_dice")
+		if res["total"] + int(pdie.get_slice("d", 1)) >= res["ac"] + res["ac_bonus"]:
+			attacker.spend_resource("superiority_dice")  # 정밀 공격(기법): 빗나가면 우월 주사위를 명중 굴림에
+			var pr: int = Dice.roll(pdie, "정밀 공격")["total"]
+			res["total"] += pr
+			_decide_hit(res)
 	if not res["hit"] and lucky(attacker, "공격"):
 		var nat := Dice.die(20)
 		if nat > int(res["natural"]):  # 행운의 별: 다시 굴려 좋은 쪽(유리)
@@ -88,6 +96,9 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	for m in target.extra_modifiers.duplicate():
 		if m.get("consume_on_attacked", false):
 			target.extra_modifiers.erase(m)
+	for a in target.active_conditions():
+		if a["def"].get("ends_on_attacked", false):
+			target.remove_condition(str(a["id"]))  # 주의 산만: 공격 한 번이면 풀린다
 	# 공격하면 끝나는 상태(Invisibility·Sanctuary — params.ends_on_attack)
 	for cond in attacker.conditions.duplicate():
 		if cond.get("params", {}).get("ends_on_attack", false) or RulesDB.get_entry("condition", str(cond["id"])).get("ends_on_attack", false):
@@ -140,6 +151,10 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 		parts.append_array(res.get("extra_damage", []))
 		var rolled := _roll_damage(attacker, atk, parts, res)
 		var mult: float = float(res.get("damage_multiplier", 1.0))
+		if atk.get("weapon", false) and str(atk.get("ability", "")) == "str":
+			for m in attacker.modifier_entries():
+				if m["effect"]["type"] == "modify" and m["effect"]["stat"] == "str_weapon_damage":
+					mult *= float(m["effect"].get("multiply", 1.0))  # 무력함(비전 사격): 근력 무기 피해 절반
 		if mult != 1.0:
 			for r: Dictionary in rolled:
 				r["multiplier"] = mult
@@ -1116,7 +1131,9 @@ static func concentration_check(creature: Node, damage: int, attacker: Variant =
 ## 자연 20 자동 성공, 자연 1 자동 실패(2단계 공통 처리 규칙 1).
 static func ability_check(creature: Node, ability: String, dc: int, opts: Dictionary = {}) -> Dictionary:
 	var res := {"creature": creature, "ability": ability, "dc": dc, "auto": false,
-		"bonus": creature.ability_mod(ability) + _skill_bonus(creature, str(opts.get("skill", ""))) + int(opts.get("bonus", 0)),
+		"bonus": creature.ability_mod(ability) + _skill_bonus(creature, str(opts.get("skill", ""))) + int(opts.get("bonus", 0)) \
+			+ (creature.proficiency_bonus / 2 if creature.has_cap("half_proficiency_physical") and ability in ["str", "dex", "con"] \
+				and not creature.skill_bonuses.has(str(opts.get("skill", "")))  else 0),
 		"advantage": opts.get("advantage", []).duplicate(), "disadvantage": opts.get("disadvantage", []).duplicate(),
 		"success": false, "natural": 0, "total": 0, "mode": 0, "ctx": {}, "skill": str(opts.get("skill", ""))}
 	if str(opts.get("skill", "")) == "stealth":
@@ -1139,7 +1156,7 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		res["natural"] = d["natural"]
 		res["total"] = _reliable(creature, res["skill"], d["natural"]) + res["bonus"]
 		res["success"] = d["natural"] == 20 or (d["natural"] != 1 and res["total"] >= dc)
-		if not res["success"] and d["natural"] != 1:
+		if not res["success"] and d["natural"] != 1:  # (뛰어난 운동선수 절반 숙련은 bonus에 이미 들어 있다)
 			res["total"] += inspire(creature)
 			res["success"] = res["total"] >= dc
 		if not res["success"] and heroic(creature):

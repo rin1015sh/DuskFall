@@ -20,6 +20,8 @@ func setup(w: Dictionary) -> Node:
 		EventBus.on_after_attack_roll.connect(_on_after_attack_roll)
 	if not EventBus.on_before_attack_roll.is_connected(_on_before_attack_roll):
 		EventBus.on_before_attack_roll.connect(_on_before_attack_roll)
+	if not EventBus.on_miss.is_connected(_on_miss):
+		EventBus.on_miss.connect(_on_miss)
 	if not EventBus.on_spell_cast.is_connected(_on_spell_cast):
 		EventBus.on_spell_cast.connect(_on_spell_cast)
 	if not EventBus.on_fall.is_connected(_on_fall):
@@ -35,6 +37,8 @@ func _notification(what: int) -> void:
 			EventBus.on_after_attack_roll.disconnect(_on_after_attack_roll)
 		if EventBus.on_before_attack_roll.is_connected(_on_before_attack_roll):
 			EventBus.on_before_attack_roll.disconnect(_on_before_attack_roll)
+		if EventBus.on_miss.is_connected(_on_miss):
+			EventBus.on_miss.disconnect(_on_miss)
 		if EventBus.reaction_queue == self:
 			EventBus.reaction_queue = null
 		if EventBus.on_spell_cast.is_connected(_on_spell_cast):
@@ -135,6 +139,30 @@ func _on_before_attack_roll(res: Dictionary) -> void:
 			res["disadvantage"].append("보호")
 			Dice.log_text("%s 보호: %s의 공격이 불리" % [o.label(), attacker.label()])):
 			return
+
+
+## 반격(기법, 능력 태그 riposte, 상시 설정 켬): 적의 근접 공격이 나를 빗나가면 반응 + 우월 주사위로 그 적에게 무기 공격(우월 주사위 피해 추가).
+func _on_miss(res: Dictionary) -> void:
+	if res.get("preview", false) or not world.has("grid") or EventBus.realtime:
+		return
+	var t: Node = res.get("target")
+	var attacker: Node = res.get("attacker")
+	if t == null or attacker == null or t.dead or attacker.dead or not t.has_cap("riposte") or not t.can_react():
+		return
+	if str(res.get("attack", {}).get("kind", "")) != "melee" or t.resource("superiority_dice") <= 0 or not t.is_hostile_to(attacker):
+		return
+	if str(t.options.get("wa_m_riposte", "on")) != "on" or world["grid"].distance_between(t, attacker) > 1:
+		return
+	var Combat: Variant = load("res://scripts/rules/combat.gd")
+	t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
+	t.spend_resource("superiority_dice")
+	var wid: String = t.weapon_sets.get("melee", {}).get("main", "")
+	var atk: Dictionary = Combat.build_weapon_attack(t, wid if wid != "" else "unarmed")
+	var die: String = load("res://scripts/rules/actions.gd").special_die(t, "superiority_dice")
+	atk["damage"] = atk["damage"] + [{"dice": die, "damage_type": atk["damage"][0]["damage_type"]}]
+	atk["name"] = "반격"
+	atk["opportunity"] = true
+	Combat._do_attack(world, t, attacker, atk, true)
 
 
 ## 막아내기 검술(trigger self_hit_melee): 숙련 교묘 무기를 주 무기로 쥐고 근접 공격에 맞으면 반응으로 그 공격에 AC + 숙련 보너스.

@@ -179,7 +179,7 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		"two_handed": opts.get("two_handed", false) or "two_handed" in props,
 		"kind": "ranged" if ranged else "melee", "weapon": true, "properties": props,
 		"damage": [{"dice": expr, "damage_type": "force" if w["id"] == "unarmed" and c.has_cap("empowered_strikes") else w["damage_type"]}],
-		"extra_disadvantage": dis, "flat_damage": flat,
+		"extra_disadvantage": dis, "flat_damage": flat, "magical": ranged and c.has_cap("magic_ranged"),
 		"range_tiles": w.get("range_tiles", [reach_of(c), reach_of(c)]) if ranged else [1, 1]}
 
 
@@ -468,6 +468,7 @@ static func _do_attack(world: Dictionary, attacker: Node, target: Node, atk: Dic
 		var rq: Variant = world.get("reactions")
 		if rq != null and not atk.get("opportunity", false) and not str(atk.get("name", "")).begins_with("파수"):
 			rq.after_attack(res)  # 파수(반응 재주)
+		_curving_shot(world, attacker, target, atk, res)
 	return res
 
 
@@ -526,6 +527,14 @@ static func move(world: Dictionary, c: Node, to: Vector2i, opts: Dictionary = {}
 		return _fail("갈 수 없다(이동력 %d)" % int(c.turn.get(budget_key, 0)))
 	var out := {"ok": true, "moved": 0, "cost": 0, "stopped": ""}
 	var cur: Vector2i = grid.cell_of(c)
+	if not free and not p["path"].is_empty():
+		for a in c.active_conditions():
+			var md: Dictionary = a["def"].get("move_damage", {})
+			if not md.is_empty():
+				Resolver.apply_damage(c, [{"amount": Dice.roll(str(md["dice"]), str(a["def"]["name"]["ko"]))["total"], "damage_type": str(md["damage_type"])}],
+					{"attacker": a["instance"].get("source")})  # 휘감김: 움직이면 피해
+		if c.dead or c.is_down():
+			return out
 	for nxt: Vector2i in p["path"]:
 		if not c.turn.get("disengaged", false) and not free:
 			_opportunity_attacks(world, c, cur, nxt)
@@ -598,6 +607,27 @@ static func _dist_cells(grid: Node, a: Array, b: Array) -> int:
 		for y: Vector2i in b:
 			best = mini(best, grid.distance(x, y))
 	return best
+
+
+## 휘는 화살(능력 태그 curving_shot, 설정 켬): 원거리 무기 공격이 빗나가면 보너스 행동으로 원래 대상에 가장 가까운 다른 적을 같은 공격으로.
+static func _curving_shot(world: Dictionary, attacker: Node, target: Node, atk: Dictionary, res: Dictionary) -> void:
+	if res.get("hit", true) or not res.get("valid", false) or atk.get("curved", false) or str(atk.get("kind", "")) != "ranged" or not atk.get("weapon", false):
+		return
+	if not attacker.has_cap("curving_shot") or str(attacker.options.get("curving_shot", "on")) != "on" or not can_spend(attacker, "bonus"):
+		return
+	var grid: Node = world["grid"]
+	var best: Node = null
+	for o: Node in grid.creatures():
+		if o != target and o != attacker and not o.dead and attacker.is_hostile_to(o) \
+				and (best == null or grid.distance_between(o, target) < grid.distance_between(best, target)):
+			best = o
+	if best == null:
+		return
+	spend(attacker, "bonus")
+	var atk2 := atk.duplicate(true)
+	atk2["curved"] = true
+	atk2["name"] = "휘는 화살(%s)" % atk.get("name", "")
+	res["curving"] = _do_attack(world, attacker, best, atk2)
 
 
 ## 장병기 달인(능력 태그 polearm_enter_oa): 장병기를 쥔 적의 도달 밖에서 안으로 들어오면 그 적이 반응으로 기회 공격(반응 id = 재주 기능).

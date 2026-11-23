@@ -283,6 +283,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	c.features = []
 	c.feature_data = {}
 	c.feature_hooks = {}
+	c.set_meta("special_attacks", [])
+	c.set_meta("picked_spells", [])
 	c.caps = []
 	for e: Dictionary in entries:
 		for f: Dictionary in e["cls"]["features"] + e["sub"].get("features", []):
@@ -320,6 +322,17 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			continue
 		if kind == "spell" and spec.get(fid) is Array:
 			continue  # 고른 주문(마법의 발견): 아래 주문 단계에서 항상 준비로
+		if kind == "special_attack" and spec.get(fid) is Array:
+			# 기법·비전 사격(배틀 마스터·아케인 아처·전투 기법 입문): 레벨표 count_by_level만큼 배운다(무기 액션 group 항목)
+			var n := _by_level(f.get("count_by_level", {}), c.feature_level(fid), int(f.get("count", 1)))
+			var learned: Array = c.get_meta("special_attacks", []).duplicate()
+			for pick: Variant in (spec[fid] as Array).slice(0, n):
+				var wa := RulesDB.get_entry("weapon_action", str(pick))
+				if not wa.is_empty() and str(wa.get("group", "")) == str(f.get("group", "")) and not str(pick) in learned:
+					learned.append(str(pick))
+					c.caps.append_array(wa.get("caps", []))  # 반격·정밀 공격
+			c.set_meta("special_attacks", learned)
+			continue
 		var chosen := str(spec.get(str(f.get("choice_from", fid)), ""))  # choice_from: 다른 기능의 선택을 따른다(자연의 수호 = 대지 종류)
 		if kind == "" or chosen == "" or not chosen in f.get("choices", []):
 			continue
@@ -330,6 +343,10 @@ static func apply(c: Node, spec: Dictionary) -> void:
 				expertise.append(chosen)
 			"skill":
 				extra_skill.append(chosen)  # 기능 숙련 하나 더(바바리안 원시 지식)
+			"spell_pick":
+				var pk: Array = c.get_meta("picked_spells", []).duplicate()
+				pk.append(chosen)  # 고르는 주문 하나(비전 궁수 소마법) — 재주 주문처럼 시전 능력 없으면 지능·지혜·매력 중 높은 것
+				c.set_meta("picked_spells", pk)
 			"option":
 				if f.get("choice_grants", {}).has(chosen):
 					grants.append([fid, f["choice_grants"][chosen]])
@@ -355,6 +372,14 @@ static func apply(c: Node, spec: Dictionary) -> void:
 				for sid: Variant in picks:
 					if str(sid) in ch.get("from", []):
 						feat_spells.append(str(sid))
+			"special_attacks":
+				var learned: Array = c.get_meta("special_attacks", []).duplicate()
+				for pick: Variant in picks:
+					var wa := RulesDB.get_entry("weapon_action", str(pick))
+					if not wa.is_empty() and str(wa.get("group", "")) == str(ch.get("group", "")) and not str(pick) in learned:
+						learned.append(str(pick))
+						c.caps.append_array(wa.get("caps", []))
+				c.set_meta("special_attacks", learned)
 	var uniq_f: Array = []
 	for f: String in c.features:
 		if not f in uniq_f:
@@ -462,6 +487,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var res_src: Array = []  # [자원 데이터, 그 클래스 레벨]
 	for e: Dictionary in entries:
 		for r: Dictionary in e["cls"].get("resources", []):
+			if str(r.get("subclass", "")) != "" and str(r["subclass"]) != str(e["sub"].get("id", "")):
+				continue  # 하위 클래스 자원(우월 주사위·비전 화살)
 			res_src.append([r, int(e["level"])])
 	for r: Dictionary in sp.get("resources", []):
 		res_src.append([r, lv])
@@ -475,6 +502,10 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			var rc: Variant = r["recharge"]
 			if rc is Dictionary:
 				rc = _by_level_str(rc, int(row[1]), "long")  # 레벨표(바드: 5레벨부터 짧은 휴식 — 영감의 샘)
+			if c.resources.has(r["id"]) and r.get("add", false):
+				c.resources[r["id"]]["max"] = int(c.resources[r["id"]]["max"]) + mx  # add: 더한다(전투 기법 입문 우월 주사위 +1)
+				c.resources[r["id"]]["current"] = c.resources[r["id"]]["max"]
+				continue
 			if c.resources.has(r["id"]) and int(c.resources[r["id"]]["max"]) >= mx:
 				continue  # 같은 자원을 두 클래스가 주면 큰 쪽(신성 변환 등)
 			c.resources[r["id"]] = {"current": mx, "max": mx, "recharge": str(rc)}
@@ -496,7 +527,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	_apply_feat_spells(c, feats, spec)
 	# 고른 재주 주문(의식 주문가·주문 저격): 소마법은 그냥, 1레벨 이상은 슬롯 없이(BG3 의식). 시전 능력은 내 시전 능력 — 없으면 지능·지혜·매력 중 높은 것
 	var sab: Dictionary = c.get_meta("spell_ability", {})
-	for sid: String in feat_spells:
+	for sid: String in feat_spells + c.get_meta("picked_spells", []):
 		if int(RulesDB.get_entry("spell", sid).get("level", 0)) == 0:
 			if not c.spells.has(sid):
 				c.spells.append(sid)

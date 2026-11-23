@@ -158,7 +158,8 @@
                 "no_reactions",
                 "jump_tiles",
                 "rage_damage",
-                "spell_dc"
+                "spell_dc",
+                "str_weapon_damage"
               ]
             },
             "add": {
@@ -546,6 +547,12 @@
             }
           },
           "description": "이 생물을 맞힌 공격에 고정 피해 추가"
+        },
+        "ends_on_attacked": {
+          "type": "boolean"
+        },
+        "move_damage": {
+          "type": "object"
         }
       }
     }

@@ -43,7 +43,9 @@
               "action",
               "bonus",
               "movement",
-              "reaction"
+              "reaction",
+              "free",
+              "passive"
             ]
           },
           "weapons": {
@@ -92,7 +94,9 @@
           "dc": {
             "enum": [
               "weapon",
-              "hybrid"
+              "hybrid",
+              "maneuver",
+              "int"
             ]
           },
           "max_size": {
@@ -118,7 +122,8 @@
           "target": {
             "enum": [
               "enemy",
-              "self"
+              "self",
+              "ally"
             ]
           },
           "cleave_targets": {
@@ -147,6 +152,80 @@
           },
           "double_turns_cap": {
             "type": "string"
+          },
+          "group": {
+            "enum": [
+              "maneuver",
+              "arcane_shot"
+            ]
+          },
+          "kind": {
+            "enum": [
+              "command",
+              "self_buff",
+              "ally_temp_hp",
+              "sweep",
+              "line",
+              "auto_hit",
+              "passive"
+            ]
+          },
+          "weapon_kind": {
+            "enum": [
+              "melee",
+              "ranged",
+              "any"
+            ]
+          },
+          "resource": {
+            "type": "string"
+          },
+          "consume": {
+            "enum": [
+              "hit",
+              "always"
+            ]
+          },
+          "extra_damage": {
+            "type": "array"
+          },
+          "advantage": {
+            "type": "boolean"
+          },
+          "also_costs": {
+            "enum": [
+              "bonus"
+            ]
+          },
+          "ally_condition": {
+            "type": "string"
+          },
+          "temp_hp": {
+            "type": "integer"
+          },
+          "range_tiles": {
+            "type": "integer"
+          },
+          "caps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "push_tiles": {
+            "type": "integer"
+          },
+          "burst_tiles": {
+            "type": "integer"
+          },
+          "burst_damage": {
+            "type": "object"
+          },
+          "line_tiles": {
+            "type": "integer"
+          },
+          "line_extra": {
+            "type": "object"
           }
         }
       }

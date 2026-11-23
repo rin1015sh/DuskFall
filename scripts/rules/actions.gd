@@ -65,7 +65,9 @@ static func def_of(key: String) -> Dictionary:
 		out["cost"] = "free" if str(wa["cost"]) == "movement" else str(wa["cost"])
 		out["tab"] = "class"
 		out["explore"] = out["target"] == "enemy"
-		out["resource"] = "" if wa.get("unlimited", false) else key
+		out["resource"] = str(wa["resource"]) if wa.has("resource") else ("" if wa.get("unlimited", false) else key)
+		if str(wa["cost"]) == "free" or str(wa["cost"]) == "passive":
+			out["cost"] = "free"
 		out["weapon_action"] = true
 		return out
 	var parts := key.split(":")
@@ -112,8 +114,8 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 				continue
 			out["class"].append("feature:" + fid)
 	for wa: String in weapon_actions_for(c):
-		if str(RulesDB.get_entry("weapon_action", wa)["cost"]) != "reaction":
-			out["class"].append(wa)  # 반응(끈기)은 상시 설정 — 단축 막대에 두지 않는다
+		if not str(RulesDB.get_entry("weapon_action", wa)["cost"]) in ["reaction", "passive"]:
+			out["class"].append(wa)  # 반응(끈기·반격)·켜 두는 것(정밀 공격)은 상시 설정 — 단축 막대에 두지 않는다
 	for kind: String in ENTITY_ACTIONS:
 		if not SpellUtil.find_entity(c, kind).is_empty():
 			out["spells"].append("entity:" + kind)
@@ -474,10 +476,13 @@ static func _throwable(world: Dictionary, c: Node) -> Dictionary:
 ## 쥔 무기(근접·원거리 세트 주 무기)로 쓸 수 있는 무기 액션 ID. 그 무기에 숙련이 있어야 한다(BG3 — 보조 손 무기는 주지 않는다).
 static func weapon_actions_for(c: Node) -> Array:
 	var out: Array = []
+	var learned: Array = c.get_meta("special_attacks", [])
 	for wa: Dictionary in RulesDB.entries("weapon_action"):
+		if wa.has("group") and not wa["id"] in learned:
+			continue  # 기법·비전 사격은 배운 것만
 		if _wa_weapon(c, wa["id"]) != "":
 			out.append(wa["id"])
-			if not wa.get("unlimited", false) and not c.resources.has(wa["id"]):
+			if not wa.get("unlimited", false) and not wa.has("resource") and not c.resources.has(wa["id"]):
 				c.resources[wa["id"]] = {"current": 1, "max": 1, "recharge": "short"}  # 짧은 휴식에 1회(캐릭터마다)
 	return out
 
@@ -485,11 +490,43 @@ static func weapon_actions_for(c: Node) -> Array:
 ## 이 무기 액션에 쓸 무기(없으면 ""): 근접 세트 → 원거리 세트 순.
 static func _wa_weapon(c: Node, key: String) -> String:
 	var wa := RulesDB.get_entry("weapon_action", key)
+	var wk := str(wa.get("weapon_kind", ""))
+	if wa.has("group") and (wk == "" or str(wa.get("kind", "")) in ["self_buff", "ally_temp_hp", "passive", "command"]):
+		return "-"  # 무기가 필요 없는 기법(회피 발놀림·재정비·반격·정밀·지휘)
 	for set_name: String in ["melee", "ranged"]:
 		var wid: String = c.weapon_sets.get(set_name, {}).get("main", "")
-		if wid != "" and _base_weapon(wid) in wa.get("weapons", []) and _proficient(c, wid):
+		if wid == "":
+			continue
+		if wk != "":
+			var ranged: bool = Combat.is_ranged_weapon(Combat.weapon_data(wid))
+			if wk == "any" or (wk == "melee" and not ranged) or (wk == "ranged" and ranged):
+				return wid
+			continue
+		if _base_weapon(wid) in wa.get("weapons", []) and _proficient(c, wid):
 			return wid
 	return ""
+
+
+## 기법·비전 사격 자원의 주사위(우월 주사위: 그 자원을 쓰는 기능의 dice_by_level 중 가장 큰 것 — 배틀 마스터 d8→d10, 전투 기법 입문 d6)
+static func special_die(c: Node, resource_id: String) -> String:
+	var best := "1d6"
+	var best_avg := 0.0
+	for fid: String in c.feature_data:
+		var f: Dictionary = c.feature_data[fid]
+		if str(f.get("resource", "")) != resource_id or not f.has("dice_by_level"):
+			continue
+		var lv: int = c.feature_level(fid)
+		var pick := ""
+		var pl := 0
+		for k: String in f["dice_by_level"]:
+			if lv >= int(k) and int(k) >= pl:
+				pl = int(k)
+				pick = str(f["dice_by_level"][k])
+		var avg := float(pick.get_slice("d", 1)) if pick != "" else 0.0
+		if avg > best_avg:
+			best_avg = avg
+			best = pick
+	return best
 
 
 ## 마법 무기(items.json base)면 바탕 무기 ID
@@ -508,6 +545,8 @@ static func _proficient(c: Node, wid: String) -> bool:
 static func weapon_action_dc(c: Node, key: String) -> int:
 	var wa := RulesDB.get_entry("weapon_action", key)
 	var dc: int = 8 + c.proficiency_bonus + maxi(c.ability_mod("str"), c.ability_mod("dex")) + int(wa.get("dc_bonus", 0))
+	if str(wa.get("dc", "weapon")) == "int":
+		return 8 + c.proficiency_bonus + c.ability_mod("int")  # 비전 사격: 지능
 	if str(wa.get("dc", "weapon")) == "hybrid":
 		var sdc: int = Spellcasting.spell_dc(c) if c.spellcasting_ability != "" else 0
 		dc = maxi(dc + 2, sdc)
@@ -531,6 +570,8 @@ static func _weapon_action(world: Dictionary, c: Node, key: String, t: Node) -> 
 	var wid := _wa_weapon(c, key)
 	if wid == "":
 		return {"ok": false, "reason": "이 무기로는 쓸 수 없다"}
+	if wa.has("group"):
+		return _special_attack(world, c, key, wa, wid, t)
 	var cost := str(wa["cost"])
 	# 자세(버티기·조준·힘 모으기): 이동력을 쓰고 이번 턴 효과
 	if wa.has("stance"):
@@ -614,9 +655,171 @@ static func _weapon_action(world: Dictionary, c: Node, key: String, t: Node) -> 
 	return res
 
 
+## 기법(배틀 마스터)·비전 사격(아케인 아처): 배운 것만, 자원(우월 주사위·비전 화살)을 쓴다. kind별 장치.
+static func _special_attack(world: Dictionary, c: Node, key: String, wa: Dictionary, wid: String, t: Node) -> Dictionary:
+	var grid: Node = world["grid"]
+	var res_id := str(wa.get("resource", ""))
+	if res_id != "" and c.resource(res_id) <= 0:
+		return {"ok": false, "reason": "남은 횟수가 없다"}
+	var kind := str(wa.get("kind", ""))
+	var die := special_die(c, res_id)
+	var name := str(wa["name"]["ko"])
+	match kind:
+		"self_buff":
+			c.spend_resource(res_id)
+			c.apply_condition(str(wa["condition"]), int(wa.get("turns", 1)), c)
+			Dice.log_text("%s: %s" % [c.label(), name])
+			return {"ok": true}
+		"ally_temp_hp":
+			if t == null or t.dead or c.is_hostile_to(t) or grid.distance_between(c, t) > int(wa.get("range_tiles", 12)):
+				return {"ok": false, "reason": "아군을 골라야 한다"}
+			if not Combat.spend(c, str(wa["cost"])):
+				return {"ok": false, "reason": "보너스 행동이 없다"}
+			c.spend_resource(res_id)
+			if t.is_down():
+				Resolver.heal(t, 1, c)  # 쓰러진 아군은 먼저 HP 1로
+			Resolver.grant_temp_hp(t, int(wa.get("temp_hp", 8)))
+			Dice.log_text("%s %s → %s 임시 HP %d" % [c.label(), name, t.label(), int(wa.get("temp_hp", 8))])
+			return {"ok": true}
+		"passive":
+			return {"ok": false, "reason": "상시 설정으로 쓴다"}
+	if t == null or t.dead:
+		return {"ok": false, "reason": "대상이 없다"}
+	if wa.has("max_size") and _size_rank(str(t.size)) > _size_rank(str(wa["max_size"])):
+		return {"ok": false, "reason": "너무 큰 대상"}
+	if wa.get("needs_weapon", false) and not _has_weapon(t):
+		return {"ok": false, "reason": "무기를 든 대상만"}
+	# 지휘 일격: 대상 곁의 아군이 반응으로 근접 무기 공격(우월 주사위 피해) — 내 공격 하나 + 보너스 행동
+	var helper: Node = null
+	if kind == "command":
+		for o: Node in grid.creatures():
+			if o != c and not o.dead and not o.is_hostile_to(c) and o.can_react() and grid.distance_between(o, t) <= Combat.reach_of(o) \
+					and o.active_set == "melee" and o.weapon("main") != "" and not Combat.is_ranged_weapon(Combat.weapon_data(o.weapon("main"))):
+				helper = o
+				break
+		if helper == null:
+			return {"ok": false, "reason": "대상 곁에 근접 무기를 든 아군이 없다"}
+	if str(wa.get("also_costs", "")) != "" and not Combat.can_spend(c, str(wa["also_costs"])):
+		return {"ok": false, "reason": "보너스 행동이 없다"}
+	# 비용: 행동이면 공격 행동의 공격 하나
+	if str(wa["cost"]) == "action":
+		if int(c.turn.get("attacks_left", 0)) <= 0:
+			if not Combat.spend(c, "action"):
+				return {"ok": false, "reason": "행동이 없다"}
+			c.turn["attacks_left"] = c.attacks_per_action
+		c.turn["attacks_left"] = int(c.turn["attacks_left"]) - 1
+	if str(wa.get("also_costs", "")) != "":
+		Combat.spend(c, str(wa["also_costs"]))
+	var out := {"ok": true}
+	if kind == "command":
+		c.spend_resource(res_id)
+		helper.turn["reaction"] = int(helper.turn.get("reaction", 1)) - 1
+		var hatk := Combat.build_weapon_attack(helper, helper.weapon("main"))
+		hatk["damage"] = hatk["damage"] + [{"dice": die, "damage_type": hatk["damage"][0]["damage_type"]}]
+		hatk["name"] = "%s(%s)" % [name, helper.label()]
+		out = Combat._do_attack(world, helper, t, hatk)
+		out["ok"] = true
+		if world.get("turns") != null:
+			world["turns"].notify_hostile_action(c)
+		return out
+	if wid != "-":
+		var set_name := "ranged" if c.weapon_sets.get("ranged", {}).get("main", "") == wid else "melee"
+		if c.active_set != set_name:
+			Combat.switch_weapon_set(c)
+	var atk := Combat.build_weapon_attack(c, wid)
+	atk["name"] = name
+	if atk["kind"] == "ranged" and c.has_cap("magic_ranged"):
+		atk["magical"] = true
+	for e: Dictionary in wa.get("extra_damage", []):
+		var dice: String = die if str(e["dice"]) == "superiority" else str(e["dice"])
+		var dt: String = atk["damage"][0]["damage_type"] if str(e["damage_type"]) == "weapon" else str(e["damage_type"])
+		atk["damage"] = atk["damage"] + [{"dice": dice, "damage_type": dt}]
+	if wa.get("advantage", false):
+		atk["advantage_add"] = [name]
+	match kind:
+		"sweep":
+			# 휩쓸어 치기: 앞쪽 호(대상 쪽, 내 도달 안)의 적 모두, 피해는 우월 주사위만
+			c.spend_resource(res_id)
+			atk["damage"] = [{"dice": die, "damage_type": atk["damage"][0]["damage_type"]}]
+			atk["flat_damage"] = 0
+			var me: Vector2i = grid.cell_of(c)
+			var dir: Vector2i = grid.cell_of(t) - me
+			out["sweep"] = []
+			for o: Node in grid.creatures().duplicate():
+				if o == c or o.dead or not c.is_hostile_to(o) or grid.distance_between(c, o) > Combat.reach_of(c):
+					continue
+				var v: Vector2i = grid.cell_of(o) - me
+				if o == t or v.x * dir.x + v.y * dir.y > 0:
+					out["sweep"].append(Combat._do_attack(world, c, o, atk.duplicate(true)))
+		"line":
+			# 관통 화살: 곧게 line_tiles 선 위 모두 민첩 내성 — 무기 피해, 실패하면 추가 피해(명중 굴림 없음)
+			c.spend_resource(res_id)
+			var from: Vector2i = grid.cell_of(c)
+			var step := Vector2i(signi(grid.cell_of(t).x - from.x), signi(grid.cell_of(t).y - from.y))
+			var hit_list: Array = []
+			var cur := from
+			for i in int(wa.get("line_tiles", 7)):
+				cur += step
+				if not grid.in_bounds(cur) or grid.has_flag(cur, "wall"):
+					break
+				var o: Node = grid.creature_at(cur)
+				if o != null and o != c and not o in hit_list:
+					hit_list.append(o)
+			out["line"] = []
+			for o: Node in hit_list:
+				var sv := Resolver.saving_throw(o, str(wa["save"]), weapon_action_dc(c, key), {"source": c})
+				var dmg: int = Dice.roll(atk["damage"][0]["dice"], name)["total"]
+				var parts := [{"amount": dmg, "damage_type": atk["damage"][0]["damage_type"]}]
+				if not sv["success"]:
+					parts.append({"amount": Dice.roll(str(wa["line_extra"]["dice"]), name)["total"], "damage_type": str(wa["line_extra"]["damage_type"])})
+				out["line"].append(Resolver.apply_damage(o, parts, {"attacker": c}))
+		"auto_hit":
+			# 추적 화살: 굴림 없이 맞는다
+			c.spend_resource(res_id)
+			var parts2: Array = []
+			for p: Dictionary in atk["damage"]:
+				parts2.append({"amount": Dice.roll(str(p["dice"]), name)["total"], "damage_type": p["damage_type"]})
+			out["damage"] = Resolver.apply_damage(t, parts2, {"attacker": c})
+			out["hit"] = true
+			_wa_condition(c, key, t, out)
+		_:
+			out = Combat._do_attack(world, c, t, atk)
+			if not out.get("ok", true):
+				return out
+			if out.get("hit", false) or str(wa.get("consume", "hit")) == "always":
+				c.spend_resource(res_id)
+			_wa_condition(c, key, t, out)
+			if out.get("hit", false) and not t.dead:
+				if int(wa.get("push_tiles", 0)) > 0:
+					var sv2 := Resolver.saving_throw(t, str(wa["save"]), weapon_action_dc(c, key), {"source": c})
+					if not sv2["success"]:
+						out["push"] = Combat._push_up_to(world, c, t, int(wa["push_tiles"]))
+				if wa.has("ally_condition"):
+					var best: Node = null
+					for o: Node in grid.creatures():
+						if o != c and not o.dead and not o.is_hostile_to(c) and grid.distance_between(c, o) <= 6 \
+								and (best == null or grid.distance_between(c, o) < grid.distance_between(c, best)):
+							best = o
+					if best != null:
+						best.apply_condition(str(wa["ally_condition"]), int(wa.get("turns", 1)), c)
+			if out.get("hit", false) and wa.has("burst_tiles"):
+				var bd: Dictionary = wa["burst_damage"]
+				var amount: int = Dice.roll(str(bd["dice"]), name)["total"]
+				for o: Node in grid.creatures().duplicate():
+					if not o.dead and grid.distance_between(o, t) <= int(wa["burst_tiles"]):
+						Resolver.apply_damage(o, [{"amount": amount, "damage_type": str(bd["damage_type"])}], {"attacker": c})
+	out["ok"] = true
+	if world.get("turns") != null:
+		world["turns"].notify_hostile_action(c)
+	return out
+
+
 static func _wa_condition(c: Node, key: String, t: Node, res: Dictionary) -> void:
 	var wa := RulesDB.get_entry("weapon_action", key)
-	if not res.get("hit", false) or not wa.has("condition") or t.dead:
+	if not res.get("hit", false) or not wa.has("condition") or t.dead or str(wa.get("kind", "")) == "self_buff":
+		return
+	if not wa.has("save"):
+		t.apply_condition(str(wa["condition"]), int(wa.get("turns", 1)), c)  # 내성 없는 상태(주의 돌리기)
 		return
 	var sv := Resolver.saving_throw(t, str(wa["save"]), weapon_action_dc(c, key), {"source": c})
 	res["wa_save"] = sv
@@ -790,7 +993,7 @@ static func passives(c: Node) -> Array:
 	# 반응형 무기 액션(끈기): 쥔 무기가 주면 상시 설정에
 	for wa: String in weapon_actions_for(c):
 		var d := RulesDB.get_entry("weapon_action", wa)
-		if str(d["cost"]) == "reaction":
+		if str(d["cost"]) in ["reaction", "passive"]:
 			var on := str(c.options.get(wa, "on")) == "on"
 			out.append({"id": wa, "name": d["name"], "state": {"ko": "자동" if on else "끄기", "en": "Auto" if on else "Off"}, "desc": d["desc"]})
 	return out

@@ -30,17 +30,12 @@ func test_indomitable() -> void:
 
 func test_champion_7_10() -> void:
 	var f := _pc("fighter", 10)
-	assert_true(f.has_cap("reroll_low_damage_two_handed") and f.ac() > 0, "추가 전투 방식(대형 무기 전투)")
-	var w := make_world(["...."])
-	w["grid"].place(f, Vector2i(0, 0))
-	Resolver.start_turn(f, {"in_combat": true})
-	assert_true(f.has_condition("heroic_inspiration"), "영웅 전사: 턴 시작에 영감")
-	var bonus: int = f.save_bonus("wis")
-	Dice.force([1, 19])
-	assert_true(Resolver.saving_throw(f, "wis", 10 + bonus)["success"], "영웅적 영감으로 다시 굴림")
-	assert_false(f.has_condition("heroic_inspiration"))
-	Resolver.start_turn(f, {"in_combat": false})
-	assert_false(f.has_condition("heroic_inspiration"), "전투 밖에서는 없다")
+	assert_true(f.has_cap("reroll_low_damage_two_handed") and f.ac() > 0, "10레벨 추가 전투 방식(대형 무기 전투 — BG3)")
+	assert_false(_pc("fighter", 9).has_cap("reroll_low_damage_two_handed"), "9레벨에는 없다")
+	var f7 := _pc("fighter", 7)
+	assert_true(f7.has_cap("half_proficiency_physical"), "7레벨 뛰어난 운동선수")
+	var plain: int = int(Resolver.ability_check(_pc("fighter", 6), "dex", 10, {"skill": "sleight_of_hand"})["bonus"])
+	assert_eq(int(Resolver.ability_check(f7, "dex", 10, {"skill": "sleight_of_hand"})["bonus"]), plain + f7.proficiency_bonus / 2, "숙련 아닌 민첩 판정에 숙련 절반")
 
 
 func test_rogue_expertise_evasion_reliable() -> void:

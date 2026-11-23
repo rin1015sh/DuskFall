@@ -11,11 +11,11 @@
 | weapon | 38 |
 | armor | 13 |
 | item | 59 |
-| feat | 55 |
+| feat | 56 |
 | species | 15 |
 | background | 4 |
 | monster | 43 |
-| capability | 105 |
+| capability | 110 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -99,13 +99,18 @@
 | 1 | 재기의 숨결 (second_wind) |  | 스크립트 second_wind |  |
 | 2 | 행동 연쇄 (action_surge) |  | 스크립트 action_surge |  |
 | 2 | 전술적 판단 (tactical_mind) |  | 스크립트 tactical_mind; 태그 check_boost_d10 |  |
+| 3 | 비전 사격 (arcane_shot) | arcane_archer | 고르기(special_attack) |  |
+| 3 | 비전 궁수의 지식 (arcane_archer_lore) | arcane_archer | 부여 skills; 고르기(spell_pick) |  |
+| 3 | 기법 (manoeuvres) | battle_master | 고르기(special_attack) |  |
+| 3 | 전투 우위 (combat_superiority) | battle_master | 처리: 무기 액션 group maneuver(actions._special_attack) |  |
 | 3 | 향상된 치명타 (improved_critical) | champion | 부여 crit_threshold |  |
-| 3 | 뛰어난 운동선수 (remarkable_athlete) | champion | 태그 crit_free_move, jump_plus_1; 부여 advantage |  |
-| 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 전술적 이동 (tactical_shift) |  | 처리: second_wind 스크립트 안 |  |
-| 7 | 추가 전투 방식 (additional_fighting_style) | champion | 고르기(feat) |  |
+| 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
+| 7 | 뛰어난 운동선수 (remarkable_athlete) | champion | 태그 jump_plus_1, jump_plus_1, half_proficiency_physical |  |
+| 7 | 휘는 화살 (curving_shot) | arcane_archer | 태그 curving_shot; 설정 |  |
+| 7 | 마법 화살 (magic_arrow) | arcane_archer | 태그 magic_ranged |  |
 | 9 | 불굴 (indomitable) |  | 스크립트 indomitable |  |
-| 10 | 영웅 전사 (heroic_warrior) | champion | 태그 heroic_warrior |  |
+| 10 | 추가 전투 방식 (additional_fighting_style) | champion | 고르기(feat) |  |
 | 11 | 추가 공격 2회 (two_extra_attacks) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 
 ### 몽크 (monk) — 생명 주사위 d8, 역할 melee
@@ -266,10 +271,11 @@
 | climber | 등반 | monk, ranger, rogue |
 | concentration_advantage | 집중 유리 | (몬스터 특성 또는 아직 없음) |
 | countercharm | 대항 매혹 | bard |
-| crit_free_move | 치명타 뒤 이동 | fighter |
+| crit_free_move | 치명타 뒤 이동 | (몬스터 특성 또는 아직 없음) |
 | crossbow_point_blank | 근접 석궁 | (몬스터 특성 또는 아직 없음) |
 | crossbow_wounding | 깊은 상처 석궁 | (몬스터 특성 또는 아직 없음) |
 | cunning_strike | 교활한 일격 | rogue |
+| curving_shot | 휘는 화살 | fighter |
 | dark_ones_blessing | 어둠의 축복 | warlock |
 | dash_ignores_difficult | 질주 험지 무시 | (몬스터 특성 또는 아직 없음) |
 | dual_wield_ac | 쌍수 방어 | (몬스터 특성 또는 아직 없음) |
@@ -287,9 +293,10 @@
 | free_cast_class_spell | 신성 개입 | cleric, druid |
 | frenzy | 광란 | barbarian |
 | gwm_all_in | 강타 | (몬스터 특성 또는 아직 없음) |
+| half_proficiency_physical | 절반 숙련(신체) | fighter |
 | heavy_armor_damage_reduction | 중갑 피해 감소 | (몬스터 특성 또는 아직 없음) |
 | heightened_focus | 고양된 집중 | monk |
-| heroic_warrior | 영웅 전사 | fighter |
+| heroic_warrior | 영웅 전사 | (몬스터 특성 또는 아직 없음) |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
 | hunters_lore | 사냥꾼의 지식 | ranger |
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
@@ -298,10 +305,11 @@
 | jack_of_all_trades | 만물박사 | bard |
 | jump_dex | 민첩 도약 | rogue |
 | jump_half_more | 도약 +50% | (몬스터 특성 또는 아직 없음) |
-| jump_plus_1 | 도약 +1칸 | fighter, rogue |
+| jump_plus_1 | 도약 +1칸 | fighter, fighter, rogue |
 | long_rest_inspiration | 기지 | 종족 human |
 | lucky | 행운의 별 | (몬스터 특성 또는 아직 없음) |
 | mage_slayer | 마법사 사냥꾼 | (몬스터 특성 또는 아직 없음) |
+| magic_ranged | 마법 화살 | fighter |
 | mark_spread | 먹잇감 확산 | ranger |
 | martial_arts | 무술 | monk |
 | medium_armor_master | 중형 갑옷 숙달 | (몬스터 특성 또는 아직 없음) |
@@ -322,6 +330,7 @@
 | pact_blade | 계약의 칼날 | (몬스터 특성 또는 아직 없음) |
 | polearm_enter_oa | 장병기 경계 | (몬스터 특성 또는 아직 없음) |
 | polearm_haft | 자루 공격 | (몬스터 특성 또는 아직 없음) |
+| precision_attack | 정밀 공격 | (몬스터 특성 또는 아직 없음) |
 | prepare_swap_short_rest | 주문 암기 | wizard |
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |
 | reckless | 무모한 공격 | barbarian |
@@ -330,6 +339,7 @@
 | reroll_low_damage_two_handed | 대형 무기 전투 | 재주 great_weapon_fighting |
 | reroll_natural_1 | 행운 | 종족 halfling |
 | retaliation | 보복 | barbarian |
+| riposte | 반격 | (몬스터 특성 또는 아직 없음) |
 | ritual_from_spellbook | 의식 숙련 | wizard |
 | sculpt_spells | 주문 조각 | wizard |
 | self_restoration | 자기 회복 | monk |

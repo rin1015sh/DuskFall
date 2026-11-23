@@ -77,6 +77,33 @@
         "9": 1
       },
       "recharge": "long"
+    },
+    {
+      "id": "superiority_dice",
+      "name": {
+        "ko": "우월 주사위",
+        "en": "Superiority Dice"
+      },
+      "max": {
+        "3": 4,
+        "7": 5
+      },
+      "recharge": "short",
+      "subclass": "battle_master"
+    },
+    {
+      "id": "arcane_arrows",
+      "name": {
+        "ko": "비전 화살",
+        "en": "Arcane Arrows"
+      },
+      "max": {
+        "3": 4,
+        "7": 7,
+        "10": 10
+      },
+      "recharge": "short",
+      "subclass": "arcane_archer"
     }
   ],
   "features": [
@@ -224,7 +251,7 @@
             "en": "Improved Critical"
           },
           "level": 3,
-          "notes_ko": "무기·비무장 공격 치명타 19~20.",
+          "notes_ko": "무기 공격 치명타 19~20(BG3).",
           "source": "SRD 5.2.1",
           "grants": {
             "crit_threshold": 19
@@ -236,23 +263,14 @@
             "ko": "뛰어난 운동선수",
             "en": "Remarkable Athlete"
           },
-          "level": 3,
-          "notes_ko": "이니셔티브·근력(운동) 유리, 치명타 직후 속도 절반 이동(기회 공격 없음). [BG3 추가] 도약 거리 +1칸.",
-          "source": "SRD 5.2.1",
+          "level": 7,
+          "notes_ko": "BG3: 도약 거리 +2칸(3m), 숙련이 아닌 근력·민첩·건강 판정에 숙련 보너스 절반(내림).",
+          "source": "original",
           "caps": [
-            "crit_free_move",
-            "jump_plus_1"
-          ],
-          "grants": {
-            "advantage": [
-              {
-                "type": "advantage",
-                "roll": "initiative",
-                "side": "self",
-                "value": "advantage"
-              }
-            ]
-          }
+            "jump_plus_1",
+            "jump_plus_1",
+            "half_proficiency_physical"
+          ]
         },
         {
           "id": "additional_fighting_style",
@@ -260,31 +278,190 @@
             "ko": "추가 전투 방식",
             "en": "Additional Fighting Style"
           },
-          "level": 7,
+          "level": 10,
           "choices": [
             "archery",
             "defense",
             "dueling",
             "great_weapon_fighting",
-            "two_weapon_fighting",
-            "protection"
+            "protection",
+            "two_weapon_fighting"
           ],
           "choice_kind": "feat",
-          "notes_ko": "전투 방식 재주 하나 더.",
-          "source": "SRD 5.2.1"
+          "notes_ko": "BG3: 10레벨에 전투 방식 하나 더.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "battle_master",
+      "name": {
+        "ko": "전술의 대가",
+        "en": "War Tactician"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "combat_superiority",
+          "name": {
+            "ko": "전투 우위",
+            "en": "Combat Superiority"
+          },
+          "level": 3,
+          "resource": "superiority_dice",
+          "dice_by_level": {
+            "3": "1d8",
+            "10": "1d10"
+          },
+          "notes_ko": "우월 주사위 4개(7레벨 5개), d8(10레벨 d10), 짧은 휴식에 회복. 기법 DC = 8 + 숙련 + 근력·민첩 중 높은 수정치.",
+          "source": "original",
+          "handled_by": "무기 액션 group maneuver(actions._special_attack)"
         },
         {
-          "id": "heroic_warrior",
+          "id": "manoeuvres",
           "name": {
-            "ko": "영웅 전사",
-            "en": "Heroic Warrior"
+            "ko": "기법",
+            "en": "Manoeuvres"
           },
-          "level": 10,
-          "caps": [
-            "heroic_warrior"
+          "level": 3,
+          "choice_kind": "special_attack",
+          "group": "maneuver",
+          "choices": [
+            "wa_m_commanders_strike",
+            "wa_m_disarming_attack",
+            "wa_m_distracting_strike",
+            "wa_m_evasive_footwork",
+            "wa_m_feinting_attack",
+            "wa_m_goading_attack",
+            "wa_m_manoeuvring_attack",
+            "wa_m_menacing_attack",
+            "wa_m_precision_attack",
+            "wa_m_pushing_attack",
+            "wa_m_rally",
+            "wa_m_riposte",
+            "wa_m_sweeping_attack",
+            "wa_m_trip_attack"
           ],
-          "notes_ko": "전투 중 자기 턴 시작에 영웅적 영감이 없으면 얻는다. 영웅적 영감은 실패한 d20 시험을 자동으로 한 번 다시 굴린다(BG3식).",
-          "source": "SRD 5.2.1"
+          "count_by_level": {
+            "3": 3,
+            "7": 5,
+            "10": 7
+          },
+          "notes_ko": "기법 3개(7레벨 5개, 10레벨 7개). 공격 굴림이 있는 기법은 맞혀야 주사위를 쓴다(휩쓸어 치기 제외).",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "arcane_archer",
+      "name": {
+        "ko": "비전 궁수",
+        "en": "Spellshot Archer"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "arcane_archer_lore",
+          "name": {
+            "ko": "비전 궁수의 지식",
+            "en": "Spellshot Lore"
+          },
+          "level": 3,
+          "grants": {
+            "skills": [
+              "arcana",
+              "nature"
+            ]
+          },
+          "choices": [
+            "guidance",
+            "light",
+            "true_strike"
+          ],
+          "choice_kind": "spell_pick",
+          "notes_ko": "비전·자연 숙련, 소마법 하나(인도·빛·참된 일격).",
+          "source": "original"
+        },
+        {
+          "id": "arcane_shot",
+          "name": {
+            "ko": "비전 사격",
+            "en": "Arcane Shot"
+          },
+          "level": 3,
+          "resource": "arcane_arrows",
+          "dice_by_level": {
+            "3": "1d6"
+          },
+          "choice_kind": "special_attack",
+          "group": "arcane_shot",
+          "choices": [
+            "wa_a_banishing",
+            "wa_a_beguiling",
+            "wa_a_bursting",
+            "wa_a_enfeebling",
+            "wa_a_grasping",
+            "wa_a_piercing",
+            "wa_a_seeking",
+            "wa_a_shadow"
+          ],
+          "count_by_level": {
+            "3": 3,
+            "7": 4,
+            "10": 5
+          },
+          "notes_ko": "비전 화살 4개(7레벨 7, 10레벨 10, 짧은 휴식에 회복), 비전 사격 3개(7레벨 4, 10레벨 5). 내성 DC = 8 + 숙련 + 지능.",
+          "source": "original"
+        },
+        {
+          "id": "curving_shot",
+          "name": {
+            "ko": "휘는 화살",
+            "en": "Curving Shot"
+          },
+          "level": 7,
+          "caps": [
+            "curving_shot"
+          ],
+          "toggle": {
+            "values": [
+              {
+                "id": "on",
+                "name": {
+                  "ko": "켬",
+                  "en": "On"
+                }
+              },
+              {
+                "id": "off",
+                "name": {
+                  "ko": "끔",
+                  "en": "Off"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "원거리 무기 공격이 빗나가면 보너스 행동으로 가장 가까운 다른 적을 다시 쏜다",
+              "en": "When a ranged weapon attack misses, use a bonus action to shoot the nearest other enemy"
+            }
+          },
+          "notes_ko": "원거리 무기 공격이 빗나가면 보너스 행동으로 원래 대상에 가장 가까운 다른 적에게 같은 공격(자동, 설정).",
+          "source": "original"
+        },
+        {
+          "id": "magic_arrow",
+          "name": {
+            "ko": "마법 화살",
+            "en": "Magic Arrow"
+          },
+          "level": 7,
+          "caps": [
+            "magic_ranged"
+          ],
+          "notes_ko": "원거리 공격이 마법 공격으로 친다(마법이 아닌 공격 저항·중갑 숙달 등을 넘는다).",
+          "source": "original"
         }
       ]
     }

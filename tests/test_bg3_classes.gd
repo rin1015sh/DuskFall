@@ -14,11 +14,11 @@ func _pc(cls: String, lv: int = 1) -> Node:
 
 
 func test_fighter_second_wind_and_athlete_jump() -> void:
-	var f := _pc("fighter", 3)
+	var f := _pc("fighter", 7)
 	assert_eq(f.resources["second_wind"]["max"], 1)
 	assert_eq(f.resources["second_wind"]["recharge"], "short")
-	var f1 := _pc("fighter", 1)
-	assert_eq(Combat.jump_distance(f), Combat.jump_distance(f1) + 1, "챔피언: 도약 +1칸")
+	var f1 := _pc("fighter", 6)  # 같은 능력치(6레벨 능력치 향상 뒤)
+	assert_eq(Combat.jump_distance(f), Combat.jump_distance(f1) + 2, "챔피언 7레벨 뛰어난 운동선수: 도약 +2칸(3m — BG3)")
 
 
 func test_life_domain_at_level_1() -> void:

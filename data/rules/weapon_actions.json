@@ -1,6 +1,6 @@
 {
   "schema": "weapon_action_v1",
-  "note_ko": "무기 액션(BG3 기본 무기 액션 20종의 구조·수치, 이름·설명은 자체). 그 무기에 숙련이 있고 주 무기(근접·원거리 세트)로 쥐면 쓴다. 액션마다 짧은 휴식에 1회(unlimited 제외), 빗나가도 쓴 것. 내성 DC = 8 + 숙련 보너스 + 근력·민첩 중 높은 수정치 + dc_bonus, dc hybrid = 그것 + 2와 주문 내성 DC 중 높은 쪽. damage가 있으면 그 주사위 + 공격 능력 수정치(no_mod면 수정치 없음), 없으면 무기 피해. 비용 action은 공격 행동의 공격 하나로 친다(추가 공격과 이어짐). 사용자 결정 2026-11-23(무기 마스터리 대신).",
+  "note_ko": "무기 액션(BG3 기본 무기 액션 20종의 구조·수치, 이름·설명은 자체). 그 무기에 숙련이 있고 주 무기(근접·원거리 세트)로 쥐면 쓴다. 액션마다 짧은 휴식에 1회(unlimited 제외), 빗나가도 쓴 것. 내성 DC = 8 + 숙련 보너스 + 근력·민첩 중 높은 수정치 + dc_bonus, dc hybrid = 그것 + 2와 주문 내성 DC 중 높은 쪽. damage가 있으면 그 주사위 + 공격 능력 수정치(no_mod면 수정치 없음), 없으면 무기 피해. 비용 action은 공격 행동의 공격 하나로 친다(추가 공격과 이어짐). 사용자 결정 2026-11-23(무기 마스터리 대신). group(maneuver·arcane_shot)가 있는 것은 배운 것만(c meta special_attacks — 기능 choice_kind special_attack), 무기는 weapon_kind(melee·ranged·any), 자원은 resource(우월 주사위·비전 화살 — consume hit/always), DC는 dc maneuver(8 + 숙련 + 근력·민첩) / int(8 + 숙련 + 지능), kind로 장치(command·self_buff·ally_temp_hp·sweep·line·auto_hit·passive).",
   "actions": [
     {
       "id": "wa_crushing_blow",
@@ -495,6 +495,615 @@
       "glyph": "arrow",
       "source": "original",
       "double_turns_cap": "crossbow_wounding"
+    },
+    {
+      "id": "wa_m_commanders_strike",
+      "name": {
+        "ko": "지휘 일격",
+        "en": "Command Strike"
+      },
+      "desc": {
+        "ko": "공격 행동의 공격 하나 + 보너스 행동 + 우월 주사위: 대상 곁(1칸)의 아군이 반응으로 그 적에게 근접 무기 공격(우월 주사위 피해 추가).",
+        "en": "One attack of your Attack action + bonus action + a superiority die: an ally next to the target uses its reaction to make a melee weapon attack against it (+ superiority die damage)."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "maneuver",
+      "kind": "command",
+      "also_costs": "bonus",
+      "consume": "always",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/rally.webp",
+      "glyph": "chevrons",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_disarming_attack",
+      "name": {
+        "ko": "무장 해제 공격",
+        "en": "Disarming Strike"
+      },
+      "desc": {
+        "ko": "무기 피해 + 우월 주사위. 근력 내성(기법 DC), 실패하면 무기 놓침.",
+        "en": "Weapon damage + superiority die. STR save (manoeuvre DC) or Disarmed."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "maneuver",
+      "weapon_kind": "any",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "save": "str",
+      "condition": "disarmed",
+      "turns": 1,
+      "needs_weapon": true,
+      "consume": "hit",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/shield_arm.webp",
+      "glyph": "swap",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_distracting_strike",
+      "name": {
+        "ko": "주의 돌리기",
+        "en": "Distracting Strike"
+      },
+      "desc": {
+        "ko": "무기 피해 + 우월 주사위. 대상을 노린 아군의 다음 공격이 유리.",
+        "en": "Weapon damage + superiority die. The next ally attack against the target has Advantage."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "maneuver",
+      "weapon_kind": "any",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "condition": "distracted",
+      "turns": 1,
+      "consume": "hit",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/f3_disoriented.webp",
+      "glyph": "eye",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_evasive_footwork",
+      "name": {
+        "ko": "회피 발놀림",
+        "en": "Evasive Footwork"
+      },
+      "desc": {
+        "ko": "우월 주사위(행동 없음): 이번 턴 끝까지 나를 노린 근접 공격이 불리.",
+        "en": "Superiority die (no action): melee attacks against you have Disadvantage until the end of your turn."
+      },
+      "cost": "free",
+      "weapons": [],
+      "group": "maneuver",
+      "kind": "self_buff",
+      "condition": "evasive_footwork",
+      "turns": 1,
+      "consume": "always",
+      "target": "self",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/haste.webp",
+      "glyph": "shield",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_feinting_attack",
+      "name": {
+        "ko": "속임 공격",
+        "en": "Feint Strike"
+      },
+      "desc": {
+        "ko": "행동(공격 하나) + 보너스 행동: 유리하게 근접 공격, 무기 피해 + 우월 주사위.",
+        "en": "Action (one attack) + bonus action: melee attack with Advantage, weapon damage + superiority die."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "maneuver",
+      "weapon_kind": "melee",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "advantage": true,
+      "also_costs": "bonus",
+      "consume": "hit",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/counter_stance.webp",
+      "glyph": "sword",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_goading_attack",
+      "name": {
+        "ko": "도발 공격",
+        "en": "Goading Strike"
+      },
+      "desc": {
+        "ko": "무기 피해 + 우월 주사위. 지혜 내성, 실패하면 1턴 동안 공격 굴림이 불리.",
+        "en": "Weapon damage + superiority die. WIS save or Goaded (Disadvantage on attack rolls) for 1 turn."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "maneuver",
+      "weapon_kind": "any",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "save": "wis",
+      "condition": "goaded",
+      "turns": 1,
+      "consume": "hit",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/taunt.webp",
+      "glyph": "voice",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_manoeuvring_attack",
+      "name": {
+        "ko": "진형 공격",
+        "en": "Shifting Strike"
+      },
+      "desc": {
+        "ko": "무기 피해 + 우월 주사위. 맞히면 가장 가까운 아군(6칸 안)의 속도가 1턴 동안 1.5배.",
+        "en": "Weapon damage + superiority die. On hit, the nearest ally within 6 tiles gains 50% speed for 1 turn."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "maneuver",
+      "weapon_kind": "any",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "ally_condition": "spurred",
+      "turns": 1,
+      "consume": "hit",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/march_order.webp",
+      "glyph": "chevrons",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_menacing_attack",
+      "name": {
+        "ko": "위협 공격",
+        "en": "Menacing Strike"
+      },
+      "desc": {
+        "ko": "무기 피해 + 우월 주사위. 지혜 내성, 실패하면 2턴 동안 공포.",
+        "en": "Weapon damage + superiority die. WIS save or Frightened for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "maneuver",
+      "weapon_kind": "any",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "save": "wis",
+      "condition": "frightened",
+      "turns": 2,
+      "consume": "hit",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/fear.webp",
+      "glyph": "skull",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_precision_attack",
+      "name": {
+        "ko": "정밀 공격",
+        "en": "Precision Strike"
+      },
+      "desc": {
+        "ko": "켜 두면 무기 공격이 빗나갈 때 우월 주사위를 굴려 명중 굴림에 더한다(그것으로 맞힐 수 있을 때만).",
+        "en": "While on, when a weapon attack misses, roll a superiority die and add it to the attack roll (only when it can turn the miss into a hit)."
+      },
+      "cost": "passive",
+      "weapons": [],
+      "group": "maneuver",
+      "kind": "passive",
+      "caps": [
+        "precision_attack"
+      ],
+      "consume": "always",
+      "target": "self",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/marked.webp",
+      "glyph": "crosshair",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_pushing_attack",
+      "name": {
+        "ko": "밀어내기 공격",
+        "en": "Driving Strike"
+      },
+      "desc": {
+        "ko": "무기 피해 + 우월 주사위. 근력 내성, 실패하면 3칸(4.5m) 밀려난다.",
+        "en": "Weapon damage + superiority die. STR save or pushed 3 tiles (4.5 m)."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "maneuver",
+      "weapon_kind": "any",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "save": "str",
+      "push_tiles": 3,
+      "consume": "hit",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/suppress.webp",
+      "glyph": "shove",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_rally",
+      "name": {
+        "ko": "재정비",
+        "en": "Rally"
+      },
+      "desc": {
+        "ko": "보너스 행동 + 우월 주사위: 아군 하나(12칸 안)에게 임시 HP 8(쓰러졌으면 HP 1로 일으킨 뒤).",
+        "en": "Bonus action + superiority die: an ally within 12 tiles gains 8 temporary HP (a downed ally is first revived at 1 HP)."
+      },
+      "cost": "bonus",
+      "weapons": [],
+      "group": "maneuver",
+      "kind": "ally_temp_hp",
+      "temp_hp": 8,
+      "range_tiles": 12,
+      "consume": "always",
+      "target": "ally",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/rally.webp",
+      "glyph": "heart_plus",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_riposte",
+      "name": {
+        "ko": "반격",
+        "en": "Riposte"
+      },
+      "desc": {
+        "ko": "반응 + 우월 주사위: 적의 근접 공격이 나를 빗나가면 그 적에게 무기 공격(우월 주사위 피해 추가).",
+        "en": "Reaction + superiority die: when an enemy misses you with a melee attack, make a weapon attack against it (+ superiority die damage)."
+      },
+      "cost": "reaction",
+      "weapons": [],
+      "group": "maneuver",
+      "kind": "passive",
+      "caps": [
+        "riposte"
+      ],
+      "consume": "always",
+      "target": "self",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/counter_stance.webp",
+      "glyph": "counter",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_sweeping_attack",
+      "name": {
+        "ko": "휩쓸어 치기",
+        "en": "Sweeping Strike"
+      },
+      "desc": {
+        "ko": "행동(공격 하나) + 우월 주사위: 앞쪽 호의 적 모두에게 공격, 피해는 우월 주사위만.",
+        "en": "Action (one attack) + superiority die: attack every foe in a frontal arc; damage is the superiority die only."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "maneuver",
+      "weapon_kind": "melee",
+      "kind": "sweep",
+      "consume": "always",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/blast_scorched.webp",
+      "glyph": "sweep",
+      "source": "original"
+    },
+    {
+      "id": "wa_m_trip_attack",
+      "name": {
+        "ko": "넘어뜨리기 공격",
+        "en": "Tripping Strike"
+      },
+      "desc": {
+        "ko": "무기 피해 + 우월 주사위. 근력 내성, 실패하면 1턴 동안 넘어짐. 큼 이하만.",
+        "en": "Weapon damage + superiority die. STR save or Prone for 1 turn. Large or smaller."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "maneuver",
+      "weapon_kind": "any",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "save": "str",
+      "condition": "prone",
+      "turns": 1,
+      "max_size": "large",
+      "consume": "hit",
+      "resource": "superiority_dice",
+      "dc": "maneuver",
+      "icon": "res://assets/statuses/suppress.webp",
+      "glyph": "topple",
+      "source": "original"
+    },
+    {
+      "id": "wa_a_banishing",
+      "name": {
+        "ko": "추방 화살",
+        "en": "Banishing Shot"
+      },
+      "desc": {
+        "ko": "비전 화살: 무기 피해. 매력 내성(지능 DC), 실패하면 2턴 동안 추방.",
+        "en": "Arcane arrow: weapon damage. CHA save (INT DC) or Banished for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "arcane_shot",
+      "save": "cha",
+      "condition": "banished",
+      "turns": 2,
+      "consume": "hit",
+      "resource": "arcane_arrows",
+      "dc": "int",
+      "weapon_kind": "ranged",
+      "icon": "res://assets/statuses/seal.webp",
+      "glyph": "spiral",
+      "source": "original"
+    },
+    {
+      "id": "wa_a_beguiling",
+      "name": {
+        "ko": "현혹 화살",
+        "en": "Beguiling Shot"
+      },
+      "desc": {
+        "ko": "비전 화살: 무기 피해 + 정신 2d6. 지혜 내성, 실패하면 2턴 동안 매혹.",
+        "en": "Arcane arrow: weapon damage + 2d6 psychic. WIS save or Charmed for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "arcane_shot",
+      "extra_damage": [
+        {
+          "dice": "2d6",
+          "damage_type": "psychic"
+        }
+      ],
+      "save": "wis",
+      "condition": "charmed",
+      "turns": 2,
+      "consume": "hit",
+      "resource": "arcane_arrows",
+      "dc": "int",
+      "weapon_kind": "ranged",
+      "icon": "res://assets/statuses/charm.webp",
+      "glyph": "heart",
+      "source": "original"
+    },
+    {
+      "id": "wa_a_bursting",
+      "name": {
+        "ko": "폭발 화살",
+        "en": "Bursting Shot"
+      },
+      "desc": {
+        "ko": "비전 화살: 무기 피해, 맞으면 대상 둘레 3칸 안 모두에게 역장 2d6.",
+        "en": "Arcane arrow: weapon damage; on hit, 2d6 force to every creature within 3 tiles of the target."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "arcane_shot",
+      "burst_tiles": 3,
+      "burst_damage": {
+        "dice": "2d6",
+        "damage_type": "force"
+      },
+      "consume": "always",
+      "resource": "arcane_arrows",
+      "dc": "int",
+      "weapon_kind": "ranged",
+      "icon": "res://assets/statuses/blast_scorched.webp",
+      "glyph": "fireball",
+      "source": "original"
+    },
+    {
+      "id": "wa_a_enfeebling",
+      "name": {
+        "ko": "쇠약 화살",
+        "en": "Enfeebling Shot"
+      },
+      "desc": {
+        "ko": "비전 화살: 무기 피해 + 사령 2d6. 건강 내성, 실패하면 2턴 동안 무력함(근력 무기 피해 절반).",
+        "en": "Arcane arrow: weapon damage + 2d6 necrotic. CON save or Feeble (half damage with Strength weapon attacks) for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "arcane_shot",
+      "extra_damage": [
+        {
+          "dice": "2d6",
+          "damage_type": "necrotic"
+        }
+      ],
+      "save": "con",
+      "condition": "feeble",
+      "turns": 2,
+      "consume": "hit",
+      "resource": "arcane_arrows",
+      "dc": "int",
+      "weapon_kind": "ranged",
+      "icon": "res://assets/statuses/vitality_drain.webp",
+      "glyph": "skull",
+      "source": "original"
+    },
+    {
+      "id": "wa_a_grasping",
+      "name": {
+        "ko": "가시덩굴 화살",
+        "en": "Thorn Shot"
+      },
+      "desc": {
+        "ko": "비전 화살: 무기 피해 + 독 2d6. 근력 내성, 실패하면 2턴 동안 휘감김(속도 −2칸, 움직이면 참격 2d6).",
+        "en": "Arcane arrow: weapon damage + 2d6 poison. STR save or Thorn-Bound (−2 tiles speed, 2d6 slashing when it moves) for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "arcane_shot",
+      "extra_damage": [
+        {
+          "dice": "2d6",
+          "damage_type": "poison"
+        }
+      ],
+      "save": "str",
+      "condition": "thorn_bound",
+      "turns": 2,
+      "consume": "hit",
+      "resource": "arcane_arrows",
+      "dc": "int",
+      "weapon_kind": "ranged",
+      "icon": "res://assets/statuses/snare.webp",
+      "glyph": "web",
+      "source": "original"
+    },
+    {
+      "id": "wa_a_piercing",
+      "name": {
+        "ko": "관통 화살",
+        "en": "Lancing Shot"
+      },
+      "desc": {
+        "ko": "비전 화살: 곧게 7칸(10m) 선 위 모두가 민첩 내성 — 무기 피해, 실패하면 관통 1d6 추가(명중 굴림 없음).",
+        "en": "Arcane arrow: everyone on a 7-tile (10 m) line makes a DEX save — weapon damage, +1d6 piercing on a failure (no attack roll)."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "arcane_shot",
+      "kind": "line",
+      "line_tiles": 7,
+      "save": "dex",
+      "line_extra": {
+        "dice": "1d6",
+        "damage_type": "piercing"
+      },
+      "consume": "always",
+      "resource": "arcane_arrows",
+      "dc": "int",
+      "weapon_kind": "ranged",
+      "icon": "res://assets/statuses/marked.webp",
+      "glyph": "arrow",
+      "source": "original"
+    },
+    {
+      "id": "wa_a_seeking",
+      "name": {
+        "ko": "추적 화살",
+        "en": "Homing Shot"
+      },
+      "desc": {
+        "ko": "비전 화살: 반드시 맞는다 — 무기 피해 + 역장 1d6. 민첩 내성, 실패하면 2턴 동안 윤곽.",
+        "en": "Arcane arrow: always hits — weapon damage + 1d6 force. DEX save or Outlined for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "arcane_shot",
+      "kind": "auto_hit",
+      "extra_damage": [
+        {
+          "dice": "1d6",
+          "damage_type": "force"
+        }
+      ],
+      "save": "dex",
+      "condition": "outlined",
+      "turns": 2,
+      "consume": "always",
+      "resource": "arcane_arrows",
+      "dc": "int",
+      "weapon_kind": "ranged",
+      "icon": "res://assets/statuses/high_ground.webp",
+      "glyph": "crosshair",
+      "source": "original"
+    },
+    {
+      "id": "wa_a_shadow",
+      "name": {
+        "ko": "그림자 화살",
+        "en": "Shade Shot"
+      },
+      "desc": {
+        "ko": "비전 화살: 무기 피해 + 정신 2d6. 지혜 내성, 실패하면 2턴 동안 실명.",
+        "en": "Arcane arrow: weapon damage + 2d6 psychic. WIS save or Blinded for 2 turns."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "arcane_shot",
+      "extra_damage": [
+        {
+          "dice": "2d6",
+          "damage_type": "psychic"
+        }
+      ],
+      "save": "wis",
+      "condition": "blinded",
+      "turns": 2,
+      "consume": "hit",
+      "resource": "arcane_arrows",
+      "dc": "int",
+      "weapon_kind": "ranged",
+      "icon": "res://assets/statuses/blind.webp",
+      "glyph": "eye_slash",
+      "source": "original"
     }
   ]
 }

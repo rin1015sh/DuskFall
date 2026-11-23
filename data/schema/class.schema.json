@@ -273,6 +273,30 @@
               "additionalProperties": {
                 "type": "string"
               }
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "expertise": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "initiative_bonus": {
+              "type": [
+                "array",
+                "integer"
+              ]
+            },
+            "speed_tiles": {
+              "type": [
+                "array",
+                "integer"
+              ]
             }
           }
         },
@@ -283,7 +307,9 @@
             "skill",
             "expertise",
             "option",
-            "spell"
+            "spell",
+            "special_attack",
+            "spell_pick"
           ]
         },
         "choice_grants": {
@@ -385,6 +411,30 @@
                 "additionalProperties": {
                   "type": "string"
                 }
+              },
+              "skills": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "expertise": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "initiative_bonus": {
+                "type": [
+                  "array",
+                  "integer"
+                ]
+              },
+              "speed_tiles": {
+                "type": [
+                  "array",
+                  "integer"
+                ]
               }
             }
           }
@@ -580,6 +630,12 @@
         },
         "free_cast_from": {
           "$comment": "무료 시전 범위(subclass = 하위 클래스 항상 준비 주문)",
+          "type": "string"
+        },
+        "count_by_level": {
+          "type": "object"
+        },
+        "group": {
           "type": "string"
         }
       }
@@ -830,6 +886,12 @@
                 "type": "string"
               }
             }
+          },
+          "subclass": {
+            "type": "string"
+          },
+          "add": {
+            "type": "boolean"
           }
         }
       }

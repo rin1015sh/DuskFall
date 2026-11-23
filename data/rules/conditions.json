@@ -1774,6 +1774,129 @@
       },
       "notes_ko": "구덩이 악마 물기: 중독 + 턴 시작 6d6 독(회복 불가는 생략).",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "distracted",
+      "name": {
+        "ko": "주의 산만",
+        "en": "Distracted"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 1,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "ends_on_attacked": true,
+      "notes_ko": "기법 '주의 돌리기': 이 생물을 노린 다음 공격 하나가 유리(공격받으면 풀린다).",
+      "source": "original"
+    },
+    {
+      "id": "goaded",
+      "name": {
+        "ko": "도발당함",
+        "en": "Goaded"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 1,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        }
+      ],
+      "notes_ko": "기법 '도발 공격': 공격 굴림이 불리(BG3 — 모든 공격).",
+      "source": "original"
+    },
+    {
+      "id": "evasive_footwork",
+      "name": {
+        "ko": "회피 발놀림",
+        "en": "Evasive Footwork"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 1,
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "disadvantage",
+          "range": "adjacent"
+        }
+      ],
+      "notes_ko": "기법 '회피 발놀림': 이 생물을 노린 근접 공격이 불리.",
+      "source": "original"
+    },
+    {
+      "id": "spurred",
+      "name": {
+        "ko": "진형 이동",
+        "en": "Spurred"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 1,
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "multiply": 1.5
+        }
+      ],
+      "notes_ko": "기법 '진형 공격': 속도 1.5배.",
+      "source": "original"
+    },
+    {
+      "id": "feeble",
+      "name": {
+        "ko": "무력함",
+        "en": "Feeble"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "str_weapon_damage",
+          "multiply": 0.5
+        }
+      ],
+      "notes_ko": "비전 사격 '쇠약 화살': 근력 무기 공격 피해 절반(BG3).",
+      "source": "original"
+    },
+    {
+      "id": "thorn_bound",
+      "name": {
+        "ko": "휘감김",
+        "en": "Thorn-Bound"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "add": -2
+        }
+      ],
+      "move_damage": {
+        "dice": "2d6",
+        "damage_type": "slashing"
+      },
+      "notes_ko": "비전 사격 '가시덩굴 화살': 속도 −2칸, 움직이면(이동 한 번에) 참격 2d6.",
+      "source": "original"
     }
   ]
 }
