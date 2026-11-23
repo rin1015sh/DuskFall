@@ -35,9 +35,7 @@
   "asi_levels": [
     4,
     8,
-    12,
-    16,
-    19
+    12
   ],
   "spellcasting": {
     "ability": "wis",
@@ -58,15 +56,7 @@
       "9": 4,
       "10": 5,
       "11": 5,
-      "12": 5,
-      "13": 5,
-      "14": 5,
-      "15": 5,
-      "16": 5,
-      "17": 5,
-      "18": 5,
-      "19": 5,
-      "20": 5
+      "12": 5
     },
     "prepared": {
       "1": 4,
@@ -80,15 +70,7 @@
       "9": 14,
       "10": 15,
       "11": 16,
-      "12": 16,
-      "13": 17,
-      "14": 17,
-      "15": 18,
-      "16": 18,
-      "17": 19,
-      "18": 20,
-      "19": 21,
-      "20": 22
+      "12": 16
     },
     "slots": {
       "1": [
@@ -156,88 +138,6 @@
         3,
         2,
         1
-      ],
-      "13": [
-        4,
-        3,
-        3,
-        3,
-        2,
-        1,
-        1
-      ],
-      "14": [
-        4,
-        3,
-        3,
-        3,
-        2,
-        1,
-        1
-      ],
-      "15": [
-        4,
-        3,
-        3,
-        3,
-        2,
-        1,
-        1,
-        1
-      ],
-      "16": [
-        4,
-        3,
-        3,
-        3,
-        2,
-        1,
-        1,
-        1
-      ],
-      "17": [
-        4,
-        3,
-        3,
-        3,
-        2,
-        1,
-        1,
-        1,
-        1
-      ],
-      "18": [
-        4,
-        3,
-        3,
-        3,
-        3,
-        1,
-        1,
-        1,
-        1
-      ],
-      "19": [
-        4,
-        3,
-        3,
-        3,
-        3,
-        2,
-        1,
-        1,
-        1
-      ],
-      "20": [
-        4,
-        3,
-        3,
-        3,
-        3,
-        2,
-        2,
-        1,
-        1
       ]
     },
     "progression": "full"
@@ -260,15 +160,7 @@
         "9": 3,
         "10": 3,
         "11": 3,
-        "12": 3,
-        "13": 3,
-        "14": 3,
-        "15": 3,
-        "16": 3,
-        "17": 3,
-        "18": 4,
-        "19": 4,
-        "20": 4
+        "12": 3
       },
       "recharge": "short_one"
     },
@@ -385,8 +277,7 @@
         "divine_strike": {
           "weapon_hit_bonus": {
             "dice_by_level": {
-              "7": "1d8",
-              "14": "2d8"
+              "7": "1d8"
             },
             "damage_types": [
               "radiant",
@@ -439,51 +330,6 @@
           "en": "Next Cleric spell costs no slot (turns off after use)."
         }
       }
-    },
-    {
-      "id": "improved_blessed_strikes",
-      "name": {
-        "ko": "향상된 축복받은 일격",
-        "en": "Improved Blessed Strikes"
-      },
-      "level": 14,
-      "choice_kind": "option",
-      "choice_from": "blessed_strikes",
-      "choices": [
-        "divine_strike",
-        "potent_spellcasting"
-      ],
-      "choice_grants": {
-        "divine_strike": {},
-        "potent_spellcasting": {
-          "caps": [
-            "cantrip_vitality"
-          ]
-        }
-      },
-      "source": "SRD 5.2.1",
-      "notes_ko": "신성한 일격 2d8(축복받은 일격 레벨표). 강력한 주문 시전: 클레릭 소마법이 피해를 주면 12칸 안 가장 다친 아군(자신 포함)에게 지혜 × 2 임시 HP."
-    },
-    {
-      "id": "epic_boon",
-      "name": {
-        "ko": "서사 은혜",
-        "en": "Epic Boon"
-      },
-      "level": 19,
-      "source": "SRD 5.2.1",
-      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_fate"
-    },
-    {
-      "id": "greater_divine_intervention",
-      "name": {
-        "ko": "상급 신성 개입",
-        "en": "Greater Divine Intervention"
-      },
-      "level": 20,
-      "status": "deferred",
-      "source": "SRD 5.2.1",
-      "notes_ko": "신성 개입으로 소원(Wish) — 소원은 서술형이라 1차 제외."
     }
   ],
   "subclasses": [
@@ -558,19 +404,6 @@
           ],
           "notes_ko": "슬롯을 쓴 주문으로 다른 생물을 회복시키면 자신도 2 + 슬롯 레벨 회복(시전마다 1회).",
           "source": "SRD 5.2.1"
-        },
-        {
-          "id": "supreme_healing",
-          "name": {
-            "ko": "최상의 치유",
-            "en": "Supreme Healing"
-          },
-          "level": 17,
-          "caps": [
-            "max_healing_dice"
-          ],
-          "source": "SRD 5.2.1",
-          "notes_ko": "주문 회복 주사위를 굴리지 않고 최대값으로(효과 모델 회복 주문)."
         }
       ]
     }
@@ -641,22 +474,11 @@
       "banishment",
       "flame_strike",
       "heal",
-      "harm",
-      "fire_storm",
-      "divine_word",
-      "holy_aura",
-      "sunburst",
-      "mass_heal",
-      "power_word_heal",
-      "true_resurrection"
+      "harm"
     ],
     "asi": {
       "4": {
         "wis": 2
-      },
-      "19": {
-        "feat": "boon_of_fate",
-        "wis": 1
       }
     },
     "armor": "chain_mail",

@@ -19,8 +19,8 @@ func apply(ctx: Dictionary) -> Dictionary:
 	for d: Dictionary in res.get("attack", {}).get("damage", []):
 		if str(d.get("damage_type", "")) in PHYSICAL:
 			physical = true
-	if not physical and not c.has_cap("deflect_energy"):
-		return {"ok": false}  # 에너지 쳐내기(몽크 13레벨): 모든 피해 종류
+	if not physical:
+		return {"ok": false}
 	var used := Features.offer_reaction(c, "deflect_attacks", {"attack": res}, func() -> void:
 		c.turn["reaction"] = int(c.turn.get("reaction", 1)) - 1
 		var n: int = Dice.roll("1d10", "공격 쳐내기")["total"] + c.ability_mod("dex") + c.feature_level("deflect_attacks")

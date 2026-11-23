@@ -42,9 +42,7 @@
   "asi_levels": [
     4,
     8,
-    12,
-    16,
-    19
+    12
   ],
   "always_prepared": {
     "1": [
@@ -73,15 +71,7 @@
       "9": 9,
       "10": 9,
       "11": 10,
-      "12": 10,
-      "13": 11,
-      "14": 11,
-      "15": 12,
-      "16": 12,
-      "17": 14,
-      "18": 14,
-      "19": 15,
-      "20": 15
+      "12": 10
     },
     "slots": {
       "1": [
@@ -131,58 +121,6 @@
         4,
         3,
         3
-      ],
-      "13": [
-        4,
-        3,
-        3,
-        1
-      ],
-      "14": [
-        4,
-        3,
-        3,
-        1
-      ],
-      "15": [
-        4,
-        3,
-        3,
-        2
-      ],
-      "16": [
-        4,
-        3,
-        3,
-        2
-      ],
-      "17": [
-        4,
-        3,
-        3,
-        3,
-        1
-      ],
-      "18": [
-        4,
-        3,
-        3,
-        3,
-        1
-      ],
-      "19": [
-        4,
-        3,
-        3,
-        3,
-        2
-      ],
-      "20": [
-        4,
-        3,
-        3,
-        3,
-        2
       ]
     },
     "progression": "half"
@@ -206,15 +144,7 @@
         "9": 4,
         "10": 4,
         "11": 4,
-        "12": 4,
-        "13": 5,
-        "14": 5,
-        "15": 5,
-        "16": 5,
-        "17": 6,
-        "18": 6,
-        "19": 6,
-        "20": 6
+        "12": 4
       },
       "recharge": "long"
     },
@@ -223,15 +153,6 @@
       "name": {
         "ko": "지치지 않음",
         "en": "Tireless"
-      },
-      "max": "ability_mod:wis",
-      "recharge": "long"
-    },
-    {
-      "id": "natures_veil",
-      "name": {
-        "ko": "자연의 장막",
-        "en": "Nature's Veil"
       },
       "max": "ability_mod:wis",
       "recharge": "long"
@@ -354,86 +275,6 @@
       "explore": true,
       "source": "SRD 5.2.1",
       "notes_ko": "임시 HP 1d8 + 지혜(최소 1). 지혜 수정치(최소 1)회, 긴 휴식. 탈진 감소는 생략."
-    },
-    {
-      "id": "relentless_hunter",
-      "name": {
-        "ko": "끈질긴 사냥꾼",
-        "en": "Relentless Hunter"
-      },
-      "level": 13,
-      "protects_concentration": [
-        "hunters_mark"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "피해로 사냥꾼의 표식 집중이 깨지지 않는다."
-    },
-    {
-      "id": "natures_veil",
-      "name": {
-        "ko": "자연의 장막",
-        "en": "Nature's Veil"
-      },
-      "level": 14,
-      "kind": "bonus_action",
-      "resource": "natures_veil",
-      "script": "natures_veil",
-      "icon": "statuses/invisible.webp",
-      "glyph": "eye_slash",
-      "ai": {
-        "when": "hp_below_half"
-      },
-      "source": "SRD 5.2.1",
-      "notes_ko": "다음 내 턴 끝까지 투명. 지혜 수정치(최소 1)회, 긴 휴식."
-    },
-    {
-      "id": "epic_boon",
-      "name": {
-        "ko": "서사 은혜",
-        "en": "Epic Boon"
-      },
-      "level": 19,
-      "source": "SRD 5.2.1",
-      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_dimensional_travel"
-    },
-    {
-      "id": "precise_hunter",
-      "name": {
-        "ko": "정밀한 사냥꾼",
-        "en": "Precise Hunter"
-      },
-      "level": 17,
-      "caps": [
-        "precise_hunter"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "내 사냥꾼의 표식 대상에게 공격 유리."
-    },
-    {
-      "id": "feral_senses",
-      "name": {
-        "ko": "야생의 감각",
-        "en": "Feral Senses"
-      },
-      "level": 18,
-      "grants": {
-        "darkvision_tiles": 6
-      },
-      "source": "SRD 5.2.1",
-      "notes_ko": "맹목 시야 30피트 — 1차는 6칸 암시야로(맹목 시야 장치 없음)."
-    },
-    {
-      "id": "foe_slayer",
-      "name": {
-        "ko": "적 처단자",
-        "en": "Foe Slayer"
-      },
-      "level": 20,
-      "caps": [
-        "foe_slayer"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "사냥꾼의 표식 피해 주사위 d10."
     }
   ],
   "subclasses": [
@@ -524,20 +365,6 @@
           ],
           "source": "SRD 5.2.1",
           "notes_ko": "턴당 1회 사냥꾼의 표식 추가 피해를 첫 대상 6칸 안 보이는 다른 적(가장 가까운)에게도."
-        },
-        {
-          "id": "superior_hunters_defense",
-          "name": {
-            "ko": "뛰어난 사냥꾼의 방어",
-            "en": "Superior Hunter's Defense"
-          },
-          "level": 15,
-          "kind": "reaction",
-          "caps": [
-            "hunters_defense"
-          ],
-          "source": "SRD 5.2.1",
-          "notes_ko": "피해를 받을 때 반응으로 그 종류 저항(턴 끝까지). 피해 10 이상일 때 자동(반응 설정 대상)."
         }
       ],
       "source": "SRD 5.2.1"
@@ -604,10 +431,6 @@
     "asi": {
       "4": {
         "dex": 2
-      },
-      "19": {
-        "feat": "boon_of_dimensional_travel",
-        "dex": 1
       }
     },
     "armor": "studded_leather_armor",

@@ -1,8 +1,8 @@
 {
   "schema": "progression_v1",
   "id": "standard",
-  "note_ko": "레벨·경험치·숙련 보너스 단일 출처(SRD 5.2.1 Character Advancement, docs/srd/02_CharacterCreation.md). 게임 레벨 상한은 level_cap 하나만 바꾼다(지금 20 — 사용자 결정 2026-11-23). multiclass_slots = SRD 멀티클래스 시전자 슬롯표(시전 레벨 → 슬롯 레벨별 수).",
-  "level_cap": 20,
+  "note_ko": "레벨·경험치·숙련 보너스 단일 출처(SRD 5.2.1 Character Advancement, docs/srd/02_CharacterCreation.md). 게임 레벨 상한은 level_cap 하나만 바꾼다(지금 12 — BG3식, 사용자 결정 2026-11-23. 13~20레벨은 게임에서 뺐다). multiclass_slots = SRD 멀티클래스 시전자 슬롯표(시전 레벨 → 슬롯 레벨별 수).",
+  "level_cap": 12,
   "levels": [
     {
       "level": 1,
@@ -63,46 +63,6 @@
       "level": 12,
       "xp": 100000,
       "proficiency_bonus": 4
-    },
-    {
-      "level": 13,
-      "xp": 120000,
-      "proficiency_bonus": 5
-    },
-    {
-      "level": 14,
-      "xp": 140000,
-      "proficiency_bonus": 5
-    },
-    {
-      "level": 15,
-      "xp": 165000,
-      "proficiency_bonus": 5
-    },
-    {
-      "level": 16,
-      "xp": 195000,
-      "proficiency_bonus": 5
-    },
-    {
-      "level": 17,
-      "xp": 225000,
-      "proficiency_bonus": 6
-    },
-    {
-      "level": 18,
-      "xp": 265000,
-      "proficiency_bonus": 6
-    },
-    {
-      "level": 19,
-      "xp": 305000,
-      "proficiency_bonus": 6
-    },
-    {
-      "level": 20,
-      "xp": 355000,
-      "proficiency_bonus": 6
     }
   ],
   "source": "SRD 5.2.1",
@@ -171,88 +131,6 @@
       3,
       3,
       2,
-      1
-    ],
-    "13": [
-      4,
-      3,
-      3,
-      3,
-      2,
-      1,
-      1
-    ],
-    "14": [
-      4,
-      3,
-      3,
-      3,
-      2,
-      1,
-      1
-    ],
-    "15": [
-      4,
-      3,
-      3,
-      3,
-      2,
-      1,
-      1,
-      1
-    ],
-    "16": [
-      4,
-      3,
-      3,
-      3,
-      2,
-      1,
-      1,
-      1
-    ],
-    "17": [
-      4,
-      3,
-      3,
-      3,
-      2,
-      1,
-      1,
-      1,
-      1
-    ],
-    "18": [
-      4,
-      3,
-      3,
-      3,
-      3,
-      1,
-      1,
-      1,
-      1
-    ],
-    "19": [
-      4,
-      3,
-      3,
-      3,
-      3,
-      2,
-      1,
-      1,
-      1
-    ],
-    "20": [
-      4,
-      3,
-      3,
-      3,
-      3,
-      2,
-      2,
-      1,
       1
     ]
   }

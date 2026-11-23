@@ -42,26 +42,12 @@
     4,
     8,
     10,
-    12,
-    16,
-    19
+    12
   ],
   "expertise": {
     "1": 2
   },
-  "resources": [
-    {
-      "id": "stroke_of_luck",
-      "name": {
-        "ko": "행운의 일격",
-        "en": "Stroke of Luck"
-      },
-      "max": {
-        "20": 1
-      },
-      "recharge": "short"
-    }
-  ],
+  "resources": [],
   "features": [
     {
       "id": "expertise",
@@ -99,15 +85,7 @@
         "9": "5d6",
         "10": "5d6",
         "11": "6d6",
-        "12": "6d6",
-        "13": "7d6",
-        "14": "7d6",
-        "15": "8d6",
-        "16": "8d6",
-        "17": "9d6",
-        "18": "9d6",
-        "19": "10d6",
-        "20": "10d6"
+        "12": "6d6"
       },
       "toggle": {
         "values": [
@@ -217,38 +195,12 @@
               "ko": "물러나기",
               "en": "Withdraw"
             }
-          },
-          {
-            "id": "daze",
-            "name": {
-              "ko": "현혹(2d6)",
-              "en": "Daze (2d6)"
-            }
-          },
-          {
-            "id": "knock_out",
-            "name": {
-              "ko": "기절시키기(6d6)",
-              "en": "Knock Out (6d6)"
-            }
-          },
-          {
-            "id": "obscure",
-            "name": {
-              "ko": "시야 가리기(3d6)",
-              "en": "Obscure (3d6)"
-            }
           }
         ],
         "desc": {
           "ko": "급소 공격 주사위 1개를 써서 효과를 더한다(누를 때마다 바뀜).",
           "en": "Spend one Sneak Attack die for an effect (click to cycle)."
         }
-      },
-      "choice_min_level": {
-        "daze": 14,
-        "knock_out": 14,
-        "obscure": 14
       }
     },
     {
@@ -314,11 +266,6 @@
         "improved_cunning_strike"
       ],
       "source": "SRD 5.2.1",
-      "choice_min_level": {
-        "daze": 14,
-        "knock_out": 14,
-        "obscure": 14
-      },
       "notes_ko": "급소 공격에 교활한 일격 효과 둘(각각 비용). 두 번째 효과는 이 설정에서.",
       "toggle": {
         "values": [
@@ -349,27 +296,6 @@
               "ko": "물러나기",
               "en": "Withdraw"
             }
-          },
-          {
-            "id": "daze",
-            "name": {
-              "ko": "현혹(2d6)",
-              "en": "Daze (2d6)"
-            }
-          },
-          {
-            "id": "knock_out",
-            "name": {
-              "ko": "기절시키기(6d6)",
-              "en": "Knock Out (6d6)"
-            }
-          },
-          {
-            "id": "obscure",
-            "name": {
-              "ko": "시야 가리기(3d6)",
-              "en": "Obscure (3d6)"
-            }
           }
         ],
         "desc": {
@@ -377,72 +303,6 @@
           "en": "Second Cunning Strike effect (must differ from the first)."
         }
       }
-    },
-    {
-      "id": "devious_strikes",
-      "name": {
-        "ko": "교묘한 일격",
-        "en": "Devious Strikes"
-      },
-      "level": 14,
-      "source": "SRD 5.2.1",
-      "handled_by": "교활한 일격 설정에 현혹(2d6 — 건강 내성, 다음 턴 하나만)·기절시키기(6d6 — 건강 내성, 의식 잃음 10턴·피해 받으면 끝)·시야 가리기(3d6 — 민첩 내성, 실명 1턴)"
-    },
-    {
-      "id": "slippery_mind",
-      "name": {
-        "ko": "미끄러운 정신",
-        "en": "Slippery Mind"
-      },
-      "level": 15,
-      "grants": {
-        "save_proficiencies": [
-          "wis",
-          "cha"
-        ]
-      },
-      "source": "SRD 5.2.1",
-      "notes_ko": "지혜·매력 내성 숙련."
-    },
-    {
-      "id": "epic_boon",
-      "name": {
-        "ko": "서사 은혜",
-        "en": "Epic Boon"
-      },
-      "level": 19,
-      "source": "SRD 5.2.1",
-      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_the_night_spirit"
-    },
-    {
-      "id": "elusive",
-      "name": {
-        "ko": "포착 불가",
-        "en": "Elusive"
-      },
-      "level": 18,
-      "caps": [
-        "elusive"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "무력화되지 않았으면 나를 노리는 공격은 유리를 얻지 못한다."
-    },
-    {
-      "id": "stroke_of_luck",
-      "name": {
-        "ko": "행운의 일격",
-        "en": "Stroke of Luck"
-      },
-      "level": 20,
-      "hook": "on_attack_missed",
-      "also_hooks": [
-        "on_save_failed",
-        "on_check_failed"
-      ],
-      "script": "stroke_of_luck",
-      "resource": "stroke_of_luck",
-      "source": "SRD 5.2.1",
-      "notes_ko": "실패한 d20 시험을 20으로(20이면 성공할 때 자동). 짧은 휴식 1회."
     }
   ],
   "subclasses": [
@@ -517,30 +377,6 @@
               "en": "Spend a Sneak Attack die to stay hidden."
             }
           }
-        },
-        {
-          "id": "use_magic_device",
-          "name": {
-            "ko": "마법 장치 사용",
-            "en": "Use Magic Device"
-          },
-          "level": 13,
-          "caps": [
-            "use_any_scroll"
-          ],
-          "source": "SRD 5.2.1",
-          "notes_ko": "어떤 주문 두루마리든 읽는다(높은 레벨 판정 생략). 조율은 없는 규칙, 충전 아끼기는 충전 물품이 없어 생략."
-        },
-        {
-          "id": "thiefs_reflexes",
-          "name": {
-            "ko": "도둑의 반사신경",
-            "en": "Thief's Reflexes"
-          },
-          "level": 17,
-          "status": "deferred",
-          "source": "SRD 5.2.1",
-          "notes_ko": "첫 라운드에 두 번 행동 — 턴 순서 장치와 함께 다음에."
         }
       ]
     }
@@ -602,10 +438,6 @@
     "asi": {
       "4": {
         "dex": 2
-      },
-      "19": {
-        "feat": "boon_of_the_night_spirit",
-        "dex": 1
       }
     },
     "armor": "leather_armor",

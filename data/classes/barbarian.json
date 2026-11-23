@@ -45,22 +45,12 @@
     "9": 3,
     "10": 4,
     "11": 4,
-    "12": 4,
-    "13": 4,
-    "14": 4,
-    "15": 4,
-    "16": 4,
-    "17": 4,
-    "18": 4,
-    "19": 4,
-    "20": 4
+    "12": 4
   },
   "asi_levels": [
     4,
     8,
-    12,
-    16,
-    19
+    12
   ],
   "resources": [
     {
@@ -81,15 +71,7 @@
         "9": 4,
         "10": 4,
         "11": 4,
-        "12": 5,
-        "13": 5,
-        "14": 5,
-        "15": 5,
-        "16": 5,
-        "17": 6,
-        "18": 6,
-        "19": 6,
-        "20": 6
+        "12": 5
       },
       "recharge": "short_one"
     },
@@ -103,28 +85,6 @@
         "11": 20
       },
       "recharge": "short"
-    },
-    {
-      "id": "persistent_rage",
-      "name": {
-        "ko": "끈질긴 분노 유지",
-        "en": "Persistent Rage"
-      },
-      "max": {
-        "15": 1
-      },
-      "recharge": "long"
-    },
-    {
-      "id": "intimidating_presence",
-      "name": {
-        "ko": "위협적인 존재감",
-        "en": "Intimidating Presence"
-      },
-      "max": {
-        "14": 1
-      },
-      "recharge": "long"
     }
   ],
   "features": [
@@ -156,15 +116,7 @@
         "9": 3,
         "10": 3,
         "11": 3,
-        "12": 3,
-        "13": 3,
-        "14": 3,
-        "15": 3,
-        "16": 4,
-        "17": 4,
-        "18": 4,
-        "19": 4,
-        "20": 4
+        "12": 3
       }
     },
     {
@@ -362,30 +314,12 @@
               "ko": "오금 베기",
               "en": "Hamstring Blow"
             }
-          },
-          {
-            "id": "staggering",
-            "name": {
-              "ko": "비틀거리게 하는 일격",
-              "en": "Staggering Blow"
-            }
-          },
-          {
-            "id": "sundering",
-            "name": {
-              "ko": "가르는 일격",
-              "en": "Sundering Blow"
-            }
           }
         ],
         "desc": {
           "ko": "무모한 공격 중 첫 근력 공격에서 유리 대신 잔혹한 일격(누를 때마다 바뀜).",
           "en": "Trade Advantage for a Brutal Strike on your first Strength attack while Reckless."
         }
-      },
-      "choice_min_level": {
-        "staggering": 13,
-        "sundering": 13
       }
     },
     {
@@ -399,129 +333,6 @@
       "script": "relentless_rage",
       "source": "SRD 5.2.1",
       "notes_ko": "분노 중 0 HP가 되면 건강 내성 DC 10(쓸 때마다 +5, 짧은 휴식에 초기화) — 성공하면 HP = 바바리안 레벨 × 2."
-    },
-    {
-      "id": "improved_brutal_strike",
-      "name": {
-        "ko": "향상된 잔혹한 일격",
-        "en": "Improved Brutal Strike"
-      },
-      "level": 13,
-      "source": "SRD 5.2.1",
-      "handled_by": "잔혹한 일격 설정에 비틀거리게 하는 일격·가르는 일격 추가(13레벨부터 — choice_min_level)"
-    },
-    {
-      "id": "persistent_rage",
-      "name": {
-        "ko": "끈질긴 분노 유지",
-        "en": "Persistent Rage"
-      },
-      "level": 15,
-      "caps": [
-        "persistent_rage"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "이니셔티브 때 분노 횟수 전부 회복(긴 휴식 1회), 분노는 연장 없이 10분(의식을 잃으면 끝)."
-    },
-    {
-      "id": "epic_boon",
-      "name": {
-        "ko": "서사 은혜",
-        "en": "Epic Boon"
-      },
-      "level": 19,
-      "source": "SRD 5.2.1",
-      "handled_by": "능력치 향상 19레벨 — 명세 asi 19 {feat: 서사 은혜 재주, 능력: +1}. 추천: boon_of_irresistible_offense"
-    },
-    {
-      "id": "improved_brutal_strike_17",
-      "name": {
-        "ko": "향상된 잔혹한 일격(17레벨)",
-        "en": "Improved Brutal Strike (17)"
-      },
-      "level": 17,
-      "caps": [
-        "brutal_strike_2"
-      ],
-      "source": "SRD 5.2.1",
-      "choice_min_level": {
-        "staggering": 13,
-        "sundering": 13
-      },
-      "notes_ko": "잔혹한 일격 2d10, 다른 효과 하나 더(이 설정).",
-      "toggle": {
-        "values": [
-          {
-            "id": "",
-            "name": {
-              "ko": "끔",
-              "en": "Off"
-            }
-          },
-          {
-            "id": "forceful",
-            "name": {
-              "ko": "강타",
-              "en": "Forceful Blow"
-            }
-          },
-          {
-            "id": "hamstring",
-            "name": {
-              "ko": "오금 베기",
-              "en": "Hamstring Blow"
-            }
-          },
-          {
-            "id": "staggering",
-            "name": {
-              "ko": "비틀거리게 하는 일격",
-              "en": "Staggering Blow"
-            }
-          },
-          {
-            "id": "sundering",
-            "name": {
-              "ko": "가르는 일격",
-              "en": "Sundering Blow"
-            }
-          }
-        ],
-        "desc": {
-          "ko": "잔혹한 일격의 두 번째 효과(첫 번째와 달라야 함).",
-          "en": "Second Brutal Strike effect (must differ)."
-        }
-      }
-    },
-    {
-      "id": "indomitable_might",
-      "name": {
-        "ko": "불굴의 힘",
-        "en": "Indomitable Might"
-      },
-      "level": 18,
-      "caps": [
-        "indomitable_might"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "근력 판정·내성 합계가 근력 점수보다 낮으면 점수로."
-    },
-    {
-      "id": "primal_champion",
-      "name": {
-        "ko": "원시의 투사",
-        "en": "Primal Champion"
-      },
-      "level": 20,
-      "grants": {
-        "ability_increase": {
-          "str": 4,
-          "con": 4,
-          "max": 25
-        }
-      },
-      "source": "SRD 5.2.1",
-      "notes_ko": "근력·건강 +4(최대 25)."
     }
   ],
   "subclasses": [
@@ -573,32 +384,6 @@
           ],
           "source": "SRD 5.2.1",
           "notes_ko": "1칸 안 생물에게 피해를 받으면 반응으로 그 생물에게 근접 공격 1회(반응 설정 대상)."
-        },
-        {
-          "id": "intimidating_presence",
-          "name": {
-            "ko": "위협적인 존재감",
-            "en": "Intimidating Presence"
-          },
-          "level": 14,
-          "kind": "bonus_action",
-          "resource": "intimidating_presence",
-          "alt_cost": {
-            "resource": "rage",
-            "amount": 1,
-            "cap": "rage_refuel"
-          },
-          "caps": [
-            "rage_refuel"
-          ],
-          "script": "intimidating_presence",
-          "icon": "statuses/fear.webp",
-          "glyph": "skull_rays",
-          "ai": {
-            "when": "foes_2plus"
-          },
-          "source": "SRD 5.2.1",
-          "notes_ko": "6칸 안 적 지혜 내성(DC 8 + 근력 + 숙련), 실패 시 공포 10턴(턴 끝 내성). 긴 휴식 1회, 없으면 분노 1회로."
         }
       ]
     }
@@ -648,10 +433,6 @@
     "asi": {
       "4": {
         "str": 2
-      },
-      "19": {
-        "feat": "boon_of_irresistible_offense",
-        "str": 1
       }
     },
     "armor": "",
