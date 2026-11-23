@@ -163,6 +163,18 @@
             "SRD 5.2.1",
             "original"
           ]
+        },
+        "spell": {
+          "$comment": "두루마리(category scroll): 시전하는 주문",
+          "type": "string"
+        },
+        "save_dc": {
+          "$comment": "두루마리 내성 DC(SRD: 소마법·1레벨 13)",
+          "type": "integer"
+        },
+        "attack_bonus": {
+          "$comment": "두루마리 주문 공격 보너스(SRD: 소마법·1레벨 +5)",
+          "type": "integer"
         }
       }
     },

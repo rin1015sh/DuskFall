@@ -153,6 +153,38 @@
       "material": "cloth",
       "camp_supplies": 10,
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "spell_scroll_magic_missile",
+      "name": {
+        "ko": "주문 두루마리: 마법 화살",
+        "en": "Spell Scroll: Magic Missile"
+      },
+      "category": "scroll",
+      "rarity": "common",
+      "weight_kg": 0.0,
+      "price_gp": 50,
+      "material": "cloth",
+      "spell": "magic_missile",
+      "save_dc": 13,
+      "attack_bonus": 5,
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "spell_scroll_cure_wounds",
+      "name": {
+        "ko": "주문 두루마리: 상처 치료",
+        "en": "Spell Scroll: Cure Wounds"
+      },
+      "category": "scroll",
+      "rarity": "common",
+      "weight_kg": 0.0,
+      "price_gp": 50,
+      "material": "cloth",
+      "spell": "cure_wounds",
+      "save_dc": 13,
+      "attack_bonus": 5,
+      "source": "SRD 5.2.1"
     }
   ]
 }

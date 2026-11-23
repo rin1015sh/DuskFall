@@ -119,6 +119,8 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 		if e.get("category", "") == "potion" and Interact.count(world, item) > 0:
 			for verb: String in ["drink", "feed", "throw_potion"]:
 				out["items"].append("%s:%s" % [verb, item])
+		elif e.get("category", "") == "scroll" and Interact.count(world, item) > 0 and can_read_scroll(c, e):
+			out["items"].append("read_scroll:" + item)
 	for sid: String in c.spells:
 		if not RulesDB.get_entry("spell", sid).is_empty():
 			out["spells"].append("spell:" + sid)
@@ -359,6 +361,8 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 		"switch_weapons":
 			Combat.switch_weapon_set(c)
 			return {"ok": true}
+		"read_scroll":
+			return read_scroll(world, c, parts[1], cell)
 		"drink", "feed":
 			var item := RulesDB.get_entry("item", parts[1])
 			var who: Node = c if parts[0] == "drink" else t
@@ -470,6 +474,28 @@ static func _weapon_action(world: Dictionary, c: Node, key: String, t: Node) -> 
 	if world.get("turns") != null:
 		world["turns"].notify_hostile_action(c)
 	return res
+
+
+## 주문 두루마리(SRD 원문, 룰북 6단계): 내 클래스 주문 목록에 있는 주문이면 읽는다.
+static func can_read_scroll(c: Node, item: Dictionary) -> bool:
+	var sp := RulesDB.get_entry("spell", str(item.get("spell", "")))
+	var list := str(RulesDB.get_entry("class", c.class_id).get("spellcasting", {}).get("list", ""))
+	return not sp.is_empty() and list != "" and list in sp.get("classes", [])
+
+
+## 두루마리로 한 번 시전: 슬롯 없이, 두루마리 DC·공격 보너스로. 시전하면 두루마리가 사라진다.
+static func read_scroll(world: Dictionary, c: Node, item_id: String, cell: Vector2i) -> Dictionary:
+	var item := RulesDB.get_entry("item", item_id)
+	if item.get("category", "") != "scroll" or Interact.count(world, item_id) <= 0:
+		return {"ok": false, "reason": "두루마리가 없다"}
+	if not can_read_scroll(c, item):
+		return {"ok": false, "reason": "내 클래스 주문 목록에 없는 주문"}
+	c.set_meta("scroll_cast", {"dc": int(item.get("save_dc", 13)), "attack": int(item.get("attack_bonus", 5))})
+	var r: Dictionary = Spellcasting.cast(world, c, str(item["spell"]), cell, {"no_slot": true})
+	c.remove_meta("scroll_cast")
+	if r.get("ok", false):
+		Interact.take(world, item_id)
+	return r
 
 
 static func sneak_dice(c: Node) -> int:

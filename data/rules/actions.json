@@ -363,6 +363,23 @@
       "explore": true,
       "source": "original",
       "requires": "sneak_attack"
+    },
+    {
+      "id": "read_scroll",
+      "name": {
+        "ko": "두루마리 읽기",
+        "en": "Read Scroll"
+      },
+      "desc": {
+        "ko": "주문 두루마리로 주문을 한 번 시전한다(내 클래스 주문 목록에 있는 주문만, 내성 DC 13·공격 +5). 두루마리는 사라진다.",
+        "en": "Cast the scroll's spell once (only spells on your class list; save DC 13, attack +5). The scroll crumbles."
+      },
+      "cost": "action",
+      "target": "cell",
+      "tab": "items",
+      "icon": "res://assets/statuses/riddle_empowered.webp",
+      "explore": true,
+      "source": "SRD 5.2.1"
     }
   ]
 }

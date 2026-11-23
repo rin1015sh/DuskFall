@@ -65,9 +65,6 @@
       "save_advantage_vs": [
         "charmed"
       ],
-      "condition_immunities": [
-        "sleep_magic"
-      ],
       "skill_choice": {
         "choose": 1,
         "from": [

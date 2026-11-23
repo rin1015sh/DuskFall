@@ -36,6 +36,15 @@ const REFS := {
 	"surface": [
 		["expires_to", "surface"],
 	],
+	"item": [
+		["spell", "spell"],
+	],
+	"species": [
+		["condition_immunities[]", "condition"],
+	],
+	"feat": [
+		["spell_list", "class"],
+	],
 	"material": [
 		["burns_to", "material"],
 	],

@@ -21,11 +21,20 @@ static func spell_mod(c: Node) -> int:
 
 
 static func spell_dc(c: Node) -> int:
+	if c.has_meta("scroll_cast"):
+		return int(c.get_meta("scroll_cast")["dc"])  # 주문 두루마리: 두루마리 DC(SRD)
 	return 8 + c.proficiency_bonus + spell_mod(c)
 
 
 static func spell_attack_bonus(c: Node) -> int:
+	if c.has_meta("scroll_cast"):
+		return int(c.get_meta("scroll_cast")["attack"])
 	return c.proficiency_bonus + spell_mod(c)
+
+
+## 타고난 시전(재주·종족 주문): 슬롯 없이 긴 휴식마다 1회 — 자원 innate_<주문 id>
+static func innate_id(spell_id: String) -> String:
+	return "innate_" + spell_id
 
 
 static func duration_turns(spell: Dictionary) -> int:
@@ -196,7 +205,8 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 		return "비용이 없다"
 	if cost == "action" and not opts.get("free", false) and int(caster.turn.get("action", 0)) <= int(caster.turn.get("surge_actions", 0)):
 		return "행동 연쇄로 얻은 행동은 주문에 쓸 수 없다"
-	if int(spell["level"]) > 0 and not opts.get("no_slot", false) and not opts.get("free", false) and _slot(caster, int(opts.get("slot", spell["level"]))) == "":
+	if int(spell["level"]) > 0 and not opts.get("no_slot", false) and not opts.get("free", false) and _slot(caster, int(opts.get("slot", spell["level"]))) == "" \
+			and caster.resource(innate_id(spell_id)) <= 0:
 		return "주문 슬롯이 없다"
 	if caster.has_condition("incapacitated"):
 		return "무력화"
@@ -289,6 +299,8 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 		return {"ok": true, "countered": true}
 	if slot_id != "":
 		caster.spend_resource(slot_id)
+	elif level > 0 and not opts.get("no_slot", false) and not opts.get("free", false) and caster.resource(innate_id(spell_id)) > 0:
+		caster.spend_resource(innate_id(spell_id))  # 슬롯이 없으면 타고난 시전 1회
 	Dice.log_text("%s: %s%s" % [caster.label(), spell["name"]["en"], " (%d레벨 슬롯)" % slot if slot > level else ""])
 	var inst := new_instance(world, caster, spell, slot)
 	if spell["concentration"]:

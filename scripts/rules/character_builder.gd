@@ -73,6 +73,25 @@ static func validate(spec: Dictionary) -> PackedStringArray:
 	if lv >= sub_lv and spec.get("subclass", "") == "":
 		e.append("%d레벨부터 하위 클래스를 골라야 한다" % sub_lv)
 	e.append_array(validate_spells(cls, spec, lv))
+	e.append_array(validate_feat_spells(spec))
+	return e
+
+
+## 주문 재주 선택: 재주 spell_list 주문 목록에 있고 소마법/1레벨이 맞는지
+static func validate_feat_spells(spec: Dictionary) -> PackedStringArray:
+	var e := PackedStringArray()
+	for fid: String in RulesDB.ids("feat"):
+		var ft := RulesDB.get_entry("feat", fid)
+		if not ft.has("spell_list") or not spec.has(fid):
+			continue
+		var pick: Dictionary = spec[fid]
+		for k: String in ["cantrips", "spells"]:
+			for sid: Variant in pick.get(k, []):
+				var sp := RulesDB.get_entry("spell", str(sid))
+				if sp.is_empty() or not str(ft["spell_list"]) in sp.get("classes", []):
+					e.append("%s: %s는 %s 주문 목록에 없다" % [fid, sid, ft["spell_list"]])
+				elif int(sp["level"]) != (0 if k == "cantrips" else 1):
+					e.append("%s: %s는 %s가 아니다" % [fid, sid, "소마법" if k == "cantrips" else "1레벨 주문"])
 	return e
 
 
@@ -181,6 +200,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	c.damage_resistances = sp.get("resistances", []) + lin.get("resistances", [])
 	c.save_advantage_vs = sp.get("save_advantage_vs", []).duplicate()
 	c.save_advantage_abilities = sp.get("save_advantage_abilities", []).duplicate()
+	c.condition_immunities = sp.get("condition_immunities", []) + lin.get("condition_immunities", [])
 	# 기능·재주(먼저 모아야 전문화·숙련 부여를 기능 계산에 쓸 수 있다)
 	c.features = []
 	c.feature_data = {}
@@ -273,6 +293,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		c.weapon_sets["ranged"] = {"main": ""}
 	# 주문
 	_apply_spells(c, cls, sub, sp, lin, spec, lv, extra_cantrips)
+	_apply_feat_spells(c, feats, spec)
 	# 반응
 	c.known_reactions = ["opportunity_attack"]
 	for sid: String in c.spells:
@@ -354,6 +375,25 @@ static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Diction
 	c.spells = uniq
 	if c.spellcasting_ability == "" and not uniq.is_empty():
 		c.spellcasting_ability = spec.get("origin_ability", "cha")
+
+
+## 주문 재주(마법 입문 등 — 재주 데이터 spell_list·cantrips·level1_spells): 명세 키 = 재주 id, 값 {"cantrips": [...], "spells": [...]}.
+## 소마법은 그냥 쓰고, 1레벨 주문은 슬롯이 있으면 슬롯으로, 없으면 긴 휴식마다 1회(innate_<주문>).
+static func _apply_feat_spells(c: Node, feats: Array, spec: Dictionary) -> void:
+	for fid: String in feats:
+		var ft := RulesDB.get_entry("feat", fid)
+		if not ft.has("spell_list"):
+			continue
+		var pick: Dictionary = spec.get(fid, {})
+		for sid: Variant in pick.get("cantrips", []).slice(0, int(ft.get("cantrips", 0))) + pick.get("spells", []).slice(0, int(ft.get("level1_spells", 0))):
+			var s := str(sid)
+			if RulesDB.get_entry("spell", s).is_empty() or c.spells.has(s):
+				continue
+			c.spells.append(s)
+			if int(RulesDB.get_entry("spell", s)["level"]) > 0:
+				c.resources["innate_" + s] = {"current": 1, "max": 1, "recharge": "long"}
+		if c.spellcasting_ability == "" and pick.has("ability"):
+			c.spellcasting_ability = str(pick["ability"])
 
 
 static func _by_level(table: Variant, lv: int, default: int) -> int:
