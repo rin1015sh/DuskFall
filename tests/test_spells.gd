@@ -305,3 +305,20 @@ func test_all_script_spells_implemented() -> void:
 			var inst: Object = load("res://scripts/rules/features.gd").script_for(e["script"])
 			assert_true(inst != null and inst.is_implemented(), "%s(%s)" % [e["id"], e["script"]])
 
+
+
+## 반응 주문은 주문 데이터 cast.trigger로 고른다: 지옥의 질책(on_damage_taken) — 맞으면 공격자에게 반격(타고난 무료 횟수 먼저).
+func test_hellish_rebuke_reaction_by_trigger() -> void:
+	var w := _world()
+	var t := _pc("fighter", 3, {"species": "tiefling", "lineage": "tiefling_infernal"})
+	assert_true(t.spells.has("hellish_rebuke") and "hellish_rebuke" in t.known_reactions, "혈통 주문이 반응 목록에 %s" % str(t.known_reactions))
+	var g := _foe()
+	w["grid"].place(t, Vector2i(0, 0))
+	w["grid"].place(g, Vector2i(1, 0))
+	t.reaction_settings["hellish_rebuke"] = "auto"
+	t.reset_turn()
+	var hp: int = g.hp
+	Dice.force([1])  # 고블린 민첩 내성 1 실패
+	Resolver.apply_damage(t, [{"amount": 3, "damage_type": "slashing"}], {"attacker": g})
+	assert_true(g.hp < hp, "공격자가 불 피해를 받았다")
+	assert_eq(int(t.turn.get("reaction", 1)), 0, "반응을 썼다")

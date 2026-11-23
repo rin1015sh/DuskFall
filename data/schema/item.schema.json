@@ -65,7 +65,7 @@
             "food",
             "tool",
             "magic",
-            "misc"
+            "misc", "currency"
           ]
         },
         "rarity": {

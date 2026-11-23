@@ -369,6 +369,9 @@ static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Diction
 	for s: Dictionary in sp.get("spells", []) + lin.get("spells", []):
 		if lv >= int(s["level"]):
 			spells.append(s["spell"])
+			# 종족·혈통 주문(SRD 유산): 슬롯 없이 긴 휴식마다 1회(innate_<주문> — 무료 횟수 먼저), 슬롯으로도 시전
+			if int(RulesDB.get_entry("spell", str(s["spell"])).get("level", 0)) > 0:
+				c.resources["innate_" + str(s["spell"])] = {"current": 1, "max": 1, "recharge": "long"}
 	var uniq: Array = []
 	for s: String in spells:
 		if not s in uniq and not RulesDB.get_entry("spell", s).is_empty():

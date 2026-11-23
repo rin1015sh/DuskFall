@@ -3,6 +3,19 @@
   "note_ko": "소모품. 치유 물약 수치는 SRD 5.2.1(룰북 7단계 자원 경제). 마시기 보너스 행동, 먹이기 행동, 던지기는 착지 칸 + 직교 4칸에 전체 효과 + 연소 해제(9단계).",
   "items": [
     {
+      "id": "gold",
+      "name": {
+        "ko": "금화",
+        "en": "Gold"
+      },
+      "category": "currency",
+      "rarity": "common",
+      "weight_kg": 0.0,
+      "price_gp": 1,
+      "material": "metal",
+      "source": "SRD 5.2.1"
+    },
+    {
       "id": "potion_of_healing",
       "name": {
         "ko": "치유 물약",

@@ -3,7 +3,7 @@ extends RefCounted
 ##   world["traps"]: [{"id","cell","dc_find","dc_disarm","save":{"ability","dc"},"effects":[...],"radius","state":"armed|disarmed|spent",
 ##                     "found": bool, "checked": {생물: true}, "retry_blocked": bool}]
 ##   world["examines"]: [{"id","cell","ability","skill","dc","success":{...},"fail":{...},"done": bool}]
-##   world["inventory"]: {아이템 ID: 개수, "gold": n}
+##   world["inventory"]: {아이템 ID: 개수} — 금화도 아이템 gold(category currency)
 ## 자물쇠는 물체의 "lock": {"dc", "key", "locked"}.
 ## 도구 숙련은 없다 — 자물쇠·함정은 손재주(민첩)로 통일(5단계 결정 1).
 

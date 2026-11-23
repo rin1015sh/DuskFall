@@ -48,7 +48,7 @@ static func buy(world: Dictionary, shop_id: String, item: String) -> Dictionary:
 
 
 static func sell(world: Dictionary, shop_id: String, item: String) -> Dictionary:
-	if item == "gold" or not Interact.take(world, item):
+	if RulesDB.get_entry("item", item).get("category", "") == "currency" or not Interact.take(world, item):
 		return {"ok": false, "reason": "팔 물건이 없다"}
 	var price := sell_price(shop_id, item)
 	Interact.give(world, "gold", price)

@@ -51,7 +51,7 @@ func test_short_rest_blocked_by_aware_enemy_and_ends_effects() -> void:
 
 func test_long_rest_supplies_and_partial() -> void:
 	var w := make_world(["...."])
-	var c := _hero({"species_id": "human"})
+	var c := _hero({"species_id": "human", "caps": ["long_rest_inspiration"]})  # 인간 기지(종족 기능 caps)
 	w["grid"].place(c, Vector2i(0, 0))
 	c.hp = 3
 	w["short_rests_left"] = 0

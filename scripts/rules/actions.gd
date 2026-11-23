@@ -115,7 +115,7 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 		if not SpellUtil.find_entity(c, kind).is_empty():
 			out["spells"].append("entity:" + kind)
 	for item: String in world.get("inventory", {}):
-		var e := RulesDB.get_entry("item", item) if item != "gold" else {}
+		var e := RulesDB.get_entry("item", item)
 		if e.get("category", "") == "potion" and Interact.count(world, item) > 0:
 			for verb: String in ["drink", "feed", "throw_potion"]:
 				if verb == "throw_potion" and not bool(e.get("throwable", true)):

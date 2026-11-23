@@ -226,6 +226,15 @@
       },
       "note_ko": "턴당 1회 무기 공격 뒤 원래 대상 1칸 안 다른 적에게 같은 무기로 추가 공격 — 자동(combat)",
       "source": "original"
+    },
+    {
+      "id": "long_rest_inspiration",
+      "name": {
+        "ko": "기지",
+        "en": "Resourceful"
+      },
+      "note_ko": "긴 휴식 때 공용 영감 +1(rest.gd)",
+      "source": "original"
     }
   ]
 }

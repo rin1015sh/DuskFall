@@ -1194,7 +1194,7 @@ func _open_shop(shop_id: String) -> void:
 	sell.custom_minimum_size = Vector2(300, 0)
 	sell.add_child(S.title(UiText.t("sell"), 15))
 	for item: String in world.get("inventory", {}):
-		if item == "gold" or Interact.count(world, item) <= 0 or RulesDB.get_entry("item", item).is_empty():
+		if Interact.count(world, item) <= 0 or RulesDB.get_entry("item", item).get("category", "currency") == "currency":
 			continue
 		var b := Button.new()
 		b.text = "%s ×%d — %dgp" % [UiText.name_of(RulesDB.get_entry("item", item).get("name", {})), Interact.count(world, item), Shop.sell_price(shop_id, item)]

@@ -22,6 +22,8 @@ func setup(w: Dictionary) -> Node:
 		EventBus.on_spell_cast.connect(_on_spell_cast)
 	if not EventBus.on_fall.is_connected(_on_fall):
 		EventBus.on_fall.connect(_on_fall)
+	if not EventBus.on_damage_taken.is_connected(_on_damage_taken):
+		EventBus.on_damage_taken.connect(_on_damage_taken)
 	return self
 
 
@@ -35,14 +37,16 @@ func _notification(what: int) -> void:
 			EventBus.on_spell_cast.disconnect(_on_spell_cast)
 		if EventBus.on_fall.is_connected(_on_fall):
 			EventBus.on_fall.disconnect(_on_fall)
+		if EventBus.on_damage_taken.is_connected(_on_damage_taken):
+			EventBus.on_damage_taken.disconnect(_on_damage_taken)
 
 
 ## 반응 창 하나. 쓰기로 하면 action을 실행한다. 쓴 경우 true.
 func offer(c: Node, reaction_id: String, info: Dictionary, action: Callable, auto_yes: bool = true) -> bool:
 	if not c.known_reactions.has(reaction_id) or not c.can_react():
 		return false
-	if EventBus.realtime and reaction_id != "feather_fall":
-		return false  # 실시간에서는 반응이 발동하지 않는다(5단계 실시간 규칙). Feather Fall만 예외(changes.md)
+	if EventBus.realtime and str(RulesDB.get_entry("spell", reaction_id).get("cast", {}).get("trigger", "")) != "on_fall":
+		return false  # 실시간에서는 반응이 발동하지 않는다(5단계 실시간 규칙). 낙하 반응(Feather Fall)만 예외(changes.md)
 	var setting: String = c.reaction_setting(reaction_id)
 	var use := false
 	match setting:
@@ -58,65 +62,129 @@ func offer(c: Node, reaction_id: String, info: Dictionary, action: Callable, aut
 	return use
 
 
-# ---------- Shield(SRD 5.2.1: 반응, AC +5, 다음 자기 턴 시작까지, 1레벨 슬롯) ----------
+# ---------- 반응 주문(주문 데이터 cast.trigger로 고른다 — 주문 이름을 모른다) ----------
+# on_after_attack_roll: 내가 맞았을 때, 즉시 효과 apply의 modify ac add(+until)로 명중을 되돌릴 수 있으면(방패)
+# on_spell_cast: 사거리 안 보이는 적이 시전할 때, 그 주문을 시전해 cast_ctx를 넘긴다(주문 방해 스크립트가 처리)
+# on_fall: 사거리 안 아군이 떨어질 때, 효과에 modify fall_damage가 있으면 낙하 피해를 막는다(깃털 낙하)
+# on_damage_taken: 사거리 안 보이는 적에게 피해를 받았을 때, 그 적을 대상으로 시전(지옥의 질책)
+
+## 이 생물이 아는 반응 주문 중 trigger가 맞는 것(주문 ID 목록).
+static func reaction_spells(c: Node, trigger: String) -> Array:
+	var out: Array = []
+	for rid: String in c.known_reactions:
+		var sp := RulesDB.get_entry("spell", rid)
+		if not sp.is_empty() and str(sp.get("cast", {}).get("trigger", "")) == trigger:
+			out.append(rid)
+	return out
+
+
+## 반응 주문 값을 낼 수 있으면 쓸 자원 ID(타고난 무료 횟수 먼저, 아니면 가장 낮은 슬롯). 소마법은 "-".
+static func payment(c: Node, spell_id: String) -> String:
+	var lv := int(RulesDB.get_entry("spell", spell_id).get("level", 0))
+	if lv == 0:
+		return "-"
+	var innate := "innate_" + spell_id
+	if c.resource(innate) > 0:
+		return innate
+	return lowest_slot(c, lv)
+
+
+static func _spend_reaction(c: Node, spell_id: String) -> void:
+	var pay := payment(c, spell_id)
+	if pay != "-" and pay != "":
+		c.spend_resource(pay)
+	c.turn["reaction"] = int(c.turn.get("reaction", 1)) - 1
+
+
+static func _spell_name(spell_id: String) -> String:
+	return str(RulesDB.get_entry("spell", spell_id).get("name", {}).get("en", spell_id))
+
 
 func _on_after_attack_roll(res: Dictionary) -> void:
 	if res.get("preview", false) or not res.get("hit", false) or res.get("crit", false):
 		return
 	var t: Node = res["target"]
-	if not t.known_reactions.has("shield"):
-		return
-	var slot := lowest_slot(t, 1)
-	if slot == "":
-		return
-	var would_miss: bool = res["total"] < res["ac"] + res["ac_bonus"] + 5
-	offer(t, "shield", {"attack": res, "would_miss": would_miss}, func() -> void:
-		t.spend_resource(slot)
-		t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
-		res["ac_bonus"] += 5
-		t.extra_modifiers.append({"effect": {"type": "modify", "stat": "ac", "add": 5}, "source": "shield",
-			"until_turn_start_of": t})
-		Dice.log_text("%s Shield: AC +5" % t.label()), would_miss)
+	for sid: String in reaction_spells(t, "on_after_attack_roll"):
+		var add := 0
+		for e: Dictionary in RulesDB.get_entry("spell", sid).get("effects", {}).get("apply", []):
+			if e.get("type") == "modify" and e.get("stat") == "ac":
+				add += int(e.get("add", 0))
+		if add <= 0 or payment(t, sid) == "":
+			continue
+		var would_miss: bool = res["total"] < res["ac"] + res["ac_bonus"] + add
+		if offer(t, sid, {"attack": res, "would_miss": would_miss}, func() -> void:
+			_spend_reaction(t, sid)
+			res["ac_bonus"] += add
+			t.extra_modifiers.append({"effect": {"type": "modify", "stat": "ac", "add": add}, "source": sid,
+				"until_turn_start_of": t})
+			Dice.log_text("%s %s: AC +%d" % [t.label(), _spell_name(sid), add]), would_miss):
+			return
 
-
-# ---------- Counterspell(SRD: 반응, 12칸 안 시전하는 생물, 건강 내성 실패 시 주문이 사라짐) ----------
 
 func _on_spell_cast(ctx: Dictionary) -> void:
 	var caster: Node = ctx["caster"]
-	if ctx.get("countered", false) or ctx.get("spell") == "counterspell" or not world.has("grid"):
+	if ctx.get("countered", false) or not world.has("grid"):
 		return
+	if str(RulesDB.get_entry("spell", str(ctx.get("spell", ""))).get("cast", {}).get("trigger", "")) == "on_spell_cast":
+		return  # 방해 주문은 다시 방해하지 않는다
 	var grid: Node = world["grid"]
 	var list: Array = grid.creatures().filter(func(o: Node) -> bool:
-		return o != caster and not o.dead and o.is_hostile_to(caster) and o.spells.has("counterspell") \
-			and o.known_reactions.has("counterspell") and grid.distance_between(o, caster) <= 12 and grid.can_see(o, caster))
+		return o != caster and not o.dead and o.is_hostile_to(caster) and not reaction_spells(o, "on_spell_cast").is_empty() \
+			and grid.can_see(o, caster))
 	list.sort_custom(func(a: Node, b: Node) -> bool: return a.initiative > b.initiative)
+	var Spellcasting: Variant = load("res://scripts/rules/spellcasting.gd")
 	for o: Node in list:
-		if ctx["countered"]:
-			return
-		if lowest_slot(o, 3) == "":
-			continue
-		offer(o, "counterspell", {"cast": ctx}, func() -> void:
-			var Spellcasting: Variant = load("res://scripts/rules/spellcasting.gd")
-			Spellcasting.cast(world, o, "counterspell", grid.cell_of(caster), {"cast_ctx": ctx}))
+		for sid: String in reaction_spells(o, "on_spell_cast"):
+			if ctx["countered"]:
+				return
+			if not o.spells.has(sid) or payment(o, sid) == "" \
+					or grid.distance_between(o, caster) > Spellcasting.range_tiles(RulesDB.get_entry("spell", sid)):
+				continue
+			offer(o, sid, {"cast": ctx}, func() -> void:
+				Spellcasting.cast(world, o, sid, grid.cell_of(caster), {"cast_ctx": ctx}))
 
-
-# ---------- Feather Fall(SRD: 반응, 낙하 피해 없음) ----------
 
 func _on_fall(ctx: Dictionary) -> void:
 	if ctx.get("prevented", false) or not world.has("grid"):
 		return
 	var faller: Node = ctx["creature"]
 	var grid: Node = world["grid"]
+	var Spellcasting: Variant = load("res://scripts/rules/spellcasting.gd")
 	for o: Node in grid.creatures():
-		if o.dead or o.is_hostile_to(faller) or not o.spells.has("feather_fall") or not o.known_reactions.has("feather_fall"):
+		if o.dead or o.is_hostile_to(faller):
 			continue
-		if grid.distance_between(o, faller) > 12 or lowest_slot(o, 1) == "":
+		for sid: String in reaction_spells(o, "on_fall"):
+			var sp := RulesDB.get_entry("spell", sid)
+			var stops: bool = sp.get("effects", {}).get("apply", []).any(func(e: Dictionary) -> bool:
+				return e.get("type") == "modify" and e.get("stat") == "fall_damage")
+			if not stops or not o.spells.has(sid) or payment(o, sid) == "" \
+					or grid.distance_between(o, faller) > Spellcasting.range_tiles(sp):
+				continue
+			if offer(o, sid, {"fall": ctx}, func() -> void:
+				_spend_reaction(o, sid)
+				ctx["prevented"] = true
+				Dice.log_text("%s %s: %s 낙하 피해 없음" % [o.label(), _spell_name(sid), faller.label()])):
+				return
+
+
+func _on_damage_taken(info: Dictionary) -> void:
+	if not world.has("grid"):
+		return
+	var t: Node = info.get("target")
+	var attacker: Variant = info.get("opts", {}).get("attacker")
+	if t == null or t.dead or t.hp <= 0 or not (attacker is Node) or attacker == t or attacker.dead \
+			or not attacker.is_hostile_to(t) or int(info.get("amount", 0)) <= 0:
+		return
+	var grid: Node = world["grid"]
+	if not grid.creatures().has(attacker) or not grid.creatures().has(t) or not grid.can_see(t, attacker):
+		return
+	var Spellcasting: Variant = load("res://scripts/rules/spellcasting.gd")
+	for sid: String in reaction_spells(t, "on_damage_taken"):
+		if not t.spells.has(sid) or payment(t, sid) == "" \
+				or grid.distance_between(t, attacker) > Spellcasting.range_tiles(RulesDB.get_entry("spell", sid)):
 			continue
-		if offer(o, "feather_fall", {"fall": ctx}, func() -> void:
-			o.spend_resource(lowest_slot(o, 1))
-			o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
-			ctx["prevented"] = true
-			Dice.log_text("%s Feather Fall: %s 낙하 피해 없음" % [o.label(), faller.label()])):
+		if offer(t, sid, {"damage": info, "attacker": attacker}, func() -> void:
+			Spellcasting.cast(world, t, sid, grid.cell_of(attacker))):
 			return
 
 

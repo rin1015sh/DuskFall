@@ -242,7 +242,9 @@ func _item_slot(item: String, e: Dictionary, n: int) -> Control:
 		l.size_flags_horizontal = Control.SIZE_SHRINK_END
 		l.size_flags_vertical = Control.SIZE_SHRINK_END
 		p.add_child(l)
-	p.tooltip_text = UiText.name_of(e.get("name", {"ko": item, "en": item})) if item != "gold" else "gold %d" % n
+	p.tooltip_text = UiText.name_of(e.get("name", {"ko": item, "en": item}))
+	if e.get("category", "") == "currency":
+		p.tooltip_text += " %d" % n
 	return p
 
 

@@ -10,12 +10,12 @@
 | spell | 156 |
 | weapon | 38 |
 | armor | 13 |
-| item | 10 |
+| item | 11 |
 | feat | 10 |
 | species | 15 |
 | background | 4 |
 | monster | 21 |
-| capability | 25 |
+| capability | 26 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -83,7 +83,7 @@
 | 1 | 의식 숙련 (ritual_adept) |  |  | 보류(deferred) |
 | 1 | 비전 회복 (arcane_recovery) |  | 스크립트 arcane_recovery |  |
 | 2 | 학자 (scholar) |  | 고르기(expertise) |  |
-| 3 | 방출 학자 (evocation_savant) | evoker |  | **설명만** |
+| 3 | 방출 학자 (evocation_savant) | evoker |  | 보류(deferred) |
 | 3 | 강력한 소마법 (potent_cantrip) | evoker | 태그 cantrip_half_on_miss |  |
 | 5 | 주문 암기 (memorize_spell) |  |  | 보류(deferred) |
 
@@ -97,7 +97,7 @@
 
 ## 아이템
 
-- 분류: potion 5, food 1, scroll 2, tool 2
+- 분류: currency 1, potion 5, food 1, scroll 2, tool 2
 - 동작하는 분류: potion(마시기·먹이기·던지기), scroll(두루마리 읽기), food(캠프 보급품), tool(자물쇠·함정). **magic(장착 효과)은 아직 동작 없음** — 장비 칸 설계가 먼저 필요
 
 ## 능력 태그 사용
@@ -119,6 +119,7 @@
 | initiative_proficiency | 경계 | 재주 alert |
 | jump_dex | 민첩 도약 | rogue |
 | jump_plus_1 | 도약 +1칸 | fighter, rogue |
+| long_rest_inspiration | 기지 | 종족 human |
 | nimble_escape | 날렵한 탈출 | (몬스터 특성 또는 아직 없음) |
 | pack_tactics | 무리 전술 | (몬스터 특성 또는 아직 없음) |
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |

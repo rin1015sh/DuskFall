@@ -62,7 +62,7 @@ static func short_rest(world: Dictionary, party: Array) -> Dictionary:
 static func supplies(world: Dictionary) -> int:
 	var total := int(world.get("party_resources", {}).get("camp_supplies", 0))
 	for item: String in world.get("inventory", {}):
-		var e := RulesDB.get_entry("item", item) if item != "gold" else {}
+		var e := RulesDB.get_entry("item", item)
 		total += int(e.get("camp_supplies", 0)) * Interact.count(world, item)
 	return total
 
@@ -76,7 +76,7 @@ static func _spend_supplies(world: Dictionary, need: int) -> void:
 		need -= from_pool
 	var foods: Array = []
 	for item: String in world.get("inventory", {}):
-		var e := RulesDB.get_entry("item", item) if item != "gold" else {}
+		var e := RulesDB.get_entry("item", item)
 		if int(e.get("camp_supplies", 0)) > 0:
 			foods.append([int(e["camp_supplies"]), item])
 	foods.sort()
@@ -129,9 +129,9 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 					r["current"] = maxi(r["current"], int(r["max"]) / 2)
 	if full:
 		world["short_rests_left"] = SHORT_RESTS
-	# 인간 '기지': 긴 휴식 때 공용 영감 +1(5단계)
+	# 능력 태그 long_rest_inspiration(인간 '기지'): 긴 휴식 때 공용 영감 +1(5단계)
 	for c: Node in party if full else []:
-		if not c.dead and c.species_id == "human":
+		if not c.dead and c.has_cap("long_rest_inspiration"):
 			add_inspiration(world, 1)
 	for f: Callable in world.get("on_long_rest", []):
 		if f.is_valid():
@@ -140,7 +140,7 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 	# 긴 휴식에 사라지는 아이템(아이템 데이터 expires: long_rest — 좋은열매)
 	var inv: Dictionary = world.get("inventory", {})
 	for item: String in inv.keys():
-		if item != "gold" and str(RulesDB.get_entry("item", item).get("expires", "")) == "long_rest":
+		if str(RulesDB.get_entry("item", item).get("expires", "")) == "long_rest":
 			inv.erase(item)
 	EventBus.on_long_rest.emit()
 	Dice.log_text("긴 휴식%s" % ("" if full else "(부분)"))
