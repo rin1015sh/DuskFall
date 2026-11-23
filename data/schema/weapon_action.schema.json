@@ -144,6 +144,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "double_turns_cap": {
+            "type": "string"
           }
         }
       }

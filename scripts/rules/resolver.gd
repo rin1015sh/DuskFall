@@ -55,6 +55,8 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	res["rolls"] = d["rolls"]
 	res["natural"] = d["natural"]
 	res["crit_threshold"] = attacker.crit_threshold if atk.get("weapon", false) else 20
+	if atk.has("spell"):
+		res["crit_threshold"] = 20 - attacker.cap_count("spell_crit_minus_1")  # 주문 저격: 주문 공격 치명타 눈 −1(겹친다)
 	var bonus_dice := roll_bonus_dice(attacker, "attack_roll")
 	res["bonus_dice"] = bonus_dice
 	res["total"] = res["natural"] + res["attack_bonus"] + bonus_dice
@@ -130,6 +132,13 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 		if mult != 1.0:
 			for r: Dictionary in rolled:
 				r["multiplier"] = mult
+		if target.has_cap("heavy_armor_damage_reduction") and _wearing_heavy(target) and _nonmagical_attack(atk):
+			var ham := 3  # 중갑 숙달: 마법이 아닌 공격의 타격·관통·참격 −3
+			for r: Dictionary in rolled:
+				if ham > 0 and str(r["damage_type"]) in ["bludgeoning", "piercing", "slashing"]:
+					var k0 := mini(ham, int(r["amount"]))
+					r["amount"] = int(r["amount"]) - k0
+					ham -= k0
 		var cut := int(res.get("damage_reduction", 0))  # 공격 피해 줄이기(몽크 공격 쳐내기)
 		for r: Dictionary in rolled:
 			if cut <= 0:
@@ -692,9 +701,8 @@ static func _roll_damage(attacker: Node, atk: Dictionary, parts: Array, res: Dic
 	var gwf: bool = attacker.has_cap("reroll_low_damage_two_handed") and atk.get("weapon", false) \
 		and atk.get("kind", "") == "melee" and (atk.get("two_handed", false) or "two_handed" in atk.get("properties", []))
 	var times := 1
-	if attacker.has_cap("weapon_damage_twice") and atk.get("weapon", false) and not attacker.turn.get("savage_used", false):
-		attacker.turn["savage_used"] = true
-		times = 2
+	if attacker.has_cap("melee_damage_advantage") and atk.get("weapon", false) and atk.get("kind", "") == "melee":
+		times = 2  # 야만적 공격(BG3): 근접 무기 피해를 매번 두 번 굴려 큰 쪽
 	if atk.get("weapon", false) and attacker.turn.get("stance_brace_" + str(atk.get("kind", "")), false):
 		times += 1  # 버티기·조준 자세(무기 액션): 이번 턴 그 종류 무기 피해를 한 번 더 굴려 큰 쪽(야만적 공격과 겹친다 — BG3)
 	var best: Array = []
@@ -703,7 +711,8 @@ static func _roll_damage(attacker: Node, atk: Dictionary, parts: Array, res: Dic
 		var rolled: Array = []
 		var total := 0
 		for p: Dictionary in parts:
-			var r := Dice.roll(p["dice"], "%s 피해" % atk.get("name", "공격"), res["crit"], 3 if gwf else 0)
+			var r := Dice.roll(p["dice"], "%s 피해" % atk.get("name", "공격"), res["crit"],
+				2 if atk.has("spell") and str(p["damage_type"]) in adept_types(attacker) else 0, 2 if gwf else 0)
 			rolled.append({"amount": r["total"], "damage_type": p["damage_type"]})
 			total += r["total"]
 		if total > best_total:
@@ -713,6 +722,23 @@ static func _roll_damage(attacker: Node, atk: Dictionary, parts: Array, res: Dic
 		for i in mini(atk.get("damage", []).size(), best.size()):
 			best[i]["amount"] = int(best[i]["amount"]) / 2  # 휩쓸기(무기 액션): 무기 피해만 절반, 다른 추가 피해는 그대로
 	return best
+
+
+## 원소 통달(재주): 저항을 무시하고 주문 피해 주사위 1을 2로 치는 피해 종류
+static func adept_types(c: Node) -> Array:
+	return c.get_meta("elemental_adept", []) if c != null else []
+
+
+static func _wearing_heavy(c: Node) -> bool:
+	var a := str(c.get_meta("armor", ""))
+	return a != "" and str(RulesDB.get_entry("armor", a).get("category", "")) == "heavy"
+
+
+## 마법이 아닌 공격: 주문 공격이 아니고 마법 무기(+N)가 아닌 것(몬스터 자연 공격 포함 — 중갑 숙달)
+static func _nonmagical_attack(atk: Dictionary) -> bool:
+	if atk.has("spell") or atk.get("magical", false):
+		return false
+	return not atk.get("weapon", false) or int(load("res://scripts/rules/combat.gd").weapon_data(str(atk.get("weapon_id", ""))).get("magic_bonus", 0)) == 0
 
 
 ## 행운(하플링): d20 테스트의 자연 1은 다시 굴려 새 값을 쓴다.
@@ -803,6 +829,8 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 			heal(target, int(raw[t]), "fire_absorption")  # 화염 흡수(강철 골렘): 화염 피해만큼 회복
 			v = 0
 		var src: Variant = opts.get("attacker")
+		if src is Node and t in adept_types(src) and target.resists(t) and not target.immune_to(t) and not target.vulnerable_to(t):
+			v = int(raw[t])  # 원소 통달: 그 원소 저항 무시
 		out["by_type"][t] = v
 		total += v
 	out["total"] = total
@@ -1047,7 +1075,8 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		"success": false, "natural": 0, "total": 0, "mode": 0, "ctx": {}, "skill": str(opts.get("skill", ""))}
 	if str(opts.get("skill", "")) == "stealth":
 		var armor := str(creature.get_meta("armor", ""))
-		if armor != "" and bool(RulesDB.get_entry("armor", armor).get("stealth_disadvantage", false)):
+		if armor != "" and bool(RulesDB.get_entry("armor", armor).get("stealth_disadvantage", false)) \
+				and not (creature.has_cap("medium_armor_master") and str(RulesDB.get_entry("armor", armor).get("category", "")) == "medium"):
 			res["disadvantage"].append("갑옷(은신 불리)")  # SRD 갑옷 표 Stealth Disadvantage
 	if opts.get("requires_sight", false) and creature.has_flag("fails_sight_checks"):
 		res["auto"] = true
@@ -1100,7 +1129,11 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 			saves.append({"success": true, "auto": true, "careful": true})
 			continue
 		# 내성 없는 효과(함정 등): check가 비면 굴리지 않고 실패로 친다
-		saves.append({"success": false, "auto": true} if check.is_empty() else saving_throw(t, check["ability"], int(check["dc"]), so))
+		var so_t := so
+		if opts.get("trap", false) and t.has_cap("trap_sense"):
+			so_t = so.duplicate()
+			so_t["advantage"] = so.get("advantage", []) + ["함정 감각"]  # 함정 감각: 함정 내성 유리
+		saves.append({"success": false, "auto": true} if check.is_empty() else saving_throw(t, check["ability"], int(check["dc"]), so_t))
 	for i in targets.size():
 		var t: Node = targets[i]
 		var s: Dictionary = saves[i]
@@ -1125,9 +1158,12 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 				"damage":
 					var key: String = e["dice"] + "|" + e["damage_type"]
 					if not rolled.has(key):
-						rolled[key] = Dice.roll(e["dice"], "효과 피해")["total"]
+						var src_c: Variant = opts.get("source")
+						rolled[key] = Dice.roll(e["dice"], "효과 피해", false,
+							2 if src_c is Node and str(e["damage_type"]) in adept_types(src_c) else 0)["total"]
+					var trap_half: float = 0.5 if opts.get("trap", false) and t.has_cap("trap_sense") else 1.0  # 함정 감각: 함정 피해 저항
 					parts.append({"amount": rolled[key], "damage_type": e["damage_type"],
-						"multiplier": float(e.get("scale", 1.0))})
+						"multiplier": float(e.get("scale", 1.0)) * trap_half})
 				"apply_condition":
 					var cp: Dictionary = opts.get("condition_params", {}).duplicate()
 					if e.get("escape", false):

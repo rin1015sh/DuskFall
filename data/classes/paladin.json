@@ -218,10 +218,9 @@
       },
       "level": 2,
       "choices": [
-        "archery",
         "defense",
-        "great_weapon_fighting",
-        "two_weapon_fighting"
+        "dueling",
+        "great_weapon_fighting"
       ],
       "choice_kind": "feat",
       "notes_ko": "전투 방식 재주 1. 축복받은 전사(클레릭 소마법 2) 선택지는 1차 제외.",
@@ -465,7 +464,6 @@
       "persuasion"
     ],
     "species_skill": "perception",
-    "origin_feat": "alert",
     "fighting_style": "defense",
     "spells": [
       "bless",

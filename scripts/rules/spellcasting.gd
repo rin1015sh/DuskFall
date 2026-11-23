@@ -24,6 +24,8 @@ static func spell_mod(c: Node) -> int:
 ## 그 주문을 준비한 클래스의 시전 능력(멀티클래스 — 없으면 주 시전 능력).
 static func ability_for(c: Node, spell_id: String) -> String:
 	var cid := str(c.spell_class.get(spell_id, ""))
+	if cid == "" and c.get_meta("spell_ability", {}).has(spell_id):
+		return str(c.get_meta("spell_ability")[spell_id])  # 재주 주문(마법 입문 목록 능력, 의식 주문가·주문 저격)
 	if cid != "":
 		var ab := str(RulesDB.get_entry("class", cid).get("spellcasting", {}).get("ability", ""))
 		if ab != "":
@@ -610,7 +612,8 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 	match e["type"]:
 		"damage":
 			var dtype: String = e["damage_type"] if e["damage_type"] != "chosen" else opts.get("choice", "fire")
-			var r := Dice.roll(damage_dice(caster, spell, e["dice"], slot, dtype), spell["name"]["en"])
+			var r := Dice.roll(damage_dice(caster, spell, e["dice"], slot, dtype), spell["name"]["en"], false,
+				2 if dtype in Resolver.adept_types(caster) else 0)  # 원소 통달: 1 → 2
 			Resolver.apply_damage(t, [{"amount": r["total"], "damage_type": dtype}], {"attacker": caster})
 		"heal":
 			var amount: int = Dice.roll(scaled_dice(caster, spell, e["dice"], slot), spell["name"]["en"])["total"]

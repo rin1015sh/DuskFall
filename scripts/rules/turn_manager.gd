@@ -137,7 +137,7 @@ func start_combat(zone_id: String, surprised: Array = [], extra: Array = []) -> 
 		roll_initiative(c)
 		c.refresh_reaction()
 		SpellPrep.close_window(c)  # 준비 주문 교체 창은 전투가 시작되면 닫힌다
-		if c in surprised:
+		if c in surprised and not c.has_cap("surprise_immune"):  # 경계(재주): 기습당하지 않는다
 			c.apply_condition("surprised", -1, "combat_start")
 	_sort_order()
 	EventBus.on_combat_start.emit()

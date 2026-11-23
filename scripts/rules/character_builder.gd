@@ -8,7 +8,7 @@ extends RefCounted
 ##   "scores": {"str": 8, ...}(포인트 구매 전 값 8~15), "bonus": {"int": 2, "con": 1}(+2/+1 또는 +1/+1/+1),
 ##   "skills": [클래스 기능], "species_skill": "perception", "expertise": [...], "extra_skills": [숙련 재주 등],
 ##   <고르는 기능 id>: 고른 것 — 기능 데이터 choice_kind(feat·expertise·option)대로. 예 "fighting_style": "defense", "divine_order": "protector", "scholar": "arcana",
-##   "asi": {"4": {"str": 2}}(4레벨 능력치 향상 또는 {"feat": id}), "origin_feat": "alert"(인간),
+##   "asi": {"4": {"str": 2}}(4레벨 능력치 향상 또는 {"feat": id, <고르는 +1 능력>: 1}), <고르는 재주 id>: [고른 것](숙련·무기 수련·의식 주문가 등),
 ##   "cantrips": [...], "spells": [준비 주문 / 주문서],
 ##   "armor": "chain_mail", "shield": true, "weapons": {"melee": {"main", "off"}, "ranged": {"main"}}
 ## }
@@ -86,6 +86,51 @@ static func validate(spec: Dictionary) -> PackedStringArray:
 			e.append("%s %d레벨부터 하위 클래스를 골라야 한다" % [ce["id"], sub_lv] if not ce["primary"] or not spec.get("classes", []).is_empty() else "%d레벨부터 하위 클래스를 골라야 한다" % sub_lv)
 		e.append_array(validate_spells(ce["cls"], spec if ce["primary"] else ce["entry"], int(ce["level"])))
 	e.append_array(validate_feat_spells(spec))
+	e.append_array(validate_feats(spec, entries))
+	return e
+
+
+## 재주 선택(능력치 향상 칸 asi {"feat": id, <능력>: n}): 일반 재주만, 같은 재주 두 번 X(능력치 향상 제외),
+## 고르는 +1은 ability_increase.choose 안에서 total만큼, 고정 +1 재주는 능력을 적지 않는다, requires(갑옷 숙련) 확인.
+static func validate_feats(spec: Dictionary, entries: Array) -> PackedStringArray:
+	var e := PackedStringArray()
+	var picks: Array = []
+	for ce: Dictionary in entries:
+		var asi_src: Dictionary = spec.get("asi", {}) if ce["primary"] else ce["entry"].get("asi", {})
+		for k: String in asi_src:
+			if asi_src[k] is Dictionary and asi_src[k].has("feat"):
+				picks.append(asi_src[k])
+	var armor: Array = entries[0]["cls"].get("armor_training", []).duplicate()
+	for ce: Dictionary in entries.slice(1):
+		armor.append_array(ce["cls"].get("multiclass", {}).get("armor_training", []))
+	for p: Dictionary in picks:
+		armor.append_array(RulesDB.get_entry("feat", str(p["feat"])).get("grants", {}).get("armor_training", []))
+	var seen := {}
+	for p: Dictionary in picks:
+		var fid := str(p["feat"])
+		var ft := RulesDB.get_entry("feat", fid)
+		if ft.is_empty():
+			e.append("모르는 재주 '%s'" % fid)
+			continue
+		if str(ft.get("category", "")) != "general":
+			e.append("%s는 능력치 향상 칸에서 고를 수 없다" % fid)
+		if seen.has(fid) and fid != "ability_score_improvement":
+			e.append("재주 %s는 한 번만" % fid)
+		seen[fid] = true
+		var req := str(ft.get("requires", {}).get("armor_training", ""))
+		if req != "" and not req in armor:
+			e.append("%s: %s 갑옷 숙련이 필요하다" % [fid, req])
+		var inc: Dictionary = ft.get("ability_increase", {})
+		var total := 0
+		for a: String in p:
+			if a in ABILITIES:
+				total += int(p[a])
+				if inc.has("choose") and not a in inc["choose"]:
+					e.append("%s: %s는 올릴 수 없다" % [fid, a])
+		if inc.has("choose") and total != int(inc.get("total", 1)):
+			e.append("%s: 능력치를 %d 올려야 한다" % [fid, int(inc.get("total", 1))])
+		elif not inc.has("choose") and not inc.has("total") and total != 0:
+			e.append("%s는 고르는 능력치 상승이 없다" % fid)
 	return e
 
 
@@ -205,9 +250,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var ab := {}
 	for a: String in ABILITIES:
 		ab[a] = int(spec.get("scores", {}).get(a, 8)) + int(spec.get("bonus", {}).get(a, 0))
-	var feats: Array = [bg["feat"]]
-	if spec.get("origin_feat", "") != "" and sp.get("origin_feat_choice", false):
-		feats.append(spec["origin_feat"])
+	var feats: Array = []  # 출신 재주 없음(BG3식 — 배경·인간이 재주를 주지 않는다, 2026-11-23)
 	for e: Dictionary in entries:
 		var asi_src: Dictionary = spec.get("asi", {}) if e["primary"] else e["entry"].get("asi", {})  # 능력치 향상은 클래스 레벨로
 		for asi_lv: int in e["cls"].get("asi_levels", []):
@@ -216,7 +259,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 				var cap := 20
 				if pick.has("feat"):
 					feats.append(pick["feat"])
-					cap = int(RulesDB.get_entry("feat", str(pick["feat"])).get("ability_increase", {}).get("max", 20))  # 서사 은혜: +1, 최대 30
+					cap = int(RulesDB.get_entry("feat", str(pick["feat"])).get("ability_increase", {}).get("max", 20))
 				for a: String in pick.keys():
 					if a in ABILITIES:
 						ab[a] = mini(int(ab[a]) + int(pick[a]), maxi(cap, int(ab[a])))
@@ -290,12 +333,28 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			"option":
 				if f.get("choice_grants", {}).has(chosen):
 					grants.append([fid, f["choice_grants"][chosen]])
+	var feat_weapons: Array = []
+	var feat_spells: Array = []
 	for fid: String in feats:
 		var ft := RulesDB.get_entry("feat", fid)
 		c.features.append(fid)
 		c.caps.append_array(ft.get("tags", []))
+		if ft.has("grants"):
+			grants.append([fid, ft["grants"]])  # 재주도 기능과 같은 부여 장치(훈련·내성·HP·태그·능력치 등)
 		if ft.has("hook") and ft.has("script"):
-			_add_feature(c, ft)  # 훅을 쓰는 재주(운명의 은혜)
+			_add_feature(c, ft)
+		# 고르는 재주(choose): 명세 키 = 재주 id, 값 = 고른 목록
+		var ch: Dictionary = ft.get("choose", {})
+		var picks: Array = (spec.get(fid, []) as Array).slice(0, int(ch.get("count", 0))) if spec.get(fid) is Array else []
+		match str(ch.get("kind", "")):
+			"skills":
+				extra_skill.append_array(picks)
+			"weapons":
+				feat_weapons.append_array(picks)
+			"spells":
+				for sid: Variant in picks:
+					if str(sid) in ch.get("from", []):
+						feat_spells.append(str(sid))
 	var uniq_f: Array = []
 	for f: String in c.features:
 		if not f in uniq_f:
@@ -315,6 +374,9 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var hit_bonus: Array = []
 	var type_bonus: Array = []
 	var extra_saves: Array = []
+	var init_bonus := 0
+	c.remove_meta("elemental_adept")
+	wt.append_array(feat_weapons)  # 무기 수련: 고른 무기 4종
 	for g: Array in grants:
 		var gr: Dictionary = g[1]
 		c.attacks_per_action = maxi(c.attacks_per_action, int(gr.get("attacks_per_action", 1)))
@@ -348,14 +410,21 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			hit_bonus.append(hb)  # 신성한 일격·원초의 일격: 턴당 1회 무기 명중 추가 피해(resolver._hit_riders)
 		for adv: Dictionary in gr.get("advantage", []):
 			c.extra_modifiers.append({"effect": adv.duplicate(true), "source": g[0], "builder": true})
+		extra_skill.append_array(gr.get("skills", []))  # 무대 체질: 기만·공연
+		expertise.append_array(gr.get("expertise", []))
+		init_bonus += int(gr.get("initiative_bonus", 0))  # 경계 +5
+		c.speed_tiles += int(gr.get("speed_tiles", 0))  # 날랜 발 +2칸
+		if gr.has("elemental_adept"):
+			var ea: Array = c.get_meta("elemental_adept", []).duplicate()
+			ea.append(str(gr["elemental_adept"]))
+			c.set_meta("elemental_adept", ea)
 	# 능력치 상승 부여(ability_increase {능력: n, "max": m} — 원시 투사·몸과 마음: +4, 최대 25)
 	for g: Array in grants:
 		var inc: Dictionary = g[1].get("ability_increase", {})
 		for a: String in inc:
 			if a in ABILITIES:
 				c.abilities[a] = mini(int(c.abilities[a]) + int(inc[a]), maxi(int(inc.get("max", 20)), int(c.abilities[a])))
-	if c.has_cap("initiative_proficiency"):
-		c.initiative_bonus = c.proficiency_bonus
+	c.initiative_bonus = init_bonus
 	# 내성·기능 숙련
 	c.save_proficiencies = cls["saves"].duplicate()
 	for sv: String in extra_saves:
@@ -422,6 +491,21 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	# 주문
 	_apply_spells(c, entries, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)
+	# 고른 재주 주문(의식 주문가·주문 저격): 소마법은 그냥, 1레벨 이상은 슬롯 없이(BG3 의식). 시전 능력은 내 시전 능력 — 없으면 지능·지혜·매력 중 높은 것
+	var sab: Dictionary = c.get_meta("spell_ability", {})
+	for sid: String in feat_spells:
+		if int(RulesDB.get_entry("spell", sid).get("level", 0)) == 0:
+			if not c.spells.has(sid):
+				c.spells.append(sid)
+		elif not sid in at_will:
+			at_will.append(sid)
+		if not sab.has(sid) and c.spellcasting_ability == "":
+			var best := "int"
+			for a: String in ["wis", "cha"]:
+				if c.ability_mod(a) > c.ability_mod(best):
+					best = a
+			sab[sid] = best
+	c.set_meta("spell_ability", sab)
 	at_will.append_array(c.get_meta("chosen_at_will", []))
 	if c.has_meta("chosen_at_will"):
 		c.remove_meta("chosen_at_will")
@@ -523,6 +607,8 @@ static func armor_class(c: Node, armor_id: String, shield: bool, training: Array
 		var a := RulesDB.get_entry("armor", armor_id)
 		var cap: Variant = a.get("dex_cap")
 		# 중갑(상한 0)은 민첩을 더하지도 빼지도 않는다(SRD Heavy Armor)
+		if cap != null and str(a.get("category", "")) == "medium" and c.has_cap("medium_armor_master"):
+			cap = 3  # 중형 갑옷 숙달: 민첩 +3까지
 		ac = int(a["ac_base"]) + (dex if cap == null else (0 if int(cap) == 0 else mini(dex, int(cap))))
 		if c.has_cap("armor_ac_plus_1"):
 			ac += 1  # 방어(전투 방식)
@@ -745,6 +831,7 @@ static func total_level(spec: Dictionary) -> int:
 ## 주문 재주(마법 입문 등 — 재주 데이터 spell_list·cantrips·level1_spells): 명세 키 = 재주 id, 값 {"cantrips": [...], "spells": [...]}.
 ## 소마법은 그냥 쓰고, 1레벨 주문은 슬롯이 있으면 슬롯으로, 없으면 긴 휴식마다 1회(innate_<주문>).
 static func _apply_feat_spells(c: Node, feats: Array, spec: Dictionary) -> void:
+	c.set_meta("spell_ability", {})
 	for fid: String in feats:
 		var ft := RulesDB.get_entry("feat", fid)
 		if not ft.has("spell_list"):
@@ -755,10 +842,14 @@ static func _apply_feat_spells(c: Node, feats: Array, spec: Dictionary) -> void:
 			if RulesDB.get_entry("spell", s).is_empty() or c.spells.has(s):
 				continue
 			c.spells.append(s)
+			if ft.has("casting_ability"):
+				var sab: Dictionary = c.get_meta("spell_ability", {})
+				sab[s] = str(ft["casting_ability"])  # 마법 입문(BG3): 목록마다 시전 능력이 정해져 있다
+				c.set_meta("spell_ability", sab)
 			if int(RulesDB.get_entry("spell", s)["level"]) > 0:
 				c.resources["innate_" + s] = {"current": 1, "max": 1, "recharge": "long"}
-		if c.spellcasting_ability == "" and pick.has("ability"):
-			c.spellcasting_ability = str(pick["ability"])
+		if c.spellcasting_ability == "":
+			c.spellcasting_ability = str(ft.get("casting_ability", pick.get("ability", "")))
 
 
 static func _by_level(table: Variant, lv: int, default: int) -> int:

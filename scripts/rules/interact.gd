@@ -171,7 +171,8 @@ static func on_party_enter(world: Dictionary, c: Node) -> void:
 				t["checked"] = {}
 			if not t["checked"].has(c.name):
 				t["checked"][c.name] = true
-				var r := Resolver.ability_check(c, "wis", int(t["dc_find"]), {"skill": "perception"})
+				var r := Resolver.ability_check(c, "wis", int(t["dc_find"]), {"skill": "perception",
+					"advantage": ["함정 감각"] if c.has_cap("trap_sense") else []})
 				if r["success"]:
 					t["found"] = true
 					Dice.log_text("%s가 함정을 찾았다: %s" % [c.label(), t.get("id", "")])
@@ -201,9 +202,9 @@ static func trigger(world: Dictionary, t: Dictionary, by: Node = null, include_b
 			h["scale"] = 0.5
 			success.append(h)
 	if save.is_empty():
-		Resolver.save_effect(targets, {}, fail, [], {"in_combat": not EventBus.realtime})
+		Resolver.save_effect(targets, {}, fail, [], {"in_combat": not EventBus.realtime, "trap": true})
 	else:
-		Resolver.save_effect(targets, {"ability": save["ability"], "dc": int(save["dc"])}, fail, success, {"in_combat": not EventBus.realtime})
+		Resolver.save_effect(targets, {"ability": save["ability"], "dc": int(save["dc"])}, fail, success, {"in_combat": not EventBus.realtime, "trap": true})
 	for e: Dictionary in fail:
 		if e["type"] == "create_surface" and world.get("surfaces") != null:
 			world["surfaces"].place_surface(cells, e["id"])

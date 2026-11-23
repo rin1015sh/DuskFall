@@ -35,7 +35,7 @@ func test_fighter_1_to_5() -> void:
 	assert_eq(l1.resources["second_wind"]["max"], 1, "BG3: 짧은 휴식마다 1회")
 	assert_false(l1.resources.has("action_surge"), "행동 연쇄는 2레벨")
 	assert_eq(l1.ac(), 19, "사슬 갑옷 16 + 방패 2 + 방어 1")
-	assert_eq(l1.initiative_bonus, 2, "인간 출신 재주 경계")
+	assert_eq(l1.initiative_bonus, 0, "출신 재주 없음(BG3식 — 배경·인간이 재주를 주지 않는다)")
 	var l5 := _build("fighter", 5)
 	assert_eq(l5.hp_max, 44, "12 + 4 × (6 + 2) — 룰북 예시 전투 3의 HP 44")
 	assert_eq(l5.proficiency_bonus, 3)

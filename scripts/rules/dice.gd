@@ -68,7 +68,8 @@ func d20(mode: int, reason: String = "") -> Dictionary:
 
 ## 식을 굴린다. crit이면 주사위만 2배. min_face > 0이면 그보다 작은 눈을 그 값으로(대형 무기 전투).
 ## 결과: {"expr", "rolls", "flat", "total"}
-func roll(expr: String, reason: String = "", crit: bool = false, min_face: int = 0) -> Dictionary:
+## min_face: 그보다 작은 눈은 그 값으로(원소 통달 2). reroll_below: 그 이하 눈은 한 번 다시 굴린다(대형 무기 전투 2 — BG3).
+func roll(expr: String, reason: String = "", crit: bool = false, min_face: int = 0, reroll_below: int = 0) -> Dictionary:
 	var p := DiceExpr.parse(expr)
 	assert(not p.is_empty(), "주사위 식을 읽을 수 없다: %s" % expr)
 	if p.is_empty():
@@ -78,6 +79,8 @@ func roll(expr: String, reason: String = "", crit: bool = false, min_face: int =
 	for d: Dictionary in p["dice"]:
 		for i in d["count"] * (2 if crit else 1):
 			var v := die(d["sides"])
+			if reroll_below > 0 and v <= reroll_below and d["sign"] > 0:
+				v = die(d["sides"])
 			if min_face > 0 and v < min_face and d["sign"] > 0:
 				v = min_face
 			rolls.append(v * d["sign"])

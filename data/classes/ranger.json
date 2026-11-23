@@ -198,7 +198,7 @@
       "choices": [
         "archery",
         "defense",
-        "great_weapon_fighting",
+        "dueling",
         "two_weapon_fighting"
       ],
       "choice_kind": "feat",

@@ -28,7 +28,6 @@
         "id",
         "name",
         "skills",
-        "feat",
         "equipment",
         "gold",
         "inspiration_goals",

@@ -45,7 +45,7 @@ static func short_rest(world: Dictionary, party: Array) -> Dictionary:
 	for c: Node in party:
 		if c.dead:
 			continue
-		_heal_to(c, mini(c.hp_max, c.hp + c.hp_max / 2))
+		_heal_to(c, c.hp_max if c.has_cap("short_rest_full_heal") else mini(c.hp_max, c.hp + c.hp_max / 2))  # 회복 체질: 전부
 		SpellPrep.open_window(c, "short")  # 주문 암기(능력 태그 prepare_swap_short_rest): 1개 교체
 		for id: String in c.resources:
 			var r: Dictionary = c.resources[id]

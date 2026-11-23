@@ -122,9 +122,6 @@
         "skill_choice": {
           "type": "object"
         },
-        "origin_feat_choice": {
-          "type": "boolean"
-        },
         "lineage_required": {
           "type": "boolean"
         },

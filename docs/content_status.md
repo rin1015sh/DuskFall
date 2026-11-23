@@ -11,11 +11,11 @@
 | weapon | 38 |
 | armor | 13 |
 | item | 59 |
-| feat | 10 |
+| feat | 44 |
 | species | 15 |
 | background | 4 |
 | monster | 43 |
-| capability | 77 |
+| capability | 92 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -256,6 +256,7 @@
 | armor_ac_plus_1 | 방어 | 재주 defense |
 | blessed_healer | 축복받은 치유자 | cleric |
 | bonus_dash_disengage_hide | 교활한 행동 | rogue |
+| brawler | 주먹다짐 | (몬스터 특성 또는 아직 없음) |
 | brutal_strike | 잔혹한 일격 | barbarian |
 | cantrip_add_mod | 강력한 주문 시전 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_miss | 강력한 소마법 | wizard |
@@ -263,8 +264,14 @@
 | climber | 등반 | monk, ranger, rogue |
 | countercharm | 대항 매혹 | bard |
 | crit_free_move | 치명타 뒤 이동 | fighter |
+| crossbow_point_blank | 근접 석궁 | (몬스터 특성 또는 아직 없음) |
+| crossbow_wounding | 깊은 상처 석궁 | (몬스터 특성 또는 아직 없음) |
 | cunning_strike | 교활한 일격 | rogue |
 | dark_ones_blessing | 어둠의 축복 | warlock |
+| dash_ignores_difficult | 질주 험지 무시 | (몬스터 특성 또는 아직 없음) |
+| dual_wield_ac | 쌍수 방어 | (몬스터 특성 또는 아직 없음) |
+| dual_wield_any | 무거운 쌍수 | (몬스터 특성 또는 아직 없음) |
+| dueling | 결투 | 재주 dueling |
 | eldritch_mind | 섬뜩한 정신 | (몬스터 특성 또는 아직 없음) |
 | empowered_strikes | 강화된 타격 | monk |
 | escape_the_horde | 무리 탈출 | (몬스터 특성 또는 아직 없음) |
@@ -276,20 +283,23 @@
 | fast_movement | 빠른 이동 | barbarian, ranger |
 | free_cast_class_spell | 신성 개입 | cleric, druid |
 | frenzy | 광란 | barbarian |
+| heavy_armor_damage_reduction | 중갑 피해 감소 | (몬스터 특성 또는 아직 없음) |
 | heightened_focus | 고양된 집중 | monk |
 | heroic_warrior | 영웅 전사 | fighter |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
 | hunters_lore | 사냥꾼의 지식 | ranger |
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
 | improved_cunning_strike | 향상된 교활한 일격 | rogue |
-| initiative_proficiency | 경계 | 재주 alert |
 | instinctive_pounce | 본능적 도약 | barbarian |
 | jack_of_all_trades | 만물박사 | bard |
 | jump_dex | 민첩 도약 | rogue |
+| jump_half_more | 도약 +50% | (몬스터 특성 또는 아직 없음) |
 | jump_plus_1 | 도약 +1칸 | fighter, rogue |
 | long_rest_inspiration | 기지 | 종족 human |
 | mark_spread | 먹잇감 확산 | ranger |
 | martial_arts | 무술 | monk |
+| medium_armor_master | 중형 갑옷 숙달 | (몬스터 특성 또는 아직 없음) |
+| melee_damage_advantage | 근접 피해 두 번 | (몬스터 특성 또는 아직 없음) |
 | metamagic_careful | 신중한 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_distant | 원거리 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_extended | 연장된 주문 | (몬스터 특성 또는 아직 없음) |
@@ -300,6 +310,7 @@
 | mindless_rage | 광기 없는 분노 | barbarian |
 | multiattack_defense | 다중 공격 방어 | (몬스터 특성 또는 아직 없음) |
 | nimble_escape | 날렵한 탈출 | (몬스터 특성 또는 아직 없음) |
+| no_oa_from_melee_target | 치고 빠지기 | (몬스터 특성 또는 아직 없음) |
 | open_hand_technique | 열린 손 기법 | monk |
 | pack_tactics | 무리 전술 | (몬스터 특성 또는 아직 없음) |
 | pact_blade | 계약의 칼날 | (몬스터 특성 또는 아직 없음) |
@@ -314,18 +325,22 @@
 | ritual_from_spellbook | 의식 숙련 | wizard |
 | sculpt_spells | 주문 조각 | wizard |
 | self_restoration | 자기 회복 | monk |
+| short_rest_full_heal | 짧은 휴식 완전 회복 | (몬스터 특성 또는 아직 없음) |
 | slow_fall | 느린 낙하 | monk |
 | sneak_attack | 급소 공격 | rogue |
 | sorcerous_restoration | 마법 회복 | sorcerer |
 | sorcery_incarnate | 마법의 화신 | sorcerer |
+| spell_crit_minus_1 | 주문 치명타 범위 | (몬스터 특성 또는 아직 없음) |
 | spell_heal_bonus | 생명의 제자 | cleric |
+| stand_up_one_tile | 빠르게 일어서기 | (몬스터 특성 또는 아직 없음) |
 | stealth_attack | 은신 공격 | rogue |
 | stunning_strike | 충격의 일격 | monk |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |
+| surprise_immune | 기습 면역 | (몬스터 특성 또는 아직 없음) |
+| trap_sense | 함정 감각 | (몬스터 특성 또는 아직 없음) |
 | two_weapon_fighting | 쌍수 전투 | 재주 two_weapon_fighting |
 | unarmored_defense_cha | 용의 비늘 | sorcerer |
 | unarmored_defense_con | 맨몸 방어(건강) | barbarian |
 | unarmored_defense_wis | 맨몸 방어(지혜) | monk |
 | unarmored_movement | 맨몸 이동 | monk |
 | uncanny_metabolism | 신비한 대사 | monk |
-| weapon_damage_twice | 야만적 공격 | 재주 savage_attacker |

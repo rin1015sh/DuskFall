@@ -90,6 +90,7 @@
       "choices": [
         "archery",
         "defense",
+        "dueling",
         "great_weapon_fighting",
         "two_weapon_fighting"
       ],
@@ -262,6 +263,7 @@
           "choices": [
             "archery",
             "defense",
+            "dueling",
             "great_weapon_fighting",
             "two_weapon_fighting"
           ],
@@ -330,7 +332,6 @@
       "survival"
     ],
     "species_skill": "acrobatics",
-    "origin_feat": "alert",
     "fighting_style": "defense",
     "asi": {
       "4": {

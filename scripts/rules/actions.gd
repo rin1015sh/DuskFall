@@ -608,7 +608,10 @@ static func _wa_condition(c: Node, key: String, t: Node, res: Dictionary) -> voi
 	var sv := Resolver.saving_throw(t, str(wa["save"]), weapon_action_dc(c, key), {"source": c})
 	res["wa_save"] = sv
 	if not sv["success"]:
-		t.apply_condition(str(wa["condition"]), int(wa.get("turns", 1)), c)
+		var turns := int(wa.get("turns", 1))
+		if wa.has("double_turns_cap") and c.has_cap(str(wa["double_turns_cap"])):
+			turns *= 2  # 석궁 명수: 관통 사격 상처 2배
+		t.apply_condition(str(wa["condition"]), turns, c)
 
 
 ## 끈기(무기 액션 반응, 횟수 제한 없음): 근접 무기 공격이 빗나가면 반응으로 근력 수정치(최소 1) 타격 피해.

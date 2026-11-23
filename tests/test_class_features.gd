@@ -129,14 +129,24 @@ func test_uncanny_dodge_halves() -> void:
 
 func test_savage_attacker_and_gwf() -> void:
 	var w := _world()
-	var f := _pc("fighter", 1, {"background": "soldier", "fighting_style": "great_weapon_fighting",
+	var f := _pc("fighter", 1, {"fighting_style": "great_weapon_fighting",
 		"weapons": {"melee": {"main": "greatsword", "off": ""}, "ranged": {"main": "javelin"}}})
 	var g := _foe()
 	w["grid"].place(f, Vector2i(0, 0))
 	w["grid"].place(g, Vector2i(1, 0))
-	Dice.force([15, 1, 2, 5, 6])  # 첫 굴림 1·2 → 3·3(대형 무기 전투) = 6, 둘째 5 + 6 = 11 → 큰 쪽
+	Dice.force([15, 1, 4, 2, 6])  # 1 → 다시 4, 2 → 다시 6(대형 무기 전투 BG3: 1·2를 한 번 다시 굴림)
 	var r := Combat.attack(w, f, g)
-	assert_eq(r["damage"]["total"], 11 + 3, "야만적 공격: 두 번 굴려 큰 쪽 + 근력 3")
+	assert_eq(r["damage"]["total"], 10 + 3, "대형 무기 전투 + 근력 3")
+	# 야만적 공격(BG3): 근접 무기 피해를 매번 두 번 굴려 큰 쪽 — 4레벨 재주
+	var s := _pc("fighter", 4, {"fighting_style": "great_weapon_fighting", "asi": {"4": {"feat": "savage_attacker"}},
+		"weapons": {"melee": {"main": "greatsword", "off": ""}, "ranged": {"main": "javelin"}}})
+	var g2 := _foe()
+	var w2 := _world()
+	w2["grid"].place(s, Vector2i(0, 0))
+	w2["grid"].place(g2, Vector2i(1, 0))
+	Dice.force([15, 1, 4, 2, 6, 5, 3, 15, 2, 1, 6, 6])  # 첫 공격: 10 vs 8 → 10, 둘째 공격도 매번 두 번(2→1, 6 / 6 → 12 vs 7)
+	var r1 := Combat.attack(w2, s, g2)
+	assert_eq(r1["damage"]["total"], 10 + s.ability_mod("str"), "두 번 굴려 큰 쪽")
 
 
 func test_archery_bonus() -> void:

@@ -189,6 +189,8 @@ func ac() -> int:
 			floor_ac = maxi(floor_ac, int(e.get("floor", 0)))  # AC 바닥값(나무껍질 피부)
 		elif e["type"] == "modify" and e["stat"] == "ac_base" and str(get_meta("armor", "")) == "":
 			value += 3  # Mage Armor: 갑옷이 없으면 10 + 민첩 → 13 + 민첩
+	if has_cap("dual_wield_ac") and weapon("off") != "" and weapon("main") != "" and active_set == "melee":
+		value += 1  # 양손 무기술: 양손에 근접 무기
 	if has_flag("no_dex_ac"):
 		value -= dex_ac_part()  # 비틀거림(무기 액션): AC에 민첩 보너스 없음
 	return maxi(value, floor_ac)
@@ -199,7 +201,10 @@ func dex_ac_part() -> int:
 	var d := maxi(ability_mod("dex"), 0)
 	var armor_id := str(get_meta("armor", ""))
 	if armor_id != "":
-		var cap: Variant = RulesDB.get_entry("armor", armor_id).get("dex_cap")
+		var a := RulesDB.get_entry("armor", armor_id)
+		var cap: Variant = a.get("dex_cap")
+		if cap != null and str(a.get("category", "")) == "medium" and has_cap("medium_armor_master"):
+			cap = 3
 		if cap != null:
 			d = mini(d, int(cap))
 	return d

@@ -1,18 +1,397 @@
 {
   "schema": "feat_v1",
-  "note_ko": "룰북 6단계: 출신 4(마법 입문은 목록별로 나눔), 일반 = 능력치 향상(Grappler 삭제), 전투 방식 4. 자체 재주는 콘텐츠 작업에서.",
+  "note_ko": "BG3 재주(수치 BG3 그대로, 이름·설명 자체 — 사용자 결정 2026-11-23). 출신 재주 없음(배경·인간이 재주를 주지 않는다). 재주는 4·8·12레벨(전사 6, 로그 10 추가) 능력치 향상 칸에 명세 asi {\"<레벨>\": {\"feat\": id, <능력>: n}}. ability_increase.choose = 고르는 +1(명세 asi에 능력을 적는다), grants.ability_increase = 고정. choose = 명세 키 재주 id로 고르는 것(skills·weapons·spells). requires = 선행 조건. 전투 방식 6종(BG3). 토글·반응 재주(대형 무기 강타·저격수·장병기 달인·파수·전투 시전자·마법사 사냥꾼·막아내기 검술·방패 달인·행운의 별·돌격병)와 전투 방식 '보호'는 다음 묶음, 전투 기법 입문은 4단계 배틀 마스터형과 함께.",
   "feats": [
+    {
+      "id": "ability_score_improvement",
+      "name": {
+        "ko": "능력치 향상",
+        "en": "Ability Score Improvement"
+      },
+      "desc": {
+        "ko": "능력치 하나 +2 또는 둘 +1(최대 20).",
+        "en": "Increase one ability score by 2, or two by 1 (max 20)."
+      },
+      "category": "general",
+      "ability_increase": {
+        "total": 2,
+        "max": 20
+      },
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "actor",
+      "name": {
+        "ko": "무대 체질",
+        "en": "Stagecraft"
+      },
+      "desc": {
+        "ko": "매력 +1(최대 20). 기만·공연 숙련과 전문화.",
+        "en": "+1 Charisma (max 20). Proficiency and expertise in Deception and Performance."
+      },
+      "category": "general",
+      "grants": {
+        "ability_increase": {
+          "cha": 1,
+          "max": 20
+        },
+        "skills": [
+          "deception",
+          "performance"
+        ],
+        "expertise": [
+          "deception",
+          "performance"
+        ]
+      },
+      "source": "original"
+    },
     {
       "id": "alert",
       "name": {
         "ko": "경계",
         "en": "Alert"
       },
-      "category": "origin",
-      "effects_ko": "이니셔티브에 숙련 보너스. 이니셔티브 교환은 1차 제외(공유 턴이 있어 쓸모가 적음).",
-      "tags": [
-        "initiative_proficiency"
-      ],
+      "desc": {
+        "ko": "이니셔티브 +5, 기습당하지 않는다.",
+        "en": "+5 to Initiative; you can't be Surprised."
+      },
+      "category": "general",
+      "grants": {
+        "initiative_bonus": 5,
+        "caps": [
+          "surprise_immune"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "athlete",
+      "name": {
+        "ko": "단련된 몸",
+        "en": "Conditioned"
+      },
+      "desc": {
+        "ko": "근력 또는 민첩 +1(최대 20). 넘어졌을 때 일어서는 데 이동력 1칸만, 도약 거리 +50%.",
+        "en": "+1 Strength or Dexterity (max 20). Standing up from Prone costs only 1 tile of movement; Jump distance +50%."
+      },
+      "category": "general",
+      "ability_increase": {
+        "choose": [
+          "str",
+          "dex"
+        ],
+        "total": 1,
+        "max": 20
+      },
+      "grants": {
+        "caps": [
+          "stand_up_one_tile",
+          "jump_half_more"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "crossbow_expert",
+      "name": {
+        "ko": "석궁 명수",
+        "en": "Bolt Specialist"
+      },
+      "desc": {
+        "ko": "근접한 적이 있어도 석궁 공격이 불리하지 않다. 무기 액션 '관통 사격'의 벌어진 상처가 두 배로 오래 간다.",
+        "en": "Crossbow attacks don't have Disadvantage in melee range. Your Piercing Bolt's Open Wound lasts twice as long."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "crossbow_point_blank",
+          "crossbow_wounding"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "dual_wielder",
+      "name": {
+        "ko": "양손 무기술",
+        "en": "Twin Blades"
+      },
+      "desc": {
+        "ko": "가볍지 않은 한 손 무기로도 보조 무기 공격을 한다(양손 무기 제외). 양손에 근접 무기를 쥐면 AC +1.",
+        "en": "Make off-hand attacks even with non-Light one-handed weapons (not Two-Handed). +1 AC while wielding a melee weapon in each hand."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "dual_wield_any",
+          "dual_wield_ac"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "dungeon_delver",
+      "name": {
+        "ko": "함정 감각",
+        "en": "Trap Sense"
+      },
+      "desc": {
+        "ko": "숨은 함정·물건을 찾는 지각 판정 유리, 함정을 피하는 내성 유리, 함정 피해 저항.",
+        "en": "Advantage on Perception checks to find hidden traps and objects and on saves against traps; resistance to trap damage."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "trap_sense"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "durable",
+      "name": {
+        "ko": "회복 체질",
+        "en": "Hardy Recovery"
+      },
+      "desc": {
+        "ko": "건강 +1(최대 20). 짧은 휴식을 하면 HP를 전부 회복한다.",
+        "en": "+1 Constitution (max 20). Regain all hit points when you take a Short Rest."
+      },
+      "category": "general",
+      "grants": {
+        "ability_increase": {
+          "con": 1,
+          "max": 20
+        },
+        "caps": [
+          "short_rest_full_heal"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "elemental_adept_acid",
+      "name": {
+        "ko": "원소 통달: 산",
+        "en": "Element Mastery: Acid"
+      },
+      "desc": {
+        "ko": "내 주문과 공격은 산 저항을 무시한다. 주문으로 산 피해를 줄 때 주사위 1은 2로 친다.",
+        "en": "Your spells and attacks ignore resistance to acid damage. When you deal acid damage with a spell, treat a 1 on a damage die as a 2."
+      },
+      "category": "general",
+      "grants": {
+        "elemental_adept": "acid"
+      },
+      "source": "original"
+    },
+    {
+      "id": "elemental_adept_cold",
+      "name": {
+        "ko": "원소 통달: 냉기",
+        "en": "Element Mastery: Cold"
+      },
+      "desc": {
+        "ko": "내 주문과 공격은 냉기 저항을 무시한다. 주문으로 냉기 피해를 줄 때 주사위 1은 2로 친다.",
+        "en": "Your spells and attacks ignore resistance to cold damage. When you deal cold damage with a spell, treat a 1 on a damage die as a 2."
+      },
+      "category": "general",
+      "grants": {
+        "elemental_adept": "cold"
+      },
+      "source": "original"
+    },
+    {
+      "id": "elemental_adept_fire",
+      "name": {
+        "ko": "원소 통달: 화염",
+        "en": "Element Mastery: Fire"
+      },
+      "desc": {
+        "ko": "내 주문과 공격은 화염 저항을 무시한다. 주문으로 화염 피해를 줄 때 주사위 1은 2로 친다.",
+        "en": "Your spells and attacks ignore resistance to fire damage. When you deal fire damage with a spell, treat a 1 on a damage die as a 2."
+      },
+      "category": "general",
+      "grants": {
+        "elemental_adept": "fire"
+      },
+      "source": "original"
+    },
+    {
+      "id": "elemental_adept_lightning",
+      "name": {
+        "ko": "원소 통달: 번개",
+        "en": "Element Mastery: Lightning"
+      },
+      "desc": {
+        "ko": "내 주문과 공격은 번개 저항을 무시한다. 주문으로 번개 피해를 줄 때 주사위 1은 2로 친다.",
+        "en": "Your spells and attacks ignore resistance to lightning damage. When you deal lightning damage with a spell, treat a 1 on a damage die as a 2."
+      },
+      "category": "general",
+      "grants": {
+        "elemental_adept": "lightning"
+      },
+      "source": "original"
+    },
+    {
+      "id": "elemental_adept_thunder",
+      "name": {
+        "ko": "원소 통달: 천둥",
+        "en": "Element Mastery: Thunder"
+      },
+      "desc": {
+        "ko": "내 주문과 공격은 천둥 저항을 무시한다. 주문으로 천둥 피해를 줄 때 주사위 1은 2로 친다.",
+        "en": "Your spells and attacks ignore resistance to thunder damage. When you deal thunder damage with a spell, treat a 1 on a damage die as a 2."
+      },
+      "category": "general",
+      "grants": {
+        "elemental_adept": "thunder"
+      },
+      "source": "original"
+    },
+    {
+      "id": "heavily_armoured",
+      "name": {
+        "ko": "중갑 훈련",
+        "en": "Heavy Armor Training"
+      },
+      "desc": {
+        "ko": "근력 +1(최대 20). 중갑 숙련. 조건: 중형 갑옷 숙련.",
+        "en": "+1 Strength (max 20). Heavy armor proficiency. Requires medium armor proficiency."
+      },
+      "category": "general",
+      "requires": {
+        "armor_training": "medium"
+      },
+      "grants": {
+        "ability_increase": {
+          "str": 1,
+          "max": 20
+        },
+        "armor_training": [
+          "heavy"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "heavy_armour_master",
+      "name": {
+        "ko": "중갑 숙달",
+        "en": "Ironclad"
+      },
+      "desc": {
+        "ko": "근력 +1(최대 20). 중갑을 입으면 마법이 아닌 공격의 타격·관통·참격 피해 −3. 조건: 중갑 숙련.",
+        "en": "+1 Strength (max 20). While wearing heavy armor, bludgeoning, piercing and slashing damage from non-magical attacks is reduced by 3. Requires heavy armor proficiency."
+      },
+      "category": "general",
+      "requires": {
+        "armor_training": "heavy"
+      },
+      "grants": {
+        "ability_increase": {
+          "str": 1,
+          "max": 20
+        },
+        "caps": [
+          "heavy_armor_damage_reduction"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "lightly_armoured",
+      "name": {
+        "ko": "경갑 훈련",
+        "en": "Light Armor Training"
+      },
+      "desc": {
+        "ko": "근력 또는 민첩 +1(최대 20). 경갑 숙련.",
+        "en": "+1 Strength or Dexterity (max 20). Light armor proficiency."
+      },
+      "category": "general",
+      "ability_increase": {
+        "choose": [
+          "str",
+          "dex"
+        ],
+        "total": 1,
+        "max": 20
+      },
+      "grants": {
+        "armor_training": [
+          "light"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "moderately_armoured",
+      "name": {
+        "ko": "중형 갑옷 훈련",
+        "en": "Medium Armor Training"
+      },
+      "desc": {
+        "ko": "근력 또는 민첩 +1(최대 20). 중형 갑옷·방패 숙련. 조건: 경갑 숙련.",
+        "en": "+1 Strength or Dexterity (max 20). Medium armor and shield proficiency. Requires light armor proficiency."
+      },
+      "category": "general",
+      "requires": {
+        "armor_training": "light"
+      },
+      "ability_increase": {
+        "choose": [
+          "str",
+          "dex"
+        ],
+        "total": 1,
+        "max": 20
+      },
+      "grants": {
+        "armor_training": [
+          "medium",
+          "shield"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "medium_armour_master",
+      "name": {
+        "ko": "중형 갑옷 숙달",
+        "en": "Brigandine Adept"
+      },
+      "desc": {
+        "ko": "중형 갑옷을 입어도 은신이 불리하지 않고, AC에 민첩 보너스를 +3까지 더한다. 조건: 중형 갑옷 숙련.",
+        "en": "Medium armor doesn't impose Disadvantage on Stealth, and you add up to +3 Dexterity to AC. Requires medium armor proficiency."
+      },
+      "category": "general",
+      "requires": {
+        "armor_training": "medium"
+      },
+      "grants": {
+        "caps": [
+          "medium_armor_master"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "magic_initiate_bard",
+      "name": {
+        "ko": "마법 입문(바드)",
+        "en": "Magic Initiate (Bard)"
+      },
+      "desc": {
+        "ko": "바드 주문 목록에서 소마법 2개와 1레벨 주문 1개를 배운다. 1레벨 주문은 긴 휴식마다 1회. 시전 능력은 매력.",
+        "en": "Learn 2 cantrips and one 1st-level spell from the Bard list. Cast the 1st-level spell once per long rest. Spellcasting ability: Charisma."
+      },
+      "category": "general",
+      "spell_list": "bard",
+      "cantrips": 2,
+      "level1_spells": 1,
+      "casting_ability": "cha",
       "source": "SRD 5.2.1"
     },
     {
@@ -21,10 +400,66 @@
         "ko": "마법 입문(클레릭)",
         "en": "Magic Initiate (Cleric)"
       },
-      "category": "origin",
+      "desc": {
+        "ko": "클레릭 주문 목록에서 소마법 2개와 1레벨 주문 1개를 배운다. 1레벨 주문은 긴 휴식마다 1회. 시전 능력은 지혜.",
+        "en": "Learn 2 cantrips and one 1st-level spell from the Cleric list. Cast the 1st-level spell once per long rest. Spellcasting ability: Wisdom."
+      },
+      "category": "general",
       "spell_list": "cleric",
       "cantrips": 2,
       "level1_spells": 1,
+      "casting_ability": "wis",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "magic_initiate_druid",
+      "name": {
+        "ko": "마법 입문(드루이드)",
+        "en": "Magic Initiate (Druid)"
+      },
+      "desc": {
+        "ko": "드루이드 주문 목록에서 소마법 2개와 1레벨 주문 1개를 배운다. 1레벨 주문은 긴 휴식마다 1회. 시전 능력은 지혜.",
+        "en": "Learn 2 cantrips and one 1st-level spell from the Druid list. Cast the 1st-level spell once per long rest. Spellcasting ability: Wisdom."
+      },
+      "category": "general",
+      "spell_list": "druid",
+      "cantrips": 2,
+      "level1_spells": 1,
+      "casting_ability": "wis",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "magic_initiate_sorcerer",
+      "name": {
+        "ko": "마법 입문(소서러)",
+        "en": "Magic Initiate (Sorcerer)"
+      },
+      "desc": {
+        "ko": "소서러 주문 목록에서 소마법 2개와 1레벨 주문 1개를 배운다. 1레벨 주문은 긴 휴식마다 1회. 시전 능력은 매력.",
+        "en": "Learn 2 cantrips and one 1st-level spell from the Sorcerer list. Cast the 1st-level spell once per long rest. Spellcasting ability: Charisma."
+      },
+      "category": "general",
+      "spell_list": "sorcerer",
+      "cantrips": 2,
+      "level1_spells": 1,
+      "casting_ability": "cha",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "magic_initiate_warlock",
+      "name": {
+        "ko": "마법 입문(워락)",
+        "en": "Magic Initiate (Warlock)"
+      },
+      "desc": {
+        "ko": "워락 주문 목록에서 소마법 2개와 1레벨 주문 1개를 배운다. 1레벨 주문은 긴 휴식마다 1회. 시전 능력은 매력.",
+        "en": "Learn 2 cantrips and one 1st-level spell from the Warlock list. Cast the 1st-level spell once per long rest. Spellcasting ability: Charisma."
+      },
+      "category": "general",
+      "spell_list": "warlock",
+      "cantrips": 2,
+      "level1_spells": 1,
+      "casting_ability": "cha",
       "source": "SRD 5.2.1"
     },
     {
@@ -33,11 +468,212 @@
         "ko": "마법 입문(위저드)",
         "en": "Magic Initiate (Wizard)"
       },
-      "category": "origin",
+      "desc": {
+        "ko": "위저드 주문 목록에서 소마법 2개와 1레벨 주문 1개를 배운다. 1레벨 주문은 긴 휴식마다 1회. 시전 능력은 지능.",
+        "en": "Learn 2 cantrips and one 1st-level spell from the Wizard list. Cast the 1st-level spell once per long rest. Spellcasting ability: Intelligence."
+      },
+      "category": "general",
       "spell_list": "wizard",
       "cantrips": 2,
       "level1_spells": 1,
+      "casting_ability": "int",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "mobile",
+      "name": {
+        "ko": "날랜 발",
+        "en": "Fleet-Footed"
+      },
+      "desc": {
+        "ko": "속도 +2칸(3m). 질주하면 험지가 느리게 하지 않는다. 근접 공격한 대상은 이번 턴에 나에게 기회 공격을 하지 못한다.",
+        "en": "+2 tiles (3 m) of speed. When you Dash, difficult terrain doesn't slow you. A creature you made a melee attack against can't make Opportunity Attacks against you this turn."
+      },
+      "category": "general",
+      "grants": {
+        "speed_tiles": 2,
+        "caps": [
+          "dash_ignores_difficult",
+          "no_oa_from_melee_target"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "performer",
+      "name": {
+        "ko": "무대 경험",
+        "en": "Showmanship"
+      },
+      "desc": {
+        "ko": "매력 +1(최대 20). (악기 숙련은 도구 숙련이 없어 뺐다.)",
+        "en": "+1 Charisma (max 20). (Instrument proficiency omitted — no tool proficiencies.)"
+      },
+      "category": "general",
+      "grants": {
+        "ability_increase": {
+          "cha": 1,
+          "max": 20
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "resilient_str",
+      "name": {
+        "ko": "단단한 의지: 근력",
+        "en": "Steeled: Strength"
+      },
+      "desc": {
+        "ko": "근력 +1(최대 20), 근력 내성 숙련.",
+        "en": "+1 Strength (max 20) and proficiency in Strength saving throws."
+      },
+      "category": "general",
+      "grants": {
+        "ability_increase": {
+          "str": 1,
+          "max": 20
+        },
+        "save_proficiencies": [
+          "str"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "resilient_dex",
+      "name": {
+        "ko": "단단한 의지: 민첩",
+        "en": "Steeled: Dexterity"
+      },
+      "desc": {
+        "ko": "민첩 +1(최대 20), 민첩 내성 숙련.",
+        "en": "+1 Dexterity (max 20) and proficiency in Dexterity saving throws."
+      },
+      "category": "general",
+      "grants": {
+        "ability_increase": {
+          "dex": 1,
+          "max": 20
+        },
+        "save_proficiencies": [
+          "dex"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "resilient_con",
+      "name": {
+        "ko": "단단한 의지: 건강",
+        "en": "Steeled: Constitution"
+      },
+      "desc": {
+        "ko": "건강 +1(최대 20), 건강 내성 숙련.",
+        "en": "+1 Constitution (max 20) and proficiency in Constitution saving throws."
+      },
+      "category": "general",
+      "grants": {
+        "ability_increase": {
+          "con": 1,
+          "max": 20
+        },
+        "save_proficiencies": [
+          "con"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "resilient_int",
+      "name": {
+        "ko": "단단한 의지: 지능",
+        "en": "Steeled: Intelligence"
+      },
+      "desc": {
+        "ko": "지능 +1(최대 20), 지능 내성 숙련.",
+        "en": "+1 Intelligence (max 20) and proficiency in Intelligence saving throws."
+      },
+      "category": "general",
+      "grants": {
+        "ability_increase": {
+          "int": 1,
+          "max": 20
+        },
+        "save_proficiencies": [
+          "int"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "resilient_wis",
+      "name": {
+        "ko": "단단한 의지: 지혜",
+        "en": "Steeled: Wisdom"
+      },
+      "desc": {
+        "ko": "지혜 +1(최대 20), 지혜 내성 숙련.",
+        "en": "+1 Wisdom (max 20) and proficiency in Wisdom saving throws."
+      },
+      "category": "general",
+      "grants": {
+        "ability_increase": {
+          "wis": 1,
+          "max": 20
+        },
+        "save_proficiencies": [
+          "wis"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "resilient_cha",
+      "name": {
+        "ko": "단단한 의지: 매력",
+        "en": "Steeled: Charisma"
+      },
+      "desc": {
+        "ko": "매력 +1(최대 20), 매력 내성 숙련.",
+        "en": "+1 Charisma (max 20) and proficiency in Charisma saving throws."
+      },
+      "category": "general",
+      "grants": {
+        "ability_increase": {
+          "cha": 1,
+          "max": 20
+        },
+        "save_proficiencies": [
+          "cha"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "ritual_caster",
+      "name": {
+        "ko": "의식 주문가",
+        "en": "Rite Keeper"
+      },
+      "desc": {
+        "ko": "망자와 대화·사역마 찾기·보폭 늘리기·도약·변장·동물과 대화 중 2개를 배워 슬롯 없이 쓴다. 시전 능력은 지능·지혜·매력 중 가장 높은 것(시전자면 그 능력).",
+        "en": "Learn 2 of Speak with Dead, Find Familiar, Longstrider, Jump, Disguise Self and Speak with Animals; cast them without spell slots."
+      },
+      "category": "general",
+      "choose": {
+        "kind": "spells",
+        "count": 2,
+        "from": [
+          "speak_with_dead",
+          "find_familiar",
+          "longstrider",
+          "jump",
+          "disguise_self",
+          "speak_with_animals"
+        ]
+      },
+      "source": "original"
     },
     {
       "id": "savage_attacker",
@@ -45,12 +681,17 @@
         "ko": "야만적 공격",
         "en": "Savage Attacker"
       },
-      "category": "origin",
-      "tags": [
-        "weapon_damage_twice"
-      ],
-      "effects_ko": "턴당 1회 무기 피해 주사위를 두 번 굴려 큰 쪽(자동).",
-      "source": "SRD 5.2.1"
+      "desc": {
+        "ko": "근접 무기 공격의 피해 주사위를 매번 두 번 굴려 큰 쪽을 쓴다.",
+        "en": "Whenever you make a melee weapon attack, roll its damage dice twice and use the higher."
+      },
+      "category": "general",
+      "grants": {
+        "caps": [
+          "melee_damage_advantage"
+        ]
+      },
+      "source": "original"
     },
     {
       "id": "skilled",
@@ -58,24 +699,113 @@
         "ko": "숙련",
         "en": "Skilled"
       },
-      "category": "origin",
-      "skill_choices": 3,
-      "effects_ko": "기능 3개 숙련(도구 숙련 삭제).",
+      "desc": {
+        "ko": "기능 3개에 숙련.",
+        "en": "Gain proficiency in 3 skills."
+      },
+      "category": "general",
+      "choose": {
+        "kind": "skills",
+        "count": 3
+      },
       "source": "SRD 5.2.1"
     },
     {
-      "id": "ability_score_improvement",
+      "id": "spell_sniper",
       "name": {
-        "ko": "능력치 향상",
-        "en": "Ability Score Improvement"
+        "ko": "주문 저격",
+        "en": "Spell Marksman"
+      },
+      "desc": {
+        "ko": "공격 소마법 하나를 배운다(냉기 손길·섬뜩한 화살·화염탄·서리 광선·전격 손길·별빛 탄). 주문 공격 치명타가 1 낮은 눈에서 난다(겹친다).",
+        "en": "Learn one attack cantrip (Chill Touch, Eldritch Blast, Fire Bolt, Ray of Frost, Shocking Grasp, Starry Wisp). Your spell attacks score a critical hit on a roll 1 lower (stacks)."
       },
       "category": "general",
-      "min_level": 4,
+      "choose": {
+        "kind": "spells",
+        "count": 1,
+        "from": [
+          "chill_touch",
+          "eldritch_blast",
+          "fire_bolt",
+          "ray_of_frost",
+          "shocking_grasp",
+          "starry_wisp"
+        ]
+      },
+      "grants": {
+        "caps": [
+          "spell_crit_minus_1"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "tavern_brawler",
+      "name": {
+        "ko": "주먹다짐",
+        "en": "Brawler"
+      },
+      "desc": {
+        "ko": "근력 또는 건강 +1(최대 20). 맨손 공격·던지기(물건·투척 무기)에 근력 수정치를 명중과 피해에 한 번 더 더한다.",
+        "en": "+1 Strength or Constitution (max 20). Unarmed strikes and throws (objects or thrown weapons) add your Strength modifier to attack and damage an additional time."
+      },
+      "category": "general",
       "ability_increase": {
-        "total": 2,
+        "choose": [
+          "str",
+          "con"
+        ],
+        "total": 1,
         "max": 20
       },
-      "source": "SRD 5.2.1"
+      "grants": {
+        "caps": [
+          "brawler"
+        ]
+      },
+      "source": "original"
+    },
+    {
+      "id": "tough",
+      "name": {
+        "ko": "강골",
+        "en": "Sturdy"
+      },
+      "desc": {
+        "ko": "최대 HP +2 × 레벨.",
+        "en": "Hit point maximum +2 per level."
+      },
+      "category": "general",
+      "grants": {
+        "hp_per_level": 2
+      },
+      "source": "original"
+    },
+    {
+      "id": "weapon_master",
+      "name": {
+        "ko": "무기 수련",
+        "en": "Arms Training"
+      },
+      "desc": {
+        "ko": "근력 또는 민첩 +1(최대 20). 무기 4종에 숙련.",
+        "en": "+1 Strength or Dexterity (max 20). Proficiency with four weapons of your choice."
+      },
+      "category": "general",
+      "ability_increase": {
+        "choose": [
+          "str",
+          "dex"
+        ],
+        "total": 1,
+        "max": 20
+      },
+      "choose": {
+        "kind": "weapons",
+        "count": 4
+      },
+      "source": "original"
     },
     {
       "id": "archery",
@@ -83,11 +813,14 @@
         "ko": "궁술",
         "en": "Archery"
       },
+      "desc": {
+        "ko": "원거리 무기 명중 +2.",
+        "en": "+2 to attack rolls with ranged weapons."
+      },
       "category": "fighting_style",
       "tags": [
         "ranged_weapon_attack_bonus"
       ],
-      "effects_ko": "원거리 무기 명중 +2.",
       "source": "SRD 5.2.1"
     },
     {
@@ -96,12 +829,31 @@
         "ko": "방어",
         "en": "Defense"
       },
+      "desc": {
+        "ko": "갑옷을 입으면 AC +1.",
+        "en": "+1 AC while wearing armor."
+      },
       "category": "fighting_style",
       "tags": [
         "armor_ac_plus_1"
       ],
-      "effects_ko": "갑옷을 입으면 AC +1.",
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dueling",
+      "name": {
+        "ko": "결투",
+        "en": "Duelist"
+      },
+      "desc": {
+        "ko": "한 손에 두 손 무기가 아닌 근접 무기만 쥐고 다른 손이 비면 그 무기 피해 +2.",
+        "en": "+2 damage with a melee weapon held in one hand when your other hand holds no weapon."
+      },
+      "category": "fighting_style",
+      "tags": [
+        "dueling"
+      ],
+      "source": "original"
     },
     {
       "id": "great_weapon_fighting",
@@ -109,11 +861,14 @@
         "ko": "대형 무기 전투",
         "en": "Great Weapon Fighting"
       },
+      "desc": {
+        "ko": "두 손 근접 무기(양용 무기를 두 손으로 포함) 피해 주사위가 1·2면 한 번 다시 굴린다.",
+        "en": "When you roll a 1 or 2 on a damage die with a two-handed melee weapon, reroll that die once."
+      },
       "category": "fighting_style",
       "tags": [
         "reroll_low_damage_two_handed"
       ],
-      "effects_ko": "양손으로 든 양손·다용도 근접 무기 피해 주사위 1·2를 3으로.",
       "source": "SRD 5.2.1"
     },
     {
@@ -122,11 +877,14 @@
         "ko": "쌍수 전투",
         "en": "Two-Weapon Fighting"
       },
+      "desc": {
+        "ko": "보조 무기 공격 피해에 능력 수정치를 더한다.",
+        "en": "Add your ability modifier to the damage of off-hand attacks."
+      },
       "category": "fighting_style",
       "tags": [
         "two_weapon_fighting"
       ],
-      "effects_ko": "가벼운 무기 보조 공격 피해에 능력 수정치.",
       "source": "SRD 5.2.1"
     }
   ]

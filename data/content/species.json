@@ -204,7 +204,6 @@
         "choose": 1,
         "from": "any"
       },
-      "origin_feat_choice": true,
       "features": [
         {
           "id": "resourceful",

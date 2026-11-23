@@ -131,12 +131,21 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	var str_bonus := 0
 	if ability == "str":
 		str_bonus = Resolver.rage_bonus(c)  # 분노: 근력 공격 피해 +2
+	if c.has_cap("dueling") and not ranged and w["id"] != "unarmed" and not "two_handed" in props and opts.get("hand", "main") == "main" \
+			and c.weapon("off") == "" and not opts.get("two_handed", false) and dice != str(w.get("versatile_damage", "")):
+		str_bonus += 2  # 결투(전투 방식): 한 손 근접 무기만 쥐면 피해 +2(피해만 — str_bonus는 피해에만 더한다)
+	var brawl := 0
+	if c.has_cap("brawler") and (w["id"] == "unarmed" or opts.get("thrown", false)):
+		brawl = c.ability_mod("str")  # 주먹다짐: 맨손·투척에 근력 수정치를 한 번 더(명중·피해)
+		dmg_bonus += brawl
 	var expr := dice if dmg_mod + dmg_bonus + str_bonus == 0 else "%s%+d" % [dice, dmg_mod + dmg_bonus + str_bonus]
 	if w["id"] == "unarmed":
 		expr = str(maxi(1 + mod, 0)) if mod != 0 else "1"
 		if martial_die != "":
 			expr = martial_die if mod + str_bonus == 0 else "%s%+d" % [martial_die, mod + str_bonus]  # 무술: 비무장 공격 = 무술 주사위 + 수정치
 	var hit_bonus := dmg_bonus
+	if w["id"] == "unarmed" and brawl != 0:
+		expr = str(maxi(1 + mod + brawl, 0)) if martial_die == "" else "%s%+d" % [martial_die, mod + str_bonus + brawl]
 	for m in c.modifier_entries():
 		if m["effect"]["type"] == "modify" and m["effect"]["stat"] == "weapon_attack":
 			hit_bonus += int(m["effect"].get("add", 0))  # 신성한 무기: 명중만
@@ -191,8 +200,8 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 			ctx["invalid"] = "사거리 밖"
 		elif dist > normal:
 			ctx["disadvantage"].append("먼 사거리")
-		if is_threatened(world, attacker):
-			ctx["disadvantage"].append("근접 위협")
+		if is_threatened(world, attacker) and not (attacker.has_cap("crossbow_point_blank") and "crossbow" in str(atk.get("weapon_id", ""))):
+			ctx["disadvantage"].append("근접 위협")  # 석궁 명수: 석궁은 근접 위협 불리 없음
 	return ctx
 
 
@@ -225,7 +234,11 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 		return res
 	attacker.turn["attacks_left"] -= 1
 	attacker.turn["attacks_made"] = int(attacker.turn.get("attacks_made", 0)) + 1  # 무모한 공격: 첫 공격 전에만
-	if "light" in atk["properties"]:
+	if atk["kind"] == "melee":
+		var mt: Array = attacker.turn.get("melee_targets", [])
+		mt.append(target)
+		attacker.turn["melee_targets"] = mt  # 날랜 발(기회 공격 회피)
+	if "light" in atk["properties"] or (attacker.has_cap("dual_wield_any") and atk["kind"] == "melee" and not "two_handed" in atk["properties"]):
 		attacker.turn["light_attack_done"] = true
 	_after_attack_features(world, attacker, target, res)
 	if not opts.get("horde_breaker", false):
@@ -379,7 +392,9 @@ static func attack_object(world: Dictionary, attacker: Node, cell: Vector2i, opt
 static func offhand_attack(world: Dictionary, attacker: Node, target: Node) -> Dictionary:
 	var off: String = attacker.weapon("off")
 	var w := weapon_data(off)
-	if off == "" or not "light" in w.get("properties", []) or not "light" in weapon_data(attacker.weapon("main")).get("properties", []):
+	var heavy_ok: bool = attacker.has_cap("dual_wield_any") and not "two_handed" in w.get("properties", []) \
+		and not "two_handed" in weapon_data(attacker.weapon("main")).get("properties", [])  # 양손 무기술: 가볍지 않은 한 손 무기도
+	if off == "" or not heavy_ok and (not "light" in w.get("properties", []) or not "light" in weapon_data(attacker.weapon("main")).get("properties", [])):
 		return _fail("양손에 가벼운 무기가 필요하다")
 	if not attacker.turn.get("light_attack_done", false):
 		return _fail("이번 턴 공격 행동에서 가벼운 무기로 공격해야 한다")
@@ -489,7 +504,7 @@ static func move(world: Dictionary, c: Node, to: Vector2i, opts: Dictionary = {}
 			break
 		var step: int = 0
 		for fc in grid.footprint(nxt, grid.size_of(c)):
-			step = maxi(step, grid.step_cost(fc - (nxt - cur), fc))
+			step = maxi(step, grid.step_cost(fc - (nxt - cur), fc, c))
 		c.turn[budget_key] = int(c.turn[budget_key]) - step
 		if not free:
 			c.turn["moved"] = true
@@ -526,7 +541,9 @@ static func _provokers(world: Dictionary, mover: Node, cur: Vector2i, nxt: Vecto
 		if e == mover or e.dead or not e.is_hostile_to(mover) or not e.can_react():
 			continue
 		if e.has_meta("no_opportunity_until"):
-			continue  # 비틀거리게 하는 일격(바바리안 13레벨): 다음 그 바바리안 턴 시작까지 기회 공격 못 함
+			continue
+		if mover.has_cap("no_oa_from_melee_target") and e in mover.turn.get("melee_targets", []):
+			continue  # 날랜 발: 이번 턴 근접 공격한 대상은 기회 공격 못 함
 		if e.has_meta("monster"):
 			if preload("res://scripts/rules/monster_factory.gd").melee_reach(e) <= 0:
 				continue
@@ -571,7 +588,7 @@ static func _opportunity_attacks(world: Dictionary, mover: Node, cur: Vector2i, 
 static func stand_up(c: Node) -> Dictionary:
 	if not c.has_condition("prone"):
 		return _fail("넘어지지 않았다")
-	var cost: int = c.speed() / 2
+	var cost: int = mini(1, c.speed() / 2) if c.has_cap("stand_up_one_tile") else c.speed() / 2  # 단련된 몸: 1칸
 	if c.speed() == 0 or int(c.turn.get("movement", 0)) < cost:
 		return _fail("이동력이 모자란다")
 	c.turn["movement"] = int(c.turn["movement"]) - cost
@@ -694,6 +711,8 @@ static func jump_distance(c: Node) -> int:
 		var e: Dictionary = m["effect"]
 		if e["type"] == "modify" and e["stat"] == "jump_tiles" and e.has("set"):
 			base = maxi(base, int(e.get("set", 0)))  # Jump 주문: 6칸
+	if c.has_cap("jump_half_more"):
+		base = floori(base * 1.5)  # 단련된 몸: 도약 +50%
 	for m in c.modifier_entries():
 		var e: Dictionary = m["effect"]
 		if e["type"] == "modify" and e["stat"] == "jump_tiles" and e.has("multiply"):
@@ -710,13 +729,16 @@ static func throw_object(world: Dictionary, c: Node, target: Node, weight_kg: fl
 		return _fail("사거리 밖")
 	if not spend(c, "action"):
 		return _fail("행동이 없다")
-	var atk := {"name": "던지기", "bonus": c.ability_mod("str"), "kind": "ranged", "weapon": false, "damage": []}
+	var brawl: int = c.ability_mod("str") if c.has_cap("brawler") else 0  # 주먹다짐: 근력 수정치를 한 번 더
+	var atk := {"name": "던지기", "bonus": c.ability_mod("str") + brawl, "kind": "ranged", "weapon": false, "damage": []}
 	var ctx: Dictionary = grid.attack_context(c, target)
 	if is_threatened(world, c):
 		ctx["disadvantage"].append("근접 위협")
 	var res := Resolver.attack(c, target, atk, ctx)
 	if res["hit"]:
 		res["throw"] = Physics.throw_hit(grid, c, target, weight_kg)
+		if brawl > 0 and not target.dead:
+			Resolver.apply_damage(target, [{"amount": brawl, "damage_type": "bludgeoning"}], {"attacker": c})
 	res["ok"] = true
 	return res
 

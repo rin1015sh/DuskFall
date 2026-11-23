@@ -493,7 +493,8 @@
       "turns": 2,
       "icon": "res://assets/statuses/marked.webp",
       "glyph": "arrow",
-      "source": "original"
+      "source": "original",
+      "double_turns_cap": "crossbow_wounding"
     }
   ]
 }

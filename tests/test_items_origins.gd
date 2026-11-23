@@ -38,9 +38,9 @@ func test_spell_scroll_reads_only_class_list_and_is_consumed() -> void:
 
 
 func test_magic_initiate_grants_spells_and_innate_cast() -> void:
-	var spec := Builder.default_spec("fighter", 1)
-	spec["origin_feat"] = "magic_initiate_wizard"
-	spec["magic_initiate_wizard"] = {"cantrips": ["fire_bolt", "light"], "spells": ["magic_missile"], "ability": "int"}
+	var spec := Builder.default_spec("fighter", 4)
+	spec["asi"] = {"4": {"feat": "magic_initiate_wizard"}}  # 재주는 능력치 향상 칸에서(출신 재주 없음 — BG3식)
+	spec["magic_initiate_wizard"] = {"cantrips": ["fire_bolt", "light"], "spells": ["magic_missile"]}
 	var c := _pc(spec)
 	assert_true(c.spells.has("fire_bolt") and c.spells.has("magic_missile"), "재주 주문")
 	assert_eq(c.resource("innate_magic_missile"), 1, "1레벨 주문은 긴 휴식마다 1회")
@@ -52,7 +52,7 @@ func test_magic_initiate_grants_spells_and_innate_cast() -> void:
 	var r: Dictionary = Spellcasting.cast(w, c, "magic_missile", Vector2i(3, 0))
 	assert_true(r.get("ok", false), "슬롯 없는 전사가 타고난 시전으로 %s" % str(r))
 	assert_eq(c.resource("innate_magic_missile"), 0, "1회 썼다")
-	var bad := Builder.default_spec("fighter", 1)
-	bad["origin_feat"] = "magic_initiate_wizard"
+	var bad := Builder.default_spec("fighter", 4)
+	bad["asi"] = {"4": {"feat": "magic_initiate_wizard"}}
 	bad["magic_initiate_wizard"] = {"cantrips": ["sacred_flame"], "spells": []}
 	assert_true(Array(Builder.validate(bad)).any(func(e: String) -> bool: return e.contains("sacred_flame")), "다른 목록 주문은 오류")

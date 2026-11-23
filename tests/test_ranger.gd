@@ -131,7 +131,7 @@ func test_hunters_prey_options() -> void:
 	w2["grid"].place(b, Vector2i(1, 1))
 	h.reset_turn()
 	var hp_before: int = b.hp
-	Dice.force([18, 3, 3, 18, 3, 3])  # 공격·피해 2회(병사 배경 맹렬한 공격자)·무리 파괴자 공격·피해 2회
+	Dice.force([18, 3, 18, 3])  # 공격·피해, 무리 파괴자 공격·피해
 	Combat.attack(w2, h, a, {"weapon": "shortsword"})
 	assert_true(h.turn.get("horde_used", false), "무리 파괴자로 한 번 더")
 	assert_true(b.hp < hp_before, "옆의 다른 적도 맞았다")

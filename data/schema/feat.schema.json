@@ -56,15 +56,22 @@
         },
         "category": {
           "enum": [
-            "origin",
             "general",
-            "fighting_style",
-            "epic_boon"
+            "fighting_style"
           ]
         },
-        "hook": {"type": "string"},
-        "also_hooks": {"type": "array", "items": {"type": "string"}},
-        "script": {"type": "string"},
+        "hook": {
+          "type": "string"
+        },
+        "also_hooks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "script": {
+          "type": "string"
+        },
         "tags": {
           "type": "array",
           "items": {
@@ -77,7 +84,11 @@
         },
         "spell_list": {
           "enum": [
+            "bard",
             "cleric",
+            "druid",
+            "sorcerer",
+            "warlock",
             "wizard"
           ]
         },
@@ -85,12 +96,6 @@
           "type": "integer"
         },
         "level1_spells": {
-          "type": "integer"
-        },
-        "skill_choices": {
-          "type": "integer"
-        },
-        "min_level": {
           "type": "integer"
         },
         "ability_increase": {
@@ -101,6 +106,75 @@
             "SRD 5.2.1",
             "original"
           ]
+        },
+        "desc": {
+          "type": "object",
+          "required": [
+            "ko",
+            "en"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ko": {
+              "type": "string"
+            },
+            "en": {
+              "type": "string"
+            }
+          }
+        },
+        "casting_ability": {
+          "enum": [
+            "str",
+            "dex",
+            "con",
+            "int",
+            "wis",
+            "cha"
+          ]
+        },
+        "requires": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "armor_training": {
+              "enum": [
+                "light",
+                "medium",
+                "heavy"
+              ]
+            }
+          }
+        },
+        "choose": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "count"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "skills",
+                "weapons",
+                "spells"
+              ]
+            },
+            "count": {
+              "type": "integer"
+            },
+            "from": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "grants": {
+          "type": "object",
+          "description": "기능 grants와 같은 부여 장치(character_builder) + skills·expertise·initiative_bonus·speed_tiles·elemental_adept"
         }
       }
     },

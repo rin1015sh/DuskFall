@@ -30,15 +30,6 @@
       "source": "original"
     },
     {
-      "id": "weapon_damage_twice",
-      "name": {
-        "ko": "야만적 공격",
-        "en": "Savage Attacker"
-      },
-      "note_ko": "턴당 1회 무기 피해를 두 번 굴려 큰 쪽(resolver)",
-      "source": "original"
-    },
-    {
       "id": "reroll_natural_1",
       "name": {
         "ko": "행운",
@@ -189,15 +180,6 @@
         "en": "Defense"
       },
       "note_ko": "갑옷을 입었을 때 AC +1(character_builder)",
-      "source": "original"
-    },
-    {
-      "id": "initiative_proficiency",
-      "name": {
-        "ko": "경계",
-        "en": "Alert"
-      },
-      "note_ko": "이니셔티브에 숙련 보너스(character_builder)",
       "source": "original"
     },
     {
@@ -693,6 +675,159 @@
         "en": "Improved Cunning Strike"
       },
       "note_ko": "교활한 일격 효과 둘(스크립트 sneak_attack, 설정)",
+      "source": "original"
+    },
+    {
+      "id": "melee_damage_advantage",
+      "name": {
+        "ko": "근접 피해 두 번",
+        "en": "Savage Damage"
+      },
+      "note_ko": "근접 무기 피해를 매번 두 번 굴려 큰 쪽(야만적 공격 — resolver._roll_damage)",
+      "source": "original"
+    },
+    {
+      "id": "stand_up_one_tile",
+      "name": {
+        "ko": "빠르게 일어서기",
+        "en": "Quick Stand"
+      },
+      "note_ko": "넘어짐에서 일어서는 데 이동력 1칸(combat.stand_up)",
+      "source": "original"
+    },
+    {
+      "id": "jump_half_more",
+      "name": {
+        "ko": "도약 +50%",
+        "en": "Longer Jump"
+      },
+      "note_ko": "도약 거리 1.5배(combat.jump_distance)",
+      "source": "original"
+    },
+    {
+      "id": "crossbow_point_blank",
+      "name": {
+        "ko": "근접 석궁",
+        "en": "Point-Blank Crossbow"
+      },
+      "note_ko": "근접 위협 중 석궁 공격 불리 없음(combat.attack_context)",
+      "source": "original"
+    },
+    {
+      "id": "crossbow_wounding",
+      "name": {
+        "ko": "깊은 상처 석궁",
+        "en": "Wounding Bolts"
+      },
+      "note_ko": "무기 액션 관통 사격의 상태 지속 2배(actions._wa_condition)",
+      "source": "original"
+    },
+    {
+      "id": "dual_wield_any",
+      "name": {
+        "ko": "무거운 쌍수",
+        "en": "Heavy Dual Wield"
+      },
+      "note_ko": "가볍지 않은 한 손 무기로도 보조 무기 공격(combat.offhand_attack)",
+      "source": "original"
+    },
+    {
+      "id": "dual_wield_ac",
+      "name": {
+        "ko": "쌍수 방어",
+        "en": "Dual Wield Guard"
+      },
+      "note_ko": "양손에 근접 무기면 AC +1(creature.ac)",
+      "source": "original"
+    },
+    {
+      "id": "trap_sense",
+      "name": {
+        "ko": "함정 감각",
+        "en": "Trap Sense"
+      },
+      "note_ko": "함정 찾는 지각 유리·함정 내성 유리·함정 피해 저항(interact·resolver.save_effect opts.trap)",
+      "source": "original"
+    },
+    {
+      "id": "short_rest_full_heal",
+      "name": {
+        "ko": "짧은 휴식 완전 회복",
+        "en": "Full Short Rest"
+      },
+      "note_ko": "짧은 휴식 때 HP 전부(rest.short_rest)",
+      "source": "original"
+    },
+    {
+      "id": "heavy_armor_damage_reduction",
+      "name": {
+        "ko": "중갑 피해 감소",
+        "en": "Ironclad"
+      },
+      "note_ko": "중갑을 입으면 비마법 공격의 타격·관통·참격 피해 −3(resolver.apply_damage)",
+      "source": "original"
+    },
+    {
+      "id": "medium_armor_master",
+      "name": {
+        "ko": "중형 갑옷 숙달",
+        "en": "Brigandine Adept"
+      },
+      "note_ko": "중형 갑옷 민첩 상한 3·은신 불리 없음(character_builder.armor_class, resolver.ability_check)",
+      "source": "original"
+    },
+    {
+      "id": "dash_ignores_difficult",
+      "name": {
+        "ko": "질주 험지 무시",
+        "en": "Fleet Dash"
+      },
+      "note_ko": "질주한 턴에는 험지 비용 없음(grid 이동 비용)",
+      "source": "original"
+    },
+    {
+      "id": "no_oa_from_melee_target",
+      "name": {
+        "ko": "치고 빠지기",
+        "en": "Hit and Run"
+      },
+      "note_ko": "이번 턴 근접 공격한 대상은 나에게 기회 공격 못 함(combat._opportunity_attacks)",
+      "source": "original"
+    },
+    {
+      "id": "spell_crit_minus_1",
+      "name": {
+        "ko": "주문 치명타 범위",
+        "en": "Spell Crit Range"
+      },
+      "note_ko": "주문 공격 치명타 눈 −1(겹침 — resolver.attack)",
+      "source": "original"
+    },
+    {
+      "id": "brawler",
+      "name": {
+        "ko": "주먹다짐",
+        "en": "Brawler"
+      },
+      "note_ko": "맨손·던지기(물건·투척 무기)에 근력 수정치를 명중·피해에 한 번 더(combat)",
+      "source": "original"
+    },
+    {
+      "id": "dueling",
+      "name": {
+        "ko": "결투",
+        "en": "Duelist"
+      },
+      "note_ko": "한 손 근접 무기만 쥐고 다른 손이 비면 피해 +2(combat.build_weapon_attack)",
+      "source": "original"
+    },
+    {
+      "id": "surprise_immune",
+      "name": {
+        "ko": "기습 면역",
+        "en": "Can't Be Surprised"
+      },
+      "note_ko": "전투 시작 기습을 받지 않는다(경계 — turn_manager)",
       "source": "original"
     }
   ]

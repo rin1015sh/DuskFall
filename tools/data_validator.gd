@@ -209,7 +209,7 @@ func _check_class_builds() -> void:
 		if b.is_empty():
 			errors.append("%s: class '%s'에 default_build(추천 빌드)가 없다 — 동료·시험·생성 화면이 쓴다" % [rec["file"], cid])
 			continue
-		var refs := [["species", "species"], ["lineage", "species"], ["background", "background"], ["armor", "armor"], ["origin_feat", "feat"]]
+		var refs := [["species", "species"], ["lineage", "species"], ["background", "background"], ["armor", "armor"]]
 		for r: Array in refs:
 			var v := str(b.get(r[0], ""))
 			if v != "" and not entries.get(r[1], {}).has(v):
