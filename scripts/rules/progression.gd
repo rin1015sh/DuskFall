@@ -44,11 +44,32 @@ static func can_level_up(world: Dictionary, c: Node) -> bool:
 
 
 ## 한 레벨 올린다: 명세를 다시 적용하고, 잃은 HP는 그대로 둔다(최대치가 늘어난 만큼 현재 HP도 는다).
-static func level_up(world: Dictionary, c: Node) -> bool:
+## cid를 주면 그 클래스에 레벨을 더한다(멀티클래스 — 처음 들어가는 클래스면 1레벨로 붙는다, 선행 조건 없음 BG3식).
+## extra: 새 클래스 항목에 넣을 값(subclass·skills·cantrips·spells).
+static func level_up(world: Dictionary, c: Node, cid: String = "", extra: Dictionary = {}) -> bool:
 	if not can_level_up(world, c):
 		return false
 	var spec: Dictionary = c.get_meta("spec").duplicate(true)
-	spec["level"] = c.level + 1
+	if cid == "" or (cid == c.class_id and spec.get("classes", []).is_empty()):
+		if spec.get("classes", []).is_empty():
+			spec["level"] = c.level + 1
+		else:
+			spec["classes"][0]["level"] = int(spec["classes"][0]["level"]) + 1
+			spec["level"] = c.level + 1
+	else:
+		if spec.get("classes", []).is_empty():
+			spec["classes"] = [{"class": spec.get("class", c.class_id), "level": int(spec.get("level", c.level)), "subclass": spec.get("subclass", "")}]
+		var found := false
+		for e: Dictionary in spec["classes"]:
+			if str(e["class"]) == cid:
+				e["level"] = int(e["level"]) + 1
+				e.merge(extra, true)
+				found = true
+		if not found:
+			var ne := {"class": cid, "level": 1}
+			ne.merge(extra, true)
+			spec["classes"].append(ne)
+		spec["level"] = c.level + 1
 	if not Builder.validate(spec).is_empty():
 		return false
 	Builder.reapply(c, spec)

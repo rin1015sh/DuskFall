@@ -114,8 +114,8 @@ static func fall(creature: Node, levels: int) -> Dictionary:
 	var amount: int = r["total"]
 	if creature.has_cap("slow_fall") and creature.can_react() and creature.reaction_setting("slow_fall") != "off":
 		creature.turn["reaction"] = int(creature.turn.get("reaction", 1)) - 1  # 몽크 느린 낙하: 반응, 몽크 레벨 × 5 줄이기
-		amount = maxi(0, amount - 5 * creature.level)
-		Dice.log_text("%s 느린 낙하: 낙하 피해 −%d" % [creature.label(), 5 * creature.level])
+		amount = maxi(0, amount - 5 * creature.feature_level("slow_fall"))
+		Dice.log_text("%s 느린 낙하: 낙하 피해 −%d" % [creature.label(), 5 * creature.feature_level("slow_fall")])
 	var dmg := Resolver.apply_damage(creature, [{"amount": amount, "damage_type": "bludgeoning"}], {"in_combat": not EventBus.realtime})
 	out["damage"] = dmg["total"]
 	if dmg["total"] > 0 and not creature.dead:

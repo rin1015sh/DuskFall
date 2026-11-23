@@ -536,7 +536,7 @@ static func sneak_dice(c: Node) -> int:
 	var best := 1
 	var best_lv := 0
 	for lv: String in table:
-		if c.level >= int(lv) and int(lv) > best_lv:
+		if c.feature_level("sneak_attack") >= int(lv) and int(lv) > best_lv:
 			best_lv = int(lv)
 			best = int(str(table[lv]).get_slice("d", 0))
 	return best

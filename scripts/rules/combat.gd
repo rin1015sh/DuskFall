@@ -75,7 +75,7 @@ static func martial_arts_die(c: Node) -> String:
 	var best := "1d6"
 	var best_lv := 0
 	for k: String in table:
-		if c.level >= int(k) and int(k) >= best_lv:
+		if c.feature_level("martial_arts") >= int(k) and int(k) >= best_lv:
 			best_lv = int(k)
 			best = str(table[k])
 	return best

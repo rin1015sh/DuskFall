@@ -44,11 +44,19 @@ static func build(spec: Dictionary) -> Dictionary:
 
 static func validate(spec: Dictionary) -> PackedStringArray:
 	var e := PackedStringArray()
-	var cls := RulesDB.get_entry("class", spec.get("class", ""))
-	if cls.is_empty():
-		e.append("모르는 클래스 '%s'" % spec.get("class", ""))
-		return e
-	var lv := int(spec.get("level", 1))
+	var entries := class_entries(spec)
+	var seen := {}
+	for ce: Dictionary in entries:
+		if ce["cls"].is_empty():
+			e.append("모르는 클래스 '%s'" % ce["id"])
+			return e
+		if seen.has(ce["id"]):
+			e.append("같은 클래스를 두 번 적었다(%s)" % ce["id"])
+		seen[ce["id"]] = true
+		if int(ce["level"]) < 1:
+			e.append("%s 레벨은 1 이상" % ce["id"])
+	var cls: Dictionary = entries[0]["cls"]
+	var lv := total_level(spec)  # 멀티클래스 선행 조건(능력치 13)은 없다(BG3식 — 사용자 결정 2026-11-23)
 	if lv < 1 or lv > Levels.level_cap():
 		e.append("레벨 범위는 1~%d(data/rules/progression.json)" % Levels.level_cap())
 	var sp := RulesDB.get_entry("species", spec.get("species", ""))
@@ -69,12 +77,14 @@ static func validate(spec: Dictionary) -> PackedStringArray:
 	for s: String in skills:
 		if not s in sk["from"]:
 			e.append("%s는 %s 기능 목록에 없다" % [s, cls["id"]])
-	var sub_lv := 99
-	for sc: Dictionary in cls.get("subclasses", []):
-		sub_lv = mini(sub_lv, int(sc.get("level", 3)))
-	if lv >= sub_lv and spec.get("subclass", "") == "":
-		e.append("%d레벨부터 하위 클래스를 골라야 한다" % sub_lv)
-	e.append_array(validate_spells(cls, spec, lv))
+	for ce: Dictionary in entries:
+		var sub_lv := 99
+		for sc: Dictionary in ce["cls"].get("subclasses", []):
+			sub_lv = mini(sub_lv, int(sc.get("level", 3)))
+		var picked := str(spec.get("subclass", "")) if ce["primary"] and spec.get("classes", []).is_empty() else str(ce["entry"].get("subclass", ""))
+		if int(ce["level"]) >= sub_lv and picked == "":
+			e.append("%s %d레벨부터 하위 클래스를 골라야 한다" % [ce["id"], sub_lv] if not ce["primary"] or not spec.get("classes", []).is_empty() else "%d레벨부터 하위 클래스를 골라야 한다" % sub_lv)
+		e.append_array(validate_spells(ce["cls"], spec if ce["primary"] else ce["entry"], int(ce["level"])))
 	e.append_array(validate_feat_spells(spec))
 	return e
 
@@ -158,21 +168,25 @@ static func validate_bonus(bonus: Dictionary) -> PackedStringArray:
 # ======================================================================
 
 static func apply(c: Node, spec: Dictionary) -> void:
-	var cls := RulesDB.get_entry("class", spec["class"])
+	var entries := class_entries(spec)  # 멀티클래스: 첫 클래스가 주 클래스(내성·기능 숙련·전체 훈련)
+	var cls: Dictionary = entries[0]["cls"]
 	var sp := RulesDB.get_entry("species", spec["species"])
 	var lin := RulesDB.get_entry("species", spec.get("lineage", ""))
 	var bg := RulesDB.get_entry("background", spec["background"])
-	var lv := int(spec.get("level", 1))
-	var sub := {}
-	for s: Dictionary in cls.get("subclasses", []):
-		if s["id"] == spec.get("subclass", "") and lv >= int(s["level"]):
-			sub = s
+	var lv := total_level(spec)
+	var sub: Dictionary = entries[0]["sub"]
 	c.display_name = spec.get("name", {"ko": cls["name"]["ko"], "en": cls["name"]["en"]})
 	c.team = spec.get("team", "party")
 	c.is_player_character = true
 	c.level = lv
 	c.class_id = cls["id"]
 	c.subclass_id = sub.get("id", "")
+	c.class_levels = {}
+	c.subclass_ids = {}
+	c.feature_class = {}
+	for e: Dictionary in entries:
+		c.class_levels[e["id"]] = int(e["level"])
+		c.subclass_ids[e["id"]] = e["sub"].get("id", "")
 	c.species_id = sp["id"]
 	c.lineage_id = lin.get("id", "")
 	c.background_id = bg["id"]
@@ -184,14 +198,16 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var feats: Array = [bg["feat"]]
 	if spec.get("origin_feat", "") != "" and sp.get("origin_feat_choice", false):
 		feats.append(spec["origin_feat"])
-	for asi_lv: int in cls.get("asi_levels", []):
-		if lv >= asi_lv:
-			var pick: Dictionary = spec.get("asi", {}).get(str(asi_lv), {})
-			if pick.has("feat"):
-				feats.append(pick["feat"])
-			else:
-				for a: String in pick.keys():
-					ab[a] = mini(int(ab[a]) + int(pick[a]), 20)
+	for e: Dictionary in entries:
+		var asi_src: Dictionary = spec.get("asi", {}) if e["primary"] else e["entry"].get("asi", {})  # 능력치 향상은 클래스 레벨로
+		for asi_lv: int in e["cls"].get("asi_levels", []):
+			if int(e["level"]) >= asi_lv:
+				var pick: Dictionary = asi_src.get(str(asi_lv), {})
+				if pick.has("feat"):
+					feats.append(pick["feat"])
+				else:
+					for a: String in pick.keys():
+						ab[a] = mini(int(ab[a]) + int(pick[a]), 20)
 	# 장비(equipment.gd): 착용 능력치 최소값(오우거 힘의 건틀릿 등)
 	var slots := Equipment.from_spec(spec, cls)
 	var mins := Equipment.ability_mins(slots)
@@ -213,9 +229,12 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	c.feature_data = {}
 	c.feature_hooks = {}
 	c.caps = []
-	for f: Dictionary in cls["features"] + sub.get("features", []):
-		if int(f.get("level", 1)) <= lv:
-			_add_feature(c, f)
+	for e: Dictionary in entries:
+		for f: Dictionary in e["cls"]["features"] + e["sub"].get("features", []):
+			if int(f.get("level", 1)) <= int(e["level"]):
+				if not c.feature_class.has(f["id"]):
+					c.feature_class[f["id"]] = e["id"]  # 기능 → 클래스(기능 스크립트는 그 클래스 레벨로 — creature.feature_level)
+				_add_feature(c, f)
 	for f: Dictionary in sp.get("features", []) + lin.get("features", []):
 		_add_feature(c, f)
 	# 고르는 기능(choice_kind): 명세 키 = 기능 id. feat = 재주, expertise = 전문화, option = choice_grants 효과
@@ -229,7 +248,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		var kind := str(f.get("choice_kind", ""))
 		if kind == "option" and spec.get(fid) is Array:
 			for pick: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
-				if lv < int(f.get("choice_min_level", {}).get(str(pick), 0)):
+				if c.feature_level(fid) < int(f.get("choice_min_level", {}).get(str(pick), 0)):
 					continue  # 선행 레벨이 안 된 선택지(워락 영창)
 				if f.get("choice_grants", {}).has(str(pick)):
 					grants.append([fid, f["choice_grants"][str(pick)]])  # 여러 개 고르기(소서러 주문 변형 2)
@@ -264,6 +283,9 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	# 기능이 주는 것(grants): 공격 횟수·치명타 범위·훈련·소마법 수·태그·유리
 	var wt: Array = cls["weapon_training"].duplicate()
 	var armor_training: Array = cls["armor_training"].duplicate()
+	for e: Dictionary in entries.slice(1):
+		wt.append_array(e["cls"].get("multiclass", {}).get("weapon_training", []))  # 멀티클래스로 들어온 클래스는 일부 숙련만(SRD)
+		armor_training.append_array(e["cls"].get("multiclass", {}).get("armor_training", []))
 	var extra_cantrips := 0
 	var hp_per_level := 0
 	var at_will: Array = []
@@ -279,7 +301,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		hp_per_level += int(gr.get("hp_per_level", 0))
 		at_will.append_array(gr.get("at_will", []))  # 슬롯 없이 마음대로 쓰는 주문(워락 영창)
 		for k: String in gr.get("always_prepared", {}):
-			if lv >= int(k):
+			if c.feature_level(str(g[0])) >= int(k):
 				grant_spells.append_array(gr["always_prepared"][k])  # 선택에 따른 항상 준비(대지 회합 주문)
 		for sk: String in gr.get("skill_bonus_ability", {}):
 			skill_bonus_ability[sk] = str(gr["skill_bonus_ability"][sk])  # 원초의 질서 마법사: 비전·자연 + 지혜
@@ -299,6 +321,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		skills.append(spec["species_skill"])
 	skills.append_array(spec.get("extra_skills", []))
 	skills.append_array(extra_skill)
+	for e: Dictionary in entries.slice(1):
+		skills.append_array(e["entry"].get("skills", []).slice(0, int(e["cls"].get("multiclass", {}).get("skills", {}).get("choose", 0))))
 	c.skill_bonuses = {}
 	for s: String in skills:
 		c.skill_bonuses[s] = c.proficiency_bonus * (2 if s in expertise else 1)  # 전문화는 숙련 기능에만
@@ -307,22 +331,40 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	# 훈련·숙련
 	c.weapon_proficiencies = _weapon_profs(wt)
 	# 무기 마스터리: 레벨별 개수만큼(명세에 미리 적어 둔 다음 선택은 레벨이 오르면 열린다)
-	c.weapon_masteries = spec.get("masteries", []).slice(0, _by_level(cls.get("weapon_mastery", {}), lv, 0))
+	var mastery_n := 0
+	for e: Dictionary in entries:
+		mastery_n = maxi(mastery_n, _by_level(e["cls"].get("weapon_mastery", {}), int(e["level"]), 0))
+	c.weapon_masteries = spec.get("masteries", []).slice(0, mastery_n)
 	# HP: 1레벨 최대, 이후 평균 올림(룰북 6단계) + 건강 수정치, 드워프 +1/레벨
-	var hd: int = cls["hit_die"]
 	var con: int = c.ability_mod("con")
-	var hp: int = hd + con + (lv - 1) * (hd / 2 + 1 + con) + int(sp.get("hp_per_level", 0)) * lv
+	var hp: int = int(sp.get("hp_per_level", 0)) * lv
+	for e: Dictionary in entries:
+		var hd: int = e["cls"]["hit_die"]
+		var n := int(e["level"])
+		if e["primary"]:
+			hp += hd + con + (n - 1) * (hd / 2 + 1 + con)  # 캐릭터 1레벨만 최대(SRD 멀티클래스)
+		else:
+			hp += n * (hd / 2 + 1 + con)
 	hp += hp_per_level * lv  # 기능 부여 hp_per_level(용의 회복력: 레벨당 +1)
 	c.hp_max = maxi(hp, lv)
 	c.hp = c.hp_max
 	# 자원
 	c.resources = {}
-	for r: Dictionary in cls.get("resources", []) + sp.get("resources", []):
-		var mx := _resource_max(r["max"], lv, c.proficiency_bonus, c)
+	var res_src: Array = []  # [자원 데이터, 그 클래스 레벨]
+	for e: Dictionary in entries:
+		for r: Dictionary in e["cls"].get("resources", []):
+			res_src.append([r, int(e["level"])])
+	for r: Dictionary in sp.get("resources", []):
+		res_src.append([r, lv])
+	for row: Array in res_src:
+		var r: Dictionary = row[0]
+		var mx := _resource_max(r["max"], int(row[1]), c.proficiency_bonus, c)
 		if mx > 0:
 			var rc: Variant = r["recharge"]
 			if rc is Dictionary:
-				rc = _by_level_str(rc, lv, "long")  # 레벨표(바드: 5레벨부터 짧은 휴식 — 영감의 샘)
+				rc = _by_level_str(rc, int(row[1]), "long")  # 레벨표(바드: 5레벨부터 짧은 휴식 — 영감의 샘)
+			if c.resources.has(r["id"]) and int(c.resources[r["id"]]["max"]) >= mx:
+				continue  # 같은 자원을 두 클래스가 주면 큰 쪽(신성 변환 등)
 			c.resources[r["id"]] = {"current": mx, "max": mx, "recharge": str(rc)}
 	# 장비·AC: 칸에서 갑옷·방패·무기 묶음과 착용 효과(마법 보너스·반지·망토 등은 수정치 source "item:<칸>")
 	c.set_meta("armor_training", armor_training)
@@ -337,7 +379,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	if c.has_cap("unarmored_movement") and str(c.get_meta("armor")) == "" and not bool(c.get_meta("shield")):
 		c.speed_tiles += 2  # 몽크 맨몸 이동: 갑옷·방패 없으면 +10피트(1~5레벨)
 	# 주문
-	_apply_spells(c, cls, sub, sp, lin, spec, lv, extra_cantrips)
+	_apply_spells(c, entries, sp, lin, spec, lv, extra_cantrips)
 	_apply_feat_spells(c, feats, spec)
 	c.set_meta("at_will", at_will)
 	for sid: String in at_will + grant_spells:
@@ -398,12 +440,15 @@ static func _add_feature(c: Node, f: Dictionary) -> void:
 static func armor_class(c: Node, armor_id: String, shield: bool, training: Array = []) -> int:
 	var dex: int = c.ability_mod("dex")
 	var ac := 10 + dex
+	# 맨몸 방어 공식은 하나만(SRD 멀티클래스 — 가장 좋은 것)
+	var extra := 0
 	if armor_id == "" and c.has_cap("unarmored_defense_con"):
-		ac += c.ability_mod("con")  # 바바리안 맨몸 방어: 10 + 민첩 + 건강(방패 가능)
+		extra = maxi(extra, c.ability_mod("con"))  # 바바리안 맨몸 방어: 10 + 민첩 + 건강(방패 가능)
 	if armor_id == "" and c.has_cap("unarmored_defense_cha"):
-		ac += c.ability_mod("cha")  # 용의 회복력(소서러): 갑옷이 없으면 10 + 민첩 + 매력
+		extra = maxi(extra, c.ability_mod("cha"))  # 용의 회복력(소서러): 갑옷이 없으면 10 + 민첩 + 매력
 	if armor_id == "" and not shield and c.has_cap("unarmored_defense_wis"):
-		ac += c.ability_mod("wis")  # 몽크 맨몸 방어: 10 + 민첩 + 지혜(방패 없이)
+		extra = maxi(extra, c.ability_mod("wis"))  # 몽크 맨몸 방어: 10 + 민첩 + 지혜(방패 없이)
+	ac += extra
 	if armor_id != "":
 		var a := RulesDB.get_entry("armor", armor_id)
 		var cap: Variant = a.get("dex_cap")
@@ -448,65 +493,54 @@ static func _weapon_profs(training: Array) -> Array:
 	return out
 
 
-static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Dictionary, lin: Dictionary, spec: Dictionary, lv: int, extra_cantrips: int = 0) -> void:
+## 주문: 슬롯(한 시전 클래스면 그 표, 둘 이상이면 SRD 멀티클래스 표 — 계약 마법은 따로 pact_slot_N), 클래스마다 소마법·준비·주문서.
+## 주 클래스는 명세 cantrips·spells·spellbook, 다른 클래스는 명세 classes 항목의 같은 키. c.spell_class = 주문 → 클래스(시전 능력).
+static func _apply_spells(c: Node, entries: Array, sp: Dictionary, lin: Dictionary, spec: Dictionary, lv: int, extra_cantrips: int = 0) -> void:
 	var spells: Array = []
+	c.spellcasting_ability = ""
 	c.spellbook = []
 	c.prepared = []
-	var sc: Dictionary = cls.get("spellcasting", {})
-	if not sc.is_empty():
-		c.spellcasting_ability = sc["ability"]
-		var slots: Array = sc["slots"].get(str(lv), [])
-		for i in slots.size():
-			c.resources["spell_slot_%d" % (i + 1)] = {"current": slots[i], "max": slots[i], "recharge": str(sc.get("slot_recharge", "long"))}
-		var cantrips: Array = spec.get("cantrips", [])
-		spells.append_array(cantrips.slice(0, _by_level(sc["cantrips"], lv, 0) + extra_cantrips))
-		# 준비 주문: 명세 순서대로, 가진 슬롯 레벨 이하인 것만 준비 수만큼(높은 주문은 레벨이 오르면 열린다)
-		var max_slot: int = slots.size()
-		var castable: Array = spec.get("spells", []).filter(func(sid: Variant) -> bool:
-			var l := int(RulesDB.get_entry("spell", str(sid)).get("level", 99))
-			return l >= 1 and l <= max_slot)
-		# 주문서형: 주문서 = 명세 spellbook(두루마리로 배운 것 포함), 없으면 명세 주문에서 기본 크기만큼. 준비는 주문서 안에서만
-		if str(sc.get("type", "")) == "spellbook":
-			var book: Array = []
-			for sid: Variant in spec.get("spellbook", []):
-				if not str(sid) in book and not RulesDB.get_entry("spell", str(sid)).is_empty():
-					book.append(str(sid))
-			# 크기 = 기본(6 + 레벨당 2) + 학파 무료 주문(grants.spellbook_school — 방출 학자) + 두루마리로 배운 수
-			var base_size := int(sc.get("spellbook", {}).get("1", 6)) + int(sc.get("spellbook", {}).get("per_level", 2)) * (lv - 1)
-			var target := base_size + int(spec.get("spellbook_learned", 0))
-			for f: Dictionary in c.feature_data.values():
-				var bonus: Dictionary = f.get("grants", {}).get("spellbook_school", {})
-				if bonus.is_empty():
-					continue
-				var slots_then: int = sc["slots"].get(str(int(f.get("level", 1))), []).size()
-				var n := int(bonus.get("count", 0)) + int(bonus.get("per_new_slot_level", 0)) * maxi(0, max_slot - slots_then)
-				var have := book.filter(func(x: String) -> bool: return str(RulesDB.get_entry("spell", x).get("school", "")) == str(bonus["school"])).size()
-				target += n
-				for sid: Variant in castable:
-					if have >= n:
-						break
-					var e := RulesDB.get_entry("spell", str(sid))
-					if str(e.get("school", "")) == str(bonus["school"]) and not str(sid) in book:
-						book.append(str(sid))
-						have += 1
-			for sid: Variant in castable:
-				if book.size() >= target:
-					break
-				if not str(sid) in book:
-					book.append(str(sid))
-			c.spellbook = book
-			castable = castable.filter(func(sid: Variant) -> bool: return str(sid) in book)
-		var prep: Array = []
-		for sid: Variant in castable:
-			if not str(sid) in prep:
-				prep.append(str(sid))
-		prep = prep.slice(0, _by_level(sc["prepared"], lv, 0))
-		spells.append_array(prep)
-		c.prepared = prep
-	for src: Dictionary in [cls, sub]:
-		for k: String in src.get("always_prepared", {}).keys():
-			if lv >= int(k):
-				spells.append_array(src["always_prepared"][k])  # 클래스·하위 클래스의 항상 준비 주문(준비 수에 세지 않음)
+	c.prepared_by_class = {}
+	c.spell_class = {}
+	var casters: Array = entries.filter(func(e: Dictionary) -> bool: return not e["cls"].get("spellcasting", {}).is_empty())
+	var normal: Array = casters.filter(func(e: Dictionary) -> bool: return str(e["cls"]["spellcasting"].get("progression", "full")) != "pact")
+	var pact: Array = casters.filter(func(e: Dictionary) -> bool: return str(e["cls"]["spellcasting"].get("progression", "full")) == "pact")
+	if normal.size() >= 2:
+		var clv := 0
+		for e: Dictionary in normal:
+			clv += int(e["level"]) if str(e["cls"]["spellcasting"].get("progression", "full")) == "full" else ceili(int(e["level"]) / 2.0)
+		var table: Array = Levels.multiclass_slots(clv)
+		for i in table.size():
+			c.resources["spell_slot_%d" % (i + 1)] = {"current": table[i], "max": table[i], "recharge": "long"}
+	elif normal.size() == 1:
+		var sc0: Dictionary = normal[0]["cls"]["spellcasting"]
+		var t0: Array = sc0["slots"].get(str(normal[0]["level"]), [])
+		for i in t0.size():
+			c.resources["spell_slot_%d" % (i + 1)] = {"current": t0[i], "max": t0[i], "recharge": str(sc0.get("slot_recharge", "long"))}
+	for e: Dictionary in pact:
+		var scp: Dictionary = e["cls"]["spellcasting"]
+		var tp: Array = scp["slots"].get(str(e["level"]), [])
+		var key := "pact_slot_%d" if not normal.is_empty() else "spell_slot_%d"  # 계약 마법은 다른 시전 슬롯과 따로(짧은 휴식)
+		for i in tp.size():
+			if int(tp[i]) > 0 or normal.is_empty():
+				c.resources[key % (i + 1)] = {"current": tp[i], "max": tp[i], "recharge": str(scp.get("slot_recharge", "short"))}
+	for e: Dictionary in casters:
+		var cs: Array = _class_spells(c, e, spec if e["primary"] else e["entry"], extra_cantrips if e["primary"] else 0)
+		spells.append_array(cs)
+		if c.spellcasting_ability == "" or e["primary"]:
+			c.spellcasting_ability = str(e["cls"]["spellcasting"]["ability"])
+	for e: Dictionary in entries:
+		for src: Dictionary in [e["cls"], e["sub"]]:
+			for k: String in src.get("always_prepared", {}).keys():
+				if int(e["level"]) >= int(k):
+					for sid: String in src["always_prepared"][k]:
+						spells.append(sid)  # 클래스·하위 클래스의 항상 준비 주문(준비 수에 세지 않음)
+						if not c.spell_class.has(sid):
+							c.spell_class[sid] = e["id"]
+	for cid: String in c.prepared_by_class:
+		for sid: String in c.prepared_by_class[cid]:
+			if not sid in c.prepared:
+				c.prepared.append(sid)
 	for s: Dictionary in sp.get("spells", []) + lin.get("spells", []):
 		if lv >= int(s["level"]):
 			spells.append(s["spell"])
@@ -520,6 +554,91 @@ static func _apply_spells(c: Node, cls: Dictionary, sub: Dictionary, sp: Diction
 	c.spells = uniq
 	if c.spellcasting_ability == "" and not uniq.is_empty():
 		c.spellcasting_ability = spec.get("origin_ability", "cha")
+
+
+## 한 시전 클래스의 소마법·준비 주문(주문서형이면 주문서). src = 그 클래스의 명세(주 클래스는 명세 전체, 다른 클래스는 classes 항목).
+## 준비할 수 있는 레벨은 그 클래스만 있는 것처럼(SRD 멀티클래스 — 자기 표의 슬롯 레벨까지).
+static func _class_spells(c: Node, e: Dictionary, src: Dictionary, extra_cantrips: int) -> Array:
+	var sc: Dictionary = e["cls"]["spellcasting"]
+	var clv := int(e["level"])
+	var out: Array = []
+	var cantrips: Array = src.get("cantrips", []).slice(0, _by_level(sc["cantrips"], clv, 0) + extra_cantrips)
+	for sid: Variant in cantrips:
+		out.append(str(sid))
+		c.spell_class[str(sid)] = e["id"]
+	var max_slot: int = sc["slots"].get(str(clv), []).size()
+	var castable: Array = src.get("spells", []).filter(func(sid: Variant) -> bool:
+		var l := int(RulesDB.get_entry("spell", str(sid)).get("level", 99))
+		return l >= 1 and l <= max_slot)
+	# 주문서형: 주문서 = 명세 spellbook(두루마리로 배운 것 포함), 없으면 명세 주문에서 기본 크기만큼. 준비는 주문서 안에서만
+	if str(sc.get("type", "")) == "spellbook":
+		var book: Array = []
+		for sid: Variant in src.get("spellbook", []):
+			if not str(sid) in book and not RulesDB.get_entry("spell", str(sid)).is_empty():
+				book.append(str(sid))
+		# 크기 = 기본(6 + 레벨당 2) + 학파 무료 주문(grants.spellbook_school — 방출 학자) + 두루마리로 배운 수
+		var base_size := int(sc.get("spellbook", {}).get("1", 6)) + int(sc.get("spellbook", {}).get("per_level", 2)) * (clv - 1)
+		var target := base_size + int(src.get("spellbook_learned", 0))
+		for f: Dictionary in c.feature_data.values():
+			var bonus: Dictionary = f.get("grants", {}).get("spellbook_school", {})
+			if bonus.is_empty():
+				continue
+			var slots_then: int = sc["slots"].get(str(int(f.get("level", 1))), []).size()
+			var n := int(bonus.get("count", 0)) + int(bonus.get("per_new_slot_level", 0)) * maxi(0, max_slot - slots_then)
+			var have := book.filter(func(x: String) -> bool: return str(RulesDB.get_entry("spell", x).get("school", "")) == str(bonus["school"])).size()
+			target += n
+			for sid: Variant in castable:
+				if have >= n:
+					break
+				var se := RulesDB.get_entry("spell", str(sid))
+				if str(se.get("school", "")) == str(bonus["school"]) and not str(sid) in book:
+					book.append(str(sid))
+					have += 1
+		for sid: Variant in castable:
+			if book.size() >= target:
+				break
+			if not str(sid) in book:
+				book.append(str(sid))
+		c.spellbook = book
+		castable = castable.filter(func(sid: Variant) -> bool: return str(sid) in book)
+	var prep: Array = []
+	for sid: Variant in castable:
+		if not str(sid) in prep:
+			prep.append(str(sid))
+	prep = prep.slice(0, _by_level(sc["prepared"], clv, 0))
+	for sid: String in prep:
+		c.spell_class[sid] = e["id"]
+	c.prepared_by_class[e["id"]] = prep
+	out.append_array(prep)
+	return out
+
+
+## 명세의 클래스 목록(멀티클래스): classes [{class, level, subclass, (다른 클래스는 skills·cantrips·spells·asi)}],
+## 없으면 class·level·subclass 하나. 결과 [{id, level, cls, sub, entry, primary}].
+static func class_entries(spec: Dictionary) -> Array:
+	var raw: Array = spec.get("classes", [])
+	if raw.is_empty():
+		raw = [{"class": spec.get("class", ""), "level": int(spec.get("level", 1)), "subclass": spec.get("subclass", "")}]
+	var out: Array = []
+	for i in raw.size():
+		var e: Dictionary = raw[i]
+		var cls := RulesDB.get_entry("class", str(e.get("class", "")))
+		var sub := {}
+		for sc: Dictionary in cls.get("subclasses", []):
+			if sc["id"] == str(e.get("subclass", "")) and int(e.get("level", 1)) >= int(sc["level"]):
+				sub = sc
+		out.append({"id": str(e.get("class", "")), "level": int(e.get("level", 1)), "cls": cls, "sub": sub, "entry": e, "primary": i == 0})
+	return out
+
+
+## 캐릭터 레벨 = 클래스 레벨 합.
+static func total_level(spec: Dictionary) -> int:
+	if spec.get("classes", []).is_empty():
+		return int(spec.get("level", 1))
+	var n := 0
+	for e: Dictionary in spec["classes"]:
+		n += int(e.get("level", 1))
+	return n
 
 
 ## 주문 재주(마법 입문 등 — 재주 데이터 spell_list·cantrips·level1_spells): 명세 키 = 재주 id, 값 {"cantrips": [...], "spells": [...]}.

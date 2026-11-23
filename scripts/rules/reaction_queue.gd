@@ -170,7 +170,7 @@ static func _feature_die(c: Node, f: Dictionary) -> String:
 	var best := "1d6"
 	var best_lv := 0
 	for k: String in table:
-		if c.level >= int(k) and int(k) >= best_lv:
+		if c.feature_level(str(f.get("id", ""))) >= int(k) and int(k) >= best_lv:
 			best_lv = int(k)
 			best = str(table[k])
 	return best
@@ -246,7 +246,7 @@ func _on_damage_taken(info: Dictionary) -> void:
 ## min_level 이상에서 가장 낮은 남은 주문 슬롯 자원 ID. 없으면 "".
 static func lowest_slot(c: Node, min_level: int) -> String:
 	for lv in range(min_level, 10):
-		var id := "spell_slot_%d" % lv
-		if c.resource(id) > 0:
-			return id
+		for key: String in ["spell_slot_%d", "pact_slot_%d"]:
+			if c.resource(key % lv) > 0:
+				return key % lv  # 멀티클래스 계약 마법 슬롯도
 	return ""

@@ -296,5 +296,15 @@
       }
     }
   },
-  "source": "SRD 5.2.1"
+  "source": "SRD 5.2.1",
+  "multiclass": {
+    "weapon_training": [
+      "martial"
+    ],
+    "armor_training": [
+      "light",
+      "medium",
+      "shield"
+    ]
+  }
 }

@@ -155,7 +155,7 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 			_heal_to(c, maxi(c.hp, c.hp_max / 2))
 			for id: String in c.resources:
 				var r: Dictionary = c.resources[id]
-				if id.begins_with("spell_slot_"):
+				if id.begins_with("spell_slot_") or id.begins_with("pact_slot_"):
 					r["current"] = maxi(r["current"], int(r["max"]) / 2)
 	if full:
 		world["short_rests_left"] = SHORT_RESTS

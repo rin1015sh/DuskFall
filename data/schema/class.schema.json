@@ -628,6 +628,14 @@
         },
         "spellbook": {
           "type": "object"
+        },
+        "progression": {
+          "$comment": "멀티클래스 시전 레벨 계산: full(전 레벨)·half(절반 올림)·pact(계약 마법 — 따로)",
+          "enum": [
+            "full",
+            "half",
+            "pact"
+          ]
         }
       }
     },
@@ -810,6 +818,39 @@
     "always_prepared": {
       "$comment": "클래스 레벨 → 항상 준비 주문(준비 수에 세지 않음)",
       "type": "object"
+    },
+    "multiclass": {
+      "$comment": "멀티클래스로 이 클래스에 처음 들어올 때 얻는 숙련(SRD 'As a Multiclass Character'): weapon_training, armor_training, skills{choose, from: any|class}. 생명 주사위는 늘 얻는다",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "weapon_training": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "armor_training": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "skills": {
+          "type": "object",
+          "properties": {
+            "choose": {
+              "type": "integer"
+            },
+            "from": {
+              "enum": [
+                "any",
+                "class"
+              ]
+            }
+          }
+        }
+      }
     }
   }
 }

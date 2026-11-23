@@ -46,7 +46,7 @@ func _dice_count(c: Node) -> int:
 	var best := "1d6"
 	var best_lv := 0
 	for lv: String in table.keys():
-		if c.level >= int(lv) and int(lv) > best_lv:
+		if c.feature_level("sneak_attack") >= int(lv) and int(lv) > best_lv:
 			best_lv = int(lv)
 			best = table[lv]
 	return int(best.get_slice("d", 0))

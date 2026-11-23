@@ -19,7 +19,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 		return {"ok": false, "reason": "대상이 없다"}
 	if w.has("grid") and (w["grid"].distance_between(c, t) > RANGE or not w["grid"].can_see(c, t)):
 		return {"ok": false, "reason": "6칸 안 보이는 대상만"}
-	var dice := "2d8" if c.level >= 7 else "1d8"
+	var dice := "2d8" if c.feature_level("divine_spark") >= 7 else "1d8"
 	var total: int = Dice.roll(dice, "신성한 불꽃")["total"] + c.ability_mod("wis")
 	var opts: Dictionary = ctx.get("opts", {})
 	if opts.get("mode", "damage") == "heal":

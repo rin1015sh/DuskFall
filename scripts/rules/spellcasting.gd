@@ -17,7 +17,18 @@ static var instances := {}
 
 
 static func spell_mod(c: Node) -> int:
-	return c.ability_mod(c.spellcasting_ability) if c.spellcasting_ability != "" else 0
+	var ab := str(c.get_meta("casting_ability", c.spellcasting_ability))  # 멀티클래스: 시전 중인 주문의 클래스 능력
+	return c.ability_mod(ab) if ab != "" else 0
+
+
+## 그 주문을 준비한 클래스의 시전 능력(멀티클래스 — 없으면 주 시전 능력).
+static func ability_for(c: Node, spell_id: String) -> String:
+	var cid := str(c.spell_class.get(spell_id, ""))
+	if cid != "":
+		var ab := str(RulesDB.get_entry("class", cid).get("spellcasting", {}).get("ability", ""))
+		if ab != "":
+			return ab
+	return c.spellcasting_ability
 
 
 static func spell_dc(c: Node) -> int:
@@ -291,10 +302,12 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 	return ""
 
 
+## 그 레벨 이상에서 가장 낮은 남은 슬롯(주문 슬롯, 멀티클래스면 계약 마법 슬롯 pact_slot_N도 — SRD).
 static func _slot(c: Node, level: int) -> String:
 	for lv in range(maxi(level, 1), 10):
-		if c.resource("spell_slot_%d" % lv) > 0:
-			return "spell_slot_%d" % lv
+		for key: String in ["spell_slot_%d", "pact_slot_%d"]:
+			if c.resource(key % lv) > 0:
+				return key % lv
 	return ""
 
 
@@ -348,6 +361,19 @@ static func _area_damage_type(spell: Dictionary) -> String:
 
 ## opts: {"targets": [생물], "slot": 슬롯 레벨, "choice": 선택(피해 유형 등), "mode": ...}
 static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i, opts: Dictionary = {}) -> Dictionary:
+	# 시전하는 동안 그 주문 클래스의 능력으로 DC·공격·수정치를 계산한다(멀티클래스)
+	var had := caster.has_meta("casting_ability")
+	var prev: Variant = caster.get_meta("casting_ability", "")
+	caster.set_meta("casting_ability", ability_for(caster, spell_id))
+	var r := _cast(world, caster, spell_id, aim, opts)
+	if had:
+		caster.set_meta("casting_ability", prev)
+	elif is_instance_valid(caster):
+		caster.remove_meta("casting_ability")
+	return r
+
+
+static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i, opts: Dictionary = {}) -> Dictionary:
 	var why := can_cast(world, caster, spell_id, aim, opts)
 	if why != "":
 		return {"ok": false, "reason": why}

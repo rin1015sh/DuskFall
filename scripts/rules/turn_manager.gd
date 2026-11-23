@@ -92,7 +92,7 @@ func _uncanny_metabolism(c: Node) -> void:
 		return
 	c.spend_resource("uncanny_metabolism")
 	f["current"] = f["max"]
-	var n: int = Dice.roll(load("res://scripts/rules/combat.gd").martial_arts_die(c), "신비한 대사")["total"] + c.level
+	var n: int = Dice.roll(load("res://scripts/rules/combat.gd").martial_arts_die(c), "신비한 대사")["total"] + c.feature_level("uncanny_metabolism")
 	Resolver.heal(c, n, c)
 	Dice.log_text("%s 신비한 대사: 기 회복, HP +%d" % [c.label(), n])
 

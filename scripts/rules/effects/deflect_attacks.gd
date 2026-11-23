@@ -23,7 +23,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 		return {"ok": false}
 	var used := Features.offer_reaction(c, "deflect_attacks", {"attack": res}, func() -> void:
 		c.turn["reaction"] = int(c.turn.get("reaction", 1)) - 1
-		var n: int = Dice.roll("1d10", "공격 쳐내기")["total"] + c.ability_mod("dex") + c.level
+		var n: int = Dice.roll("1d10", "공격 쳐내기")["total"] + c.ability_mod("dex") + c.feature_level("deflect_attacks")
 		res["damage_reduction"] = int(res.get("damage_reduction", 0)) + n
 		Dice.log_text("%s 공격 쳐내기: 피해 −%d" % [c.label(), n]))
 	return {"ok": used}

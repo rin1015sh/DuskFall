@@ -79,7 +79,8 @@
         3,
         2
       ]
-    }
+    },
+    "progression": "full"
   },
   "resources": [
     {
@@ -384,5 +385,11 @@
       }
     }
   },
-  "source": "SRD 5.2.1"
+  "source": "SRD 5.2.1",
+  "multiclass": {
+    "armor_training": [
+      "light",
+      "shield"
+    ]
+  }
 }

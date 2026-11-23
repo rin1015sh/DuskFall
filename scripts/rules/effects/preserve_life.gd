@@ -16,7 +16,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 	if not w.has("grid"):
 		return {"ok": false, "reason": "격자가 없다"}
 	var grid: Node = w["grid"]
-	var pool: int = c.level * 5
+	var pool: int = c.feature_level("preserve_life") * 5
 	var hurt: Array = grid.creatures().filter(func(o: Node) -> bool:
 		return not o.dead and not o.is_hostile_to(c) and o.team == c.team and grid.distance_between(c, o) <= RANGE \
 			and o.hp <= o.hp_max / 2)

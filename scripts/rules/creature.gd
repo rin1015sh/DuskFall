@@ -79,6 +79,12 @@ var prep_base := []
 ## 캐릭터 출신·클래스(캐릭터 생성기가 채운다)
 var class_id := ""
 var subclass_id := ""
+## 멀티클래스: 클래스 → 레벨, 클래스 → 하위 클래스, 기능 → 클래스, 클래스 → 준비 주문, 주문 → 클래스(시전 능력)
+var class_levels := {}
+var subclass_ids := {}
+var feature_class := {}
+var prepared_by_class := {}
+var spell_class := {}
 var species_id := ""
 var lineage_id := ""
 var background_id := ""
@@ -145,6 +151,20 @@ func label() -> String:
 
 func ability_mod(ability: String) -> int:
 	return floori((int(abilities.get(ability, 10)) - 10) / 2.0)
+
+
+## 클래스 레벨(멀티클래스). 클래스를 안 주면 주 클래스. 클래스 정보가 없는 생물(몬스터)은 캐릭터 레벨.
+func class_level(cid: String = "") -> int:
+	if class_levels.is_empty():
+		return level
+	return int(class_levels.get(cid if cid != "" else class_id, 0))
+
+
+## 기능을 준 클래스의 레벨(기능 스크립트의 레벨표 — 급소 공격·무술 주사위·몽크 레벨 등).
+func feature_level(fid: String) -> int:
+	if class_levels.is_empty():
+		return level
+	return class_level(str(feature_class.get(fid, class_id)))
 
 
 func save_bonus(ability: String) -> int:

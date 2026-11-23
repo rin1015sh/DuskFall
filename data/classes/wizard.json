@@ -75,7 +75,8 @@
     "spellbook": {
       "1": 6,
       "per_level": 2
-    }
+    },
+    "progression": "full"
   },
   "resources": [
     {
@@ -275,5 +276,6 @@
       }
     }
   },
-  "source": "SRD 5.2.1"
+  "source": "SRD 5.2.1",
+  "multiclass": {}
 }

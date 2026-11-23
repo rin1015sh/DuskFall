@@ -9,8 +9,10 @@ func is_implemented() -> bool:
 func apply(ctx: Dictionary) -> Dictionary:
 	var c: Node = ctx["self"]
 	var regained := 0
+	var has_pact: bool = c.resources.keys().any(func(k: String) -> bool: return k.begins_with("pact_slot_"))
+	var prefix := "pact_slot_" if has_pact else "spell_slot_"  # 멀티클래스면 계약 마법 슬롯만
 	for id: String in c.resources:
-		if not id.begins_with("spell_slot_"):
+		if not id.begins_with(prefix):
 			continue
 		var r: Dictionary = c.resources[id]
 		var mx := int(r["max"])

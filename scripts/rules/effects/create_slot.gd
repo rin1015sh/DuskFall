@@ -15,7 +15,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 	var want := int(ctx.get("opts", {}).get("level", 0))
 	var pick := 0
 	for lv: int in COST:
-		if c.level >= COST[lv][1] and points >= COST[lv][0] and (want == 0 or lv == want):
+		if c.feature_level("create_slot") >= COST[lv][1] and points >= COST[lv][0] and (want == 0 or lv == want):
 			pick = maxi(pick, lv)
 	if pick == 0:
 		return {"ok": false, "reason": "마법 점수가 모자라다"}

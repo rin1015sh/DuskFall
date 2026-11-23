@@ -57,6 +57,10 @@
         "SRD 5.2.1",
         "original"
       ]
+    },
+    "multiclass_slots": {
+      "$comment": "SRD 멀티클래스 시전자 슬롯표",
+      "type": "object"
     }
   }
 }

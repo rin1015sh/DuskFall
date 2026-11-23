@@ -17,10 +17,10 @@ static func forms_for(c: Node) -> Array:
 	var out: Array = []
 	var max_cr := 0.0
 	for k: String in f.get("cr_by_level", {}):
-		if c.level >= int(k):
+		if c.feature_level("wild_shape") >= int(k):
 			max_cr = maxf(max_cr, float(f["cr_by_level"][k]))
 	for k: String in f.get("forms", {}):
-		if c.level < int(k):
+		if c.feature_level("wild_shape") < int(k):
 			continue
 		for id: String in f["forms"][k]:
 			var m := RulesDB.get_entry("monster", id)
@@ -40,7 +40,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 	if c.has_meta("beast_form"):
 		revert(c)
 	shape_stats(c, want)
-	Resolver.grant_temp_hp(c, c.level)
+	Resolver.grant_temp_hp(c, c.feature_level("wild_shape"))
 	c.apply_condition("wild_shaped", -1, c)
 	Dice.log_text("%s: 야생 변신 — %s" % [c.label(), RulesDB.get_entry("monster", want)["name"]["ko"]])
 	return {"ok": true, "form": want}

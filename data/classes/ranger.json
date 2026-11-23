@@ -81,7 +81,8 @@
         4,
         2
       ]
-    }
+    },
+    "progression": "half"
   },
   "resources": [
     {
@@ -298,5 +299,19 @@
       }
     }
   },
-  "source": "SRD 5.2.1"
+  "source": "SRD 5.2.1",
+  "multiclass": {
+    "weapon_training": [
+      "martial"
+    ],
+    "armor_training": [
+      "light",
+      "medium",
+      "shield"
+    ],
+    "skills": {
+      "choose": 1,
+      "from": "class"
+    }
+  }
 }

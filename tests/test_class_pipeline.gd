@@ -101,3 +101,29 @@ func test_spellcasting_is_data_driven() -> void:
 	var errs := Builder.validate(spec)
 	db._entries["class"].erase("test_pact")
 	assert_true(Array(errs).any(func(e: String) -> bool: return e.contains("cure_wounds")), "다른 클래스 주문은 오류 %s" % str(errs))
+
+
+## 멀티클래스 자동 점검(새 클래스 자동 포함): 모든 두 클래스 조합(3/2레벨)이 오류 없이 만들어지고, 레벨·HP·주문 슬롯이 말이 된다.
+func test_every_two_class_combination_builds() -> void:
+	var Builder := load("res://scripts/rules/character_builder.gd")
+	var ids: Array = _db().ids("class") if has_method("_db") else RulesDB.ids("class")
+	var bad: Array = []
+	for a: String in ids:
+		for b: String in ids:
+			if a == b:
+				continue
+			var spec: Dictionary = Builder.default_spec(a, 3)
+			var db: Dictionary = RulesDB.get_entry("class", b).get("default_build", {})
+			var second := {"class": b, "level": 2, "subclass": str(db.get("subclass", "")),
+				"cantrips": db.get("cantrips", []), "spells": db.get("spells", []),
+				"skills": RulesDB.get_entry("class", b).get("skills", {}).get("from", []).slice(0, 1)}
+			spec["classes"] = [{"class": a, "level": 3, "subclass": str(spec.get("subclass", ""))}, second]
+			var r: Dictionary = Builder.build(spec)
+			if not r["errors"].is_empty() or r["creature"] == null:
+				bad.append("%s/%s: %s" % [a, b, str(r["errors"])])
+				continue
+			var c: Node = r["creature"]
+			if c.level != 5 or c.hp_max <= 0 or c.class_level(b) != 2:
+				bad.append("%s/%s: 레벨 %d HP %d" % [a, b, c.level, c.hp_max])
+			c.free()
+	assert_eq(bad, [], "만들어지지 않은 조합")

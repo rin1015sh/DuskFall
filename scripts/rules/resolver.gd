@@ -470,7 +470,7 @@ static func _dark_ones_blessing(target: Node, opts: Dictionary) -> void:
 					cands.append(o)
 	for o: Node in cands:
 		if o.is_hostile_to(target):
-			grant_temp_hp(o, maxi(1, o.ability_mod("cha") + o.level))
+			grant_temp_hp(o, maxi(1, o.ability_mod("cha") + o.feature_level("dark_ones_blessing")))
 			Dice.log_text("%s 어둠의 축복: 임시 HP" % o.label())
 
 

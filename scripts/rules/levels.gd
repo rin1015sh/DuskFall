@@ -38,3 +38,9 @@ static func level_for(xp: int) -> int:
 		if xp >= int(r["xp"]):
 			lv = maxi(lv, int(r["level"]))
 	return mini(lv, level_cap())
+
+
+## SRD 멀티클래스 시전자 슬롯표(시전 레벨 → 슬롯 레벨별 수).
+static func multiclass_slots(caster_level: int) -> Array:
+	var t: Dictionary = _table().get("multiclass_slots", {})
+	return t.get(str(clampi(caster_level, 1, 20)), [])

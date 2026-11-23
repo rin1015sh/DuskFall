@@ -37,7 +37,9 @@
   ],
   "spellcasting": {
     "ability": "wis",
-    "swap": {"long_rest": -1},
+    "swap": {
+      "long_rest": -1
+    },
     "type": "prepared",
     "list": "cleric",
     "cantrips": {
@@ -71,7 +73,8 @@
         3,
         2
       ]
-    }
+    },
+    "progression": "full"
   },
   "resources": [
     {
@@ -307,5 +310,12 @@
       }
     }
   },
-  "source": "SRD 5.2.1"
+  "source": "SRD 5.2.1",
+  "multiclass": {
+    "armor_training": [
+      "light",
+      "medium",
+      "shield"
+    ]
+  }
 }
