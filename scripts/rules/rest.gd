@@ -174,6 +174,12 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 			c.remove_meta("base_darkvision")
 		if c.has_cap("cosmic_omen"):
 			c.set_meta("omen", "weal" if Dice.die(20) % 2 == 0 else "woe")
+		if c.has_cap("tranquillity"):
+			for m in c.extra_modifiers.duplicate():
+				if str(m.get("source", "")) == "tranquillity":
+					c.extra_modifiers.erase(m)
+			c.extra_modifiers.append({"effect": {"type": "modify", "stat": "sanctuary", "dc": 8 + c.proficiency_bonus + c.ability_mod("wis")},
+				"turns_left": -1, "source": "tranquillity"})  # 평온(열린 손 11레벨, BG3): 긴 휴식 뒤 공격할 때까지 성역
 		if c.has_cap("portent"):
 			c.set_meta("portent_values", roll_portent(c, c.resources.get("portent_dice", {}).get("max", 2)))  # 예지: 긴 휴식에 새로 굴린다
 		if c.has_meta("beast_form"):

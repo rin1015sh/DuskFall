@@ -1,6 +1,6 @@
 extends "res://scripts/rules/effect_script.gd"
 ## 연타(몽크 2레벨, SRD): 기 1, 보너스 행동으로 비무장 공격 2회. 열린 손 기법(열린 손 3레벨, 능력 태그 open_hand_technique):
-## 연타로 맞히면 설정(options.open_hand_technique: topple 넘어뜨리기·push 밀기·addle 기회 공격 막기)대로 — DC 8 + 지혜 + 숙련.
+## 연타로 맞히면 설정(options.open_hand_technique: topple 넘어뜨리기(민첩 내성)·push 3칸 밀기(근력 내성)·stagger 1턴 반응 불가(내성 없음 — BG3))대로 — DC 8 + 지혜 + 숙련.
 
 const Combat := preload("res://scripts/rules/combat.gd")
 const Resolver := preload("res://scripts/rules/resolver.gd")
@@ -42,5 +42,5 @@ func _technique(w: Dictionary, c: Node, t: Node) -> void:
 		"push":
 			if not Resolver.saving_throw(t, "str", dc)["success"] and w.has("grid"):
 				Combat._push_up_to(w, c, t, 3)
-		"addle":
+		"stagger", "addle":
 			t.extra_modifiers.append({"effect": {"type": "modify", "stat": "no_reactions"}, "source": "addle", "until_turn_start_of": t})

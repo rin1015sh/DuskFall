@@ -212,7 +212,8 @@
             "temp_hp",
             "apply_condition",
             "remove_condition",
-            "save"
+            "save",
+            "resource"
           ]
         },
         "dice": {
@@ -290,6 +291,9 @@
               "type": "integer"
             }
           ]
+        },
+        "resource": {
+          "type": "string"
         }
       }
     },
@@ -462,6 +466,9 @@
               "type": "boolean"
             },
             "protective_lights": {
+              "type": "boolean"
+            },
+            "extra_bonus_action": {
               "type": "boolean"
             }
           }

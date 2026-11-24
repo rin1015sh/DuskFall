@@ -757,6 +757,22 @@
         },
         "bolster": {
           "type": "string"
+        },
+        "resource_amount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "requires_cap": {
+          "type": "string"
+        },
+        "spell": {
+          "type": "string"
+        },
+        "slot": {
+          "type": "integer"
+        },
+        "upcast_cap": {
+          "type": "string"
         }
       }
     }

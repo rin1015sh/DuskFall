@@ -2685,6 +2685,86 @@
       "ends_with": "raging",
       "notes_ko": "무기 명중 +1d6 천둥.",
       "source": "original"
+    },
+    {
+      "id": "wholeness",
+      "name": {
+        "ko": "완전함",
+        "en": "Wholeness"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "flags": {
+        "extra_bonus_action": true
+      },
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "resource",
+            "resource": "focus",
+            "amount": 1
+          }
+        ]
+      },
+      "default_duration_turns": 3,
+      "notes_ko": "턴 시작마다 기 1, 보너스 행동 1 더.",
+      "source": "original"
+    },
+    {
+      "id": "resonating_ki",
+      "name": {
+        "ko": "기 공명",
+        "en": "Resonating Ki"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 10,
+      "notes_ko": "공명시킨 몽크가 기 공명: 폭발로 터뜨릴 수 있다.",
+      "source": "original"
+    },
+    {
+      "id": "shadow_stepped",
+      "name": {
+        "ko": "그림자 걸음",
+        "en": "Shadow Step"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "advantage"
+        }
+      ],
+      "melee_only": true,
+      "ends_on_attack": true,
+      "default_duration_turns": 1,
+      "notes_ko": "다음 근접 공격 유리(1턴).",
+      "source": "original"
+    },
+    {
+      "id": "fire_snake_fangs",
+      "name": {
+        "ko": "불뱀의 송곳니",
+        "en": "Fangs of the Fire Snake"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "fire"
+          }
+        ]
+      },
+      "melee_only": true,
+      "default_duration_turns": 1,
+      "notes_ko": "이번 턴 근접 무기·비무장 명중 +1d4 화염.",
+      "source": "original"
     }
   ]
 }

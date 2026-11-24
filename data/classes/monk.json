@@ -74,8 +74,22 @@
         "ko": "몸의 완전함",
         "en": "Wholeness of Body"
       },
-      "max": "ability_mod:wis",
+      "max": {
+        "6": 1
+      },
       "recharge": "long"
+    },
+    {
+      "id": "harmony_of_fire_and_water",
+      "name": {
+        "ko": "불과 물의 조화",
+        "en": "Harmony of Fire and Water"
+      },
+      "max": {
+        "3": 1
+      },
+      "recharge": "long",
+      "subclass": "four_elements"
     }
   ],
   "features": [
@@ -380,8 +394,8 @@
     {
       "id": "open_hand",
       "name": {
-        "ko": "열린 손의 전사",
-        "en": "Warrior of the Open Hand"
+        "ko": "열린 손의 길",
+        "en": "Way of the Open Hand"
       },
       "level": 3,
       "source": "SRD 5.2.1",
@@ -406,17 +420,17 @@
                 }
               },
               {
+                "id": "stagger",
+                "name": {
+                  "ko": "휘청이게",
+                  "en": "Stagger"
+                }
+              },
+              {
                 "id": "push",
                 "name": {
                   "ko": "밀기",
                   "en": "Push"
-                }
-              },
-              {
-                "id": "addle",
-                "name": {
-                  "ko": "어지럽히기",
-                  "en": "Addle"
                 }
               }
             ],
@@ -425,8 +439,50 @@
               "en": "Flurry of Blows hit effect"
             }
           },
-          "notes_ko": "연타 명중마다: 넘어뜨리기(민첩 내성)·밀기 15피트(근력 내성)·어지럽히기(다음 턴 시작까지 기회 공격 불가). 상시 설정.",
-          "source": "SRD 5.2.1"
+          "notes_ko": "BG3: 연타 명중 효과(설정) — 넘어뜨리기(민첩 내성)·휘청이게(1턴 반응 불가, 내성 없음)·밀기(근력 내성, 3칸).",
+          "source": "original"
+        },
+        {
+          "id": "manifestation",
+          "name": {
+            "ko": "기의 발현",
+            "en": "Manifestation"
+          },
+          "level": 6,
+          "caps": [
+            "manifestation"
+          ],
+          "toggle": {
+            "values": [
+              {
+                "id": "body",
+                "name": {
+                  "ko": "몸(사령)",
+                  "en": "Body (Necrotic)"
+                }
+              },
+              {
+                "id": "mind",
+                "name": {
+                  "ko": "마음(정신)",
+                  "en": "Mind (Psychic)"
+                }
+              },
+              {
+                "id": "soul",
+                "name": {
+                  "ko": "영혼(광휘)",
+                  "en": "Soul (Radiant)"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "비무장 추가 피해 종류",
+              "en": "Unarmed bonus damage type"
+            }
+          },
+          "notes_ko": "BG3: 비무장 명중 +1d4 + 지혜(설정: 몸 사령·마음 정신·영혼 광휘).",
+          "source": "original"
         },
         {
           "id": "wholeness_of_body",
@@ -435,28 +491,740 @@
             "en": "Wholeness of Body"
           },
           "level": 6,
-          "kind": "bonus_action",
+          "kind": "action",
           "resource": "wholeness_of_body",
           "script": "wholeness_of_body",
+          "target": "self",
           "icon": "statuses/buff.webp",
           "glyph": "heart",
-          "explore": true,
           "ai": {
             "when": "hp_below_half"
           },
-          "source": "SRD 5.2.1",
-          "notes_ko": "무술 주사위 + 지혜 수정치(최소 1) 회복. 지혜 수정치(최소 1)회, 긴 휴식."
+          "notes_ko": "BG3: 행동, 긴 휴식 1회. HP 몽크 레벨 × 3, 기 절반 회복, 3턴 동안 턴마다 기 1 + 보너스 행동 1 더.",
+          "source": "original"
         },
         {
-          "id": "fleet_step",
+          "id": "ki_resonation_punch",
           "name": {
-            "ko": "날랜 걸음",
-            "en": "Fleet Step"
+            "ko": "기 공명: 주먹",
+            "en": "Ki Resonation: Punch"
+          },
+          "level": 9,
+          "kind": "action",
+          "script": "ki_resonation_punch",
+          "target": "enemy",
+          "icon": "statuses/buff.webp",
+          "glyph": "fist",
+          "notes_ko": "BG3: 행동, 비무장 공격 — 맞으면 10턴 기 공명.",
+          "source": "original"
+        },
+        {
+          "id": "ki_resonation_punch_bonus",
+          "name": {
+            "ko": "기 공명: 주먹(보너스)",
+            "en": "Ki Resonation: Punch (Bonus)"
+          },
+          "level": 9,
+          "kind": "bonus_action",
+          "script": "ki_resonation_punch",
+          "target": "enemy",
+          "icon": "statuses/buff.webp",
+          "glyph": "fist",
+          "notes_ko": "보너스 행동판.",
+          "source": "original"
+        },
+        {
+          "id": "ki_resonation_blast",
+          "name": {
+            "ko": "기 공명: 폭발",
+            "en": "Ki Resonation: Blast"
+          },
+          "level": 9,
+          "kind": "free",
+          "resource": "focus",
+          "script": "ki_resonation_blast",
+          "target": "enemy",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "BG3: 기 1, 턴당 1회, 12칸 안 공명 생물을 터뜨림 — 3칸 안 적 민첩 내성 3d6 역장(성공 절반), 연쇄.",
+          "source": "original"
+        },
+        {
+          "id": "tranquillity",
+          "name": {
+            "ko": "평온",
+            "en": "Tranquillity"
           },
           "level": 11,
-          "status": "deferred",
-          "source": "SRD 5.2.1",
-          "notes_ko": "다른 보너스 행동 뒤 바람 걸음을 바로 — 보너스 행동 연계 장치와 함께 다음에."
+          "caps": [
+            "tranquillity"
+          ],
+          "notes_ko": "BG3: 긴 휴식 뒤 공격할 때까지 성역(지혜 내성 DC 8 + 숙련 + 지혜).",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "shadow",
+      "name": {
+        "ko": "그림자의 길",
+        "en": "Way of Shadow"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "shadow_arts_illusion",
+          "name": {
+            "ko": "그림자 기술: 환영",
+            "en": "Shadow Arts: Minor Illusion"
+          },
+          "level": 3,
+          "grants": {
+            "at_will": [
+              "minor_illusion"
+            ]
+          },
+          "notes_ko": "BG3: 하급 환영 소마법.",
+          "source": "original"
+        },
+        {
+          "id": "shadow_arts_hide",
+          "name": {
+            "ko": "그림자 기술: 숨기",
+            "en": "Shadow Arts: Hide"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "shadow_arts_hide",
+          "target": "self",
+          "icon": "statuses/invisible.webp",
+          "glyph": "eye",
+          "notes_ko": "BG3: 보너스 행동으로 숨기.",
+          "source": "original"
+        },
+        {
+          "id": "shadow_arts_darkness",
+          "name": {
+            "ko": "그림자 기술: 어둠",
+            "en": "Shadow Arts: Darkness"
+          },
+          "level": 3,
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "script": "ki_spell",
+          "spell": "darkness",
+          "target": "cell",
+          "icon": "statuses/blinded.webp",
+          "glyph": "eye",
+          "notes_ko": "BG3: 기 2, 어둠(지혜로, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "shadow_arts_darkvision",
+          "name": {
+            "ko": "그림자 기술: 암시야",
+            "en": "Shadow Arts: Darkvision"
+          },
+          "level": 3,
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "script": "ki_spell",
+          "spell": "darkvision",
+          "target": "ally",
+          "icon": "statuses/buff.webp",
+          "glyph": "eye",
+          "notes_ko": "BG3: 기 2, 암시야.",
+          "source": "original"
+        },
+        {
+          "id": "shadow_arts_pass_without_trace",
+          "name": {
+            "ko": "그림자 기술: 흔적 없는 이동",
+            "en": "Shadow Arts: Pass without Trace"
+          },
+          "level": 3,
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "script": "ki_spell",
+          "spell": "pass_without_trace",
+          "target": "self",
+          "icon": "statuses/invisible.webp",
+          "glyph": "eye",
+          "explore": true,
+          "notes_ko": "BG3: 기 2, 흔적 없는 이동.",
+          "source": "original"
+        },
+        {
+          "id": "shadow_arts_silence",
+          "name": {
+            "ko": "그림자 기술: 침묵",
+            "en": "Shadow Arts: Silence"
+          },
+          "level": 3,
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "script": "ki_spell",
+          "spell": "silence",
+          "target": "cell",
+          "icon": "statuses/buff.webp",
+          "glyph": "eye",
+          "notes_ko": "BG3: 기 2, 침묵.",
+          "source": "original"
+        },
+        {
+          "id": "shadow_cloak",
+          "name": {
+            "ko": "그림자 망토",
+            "en": "Cloak of Shadows"
+          },
+          "level": 5,
+          "kind": "action",
+          "script": "shadow_cloak",
+          "target": "self",
+          "icon": "statuses/invisible.webp",
+          "glyph": "eye",
+          "notes_ko": "BG3: 행동, 가려진(밝지 않은) 곳이면 10턴 투명(공격·주문으로 풀림).",
+          "source": "original"
+        },
+        {
+          "id": "shadow_step",
+          "name": {
+            "ko": "그림자 걸음",
+            "en": "Shadow Step"
+          },
+          "level": 6,
+          "kind": "bonus_action",
+          "script": "shadow_step",
+          "target": "cell",
+          "icon": "statuses/haste.webp",
+          "glyph": "run",
+          "notes_ko": "BG3: 보너스 행동, 밝지 않은 칸에서 12칸 안 밝지 않은 칸으로 순간 이동, 1턴 다음 근접 공격 유리.",
+          "source": "original"
+        },
+        {
+          "id": "shadow_strike",
+          "name": {
+            "ko": "그림자 일격",
+            "en": "Shadow Strike"
+          },
+          "level": 11,
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 3,
+          "script": "shadow_strike",
+          "target": "enemy",
+          "icon": "statuses/invisible.webp",
+          "glyph": "axe",
+          "notes_ko": "BG3: 행동 + 기 3, 숨은 상태에서 6칸 안 적 옆으로 순간 이동해 무기 공격 + 3d8 정신.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "four_elements",
+      "name": {
+        "ko": "사대 원소의 길",
+        "en": "Way of the Four Elements"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "elemental_disciplines",
+          "name": {
+            "ko": "원소의 제자",
+            "en": "Disciple of the Elements"
+          },
+          "level": 3,
+          "choice_kind": "option",
+          "choices": [
+            "blade_of_rime",
+            "chill_of_the_mountain",
+            "fangs_of_the_fire_snake",
+            "fist_of_four_thunders",
+            "fist_of_unbroken_air",
+            "rush_of_the_gale_spirits",
+            "sphere_of_elemental_balance",
+            "sweeping_cinder_strike",
+            "touch_of_the_storm",
+            "water_whip",
+            "clench_of_the_north_wind",
+            "embrace_of_the_inferno",
+            "gong_of_the_summit",
+            "flames_of_the_phoenix",
+            "mist_stance",
+            "ride_the_wind"
+          ],
+          "count": 3,
+          "count_by_level": {
+            "3": 3,
+            "6": 4,
+            "9": 5,
+            "11": 6
+          },
+          "choice_min_level": {
+            "clench_of_the_north_wind": 6,
+            "embrace_of_the_inferno": 6,
+            "gong_of_the_summit": 6,
+            "flames_of_the_phoenix": 11,
+            "mist_stance": 11,
+            "ride_the_wind": 11
+          },
+          "choice_grants": {
+            "blade_of_rime": {
+              "caps": [
+                "disc_blade_of_rime"
+              ]
+            },
+            "chill_of_the_mountain": {
+              "caps": [
+                "disc_chill_of_the_mountain"
+              ]
+            },
+            "fangs_of_the_fire_snake": {
+              "caps": [
+                "disc_fangs_of_the_fire_snake"
+              ]
+            },
+            "fist_of_four_thunders": {
+              "caps": [
+                "disc_fist_of_four_thunders"
+              ]
+            },
+            "fist_of_unbroken_air": {
+              "caps": [
+                "disc_fist_of_unbroken_air"
+              ]
+            },
+            "rush_of_the_gale_spirits": {
+              "caps": [
+                "disc_rush_of_the_gale_spirits"
+              ]
+            },
+            "sphere_of_elemental_balance": {
+              "caps": [
+                "disc_sphere_of_elemental_balance"
+              ]
+            },
+            "sweeping_cinder_strike": {
+              "caps": [
+                "disc_sweeping_cinder_strike"
+              ]
+            },
+            "touch_of_the_storm": {
+              "caps": [
+                "disc_touch_of_the_storm"
+              ]
+            },
+            "water_whip": {
+              "caps": [
+                "disc_water_whip"
+              ]
+            },
+            "clench_of_the_north_wind": {
+              "caps": [
+                "disc_clench_of_the_north_wind"
+              ]
+            },
+            "embrace_of_the_inferno": {
+              "caps": [
+                "disc_embrace_of_the_inferno"
+              ]
+            },
+            "gong_of_the_summit": {
+              "caps": [
+                "disc_gong_of_the_summit"
+              ]
+            },
+            "flames_of_the_phoenix": {
+              "caps": [
+                "disc_flames_of_the_phoenix"
+              ]
+            },
+            "mist_stance": {
+              "caps": [
+                "disc_mist_stance"
+              ]
+            },
+            "ride_the_wind": {
+              "caps": [
+                "disc_ride_the_wind"
+              ]
+            }
+          },
+          "notes_ko": "BG3: 원소 수련을 고른다 — 3레벨 3개, 6·9·11레벨 하나씩 더(6레벨 수련은 6레벨부터, 11레벨 수련은 11레벨부터). 기로 시전, DC 8 + 숙련 + 지혜. 목록: 서리 칼날(기 2, 3레벨) / 산의 냉기(기 1, 3레벨) / 불뱀의 송곳니(기 1, 3레벨) / 네 천둥의 주먹(기 2, 3레벨) / 꺾이지 않는 바람의 주먹(기 2, 3레벨) / 돌풍 정령의 쇄도(기 2, 3레벨) / 원소 균형의 구(기 2, 3레벨) / 휩쓰는 불씨 일격(기 2, 3레벨) / 폭풍의 손길(기 1, 3레벨) / 물 채찍(기 2, 3레벨) / 북풍의 움켜쥠(기 3, 6레벨) / 지옥불의 포옹(기 3, 6레벨) / 정상의 징(기 3, 6레벨) / 불사조의 불꽃(기 4, 11레벨) / 안개 자세(기 4, 11레벨) / 바람 타기(기 4, 11레벨)",
+          "source": "original"
+        },
+        {
+          "id": "harmony_of_fire_and_water",
+          "name": {
+            "ko": "불과 물의 조화",
+            "en": "Harmony of Fire and Water"
+          },
+          "level": 3,
+          "kind": "action",
+          "resource": "harmony_of_fire_and_water",
+          "script": "harmony_of_fire_and_water",
+          "target": "self",
+          "explore": true,
+          "icon": "statuses/regen.webp",
+          "glyph": "heart_plus",
+          "notes_ko": "BG3: 전투 밖 행동, 기 절반 회복. 긴 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "improved_elemental_casting",
+          "name": {
+            "ko": "향상된 원소 시전",
+            "en": "Improved Elemental Casting"
+          },
+          "level": 9,
+          "caps": [
+            "improved_elemental_casting"
+          ],
+          "notes_ko": "BG3: 공격 수련 주사위 하나 더(레벨 있는 주문은 한 레벨 높여, 바람의 주먹·물 채찍 4d10).",
+          "source": "original"
+        },
+        {
+          "id": "blade_of_rime",
+          "name": {
+            "ko": "서리 칼날",
+            "en": "Blade of Rime"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "ice_knife",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "requires_cap": "disc_blade_of_rime",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 2: 얼음 비수(1d10 관통 + 2d6 냉기 폭발)(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "chill_of_the_mountain",
+          "name": {
+            "ko": "산의 냉기",
+            "en": "Chill of the Mountain"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "ray_of_frost",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 1,
+          "requires_cap": "disc_chill_of_the_mountain",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 1: 서리 광선(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "fangs_of_the_fire_snake",
+          "name": {
+            "ko": "불뱀의 송곳니",
+            "en": "Fangs of the Fire Snake"
+          },
+          "level": 3,
+          "script": "fangs_of_the_fire_snake",
+          "target": "enemy",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 1,
+          "requires_cap": "disc_fangs_of_the_fire_snake",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 1: 비무장 공격(도달 3칸) + 1d10 화염, 이번 턴 근접 +1d4 화염.",
+          "source": "original"
+        },
+        {
+          "id": "fist_of_four_thunders",
+          "name": {
+            "ko": "네 천둥의 주먹",
+            "en": "Fist of Four Thunders"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "thunderwave",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "requires_cap": "disc_fist_of_four_thunders",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 2: 천둥파(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "fist_of_unbroken_air",
+          "name": {
+            "ko": "꺾이지 않는 바람의 주먹",
+            "en": "Fist of Unbroken Air"
+          },
+          "level": 3,
+          "script": "fist_of_unbroken_air",
+          "target": "enemy",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "requires_cap": "disc_fist_of_unbroken_air",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 2: 6칸 근력 내성 3d10 + 4칸 밀기 + 넘어짐.",
+          "source": "original"
+        },
+        {
+          "id": "rush_of_the_gale_spirits",
+          "name": {
+            "ko": "돌풍 정령의 쇄도",
+            "en": "Rush of the Gale Spirits"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "gust_of_wind",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "requires_cap": "disc_rush_of_the_gale_spirits",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 2: 돌풍(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "sphere_of_elemental_balance",
+          "name": {
+            "ko": "원소 균형의 구",
+            "en": "Sphere of Elemental Balance"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "chromatic_orb",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "requires_cap": "disc_sphere_of_elemental_balance",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 2: 색채 구체(3d8 원소 선택)(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "sweeping_cinder_strike",
+          "name": {
+            "ko": "휩쓰는 불씨 일격",
+            "en": "Sweeping Cinder Strike"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "burning_hands",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "requires_cap": "disc_sweeping_cinder_strike",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 2: 불타는 손(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "touch_of_the_storm",
+          "name": {
+            "ko": "폭풍의 손길",
+            "en": "Touch of the Storm"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "shocking_grasp",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 1,
+          "requires_cap": "disc_touch_of_the_storm",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 1: 전격 손길(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "water_whip",
+          "name": {
+            "ko": "물 채찍",
+            "en": "Water Whip"
+          },
+          "level": 3,
+          "script": "water_whip",
+          "target": "enemy",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 2,
+          "requires_cap": "disc_water_whip",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 2: 6칸 민첩 내성 3d10 + 끌어오기 또는 넘어뜨리기(설정).",
+          "source": "original",
+          "toggle": {
+            "values": [
+              {
+                "id": "pull",
+                "name": {
+                  "ko": "끌어오기",
+                  "en": "Pull"
+                }
+              },
+              {
+                "id": "prone",
+                "name": {
+                  "ko": "넘어뜨리기",
+                  "en": "Knock Prone"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "물 채찍 효과",
+              "en": "Water Whip effect"
+            }
+          }
+        },
+        {
+          "id": "clench_of_the_north_wind",
+          "name": {
+            "ko": "북풍의 움켜쥠",
+            "en": "Clench of the North Wind"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "hold_person",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 3,
+          "requires_cap": "disc_clench_of_the_north_wind",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 3: 인간형 속박(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "embrace_of_the_inferno",
+          "name": {
+            "ko": "지옥불의 포옹",
+            "en": "Embrace of the Inferno"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "scorching_ray",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 3,
+          "requires_cap": "disc_embrace_of_the_inferno",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 3: 작열 광선(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "gong_of_the_summit",
+          "name": {
+            "ko": "정상의 징",
+            "en": "Gong of the Summit"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "shatter",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 3,
+          "requires_cap": "disc_gong_of_the_summit",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 3: 산산조각(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "flames_of_the_phoenix",
+          "name": {
+            "ko": "불사조의 불꽃",
+            "en": "Flames of the Phoenix"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "fireball",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 4,
+          "requires_cap": "disc_flames_of_the_phoenix",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 4: 화염구(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "mist_stance",
+          "name": {
+            "ko": "안개 자세",
+            "en": "Mist Stance"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "gaseous_form",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 4,
+          "requires_cap": "disc_mist_stance",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 4: 기체 형태(지혜, 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "ride_the_wind",
+          "name": {
+            "ko": "바람 타기",
+            "en": "Ride the Wind"
+          },
+          "level": 3,
+          "script": "ki_spell",
+          "spell": "fly",
+          "upcast_cap": "improved_elemental_casting",
+          "target": "cell",
+          "kind": "action",
+          "resource": "focus",
+          "resource_amount": 4,
+          "requires_cap": "disc_ride_the_wind",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "burst",
+          "notes_ko": "기 4: 비행(지혜, 슬롯 없이).",
+          "source": "original"
         }
       ]
     }

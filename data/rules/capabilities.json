@@ -1369,6 +1369,177 @@
       },
       "note_ko": "무게 한계",
       "source": "original"
+    },
+    {
+      "id": "manifestation",
+      "name": {
+        "ko": "기의 발현",
+        "en": "manifestation"
+      },
+      "note_ko": "비무장 명중 +1d4 + 지혜(Resolver)",
+      "source": "original"
+    },
+    {
+      "id": "tranquillity",
+      "name": {
+        "ko": "평온",
+        "en": "tranquillity"
+      },
+      "note_ko": "긴 휴식 뒤 성역(rest.gd)",
+      "source": "original"
+    },
+    {
+      "id": "improved_elemental_casting",
+      "name": {
+        "ko": "향상된 원소 시전",
+        "en": "improved_elemental_casting"
+      },
+      "note_ko": "ki_spell upcast_cap·바람의 주먹·물 채찍",
+      "source": "original"
+    },
+    {
+      "id": "disc_blade_of_rime",
+      "name": {
+        "ko": "서리 칼날",
+        "en": "disc_blade_of_rime"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_chill_of_the_mountain",
+      "name": {
+        "ko": "산의 냉기",
+        "en": "disc_chill_of_the_mountain"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_fangs_of_the_fire_snake",
+      "name": {
+        "ko": "불뱀의 송곳니",
+        "en": "disc_fangs_of_the_fire_snake"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_fist_of_four_thunders",
+      "name": {
+        "ko": "네 천둥의 주먹",
+        "en": "disc_fist_of_four_thunders"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_fist_of_unbroken_air",
+      "name": {
+        "ko": "꺾이지 않는 바람의 주먹",
+        "en": "disc_fist_of_unbroken_air"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_rush_of_the_gale_spirits",
+      "name": {
+        "ko": "돌풍 정령의 쇄도",
+        "en": "disc_rush_of_the_gale_spirits"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_sphere_of_elemental_balance",
+      "name": {
+        "ko": "원소 균형의 구",
+        "en": "disc_sphere_of_elemental_balance"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_sweeping_cinder_strike",
+      "name": {
+        "ko": "휩쓰는 불씨 일격",
+        "en": "disc_sweeping_cinder_strike"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_touch_of_the_storm",
+      "name": {
+        "ko": "폭풍의 손길",
+        "en": "disc_touch_of_the_storm"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_water_whip",
+      "name": {
+        "ko": "물 채찍",
+        "en": "disc_water_whip"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_clench_of_the_north_wind",
+      "name": {
+        "ko": "북풍의 움켜쥠",
+        "en": "disc_clench_of_the_north_wind"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_embrace_of_the_inferno",
+      "name": {
+        "ko": "지옥불의 포옹",
+        "en": "disc_embrace_of_the_inferno"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_gong_of_the_summit",
+      "name": {
+        "ko": "정상의 징",
+        "en": "disc_gong_of_the_summit"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_flames_of_the_phoenix",
+      "name": {
+        "ko": "불사조의 불꽃",
+        "en": "disc_flames_of_the_phoenix"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_mist_stance",
+      "name": {
+        "ko": "안개 자세",
+        "en": "disc_mist_stance"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
+    },
+    {
+      "id": "disc_ride_the_wind",
+      "name": {
+        "ko": "바람 타기",
+        "en": "disc_ride_the_wind"
+      },
+      "note_ko": "원소 수련 requires_cap",
+      "source": "original"
     }
   ]
 }

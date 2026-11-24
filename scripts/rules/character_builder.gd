@@ -339,7 +339,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			grants.append([fid, f["grants"]])
 		var kind := str(f.get("choice_kind", ""))
 		if kind == "option" and spec.get(fid) is Array:
-			for pick: Variant in (spec[fid] as Array).slice(0, int(f.get("count", 1))):
+			var on := _by_level(f.get("count_by_level", {}), c.feature_level(fid), int(f.get("count", 1)))  # 레벨마다 늘어나는 선택(4원소 수련)
+			for pick: Variant in (spec[fid] as Array).slice(0, on):
 				if c.feature_level(fid) < int(f.get("choice_min_level", {}).get(str(pick), 0)):
 					continue  # 선행 레벨이 안 된 선택지(워락 영창)
 				if f.get("choice_grants", {}).has(str(pick)):

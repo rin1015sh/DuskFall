@@ -461,6 +461,10 @@ static func opportunity_attack(world: Dictionary, attacker: Node, target: Node) 
 static func _do_attack(world: Dictionary, attacker: Node, target: Node, atk: Dictionary, skip_range: bool = false) -> Dictionary:
 	if attacker.has_condition("raging") and attacker.is_hostile_to(target):
 		attacker.turn["rage_kept"] = true  # 분노 연장: 적을 공격했다
+	if attacker.is_hostile_to(target):
+		for m in attacker.extra_modifiers.duplicate():
+			if str(m.get("source", "")) == "tranquillity":
+				attacker.extra_modifiers.erase(m)
 	var ctx := attack_context(world, attacker, target, atk)
 	if ctx.has("invalid") and not skip_range:
 		return _fail(ctx["invalid"])

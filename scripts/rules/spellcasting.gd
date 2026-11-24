@@ -440,7 +440,7 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 	# 시전하는 동안 그 주문 클래스의 능력으로 DC·공격·수정치를 계산한다(멀티클래스)
 	var had := caster.has_meta("casting_ability")
 	var prev: Variant = caster.get_meta("casting_ability", "")
-	caster.set_meta("casting_ability", ability_for(caster, spell_id))
+	caster.set_meta("casting_ability", str(opts.get("ability", ability_for(caster, spell_id))))  # opts ability: 기 주문(몽크 — 지혜)
 	caster.set_meta("casting_spell", spell_id)  # 섬뜩한 수확: 이 주문으로 쓰러뜨렸나
 	caster.set_meta("casting_slot", int(opts.get("slot", RulesDB.get_entry("spell", spell_id).get("level", 0))))
 	var r := _cast(world, caster, spell_id, aim, opts)

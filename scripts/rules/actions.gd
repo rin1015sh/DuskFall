@@ -52,7 +52,8 @@ static func def_of(key: String) -> Dictionary:
 		return {"id": key, "name": f.get("name", {"ko": fid, "en": fid}), "desc": f.get("desc", f.get("summary", {"ko": f.get("notes_ko", ""), "en": ""})),
 			"cost": COST_NAME.get(str(f.get("kind", "free")), "free"), "target": str(f.get("target", "self")), "tab": "class",
 			"icon": "res://assets/" + str(f.get("icon", "statuses/buff.webp")), "explore": bool(f.get("explore", false)),
-			"resource": f.get("resource", ""), "requires_condition": f.get("requires_condition", [])}
+			"resource": f.get("resource", ""), "requires_condition": f.get("requires_condition", []), "requires_cap": f.get("requires_cap", ""),
+			"resource_amount": int(f.get("resource_amount", 1))}
 	if key.begins_with("entity:"):
 		var kind := key.trim_prefix("entity:")
 		return ENTITY_ACTIONS.get(kind, {}).duplicate(true)
@@ -109,6 +110,8 @@ static func list_for(world: Dictionary, c: Node, explore: bool = false) -> Dicti
 		out[d["tab"]].append(id)
 	for fid: String in c.feature_data:
 		var f: Dictionary = c.feature_data[fid]
+		if str(f.get("requires_cap", "")) != "" and not c.has_cap(str(f["requires_cap"])):
+			continue  # 고르지 않은 수련(4원소)
 		if f.has("script") and (str(f.get("kind", "")) in ["action", "bonus_action", "free"] or bool(f.get("usable", false))):
 			if explore and not def_of("feature:" + fid)["explore"]:
 				continue
@@ -162,7 +165,7 @@ static func unavailable(world: Dictionary, c: Node, key: String, explore: bool =
 			cost = "free"  # 무기 액션은 공격 행동의 공격 하나(추가 공격과 이어진다 — BG3)
 		if cost != "free" and not Combat.can_spend(c, cost):
 			return {"action": "행동이 없다", "bonus": "보너스 행동이 없다", "reaction": "반응이 없다"}.get(cost, "비용이 없다")
-	if d.get("resource", "") != "" and c.resource(d["resource"]) <= 0:
+	if d.get("resource", "") != "" and c.resource(d["resource"]) < int(d.get("resource_amount", 1)):
 		return "남은 횟수가 없다"
 	if key.begins_with("feature:") and not Features.condition_ok(c, d):
 		return "지금은 쓸 수 없다"

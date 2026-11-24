@@ -34,9 +34,12 @@ static func hook(hook_name: String, creature: Node, ctx: Dictionary) -> void:
 
 
 ## 기능 requires_condition(상태 id 하나 또는 목록 — 하나라도 있으면): 분노 변형·야생 마법 효과에 딸린 행동.
+## 기능 requires_cap(능력 태그): 그 태그가 있어야 뜬다(행동 막대에서도 숨김).
 static func condition_ok(creature: Node, f: Dictionary) -> bool:
 	var rc: Variant = f.get("requires_condition", [])
 	var need: Array = [rc] if rc is String else rc
+	if str(f.get("requires_cap", "")) != "" and not creature.has_cap(str(f["requires_cap"])):
+		return false  # requires_cap: 고른 선택지가 준 능력 태그(4원소 수련)
 	return need.is_empty() or need.any(func(id: String) -> bool: return creature.has_condition(id))
 
 
@@ -54,8 +57,8 @@ static func use(world: Dictionary, creature: Node, feature_id: String, target: V
 	if not Combat.can_spend(creature, cost):
 		return {"ok": false, "reason": "비용이 없다"}
 	var res_id: String = f.get("resource", "")
-	var pay_n := 1
-	if res_id != "" and creature.resource(res_id) <= 0:
+	var pay_n := int(f.get("resource_amount", 1))  # 기 2·3·4 쓰는 기능(4원소 수련·그림자 기술)
+	if res_id != "" and creature.resource(res_id) < pay_n:
 		# 대체 비용 alt_cost {resource, amount, cap}: 횟수가 없으면 다른 자원으로(마법의 화신 — 마법 점수 2로 타고난 마법)
 		var alt: Dictionary = f.get("alt_cost", {})
 		if alt.is_empty() or not creature.has_cap(str(alt.get("cap", ""))) or creature.resource(str(alt["resource"])) < int(alt.get("amount", 1)):

@@ -234,7 +234,7 @@ func reset_turn() -> void:
 		remove_meta("sentinel_stopped")
 	var can_act := not is_incapacitated() and not has_flag("cannot_act")
 	# 추가 보너스 행동(빠른 손 등 — changes.md 2026-11-22)
-	var bonus := (2 if has_cap("extra_bonus_action") else 1) if can_act else 0
+	var bonus := ((2 if has_cap("extra_bonus_action") else 1) + (1 if has_flag("extra_bonus_action") else 0)) if can_act else 0  # 상태 플래그: 몸의 완전함
 	turn = {"action": 1 if can_act else 0, "bonus": bonus, "movement": speed(),
 		"interaction": 1, "attacks_left": 0, "light_attack_done": false,
 		"disengaged": false, "dashed": false, "reaction": turn.get("reaction", 1),

@@ -195,6 +195,7 @@ func _on_miss(res: Dictionary) -> void:
 		return
 	var t: Node = res.get("target")
 	var attacker: Node = res.get("attacker")
+	_redirect_attack(t, attacker, res)
 	if t == null or attacker == null or t.dead or attacker.dead or not t.has_cap("riposte") or not t.can_react():
 		return
 	if str(res.get("attack", {}).get("kind", "")) != "melee" or t.resource("superiority_dice") <= 0 or not t.is_hostile_to(attacker):
@@ -594,3 +595,26 @@ func _unstable_backlash(t: Node) -> void:
 func _on_save(res: Dictionary) -> void:
 	if str(res.get("phase", "")) == "after" and not res.get("success", true) and res.get("creature") is Node:
 		_unstable_backlash(res["creature"])
+
+
+## 공격 되돌리기(술 취한 달인 6레벨, BG3 — 반응 기능 trigger self_missed_melee): 2칸 안 근접 공격이 빗나가면 반응 + 기 1로 그 공격자에게 비무장 공격.
+func _redirect_attack(t: Node, attacker: Node, res: Dictionary) -> void:
+	if t == null or attacker == null or t.dead or attacker.dead or t == attacker or not t.can_react():
+		return
+	if str(res.get("attack", {}).get("kind", "")) != "melee" or world["grid"].distance_between(t, attacker) > 2:
+		return
+	var fid := _trigger_feature(t, "self_missed_melee")
+	if fid == "":
+		return
+	var rid := str(t.feature_data[fid].get("resource", ""))
+	if rid != "" and t.resource(rid) <= 0:
+		return
+	offer(t, fid, {"attacker": attacker}, func() -> void:
+		t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
+		if rid != "":
+			t.spend_resource(rid)
+		var Combat: Variant = load("res://scripts/rules/combat.gd")
+		var atk: Dictionary = Combat.build_weapon_attack(t, "unarmed")
+		atk["name"] = "공격 되돌리기"
+		atk["opportunity"] = true
+		Combat._do_attack(world, t, attacker, atk, true))

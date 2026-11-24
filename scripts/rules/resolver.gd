@@ -483,6 +483,11 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 				attacker.remove_condition(str(a["id"]))
 		_stunning_strike(attacker, target, atk)
 		_feature_hit_bonus(attacker, target, atk, res)
+		if attacker.has_cap("manifestation") and str(atk.get("weapon_id", "")) == "unarmed":
+			# 발현(열린 손 6레벨, BG3): 비무장 명중 +1d4 + 지혜(설정 manifestation: body 사령·mind 정신·soul 광휘)
+			var mt: String = {"body": "necrotic", "mind": "psychic", "soul": "radiant"}.get(str(attacker.options.get("manifestation", "body")), "necrotic")
+			var wm: int = attacker.ability_mod("wis")
+			res["extra_damage"].append({"dice": "1d4%+d" % wm if wm != 0 else "1d4", "damage_type": mt})
 		if res.has("brutal_strike"):
 			res["extra_damage"].append({"dice": "1d10", "damage_type": atk["damage"][0]["damage_type"]})
 			_brutal_effect(attacker, target, str(res["brutal_strike"]))
@@ -1519,6 +1524,9 @@ static func start_turn(creature: Node, ctx: Dictionary = {}) -> void:
 				parts.append({"amount": r["total"], "damage_type": e["damage_type"]})
 			elif e["type"] == "heal" and not creature.dead and creature.hp > 0:
 				heal(creature, int(e.get("amount", 1)), a["id"])  # 재생(Regenerate)
+			elif e["type"] == "resource" and creature.resources.has(str(e["resource"])):
+				var rr: Dictionary = creature.resources[str(e["resource"])]  # 몸의 완전함: 턴마다 기 1
+				rr["current"] = mini(int(rr["max"]), int(rr["current"]) + int(e.get("amount", 1)))
 			elif e["type"] == "temp_hp" and e.get("amount", "") == "source_spell_mod":
 				var src: Variant = a["instance"].get("source")
 				if src is Node:  # 영웅심: 턴 시작마다 시전자 주문 능력 수정치만큼 임시 HP

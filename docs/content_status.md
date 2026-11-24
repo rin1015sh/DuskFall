@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 48 |
-| capability | 152 |
+| capability | 171 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -205,18 +205,50 @@
 | 2 | 바람의 걸음 (step_of_the_wind) |  | 스크립트 step_of_the_wind |  |
 | 2 | 맨몸 이동 (unarmored_movement) |  | 태그 unarmored_movement |  |
 | 2 | 신비한 대사 (uncanny_metabolism) |  | 태그 uncanny_metabolism |  |
+| 3 | 돌풍 정령의 쇄도 (rush_of_the_gale_spirits) | four_elements | 스크립트 ki_spell |  |
+| 3 | 꺾이지 않는 바람의 주먹 (fist_of_unbroken_air) | four_elements | 스크립트 fist_of_unbroken_air |  |
+| 3 | 네 천둥의 주먹 (fist_of_four_thunders) | four_elements | 스크립트 ki_spell |  |
+| 3 | 불뱀의 송곳니 (fangs_of_the_fire_snake) | four_elements | 스크립트 fangs_of_the_fire_snake |  |
+| 3 | 산의 냉기 (chill_of_the_mountain) | four_elements | 스크립트 ki_spell |  |
+| 3 | 서리 칼날 (blade_of_rime) | four_elements | 스크립트 ki_spell |  |
+| 3 | 불과 물의 조화 (harmony_of_fire_and_water) | four_elements | 스크립트 harmony_of_fire_and_water |  |
+| 3 | 원소의 제자 (elemental_disciplines) | four_elements | 고르기(option) |  |
+| 3 | 그림자 기술: 침묵 (shadow_arts_silence) | shadow | 스크립트 ki_spell |  |
+| 3 | 그림자 기술: 흔적 없는 이동 (shadow_arts_pass_without_trace) | shadow | 스크립트 ki_spell |  |
+| 3 | 원소 균형의 구 (sphere_of_elemental_balance) | four_elements | 스크립트 ki_spell |  |
+| 3 | 휩쓰는 불씨 일격 (sweeping_cinder_strike) | four_elements | 스크립트 ki_spell |  |
+| 3 | 폭풍의 손길 (touch_of_the_storm) | four_elements | 스크립트 ki_spell |  |
+| 3 | 물 채찍 (water_whip) | four_elements | 스크립트 water_whip; 설정 |  |
+| 3 | 북풍의 움켜쥠 (clench_of_the_north_wind) | four_elements | 스크립트 ki_spell |  |
+| 3 | 지옥불의 포옹 (embrace_of_the_inferno) | four_elements | 스크립트 ki_spell |  |
+| 3 | 정상의 징 (gong_of_the_summit) | four_elements | 스크립트 ki_spell |  |
+| 3 | 불사조의 불꽃 (flames_of_the_phoenix) | four_elements | 스크립트 ki_spell |  |
+| 3 | 안개 자세 (mist_stance) | four_elements | 스크립트 ki_spell |  |
+| 3 | 바람 타기 (ride_the_wind) | four_elements | 스크립트 ki_spell |  |
 | 3 | 공격 쳐내기 (deflect_attacks) |  | 스크립트 deflect_attacks; 반응 |  |
 | 3 | 열린 손 기법 (open_hand_technique) | open_hand | 태그 open_hand_technique; 설정 |  |
+| 3 | 그림자 기술: 환영 (shadow_arts_illusion) | shadow | 부여 at_will |  |
+| 3 | 그림자 기술: 숨기 (shadow_arts_hide) | shadow | 스크립트 shadow_arts_hide |  |
+| 3 | 그림자 기술: 암시야 (shadow_arts_darkvision) | shadow | 스크립트 ki_spell |  |
+| 3 | 그림자 기술: 어둠 (shadow_arts_darkness) | shadow | 스크립트 ki_spell |  |
 | 4 | 느린 낙하 (slow_fall) |  | 태그 slow_fall; 반응 |  |
+| 5 | 그림자 망토 (shadow_cloak) | shadow | 스크립트 shadow_cloak |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 충격의 일격 (stunning_strike) |  | 태그 stunning_strike; 설정 |  |
-| 6 | 강화된 타격 (empowered_strikes) |  | 태그 empowered_strikes |  |
 | 6 | 몸의 완전함 (wholeness_of_body) | open_hand | 스크립트 wholeness_of_body |  |
+| 6 | 기의 발현 (manifestation) | open_hand | 태그 manifestation; 설정 |  |
+| 6 | 그림자 걸음 (shadow_step) | shadow | 스크립트 shadow_step |  |
+| 6 | 강화된 타격 (empowered_strikes) |  | 태그 empowered_strikes |  |
 | 7 | 회피 (evasion) |  | 태그 evasion |  |
+| 9 | 향상된 원소 시전 (improved_elemental_casting) | four_elements | 태그 improved_elemental_casting |  |
+| 9 | 기 공명: 폭발 (ki_resonation_blast) | open_hand | 스크립트 ki_resonation_blast |  |
+| 9 | 기 공명: 주먹(보너스) (ki_resonation_punch_bonus) | open_hand | 스크립트 ki_resonation_punch |  |
+| 9 | 기 공명: 주먹 (ki_resonation_punch) | open_hand | 스크립트 ki_resonation_punch |  |
 | 9 | 곡예 이동 (acrobatic_movement) |  | 태그 climber |  |
 | 10 | 고양된 집중 (heightened_focus) |  | 태그 heightened_focus |  |
 | 10 | 자기 회복 (self_restoration) |  | 태그 self_restoration |  |
-| 11 | 날랜 걸음 (fleet_step) | open_hand |  | 보류(deferred) |
+| 11 | 평온 (tranquillity) | open_hand | 태그 tranquillity |  |
+| 11 | 그림자 일격 (shadow_strike) | shadow | 스크립트 shadow_strike |  |
 
 ### 팔라딘 (paladin) — 생명 주사위 d10, 역할 melee
 
@@ -419,6 +451,22 @@
 | dash_ignores_difficult | 질주 험지 무시 | (몬스터 특성 또는 아직 없음) |
 | dash_temp_hp | 질주 임시 HP | (몬스터 특성 또는 아직 없음) |
 | destructive_wrath | 파괴의 분노 | cleric |
+| disc_blade_of_rime | 서리 칼날 | (몬스터 특성 또는 아직 없음) |
+| disc_chill_of_the_mountain | 산의 냉기 | (몬스터 특성 또는 아직 없음) |
+| disc_clench_of_the_north_wind | 북풍의 움켜쥠 | (몬스터 특성 또는 아직 없음) |
+| disc_embrace_of_the_inferno | 지옥불의 포옹 | (몬스터 특성 또는 아직 없음) |
+| disc_fangs_of_the_fire_snake | 불뱀의 송곳니 | (몬스터 특성 또는 아직 없음) |
+| disc_fist_of_four_thunders | 네 천둥의 주먹 | (몬스터 특성 또는 아직 없음) |
+| disc_fist_of_unbroken_air | 꺾이지 않는 바람의 주먹 | (몬스터 특성 또는 아직 없음) |
+| disc_flames_of_the_phoenix | 불사조의 불꽃 | (몬스터 특성 또는 아직 없음) |
+| disc_gong_of_the_summit | 정상의 징 | (몬스터 특성 또는 아직 없음) |
+| disc_mist_stance | 안개 자세 | (몬스터 특성 또는 아직 없음) |
+| disc_ride_the_wind | 바람 타기 | (몬스터 특성 또는 아직 없음) |
+| disc_rush_of_the_gale_spirits | 돌풍 정령의 쇄도 | (몬스터 특성 또는 아직 없음) |
+| disc_sphere_of_elemental_balance | 원소 균형의 구 | (몬스터 특성 또는 아직 없음) |
+| disc_sweeping_cinder_strike | 휩쓰는 불씨 일격 | (몬스터 특성 또는 아직 없음) |
+| disc_touch_of_the_storm | 폭풍의 손길 | (몬스터 특성 또는 아직 없음) |
+| disc_water_whip | 물 채찍 | (몬스터 특성 또는 아직 없음) |
 | dual_wield_ac | 쌍수 방어 | (몬스터 특성 또는 아직 없음) |
 | dual_wield_any | 무거운 쌍수 | (몬스터 특성 또는 아직 없음) |
 | dueling | 결투 | 재주 dueling |
@@ -451,6 +499,7 @@
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
 | improved_abjuration | 향상된 방호 | wizard |
 | improved_cunning_strike | 향상된 교활한 일격 | rogue |
+| improved_elemental_casting | 향상된 원소 시전 | monk |
 | instinctive_pounce | 본능적 도약 | barbarian |
 | jack_of_all_trades | 만물박사 | bard |
 | jump_dex | 민첩 도약 | (몬스터 특성 또는 아직 없음) |
@@ -461,6 +510,7 @@
 | mage_slayer | 마법사 사냥꾼 | (몬스터 특성 또는 아직 없음) |
 | magic_ranged | 마법 화살 | fighter |
 | magical_ambush | 마법 매복 | rogue |
+| manifestation | 기의 발현 | monk |
 | mark_spread | 먹잇감 확산 | ranger |
 | martial_arts | 무술 | monk |
 | medium_armor_master | 중형 갑옷 숙달 | (몬스터 특성 또는 아직 없음) |
@@ -517,6 +567,7 @@
 | surprise_immune | 기습 면역 | (몬스터 특성 또는 아직 없음) |
 | thunderbolt_strike | 벼락 일격 | cleric |
 | touch_of_death | 죽음의 손길 | cleric |
+| tranquillity | 평온 | monk |
 | trap_sense | 함정 감각 | (몬스터 특성 또는 아직 없음) |
 | twinkling_constellations | 반짝이는 별자리 | druid |
 | two_weapon_fighting | 쌍수 전투 | 재주 two_weapon_fighting |
