@@ -228,6 +228,33 @@ static func damage_bonus(c: Node, spell: Dictionary, dtype: String = "") -> int:
 	return n
 
 
+## 여러 대상 고르기(BG3식 — 대상을 하나씩 클릭해 모으고, 다 차면 바로 시전, 그 전에는 확정으로 시전).
+## 결과 {"count": 고를 수(0 = 확정할 때까지 — 수면처럼 총량으로 제한), "kind": "creature" | "cell", "repeat": 같은 생물 여러 번}.
+## count 1이면 보통 시전(한 번 클릭). opts.targets(생물 목록) / opts.second_cell(칸 둘째)로 cast에 넘긴다.
+static func target_plan(caster: Node, spell_id: String, slot: int = -1) -> Dictionary:
+	var spell := RulesDB.get_entry("spell", spell_id)
+	var one := {"count": 1, "kind": "creature", "repeat": false}
+	if spell.is_empty() or spell.get("area") != null or str(spell["range"]["type"]) == "self":
+		return one
+	if slot < 0:
+		slot = int(spell["level"])
+	match str(spell.get("script", "")):
+		"split_darts":
+			return {"count": 3 + maxi(slot - 1, 0), "kind": "creature", "repeat": true}
+		"split_rays":
+			return {"count": 3 + maxi(slot - 2, 0), "kind": "creature", "repeat": true}
+		"eldritch_blast":
+			return {"count": 3 if caster.level >= 10 else (2 if caster.level >= 5 else 1), "kind": "creature", "repeat": true}
+		"twin_gate":
+			return {"count": 2, "kind": "cell", "repeat": false}
+		"hp_pool":
+			return {"count": 0, "kind": "creature", "repeat": false}
+	var n := max_targets(spell, slot)
+	if metamagic_for(caster, spell) == "twinned":
+		n += 1
+	return {"count": n, "kind": "creature", "repeat": false} if n > 1 else one
+
+
 static func max_targets(spell: Dictionary, slot: int) -> int:
 	var n := int(spell.get("targets_max", 1))
 	var extra: int = int(spell.get("upcast", {}).get("per_slot_level", {}).get("extra_targets", 0))

@@ -15,7 +15,8 @@ func apply(ctx: Dictionary) -> Dictionary:
 	var w: Dictionary = ctx["world"]
 	var grid: Node = w["grid"]
 	var c: Node = ctx["self"]
-	var t: Node = grid.creature_at(ctx["aim"])
+	var picked: Array = ctx["opts"].get("targets", [])  # 광선마다 대상(BG3식 여러 대상 고르기 — 같은 생물 여러 번 가능)
+	var t: Node = picked[0] if not picked.is_empty() else grid.creature_at(ctx["aim"])
 	if t == null:
 		return {"ok": false, "reason": "대상이 없다"}
 	var beams := 3 if c.level >= 10 else (2 if c.level >= 5 else 1)  # BG3: 5·10레벨
@@ -24,8 +25,10 @@ func apply(ctx: Dictionary) -> Dictionary:
 		dice += "%+d" % c.ability_mod("cha")
 	var hits := 0
 	for i in beams:
+		if not picked.is_empty():
+			t = picked[i % picked.size()]
 		if t.dead:
-			break
+			continue
 		var atk := {"name": "Eldritch Blast", "bonus": Spellcasting.spell_attack_bonus(c), "kind": "ranged", "weapon": false,
 			"spell": "eldritch_blast", "damage": [{"dice": dice, "damage_type": "force"}]}
 		var actx: Dictionary = grid.attack_context(c, t)

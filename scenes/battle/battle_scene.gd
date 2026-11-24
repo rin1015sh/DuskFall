@@ -61,6 +61,10 @@ var highlights: Node3D
 
 var selected: Node = null
 var mode := "move"
+## 여러 대상 고르기(BG3식): 고른 칸 목록과 그 주문 모드. Spellcasting.target_plan이 수·종류를 정한다.
+var _picked: Array = []
+var _picked_mode := ""
+var cast_now_btn: Button
 var preview_cell := Vector2i(-1, -1)
 var preview_data := {}
 var busy := false
@@ -546,7 +550,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_L:
 			log_forced = not log_forced
 			_refresh()
+		elif (event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER) and not _picked.is_empty():
+			_cast_picked()
 		elif event.keycode == KEY_ESCAPE:
+			_picked = []
+			_picked_mode = ""
 			if sheet.visible or spellbook.visible:
 				sheet.visible = false
 				spellbook.visible = false
@@ -1360,7 +1368,49 @@ func _execute(cell: Vector2i) -> void:
 	elif mode == "jump":
 		Combat.jump(world, c, cell)
 	elif mode.begins_with("spell:"):
-		Spellcasting.cast(world, c, mode.trim_prefix("spell:"), cell)
+		var sid := mode.trim_prefix("spell:")
+		var plan := Spellcasting.target_plan(c, sid)
+		if int(plan["count"]) != 1:
+			if _picked_mode != mode:
+				_picked = []
+				_picked_mode = mode
+			if plan["kind"] == "creature" and target == null:
+				return
+			if not plan["repeat"] and cell in _picked:
+				_picked.erase(cell)  # 다시 누르면 빼기
+			else:
+				_picked.append(cell)
+			if int(plan["count"]) > 0 and _picked.size() >= int(plan["count"]):
+				_cast_picked()
+			else:
+				_refresh()
+			return
+		Spellcasting.cast(world, c, sid, cell)
+	map_view.refresh()
+	_clear_preview()
+	_refresh()
+	if world["turns"].check_end():
+		_advance()
+
+
+## 모은 대상으로 시전(다 찼거나 Enter·[시전] — BG3식).
+func _cast_picked() -> void:
+	if _picked.is_empty() or selected == null or not _picked_mode.begins_with("spell:"):
+		return
+	var sid := _picked_mode.trim_prefix("spell:")
+	var plan := Spellcasting.target_plan(selected, sid)
+	var opts := {}
+	if plan["kind"] == "cell":
+		if _picked.size() > 1:
+			opts["second_cell"] = _picked[1]
+	else:
+		opts["targets"] = _picked.map(func(cc: Vector2i) -> Node: return world["grid"].creature_at(cc)).filter(func(n: Variant) -> bool: return n != null)
+	var aim: Vector2i = _picked[0]
+	_picked = []
+	_picked_mode = ""
+	if views.has(selected):
+		views[selected].face_toward(aim)
+	Spellcasting.cast(world, selected, sid, aim, opts)
 	map_view.refresh()
 	_clear_preview()
 	_refresh()
@@ -1448,6 +1498,12 @@ func _build_ui() -> void:
 	status_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	status_label.add_theme_constant_override("outline_size", 4)
 	bottom.add_child(status_label)
+	cast_now_btn = Button.new()
+	cast_now_btn.text = UiText.t("cast_now")
+	cast_now_btn.visible = false
+	cast_now_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	cast_now_btn.pressed.connect(_cast_picked)
+	bottom.add_child(cast_now_btn)
 	action_box = HBoxContainer.new()
 	hotbar = Hotbar.new()
 	bottom.add_child(hotbar)
@@ -1573,6 +1629,17 @@ func _refresh() -> void:
 		status_label.text = UiText.t("enemy_turn")
 	else:
 		status_label.text = ""
+	if _picked_mode != "" and _picked_mode != mode:
+		_picked = []
+		_picked_mode = ""
+	if cast_now_btn != null:
+		cast_now_btn.visible = not _picked.is_empty() and not busy
+	if not _picked.is_empty() and selected != null:
+		var plan := Spellcasting.target_plan(selected, _picked_mode.trim_prefix("spell:"))
+		var names: Array = _picked.map(func(cc: Vector2i) -> String:
+			var n: Node = world["grid"].creature_at(cc)
+			return n.label() if n != null else str(cc))
+		status_label.text = UiText.t("pick_targets") % [_picked.size(), str(plan["count"]) if int(plan["count"]) > 0 else "∞", ", ".join(names)]
 	_update_log()
 	map_view.refresh()
 	if vfx != null:

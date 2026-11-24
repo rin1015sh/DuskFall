@@ -154,3 +154,48 @@ func test_cantrips_scale_at_5_and_10() -> void:
 	var iw := RulesDB.get_entry("spell", "inflict_wounds")
 	assert_eq(str(iw["effects"]["check"]["type"]), "attack", "상처 입히기: 근접 주문 공격")
 	assert_eq(str(iw["effects"]["hit"][0]["dice"]), "3d10")
+
+
+func test_target_plan_bg3_multi_pick() -> void:
+	var wz := _pc("wizard", 5)
+	assert_eq(int(Spellcasting.target_plan(wz, "magic_missile")["count"]), 3, "마법 화살 3개")
+	assert_true(Spellcasting.target_plan(wz, "magic_missile")["repeat"], "같은 대상 여러 번")
+	assert_eq(int(Spellcasting.target_plan(wz, "magic_missile", 3)["count"]), 5, "3레벨 슬롯 5개")
+	assert_eq(int(Spellcasting.target_plan(wz, "scorching_ray")["count"]), 3)
+	assert_eq(int(Spellcasting.target_plan(wz, "fireball")["count"]), 1, "범위 주문은 한 번")
+	assert_eq(int(Spellcasting.target_plan(wz, "sleep")["count"]), 0, "수면: 확정할 때까지(총량)")
+	assert_eq(str(Spellcasting.target_plan(wz, "twin_gate")["kind"]), "cell", "쌍둥이 관문: 칸 둘")
+	var cl := _pc("cleric", 1)
+	var bless := Spellcasting.target_plan(cl, "bless")
+	assert_eq(int(bless["count"]), 3, "축복 3명")
+	assert_false(bless["repeat"])
+	assert_eq(int(Spellcasting.target_plan(cl, "bless", 2)["count"]), 4, "상위 슬롯 +1")
+	var wl := _pc("warlock", 5)
+	assert_eq(int(Spellcasting.target_plan(wl, "eldritch_blast")["count"]), 2, "섬뜩한 화살 광선 2개(5레벨)")
+
+
+func test_eldritch_blast_beams_split_between_picked_targets() -> void:
+	var w := _world()
+	var wl := _pc("warlock", 5)
+	var a := _foe(30)
+	var b := _foe(30)
+	w["grid"].place(wl, Vector2i(0, 0))
+	w["grid"].place(a, Vector2i(5, 0))
+	w["grid"].place(b, Vector2i(5, 3))
+	Dice.force([19, 5, 19, 5])
+	_cast(w, wl, "eldritch_blast", Vector2i(5, 0), {"targets": [a, b]})
+	assert_true(a.hp < 30 and b.hp < 30, "광선마다 고른 대상")
+
+
+func test_bless_picked_three_targets() -> void:
+	var w := _world()
+	var cl := _pc("cleric", 1)
+	var allies: Array = []
+	for i in 4:
+		var f := _pc("fighter", 1)
+		w["grid"].place(f, Vector2i(1 + i, 0))
+		allies.append(f)
+	w["grid"].place(cl, Vector2i(0, 0))
+	_cast(w, cl, "bless", Vector2i(1, 0), {"targets": [allies[0], allies[2], allies[3]]})
+	assert_true(allies[0].extra_modifiers.size() > 0 and allies[2].extra_modifiers.size() > 0 and allies[3].extra_modifiers.size() > 0, "고른 셋")
+	assert_eq(allies[1].extra_modifiers.size(), 0, "고르지 않은 아군은 없다")
