@@ -59,7 +59,7 @@
         "11": 4,
         "12": 5
       },
-      "recharge": "short_one"
+      "recharge": "long"
     },
     {
       "id": "relentless_rage",
@@ -118,7 +118,7 @@
       "kind": "bonus_action",
       "resource": "rage",
       "script": "rage",
-      "notes_ko": "보너스 행동, 중갑 불가. 타격·관통·참격 저항, 근력 공격 피해 +2, 근력 판정·내성 유리, 주문·집중 불가. 다음 자기 턴 끝까지 — 그 턴에 적을 공격하거나 내성을 강요하거나 보너스 행동(분노 연장)을 쓰면 한 턴 더, 최대 10분, 무력화되면 끝(원문). 짧은 휴식에 1회, 긴 휴식에 전부.",
+      "notes_ko": "BG3: 보너스 행동, 중갑 불가. 10턴 — 타격·관통·참격 저항, 근접 무기·비무장·던지기 피해 +2(9레벨 +3), 근력 판정·내성 유리, 주문·집중 불가. 턴마다 적을 공격하거나 피해를 받지 않으면 끝. 긴 휴식에 회복.",
       "source": "SRD 5.2.1",
       "glyph": "fist",
       "ai": {
@@ -146,22 +146,6 @@
         "bestial_tiger": "rage_tiger_heart",
         "bestial_wolf": "rage_wolf_heart",
         "giants_rage": "giants_rage"
-      }
-    },
-    {
-      "id": "extend_rage",
-      "name": {
-        "ko": "분노 연장",
-        "en": "Extend Rage"
-      },
-      "level": 1,
-      "kind": "bonus_action",
-      "script": "extend_rage",
-      "notes_ko": "분노 중 보너스 행동으로 이번 턴 분노를 잇는다(공격·내성 강요를 못 했을 때).",
-      "source": "SRD 5.2.1",
-      "glyph": "fist",
-      "ai": {
-        "when": "end_of_turn"
       }
     },
     {
@@ -220,25 +204,6 @@
       }
     },
     {
-      "id": "primal_knowledge",
-      "name": {
-        "ko": "원시 지식",
-        "en": "Primal Knowledge"
-      },
-      "level": 3,
-      "choices": [
-        "animal_handling",
-        "athletics",
-        "intimidation",
-        "nature",
-        "perception",
-        "survival"
-      ],
-      "choice_kind": "skill",
-      "notes_ko": "바바리안 기능 숙련 하나 더. 분노 중 근력으로 다른 기능 판정하기는 1차 생략.",
-      "source": "SRD 5.2.1"
-    },
-    {
       "id": "extra_attack",
       "name": {
         "ko": "추가 공격",
@@ -269,77 +234,31 @@
     {
       "id": "feral_instinct",
       "name": {
-        "ko": "야생의 본능",
+        "ko": "야성의 본능",
         "en": "Feral Instinct"
       },
       "level": 7,
-      "source": "SRD 5.2.1",
-      "notes_ko": "이니셔티브 유리.",
       "grants": {
-        "advantage": [
-          {
-            "type": "advantage",
-            "roll": "initiative",
-            "side": "self",
-            "value": "advantage"
-          }
+        "initiative_bonus": 3,
+        "condition_immunities": [
+          "surprised"
         ]
-      }
-    },
-    {
-      "id": "instinctive_pounce",
-      "name": {
-        "ko": "본능적 도약",
-        "en": "Instinctive Pounce"
       },
-      "level": 7,
-      "caps": [
-        "instinctive_pounce"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "분노에 들어가는 보너스 행동과 함께 속도 절반만큼 더 이동."
+      "notes_ko": "BG3: 이니셔티브 +3, 기습당하지 않는다.",
+      "source": "original"
     },
     {
-      "id": "brutal_strike",
+      "id": "brutal_critical",
       "name": {
-        "ko": "잔혹한 일격",
-        "en": "Brutal Strike"
+        "ko": "잔혹한 치명타",
+        "en": "Brutal Critical"
       },
       "level": 9,
       "caps": [
-        "brutal_strike"
+        "brutal_critical"
       ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "무모한 공격 중 턴의 근력 공격 하나(불리 없음)에서 유리를 버리면, 명중 시 +1d10과 효과 하나: 강타(3칸 밀고 속도 절반을 기회 공격 없이) 또는 오금 베기(다음 내 턴 시작까지 속도 −15피트). 설정에서 고른다(첫 해당 공격에 자동).",
-      "toggle": {
-        "values": [
-          {
-            "id": "",
-            "name": {
-              "ko": "끔",
-              "en": "Off"
-            }
-          },
-          {
-            "id": "forceful",
-            "name": {
-              "ko": "강타",
-              "en": "Forceful Blow"
-            }
-          },
-          {
-            "id": "hamstring",
-            "name": {
-              "ko": "오금 베기",
-              "en": "Hamstring Blow"
-            }
-          }
-        ],
-        "desc": {
-          "ko": "무모한 공격 중 첫 근력 공격에서 유리 대신 잔혹한 일격(누를 때마다 바뀜).",
-          "en": "Trade Advantage for a Brutal Strike on your first Strength attack while Reckless."
-        }
-      }
+      "notes_ko": "BG3: 주 손 근접 무기·비무장 치명타에 피해 주사위 하나 더.",
+      "source": "original"
     },
     {
       "id": "relentless_rage",
@@ -1179,7 +1098,6 @@
       "athletics",
       "perception"
     ],
-    "primal_knowledge": "intimidation",
     "asi": {
       "4": {
         "str": 2

@@ -29,21 +29,10 @@ func test_barbarian_6_10() -> void:
 	assert_true(Features.use(w, b, "rage")["ok"])
 	assert_false(b.has_condition("frightened"), "광기 없는 분노: 공포가 끝난다")
 	assert_false(b.apply_condition("charmed", 10, foe), "분노 중 매혹 면역")
-	assert_eq(int(b.turn["movement"]), mv + b.speed() / 2, "본능적 도약")
-	# 잔혹한 일격
-	assert_true(Features.use(w, b, "reckless_attack")["ok"])
-	b.options["brutal_strike"] = "hamstring"
-	var atk := Combat.build_weapon_attack(b, b.weapon("main"))
-	var spd: int = foe.speed()
-	Dice.force([15])
-	var res := Resolver.attack(b, foe, atk, w["grid"].attack_context(b, foe))
-	assert_eq(int(res["mode"]), 0, "유리를 버린다")
-	assert_eq(str(res.get("brutal_strike", "")), "hamstring")
-	assert_true(res["extra_damage"].any(func(p: Dictionary) -> bool: return p["dice"] == "1d10"), "+1d10")
-	assert_eq(foe.speed(), spd - 3, "오금 베기 −3칸")
-	Dice.force([15])
-	var res2 := Resolver.attack(b, foe, atk, w["grid"].attack_context(b, foe))
-	assert_false(res2.has("brutal_strike"), "턴당 1회")
+	assert_true(b.has_cap("brutal_critical"), "잔혹한 치명타(BG3 — 잔혹한 일격·본능적 도약 대신)")
+	Dice.force([20, 5, 5, 5, 5])
+	var res := Resolver.attack(b, foe, Combat.build_weapon_attack(b, b.weapon("main")), w["grid"].attack_context(b, foe))
+	assert_true(res["crit"] and res["extra_damage"].size() >= 1, "치명타 주사위 하나 더")
 	assert_true(b.feature_data.has("intimidating_presence"), "광전사 10레벨: 위협적인 존재감(BG3 — 보복 대신)")
 
 

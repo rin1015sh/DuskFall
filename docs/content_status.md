@@ -15,7 +15,7 @@
 | species | 39 |
 | background | 4 |
 | monster | 54 |
-| capability | 199 |
+| capability | 200 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -29,11 +29,9 @@
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
 | 1 | 분노 (rage) |  | 스크립트 rage |  |
-| 1 | 분노 연장 (extend_rage) |  | 스크립트 extend_rage |  |
 | 1 | 맨몸 방어 (unarmored_defense) |  | 태그 unarmored_defense_con |  |
 | 2 | 위험 감지 (danger_sense) |  | 부여 advantage |  |
 | 2 | 무모한 공격 (reckless_attack) |  | 스크립트 reckless_attack; 태그 reckless |  |
-| 3 | 굽히지 않는 흉포함 (unrelenting_ferocity) | wildheart | 스크립트 unrelenting_ferocity |  |
 | 3 | 독수리의 질주 (primal_dash) | wildheart | 스크립트 primal_dash |  |
 | 3 | 급강하 일격 (diving_strike) | wildheart | 스크립트 diving_strike |  |
 | 3 | 원초의 쇄도 (primal_stampede) | wildheart | 스크립트 primal_stampede |  |
@@ -47,31 +45,30 @@
 | 3 | 거인의 분노 (giants_rage) | giant | 태그 giants_rage |  |
 | 3 | 탐욕의 품 (vapraks_greed) | giant | 태그 carry_quarter_more |  |
 | 3 | 거인의 기적 (giant_thaumaturgy) | giant | 부여 at_will |  |
-| 3 | 짐승의 심장 (bestial_heart) | wildheart | 고르기(option) |  |
-| 3 | 짐승의 말 (wildheart_speech) | wildheart | 부여 at_will |  |
-| 3 | 격노의 투척 (enraged_throw) | berserker | 스크립트 enraged_throw |  |
-| 3 | 광란의 일격 (frenzied_strike) | berserker | 스크립트 frenzied_strike |  |
-| 3 | 원시 지식 (primal_knowledge) |  | 고르기(skill) |  |
 | 3 | 광란 (frenzy) | berserker | 태그 frenzy |  |
+| 3 | 광란의 일격 (frenzied_strike) | berserker | 스크립트 frenzied_strike |  |
+| 3 | 격노의 투척 (enraged_throw) | berserker | 스크립트 enraged_throw |  |
+| 3 | 짐승의 말 (wildheart_speech) | wildheart | 부여 at_will |  |
+| 3 | 짐승의 심장 (bestial_heart) | wildheart | 고르기(option) |  |
+| 3 | 굽히지 않는 흉포함 (unrelenting_ferocity) | wildheart | 스크립트 unrelenting_ferocity |  |
+| 5 | 빠른 이동 (fast_movement) |  | 태그 fast_movement |  |
 | 5 | 거인의 발길질 (boot_of_the_giants) | giant | 스크립트 boot_of_the_giants |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
-| 5 | 빠른 이동 (fast_movement) |  | 태그 fast_movement |  |
 | 6 | 원소 쪼개기 (elemental_cleaver) | giant | 스크립트 elemental_cleaver; 설정 |  |
 | 6 | 광기 없는 분노 (mindless_rage) | berserker | 태그 mindless_rage |  |
 | 6 | 짐승의 면모 (animal_aspect) | wildheart | 고르기(option) |  |
 | 6 | 강화 마법: 2레벨 슬롯 (bolstering_magic_slot2) | wild_magic | 스크립트 bolstering_magic |  |
-| 6 | 강화 마법: 1레벨 슬롯 (bolstering_magic_slot1) | wild_magic | 스크립트 bolstering_magic |  |
 | 6 | 강화 마법: 축복 (bolstering_magic_boon) | wild_magic | 스크립트 bolstering_magic |  |
-| 7 | 야생의 본능 (feral_instinct) |  | 부여 advantage |  |
-| 7 | 본능적 도약 (instinctive_pounce) |  | 태그 instinctive_pounce |  |
+| 6 | 강화 마법: 1레벨 슬롯 (bolstering_magic_slot1) | wild_magic | 스크립트 bolstering_magic |  |
+| 7 | 야성의 본능 (feral_instinct) |  | 부여 initiative_bonus, condition_immunities |  |
 | 8 | 대지 걸음 (lands_stride_wildheart) | wildheart | 태그 ignore_difficult_terrain |  |
-| 9 | 잔혹한 일격 (brutal_strike) |  | 태그 brutal_strike; 설정 |  |
+| 9 | 잔혹한 치명타 (brutal_critical) |  | 태그 brutal_critical |  |
 | 9 | 강화 마법: 3레벨 슬롯 (bolstering_magic_slot3) | wild_magic | 스크립트 bolstering_magic |  |
+| 10 | 강력한 내던지기 (mighty_impel) | giant | 스크립트 mighty_impel |  |
 | 10 | 불안정한 반발 (unstable_backlash) | wild_magic | 태그 unstable_backlash; 반응 |  |
 | 10 | 짐승의 면모(둘째) (animal_aspect_10) | wildheart | 고르기(option) |  |
 | 10 | 위협적인 존재감 (intimidating_presence) | berserker | 스크립트 intimidating_presence |  |
 | 10 | 위협 유지 (maintain_intimidation) | berserker | 스크립트 intimidating_presence |  |
-| 10 | 강력한 내던지기 (mighty_impel) | giant | 스크립트 mighty_impel |  |
 | 11 | 끈질긴 분노 (relentless_rage) |  | 스크립트 relentless_rage |  |
 
 ### 바드 (bard) — 생명 주사위 d8, 역할 caster
@@ -505,7 +502,8 @@
 | bonus_attack_on_crit_kill | 강타 추가 공격 | (몬스터 특성 또는 아직 없음) |
 | bonus_dash_disengage_hide | 교활한 행동 | rogue |
 | brawler | 주먹다짐 | (몬스터 특성 또는 아직 없음) |
-| brutal_strike | 잔혹한 일격 | barbarian |
+| brutal_critical | 잔혹한 치명타 | barbarian |
+| brutal_strike | 잔혹한 일격 | (몬스터 특성 또는 아직 없음) |
 | cantrip_add_mod | 강력한 주문 시전 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_miss | 강력한 소마법 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_save | 강력한 소마법(BG3) | wizard |
@@ -585,7 +583,7 @@
 | improved_abjuration | 향상된 방호 | wizard |
 | improved_cunning_strike | 향상된 교활한 일격 | rogue |
 | improved_elemental_casting | 향상된 원소 시전 | monk |
-| instinctive_pounce | 본능적 도약 | barbarian |
+| instinctive_pounce | 본능적 도약 | (몬스터 특성 또는 아직 없음) |
 | jack_of_all_trades | 만물박사 | bard |
 | jump_dex | 민첩 도약 | (몬스터 특성 또는 아직 없음) |
 | jump_half_more | 도약 +50% | (몬스터 특성 또는 아직 없음) |

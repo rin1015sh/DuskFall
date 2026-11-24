@@ -136,8 +136,8 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		if me["type"] == "modify" and me["stat"] == "weapon_attack_and_damage":
 			dmg_bonus += int(me.get("add", 0))  # Magic Weapon +1(명중·피해)
 	var str_bonus := 0
-	if ability == "str":
-		str_bonus = Resolver.rage_bonus(c)  # 분노: 근력 공격 피해 +2
+	if not ranged or opts.get("thrown", false):
+		str_bonus = Resolver.rage_bonus(c)  # 분노(BG3): 근접 무기·비무장·던지기 피해 +2(민첩 무기도)
 	if c.has_cap("dueling") and not ranged and w["id"] != "unarmed" and not "two_handed" in props and opts.get("hand", "main") == "main" \
 			and c.weapon("off") == "" and not opts.get("two_handed", false) and dice != str(w.get("versatile_damage", "")):
 		str_bonus += 2  # 결투(전투 방식): 한 손 근접 무기만 쥐면 피해 +2(피해만 — str_bonus는 피해에만 더한다)

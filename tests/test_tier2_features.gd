@@ -39,10 +39,6 @@ func test_barbarian_11() -> void:
 	Dice.force([15])
 	Resolver.apply_damage(b, [{"amount": b.hp + 5, "damage_type": "fire"}])
 	assert_eq(b.hp, 24, "끈질긴 분노: 바바리안 레벨 × 2")
-	# 잔혹한 일격 선택지: 13레벨 확장이 없으므로 12레벨은 처음으로 돌아간다
-	b.options["brutal_strike"] = "hamstring"
-	Actions.toggle_passive(b, "brutal_strike")
-	assert_eq(str(b.options["brutal_strike"]), "", "12레벨은 다시 처음으로")
 
 
 func test_rogue_11() -> void:

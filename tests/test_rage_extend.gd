@@ -1,5 +1,5 @@
 extends "res://tests/test_case.gd"
-## 분노 연장(원문): 들어간 턴은 다음 턴 끝까지, 그 턴에 공격·내성 강요·분노 연장이 없으면 턴 끝에 끝난다.
+## 분노 유지(BG3): 들어간 턴은 이어지고, 턴마다 적을 공격하거나 피해를 받지 않으면 턴 끝에 끝난다. 10턴.
 
 const Builder := preload("res://scripts/rules/character_builder.gd")
 const Features := preload("res://scripts/rules/features.gd")
@@ -23,9 +23,9 @@ func test_rage_needs_upkeep() -> void:
 	w["turns"].end_turn(b)
 	assert_true(b.has_condition("raging"), "적을 공격하면 이어진다")
 	b.reset_turn()
-	assert_true(Features.use(w, b, "extend_rage")["ok"], "보너스 행동으로 연장")
+	load("res://scripts/rules/resolver.gd").apply_damage(b, [{"amount": 2, "damage_type": "fire"}], {"attacker": f})
 	w["turns"].end_turn(b)
-	assert_true(b.has_condition("raging"))
+	assert_true(b.has_condition("raging"), "피해를 받아도 이어진다(BG3)")
 	b.reset_turn()
 	w["turns"].end_turn(b)
 	assert_false(b.has_condition("raging"), "아무것도 안 하면 끝난다")

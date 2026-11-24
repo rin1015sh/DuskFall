@@ -484,6 +484,9 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 				attacker.remove_condition(str(a["id"]))
 		_stunning_strike(attacker, target, atk)
 		_feature_hit_bonus(attacker, target, atk, res)
+		if res["crit"] and attacker.has_cap("brutal_critical") and str(atk.get("kind", "")) == "melee" and str(atk.get("hand", "main")) != "off" and not atk["damage"].is_empty():
+			# 잔혹한 치명타(바바리안 9레벨, BG3): 주 손 근접 무기·비무장 치명타에 피해 주사위 하나 더
+			res["extra_damage"].append({"dice": str(atk["damage"][0]["dice"]).get_slice("+", 0).get_slice("-", 0).replace("2d", "1d"), "damage_type": atk["damage"][0]["damage_type"]})
 		if res["crit"] and attacker.has_cap("savage_attacks") and atk.get("weapon", false) and str(atk.get("kind", "")) == "melee" and not atk["damage"].is_empty():
 			# 야만적인 공격(하프오크, BG3): 근접 무기 치명타에 무기 주사위 하나 더(치명타 배로 굴린다)
 			var d0 := str(atk["damage"][0]["dice"]).get_slice("+", 0).get_slice("-", 0)
@@ -1133,6 +1136,8 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 		parts_text.append("%s %d" % [t, out["by_type"][t]])
 	Dice.log_text("%s 피해 %d (%s) → HP %d/%d%s" % [target.label(), total, ", ".join(parts_text), target.hp,
 		target.hp_max, " (임시 HP %d 흡수)" % absorbed if absorbed > 0 else ""])
+	if total > 0 and target.has_condition("raging"):
+		target.set_meta("rage_damaged", true)  # 분노(BG3): 지난 턴 뒤 피해를 받았으면 이어진다
 	if total > 0 and target.has_meta("end_on_damage"):
 		for cid: String in target.get_meta("end_on_damage"):
 			target.remove_condition(cid)  # 피해를 받으면 끝나는 상태(언데드 퇴치·적 퇴치)

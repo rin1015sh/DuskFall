@@ -1792,6 +1792,15 @@
       },
       "note_ko": "근접 무기 치명타 무기 주사위 하나 더(Resolver)",
       "source": "original"
+    },
+    {
+      "id": "brutal_critical",
+      "name": {
+        "ko": "잔혹한 치명타",
+        "en": "Brutal Critical"
+      },
+      "note_ko": "치명타 피해 주사위 하나 더(Resolver)",
+      "source": "original"
     }
   ]
 }
