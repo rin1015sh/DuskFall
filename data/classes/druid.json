@@ -394,6 +394,10 @@
                   "barkskin",
                   "hold_person"
                 ],
+                "5": [
+                  "call_lightning",
+                  "plant_growth"
+                ],
                 "7": [
                   "conjure_minor_elementals"
                 ],

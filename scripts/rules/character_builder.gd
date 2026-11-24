@@ -830,11 +830,13 @@ static func _apply_spells(c: Node, entries: Array, sp: Dictionary, lin: Dictiona
 		return e["cls"].get("spellcasting", {}).is_empty() and not (e["sub"] as Dictionary).get("spellcasting", {}).is_empty() \
 			and int(e["level"]) >= int(e["sub"].get("level", 3)))
 	if normal.size() + subcasters.size() >= 2:
-		var clv := 0
+		# BG3 유효 시전 레벨: 클래스마다 분수(완전 1, 절반 1/2, 1/3)를 더한 뒤 내림(bg3.wiki Spells — 2026-11-24)
+		var esl := 0.0
 		for e: Dictionary in normal:
-			clv += int(e["level"]) if str(e["cls"]["spellcasting"].get("progression", "full")) == "full" else ceili(int(e["level"]) / 2.0)
+			esl += float(e["level"]) if str(e["cls"]["spellcasting"].get("progression", "full")) == "full" else float(e["level"]) / 2.0
 		for e: Dictionary in subcasters:
-			clv += int(e["level"]) / 3  # 1/3 시전자(SRD 멀티클래스 표: 내림)
+			esl += float(e["level"]) / 3.0
+		var clv := int(floor(esl + 0.0001))
 		var table: Array = Levels.multiclass_slots(clv)
 		for i in table.size():
 			c.resources["spell_slot_%d" % (i + 1)] = {"current": table[i], "max": table[i], "recharge": "long"}

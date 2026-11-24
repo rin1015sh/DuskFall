@@ -134,3 +134,20 @@ func test_metamagic_twinned() -> void:
 	s.reset_turn()
 	s.options["metamagic"] = "twinned"
 	assert_eq(Spellcasting.metamagic_for(s, RulesDB.get_entry("spell", "burning_hands")), "", "범위 주문은 쌍둥이 불가")
+
+
+func test_subtle_spell_can_still_be_counterspelled() -> void:
+	# BG3: 은밀한 주문은 침묵 속 시전만 — 주문 방해는 받는다
+	var w := make_world(["..........", ".........."])
+	var s := _sorc(5)
+	var r := Builder.build(Builder.default_spec("wizard", 5))
+	var wiz: Node = own(r["creature"])
+	wiz.team = "enemy"
+	w["grid"].place(s, Vector2i(0, 0))
+	w["grid"].place(wiz, Vector2i(6, 0))
+	wiz.reaction_settings["counterspell"] = "auto"
+	s.options["metamagic"] = "subtle"
+	s.reset_turn()
+	Dice.force([2])
+	var res: Dictionary = Spellcasting.cast(w, s, s.spells.filter(func(x: String) -> bool: return int(RulesDB.get_entry("spell", x)["level"]) >= 1 and RulesDB.get_entry("spell", x).get("area") == null)[0], Vector2i(6, 0))
+	assert_true(res.get("countered", false), "은밀해도 끊긴다")

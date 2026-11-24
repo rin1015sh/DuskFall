@@ -1144,7 +1144,7 @@
         },
         {
           "level": 5,
-          "spell": "scorching_ray"
+          "spell": "flame_blade"
         }
       ],
       "notes_ko": "BG3 마법사 군주 혈통 구조(자체 이름). 화염 칼날 → 작열 광선(SRD에 없음).",
@@ -1170,7 +1170,7 @@
         },
         {
           "level": 5,
-          "spell": "shining_smite"
+          "spell": "radiant_brand"
         }
       ],
       "notes_ko": "BG3 전쟁 군주 혈통 구조(자체 이름). 낙인 강타 → 빛나는 강타(SRD에 없음).",

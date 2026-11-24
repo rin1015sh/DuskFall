@@ -1095,11 +1095,11 @@
         ],
         "3": [
           "calm_emotions",
-          "invisibility"
+          "phantasmal_force"
         ],
         "5": [
           "blink",
-          "hypnotic_pattern"
+          "plant_growth"
         ],
         "7": [
           "greater_invisibility",
@@ -1205,7 +1205,7 @@
         ],
         "3": [
           "detect_thoughts",
-          "suggestion"
+          "phantasmal_force"
         ],
         "5": [
           "bestow_curse",
@@ -1289,23 +1289,23 @@
       "always_prepared": {
         "1": [
           "shield",
-          "searing_smite"
+          "wrath_strike"
         ],
         "3": [
           "blur",
-          "shining_smite"
+          "radiant_brand"
         ],
         "5": [
           "blink",
-          "magic_weapon"
+          "elemental_edge"
         ],
         "7": [
           "phantasmal_killer",
-          "stoneskin"
+          "mind_jolt_strike"
         ],
         "9": [
           "cone_of_cold",
-          "hold_monster"
+          "exile_strike"
         ]
       },
       "features": [

@@ -152,3 +152,12 @@ func test_divine_sense_and_faithful_steed() -> void:
 	assert_true(undead.has_condition("divine_sensed") and not undead.has_condition("invisible"), "언데드가 드러난다")
 	assert_false(orc.has_condition("divine_sensed"))
 	assert_true(p.has_condition("divine_sense_active"), "신성 감지: 공격 유리(BG3)")
+
+
+func test_oath_at_level_1_bg3() -> void:
+	# BG3: 맹세는 1레벨 — 맹세의 1레벨 기능(신성한 질책)과 맹세 변환, 나머지 맹세 기능은 3레벨
+	var p := _pal(1)
+	assert_eq(str(p.subclass_id), "devotion", "1레벨에 맹세")
+	assert_true(p.has_feature("holy_rebuke"), "신성한 질책 1레벨")
+	assert_false(p.has_feature("sacred_weapon"), "신성한 무기는 3레벨")
+	assert_true(_pal(3).has_feature("sacred_weapon"))

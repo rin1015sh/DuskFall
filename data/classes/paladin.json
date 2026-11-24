@@ -322,7 +322,7 @@
         "ko": "헌신의 맹세",
         "en": "Oath of Devotion"
       },
-      "level": 3,
+      "level": 1,
       "source": "original",
       "always_prepared": {
         "3": [
@@ -356,7 +356,7 @@
             "ko": "신성한 질책",
             "en": "Holy Rebuke"
           },
-          "level": 3,
+          "level": 1,
           "kind": "action",
           "script": "holy_rebuke",
           "target": "ally",
@@ -424,7 +424,7 @@
         "ko": "고대인의 맹세",
         "en": "Oath of the Ancients"
       },
-      "level": 3,
+      "level": 1,
       "source": "original",
       "always_prepared": {
         "3": [
@@ -433,11 +433,11 @@
         ],
         "5": [
           "misty_step",
-          "barkskin"
+          "moonbeam"
         ],
         "9": [
           "protection_from_energy",
-          "daylight"
+          "plant_growth"
         ]
       },
       "features": [
@@ -458,7 +458,7 @@
             "ko": "치유의 광휘",
             "en": "Healing Radiance"
           },
-          "level": 3,
+          "level": 1,
           "kind": "bonus_action",
           "script": "healing_radiance",
           "target": "self",
@@ -533,7 +533,7 @@
         "ko": "복수의 맹세",
         "en": "Oath of Vengeance"
       },
-      "level": 3,
+      "level": 1,
       "source": "original",
       "always_prepared": {
         "3": [
@@ -567,7 +567,7 @@
             "ko": "심문관의 힘",
             "en": "Inquisitor's Might"
           },
-          "level": 3,
+          "level": 1,
           "kind": "bonus_action",
           "script": "oath_ally_condition",
           "target": "ally",
@@ -642,12 +642,12 @@
         "ko": "왕관의 맹세",
         "en": "Oath of the Crown"
       },
-      "level": 3,
+      "level": 1,
       "source": "original",
       "always_prepared": {
         "3": [
           "command",
-          "heroism"
+          "binding_challenge"
         ],
         "5": [
           "warding_bond",
@@ -655,7 +655,7 @@
         ],
         "9": [
           "spirit_guardians",
-          "beacon_of_hope"
+          "zealots_mantle"
         ]
       },
       "features": [
@@ -676,7 +676,7 @@
             "ko": "올바른 명료함",
             "en": "Righteous Clarity"
           },
-          "level": 3,
+          "level": 1,
           "kind": "bonus_action",
           "script": "oath_ally_condition",
           "target": "ally",
@@ -744,7 +744,7 @@
         "ko": "맹세 파기자",
         "en": "Oathbreaker"
       },
-      "level": 3,
+      "level": 1,
       "source": "original",
       "always_prepared": {
         "3": [
@@ -752,7 +752,7 @@
           "inflict_wounds"
         ],
         "5": [
-          "hold_person",
+          "maddening_crown",
           "darkness"
         ],
         "9": [
@@ -778,7 +778,7 @@
             "ko": "앙심 어린 고통",
             "en": "Spiteful Suffering"
           },
-          "level": 3,
+          "level": 1,
           "kind": "action",
           "script": "oath_save_condition",
           "target": "enemy",

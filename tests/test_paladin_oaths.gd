@@ -53,7 +53,7 @@ func test_ancients() -> void:
 	var p := _pl(7, "ancients")
 	var e := _foe()
 	var w := _world(p, e)
-	assert_true(p.spells.has("barkskin"))
+	assert_true(p.spells.has("moonbeam"), "BG3 고대인 5레벨 달빛")
 	Dice.force([1])
 	assert_true(Features.use(w, p, "natures_wrath", e)["applied"])
 	assert_true(e.has_condition("restrained"), "자연의 분노: 속박")

@@ -621,7 +621,7 @@ static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector
 		Dice.log_text("%s: 주문 변형 — %s" % [caster.label(), mm])
 	# 시전 시작(on_spell_cast): Counterspell 같은 반응이 끊을 수 있다. 끊기면 슬롯은 쓰지 않는다(원문).
 	var cast_ctx := {"caster": caster, "spell": spell_id, "aim": aim, "slot": slot, "countered": false, "world": world,
-		"subtle": opts.get("metamagic", "") == "subtle"}  # 은밀한 주문: 구성 요소 없음 — 주문 방해를 받지 않는다
+		"subtle": opts.get("metamagic", "") == "subtle"}  # 은밀한 주문: 침묵 속에서도 시전(BG3 — 주문 방해는 받는다)
 	EventBus.on_spell_cast.emit(cast_ctx)
 	_end_on_cast(caster)
 	if cast_ctx["countered"]:

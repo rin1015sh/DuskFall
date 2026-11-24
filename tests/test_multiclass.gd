@@ -89,3 +89,12 @@ func test_level_up_into_new_class() -> void:
 	assert_true(c.spells.has("magic_missile") and c.resource("spell_slot_1") == 2, "위저드 1레벨 주문·슬롯")
 	assert_eq(c.attacks_per_action, 1, "전사 4레벨: 추가 공격 없음")
 	assert_true(c.has_meta("spec") and c.get_meta("spec")["classes"].size() == 2, "명세에 클래스 목록")
+
+
+func test_bg3_effective_spellcaster_level_rounds_down_after_sum() -> void:
+	# BG3: 팔라딘 3(1.5) + 위저드 2(2) = 3.5 → 내림 3 — 1레벨 4·2레벨 2 (SRD식 절반 올림이면 4 → 3레벨 슬롯이 생긴다)
+	var c := _multi("wizard", [{"class": "wizard", "level": 2, "subclass": "evoker"},
+		{"class": "paladin", "level": 3, "subclass": "devotion", "spells": ["bless", "cure_wounds"]}])
+	assert_eq(c.resource("spell_slot_1"), 4)
+	assert_eq(c.resource("spell_slot_2"), 2)
+	assert_eq(c.resource("spell_slot_3"), 0, "시전 레벨 3 — 3레벨 슬롯 없음")
