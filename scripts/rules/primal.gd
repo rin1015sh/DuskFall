@@ -28,6 +28,13 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 			ctx["ac_add"] = int(ctx.get("ac_add", 0)) + 1  # 보호의 빛: 2칸 안 아군(나 포함) AC +1
 	if atk.get("opportunity", false) and target.has_flag("oa_disadvantage_against"):
 		ctx["disadvantage"].append("독수리의 심장")
+	if target.has_cap("multiattack_defense") and attacker != target:
+		# 다중 공격 방어(사냥꾼 방어 전술 7레벨, BG3): 나를 공격한 적은 다음 턴 시작까지 나에 대한 다음 공격 −4
+		var key := "mad_%d" % target.get_instance_id()
+		if attacker.turn.get(key, false):
+			ctx["attack_add"] = int(ctx.get("attack_add", 0)) - 4
+		elif not ctx.get("preview", false):
+			attacker.turn[key] = true
 	var rc: Dictionary = attacker.condition_instance("righteous_clarity")
 	if not rc.is_empty():
 		ctx["attack_add"] = int(ctx.get("attack_add", 0)) + int(rc.get("params", {}).get("bonus", 2))  # 올바른 명료함(왕관): 명중 + 숙련

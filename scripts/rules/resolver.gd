@@ -139,10 +139,6 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	if res["hit"]:
 		EventBus.on_hit.emit(res)
 		_retaliate(attacker, target, atk, res)
-		if target.has_cap("multiattack_defense") and attacker != target:
-			# 다중 공격 방어(사냥꾼 방어 전술 7레벨): 나를 맞힌 생물은 이번 턴 남은 나에 대한 공격이 불리
-			target.extra_modifiers.append({"effect": {"type": "advantage", "roll": "attack", "side": "against", "value": "disadvantage"},
-				"source": "multiattack_defense", "target_only": attacker, "expires_after_turn_end_of": attacker, "turn_end_count": 1})
 		Features.hook("on_hit", attacker, {"res": res})
 		Features.hook("on_hit", target, {"res": res})
 		if attacker.has_cap("eldritch_strike") and atk.get("weapon", false):
@@ -485,6 +481,8 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 				attacker.remove_condition(str(a["id"]))
 		_stunning_strike(attacker, target, atk)
 		_feature_hit_bonus(attacker, target, atk, res)
+		if attacker.has_meta("bonus_damage") and int(attacker.get_meta("bonus_damage")) > 0:
+			res["extra_damage"].append({"dice": str(attacker.get_meta("bonus_damage")), "damage_type": atk["damage"][0]["damage_type"]})  # 동료의 결속(야수 조련사)
 		if atk.get("weapon", false) and str(atk.get("kind", "")) == "melee":
 			var hate := Auras.melee_bonus(attacker)
 			if hate > 0:
@@ -1259,6 +1257,8 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 	if res["auto"]:
 		Dice.log_text("%s %s 내성 자동 실패 vs DC %d" % [creature.label(), ability, dc])
 		return res
+	if creature.has_cap("steel_will") and str(opts.get("vs_condition", "")) == "frightened":
+		res["advantage"].append("강철 의지")  # 사냥꾼 방어 전술(BG3): 공포 내성 유리
 	EventBus.on_save.emit(res)
 	drunkards_luck(creature, res)
 	res["mode"] = mode_of(res["advantage"], res["disadvantage"])

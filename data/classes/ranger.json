@@ -153,6 +153,42 @@
       },
       "max": "ability_mod:wis",
       "recharge": "long"
+    },
+    {
+      "id": "rangers_companion",
+      "name": {
+        "ko": "레인저의 동료",
+        "en": "Ranger's Companion"
+      },
+      "max": {
+        "3": 1
+      },
+      "recharge": "short",
+      "subclass": "beast_master"
+    },
+    {
+      "id": "umbral_shroud",
+      "name": {
+        "ko": "그늘 장막",
+        "en": "Umbral Shroud"
+      },
+      "max": {
+        "3": 1
+      },
+      "recharge": "short",
+      "subclass": "gloom_stalker"
+    },
+    {
+      "id": "writhing_current",
+      "name": {
+        "ko": "꿈틀대는 흐름",
+        "en": "Writhing Current"
+      },
+      "max": {
+        "7": 3
+      },
+      "recharge": "long",
+      "subclass": "swarmkeeper"
     }
   ],
   "features": [
@@ -274,34 +310,27 @@
       "level": 3,
       "features": [
         {
-          "id": "hunters_lore",
-          "name": {
-            "ko": "사냥꾼의 지식",
-            "en": "Hunter's Lore"
-          },
-          "level": 3,
-          "notes_ko": "사냥꾼의 표식을 건 대상의 면역·저항·취약을 안다(조준 미리보기에 표시).",
-          "source": "SRD 5.2.1",
-          "caps": [
-            "hunters_lore"
-          ]
-        },
-        {
           "id": "hunters_prey",
           "name": {
-            "ko": "사냥꾼의 먹잇감",
+            "ko": "사냥감",
             "en": "Hunter's Prey"
           },
           "level": 3,
+          "choice_kind": "option",
           "choices": [
             "colossus_slayer",
+            "giant_killer",
             "horde_breaker"
           ],
-          "choice_kind": "option",
           "choice_grants": {
             "colossus_slayer": {
               "caps": [
                 "extra_damage_wounded"
+              ]
+            },
+            "giant_killer": {
+              "caps": [
+                "giant_killer"
               ]
             },
             "horde_breaker": {
@@ -310,8 +339,8 @@
               ]
             }
           },
-          "notes_ko": "거상 학살자: 턴당 1회 HP가 줄어든 대상에게 무기 명중 +1d8. 무리 파괴자: 턴당 1회 무기 공격 뒤 원래 대상 1칸 안 다른 적에게 같은 무기로 추가 공격 — 자동(단순화). 휴식 때 바꾸기는 1차 생략.",
-          "source": "SRD 5.2.1"
+          "notes_ko": "BG3: 하나 — 거상 학살자(턴당 1회 HP가 줄어든 대상 무기 +1d8)·거인 사냥꾼(큰 이상 생물이 1칸 안에서 공격하면 반응 근접 공격)·무리 파괴자(턴당 1회 무기 공격 뒤 1칸 안 다른 적에게 한 번 더 — 자동).",
+          "source": "original"
         },
         {
           "id": "defensive_tactics",
@@ -323,13 +352,18 @@
           "choice_kind": "option",
           "choices": [
             "escape_the_horde",
+            "steel_will",
             "multiattack_defense"
           ],
-          "source": "SRD 5.2.1",
           "choice_grants": {
             "escape_the_horde": {
               "caps": [
                 "escape_the_horde"
+              ]
+            },
+            "steel_will": {
+              "caps": [
+                "steel_will"
               ]
             },
             "multiattack_defense": {
@@ -338,23 +372,349 @@
               ]
             }
           },
-          "notes_ko": "무리 탈출: 나에 대한 기회 공격 불리. 다중 공격 방어: 나를 맞힌 생물은 이번 턴 남은 나에 대한 공격 불리. 휴식 때 바꾸기는 생략."
+          "notes_ko": "BG3: 하나 — 무리 탈출(나에 대한 기회 공격 불리)·강철 의지(공포 내성 유리)·다중 공격 방어(나를 공격한 적은 다음 턴 시작까지 이후 공격 −4).",
+          "source": "original"
         },
         {
-          "id": "superior_hunters_prey",
+          "id": "volley",
           "name": {
-            "ko": "뛰어난 사냥꾼의 먹잇감",
-            "en": "Superior Hunter's Prey"
+            "ko": "일제 사격",
+            "en": "Volley"
           },
           "level": 11,
-          "caps": [
-            "mark_spread"
-          ],
-          "source": "SRD 5.2.1",
-          "notes_ko": "턴당 1회 사냥꾼의 표식 추가 피해를 첫 대상 6칸 안 보이는 다른 적(가장 가까운)에게도."
+          "kind": "action",
+          "script": "volley",
+          "target": "cell",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "bow",
+          "notes_ko": "BG3: 행동, 원거리 무기로 칸 하나 2칸 안 적마다 따로 공격.",
+          "source": "original"
+        },
+        {
+          "id": "whirlwind_attack",
+          "name": {
+            "ko": "소용돌이 공격",
+            "en": "Whirlwind Attack"
+          },
+          "level": 11,
+          "kind": "action",
+          "script": "volley",
+          "whirlwind": true,
+          "target": "self",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "sweep",
+          "notes_ko": "BG3: 행동, 1칸 안 적마다 근접 무기 공격.",
+          "source": "original"
         }
       ],
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "beast_master",
+      "name": {
+        "ko": "야수 조련사",
+        "en": "Beast Master"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "rangers_companion",
+          "name": {
+            "ko": "레인저의 동료",
+            "en": "Ranger's Companion"
+          },
+          "level": 3,
+          "kind": "action",
+          "resource": "rangers_companion",
+          "script": "rangers_companion",
+          "target": "self",
+          "explore": true,
+          "icon": "statuses/rally.webp",
+          "glyph": "paw",
+          "toggle": {
+            "values": [
+              {
+                "id": "wolf",
+                "name": {
+                  "ko": "늑대",
+                  "en": "Wolf"
+                }
+              },
+              {
+                "id": "bear",
+                "name": {
+                  "ko": "곰",
+                  "en": "Bear"
+                }
+              },
+              {
+                "id": "boar",
+                "name": {
+                  "ko": "멧돼지",
+                  "en": "Boar"
+                }
+              },
+              {
+                "id": "dire_raven",
+                "name": {
+                  "ko": "큰까마귀",
+                  "en": "Dire Raven"
+                }
+              },
+              {
+                "id": "wolf_spider",
+                "name": {
+                  "ko": "늑대거미",
+                  "en": "Wolf Spider"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "부를 동료",
+              "en": "Companion to summon"
+            }
+          },
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 곰·멧돼지·큰까마귀·늑대·늑대거미 동료(설정)를 부른다(긴 휴식까지, 하나만). HP·AC는 3/5/8/11레벨 표.",
+          "source": "original"
+        },
+        {
+          "id": "companions_bond",
+          "name": {
+            "ko": "동료의 결속",
+            "en": "Companion's Bond"
+          },
+          "level": 5,
+          "handled_by": "rangers_companion",
+          "notes_ko": "BG3: 동료 AC·피해 + 숙련 보너스(HP·AC 표와 함께).",
+          "source": "original"
+        },
+        {
+          "id": "exceptional_training",
+          "name": {
+            "ko": "뛰어난 훈련",
+            "en": "Exceptional Training"
+          },
+          "level": 7,
+          "handled_by": "생략",
+          "notes_ko": "BG3: 동료가 질주·이탈·돕기를 보너스 행동으로. [변형] 동료 AI가 보너스 행동을 쓰지 않아 생략.",
+          "source": "original"
+        },
+        {
+          "id": "bestial_fury",
+          "name": {
+            "ko": "야수의 분노",
+            "en": "Bestial Fury"
+          },
+          "level": 11,
+          "handled_by": "rangers_companion",
+          "notes_ko": "BG3: 동료 공격 2회.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "gloom_stalker",
+      "name": {
+        "ko": "어둠 추적자",
+        "en": "Gloom Stalker"
+      },
+      "level": 3,
+      "source": "original",
+      "always_prepared": {
+        "3": [
+          "disguise_self"
+        ],
+        "5": [
+          "misty_step"
+        ],
+        "9": [
+          "fear"
+        ]
+      },
+      "features": [
+        {
+          "id": "umbral_shroud",
+          "name": {
+            "ko": "그늘 장막",
+            "en": "Umbral Shroud"
+          },
+          "level": 3,
+          "kind": "action",
+          "resource": "umbral_shroud",
+          "script": "shadow_cloak",
+          "target": "self",
+          "icon": "statuses/invisible.webp",
+          "glyph": "eye",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 가려진(밝지 않은) 곳이면 10턴 투명(공격·주문으로 풀림).",
+          "source": "original"
+        },
+        {
+          "id": "superior_darkvision",
+          "name": {
+            "ko": "뛰어난 암시야",
+            "en": "Superior Darkvision"
+          },
+          "level": 3,
+          "grants": {
+            "darkvision_tiles": 16
+          },
+          "notes_ko": "BG3: 암시야 16칸(24m).",
+          "source": "original"
+        },
+        {
+          "id": "dread_ambusher",
+          "name": {
+            "ko": "공포의 매복자",
+            "en": "Dread Ambusher"
+          },
+          "level": 3,
+          "grants": {
+            "initiative_bonus": 3
+          },
+          "caps": [
+            "dread_ambusher"
+          ],
+          "notes_ko": "BG3: 이니셔티브 +3. 전투 첫 턴 이동 +2칸, 공격 행동에 공격 1회 더, 첫 무기 명중 +1d8.",
+          "source": "original"
+        },
+        {
+          "id": "iron_mind",
+          "name": {
+            "ko": "강철 정신",
+            "en": "Iron Mind"
+          },
+          "level": 7,
+          "grants": {
+            "save_proficiencies": [
+              "wis",
+              "int"
+            ]
+          },
+          "notes_ko": "BG3: 지혜·지능 내성 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "stalkers_flurry",
+          "name": {
+            "ko": "추적자의 연타",
+            "en": "Stalker's Flurry"
+          },
+          "level": 11,
+          "caps": [
+            "stalkers_flurry"
+          ],
+          "notes_ko": "BG3: 턴당 1회 무기 공격이 빗나가면 한 번 더(무료).",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "swarmkeeper",
+      "name": {
+        "ko": "무리지기",
+        "en": "Swarmkeeper"
+      },
+      "level": 3,
+      "source": "original",
+      "always_prepared": {
+        "3": [
+          "mage_hand",
+          "faerie_fire"
+        ],
+        "5": [
+          "web"
+        ],
+        "9": [
+          "gaseous_form"
+        ]
+      },
+      "features": [
+        {
+          "id": "gathered_swarm",
+          "name": {
+            "ko": "모인 무리",
+            "en": "Gathered Swarm"
+          },
+          "level": 3,
+          "choice_kind": "option",
+          "choices": [
+            "jellyfish",
+            "moths",
+            "bees"
+          ],
+          "choice_grants": {
+            "jellyfish": {
+              "caps": [
+                "swarm_jellyfish"
+              ]
+            },
+            "moths": {
+              "caps": [
+                "swarm_moths"
+              ]
+            },
+            "bees": {
+              "caps": [
+                "swarm_bees"
+              ]
+            }
+          },
+          "toggle": {
+            "values": [
+              {
+                "id": "attack",
+                "name": {
+                  "ko": "공격",
+                  "en": "Attack"
+                }
+              },
+              {
+                "id": "utility",
+                "name": {
+                  "ko": "특수",
+                  "en": "Special"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "무리 효과",
+              "en": "Swarm effect"
+            }
+          },
+          "notes_ko": "BG3: 해파리 구름(번개)·나방 떼(정신)·벌 군단(관통) 중 하나. 턴당 1회 무기 명중 뒤 반응으로 — 설정 공격(1d6, 사냥꾼의 표식 대상 +1d6)·특수(해파리: 건강 내성 실패 시 반응 불가 / 나방: 건강 내성 실패 1턴 실명 / 벌: 근력 내성 실패 3칸 밀기). [변형] 순간 이동 선택지 생략.",
+          "source": "original"
+        },
+        {
+          "id": "writhing_tide",
+          "name": {
+            "ko": "꿈틀대는 물결",
+            "en": "Writhing Tide"
+          },
+          "level": 7,
+          "kind": "bonus_action",
+          "resource": "writhing_current",
+          "script": "writhing_tide",
+          "target": "self",
+          "icon": "statuses/haste.webp",
+          "glyph": "wind",
+          "notes_ko": "BG3: 보너스 행동 + 꿈틀대는 흐름(3회, 긴 휴식), 10턴 비행.",
+          "source": "original"
+        },
+        {
+          "id": "mighty_swarm",
+          "name": {
+            "ko": "강력한 무리",
+            "en": "Mighty Swarm"
+          },
+          "level": 11,
+          "caps": [
+            "mighty_swarm"
+          ],
+          "notes_ko": "BG3: 무리 공격 1d8, 특수 효과 추가(해파리 무기 놓침·나방 둔화·벌 넘어짐).",
+          "source": "original"
+        }
+      ]
     }
   ],
   "ai_role": "ranged",

@@ -17,7 +17,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 	for o: Node in grid.creatures():
 		if o.dead or not o.is_hostile_to(c) or not str(o.creature_type) in types or grid.distance_between(c, o) > 6:
 			continue
-		if not Resolver.saving_throw(o, "wis", dc, {"source": c})["success"]:
+		if not Resolver.saving_throw(o, "wis", dc, {"source": c, "vs_condition": "frightened"})["success"]:
 			o.apply_condition("frightened", 3, c)
 			o.apply_condition("incapacitated", 3, c)
 			o.set_meta("end_on_damage", ["frightened", "incapacitated"])

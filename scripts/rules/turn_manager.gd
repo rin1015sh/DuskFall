@@ -293,6 +293,9 @@ func begin_turn(c: Node) -> void:
 		c.reset_turn()  # 턴 시작 효과로 바뀐 상태(넘어짐·연소 등)를 반영
 		c.turn["movement"] = c.speed()
 		load("res://scripts/rules/primal.gd").turn_start(world, c)
+		if c.has_cap("dread_ambusher") and round_number == 1:
+			c.turn["movement"] = int(c.turn.get("movement", 0)) + 2  # 공포의 매복자(어둠 추적자, BG3): 첫 턴 이동 +2칸·추가 공격 1회(+1d8)
+			c.turn["dread_ambush"] = true
 		for m in c.modifier_entries():
 			var e: Dictionary = m["effect"]
 			if e["type"] == "grant_action" and e.get("action", "") == "haste_action" and not c.is_incapacitated():

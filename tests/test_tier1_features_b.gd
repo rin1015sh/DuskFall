@@ -145,15 +145,12 @@ func test_ranger_6_10() -> void:
 	r.reset_turn()
 	assert_true(Features.use(w, r, "tireless")["ok"])
 	assert_true(r.temp_hp >= 1, "지치지 않음")
-	# 다중 공격 방어
+	# 다중 공격 방어(BG3 −4 — 자세한 것은 test_ranger_conclaves)
 	var foe := make_creature({"team": "enemy", "hp_max": 30})
 	w["grid"].place(r, Vector2i(0, 0))
 	w["grid"].place(foe, Vector2i(1, 0))
-	var atk := {"name": "발톱", "bonus": 30, "kind": "melee", "damage": [{"dice": "1", "damage_type": "slashing"}]}
-	Dice.force([10])
-	Resolver.attack(foe, r, atk, w["grid"].attack_context(foe, r))
-	var p := Resolver.preview_attack(foe, r, atk, w["grid"].attack_context(foe, r))
-	assert_eq(int(p["mode"]), -1, "다중 공격 방어: 그 턴 남은 공격 불리")
+	load("res://scripts/rules/combat.gd").attack_context(w, foe, r, {"kind": "melee"})
+	assert_eq(int(load("res://scripts/rules/combat.gd").attack_context(w, foe, r, {"kind": "melee"}).get("attack_add", 0)), -4, "다중 공격 방어: 이후 공격 −4")
 
 
 func test_sorcerer_warlock_6_10() -> void:

@@ -14,7 +14,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 	var n := 0
 	for o: Node in grid.creatures():
 		if not o.dead and o.is_hostile_to(c) and grid.distance_between(c, o) <= 6:
-			if not Resolver.saving_throw(o, "wis", dc, {"source": c})["success"]:
+			if not Resolver.saving_throw(o, "wis", dc, {"source": c, "vs_condition": "frightened"})["success"]:
 				o.apply_condition("frightened", 2, c, {"repeat_save": {"ability": "wis", "dc": dc}})
 				n += 1
 	return {"ok": true, "targets": n}

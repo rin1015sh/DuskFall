@@ -796,6 +796,9 @@
         },
         "dot_dice": {
           "type": "boolean"
+        },
+        "whirlwind": {
+          "type": "boolean"
         }
       }
     }

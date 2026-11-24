@@ -1,0 +1,61 @@
+{
+  "schema": "monster_v1",
+  "id": "companion_bear",
+  "name": {
+    "ko": "곰 동료",
+    "en": "Bear Companion"
+  },
+  "size": "medium",
+  "creature_type": "beast",
+  "cr": 0.5,
+  "xp": 0,
+  "proficiency_bonus": 2,
+  "ac": 11,
+  "hp": 19,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 15,
+    "dex": 10,
+    "con": 14,
+    "int": 2,
+    "wis": 12,
+    "cha": 7
+  },
+  "saves": {
+    "str": 2,
+    "dex": 0,
+    "con": 2,
+    "int": -4,
+    "wis": 1,
+    "cha": -2
+  },
+  "actions": [
+    {
+      "id": "claws",
+      "name": {
+        "ko": "발톱",
+        "en": "Claws"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 4,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "2d4+2",
+          "damage_type": "slashing"
+        }
+      ]
+    }
+  ],
+  "weight_kg": 200,
+  "sight_cone_tiles": 8,
+  "source": "original",
+  "ai": {
+    "style": "melee"
+  },
+  "notes_ko": "야수 조련사 동료(BG3 수치 — 레벨에 따라 rangers_companion이 HP·AC·숙련을 올린다).",
+  "art": {
+    "image": "res://assets/actors/monsters/moon_rock_bear.webp"
+  }
+}

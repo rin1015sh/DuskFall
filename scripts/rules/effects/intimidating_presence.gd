@@ -23,7 +23,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 		inst["turns_left"] = int(inst["turns_left"]) + 1
 		return {"ok": true}
 	var dc: int = 8 + c.proficiency_bonus + c.ability_mod("cha")
-	if not Resolver.saving_throw(t, "wis", dc, {"source": c})["success"]:
+	if not Resolver.saving_throw(t, "wis", dc, {"source": c, "vs_condition": "frightened"})["success"]:
 		t.apply_condition("frightened", 2, c)
 		return {"ok": true, "frightened": true}
 	return {"ok": true, "frightened": false}

@@ -14,8 +14,8 @@
 | feat | 56 |
 | species | 15 |
 | background | 4 |
-| monster | 48 |
-| capability | 174 |
+| monster | 53 |
+| capability | 182 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -308,14 +308,26 @@
 | 1 | 선호하는 적 (favored_enemy) |  | 처리: 클래스 always_prepared(사냥꾼의 표식) + 자원 innate_hunters_mark(슬롯 없이 긴 휴식마다 2회, 5레벨 3회 — 무료 횟수 먼저) |  |
 | 2 | 노련한 탐험가 (deft_explorer) |  | 고르기(expertise) |  |
 | 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
-| 3 | 사냥꾼의 지식 (hunters_lore) | hunter | 태그 hunters_lore |  |
-| 3 | 사냥꾼의 먹잇감 (hunters_prey) | hunter | 고르기(option) |  |
+| 3 | 모인 무리 (gathered_swarm) | swarmkeeper | 고르기(option); 설정 |  |
+| 3 | 공포의 매복자 (dread_ambusher) | gloom_stalker | 태그 dread_ambusher; 부여 initiative_bonus |  |
+| 3 | 뛰어난 암시야 (superior_darkvision) | gloom_stalker | 부여 darkvision_tiles |  |
+| 3 | 그늘 장막 (umbral_shroud) | gloom_stalker | 스크립트 shadow_cloak |  |
+| 3 | 레인저의 동료 (rangers_companion) | beast_master | 스크립트 rangers_companion; 설정 |  |
+| 3 | 사냥감 (hunters_prey) | hunter | 고르기(option) |  |
+| 5 | 동료의 결속 (companions_bond) | beast_master | 처리: rangers_companion |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 6 | 방랑 (roving) |  | 태그 fast_movement, climber |  |
 | 7 | 방어 전술 (defensive_tactics) | hunter | 고르기(option) |  |
+| 7 | 뛰어난 훈련 (exceptional_training) | beast_master | 처리: 생략 |  |
+| 7 | 강철 정신 (iron_mind) | gloom_stalker | 부여 save_proficiencies |  |
+| 7 | 꿈틀대는 물결 (writhing_tide) | swarmkeeper | 스크립트 writhing_tide |  |
 | 9 | 전문화(9레벨) (expertise_9) |  | 고르기(expertise) |  |
 | 10 | 지치지 않음 (tireless) |  | 스크립트 tireless |  |
-| 11 | 뛰어난 사냥꾼의 먹잇감 (superior_hunters_prey) | hunter | 태그 mark_spread |  |
+| 11 | 일제 사격 (volley) | hunter | 스크립트 volley |  |
+| 11 | 소용돌이 공격 (whirlwind_attack) | hunter | 스크립트 volley |  |
+| 11 | 야수의 분노 (bestial_fury) | beast_master | 처리: rangers_companion |  |
+| 11 | 추적자의 연타 (stalkers_flurry) | gloom_stalker | 태그 stalkers_flurry |  |
+| 11 | 강력한 무리 (mighty_swarm) | swarmkeeper | 태그 mighty_swarm |  |
 
 ### 로그 (rogue) — 생명 주사위 d8, 역할 ranged
 
@@ -499,6 +511,7 @@
 | disc_sweeping_cinder_strike | 휩쓰는 불씨 일격 | (몬스터 특성 또는 아직 없음) |
 | disc_touch_of_the_storm | 폭풍의 손길 | (몬스터 특성 또는 아직 없음) |
 | disc_water_whip | 물 채찍 | (몬스터 특성 또는 아직 없음) |
+| dread_ambusher | 공포의 매복자 | ranger |
 | drunkards_luck | 술꾼의 행운 | monk |
 | dual_wield_ac | 쌍수 방어 | (몬스터 특성 또는 아직 없음) |
 | dual_wield_any | 무거운 쌍수 | (몬스터 특성 또는 아직 없음) |
@@ -518,6 +531,7 @@
 | focused_conjuration | 집중된 소환 | wizard |
 | free_cast_class_spell | 신성 개입 | cleric |
 | frenzy | 광란 | barbarian |
+| giant_killer | 거인 사냥꾼 | (몬스터 특성 또는 아직 없음) |
 | giants_rage | 거인의 분노 | barbarian |
 | grim_harvest | 섬뜩한 수확 | wizard |
 | guided_strike | 인도된 일격 | cleric |
@@ -527,7 +541,7 @@
 | heightened_focus | 고양된 집중 | monk |
 | heroic_warrior | 영웅 전사 | (몬스터 특성 또는 아직 없음) |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
-| hunters_lore | 사냥꾼의 지식 | ranger |
+| hunters_lore | 사냥꾼의 지식 | (몬스터 특성 또는 아직 없음) |
 | ignore_difficult_terrain | 험지 무시 | barbarian, druid |
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
 | improved_abjuration | 향상된 방호 | wizard |
@@ -545,7 +559,7 @@
 | magic_ranged | 마법 화살 | fighter |
 | magical_ambush | 마법 매복 | rogue |
 | manifestation | 기의 발현 | monk |
-| mark_spread | 먹잇감 확산 | ranger |
+| mark_spread | 먹잇감 확산 | (몬스터 특성 또는 아직 없음) |
 | martial_arts | 무술 | monk |
 | medium_armor_master | 중형 갑옷 숙달 | (몬스터 특성 또는 아직 없음) |
 | melee_damage_advantage | 근접 피해 두 번 | (몬스터 특성 또는 아직 없음) |
@@ -556,6 +570,7 @@
 | metamagic_quickened | 빠른 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_seeking | 추적 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_subtle | 은밀한 주문 | (몬스터 특성 또는 아직 없음) |
+| mighty_swarm | 강력한 무리 | ranger |
 | mindless_rage | 광기 없는 분노 | barbarian |
 | multiattack_defense | 다중 공격 방어 | (몬스터 특성 또는 아직 없음) |
 | nimble_escape | 날렵한 탈출 | (몬스터 특성 또는 아직 없음) |
@@ -595,11 +610,16 @@
 | split_enchantment | 갈라진 환혹 | wizard |
 | ss_all_in | 조준 | (몬스터 특성 또는 아직 없음) |
 | ss_low_ground | 낮은 곳 사격 | (몬스터 특성 또는 아직 없음) |
+| stalkers_flurry | 추적자의 연타 | ranger |
 | stand_up_one_tile | 빠르게 일어서기 | monk |
 | stealth_attack | 은신 공격 | (몬스터 특성 또는 아직 없음) |
+| steel_will | 강철 의지 | (몬스터 특성 또는 아직 없음) |
 | stunning_strike | 충격의 일격 | monk |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |
 | surprise_immune | 기습 면역 | (몬스터 특성 또는 아직 없음) |
+| swarm_bees | 벌 군단 | (몬스터 특성 또는 아직 없음) |
+| swarm_jellyfish | 해파리 구름 | (몬스터 특성 또는 아직 없음) |
+| swarm_moths | 나방 떼 | (몬스터 특성 또는 아직 없음) |
 | thunderbolt_strike | 벼락 일격 | cleric |
 | touch_of_death | 죽음의 손길 | cleric |
 | tranquillity | 평온 | monk |

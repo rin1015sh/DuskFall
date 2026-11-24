@@ -1567,6 +1567,78 @@
       },
       "note_ko": "Combat.opportunity_attack 명중 시 상태",
       "source": "original"
+    },
+    {
+      "id": "giant_killer",
+      "name": {
+        "ko": "거인 사냥꾼",
+        "en": "giant_killer"
+      },
+      "note_ko": "hunt.after_attack 반응",
+      "source": "original"
+    },
+    {
+      "id": "steel_will",
+      "name": {
+        "ko": "강철 의지",
+        "en": "steel_will"
+      },
+      "note_ko": "공포 내성 유리(Resolver)",
+      "source": "original"
+    },
+    {
+      "id": "dread_ambusher",
+      "name": {
+        "ko": "공포의 매복자",
+        "en": "dread_ambusher"
+      },
+      "note_ko": "turn_manager 첫 턴",
+      "source": "original"
+    },
+    {
+      "id": "stalkers_flurry",
+      "name": {
+        "ko": "추적자의 연타",
+        "en": "stalkers_flurry"
+      },
+      "note_ko": "hunt.after_attack",
+      "source": "original"
+    },
+    {
+      "id": "swarm_jellyfish",
+      "name": {
+        "ko": "해파리 구름",
+        "en": "swarm_jellyfish"
+      },
+      "note_ko": "hunt._swarm",
+      "source": "original"
+    },
+    {
+      "id": "swarm_moths",
+      "name": {
+        "ko": "나방 떼",
+        "en": "swarm_moths"
+      },
+      "note_ko": "hunt._swarm",
+      "source": "original"
+    },
+    {
+      "id": "swarm_bees",
+      "name": {
+        "ko": "벌 군단",
+        "en": "swarm_bees"
+      },
+      "note_ko": "hunt._swarm",
+      "source": "original"
+    },
+    {
+      "id": "mighty_swarm",
+      "name": {
+        "ko": "강력한 무리",
+        "en": "mighty_swarm"
+      },
+      "note_ko": "hunt._swarm",
+      "source": "original"
     }
   ]
 }

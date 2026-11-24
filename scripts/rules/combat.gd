@@ -237,7 +237,7 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 	if int(attacker.turn.get("attacks_left", 0)) <= 0:
 		if not spend(attacker, "action"):
 			return _fail("행동이 없다")
-		attacker.turn["attacks_left"] = attacker.attacks_per_action
+		attacker.turn["attacks_left"] = attacker.attacks_per_action + (1 if attacker.turn.get("dread_ambush", false) else 0)
 	if attacker.has_meta("beast_form") and not opts.has("weapon"):
 		return _beast_attack(world, attacker, target)
 	var wid: String = opts.get("weapon", attacker.weapon("main"))
@@ -481,6 +481,7 @@ static func _do_attack(world: Dictionary, attacker: Node, target: Node, atk: Dic
 		if rq != null and not atk.get("opportunity", false) and not str(atk.get("name", "")).begins_with("파수"):
 			rq.after_attack(res)  # 파수(반응 재주)
 		_curving_shot(world, attacker, target, atk, res)
+		load("res://scripts/rules/hunt.gd").after_attack(world, attacker, target, atk, res)
 	return res
 
 
