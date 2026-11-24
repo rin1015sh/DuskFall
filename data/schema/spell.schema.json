@@ -461,7 +461,9 @@
         },
         "area_targets": {
           "$comment": "범위 주문의 대상 거르기: allies = 시전자에게 적대하지 않는 생물만(생명의 오라·집단 상처 치료)",
-          "enum": ["allies"]
+          "enum": [
+            "allies"
+          ]
         },
         "upcast": {
           "type": "object",
@@ -559,6 +561,31 @@
             },
             "family": {
               "type": "string"
+            }
+          }
+        },
+        "hp_pool": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "base",
+            "condition"
+          ],
+          "properties": {
+            "base": {
+              "type": "integer"
+            },
+            "per_slot": {
+              "type": "integer"
+            },
+            "condition": {
+              "type": "string"
+            },
+            "turns": {
+              "type": "integer"
+            },
+            "ends_on_damage": {
+              "type": "boolean"
             }
           }
         }

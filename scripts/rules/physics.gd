@@ -106,7 +106,12 @@ static func _best_save(target: Node) -> String:
 static func fall(creature: Node, levels: int) -> Dictionary:
 	var dice := mini(levels / FALL_STEPS_PER_DIE, FALL_MAX_DICE)
 	var ctx := {"creature": creature, "levels": levels, "dice": dice, "prevented": false}
-	EventBus.on_fall.emit(ctx)
+	for m in creature.modifier_entries():  # 깃털 낙하(BG3 보너스 행동 강화): 낙하 피해 면역
+		var e: Dictionary = m["effect"]
+		if e.get("type") == "modify" and e.get("stat") == "fall_damage" and int(e.get("set", 1)) == 0:
+			ctx["prevented"] = true
+	if not ctx["prevented"]:
+		EventBus.on_fall.emit(ctx)
 	var out := {"levels": levels, "dice": dice, "damage": 0, "prevented": ctx["prevented"]}
 	if ctx["prevented"] or dice <= 0:
 		return out

@@ -257,10 +257,10 @@ func test_decisions_awareness_decay_feather_fall_disarmer() -> void:
 	for i in 10:
 		ex.tick()
 	assert_false(o.awareness.has(p), "의심은 10턴(1분) 뒤 풀린다")
-	# Feather Fall은 실시간에도
+	# 실시간에는 반응을 받지 않는다(on_fall 반응 주문만 예외 — 깃털 낙하는 BG3대로 보너스 행동이 됐다)
 	assert_true(EventBus.realtime)
 	var wiz := make_creature({"team": "party", "known_reactions": ["opportunity_attack", "feather_fall"]})
-	assert_true(w["reactions"].offer(wiz, "feather_fall", {}, func() -> void: pass), "Feather Fall은 실시간 예외")
+	assert_false(w["reactions"].offer(wiz, "feather_fall", {}, func() -> void: pass), "깃털 낙하는 더 이상 반응이 아니다")
 	assert_false(w["reactions"].offer(wiz, "opportunity_attack", {}, func() -> void: pass), "다른 반응은 실시간에 없다")
 	# 해제 실패: 옆 칸 해제자도 맞는다
 	var trap := {"id": "dart", "cell": [1, 0], "dc_find": 12, "dc_disarm": 15, "found": true, "radius": 0,

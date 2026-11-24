@@ -89,10 +89,13 @@ func test_area_partial_tiles_are_hit_without_bonus() -> void:
 	var wz: Node = own(preload("res://scripts/rules/character_builder.gd").build(preload("res://scripts/rules/character_builder.gd").default_spec("wizard", 5))["creature"])
 	var b := make_creature({"team": "enemy", "hp_max": 99})
 	w["grid"].place(wz, Vector2i(0, 0))
-	w["grid"].place(b, Vector2i(10, 4))
 	wz.reset_turn()
-	var p: Dictionary = Sp.preview(w, wz, "fireball", Vector2i(6, 2))
-	assert_true(p["partial"].has(Vector2i(10, 4)), "가장자리에 걸친 칸")
+	# 요정불 반경 4칸(BG3 6m) — 화염구는 BG3 4m(2칸)로 줄어 걸친 칸이 생기지 않는다
+	var edge: Array = Sp.preview(w, wz, "faerie_fire", Vector2i(6, 2))["partial"]
+	assert_false(edge.is_empty(), "가장자리에 걸친 칸이 있다")
+	w["grid"].place(b, edge[0])
+	var p: Dictionary = Sp.preview(w, wz, "faerie_fire", Vector2i(6, 2))
+	assert_true(p["partial"].has(edge[0]), "가장자리에 걸친 칸")
 	var row: Dictionary = p["targets"].filter(func(r: Dictionary) -> bool: return r["creature"] == b)[0]
 	assert_false(row.has("cover"), "걸친 칸도 그냥 맞는다(엄폐 보너스 없음)")
 	assert_true(absf(float(row["chance"]) - preload("res://scripts/rules/resolver.gd").preview_save_fail(b, "dex", Sp.spell_dc(wz))) < 0.001, "내성 확률도 보통과 같다")

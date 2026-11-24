@@ -128,7 +128,7 @@ func test_death_and_trickery() -> void:
 	w["grid"].place(a, Vector2i(1, 0))
 	w["grid"].place(b, Vector2i(0, 1))
 	d.reset_turn()
-	Dice.force([15, 4, 4, 15, 4, 4])
+	Dice.force([15, 15, 4, 4, 15, 15, 4, 4])  # 원거리 주문 공격(BG3 18m) — 인접 적이면 불리라 d20 둘
 	Spellcasting.cast(w, d, "chill_touch", Vector2i(1, 0))
 	assert_true(a.hp < 100 and b.hp < 100, "수확자: 한 생물 더")
 	var t := _cl(6, "trickery")

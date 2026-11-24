@@ -179,9 +179,9 @@ func test_disciple_of_life() -> void:
 	w["grid"].place(cleric, Vector2i(0, 0))
 	w["grid"].place(f, Vector2i(1, 0))
 	f.hp = 1
-	Dice.force([2, 2])
+	Dice.force([2])
 	Spellcasting.cast(w, cleric, "healing_word", Vector2i(1, 0))
-	assert_eq(f.hp, 1 + 4 + 3 + 3, "2d4 + 지혜 3 + (2 + 슬롯 1)")
+	assert_eq(f.hp, 1 + 2 + 3 + 3, "1d4(BG3) + 지혜 3 + (2 + 슬롯 1)")
 
 
 func test_potent_cantrip_on_save() -> void:

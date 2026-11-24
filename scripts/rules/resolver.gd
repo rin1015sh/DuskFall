@@ -1449,7 +1449,7 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 		var d := luck(creature, Dice.d20(res["mode"], "%s %s 판정" % [creature.label(), ability]))
 		res["natural"] = d["natural"]
-		res["total"] = _reliable(creature, res["skill"], d["natural"]) + res["bonus"]
+		res["total"] = _reliable(creature, res["skill"], d["natural"]) + res["bonus"] + roll_bonus_dice(creature, "ability_check")
 		res["success"] = d["natural"] == 20 or (d["natural"] != 1 and res["total"] >= dc)
 		if not res["success"] and d["natural"] != 1:  # (뛰어난 운동선수 절반 숙련은 bonus에 이미 들어 있다)
 			res["total"] += inspire(creature)
@@ -1457,13 +1457,13 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		if not res["success"] and heroic(creature):
 			d = luck(creature, Dice.d20(res["mode"], "%s %s 판정(영웅적 영감)" % [creature.label(), ability]))
 			res["natural"] = d["natural"]
-			res["total"] = _reliable(creature, res["skill"], d["natural"]) + res["bonus"]
+			res["total"] = _reliable(creature, res["skill"], d["natural"]) + res["bonus"] + roll_bonus_dice(creature, "ability_check")
 			res["success"] = d["natural"] == 20 or (d["natural"] != 1 and res["total"] >= dc)
 		if not res["success"] and lucky(creature, "판정"):
 			var nat := Dice.die(20)
 			if nat > int(res["natural"]):
 				res["natural"] = nat
-				res["total"] = _reliable(creature, res["skill"], nat) + res["bonus"]
+				res["total"] = _reliable(creature, res["skill"], nat) + res["bonus"] + roll_bonus_dice(creature, "ability_check")  # 인도(BG3) 등 능력 판정 +주사위
 				res["success"] = nat == 20 or (nat != 1 and res["total"] >= dc)
 	Dice.log_text("%s %s 판정: %s vs DC %d → %s" % [creature.label(), ability,
 		"자동 실패" if res["auto"] else "%d + %d = %d" % [res["natural"], res["bonus"], res["total"]],

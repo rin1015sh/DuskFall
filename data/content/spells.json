@@ -151,10 +151,13 @@
         "explore_only": false
       },
       "range": {
-        "type": "tiles",
-        "tiles": 6
+        "type": "self"
       },
-      "area": null,
+      "area": {
+        "shape": "emanation",
+        "radius_tiles": 6,
+        "mask": "circle"
+      },
       "duration": {
         "type": "until_long_rest"
       },
@@ -165,7 +168,6 @@
         "material_cost_gp": 0,
         "consumed": false
       },
-      "targets_max": 3,
       "effects": {
         "apply": [
           {
@@ -192,7 +194,8 @@
       "icon": {
         "glyph": "heart_plus",
         "family": "heal"
-      }
+      },
+      "area_targets": "allies"
     },
     {
       "id": "alarm",
@@ -287,9 +290,9 @@
       ],
       "granted_by": [],
       "cast": {
-        "cost": "explore",
+        "cost": "action",
         "ritual": false,
-        "explore_only": true
+        "explore_only": false
       },
       "range": {
         "type": "tiles",
@@ -538,8 +541,7 @@
         "explore_only": false
       },
       "range": {
-        "type": "tiles",
-        "tiles": 6
+        "type": "self"
       },
       "area": null,
       "duration": {
@@ -553,13 +555,7 @@
         "material_cost_gp": 0,
         "consumed": false
       },
-      "effects": {
-        "check": {
-          "type": "save",
-          "ability": "wis",
-          "dc": "spell"
-        }
-      },
+      "effects": {},
       "script": "beacon",
       "game_status": "included",
       "review": false,
@@ -1011,11 +1007,12 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 6
+        "tiles": 12
       },
       "area": null,
       "duration": {
-        "type": "until_long_rest"
+        "type": "turns",
+        "turns": 10
       },
       "concentration": false,
       "components": {
@@ -1076,7 +1073,8 @@
         "explore_only": false
       },
       "range": {
-        "type": "touch"
+        "type": "tiles",
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -1092,19 +1090,19 @@
       "effects": {
         "check": {
           "type": "attack",
-          "kind": "melee"
+          "kind": "ranged"
         },
         "hit": [
           {
             "type": "damage",
-            "dice": "1d10",
+            "dice": "1d8",
             "damage_type": "necrotic"
           }
         ]
       },
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d10"
+          "5": "2d8"
         }
       },
       "game_status": "included",
@@ -1238,7 +1236,8 @@
         "length_tiles": 3
       },
       "duration": {
-        "type": "instant"
+        "type": "turns",
+        "turns": 1
       },
       "concentration": false,
       "components": {
@@ -1247,27 +1246,27 @@
         "material_cost_gp": 0,
         "consumed": false
       },
-      "effects": {
-        "check": {
-          "type": "save",
-          "ability": "con",
-          "dc": "spell"
-        },
-        "fail": [
-          {
-            "type": "apply_condition",
-            "id": "blinded"
-          }
-        ],
-        "success": []
-      },
+      "effects": {},
       "game_status": "included",
-      "notes_ko": "실명",
+      "notes_ko": "BG3: 원뿔 3칸 안 현재 HP 합 33(상위 슬롯마다 +11)까지 낮은 순으로 실명 1턴, 내성 없음",
       "review": false,
       "source": "SRD 5.2.1",
       "icon": {
         "glyph": "sparkle",
         "family": "illusion"
+      },
+      "script": "hp_pool",
+      "hp_pool": {
+        "base": 33,
+        "per_slot": 11,
+        "condition": "blinded",
+        "turns": 1
+      },
+      "upcast": {
+        "per_slot_level": {
+          "en": "The hit point total increases by 11 for each spell slot level above 1.",
+          "script": true
+        }
       }
     },
     {
@@ -1563,8 +1562,9 @@
         "tiles": 6
       },
       "area": {
-        "shape": "cube",
-        "size_tiles": 6
+        "shape": "sphere",
+        "radius_tiles": 2,
+        "mask": "circle"
       },
       "duration": {
         "type": "instant"
@@ -1639,14 +1639,14 @@
         "apply": [
           {
             "type": "heal",
-            "dice": "2d8",
+            "dice": "1d8",
             "add": "spell_mod"
           }
         ]
       },
       "upcast": {
         "per_slot_level": {
-          "dice_add": "2d8"
+          "dice_add": "1d8"
         }
       },
       "game_status": "included",
@@ -1750,7 +1750,7 @@
       },
       "duration": {
         "type": "turns",
-        "turns": 100
+        "turns": 10
       },
       "concentration": true,
       "components": {
@@ -1905,14 +1905,14 @@
         "explore_only": false
       },
       "range": {
-        "type": "self"
+        "type": "touch"
       },
       "area": null,
       "duration": {
         "type": "turns",
         "turns": 100
       },
-      "concentration": true,
+      "concentration": false,
       "components": {
         "verbal": true,
         "somatic": true,
@@ -2052,8 +2052,7 @@
       },
       "area": null,
       "duration": {
-        "type": "turns",
-        "turns": 10
+        "type": "until_long_rest"
       },
       "concentration": true,
       "components": {
@@ -2474,8 +2473,7 @@
       },
       "area": null,
       "duration": {
-        "type": "turns",
-        "turns": 100
+        "type": "until_long_rest"
       },
       "concentration": true,
       "components": {
@@ -2528,8 +2526,9 @@
         "tiles": 12
       },
       "area": {
-        "shape": "cube",
-        "size_tiles": 4
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
       },
       "duration": {
         "type": "turns",
@@ -2587,7 +2586,7 @@
       },
       "area": null,
       "duration": {
-        "type": "instant"
+        "type": "until_long_rest"
       },
       "concentration": false,
       "components": {
@@ -2600,11 +2599,7 @@
         "apply": [
           {
             "type": "temp_hp",
-            "dice": "2d4+4"
-          },
-          {
-            "type": "temp_hp",
-            "dice": "2d4+4"
+            "dice": "7"
           }
         ]
       },
@@ -2615,7 +2610,7 @@
         }
       },
       "game_status": "included",
-      "notes_ko": "임시 HP",
+      "notes_ko": "BG3: 임시 HP 7(상위 슬롯마다 +5), 긴 휴식까지",
       "review": false,
       "source": "SRD 5.2.1",
       "icon": {
@@ -2700,17 +2695,18 @@
       ],
       "granted_by": [],
       "cast": {
-        "cost": "reaction",
+        "cost": "bonus_action",
         "ritual": false,
-        "explore_only": false,
-        "trigger_en": "when you or a creature you can see within 60 feet of you falls",
-        "trigger": "on_fall"
+        "explore_only": false
       },
       "range": {
-        "type": "tiles",
-        "tiles": 12
+        "type": "self"
       },
-      "area": null,
+      "area": {
+        "shape": "emanation",
+        "radius_tiles": 6,
+        "mask": "circle"
+      },
       "duration": {
         "type": "turns",
         "turns": 10
@@ -2738,7 +2734,8 @@
       "icon": {
         "glyph": "feather",
         "family": "transmutation"
-      }
+      },
+      "area_targets": "allies"
     },
     {
       "id": "find_familiar",
@@ -2753,13 +2750,13 @@
       ],
       "granted_by": [],
       "cast": {
-        "cost": "explore",
+        "cost": "action",
         "ritual": true,
-        "explore_only": true
+        "explore_only": false
       },
       "range": {
         "type": "tiles",
-        "tiles": 2
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -2920,7 +2917,7 @@
       },
       "area": {
         "shape": "sphere",
-        "radius_tiles": 4,
+        "radius_tiles": 2,
         "mask": "circle"
       },
       "duration": {
@@ -3164,11 +3161,12 @@
       },
       "area": {
         "shape": "sphere",
-        "radius_tiles": 4,
+        "radius_tiles": 3,
         "mask": "circle"
       },
       "duration": {
-        "type": "until_long_rest"
+        "type": "turns",
+        "turns": 10
       },
       "concentration": true,
       "components": {
@@ -3304,16 +3302,17 @@
       ],
       "granted_by": [],
       "cast": {
-        "cost": "explore",
+        "cost": "action",
         "ritual": false,
-        "explore_only": true
+        "explore_only": false
       },
       "range": {
-        "type": "touch"
+        "type": "tiles",
+        "tiles": 6
       },
       "area": {
         "shape": "sphere",
-        "radius_tiles": 4,
+        "radius_tiles": 2,
         "mask": "circle"
       },
       "duration": {
@@ -3371,8 +3370,9 @@
         "tiles": 12
       },
       "area": {
-        "shape": "square",
-        "size_tiles": 2
+        "shape": "sphere",
+        "radius_tiles": 2,
+        "mask": "circle"
       },
       "duration": {
         "type": "turns",
@@ -3451,14 +3451,13 @@
         "apply": [
           {
             "type": "modify",
-            "stat": "skill_check",
-            "skill": "chosen",
+            "stat": "ability_check",
             "add": "1d4"
           }
         ]
       },
       "game_status": "included",
-      "notes_ko": "굴리기 전 보조(5단계 굴림 창), 고른 기능 판정 +1d4",
+      "notes_ko": "BG3: 모든 능력 판정 +1d4, 집중 10턴",
       "review": false,
       "source": "SRD 5.2.1",
       "icon": {
@@ -3559,10 +3558,9 @@
       },
       "area": null,
       "duration": {
-        "type": "turns",
-        "turns": 10
+        "type": "instant"
       },
-      "concentration": true,
+      "concentration": false,
       "components": {
         "verbal": true,
         "somatic": true,
@@ -3585,7 +3583,7 @@
       },
       "script": "gust",
       "game_status": "included",
-      "notes_ko": "선 6칸 밀어내기 2칸, 구름 제거, 불꽃 광원 끔",
+      "notes_ko": "BG3: 선 8칸 밀어내기 3칸 + 균형 잃음, 구름 제거, 불 표면 끔",
       "review": false,
       "source": "SRD 5.2.1",
       "icon": {
@@ -3683,14 +3681,14 @@
         "apply": [
           {
             "type": "heal",
-            "dice": "2d4",
+            "dice": "1d4",
             "add": "spell_mod"
           }
         ]
       },
       "upcast": {
         "per_slot_level": {
-          "dice_add": "2d4"
+          "dice_add": "1d4"
         }
       },
       "game_status": "included",
@@ -3795,7 +3793,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 6
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -3937,12 +3935,13 @@
         "tiles": 12
       },
       "area": {
-        "shape": "cube",
-        "size_tiles": 6
+        "shape": "sphere",
+        "radius_tiles": 6,
+        "mask": "circle"
       },
       "duration": {
         "type": "turns",
-        "turns": 10
+        "turns": 2
       },
       "concentration": true,
       "components": {
@@ -4218,7 +4217,8 @@
       },
       "area": null,
       "duration": {
-        "type": "until_long_rest"
+        "type": "turns",
+        "turns": 10
       },
       "concentration": true,
       "components": {
@@ -4373,7 +4373,7 @@
       ],
       "granted_by": [],
       "cast": {
-        "cost": "bonus_action",
+        "cost": "action",
         "ritual": false,
         "explore_only": false
       },
@@ -4770,7 +4770,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 6
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -4960,7 +4960,7 @@
       ],
       "granted_by": [],
       "cast": {
-        "cost": "bonus_action",
+        "cost": "action",
         "ritual": false,
         "explore_only": false
       },
@@ -4971,7 +4971,7 @@
       "duration": {
         "type": "until_long_rest"
       },
-      "concentration": false,
+      "concentration": true,
       "components": {
         "verbal": true,
         "somatic": true,
@@ -5076,10 +5076,13 @@
         "explore_only": false
       },
       "range": {
-        "type": "tiles",
-        "tiles": 12
+        "type": "self"
       },
-      "area": null,
+      "area": {
+        "shape": "emanation",
+        "radius_tiles": 12,
+        "mask": "circle"
+      },
       "duration": {
         "type": "instant"
       },
@@ -5094,7 +5097,7 @@
         "apply": [
           {
             "type": "heal",
-            "dice": "2d4",
+            "dice": "1d4",
             "add": "spell_mod"
           }
         ]
@@ -5107,11 +5110,11 @@
       "game_status": "included",
       "review": false,
       "source": "SRD 5.2.1",
-      "targets_max": 6,
       "icon": {
         "glyph": "heal_cross",
         "family": "heal"
-      }
+      },
+      "area_targets": "allies"
     },
     {
       "id": "meld_into_stone",
@@ -5350,7 +5353,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 6
+        "tiles": 12
       },
       "area": {
         "shape": "cube",
@@ -5642,7 +5645,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 6
+        "tiles": 2
       },
       "area": null,
       "duration": {
@@ -5695,15 +5698,18 @@
       ],
       "granted_by": [],
       "cast": {
-        "cost": "explore",
+        "cost": "action",
         "ritual": false,
-        "explore_only": true
+        "explore_only": false
       },
       "range": {
-        "type": "tiles",
-        "tiles": 6
+        "type": "self"
       },
-      "area": null,
+      "area": {
+        "shape": "emanation",
+        "radius_tiles": 6,
+        "mask": "circle"
+      },
       "duration": {
         "type": "instant"
       },
@@ -5714,21 +5720,29 @@
         "material_cost_gp": 0,
         "consumed": false
       },
-      "effects": {},
-      "script": "extra_short_rest",
+      "effects": {
+        "apply": [
+          {
+            "type": "heal",
+            "dice": "2d8",
+            "add": "spell_mod"
+          }
+        ]
+      },
       "upcast": {
         "per_slot_level": {
           "dice_add": "1d8"
         }
       },
       "game_status": "included",
-      "notes_ko": "짧은 휴식 횟수를 쓰지 않는 추가 짧은 휴식 1회 + 2d8, 대상마다 긴 휴식당 1회(7단계)",
+      "notes_ko": "BG3: 행동, 자신 주변 6칸(9m) 아군 모두 2d8 + 수정치 회복",
       "review": false,
       "source": "SRD 5.2.1",
       "icon": {
         "glyph": "heal_cross",
         "family": "heal"
-      }
+      },
+      "area_targets": "allies"
     },
     {
       "id": "prestidigitation",
@@ -5857,8 +5871,7 @@
       },
       "area": null,
       "duration": {
-        "type": "turns",
-        "turns": 100
+        "type": "until_long_rest"
       },
       "concentration": true,
       "components": {
@@ -6238,10 +6251,8 @@
         "apply": [
           {
             "type": "modify",
-            "stat": "damage_taken",
-            "damage_type": "chosen",
-            "add": "-1d4",
-            "once_per": "turn"
+            "stat": "saving_throw",
+            "add": "1d4"
           }
         ]
       },
@@ -6251,7 +6262,8 @@
       "icon": {
         "glyph": "shield",
         "family": "abjuration"
-      }
+      },
+      "notes_ko": "BG3: 모든 내성 굴림 +1d4, 집중 10턴"
     },
     {
       "id": "revivify",
@@ -6273,7 +6285,8 @@
         "explore_only": false
       },
       "range": {
-        "type": "touch"
+        "type": "tiles",
+        "tiles": 6
       },
       "area": null,
       "duration": {
@@ -6413,7 +6426,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 6
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -6749,8 +6762,7 @@
       },
       "area": null,
       "duration": {
-        "type": "turns",
-        "turns": 100
+        "type": "until_long_rest"
       },
       "concentration": true,
       "components": {
@@ -6962,48 +6974,41 @@
         "type": "tiles",
         "tiles": 12
       },
-      "area": {
-        "shape": "sphere",
-        "radius_tiles": 1,
-        "mask": "circle"
-      },
+      "area": null,
       "duration": {
         "type": "turns",
-        "turns": 10
+        "turns": 2
       },
-      "concentration": true,
+      "concentration": false,
       "components": {
         "verbal": true,
         "somatic": true,
         "material_cost_gp": 0,
         "consumed": false
       },
-      "effects": {
-        "check": {
-          "type": "save",
-          "ability": "wis",
-          "dc": "spell"
-        },
-        "fail": [
-          {
-            "type": "apply_condition",
-            "id": "incapacitated"
-          },
-          {
-            "type": "apply_condition",
-            "id": "unconscious"
-          }
-        ],
-        "success": []
-      },
-      "script": "sleep",
+      "effects": {},
+      "script": "hp_pool",
       "game_status": "included",
       "review": false,
       "source": "SRD 5.2.1",
       "icon": {
         "glyph": "moon",
         "family": "enchantment"
-      }
+      },
+      "hp_pool": {
+        "base": 24,
+        "per_slot": 8,
+        "condition": "unconscious",
+        "turns": 2,
+        "ends_on_damage": true
+      },
+      "upcast": {
+        "per_slot_level": {
+          "en": "The hit point total increases by 8 for each spell slot level above 1.",
+          "script": true
+        }
+      },
+      "notes_ko": "BG3: 내성 없이 현재 HP 합 24(상위 슬롯마다 +8)까지 낮은 순으로 잠듦 2턴, 피해를 받으면 깬다. 대상 고르기 UI 전까지는 조준한 생물과 그 둘레 2칸 적"
     },
     {
       "id": "sleet_storm",
@@ -7030,7 +7035,7 @@
       },
       "area": {
         "shape": "cylinder",
-        "radius_tiles": 4,
+        "radius_tiles": 6,
         "mask": "circle"
       },
       "duration": {
@@ -7204,8 +7209,7 @@
       },
       "area": null,
       "duration": {
-        "type": "turns",
-        "turns": 100
+        "type": "until_long_rest"
       },
       "concentration": false,
       "components": {
@@ -7252,12 +7256,11 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 2
+        "tiles": 6
       },
       "area": null,
       "duration": {
-        "type": "turns",
-        "turns": 100
+        "type": "until_long_rest"
       },
       "concentration": false,
       "components": {
@@ -7354,12 +7357,12 @@
       },
       "area": {
         "shape": "emanation",
-        "radius_tiles": 3,
+        "radius_tiles": 2,
         "mask": "circle"
       },
       "duration": {
         "type": "turns",
-        "turns": 100
+        "turns": 10
       },
       "concentration": true,
       "components": {
@@ -7431,7 +7434,7 @@
         "type": "turns",
         "turns": 10
       },
-      "concentration": true,
+      "concentration": false,
       "components": {
         "verbal": true,
         "somatic": true,
@@ -8130,11 +8133,13 @@
         "tiles": 12
       },
       "area": {
-        "shape": "cube",
-        "size_tiles": 4
+        "shape": "sphere",
+        "radius_tiles": 2,
+        "mask": "circle"
       },
       "duration": {
-        "type": "until_long_rest"
+        "type": "turns",
+        "turns": 10
       },
       "concentration": true,
       "components": {
@@ -8369,8 +8374,9 @@
         "tiles": 12
       },
       "area": {
-        "shape": "square",
-        "size_tiles": 4
+        "shape": "sphere",
+        "radius_tiles": 2,
+        "mask": "circle"
       },
       "duration": {
         "type": "turns",
@@ -8475,7 +8481,7 @@
         "druid"
       ],
       "cast": {
-        "cost": "bonus_action",
+        "cost": "action",
         "ritual": false,
         "explore_only": false
       },
@@ -8486,7 +8492,7 @@
       "duration": {
         "type": "until_long_rest"
       },
-      "concentration": false,
+      "concentration": true,
       "targets_max": 1,
       "effects": {
         "apply": [
@@ -8752,9 +8758,9 @@
       "area": null,
       "duration": {
         "type": "turns",
-        "turns": 10
+        "turns": 3
       },
-      "concentration": false,
+      "concentration": true,
       "effects": {
         "apply": [
           {
@@ -9310,12 +9316,12 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 6
+        "tiles": 12
       },
       "area": null,
       "duration": {
         "type": "turns",
-        "turns": 10
+        "turns": 2
       },
       "concentration": true,
       "components": {
@@ -9375,8 +9381,9 @@
         "tiles": 12
       },
       "area": {
-        "shape": "cube",
-        "size_tiles": 4
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
       },
       "duration": {
         "type": "turns",
@@ -10318,7 +10325,7 @@
       },
       "duration": {
         "type": "turns",
-        "turns": 100
+        "turns": 10
       },
       "concentration": true,
       "components": {
@@ -10394,7 +10401,7 @@
       },
       "area": {
         "shape": "cone",
-        "length_tiles": 12
+        "length_tiles": 6
       },
       "duration": {
         "type": "instant"
@@ -10799,7 +10806,7 @@
       },
       "duration": {
         "type": "turns",
-        "turns": 100
+        "turns": 10
       },
       "concentration": true,
       "components": {
@@ -12856,7 +12863,7 @@
       },
       "area": {
         "shape": "sphere",
-        "radius_tiles": 12,
+        "radius_tiles": 6,
         "mask": "circle"
       },
       "duration": {
@@ -12924,7 +12931,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 12
+        "tiles": 6
       },
       "area": null,
       "duration": {
@@ -13244,16 +13251,16 @@
       ],
       "granted_by": [],
       "cast": {
-        "cost": "explore",
+        "cost": "action",
         "ritual": false,
-        "explore_only": true
+        "explore_only": false
       },
       "range": {
         "type": "self"
       },
       "area": {
         "shape": "emanation",
-        "radius_tiles": 6,
+        "radius_tiles": 12,
         "mask": "circle"
       },
       "duration": {

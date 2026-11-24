@@ -94,7 +94,7 @@ func test_fireball_area_half_and_grass() -> void:
 	w["grid"].place(b, Vector2i(12, 7))
 	Dice.force([3, 19, 4, 4, 4, 4, 4, 4, 4, 4])
 	var r := _cast(w, wiz, "fireball", Vector2i(10, 6))
-	assert_eq(r["cells"].size(), 69, "반경 4칸 원형 마스크")
+	assert_eq(r["cells"].size(), 21, "반경 2칸(BG3 4m) 원형")
 	assert_eq(a.hp, 60 - 32, "실패 8d6 = 32")
 	assert_eq(b.hp, 60 - 16, "성공 절반")
 	assert_eq(w["grid"].surface_id(Vector2i(10, 6)), "fire", "풀에 불이 붙는다(범위 칸 반응)")
@@ -108,9 +108,9 @@ func test_upcast_dice_and_targets() -> void:
 	w["grid"].place(cleric, Vector2i(0, 0))
 	w["grid"].place(f, Vector2i(1, 0))
 	f.hp = 1
-	Dice.force([1, 1, 1, 1])
+	Dice.force([1, 1])
 	_cast(w, cleric, "healing_word", Vector2i(1, 0), {"slot": 2})
-	assert_eq(f.hp, 1 + 4 + 4 + 4, "2레벨 슬롯: 4d4 + 지혜 4 + 생명의 제자(2 + 2)")
+	assert_eq(f.hp, 1 + 2 + 4 + 4, "2레벨 슬롯: 2d4(BG3 1d4 + 슬롯당 1d4) + 지혜 4 + 생명의 제자(2 + 2)")
 	assert_eq(Spellcasting.max_targets(RulesDB.get_entry("spell", "hold_person"), 4), 3, "상위 슬롯 대상 +1씩")
 
 
@@ -139,25 +139,6 @@ func test_mage_armor_and_misty_step() -> void:
 	assert_eq(wiz.ac(), 12 + 3, "갑옷이 없으면 13 + 민첩")
 	_cast(w, wiz, "misty_step", Vector2i(5, 3))
 	assert_eq(w["grid"].cell_of(wiz), Vector2i(5, 3), "순간이동 6칸")
-
-
-func test_sleep_two_stages_and_wakes_on_damage() -> void:
-	var w := _world()
-	var wiz := _pc("wizard", 1)
-	var g := _foe()
-	var elf := _foe({"features": ["trance"]})
-	w["grid"].place(wiz, Vector2i(0, 0))
-	w["grid"].place(g, Vector2i(6, 0))
-	w["grid"].place(elf, Vector2i(6, 1))
-	Dice.force([3])
-	_cast(w, wiz, "sleep", Vector2i(6, 0))
-	assert_true(g.has_condition("incapacitated") and not g.has_condition("unconscious"), "1단계 무력화")
-	assert_false(elf.has_condition("incapacitated"), "잠들지 않는 생물은 자동 성공")
-	Dice.force([4])
-	Spellcasting.on_turn_end(w, g)
-	assert_true(g.has_condition("unconscious"), "두 번째 내성 실패 → 무의식")
-	Resolver.apply_damage(g, [{"amount": 1, "damage_type": "slashing"}])
-	assert_false(g.has_condition("unconscious"), "피해를 받으면 깬다")
 
 
 func test_counterspell_reaction() -> void:
@@ -202,8 +183,10 @@ func test_spirit_guardians_on_enter() -> void:
 	g.reset_turn()
 	Dice.force([2, 4, 4, 4])
 	Combat.move(w, g, Vector2i(8, 5))
-	assert_eq(g.hp, 60 - 12, "발산에 들어오면 지혜 내성, 실패 3d8")
+	assert_eq(g.hp, 60, "반경 2칸(BG3 3m) 밖")
 	Combat.move(w, g, Vector2i(7, 5))
+	assert_eq(g.hp, 60 - 12, "발산에 들어오면 지혜 내성, 실패 3d8")
+	Combat.move(w, g, Vector2i(6, 5))
 	assert_eq(g.hp, 48, "한 턴에 한 번")
 
 
@@ -273,16 +256,23 @@ func test_fog_cloud_removed_when_concentration_ends() -> void:
 	assert_eq(w["grid"].cloud_id(Vector2i(6, 6)), "", "집중이 끝나면 구름도 사라진다")
 
 
-func test_feather_fall_reaction() -> void:
+func test_feather_fall_bonus_action_buff() -> void:
+	# BG3: 보너스 행동, 자신 주변 6칸(9m) 아군 모두 10턴 낙하 피해 면역
 	var w := _world()
 	var wiz := _pc("wizard", 1, {"spells": ["feather_fall", "magic_missile"]})
 	var f := _pc("fighter", 1)
+	var far := _pc("fighter", 1)
+	var foe := _foe()
 	w["grid"].place(wiz, Vector2i(0, 0))
 	w["grid"].place(f, Vector2i(1, 0))
-	wiz.reaction_settings["feather_fall"] = "auto"
-	var r := Physics.fall(f, 6)
-	assert_true(r["prevented"], "Feather Fall이 낙하 피해를 막는다")
-	assert_eq(wiz.resource("spell_slot_1"), 1)
+	w["grid"].place(far, Vector2i(10, 0))
+	w["grid"].place(foe, Vector2i(0, 2))
+	assert_true(_cast(w, wiz, "feather_fall", Vector2i(0, 0)).get("ok", false))
+	assert_eq(int(wiz.turn["bonus"]), 0, "보너스 행동")
+	assert_true(Physics.fall(f, 6)["prevented"], "주변 아군 낙하 피해 면역")
+	assert_true(Physics.fall(wiz, 6)["prevented"], "시전자 자신도")
+	assert_false(Physics.fall(far, 6)["prevented"], "6칸 밖은 아니다")
+	assert_false(Physics.fall(foe, 6)["prevented"], "적은 아니다")
 
 
 func test_slow_penalties() -> void:

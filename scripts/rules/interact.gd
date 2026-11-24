@@ -375,6 +375,6 @@ static func reroll(world: Dictionary, c: Node, r: Dictionary, kind: String) -> D
 
 ## 보이는 굴림 미리보기: 성공 확률(자연 20·1 반영)과 보너스.
 static func preview_check(c: Node, ability: String, skill: String, dc: int, assist_avg: float = 0.0) -> Dictionary:
-	var bonus: float = c.ability_mod(ability) + int(c.skill_bonuses.get(skill, 0)) + assist_avg
+	var bonus: float = c.ability_mod(ability) + int(c.skill_bonuses.get(skill, 0)) + assist_avg + Resolver.avg_bonus_dice(c, "ability_check")
 	var p := clampf((21.0 - (dc - bonus)) / 20.0, 0.05, 0.95)
 	return {"dc": dc, "bonus": bonus, "chance": p}
