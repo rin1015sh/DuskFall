@@ -49,6 +49,20 @@ static func can_level_up(world: Dictionary, c: Node) -> bool:
 static func level_up(world: Dictionary, c: Node, cid: String = "", extra: Dictionary = {}) -> bool:
 	if not can_level_up(world, c):
 		return false
+	var spec := next_spec(c, cid, extra)
+	if spec.is_empty():
+		return false
+	Builder.reapply(c, spec)
+	SpellPrep.open_window(c, "level_up")
+	Dice.log_text("%s: %d레벨이 되었다" % [c.label(), c.level])
+	return true
+
+
+## 레벨 업한 명세(검사 통과 못 하면 {}). extra asi_pick = 이번 레벨 능력치 향상 칸 값({"str": 2} 또는 {"feat": id, ...} — BG3 재주 고르기 창).
+static func next_spec(c: Node, cid: String = "", extra: Dictionary = {}) -> Dictionary:
+	var pick: Dictionary = extra.get("asi_pick", {})
+	extra = extra.duplicate()
+	extra.erase("asi_pick")
 	var spec: Dictionary = c.get_meta("spec").duplicate(true)
 	if cid == "" or (cid == c.class_id and spec.get("classes", []).is_empty()):
 		if spec.get("classes", []).is_empty():
@@ -71,13 +85,64 @@ static func level_up(world: Dictionary, c: Node, cid: String = "", extra: Dictio
 			spec["classes"].append(ne)
 		spec["level"] = c.level + 1
 	fill_choices(c, spec)
+	if not pick.is_empty():
+		var lv := asi_level_for(c, cid)
+		if lv > 0:
+			var primary: bool = cid == "" or cid == c.class_id
+			if primary:
+				if not spec.has("asi"):
+					spec["asi"] = {}
+				spec["asi"][str(lv)] = pick.duplicate()
+			else:
+				for e: Dictionary in spec.get("classes", []):
+					if str(e["class"]) == cid:
+						if not e.has("asi"):
+							e["asi"] = {}
+						e["asi"][str(lv)] = pick.duplicate()
 	Builder.fill_asi(spec)
 	if not Builder.validate(spec).is_empty():
-		return false
-	Builder.reapply(c, spec)
-	SpellPrep.open_window(c, "level_up")
-	Dice.log_text("%s: %d레벨이 되었다" % [c.label(), c.level])
-	return true
+		return {}
+	return spec
+
+
+## 이번 레벨 업으로 그 클래스가 능력치 향상(재주) 레벨에 닿으면 그 클래스 레벨, 아니면 0.
+static func asi_level_for(c: Node, cid: String = "") -> int:
+	var k := cid if cid != "" else str(c.class_id)
+	var cur: int = c.class_level(k) if c.class_levels.has(k) or k == c.class_id else 0
+	var lv := cur + 1
+	for a: Variant in RulesDB.get_entry("class", k).get("asi_levels", []):
+		if int(a) == lv:
+			return lv
+	return 0
+
+
+## 재주 고르기 창의 선택지(BG3식): 능력치 +2(능력 6개)와 일반 재주. 재주의 고르는 +1은 그 목록에서 가장 높은 능력에 자동.
+## 명세 검사를 통과하는 것만: [{"pick": asi 칸 값, "name": {ko, en}}]
+static func feat_choices(c: Node, cid: String = "") -> Array:
+	var out: Array = []
+	if asi_level_for(c, cid) <= 0:
+		return out
+	var ab_ko := {"str": "근력", "dex": "민첩", "con": "건강", "int": "지능", "wis": "지혜", "cha": "매력"}
+	for a: String in ["str", "dex", "con", "int", "wis", "cha"]:
+		var p := {a: 2}
+		if not next_spec(c, cid, {"asi_pick": p}).is_empty() and int(c.abilities.get(a, 10)) <= 18:
+			out.append({"pick": p, "name": {"ko": "능력치 향상: %s +2" % ab_ko[a], "en": "Ability Improvement: %s +2" % a.to_upper()}})
+	for ft: Dictionary in RulesDB.entries("feat"):
+		if str(ft.get("category", "")) != "general" or str(ft["id"]) == "ability_score_improvement":
+			continue
+		var p := {"feat": ft["id"]}
+		var inc: Dictionary = ft.get("ability_increase", {})
+		if inc.has("choose"):
+			var best := ""
+			for a: String in inc["choose"]:
+				if best == "" or int(c.abilities.get(a, 0)) > int(c.abilities.get(best, 0)):
+					best = a
+			if best != "":
+				p[best] = int(inc.get("total", 1))
+		if next_spec(c, cid, {"asi_pick": p}).is_empty():
+			continue
+		out.append({"pick": p, "name": ft.get("name", {"ko": ft["id"], "en": ft["id"]})})
+	return out
 
 
 ## 새로 얻은 고르는 기능(choice_kind)의 선택이 명세에 없으면 채운다: 그 클래스 추천 빌드 값 → 첫 선택지(재주는 이미 고른 것 빼고).

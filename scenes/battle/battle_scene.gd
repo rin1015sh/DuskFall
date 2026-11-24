@@ -1739,7 +1739,31 @@ func _open_level_up() -> void:
 	menu.id_pressed.connect(func(idx: int) -> void:
 		var cid: String = choices[idx]
 		var extra: Dictionary = {} if selected.class_levels.has(cid) or cid == selected.class_id else Progression.new_class_extra(selected, cid)
+		menu.queue_free()
+		if Progression.asi_level_for(selected, cid) > 0:
+			_open_feat_pick(cid, extra)  # 재주 고르기(BG3 — 능력치 향상 레벨)
+			return
 		Progression.level_up(world, selected, cid, extra)
+		_refresh())
+	menu.popup_hide.connect(func() -> void:
+		if is_instance_valid(menu):
+			menu.queue_free())
+	menu.position = Vector2i(get_viewport().get_mouse_position())
+	menu.popup()
+
+
+## 재주 고르기(BG3식 레벨 업 창): 능력치 +2 또는 일반 재주. 명세 검사를 통과하는 것만 보인다(scripts/rules/progression.gd feat_choices).
+func _open_feat_pick(cid: String, extra: Dictionary) -> void:
+	var menu := PopupMenu.new()
+	add_child(menu)
+	var picks: Array = Progression.feat_choices(selected, cid)
+	menu.add_separator(UiText.t("pick_feat"))
+	for i in picks.size():
+		menu.add_item(UiText.name_of(picks[i]["name"]), i)
+	menu.id_pressed.connect(func(idx: int) -> void:
+		var ex: Dictionary = extra.duplicate()
+		ex["asi_pick"] = picks[idx]["pick"]
+		Progression.level_up(world, selected, cid, ex)
 		menu.queue_free()
 		_refresh())
 	menu.popup_hide.connect(func() -> void:
