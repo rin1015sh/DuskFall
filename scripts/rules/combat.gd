@@ -240,7 +240,10 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 	if int(attacker.turn.get("attacks_left", 0)) <= 0:
 		if not spend(attacker, "action"):
 			return _fail("행동이 없다")
-		attacker.turn["attacks_left"] = attacker.attacks_per_action + (1 if attacker.turn.get("dread_ambush", false) else 0)
+		var apa: int = attacker.attacks_per_action
+		if attacker.has_meta("beast_form"):
+			apa = maxi(apa, 3 if attacker.has_cap("improved_wild_strike") else (2 if attacker.has_cap("wild_strike") else 1))  # 야생의 일격(BG3 드루이드 5·10)
+		attacker.turn["attacks_left"] = apa + (1 if attacker.turn.get("dread_ambush", false) else 0)
 	if attacker.has_meta("beast_form") and not opts.has("weapon"):
 		return _beast_attack(world, attacker, target)
 	var wid: String = opts.get("weapon", attacker.weapon("main"))
@@ -338,6 +341,13 @@ static func _beast_attack(world: Dictionary, attacker: Node, target: Node) -> Di
 	if a.is_empty():
 		return _fail("짐승 공격이 없다")
 	var batk: Dictionary = preload("res://scripts/rules/monster_factory.gd").to_attack(a, "melee")
+	var wsf: Dictionary = attacker.feature_data.get("wild_shape", {})
+	var bonus_die := ""
+	for k: String in wsf.get("form_bonus_dice", {}):
+		if attacker.feature_level("wild_shape") >= int(k):
+			bonus_die = str(wsf["form_bonus_dice"][k]) if bonus_die == "" or int(k) >= 8 else bonus_die
+	if bonus_die != "":
+		batk["damage"] = batk["damage"] + [{"dice": bonus_die, "damage_type": batk["damage"][0]["damage_type"]}]  # 형태 피해 증가(BG3 — 4레벨 1d6, 8레벨 1d8)
 	if attacker.has_cap("primal_strike"):
 		batk["magical"] = true  # 원초의 일격(달 회합): 짐승 공격은 마법 공격
 	var res := _do_attack(world, attacker, target, batk)

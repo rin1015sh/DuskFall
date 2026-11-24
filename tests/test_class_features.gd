@@ -167,12 +167,8 @@ func test_divine_spark_and_preserve_life() -> void:
 	assert_true(Features.use(w, cleric, "preserve_life")["ok"])
 	assert_eq(r2.hp, mini(3 + 9, r2.hp_max / 2), "BG3: 아군 각자 클레릭 레벨 × 3(최대 HP 절반까지)")
 	assert_eq(f.hp, mini(4 + 9, f.hp_max / 2), "전사도 따로 9")
-	assert_eq(cleric.resource("channel_divinity"), 1)
-	cleric.reset_turn()
-	f.hp = 5
-	Dice.force([4])
-	Features.use(w, cleric, "divine_spark", f, {"mode": "heal"})
-	assert_eq(f.hp, 5 + 4 + 3, "1d8 + 지혜 3")
+	assert_eq(cleric.resource("channel_divinity"), 0, "BG3: 3레벨 신성 변환 1회")
+	assert_false(cleric.feature_data.has("divine_spark"), "신성한 불꽃 없음(BG3)")
 
 
 func test_turn_undead() -> void:

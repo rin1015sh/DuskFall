@@ -74,26 +74,8 @@ func test_supreme_sneak() -> void:
 
 
 func test_divine_strike_and_potent() -> void:
-	var w := make_world(["....."])
 	var c := _pc("cleric", 7)
-	var foe := make_creature({"team": "enemy", "hp_max": 200, "ac_base": 1, "damage_resistances": ["radiant"]})
-	w["grid"].place(c, Vector2i(0, 0))
-	w["grid"].place(foe, Vector2i(1, 0))
-	c.reset_turn()
-	var atk := Combat.build_weapon_attack(c, "mace")
-	Dice.force([15])
-	var res := Resolver.attack(c, foe, atk, w["grid"].attack_context(c, foe))
-	var extra: Array = res["extra_damage"].filter(func(p: Dictionary) -> bool: return p["dice"] == "1d8")
-	assert_eq(extra.size(), 1, "신성한 일격 1d8")
-	assert_eq(extra[0]["damage_type"], "necrotic", "광휘 저항이면 사령")
-	Dice.force([15])
-	var res2 := Resolver.attack(c, foe, atk, w["grid"].attack_context(c, foe))
-	assert_eq(res2["extra_damage"].filter(func(p: Dictionary) -> bool: return p["dice"] == "1d8").size(), 0, "턴당 1회")
-	var p := _pc("cleric", 7, {"blessed_strikes": "potent_spellcasting"})
-	var spell := RulesDB.get_entry("spell", "sacred_flame")
-	assert_eq(Spellcasting.damage_bonus(p, spell), p.ability_mod("wis"), "강력한 주문 시전")
-	assert_eq(Spellcasting.damage_bonus(c, spell), 0)
-
+	assert_false(c.feature_data.has("blessed_strikes"), "축복받은 일격 없음(BG3 — 영역 8레벨 기능이 맡음)")
 
 func test_blessed_healer() -> void:
 	var w := make_world(["....."])

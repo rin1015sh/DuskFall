@@ -14,8 +14,8 @@
 | feat | 56 |
 | species | 39 |
 | background | 4 |
-| monster | 54 |
-| capability | 200 |
+| monster | 60 |
+| capability | 202 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -101,67 +101,61 @@
 
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
-| 1 | 신성한 서열 (divine_order) |  | 고르기(option) |  |
-| 1 | 사기꾼의 축복 (blessing_of_the_trickster) | trickery | 스크립트 blessing_of_the_trickster |  |
-| 1 | 폭풍의 분노 (wrath_of_the_storm) | tempest | 부여 armor_training, weapon_training; 설정; 반응 |  |
+| 1 | 수확자 (reaper) | death | 태그 reaper; 부여 weapon_training |  |
 | 1 | 전쟁 사제 (war_priest) | war | 태그 war_priest; 부여 armor_training, weapon_training |  |
 | 1 | 생명의 제자 (disciple_of_life) | life | 태그 spell_heal_bonus; 부여 armor_training |  |
-| 1 | 자연의 시종 (acolyte_of_nature) | nature | 부여 armor_training; 고르기(spell_pick) |  |
-| 1 | 수확자 (reaper) | death | 태그 reaper; 부여 weapon_training |  |
+| 1 | 사기꾼의 축복 (blessing_of_the_trickster) | trickery | 스크립트 blessing_of_the_trickster |  |
 | 1 | 경고의 섬광 (warding_flare) | light | 반응 |  |
+| 1 | 폭풍의 분노 (wrath_of_the_storm) | tempest | 부여 armor_training, weapon_training; 설정; 반응 |  |
 | 1 | 앎의 축복 (blessings_of_knowledge) | knowledge | 고르기(expertise) |  |
+| 1 | 자연의 시종 (acolyte_of_nature) | nature | 부여 armor_training; 고르기(spell_pick) |  |
+| 2 | 죽음의 손길 (touch_of_death) | death | 태그 touch_of_death; 설정 |  |
+| 2 | 인도된 일격 (guided_strike) | war | 태그 guided_strike; 설정 |  |
 | 2 | 이중 존재 (invoke_duplicity) | trickery | 스크립트 invoke_duplicity |  |
 | 2 | 파괴의 분노 (destructive_wrath) | tempest | 태그 destructive_wrath; 설정 |  |
 | 2 | 짐승·식물 매혹 (charm_animals_and_plants) | nature | 스크립트 charm_animals_and_plants |  |
-| 2 | 인도된 일격 (guided_strike) | war | 태그 guided_strike; 설정 |  |
 | 2 | 시대의 지식 (knowledge_of_the_ages) | knowledge | 스크립트 knowledge_of_the_ages; 설정 |  |
 | 2 | 새벽의 광휘 (radiance_of_the_dawn) | light | 스크립트 radiance_of_the_dawn |  |
 | 2 | 생명 보존 (preserve_life) | life | 스크립트 preserve_life |  |
-| 2 | 죽음의 손길 (touch_of_death) | death | 태그 touch_of_death; 설정 |  |
 | 2 | 언데드 퇴치 (turn_undead) |  | 스크립트 turn_undead |  |
-| 2 | 신성한 불꽃 (divine_spark) |  | 스크립트 divine_spark |  |
-| 2 | 신성 변환 (channel_divinity) |  | 처리: 자원 channel_divinity — 신성한 불꽃·언데드 퇴치·생명 보존이 쓴다(choices는 안내용) |  |
-| 5 | 언데드 소각 (sear_undead) |  | 처리: turn_undead 스크립트 안 |  |
+| 2 | 신성 변환 (channel_divinity) |  | 처리: 자원 channel_divinity(2레벨 1회, 6레벨 2회, 짧은 휴식 — BG3) — 언데드 퇴치·영역 기능이 쓴다 |  |
+| 5 | 언데드 파괴 (destroy_undead) |  | 처리: turn_undead 스크립트 안 |  |
+| 6 | 생각 읽기 (read_thoughts) | knowledge |  | 보류(deferred) |
+| 6 | 원소 누그러뜨리기 (dampen_elements) | nature | 반응 |  |
+| 6 | 넓어진 섬광 (improved_warding_flare) | light | 반응 |  |
+| 6 | 벼락 일격 (thunderbolt_strike) | tempest | 태그 thunderbolt_strike |  |
+| 6 | 축복받은 치유자 (blessed_healer) | life | 태그 blessed_healer |  |
+| 6 | 그림자 망토 (cloak_of_shadows) | trickery | 스크립트 cloak_of_shadows |  |
 | 6 | 전쟁 신의 축복 (war_gods_blessing) | war | 반응 |  |
 | 6 | 피할 수 없는 파괴 (inescapable_destruction) | death | 부여 ignore_resistance |  |
-| 6 | 그림자 망토 (cloak_of_shadows) | trickery | 스크립트 cloak_of_shadows |  |
-| 6 | 벼락 일격 (thunderbolt_strike) | tempest | 태그 thunderbolt_strike |  |
-| 6 | 원소 누그러뜨리기 (dampen_elements) | nature | 반응 |  |
-| 6 | 생각 읽기 (read_thoughts) | knowledge |  | 보류(deferred) |
-| 6 | 넓어진 섬광 (improved_warding_flare) | light | 반응 |  |
-| 6 | 축복받은 치유자 (blessed_healer) | life | 태그 blessed_healer |  |
-| 7 | 축복받은 일격 (blessed_strikes) |  | 고르기(option) |  |
 | 10 | 신성 개입 (divine_intervention) |  | 태그 free_cast_class_spell; 설정 |  |
 
 ### 드루이드 (druid) — 생명 주사위 d8, 역할 caster
 
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
-| 1 | 드루이드어 (druidic) |  | 처리: 클래스 always_prepared(동물과 대화). 숨은 글 남기기는 삭제(언어) |  |
-| 1 | 원초의 질서 (primal_order) |  | 고르기(option) |  |
+| 2 | 야생 변신 (wild_shape) |  | 스크립트 wild_shape |  |
+| 2 | 변신 풀기 (revert_wild_shape) |  | 스크립트 revert_wild_shape |  |
+| 2 | 자연 회복 (natural_recovery) | land | 스크립트 arcane_recovery |  |
+| 2 | 대지의 소마법 (land_cantrip) | land | 고르기(spell_pick) |  |
 | 2 | 눈부신 숨결 (dazzling_breath) | stars | 스크립트 dazzling_breath |  |
+| 2 | 전투 야생 변신 (combat_wild_shape) | moon | 처리: 야생 변신 형태 목록(wild_shape.forms_for) |  |
+| 2 | 달빛 치유 (lunar_mend) | moon | 스크립트 lunar_mend |  |
 | 2 | 빛의 화살 (luminous_arrow) | stars | 스크립트 luminous_arrow |  |
+| 2 | 포자 후광 (halo_of_spores) | spores | 반응 |  |
+| 2 | 공생체 (symbiotic_entity) | spores | 스크립트 symbiotic_entity |  |
 | 2 | 별의 형상 (starry_form) | stars | 스크립트 starry_form; 설정 |  |
 | 2 | 별자리 지도 (star_map) | stars | 처리: 자원 innate_guiding_bolt(타고난 시전 — 무료 횟수 먼저) |  |
-| 2 | 공생체 (symbiotic_entity) | spores | 스크립트 symbiotic_entity |  |
-| 2 | 포자 후광 (halo_of_spores) | spores | 반응 |  |
-| 2 | 달빛 치유 (lunar_mend) | moon | 스크립트 lunar_mend |  |
-| 2 | 전투 야생 변신 (combat_wild_shape) | moon | 처리: 야생 변신 형태 목록(wild_shape.forms_for) |  |
-| 2 | 대지의 소마법 (land_cantrip) | land | 고르기(spell_pick) |  |
-| 2 | 자연 회복 (natural_recovery) | land | 스크립트 arcane_recovery |  |
-| 2 | 야생 동료 (wild_companion) |  | 스크립트 wild_companion |  |
-| 2 | 변신 풀기 (revert_wild_shape) |  | 스크립트 revert_wild_shape |  |
-| 2 | 야생 변신 (wild_shape) |  | 스크립트 wild_shape |  |
 | 3 | 대지 회합 주문 (circle_land_spells) | land | 고르기(option) |  |
-| 5 | 야생의 부활 (wild_resurgence) |  | 스크립트 wild_resurgence |  |
-| 6 | 대지 걸음 (lands_stride) | land | 태그 ignore_difficult_terrain |  |
-| 6 | 원초의 일격 (primal_strike) | moon | 태그 primal_strike |  |
-| 6 | 곰팡이 감염 (fungal_infestation) | spores |  | 보류(deferred) |
-| 6 | 우주의 징조: 행운 (cosmic_omen_weal) | stars | 태그 cosmic_omen; 반응 |  |
+| 5 | 야생의 일격 (wild_strike) |  | 태그 wild_strike |  |
 | 6 | 우주의 징조: 불운 (cosmic_omen_woe) | stars | 반응 |  |
-| 7 | 원소의 격노 (elemental_fury) |  | 고르기(option) |  |
-| 10 | 자연의 수호 (natures_ward) | land | 부여 condition_immunities, damage_immunities, condition_immunity_from |  |
+| 6 | 우주의 징조: 행운 (cosmic_omen_weal) | stars | 태그 cosmic_omen; 반응 |  |
+| 6 | 곰팡이 감염 (fungal_infestation) | spores |  | 보류(deferred) |
+| 6 | 원초의 일격 (primal_strike) | moon | 태그 primal_strike |  |
+| 6 | 대지 걸음 (lands_stride) | land | 태그 ignore_difficult_terrain |  |
 | 10 | 퍼지는 포자 (spreading_spores) | spores | 스크립트 spreading_spores |  |
+| 10 | 자연의 수호 (natures_ward) | land | 부여 condition_immunities, damage_immunities, condition_immunity_from |  |
+| 10 | 향상된 야생의 일격 (improved_wild_strike) |  | 태그 improved_wild_strike |  |
 | 10 | 반짝이는 별자리 (twinkling_constellations) | stars | 태그 twinkling_constellations |  |
 
 ### 전사 (fighter) — 생명 주사위 d10, 역할 melee
@@ -582,6 +576,7 @@
 | improved_abjuration | 향상된 방호 | wizard |
 | improved_cunning_strike | 향상된 교활한 일격 | rogue |
 | improved_elemental_casting | 향상된 원소 시전 | monk |
+| improved_wild_strike | 향상된 야생의 일격 | druid |
 | instinctive_pounce | 본능적 도약 | (몬스터 특성 또는 아직 없음) |
 | jack_of_all_trades | 만물박사 | bard |
 | jump_dex | 민첩 도약 | (몬스터 특성 또는 아직 없음) |
@@ -679,3 +674,4 @@
 | war_priest | 전쟁 사제 | cleric |
 | wild_magic_rage | 야생 마법 분노 | barbarian |
 | wild_magic_surge | 야생 마법 급증 | sorcerer |
+| wild_strike | 야생의 일격 | druid |

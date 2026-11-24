@@ -32,3 +32,36 @@ func test_bard() -> void:
 	var r: Dictionary = Features.use(w, b, "song_of_rest")
 	assert_true(r.get("ok", false), str(r))
 	assert_eq(b.resource("song_of_rest"), 0)
+
+
+func test_cleric() -> void:
+	var c := _pc("cleric", 6)
+	assert_eq(c.resources["channel_divinity"]["max"], 2, "6레벨 신성 변환 2회")
+	assert_false(c.feature_data.has("divine_order") or c.feature_data.has("divine_spark"))
+	var u := make_creature({"team": "enemy", "hp_max": 60, "creature_type": "undead", "abilities": {"wis": 1}})
+	var w := make_world(["......"])
+	w["grid"].place(c, Vector2i(0, 0))
+	w["grid"].place(u, Vector2i(2, 0))
+	c.reset_turn()
+	Dice.force([1, 3, 3, 3, 3])
+	assert_true(Features.use(w, c, "turn_undead")["ok"])
+	assert_eq(u.hp, 48, "언데드 파괴 4d6")
+	assert_true(u.has_condition("frightened"))
+
+
+func test_druid_forms_and_wild_strike() -> void:
+	var d := _pc("druid", 10)
+	var forms: Array = load("res://scripts/rules/effects/wild_shape.gd").forms_for(d)
+	assert_true("crested_saurian" in forms and "panther" in forms and "giant_badger" in forms, "BG3 형태")
+	var w := make_world(["......"])
+	var e := make_creature({"team": "enemy", "hp_max": 200, "ac_base": 1})
+	w["grid"].place(d, Vector2i(0, 0))
+	w["grid"].place(e, Vector2i(1, 0))
+	d.reset_turn()
+	d.options["wild_shape_form"] = "panther"
+	assert_true(Features.use(w, d, "wild_shape")["ok"])
+	assert_eq(d.hp_max, 45 + 10, "표범 45 + 2레벨마다 5")
+	d.reset_turn()
+	Dice.force([15, 3, 3])
+	load("res://scripts/rules/combat.gd").attack(w, d, e)
+	assert_eq(int(d.turn["attacks_left"]), 2, "향상된 야생의 일격: 3회 중 1회")

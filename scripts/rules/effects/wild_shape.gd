@@ -35,7 +35,7 @@ static func forms_for(c: Node) -> Array:
 			continue
 		for id: String in f["forms"][k]:
 			var m := RulesDB.get_entry("monster", id)
-			if not m.is_empty() and float(m.get("cr", 99)) <= max_cr and int(m.get("fly_tiles", 0)) == 0 and not id in out:
+			if not m.is_empty() and (f.get("cr_by_level", {}).is_empty() or float(m.get("cr", 99)) <= max_cr) and int(m.get("fly_tiles", 0)) == 0 and not id in out:
 				out.append(id)
 	return out
 
@@ -61,7 +61,7 @@ static func shape_stats(c: Node, id: String, restoring: bool = false) -> void:
 	var m := RulesDB.get_entry("monster", id)
 	if not restoring:
 		c.set_meta("wild_shape_hp", {"hp": c.hp, "hp_max": c.hp_max, "temp_hp": c.temp_hp})  # 드루이드 HP(BG3: 형태 HP 따로)
-		c.hp_max = int(m.get("hp", c.hp_max))
+		c.hp_max = int(m.get("hp", c.hp_max)) + _form_hp_bonus(c, id)
 		c.hp = c.hp_max
 		c.temp_hp = 0
 	c.set_meta("wild_shape_saved", {"str": c.abilities["str"], "dex": c.abilities["dex"], "con": c.abilities["con"],
@@ -73,6 +73,19 @@ static func shape_stats(c: Node, id: String, restoring: bool = false) -> void:
 	c.size = str(m.get("size", "medium"))
 	c.weight_kg = float(m.get("weight_kg", c.weight_kg))
 	c.set_meta("beast_form", id)
+
+
+## 형태 HP 증가(BG3 — 그 형태를 배운 레벨부터 드루이드 2레벨마다 기능 form_hp_per_2_levels).
+static func _form_hp_bonus(c: Node, id: String) -> int:
+	var f: Dictionary = c.feature_data.get("wild_shape", {})
+	var per := int(f.get("form_hp_per_2_levels", 0))
+	if per <= 0:
+		return 0
+	var learned := 2
+	for k: String in f.get("forms", {}):
+		if id in f["forms"][k]:
+			learned = int(k)
+	return maxi(0, (c.feature_level("wild_shape") - learned) / 2) * per
 
 
 ## 원래 모습으로(보너스 행동·0 HP·긴 휴식).

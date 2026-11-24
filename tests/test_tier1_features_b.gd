@@ -55,10 +55,8 @@ func test_bard_6_10() -> void:
 
 func test_druid_6_10() -> void:
 	var d := _pc("druid", 10)
-	assert_true(d.has_cap("cantrip_add_mod"), "원소의 격노(강력한 주문 시전)")
+	assert_true(d.has_cap("improved_wild_strike"), "향상된 야생의 일격(BG3 — 원소의 격노 대신)")
 	assert_true("poison" in d.damage_immunities and "poisoned" in d.condition_immunities, "자연의 수호(BG3): 독 면역")
-	var p := _pc("druid", 7, {"elemental_fury": "primal_strike"})
-	assert_eq(p.get_meta("weapon_hit_bonus").size(), 1, "원초의 일격")
 	var w := make_world(["......"])
 	w["grid"].place(d, Vector2i(0, 0))
 	for i in range(1, 4):

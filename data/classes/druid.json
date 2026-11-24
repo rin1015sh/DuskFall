@@ -38,11 +38,7 @@
     8,
     12
   ],
-  "always_prepared": {
-    "1": [
-      "speak_with_animals"
-    ]
-  },
+  "always_prepared": {},
   "spellcasting": {
     "ability": "wis",
     "swap": {
@@ -216,72 +212,41 @@
   ],
   "features": [
     {
-      "id": "druidic",
-      "name": {
-        "ko": "드루이드어",
-        "en": "Druidic"
-      },
-      "level": 1,
-      "handled_by": "클래스 always_prepared(동물과 대화). 숨은 글 남기기는 삭제(언어)",
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "primal_order",
-      "name": {
-        "ko": "원초의 질서",
-        "en": "Primal Order"
-      },
-      "level": 1,
-      "choices": [
-        "magician",
-        "warden"
-      ],
-      "choice_kind": "option",
-      "choice_grants": {
-        "magician": {
-          "extra_cantrips": 1,
-          "skill_bonus_ability": {
-            "arcana": "wis",
-            "nature": "wis"
-          }
-        },
-        "warden": {
-          "weapon_training": [
-            "martial"
-          ],
-          "armor_training": [
-            "medium"
-          ]
-        }
-      },
-      "notes_ko": "마법사(소마법 +1, 비전·자연 판정 + 지혜) 또는 수호자(군용 무기·평갑 훈련).",
-      "source": "SRD 5.2.1"
-    },
-    {
       "id": "wild_shape",
       "name": {
         "ko": "야생 변신",
         "en": "Wild Shape"
       },
       "level": 2,
-      "kind": "bonus_action",
+      "kind": "action",
       "resource": "wild_shape",
       "script": "wild_shape",
       "forms": {
         "2": [
-          "wolf"
+          "giant_badger",
+          "cat",
+          "giant_spider",
+          "dire_wolf"
         ],
         "4": [
-          "worg"
+          "cave_aurochs"
+        ],
+        "6": [
+          "panther",
+          "owlbear"
+        ],
+        "10": [
+          "crested_saurian"
         ]
       },
-      "cr_by_level": {
-        "2": 0.25,
-        "4": 0.5
-      },
-      "notes_ko": "보너스 행동으로 아는 짐승(2레벨 늑대 — 도전 1/4, 4레벨 워그 — 1/2, 비행 없음). 근력·민첩·건강·AC·속도·공격은 짐승 것, 형태 HP를 따로 씀(0이 되면 원래 HP로 — BG3), 주문 불가. 보너스 행동으로 풀기, 0 HP·긴 휴식에 풀림. 2회, 짧은 휴식에 1회 회복. 형태 고르기는 설정 options.wild_shape_form.",
-      "source": "SRD 5.2.1",
-      "glyph": "paw"
+      "notes_ko": "BG3: 행동, 2회(짧은 휴식). 형태 — 2레벨 오소리·고양이·거미·늑대, 4레벨 동굴 들소, 6레벨 표범·아울베어, 10레벨 볏 도마뱀. 형태 HP 따로(배운 레벨부터 2레벨마다 +5), 4레벨부터 짐승 공격 +1d6(8레벨 +1d8). 주문 불가. 형태 고르기는 설정 options.wild_shape_form.",
+      "source": "original",
+      "glyph": "paw",
+      "form_hp_per_2_levels": 5,
+      "form_bonus_dice": {
+        "4": "1d6",
+        "8": "1d8"
+      }
     },
     {
       "id": "revert_wild_shape",
@@ -296,66 +261,30 @@
       "glyph": "paw"
     },
     {
-      "id": "wild_companion",
+      "id": "wild_strike",
       "name": {
-        "ko": "야생 동료",
-        "en": "Wild Companion"
-      },
-      "level": 2,
-      "notes_ko": "행동, 야생 변신 1회(없으면 주문 슬롯)로 사역마(요정 올빼미) 소환, 긴 휴식에 사라짐.",
-      "source": "SRD 5.2.1",
-      "kind": "action",
-      "script": "wild_companion",
-      "explore": true,
-      "glyph": "wing"
-    },
-    {
-      "id": "wild_resurgence",
-      "name": {
-        "ko": "야생의 부활",
-        "en": "Wild Resurgence"
+        "ko": "야생의 일격",
+        "en": "Wild Strike"
       },
       "level": 5,
-      "kind": "free",
-      "script": "wild_resurgence",
-      "notes_ko": "행동 없이: 야생 변신이 없으면 슬롯으로 1회(턴당 1회). opts.mode slot이면 야생 변신 1회 → 1레벨 슬롯(긴 휴식마다 1회).",
-      "source": "SRD 5.2.1",
-      "glyph": "paw"
+      "caps": [
+        "wild_strike"
+      ],
+      "notes_ko": "BG3: 야생 변신 중 공격 행동에 공격 1회 더.",
+      "source": "original"
     },
     {
-      "id": "elemental_fury",
+      "id": "improved_wild_strike",
       "name": {
-        "ko": "원소의 격노",
-        "en": "Elemental Fury"
+        "ko": "향상된 야생의 일격",
+        "en": "Improved Wild Strike"
       },
-      "level": 7,
-      "choice_kind": "option",
-      "choices": [
-        "potent_spellcasting",
-        "primal_strike"
+      "level": 10,
+      "caps": [
+        "improved_wild_strike"
       ],
-      "source": "SRD 5.2.1",
-      "choice_grants": {
-        "potent_spellcasting": {
-          "caps": [
-            "cantrip_add_mod"
-          ]
-        },
-        "primal_strike": {
-          "weapon_hit_bonus": {
-            "dice_by_level": {
-              "7": "1d8"
-            },
-            "damage_types": [
-              "fire",
-              "cold",
-              "lightning",
-              "thunder"
-            ]
-          }
-        }
-      },
-      "notes_ko": "강력한 주문 시전: 드루이드 소마법 피해 + 지혜. 원초의 일격: 턴당 1회 무기·야수 형태 공격 명중 +1d8 냉기·화염·번개·천둥(대상이 저항하지 않는 쪽 자동, 15레벨 2d8)."
+      "notes_ko": "BG3: 야생 변신 중 공격 행동에 공격 2회 더.",
+      "source": "original"
     }
   ],
   "subclasses": [
@@ -976,7 +905,6 @@
       "medicine"
     ],
     "species_skill": "survival",
-    "primal_order": "magician",
     "circle_land_spells": "desert",
     "cantrips": [
       "produce_flame",

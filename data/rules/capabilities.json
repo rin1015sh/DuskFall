@@ -1801,6 +1801,24 @@
       },
       "note_ko": "치명타 피해 주사위 하나 더(Resolver)",
       "source": "original"
+    },
+    {
+      "id": "wild_strike",
+      "name": {
+        "ko": "야생의 일격",
+        "en": "wild_strike"
+      },
+      "note_ko": "야생 변신 중 공격 횟수(Combat.attack)",
+      "source": "original"
+    },
+    {
+      "id": "improved_wild_strike",
+      "name": {
+        "ko": "향상된 야생의 일격",
+        "en": "improved_wild_strike"
+      },
+      "note_ko": "야생 변신 중 공격 횟수(Combat.attack)",
+      "source": "original"
     }
   ]
 }

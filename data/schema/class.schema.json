@@ -808,6 +808,12 @@
         },
         "shadow": {
           "type": "boolean"
+        },
+        "form_hp_per_2_levels": {
+          "type": "integer"
+        },
+        "form_bonus_dice": {
+          "type": "object"
         }
       }
     }

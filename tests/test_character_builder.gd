@@ -67,12 +67,12 @@ func test_cleric_1_to_5() -> void:
 	assert_eq(l1.ac(), 18, "수호자 중갑: 사슬 갑옷 16 + 방패 2(민첩 없음) — 룰북 예시 전투 1의 AC 18")
 	var l3 := _build("cleric", 3)
 	assert_true(l3.spells.has("bless") and l3.spells.has("cure_wounds"), "생명 영역 주문 항상 준비")
-	assert_eq(l3.resources["channel_divinity"]["max"], 2)
+	assert_eq(l3.resources["channel_divinity"]["max"], 1, "BG3: 2레벨 1회(6레벨 2회)")
 	var l5 := _build("cleric", 5)
 	assert_eq(l5.hp_max, 43, "11 + 4 × (5 + 2) + 4 — 룰북 예시 전투 3의 HP 43")
 	assert_eq([int(l5.resources["spell_slot_1"]["max"]), int(l5.resources["spell_slot_2"]["max"]), int(l5.resources["spell_slot_3"]["max"])], [4, 3, 2])
 	assert_true(l5.spells.has("revivify") and l5.spells.has("spirit_guardians"))
-	assert_true(l5.has_feature("sear_undead"))
+	assert_true(l5.has_feature("destroy_undead"), "언데드 파괴(BG3)")
 
 
 func test_wizard_1_to_5() -> void:

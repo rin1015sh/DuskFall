@@ -1,6 +1,6 @@
 extends "res://scripts/rules/effect_script.gd"
-## 언데드 퇴치(클레릭 2레벨 신성 변환, SRD): 6칸 안 언데드 지혜 내성. 실패 → 공포 + 무력화 10턴(피해를 받으면 끝 — 6단계).
-## 언데드 소각(5레벨): 실패한 언데드에게 지혜 수정치(최소 1)만큼 d8 광휘.
+## 언데드 퇴치(클레릭 2레벨 신성 변환, BG3): 6칸 안 언데드 지혜 내성. 실패 → 공포 + 무력화 3턴(피해를 받으면 끝 — 6단계).
+## 언데드 파괴(5레벨, BG3): 퇴치된 언데드에게 4d6 광휘.
 
 const Resolver := preload("res://scripts/rules/resolver.gd")
 const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
@@ -23,12 +23,11 @@ func apply(ctx: Dictionary) -> Dictionary:
 	for t: Node in targets:
 		var s := Resolver.saving_throw(t, "wis", Spellcasting.spell_dc(c), {"source": c})
 		if not s["success"]:
-			t.apply_condition("frightened", 10, c)
-			t.apply_condition("incapacitated", 10, c)
+			t.apply_condition("frightened", 3, c)
+			t.apply_condition("incapacitated", 3, c)
 			failed.append(t)
-	if c.has_feature("sear_undead") and not failed.is_empty():
-		var n := maxi(c.ability_mod("wis"), 1)
-		var dmg: int = Dice.roll("%dd8" % n, "언데드 소각")["total"]
+	if c.has_feature("destroy_undead") and not failed.is_empty():
+		var dmg: int = Dice.roll("4d6", "언데드 파괴")["total"]  # BG3: 퇴치된 언데드 4d6 광휘
 		for t: Node in failed:
 			Resolver.apply_damage(t, [{"amount": dmg, "damage_type": "radiant"}])
 	for t: Node in failed:

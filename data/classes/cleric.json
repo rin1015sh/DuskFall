@@ -149,19 +149,19 @@
         "en": "Channel Divinity"
       },
       "max": {
-        "2": 2,
-        "3": 2,
-        "4": 2,
-        "5": 2,
-        "6": 3,
-        "7": 3,
-        "8": 3,
-        "9": 3,
-        "10": 3,
-        "11": 3,
-        "12": 3
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1,
+        "6": 2,
+        "7": 2,
+        "8": 2,
+        "9": 2,
+        "10": 2,
+        "11": 2,
+        "12": 2
       },
-      "recharge": "short_one"
+      "recharge": "short"
     },
     {
       "id": "divine_intervention",
@@ -207,34 +207,6 @@
   ],
   "features": [
     {
-      "id": "divine_order",
-      "name": {
-        "ko": "신성한 서열",
-        "en": "Divine Order"
-      },
-      "level": 1,
-      "choices": [
-        "protector",
-        "thaumaturge"
-      ],
-      "notes_ko": "수호자: 군용 무기·중갑. 기적술사: 소마법 +1, 비전·종교 판정에 지혜 수정치(최소 +1).",
-      "source": "SRD 5.2.1",
-      "choice_kind": "option",
-      "choice_grants": {
-        "protector": {
-          "weapon_training": [
-            "martial"
-          ],
-          "armor_training": [
-            "heavy"
-          ]
-        },
-        "thaumaturge": {
-          "extra_cantrips": 1
-        }
-      }
-    },
-    {
       "id": "channel_divinity",
       "name": {
         "ko": "신성 변환",
@@ -242,27 +214,10 @@
       },
       "level": 2,
       "choices": [
-        "divine_spark",
         "turn_undead"
       ],
-      "source": "SRD 5.2.1",
-      "handled_by": "자원 channel_divinity — 신성한 불꽃·언데드 퇴치·생명 보존이 쓴다(choices는 안내용)"
-    },
-    {
-      "id": "divine_spark",
-      "name": {
-        "ko": "신성한 불꽃",
-        "en": "Divine Spark"
-      },
-      "level": 2,
-      "kind": "action",
-      "resource": "channel_divinity",
-      "script": "divine_spark",
-      "notes_ko": "6칸, 1d8 + 지혜 회복 또는 건강 내성 사령·광휘 피해(성공 절반).",
-      "source": "SRD 5.2.1",
-      "icon": "statuses/buff.webp",
-      "glyph": "sparkle",
-      "target": "creature"
+      "source": "original",
+      "handled_by": "자원 channel_divinity(2레벨 1회, 6레벨 2회, 짧은 휴식 — BG3) — 언데드 퇴치·영역 기능이 쓴다"
     },
     {
       "id": "turn_undead",
@@ -274,54 +229,21 @@
       "kind": "action",
       "resource": "channel_divinity",
       "script": "turn_undead",
-      "notes_ko": "6칸 안 언데드 지혜 내성, 실패 시 공포+무력화 10턴(피해를 받으면 끝).",
+      "notes_ko": "BG3: 6칸 안 언데드 지혜 내성, 실패 시 3턴 퇴치(공포 + 무력화, 피해를 받으면 끝).",
       "source": "SRD 5.2.1",
       "icon": "statuses/fear.webp",
       "glyph": "skull_rays"
     },
     {
-      "id": "sear_undead",
+      "id": "destroy_undead",
       "name": {
-        "ko": "언데드 소각",
-        "en": "Sear Undead"
+        "ko": "언데드 파괴",
+        "en": "Destroy Undead"
       },
       "level": 5,
-      "notes_ko": "언데드 퇴치 실패 대상에게 지혜 수정치만큼 d8 광휘.",
-      "source": "SRD 5.2.1",
-      "handled_by": "turn_undead 스크립트 안"
-    },
-    {
-      "id": "blessed_strikes",
-      "name": {
-        "ko": "축복받은 일격",
-        "en": "Blessed Strikes"
-      },
-      "level": 7,
-      "choice_kind": "option",
-      "choices": [
-        "divine_strike",
-        "potent_spellcasting"
-      ],
-      "choice_grants": {
-        "divine_strike": {
-          "weapon_hit_bonus": {
-            "dice_by_level": {
-              "7": "1d8"
-            },
-            "damage_types": [
-              "radiant",
-              "necrotic"
-            ]
-          }
-        },
-        "potent_spellcasting": {
-          "caps": [
-            "cantrip_add_mod"
-          ]
-        }
-      },
-      "notes_ko": "신성한 일격: 턴당 1회 무기 명중 +1d8 광휘 또는 사령(14레벨 2d8 — 대상이 저항하지 않는 쪽 자동). 강력한 주문 시전: 클레릭 소마법 피해 + 지혜 수정치.",
-      "source": "SRD 5.2.1"
+      "handled_by": "turn_undead 스크립트 안",
+      "notes_ko": "BG3: 언데드 퇴치에 성공한 언데드는 4d6 광휘.",
+      "source": "original"
     },
     {
       "id": "divine_intervention",
@@ -335,7 +257,7 @@
       ],
       "max_spell_level": 5,
       "resource": "divine_intervention",
-      "notes_ko": "켜 두면 다음 클레릭 주문(5레벨 이하, 반응 제외)을 슬롯 없이 시전한다. 긴 휴식마다 1회. 원문은 아무 클레릭 주문 — 준비한 주문 중에서 고른다.",
+      "notes_ko": "켜 두면 다음 클레릭 주문(5레벨 이하, 반응 제외)을 슬롯 없이 시전한다. 긴 휴식마다 1회. 원문은 아무 클레릭 주문 — 준비한 주문 중에서 고른다. [변형] BG3의 신성 개입(이단 분쇄·종에게 무기·호화로운 부활·황금 관대함 — 한 번뿐인 보상형)은 보물·대화 장치가 없어 SRD식 무료 시전을 유지.",
       "source": "SRD 5.2.1",
       "toggle": {
         "values": [
@@ -1184,7 +1106,6 @@
       "medicine",
       "persuasion"
     ],
-    "divine_order": "protector",
     "cantrips": [
       "sacred_flame",
       "guidance",
@@ -1222,8 +1143,7 @@
       "ranged": {
         "main": "light_crossbow"
       }
-    },
-    "blessed_strikes": "divine_strike"
+    }
   },
   "source": "SRD 5.2.1",
   "multiclass": {
