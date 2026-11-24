@@ -368,7 +368,7 @@
         "ko": "빠른 주문",
         "en": "Quickened Spell"
       },
-      "note_ko": "주문 변형: 행동 주문을 보너스 행동으로(2점)",
+      "note_ko": "주문 변형: 행동 주문을 보너스 행동으로(3점, BG3)",
       "source": "original"
     },
     {
@@ -377,7 +377,7 @@
         "ko": "원거리 주문",
         "en": "Distant Spell"
       },
-      "note_ko": "주문 변형: 사거리 2배·접촉은 6칸(1점)",
+      "note_ko": "주문 변형: 사거리 +50%·접촉은 6칸(1점, BG3)",
       "source": "original"
     },
     {
@@ -386,7 +386,7 @@
         "ko": "고양된 주문",
         "en": "Heightened Spell"
       },
-      "note_ko": "주문 변형: 내성 불리(2점)",
+      "note_ko": "주문 변형: 내성 불리(3점, BG3)",
       "source": "original"
     },
     {
@@ -444,12 +444,21 @@
       "source": "original"
     },
     {
+      "id": "metamagic_twinned",
+      "name": {
+        "ko": "쌍둥이 주문",
+        "en": "Twinned Spell"
+      },
+      "note_ko": "주문 변형: 한 생물만 노리는 주문이 한 생물을 더(슬롯 레벨만큼 점수, 소마법 1 — BG3). 두 번째 대상은 opts.targets[1] 또는 첫 대상과 같은 편의 가장 가까운 생물",
+      "source": "original"
+    },
+    {
       "id": "metamagic_careful",
       "name": {
         "ko": "신중한 주문",
         "en": "Careful Spell"
       },
-      "note_ko": "주문 변형: 범위 내성 주문에서 아군(매력 수정치명) 자동 성공·피해 없음(1점)",
+      "note_ko": "주문 변형: 범위 내성 주문에서 범위 안 아군 모두 자동 성공·피해 없음(1점, BG3)",
       "source": "original"
     },
     {

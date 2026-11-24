@@ -75,15 +75,28 @@ static func _cost(spell: Dictionary) -> String:
 
 
 ## 주문 변형(소서러 메타매직, 설정 options.metamagic — 다음 주문 한 번에 쓰고 꺼진다). 값 = 마법 점수.
-## 능력 태그 metamagic_<id>(고른 변형)가 있어야 한다. 쌍둥이·신중한·강화 등은 1차 생략.
-const METAMAGIC := {"quickened": 2, "distant": 1, "heightened": 2, "extended": 1, "careful": 1, "subtle": 1, "seeking": 1}
+## 능력 태그 metamagic_<id>(고른 변형)가 있어야 한다. 점수는 BG3(bg3.wiki Metamagic, 2026-11-24): 빠른·고양 3, 나머지 1,
+## 쌍둥이는 슬롯 레벨(소마법 1 — metamagic_points). 추적은 일반 선택지가 아니다(장비·기능 태그로만).
+const METAMAGIC := {"quickened": 3, "distant": 1, "heightened": 3, "extended": 1, "careful": 1, "subtle": 1, "seeking": 1, "twinned": 1}
+
+
+## 변형에 드는 마법 점수(쌍둥이: 슬롯 레벨, 소마법 1).
+static func metamagic_points(m: String, spell: Dictionary, slot: int) -> int:
+	if m == "twinned":
+		return 1 if int(spell.get("level", 0)) == 0 else maxi(1, slot)
+	return int(METAMAGIC.get(m, 0))
 
 
 static func metamagic_for(caster: Node, spell: Dictionary) -> String:
 	var m := str(caster.options.get("metamagic", "none"))
-	if not METAMAGIC.has(m) or not caster.has_cap("metamagic_" + m) or caster.resource("sorcery_points") < int(METAMAGIC[m]):
+	if not METAMAGIC.has(m) or not caster.has_cap("metamagic_" + m) \
+			or caster.resource("sorcery_points") < metamagic_points(m, spell, int(spell.get("level", 0))):
 		return ""
 	match m:
+		"twinned":
+			# 한 생물만 노리는 주문(범위·자신·여러 대상 주문 제외)
+			return m if spell.get("area") == null and str(spell["range"]["type"]) in ["tiles", "touch"] \
+				and max_targets(spell, int(spell.get("level", 0))) == 1 else ""
 		"quickened":
 			return m if str(spell["cast"]["cost"]) == "action" else ""
 		"distant":
@@ -101,10 +114,31 @@ static func metamagic_for(caster: Node, spell: Dictionary) -> String:
 	return ""
 
 
-## 신중한 주문: 범위 안 아군(시전자 제외) 중 매력 수정치(최소 1)명.
+## 신중한 주문(BG3): 범위 안 아군 모두(시전자 제외) 자동 성공.
 static func _careful_targets(caster: Node, targets: Array) -> Array:
-	var allies: Array = targets.filter(func(t: Node) -> bool: return t != caster and not t.is_hostile_to(caster))
-	return allies.slice(0, maxi(1, caster.ability_mod("cha")))
+	return targets.filter(func(t: Node) -> bool: return t != caster and not t.is_hostile_to(caster))
+
+
+## 쌍둥이 주문의 두 번째 대상: opts.targets[1](직접 고름) 또는 첫 대상과 같은 편 중 첫 대상에 가장 가까운 생물
+## (여러 대상 고르기 화면이 없어 자동 — 룰북 6단계 [변형]). 사거리·시야 안이어야 한다. 없으면 null.
+static func _twin_target(world: Dictionary, caster: Node, spell: Dictionary, aim: Vector2i, opts: Dictionary) -> Node:
+	var grid: Node = world["grid"]
+	var given: Array = opts.get("targets", [])
+	var first: Node = given[0] if not given.is_empty() else grid.creature_at(aim)
+	if first == null:
+		return null
+	var rt := range_tiles(spell)
+	var ok := func(o: Node) -> bool:
+		return o != first and not o.dead and o.is_hostile_to(caster) == first.is_hostile_to(caster) \
+			and grid.distance_between(caster, o) <= grid.effective_range(caster, grid.cell_of(o), rt) \
+			and (o == caster or grid.has_line_of_sight(grid.cell_of(caster), grid.cell_of(o)) or spell.get("no_sight", false))
+	if given.size() >= 2:
+		return given[1] if ok.call(given[1]) else null
+	var best: Node = null
+	for o: Node in grid.creatures():
+		if ok.call(o) and (best == null or grid.distance_between(o, first) < grid.distance_between(best, first)):
+			best = o
+	return best
 
 
 ## 내성 효과에서 보호할 아군: 신중한 주문(소서러) + 주문 조각(능력 태그 sculpt_spells — 방출학파 6레벨: 방출학파 주문, 1 + 주문 레벨명).
@@ -341,7 +375,7 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 	if spell["range"]["type"] in ["tiles", "touch"]:
 		var rt := range_tiles(spell)
 		if metamagic_for(caster, spell) == "distant":
-			rt = 6 if spell["range"]["type"] == "touch" else rt * 2  # 원거리 주문: 사거리 2배, 접촉은 30피트
+			rt = 6 if spell["range"]["type"] == "touch" else rt + rt / 2  # 원거리 주문(BG3): 사거리 +50%, 접촉·근접은 9m(6칸)
 		if grid.distance(grid.cell_of(caster), aim) > grid.effective_range(caster, aim, rt):
 			return "사거리 밖"
 		if not grid.has_line_of_sight(grid.cell_of(caster), aim) and not spell.get("no_sight", false):
@@ -531,8 +565,19 @@ static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector
 	if cost != "explore" and not opts.get("free", false):
 		Combat.spend(caster, cost)
 	var mm := metamagic_for(caster, spell)
+	if mm == "twinned" and not opts.get("free", false):
+		var twin := _twin_target(world, caster, spell, aim, opts) if world.has("grid") else null
+		if twin == null or caster.resource("sorcery_points") < metamagic_points(mm, spell, slot):
+			mm = ""  # 두 번째 대상이 없거나 점수가 모자라면 쓰지 않는다(설정은 켜 둔 채)
+		else:
+			var given: Array = opts.get("targets", [])
+			var first: Node = given[0] if not given.is_empty() else world["grid"].creature_at(aim)
+			opts = opts.duplicate()
+			opts["targets"] = [first, twin]
+			spell = spell.duplicate(true)
+			spell["targets_max"] = int(spell.get("targets_max", 1)) + 1  # 쌍둥이: 한 생물 더(스크립트 주문도 max_targets로 읽는다)
 	if mm != "" and not opts.get("free", false):
-		caster.resources["sorcery_points"]["current"] = caster.resource("sorcery_points") - int(METAMAGIC[mm])
+		caster.resources["sorcery_points"]["current"] = caster.resource("sorcery_points") - metamagic_points(mm, spell, slot)
 		caster.options["metamagic"] = "none"  # 한 번 쓰면 꺼진다(BG3식)
 		opts = opts.duplicate()
 		opts["metamagic"] = mm

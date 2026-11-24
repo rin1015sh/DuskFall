@@ -47,34 +47,40 @@ func test_metamagic_quickened_distant() -> void:
 	var s := _sorc(3)
 	var foe := make_creature({"team": "enemy", "hp_max": 50, "ac_base": 1})
 	w["grid"].place(s, Vector2i(0, 0))
-	w["grid"].place(foe, Vector2i(20, 0))
+	w["grid"].place(foe, Vector2i(16, 0))
 	s.reset_turn()
-	assert_eq(Spellcasting.can_cast(w, s, "fire_bolt", Vector2i(20, 0)), "사거리 밖")
+	assert_eq(Spellcasting.can_cast(w, s, "fire_bolt", Vector2i(16, 0)), "사거리 밖")
 	s.options["metamagic"] = "distant"
-	assert_eq(Spellcasting.can_cast(w, s, "fire_bolt", Vector2i(20, 0)), "", "원거리 주문: 12칸 → 24칸")
+	assert_eq(Spellcasting.can_cast(w, s, "fire_bolt", Vector2i(16, 0)), "", "원거리 주문(BG3): 12칸 → 18칸(+50%)")
+	assert_eq(Spellcasting.can_cast(w, s, "fire_bolt", Vector2i(19, 0)), "사거리 밖", "2배가 아니다")
 	Dice.force([15, 5])
-	assert_true(Spellcasting.cast(w, s, "fire_bolt", Vector2i(20, 0)).get("ok", false))
+	assert_true(Spellcasting.cast(w, s, "fire_bolt", Vector2i(16, 0)).get("ok", false))
 	assert_eq(s.resource("sorcery_points"), 2, "1점")
 	assert_eq(s.options["metamagic"], "none", "한 번 쓰면 꺼진다")
 	s.reset_turn()
+	s.resources["sorcery_points"]["current"] = 3
 	s.options["metamagic"] = "quickened"
 	w["grid"].move_creature(foe, Vector2i(5, 0))
 	Dice.force([3, 3, 3])  # 마법 화살: 명중 굴림 없음
 	assert_true(Spellcasting.cast(w, s, "magic_missile", Vector2i(5, 0)).get("ok", false))
 	assert_eq(int(s.turn["action"]), 1, "빠른 주문: 행동이 남는다")
 	assert_eq(int(s.turn["bonus"]), 0)
-	assert_eq(s.resource("sorcery_points"), 0)
+	assert_eq(s.resource("sorcery_points"), 0, "빠른 주문 3점(BG3)")
 
 
-func test_metamagic_careful_subtle_seeking() -> void:
+func test_metamagic_careful_all_allies_and_choices() -> void:
 	var spec := Builder.default_spec("sorcerer", 3)
-	spec["metamagic"] = ["careful", "seeking"]
-	var s: Node = own(Builder.build(spec)["creature"])
+	spec["metamagic"] = ["careful", "twinned", "subtle"]
+	var r0 := Builder.build(spec)
+	assert_eq(r0["errors"].size(), 0, str(r0["errors"]))
+	var s: Node = own(r0["creature"])
 	var w := make_world(["......", "......", "......"])
 	var ally := make_creature({"team": "party", "hp_max": 30})
+	var ally2 := make_creature({"team": "party", "hp_max": 30})
 	var foe := make_creature({"team": "enemy", "hp_max": 30, "abilities": {"dex": 1}})
 	w["grid"].place(s, Vector2i(0, 1))
 	w["grid"].place(ally, Vector2i(1, 1))
+	w["grid"].place(ally2, Vector2i(1, 0))
 	w["grid"].place(foe, Vector2i(2, 1))
 	s.reset_turn()
 	s.options["metamagic"] = "careful"
@@ -82,14 +88,49 @@ func test_metamagic_careful_subtle_seeking() -> void:
 	var r: Dictionary = Spellcasting.cast(w, s, "burning_hands", Vector2i(2, 1))
 	assert_true(r.get("ok", false), str(r))
 	assert_eq(ally.hp, 30, "신중한 주문: 아군 피해 없음")
+	assert_eq(ally2.hp, 30, "BG3: 매력 수정치 수가 아니라 아군 모두")
 	assert_true(foe.hp < 30)
+	assert_true(s.has_cap("metamagic_subtle"), "은밀한 주문은 3레벨부터")
+	var low := Builder.default_spec("sorcerer", 2)
+	low["metamagic"] = ["quickened", "twinned"]
+	assert_false(Builder.build(low)["creature"].has_cap("metamagic_quickened"), "빠른 주문은 3레벨부터(BG3)")
+	var sk := Builder.default_spec("sorcerer", 3)
+	sk["metamagic"] = ["seeking", "careful", "distant"]
+	var ss: Node = own(Builder.build(sk)["creature"])
+	assert_false(ss.has_cap("metamagic_seeking"), "추적 주문은 일반 선택지가 아니다(BG3)")
+
+
+func test_metamagic_twinned() -> void:
+	var spec := Builder.default_spec("sorcerer", 5)
+	spec["metamagic"] = ["twinned", "distant", "careful"]
+	spec["spells"] = ["hold_person"] + (spec.get("spells", []) as Array).filter(func(x: String) -> bool: return x != "hold_person")
+	var s: Node = own(Builder.build(spec)["creature"])
+	var w := make_world(["........", "........", "........"])
+	var a := make_creature({"team": "enemy", "hp_max": 50, "ac_base": 1})
+	var b := make_creature({"team": "enemy", "hp_max": 50, "ac_base": 1})
+	var far := make_creature({"team": "enemy", "hp_max": 50, "ac_base": 1})
+	var friend := make_creature({"team": "party", "hp_max": 50})
+	w["grid"].place(s, Vector2i(0, 1))
+	w["grid"].place(a, Vector2i(4, 1))
+	w["grid"].place(b, Vector2i(5, 2))
+	w["grid"].place(far, Vector2i(7, 0))
+	w["grid"].place(friend, Vector2i(3, 1))
 	s.reset_turn()
-	s.options["metamagic"] = "seeking"
-	var hp: int = foe.hp
-	Dice.force([1, 18, 5])  # 빗나감 → 다시 18 명중 → 피해
-	assert_true(Spellcasting.cast(w, s, "fire_bolt", Vector2i(2, 1)).get("ok", false))
-	assert_true(foe.hp < hp, "추적 주문으로 명중")
-	var spec2 := Builder.default_spec("sorcerer", 3)
-	spec2["metamagic"] = ["subtle", "quickened"]
-	var s2: Node = own(Builder.build(spec2)["creature"])
-	assert_true(s2.has_cap("metamagic_subtle"))
+	var pts: int = s.resource("sorcery_points")
+	s.options["metamagic"] = "twinned"
+	Dice.force([15, 5, 5, 15, 5, 5])  # 대상마다 명중 15·피해 2d10(5레벨)
+	assert_true(Spellcasting.cast(w, s, "fire_bolt", Vector2i(4, 1)).get("ok", false))
+	assert_true(a.hp < 50 and b.hp < 50, "첫 대상에 가장 가까운 같은 편 생물이 두 번째 대상")
+	assert_eq(far.hp, 50)
+	assert_eq(friend.hp, 50, "아군은 두 번째 대상이 아니다")
+	assert_eq(s.resource("sorcery_points"), pts - 1, "소마법은 1점")
+	s.reset_turn()
+	s.options["metamagic"] = "twinned"
+	pts = s.resource("sorcery_points")
+	Dice.force([1, 1])  # 대상마다 지혜 내성 1 실패
+	assert_true(Spellcasting.cast(w, s, "hold_person", Vector2i(4, 1), {"slot": 2, "targets": [a, far]}).get("ok", false))
+	assert_true(a.has_condition("paralyzed") and far.has_condition("paralyzed"), "직접 고른 두 번째 대상")
+	assert_eq(s.resource("sorcery_points"), pts - 2, "2레벨 슬롯 = 2점")
+	s.reset_turn()
+	s.options["metamagic"] = "twinned"
+	assert_eq(Spellcasting.metamagic_for(s, RulesDB.get_entry("spell", "burning_hands")), "", "범위 주문은 쌍둥이 불가")

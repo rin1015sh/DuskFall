@@ -243,17 +243,22 @@
       },
       "level": 2,
       "choices": [
+        "twinned",
         "quickened",
         "distant",
         "heightened",
         "extended",
         "careful",
-        "subtle",
-        "seeking"
+        "subtle"
       ],
       "choice_kind": "option",
       "count": 2,
       "choice_grants": {
+        "twinned": {
+          "caps": [
+            "metamagic_twinned"
+          ]
+        },
         "quickened": {
           "caps": [
             "metamagic_quickened"
@@ -283,11 +288,6 @@
           "caps": [
             "metamagic_subtle"
           ]
-        },
-        "seeking": {
-          "caps": [
-            "metamagic_seeking"
-          ]
         }
       },
       "toggle": {
@@ -297,6 +297,13 @@
             "name": {
               "ko": "끄기",
               "en": "Off"
+            }
+          },
+          {
+            "id": "twinned",
+            "name": {
+              "ko": "쌍둥이 주문",
+              "en": "Twinned Spell"
             }
           },
           {
@@ -340,13 +347,6 @@
               "ko": "은밀한 주문",
               "en": "Subtle Spell"
             }
-          },
-          {
-            "id": "seeking",
-            "name": {
-              "ko": "추적 주문",
-              "en": "Seeking Spell"
-            }
           }
         ],
         "desc": {
@@ -354,11 +354,16 @@
           "en": "Metamagic for your next spell (turns off after use)"
         }
       },
-      "notes_ko": "BG3: 2레벨 2개, 3레벨 1개 더.",
+      "notes_ko": "BG3: 2레벨 2개, 3레벨 1개 더. BG3(bg3.wiki Metamagic): 쌍둥이(슬롯 레벨, 소마법 1)·빠른·원거리(+50%)·고양(3점)·연장·신중한(아군 모두)·은밀한, 빠른·고양·은밀한은 3레벨부터. 추적은 일반 선택지가 아니다.",
       "source": "SRD 5.2.1",
       "count_by_level": {
         "2": 2,
         "3": 3
+      },
+      "choice_min_level": {
+        "quickened": 3,
+        "heightened": 3,
+        "subtle": 3
       }
     },
     {
@@ -369,17 +374,22 @@
       },
       "level": 10,
       "choices": [
+        "twinned",
         "quickened",
         "distant",
         "heightened",
         "extended",
         "careful",
-        "subtle",
-        "seeking"
+        "subtle"
       ],
       "choice_kind": "option",
       "count": 1,
       "choice_grants": {
+        "twinned": {
+          "caps": [
+            "metamagic_twinned"
+          ]
+        },
         "quickened": {
           "caps": [
             "metamagic_quickened"
@@ -409,15 +419,15 @@
           "caps": [
             "metamagic_subtle"
           ]
-        },
-        "seeking": {
-          "caps": [
-            "metamagic_seeking"
-          ]
         }
       },
-      "notes_ko": "BG3: 10레벨 1개 더.",
-      "source": "SRD 5.2.1"
+      "notes_ko": "BG3: 10레벨 1개 더. BG3(bg3.wiki Metamagic): 쌍둥이(슬롯 레벨, 소마법 1)·빠른·원거리(+50%)·고양(3점)·연장·신중한(아군 모두)·은밀한, 빠른·고양·은밀한은 3레벨부터. 추적은 일반 선택지가 아니다.",
+      "source": "SRD 5.2.1",
+      "choice_min_level": {
+        "quickened": 3,
+        "heightened": 3,
+        "subtle": 3
+      }
     }
   ],
   "subclasses": [
