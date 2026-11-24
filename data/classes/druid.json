@@ -151,18 +151,7 @@
         "11": 3,
         "12": 3
       },
-      "recharge": "short_one"
-    },
-    {
-      "id": "wild_resurgence",
-      "name": {
-        "ko": "야생의 부활",
-        "en": "Wild Resurgence"
-      },
-      "max": {
-        "5": 1
-      },
-      "recharge": "long"
+      "recharge": "short"
     },
     {
       "id": "natural_recovery",
@@ -226,7 +215,7 @@
           "crested_saurian"
         ]
       },
-      "notes_ko": "BG3: 행동, 2회(짧은 휴식). 형태 — 2레벨 오소리·고양이·거미·늑대, 4레벨 동굴 들소, 6레벨 표범·아울베어, 10레벨 볏 도마뱀. 형태 HP 따로(배운 레벨부터 2레벨마다 +5), 4레벨부터 짐승 공격 +1d6(8레벨 +1d8). 주문 불가. 형태 고르기는 설정 options.wild_shape_form.",
+      "notes_ko": "BG3: 행동, 2회(6레벨 3회), 짧은 휴식에 모두 회복. 형태 — 2레벨 오소리·고양이·거미·늑대, 4레벨 동굴 들소, 6레벨 표범·아울베어, 10레벨 볏 도마뱀. 형태 HP 따로(배운 레벨부터 2레벨마다 +5), 4레벨부터 짐승 공격 +1d6(8레벨 +1d8). 주문 불가. 형태 고르기는 설정 options.wild_shape_form.",
       "source": "original",
       "glyph": "paw",
       "form_hp_per_2_levels": 5,

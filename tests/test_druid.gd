@@ -92,3 +92,14 @@ func test_lands_aid_and_resurgence() -> void:
 	assert_false(d.has_feature("wild_resurgence"), "야생 재기 없음(BG3)")
 
 
+
+
+func test_wild_shape_full_recharge_on_short_rest() -> void:
+	# BG3: 야생 변신 2회(6레벨 3회), 짧은 휴식에 모두 회복
+	var d := _dru(6)
+	var w := make_world(["...."])
+	w["grid"].place(d, Vector2i(0, 0))
+	assert_eq(d.resource("wild_shape"), 3)
+	d.resources["wild_shape"]["current"] = 0
+	assert_true(preload("res://scripts/rules/rest.gd").short_rest(w, [d])["ok"])
+	assert_eq(d.resource("wild_shape"), 3, "짧은 휴식에 모두")

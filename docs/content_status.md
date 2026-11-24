@@ -13,7 +13,7 @@
 | item | 59 |
 | feat | 56 |
 | species | 39 |
-| background | 4 |
+| background | 12 |
 | monster | 60 |
 | capability | 208 |
 | terrain_preset | 11 |
