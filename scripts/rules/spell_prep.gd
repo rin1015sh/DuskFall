@@ -1,7 +1,9 @@
 extends RefCounted
 ## 주문 준비·교체·주문서 학습(룰북 6단계 주문 시전·주문서, 7단계 휴식). 주문 이름·클래스 이름을 모른다.
 ## 클래스 데이터 spellcasting.type: prepared(클래스 주문 목록 전체에서 준비) · spellbook(주문서에서 준비) · 그 밖(바꾸지 않음).
-## 교체 창: 긴 휴식이 끝나면 열리고(spellcasting.swap.long_rest: -1 = 전부, n = n개), 다음 전투가 시작되면 닫힌다.
+## BG3식(2026-11-24): spellcasting.swap.out_of_combat이면 전투 밖에서 언제나 몇 개든 바꾼다(클레릭·드루이드·팔라딘·위저드).
+##   준비 수 spellcasting.prepared = "level_plus_ability"면 클래스 레벨 + 시전 능력 수정치(최소 1), 표면 레벨 → 수(아는 주문형).
+## 그 밖의 교체 창: 긴 휴식이 끝나면 열리고(spellcasting.swap.long_rest: -1 = 전부, n = n개), 다음 전투가 시작되면 닫힌다.
 ##   능력 태그 prepare_swap_short_rest(주문 암기)는 짧은 휴식 뒤 1개를 바꿀 수 있게 연다.
 ##   교체 수는 창이 열릴 때의 목록(prep_base)과 비교해 새로 넣은 주문 수로 센다(뺐다가 다시 넣으면 공짜).
 ## 주문서 학습(BG3식): 두루마리를 소모하고 주문 레벨 × 50gp, 시간 없음. 전투 밖, 준비할 수 있는 레벨까지만.
@@ -48,15 +50,27 @@ static func max_slot_level(c: Node, cid: String = "") -> int:
 
 
 static func max_prepared(c: Node, cid: String = "") -> int:
-	var table: Dictionary = _sc(c, cid).get("prepared", {})
-	var lv: int = c.class_level(_cid(c, cid))
+	var sc := _sc(c, cid)
+	return prepared_limit(sc, c.class_level(_cid(c, cid)), c.ability_mod(str(sc.get("ability", "int"))))
+
+
+## 준비(아는) 주문 수: prepared = "level_plus_ability"면 클래스 레벨 + 능력 수정치(최소 1 — BG3), 표면 레벨 → 수.
+static func prepared_limit(sc: Dictionary, lv: int, ability_mod: int) -> int:
+	var table: Variant = sc.get("prepared", {})
+	if typeof(table) == TYPE_STRING:
+		return maxi(1, lv + ability_mod) if str(table) == "level_plus_ability" else 0
 	var best := 0
 	var best_lv := 0
-	for k: String in table:
+	for k: String in (table as Dictionary):
 		if lv >= int(k) and int(k) >= best_lv:
 			best_lv = int(k)
 			best = int(table[k])
 	return best
+
+
+## 전투 밖에서 언제나 바꾸는 클래스(swap.out_of_combat — BG3 준비형).
+static func swaps_anytime(c: Node, cid: String = "") -> bool:
+	return bool(_sc(c, cid).get("swap", {}).get("out_of_combat", false))
 
 
 ## 주문서 기본 크기(SRD: 1레벨 6개, 레벨마다 2개). 두루마리로 배운 것은 이 수에 상관없이 더한다.
@@ -120,6 +134,10 @@ static func change_blocked(world: Dictionary, c: Node, cid: String = "") -> Stri
 		return "준비 주문을 바꾸지 않는 클래스"
 	if in_combat(world):
 		return "전투 중에는 바꿀 수 없다"
+	if swaps_anytime(c, cid):
+		return ""
+	if c.prep_swaps == 0 and prepared_of(c, cid).size() < max_prepared(c, cid):
+		return ""  # 빈 칸 채우기는 언제나(전투 밖) — 교체 수는 set_prepared가 센다
 	if c.prep_swaps == 0:
 		return "긴 휴식 뒤에 바꿀 수 있다"
 	return ""
@@ -135,11 +153,12 @@ static func changes(c: Node, list: Array, cid: String = "") -> int:
 
 ## 남은 교체 수(-1 = 제한 없음).
 static func swaps_left(c: Node, cid: String = "") -> int:
-	if c.prep_swaps < 0:
+	if c.prep_swaps < 0 or (cid != "" and swaps_anytime(c, cid)):
 		return -1
 	var used := 0
 	for k: String in prep_classes(c):
-		used += changes(c, prepared_of(c, k), k)
+		if not swaps_anytime(c, k):
+			used += changes(c, prepared_of(c, k), k)
 	return maxi(0, c.prep_swaps - used)
 
 
@@ -160,10 +179,10 @@ static func set_prepared(world: Dictionary, c: Node, list: Array, cid: String = 
 			return {"ok": false, "reason": "준비할 수 없는 주문: %s" % sid}
 	if uniq.size() > max_prepared(c, k):
 		return {"ok": false, "reason": "준비 수 초과(%d)" % max_prepared(c, k)}
-	if c.prep_swaps >= 0:
+	if c.prep_swaps >= 0 and not swaps_anytime(c, k):
 		var used := changes(c, uniq, k)
 		for other: String in prep_classes(c):
-			if other != k:
+			if other != k and not swaps_anytime(c, other):
 				used += changes(c, prepared_of(c, other), other)
 		if used > c.prep_swaps:
 			return {"ok": false, "reason": "이번에 바꿀 수 있는 주문은 %d개" % c.prep_swaps}

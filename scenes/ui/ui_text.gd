@@ -115,6 +115,7 @@ const TEXT := {
 	"spells_window": {"ko": "주문 준비", "en": "Prepare Spells"},
 	"prepared_n": {"ko": "준비 %d / %d", "en": "Prepared %d / %d"},
 	"swap_all": {"ko": "자유롭게 바꿀 수 있다(다음 전투까지)", "en": "Change freely (until next combat)"},
+	"swap_anytime": {"ko": "전투 밖에서는 언제든 바꿀 수 있다", "en": "Change any time outside combat"},
 	"swap_left": {"ko": "바꿀 수 있는 주문 %d개(다음 전투까지)", "en": "%d change(s) left (until next combat)"},
 	"swap_closed": {"ko": "긴 휴식 뒤에 바꿀 수 있다", "en": "Change after a long rest"},
 	"swap_combat": {"ko": "전투 중에는 바꿀 수 없다", "en": "Can't change during combat"},

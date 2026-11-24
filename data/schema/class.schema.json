@@ -975,7 +975,7 @@
           "type": "object"
         },
         "swap": {
-          "$comment": "준비 주문 교체(spell_prep.gd): long_rest 긴 휴식 뒤 바꿀 수(-1 전부, 기본 -1), level_up 레벨 업 때 바꿀 수(기본 0). 창은 다음 전투가 시작되면 닫힌다",
+          "$comment": "준비 주문 교체(spell_prep.gd): out_of_combat 전투 밖이면 언제나 몇 개든(BG3 준비형), long_rest 긴 휴식 뒤 바꿀 수(-1 전부, 기본 -1), level_up 레벨 업 때 바꿀 수(기본 0). 창은 다음 전투가 시작되면 닫힌다",
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -986,6 +986,9 @@
             "level_up": {
               "type": "integer",
               "minimum": 0
+            },
+            "out_of_combat": {
+              "type": "boolean"
             }
           }
         },
@@ -1000,7 +1003,17 @@
           "type": "object"
         },
         "prepared": {
-          "type": "object"
+          "$comment": "준비(아는) 주문 수: 레벨 → 수 표(아는 주문형 — 바드·소서러·워락·레인저) 또는 \"level_plus_ability\"(클래스 레벨 + 시전 능력 수정치, 최소 1 — BG3 준비형)",
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "enum": [
+                "level_plus_ability"
+              ]
+            }
+          ]
         },
         "slots": {
           "$comment": "레벨 → [1레벨 슬롯 수, 2레벨, …]. 절반 시전자는 표만 다르다",

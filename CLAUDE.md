@@ -35,7 +35,7 @@ BG3류 CRPG. 타일 격자 + 2D 일러스트 3/4 탑뷰(위에서 살짝 비스�
 - 클래스·종족 기능은 코드에 이름을 적지 않는다(룰북 1단계 클래스 확장 원칙): 엔진은 `has_cap("<능력 태그>")`로 검사하고,
   기능 데이터가 `caps`·`grants`·`choice_kind`·`toggle`·`kind reaction`·`icon/glyph/target/explore`·`ai.when`으로 장치를 고른다(`/add-class` 표).
   소지품은 캐릭터마다(c.inventory, 캠프 보관함 world.stash — scripts/rules/interact.gd), 장비 칸·마법 물품은 scripts/rules/equipment.gd(명세 equipment → 생성기가 AC·무기·착용 효과).
-  준비 주문 교체·주문서 학습·의식은 scripts/rules/spell_prep.gd(클래스 `spellcasting.swap`, 창은 긴 휴식 뒤 ~ 다음 전투 전, 화면 scenes/ui/spellbook_window.gd — K).
+  준비 주문 교체·주문서 학습·의식은 scripts/rules/spell_prep.gd(클래스 `spellcasting.swap` — 준비형은 out_of_combat로 전투 밖 언제나, 아는 주문형은 레벨 업 때 1개, 준비 수 `prepared` = 표 또는 "level_plus_ability", 화면 scenes/ui/spellbook_window.gd — K).
   추천 빌드는 클래스 `default_build`, AI 주문은 주문 데이터로 분류(scripts/ai/spell_roles.gd), 주문 아이콘은 주문 `icon`.
 
 ## 폴더

@@ -87,8 +87,11 @@ func _rebuild(note: String = "") -> void:
 		var why := SpellPrep.change_blocked(world, c, ks[0])
 		var line := ""
 		if why == "":
-			var left := SpellPrep.swaps_left(c)
-			line = UiText.t("swap_all") if left < 0 else UiText.t("swap_left") % left
+			var left := SpellPrep.swaps_left(c, ks[0])
+			if SpellPrep.swaps_anytime(c, ks[0]):
+				line = UiText.t("swap_anytime")
+			else:
+				line = UiText.t("swap_all") if left < 0 else UiText.t("swap_left") % left
 		else:
 			line = UiText.reason(why)
 		status.text = line + ("\n" + note if note != "" else "")

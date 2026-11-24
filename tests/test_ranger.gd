@@ -37,7 +37,7 @@ func test_build_and_favored_enemy_free_casts() -> void:
 
 func test_mark_bonus_damage_and_auto_transfer() -> void:
 	var w := make_world([".......", "......."])
-	var r := _ranger(1, {"spells": ["hunters_mark", "cure_wounds"]})  # BG3: 준비 주문으로
+	var r := _ranger(2, {"spells": ["hunters_mark", "cure_wounds"]})  # BG3: 아는 주문으로(주문은 2레벨부터)
 	var a := _foe(40)
 	var b := _foe(40)
 	w["grid"].place(r, Vector2i(0, 0))
@@ -57,7 +57,7 @@ func test_mark_bonus_damage_and_auto_transfer() -> void:
 
 func test_ensnaring_strike_and_escape() -> void:
 	var w := make_world(["....."])
-	var r := _ranger(1)
+	var r := _ranger(2, {"spells": ["ensnaring_strike", "cure_wounds"]})  # BG3: 주문은 2레벨부터
 	var foe := _foe(60)
 	foe.abilities["str"] = 6
 	w["grid"].place(r, Vector2i(0, 0))
@@ -79,7 +79,7 @@ func test_ensnaring_strike_and_escape() -> void:
 
 func test_entangle_barkskin_goodberry() -> void:
 	var w := make_world(["........", "........", "........", "........"])
-	var r := _ranger(5)
+	var r := _ranger(5, {"spells": ["entangle", "barkskin", "goodberry", "cure_wounds"]})  # BG3 아는 주문 4개(5레벨)
 	var foe := _foe(30)
 	foe.abilities["str"] = 1
 	w["grid"].place(r, Vector2i(0, 0))

@@ -40,7 +40,7 @@ description: 클래스·하위 클래스·클래스 기능을 추가하거나 �
 | `weapon_mastery` | 레벨 → 마스터리 무기 수 |
 | `asi_levels` | 능력치 향상 레벨 |
 | `resources[]` | `{id, max(숫자·레벨표·"proficiency_bonus"), recharge(short·short_one·long)}` |
-| `spellcasting` | `ability`, `type`(prepared·spellbook·known), `list`(주문 데이터 classes 값), `cantrips`·`prepared`(레벨표), `slots`(레벨 → [1레벨 슬롯 수, …] — 절반 시전자는 표만 다르다), `slot_recharge`(long·short — 계약형), `swap`(준비 교체: `long_rest` 긴 휴식 뒤 바꿀 수 −1 전부·n개, `level_up` 레벨 업 때 — spell_prep.gd), 주문서형은 `spellbook`({"1": 6, "per_level": 2}) |
+| `spellcasting` | `ability`, `type`(prepared·spellbook·known), `list`(주문 데이터 classes 값), `cantrips`(레벨표)·`prepared`(아는 주문형은 레벨표, BG3 준비형은 "level_plus_ability" = 클래스 레벨 + 능력 수정치), `slots`(레벨 → [1레벨 슬롯 수, …] — 절반 시전자는 표만 다르다), `slot_recharge`(long·short — 계약형), `swap`(준비 교체: `out_of_combat` 전투 밖 언제나 — BG3 준비형, `long_rest` 긴 휴식 뒤 바꿀 수 −1 전부·n개, `level_up` 레벨 업 때 — BG3 아는 주문형 1 — spell_prep.gd), 주문서형은 `spellbook`({"1": 6, "per_level": 2}) |
 | `features[]`, `subclasses[]{id, name, level, features, always_prepared}` | 기능(아래), 하위 클래스(고르는 레벨 = `level`) |
 | `default_build` | 추천 빌드(동료·시험·생성 화면 시작값). 생성 명세에서 class·level·team을 뺀 것 — 종족·배경·능력치·보너스·기능·하위 클래스·고르는 기능·주문·장비 |
 | `ai_role` | melee·ranged·caster·healer(AI 고지 찾기·위치) |

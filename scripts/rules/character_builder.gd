@@ -987,7 +987,7 @@ static func _class_spells(c: Node, e: Dictionary, src: Dictionary, extra_cantrip
 	for sid: Variant in castable:
 		if not str(sid) in prep:
 			prep.append(str(sid))
-	prep = prep.slice(0, _by_level(sc["prepared"], clv, 0))
+	prep = prep.slice(0, SpellPrep.prepared_limit(sc, clv, c.ability_mod(str(sc.get("ability", "int")))))
 	for sid: String in prep:
 		c.spell_class[sid] = e["id"]
 	c.prepared_by_class[e["id"]] = prep

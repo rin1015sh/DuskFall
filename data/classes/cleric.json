@@ -39,7 +39,7 @@
   "spellcasting": {
     "ability": "wis",
     "swap": {
-      "long_rest": -1
+      "out_of_combat": true
     },
     "type": "prepared",
     "list": "cleric",
@@ -57,20 +57,7 @@
       "11": 5,
       "12": 5
     },
-    "prepared": {
-      "1": 4,
-      "2": 5,
-      "3": 6,
-      "4": 7,
-      "5": 9,
-      "6": 10,
-      "7": 11,
-      "8": 12,
-      "9": 14,
-      "10": 15,
-      "11": 16,
-      "12": 16
-    },
+    "prepared": "level_plus_ability",
     "slots": {
       "1": [
         2
