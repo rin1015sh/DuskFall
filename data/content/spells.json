@@ -118,7 +118,8 @@
       },
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d6"
+          "5": "2d6",
+          "10": "3d6"
         }
       },
       "game_status": "included",
@@ -1102,7 +1103,8 @@
       },
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d8"
+          "5": "2d8",
+          "10": "3d8"
         }
       },
       "game_status": "included",
@@ -2882,7 +2884,8 @@
       },
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d10"
+          "5": "2d10",
+          "10": "3d10"
         }
       },
       "game_status": "included",
@@ -4157,23 +4160,14 @@
       },
       "effects": {
         "check": {
-          "type": "save",
-          "ability": "con",
-          "dc": "spell"
+          "type": "attack",
+          "kind": "melee"
         },
-        "fail": [
+        "hit": [
           {
             "type": "damage",
-            "dice": "2d10",
+            "dice": "3d10",
             "damage_type": "necrotic"
-          }
-        ],
-        "success": [
-          {
-            "type": "damage",
-            "dice": "2d10",
-            "damage_type": "necrotic",
-            "scale": 0.5
           }
         ]
       },
@@ -5299,14 +5293,14 @@
         "fail": [
           {
             "type": "damage",
-            "dice": "3d8",
+            "dice": "2d8",
             "damage_type": "psychic"
           }
         ],
         "success": [
           {
             "type": "damage",
-            "dice": "3d8",
+            "dice": "2d8",
             "damage_type": "psychic",
             "scale": 0.5
           }
@@ -5673,7 +5667,8 @@
       },
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d12"
+          "5": "2d12",
+          "10": "3d12"
         }
       },
       "game_status": "included",
@@ -6097,7 +6092,8 @@
       },
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d8"
+          "5": "2d8",
+          "10": "3d8"
         }
       },
       "game_status": "included",
@@ -6396,7 +6392,8 @@
       },
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d8"
+          "5": "2d8",
+          "10": "3d8"
         }
       },
       "game_status": "included",
@@ -6839,7 +6836,8 @@
       },
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d8"
+          "5": "2d8",
+          "10": "3d8"
         }
       },
       "game_status": "included",
@@ -7847,13 +7845,15 @@
         "explore_only": false
       },
       "range": {
-        "type": "self"
+        "type": "tiles",
+        "tiles": 12
       },
       "area": null,
       "duration": {
-        "type": "instant"
+        "type": "turns",
+        "turns": 2
       },
-      "concentration": false,
+      "concentration": true,
       "components": {
         "verbal": false,
         "somatic": true,
@@ -7861,19 +7861,15 @@
         "consumed": false
       },
       "effects": {},
-      "script": "weapon_cantrip",
-      "upcast": {
-        "cantrip_scaling": {
-          "5": "1d6"
-        }
-      },
+      "script": "true_strike",
       "game_status": "included",
       "review": false,
       "source": "SRD 5.2.1",
       "icon": {
         "glyph": "crosshair",
         "family": "divination"
-      }
+      },
+      "notes_ko": "BG3: 대상 하나에게 하는 다음 공격 굴림 1회 유리, 집중 2턴"
     },
     {
       "id": "unseen_servant",
@@ -8312,12 +8308,13 @@
         "ranger"
       ],
       "cast": {
-        "cost": "bonus_action",
+        "cost": "attack",
         "ritual": false,
         "explore_only": false
       },
       "range": {
-        "type": "self"
+        "type": "tiles",
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -8340,7 +8337,8 @@
       "ai": {
         "role": "none"
       },
-      "notes_ko": "원문: 무기로 맞힌 직후 보너스 행동. 게임: 보너스 행동으로 준비해 두면 다음 무기 명중에 발동(BG3식) — 근력 내성(큰 생물 유리) 실패 시 속박 + 턴 시작 1d6 관통. 상위 슬롯 피해 증가는 1차 생략."
+      "notes_ko": "BG3: 근접 무기 공격 하나 + 명중 시 근력 내성 실패면 휘감김(집중 10턴)",
+      "script": "smite_attack"
     },
     {
       "granted_by": [],
@@ -8588,12 +8586,12 @@
         "paladin"
       ],
       "cast": {
-        "cost": "bonus_action",
+        "cost": "attack",
         "ritual": false,
         "explore_only": false
       },
       "range": {
-        "type": "self"
+        "type": "touch"
       },
       "area": null,
       "duration": {
@@ -8616,7 +8614,8 @@
       "ai": {
         "role": "none"
       },
-      "notes_ko": "원문: 근접 명중 직후 보너스 행동. 게임: 보너스 행동으로 준비해 두면 다음 근접 무기·비무장 명중에 발동(얽어매는 일격과 같은 방식). 2d8 광휘 + 상위 슬롯마다 1d8, 악마·언데드 +1d8."
+      "notes_ko": "BG3: 근접 무기 공격 하나(공격 행동의 공격) + 명중 시 2d8 광휘(상위 슬롯마다 1d8, 악마·언데드 +1d8)",
+      "script": "smite_attack"
     },
     {
       "granted_by": [
@@ -8642,19 +8641,19 @@
         "paladin"
       ],
       "cast": {
-        "cost": "bonus_action",
+        "cost": "attack",
         "ritual": false,
         "explore_only": false
       },
       "range": {
-        "type": "self"
+        "type": "touch"
       },
       "area": null,
       "duration": {
         "type": "turns",
         "turns": 10
       },
-      "concentration": false,
+      "concentration": true,
       "effects": {
         "apply": [
           {
@@ -8670,7 +8669,8 @@
       "ai": {
         "role": "none"
       },
-      "notes_ko": "준비해 두면 다음 근접 명중에 1d6 화염 + 타오름(턴 시작 1d6, 턴 끝 건강 내성으로 끝 — 원문은 턴 시작 내성). 상위 슬롯마다 모든 피해 +1d6."
+      "notes_ko": "BG3: 근접 무기 공격 하나 + 명중 시 1d6 화염(상위 슬롯마다 1d6), 대상 타오름(집중 10턴)",
+      "script": "smite_attack"
     },
     {
       "granted_by": [
@@ -8696,12 +8696,12 @@
         "paladin"
       ],
       "cast": {
-        "cost": "bonus_action",
+        "cost": "attack",
         "ritual": false,
         "explore_only": false
       },
       "range": {
-        "type": "self"
+        "type": "touch"
       },
       "area": null,
       "duration": {
@@ -8724,7 +8724,8 @@
       "ai": {
         "role": "none"
       },
-      "notes_ko": "준비해 두면 다음 근접 명중에 2d6 광휘 + 빛남(노리는 공격 유리, 집중 1분). 상위 슬롯마다 +1d6. 빛·투명 불가는 1차 생략."
+      "notes_ko": "근접 무기 공격 하나 + 명중 시 2d6 광휘(상위 슬롯마다 1d6), 대상 빛남(집중) — BG3식 공격 강타",
+      "script": "smite_attack"
     },
     {
       "granted_by": [],
@@ -8876,7 +8877,7 @@
         "fail": [
           {
             "type": "damage",
-            "dice": "1d6",
+            "dice": "1d4",
             "damage_type": "psychic"
           },
           {
@@ -8894,7 +8895,8 @@
       "notes_ko": "지혜 내성 실패: 1d6 정신 + 다음 공격 하나 불리.",
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d6"
+          "5": "2d4",
+          "10": "3d4"
         }
       }
     },
@@ -9022,7 +9024,8 @@
       "notes_ko": "원거리 주문 공격 1d8 광휘. 빛·투명 불가는 1차 생략.",
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d8"
+          "5": "2d8",
+          "10": "3d8"
         }
       }
     },
@@ -9186,7 +9189,8 @@
       },
       "upcast": {
         "cantrip_scaling": {
-          "5": "2d8"
+          "5": "2d8",
+          "10": "3d8"
         }
       },
       "icon": {
@@ -9874,7 +9878,7 @@
         "fail": [
           {
             "type": "damage",
-            "dice": "2d10",
+            "dice": "2d8",
             "damage_type": "bludgeoning"
           },
           {
@@ -9886,7 +9890,7 @@
         "success": [
           {
             "type": "damage",
-            "dice": "2d10",
+            "dice": "2d8",
             "damage_type": "bludgeoning",
             "scale": 0.5
           },
@@ -9913,7 +9917,7 @@
       ],
       "upcast": {
         "per_slot_level": {
-          "dice_add": "1d10"
+          "dice_add": "1d8"
         }
       },
       "notes_ko": "반지름 4칸. 우박의 어려운 지형은 칸 반응(냉기)으로",
@@ -10894,7 +10898,7 @@
         "apply": [
           {
             "type": "heal",
-            "dice": "5d8",
+            "dice": "3d8",
             "add": "spell_mod"
           }
         ]
@@ -12885,14 +12889,14 @@
         "fail": [
           {
             "type": "damage",
-            "dice": "8d8",
+            "dice": "8d6",
             "damage_type": "necrotic"
           }
         ],
         "success": [
           {
             "type": "damage",
-            "dice": "8d8",
+            "dice": "8d6",
             "damage_type": "necrotic",
             "scale": 0.5
           }
@@ -12907,7 +12911,7 @@
       },
       "upcast": {
         "per_slot_level": {
-          "dice_add": "2d8"
+          "dice_add": "2d6"
         }
       },
       "icon": {

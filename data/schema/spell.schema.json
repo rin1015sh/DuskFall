@@ -216,7 +216,8 @@
                 "action",
                 "bonus_action",
                 "reaction",
-                "explore"
+                "explore",
+                "attack"
               ]
             },
             "ritual": {

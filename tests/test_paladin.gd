@@ -56,32 +56,31 @@ func test_lay_on_hands_pool_and_cure() -> void:
 
 
 func test_divine_smite_free_then_slot_upcast_undead() -> void:
+	# BG3: 강타 = 근접 무기 공격 하나(공격 행동의 공격). 맞히면 2d8 광휘, 언데드 +1d8, 상위 슬롯 +1d8
 	var w := make_world(["....."])
 	var p := _pal(5)
 	var zombie := _foe(80, {"creature_type": "undead"})
 	w["grid"].place(p, Vector2i(0, 0))
 	w["grid"].place(zombie, Vector2i(1, 0))
 	p.reset_turn()
-	var r: Dictionary = Spellcasting.cast(w, p, "divine_smite", Vector2i(0, 0))
+	Dice.force([18])
+	var r: Dictionary = Spellcasting.cast(w, p, "divine_smite", Vector2i(1, 0), {"weapon": "longsword"})
 	assert_true(r.get("ok", false), str(r))
 	assert_eq(p.resource("innate_divine_smite"), 0, "무료 1회 먼저")
-	assert_true(p.has_condition("divine_smite_ready"))
-	p.reset_turn()
+	assert_false(p.has_condition("divine_smite_ready"), "명중에 발동하고 사라진다")
+	assert_true(r["attack"].get("extra_damage", []).any(func(e: Dictionary) -> bool: return e["damage_type"] == "radiant" and e["dice"] == "2d8+1d8"), "언데드 +1d8 %s" % str(r["attack"].get("extra_damage")))
+	assert_eq(int(p.turn["action"]), 0, "공격 행동을 쓴다")
+	assert_eq(int(p.turn["attacks_left"]), 1, "추가 공격은 남는다(5레벨)")
 	Dice.force([18])
-	var res: Dictionary = Combat.attack(w, p, zombie, {"weapon": "javelin", "thrown": true})
-	assert_true(p.has_condition("divine_smite_ready"), "원거리(던지기) 명중에는 발동하지 않고 남는다")
-	p.reset_turn()
-	Dice.force([18])
-	res = Combat.attack(w, p, zombie, {"weapon": "longsword"})
-	assert_false(p.has_condition("divine_smite_ready"), "근접 명중에 발동하고 사라진다")
-	assert_true(res.get("extra_damage", []).any(func(e: Dictionary) -> bool: return e["damage_type"] == "radiant" and e["dice"] == "2d8+1d8"), "언데드 +1d8 %s" % str(res.get("extra_damage")))
-	p.reset_turn()
-	Spellcasting.cast(w, p, "divine_smite", Vector2i(0, 0), {"slot": 2})
+	r = Spellcasting.cast(w, p, "divine_smite", Vector2i(1, 0), {"slot": 2, "weapon": "longsword"})
 	assert_eq(p.resource("spell_slot_2"), 1, "2레벨 슬롯")
-	p.reset_turn()
-	Dice.force([18])
-	res = Combat.attack(w, p, zombie, {"weapon": "longsword"})
-	assert_true(res.get("extra_damage", []).any(func(e: Dictionary) -> bool: return e["dice"] == "2d8+1d8+1d8"), "상위 슬롯 +1d8 %s" % str(res.get("extra_damage")))
+	assert_true(r["attack"].get("extra_damage", []).any(func(e: Dictionary) -> bool: return e["dice"] == "2d8+1d8+1d8"), "상위 슬롯 +1d8 %s" % str(r["attack"].get("extra_damage")))
+	assert_eq(int(p.turn["attacks_left"]), 0)
+	assert_ne_reason(Spellcasting.can_cast(w, p, "divine_smite", Vector2i(1, 0)))
+
+
+func assert_ne_reason(why: String) -> void:
+	assert_eq(why, "비용이 없다", "공격도 행동도 없으면 못 쓴다")
 
 
 func test_searing_smite_dot_and_divine_favor() -> void:
@@ -91,10 +90,8 @@ func test_searing_smite_dot_and_divine_favor() -> void:
 	w["grid"].place(p, Vector2i(0, 0))
 	w["grid"].place(f, Vector2i(1, 0))
 	p.reset_turn()
-	assert_true(Spellcasting.cast(w, p, "searing_smite", Vector2i(0, 0)).get("ok", false))
-	p.reset_turn()
 	Dice.force([18])
-	Combat.attack(w, p, f, {"weapon": "longsword"})
+	assert_true(Spellcasting.cast(w, p, "searing_smite", Vector2i(1, 0), {"weapon": "longsword"}).get("ok", false))
 	assert_true(f.has_condition("seared"), "타오름")
 	assert_true(f.condition_instance("seared")["params"].has("repeat_save"), "턴 끝 건강 내성")
 	var hp: int = f.hp
@@ -107,6 +104,20 @@ func test_searing_smite_dot_and_divine_favor() -> void:
 	var res: Dictionary = Combat.attack(w, p, f, {"weapon": "longsword"})
 	assert_true(res.get("extra_damage", []).any(func(e: Dictionary) -> bool: return e["dice"] == "1d4"), "신의 은총 +1d4")
 	assert_true(p.has_condition("divine_favor"), "신의 은총은 남는다")
+
+
+func test_smite_miss_ends_spell() -> void:
+	var w := make_world(["....."])
+	var p := _pal(3, {"spells": ["searing_smite", "divine_favor", "bless", "heroism"]})
+	var f := _foe(80, {"ac_base": 30})
+	w["grid"].place(p, Vector2i(0, 0))
+	w["grid"].place(f, Vector2i(1, 0))
+	p.reset_turn()
+	Dice.force([2])
+	var r: Dictionary = Spellcasting.cast(w, p, "searing_smite", Vector2i(1, 0), {"weapon": "longsword"})
+	assert_false(r.get("hit", true), "빗나감")
+	assert_false(p.has_condition("searing_smite_ready"), "준비 상태가 남지 않는다")
+	assert_true(p.concentration.is_empty(), "집중도 끝난다")
 
 
 func test_heroism_and_sacred_weapon() -> void:

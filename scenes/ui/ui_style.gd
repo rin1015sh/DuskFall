@@ -30,7 +30,7 @@ static var _theme: Theme = null
 
 
 static func cost_color(cost: String) -> Color:
-	return {"action": ACTION, "bonus": BONUS, "reaction": REACTION, "free": FREE}.get(cost, FREE)
+	return {"action": ACTION, "attack": ACTION, "bonus": BONUS, "reaction": REACTION, "free": FREE}.get(cost, FREE)
 
 
 static func title_font() -> Font:

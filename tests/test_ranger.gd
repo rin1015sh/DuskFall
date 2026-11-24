@@ -63,11 +63,8 @@ func test_ensnaring_strike_and_escape() -> void:
 	w["grid"].place(r, Vector2i(0, 0))
 	w["grid"].place(foe, Vector2i(1, 0))
 	r.reset_turn()
-	assert_true(Spellcasting.cast(w, r, "ensnaring_strike", Vector2i(0, 0)).get("ok", false))
-	assert_true(r.has_condition("ensnaring_ready"), "준비")
-	r.reset_turn()
-	Dice.force([18, 2])  # 공격 18 명중, 대상 근력 내성 2 실패
-	Combat.attack(w, r, foe, {"weapon": "shortsword"})
+	Dice.force([18, 2])  # BG3: 시전 = 무기 공격. 공격 18 명중, 대상 근력 내성 2 실패
+	assert_true(Spellcasting.cast(w, r, "ensnaring_strike", Vector2i(1, 0), {"weapon": "shortsword"}).get("ok", false))
 	assert_false(r.has_condition("ensnaring_ready"), "발동하면 사라진다")
 	assert_true(foe.has_condition("ensnared") and foe.has_condition("restrained"), "휘감김(속박 포함)")
 	foe.reset_turn()

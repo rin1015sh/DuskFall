@@ -161,6 +161,8 @@ static func unavailable(world: Dictionary, c: Node, key: String, explore: bool =
 			cost = "free"
 		if key.begins_with("spell:") and d.has("spell") and not (d["spell"] as Dictionary).is_empty():
 			cost = Spellcasting._mm_cost(c, d["spell"])  # 보너스 행동으로 바뀐 주문(향상된 하급 환영·빠른 주문)
+			if cost == "attack":  # 강타(BG3): 공격 행동의 공격 하나
+				cost = "free" if int(c.turn.get("attacks_left", 0)) > 0 else "action"
 		if key.begins_with("wa_") and cost == "action" and int(c.turn.get("attacks_left", 0)) > 0:
 			cost = "free"  # 무기 액션은 공격 행동의 공격 하나(추가 공격과 이어진다 — BG3)
 		if cost != "free" and not Combat.can_spend(c, cost):

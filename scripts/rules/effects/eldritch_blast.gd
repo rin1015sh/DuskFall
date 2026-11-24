@@ -18,7 +18,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 	var t: Node = grid.creature_at(ctx["aim"])
 	if t == null:
 		return {"ok": false, "reason": "대상이 없다"}
-	var beams := 2 if c.level >= 5 else 1
+	var beams := 3 if c.level >= 10 else (2 if c.level >= 5 else 1)  # BG3: 5·10레벨
 	var dice := "1d10"
 	if c.has_cap("agonizing_blast"):
 		dice += "%+d" % c.ability_mod("cha")

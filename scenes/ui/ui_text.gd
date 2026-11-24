@@ -92,6 +92,7 @@ const TEXT := {
 	"tab_explore": {"ko": "탐험", "en": "Explore"},
 	"cost_action": {"ko": "행동", "en": "Action"},
 	"cost_bonus": {"ko": "보너스 행동", "en": "Bonus Action"},
+	"cost_attack": {"ko": "공격(공격 행동)", "en": "Attack (Attack action)"},
 	"cost_reaction": {"ko": "반응", "en": "Reaction"},
 	"cost_free": {"ko": "무료", "en": "Free"},
 	"cost_explore": {"ko": "탐험 전용", "en": "Exploration"},

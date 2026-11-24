@@ -123,3 +123,34 @@ func test_prayer_of_healing_heals_allies_around() -> void:
 	assert_true(f.hp > 1, "6칸 안 아군")
 	assert_eq(far.hp, 1, "6칸 밖")
 	assert_eq(e.hp, 1, "적은 아니다")
+
+
+func test_true_strike_advantage_on_next_attack_vs_target() -> void:
+	var w := _world()
+	var wz := _pc("wizard", 1)
+	var e := _foe(40)
+	var other := _foe(40)
+	w["grid"].place(wz, Vector2i(0, 0))
+	w["grid"].place(e, Vector2i(5, 0))
+	w["grid"].place(other, Vector2i(5, 3))
+	assert_true(_cast(w, wz, "true_strike", Vector2i(5, 0)).get("ok", false))
+	assert_eq(str(wz.concentration.get("id", "")), "true_strike", "집중")
+	var atk := {"name": "t", "bonus": 0, "kind": "ranged", "weapon": false, "damage": []}
+	var p_other := Resolver.preview_attack(wz, other, atk)
+	assert_eq(int(p_other.get("mode", 0)), 0, "다른 대상에는 없다")
+	Dice.force([3, 17])
+	var r := Resolver.attack(wz, e, atk)
+	assert_eq(int(r["natural"]), 17, "유리 — 높은 눈")
+	Dice.force([3, 17])
+	r = Resolver.attack(wz, e, atk)
+	assert_eq(int(r["natural"]), 3, "한 번 쓰면 사라진다")
+
+
+func test_cantrips_scale_at_5_and_10() -> void:
+	var fb := RulesDB.get_entry("spell", "fire_bolt")
+	assert_eq(str(fb["upcast"]["cantrip_scaling"]["10"]), "3d10", "BG3 10레벨 3d10")
+	var vm := RulesDB.get_entry("spell", "vicious_mockery")
+	assert_eq(str(vm["effects"]["fail"][0]["dice"]), "1d4", "악랄한 조롱 1d4")
+	var iw := RulesDB.get_entry("spell", "inflict_wounds")
+	assert_eq(str(iw["effects"]["check"]["type"]), "attack", "상처 입히기: 근접 주문 공격")
+	assert_eq(str(iw["effects"]["hit"][0]["dice"]), "3d10")

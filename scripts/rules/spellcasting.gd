@@ -71,6 +71,8 @@ static func _cost(spell: Dictionary) -> String:
 			return "reaction"
 		"explore":
 			return "explore"
+		"attack":
+			return "attack"  # 강타(BG3): 공격 행동의 공격 하나 — 스크립트가 Combat.attack으로 쓴다
 	return "action"
 
 
@@ -173,7 +175,7 @@ static func range_tiles(spell: Dictionary) -> int:
 	return 0
 
 
-## 소마법 강화(5레벨)와 상위 슬롯(레벨당 dice_add)을 반영한 주사위.
+## 소마법 강화(BG3 5·10레벨)와 상위 슬롯(레벨당 dice_add)을 반영한 주사위.
 static func scaled_dice(c: Node, spell: Dictionary, dice: String, slot: int) -> String:
 	var out := dice
 	var cs: Dictionary = spell.get("upcast", {}).get("cantrip_scaling", {})
@@ -357,6 +359,9 @@ static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vec
 	elif cost == "explore":
 		if world.get("turns") != null and world["turns"].in_combat:
 			return "탐험 중에만"
+	elif cost == "attack":
+		if int(caster.turn.get("attacks_left", 0)) <= 0 and not Combat.can_spend(caster, "action"):
+			return "비용이 없다"
 	elif not Combat.can_spend(caster, cost):
 		return "비용이 없다"
 	if cost == "action" and not opts.get("free", false) and int(caster.turn.get("action", 0)) <= int(caster.turn.get("surge_actions", 0)):
@@ -562,7 +567,7 @@ static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector
 	var slot_id := _slot(caster, int(opts.get("slot", level))) if level > 0 and not use_innate and not opts.get("no_slot", false) and not opts.get("free", false) else ""
 	var slot: int = int(slot_id.get_slice("_", 2)) if slot_id != "" else int(opts.get("slot", level))
 	var cost := _mm_cost(caster, spell)
-	if cost != "explore" and not opts.get("free", false):
+	if cost != "explore" and cost != "attack" and not opts.get("free", false):
 		Combat.spend(caster, cost)
 	var mm := metamagic_for(caster, spell)
 	if mm == "twinned" and not opts.get("free", false):
