@@ -330,37 +330,6 @@
       "glyph": "swirl",
       "usable": true,
       "explore": true
-    },
-    {
-      "id": "scholar",
-      "name": {
-        "ko": "학자",
-        "en": "Scholar"
-      },
-      "level": 2,
-      "choices": [
-        "arcana",
-        "history",
-        "investigation",
-        "medicine",
-        "nature",
-        "religion"
-      ],
-      "source": "SRD 5.2.1",
-      "choice_kind": "expertise"
-    },
-    {
-      "id": "memorize_spell",
-      "name": {
-        "ko": "주문 암기",
-        "en": "Memorize Spell"
-      },
-      "level": 5,
-      "notes_ko": "짧은 휴식 뒤 준비 주문 1개 교체(7단계 휴식).",
-      "source": "SRD 5.2.1",
-      "caps": [
-        "prepare_swap_short_rest"
-      ]
     }
   ],
   "subclasses": [
@@ -1104,7 +1073,6 @@
       "insight"
     ],
     "species_skill": "perception",
-    "scholar": "arcana",
     "cantrips": [
       "fire_bolt",
       "dancing_lights",

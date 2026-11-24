@@ -141,17 +141,6 @@
   },
   "resources": [
     {
-      "id": "innate_sorcery",
-      "name": {
-        "ko": "타고난 마법",
-        "en": "Innate Sorcery"
-      },
-      "max": {
-        "1": 2
-      },
-      "recharge": "long"
-    },
-    {
       "id": "sorcery_points",
       "name": {
         "ko": "마법 점수",
@@ -169,17 +158,6 @@
         "10": 10,
         "11": 11,
         "12": 12
-      },
-      "recharge": "long"
-    },
-    {
-      "id": "sorcerous_restoration",
-      "name": {
-        "ko": "마법 회복",
-        "en": "Sorcerous Restoration"
-      },
-      "max": {
-        "5": 1
       },
       "recharge": "long"
     },
@@ -221,28 +199,6 @@
     }
   ],
   "features": [
-    {
-      "id": "innate_sorcery",
-      "name": {
-        "ko": "타고난 마법",
-        "en": "Innate Sorcery"
-      },
-      "level": 1,
-      "kind": "bonus_action",
-      "resource": "innate_sorcery",
-      "script": "innate_sorcery",
-      "notes_ko": "보너스 행동, 1분 동안 소서러 주문 DC +1·주문 공격 유리. 긴 휴식마다 2회.",
-      "source": "SRD 5.2.1",
-      "glyph": "sparkle",
-      "ai": {
-        "when": "foes_2plus"
-      },
-      "alt_cost": {
-        "resource": "sorcery_points",
-        "amount": 2,
-        "cap": "sorcery_incarnate"
-      }
-    },
     {
       "id": "font_of_magic",
       "name": {
@@ -398,21 +354,12 @@
           "en": "Metamagic for your next spell (turns off after use)"
         }
       },
-      "notes_ko": "변형 2개를 고른다(빠른 2점·원거리 1점·고양된 2점·연장된 1점 — 집중 유리 포함·신중한 1점·은밀한 1점·추적 1점). 상시 설정에서 켜면 다음 주문 하나에 쓰고 꺼진다(BG3식). 쌍둥이·강화는 1차 생략. 빠른 주문의 '같은 턴 다른 주문 금지'는 생략.",
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "sorcerous_restoration",
-      "name": {
-        "ko": "마법 회복",
-        "en": "Sorcerous Restoration"
-      },
-      "level": 5,
-      "caps": [
-        "sorcerous_restoration"
-      ],
-      "notes_ko": "짧은 휴식 뒤 마법 점수를 레벨 절반(내림)까지 자동 회복, 긴 휴식마다 1회.",
-      "source": "SRD 5.2.1"
+      "notes_ko": "BG3: 2레벨 2개, 3레벨 1개 더.",
+      "source": "SRD 5.2.1",
+      "count_by_level": {
+        "2": 2,
+        "3": 3
+      }
     },
     {
       "id": "metamagic_10",
@@ -431,7 +378,7 @@
         "seeking"
       ],
       "choice_kind": "option",
-      "count": 2,
+      "count": 1,
       "choice_grants": {
         "quickened": {
           "caps": [
@@ -469,21 +416,8 @@
           ]
         }
       },
-      "notes_ko": "변형 2개 더.",
+      "notes_ko": "BG3: 10레벨 1개 더.",
       "source": "SRD 5.2.1"
-    },
-    {
-      "id": "sorcery_incarnate",
-      "name": {
-        "ko": "마법의 화신",
-        "en": "Sorcery Incarnate"
-      },
-      "level": 7,
-      "caps": [
-        "sorcery_incarnate"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "타고난 마법 횟수가 없으면 마법 점수 2로 쓴다(타고난 마법 alt_cost). 타고난 마법 중 주문 하나에 변형 2개는 다음 단계(변형 토글이 하나)."
     }
   ],
   "subclasses": [
@@ -1061,7 +995,8 @@
     ],
     "metamagic": [
       "quickened",
-      "distant"
+      "distant",
+      "heightened"
     ],
     "cantrips": [
       "fire_bolt",
@@ -1102,8 +1037,7 @@
       }
     },
     "metamagic_10": [
-      "careful",
-      "heightened"
+      "careful"
     ],
     "draconic_ancestry": "red"
   },

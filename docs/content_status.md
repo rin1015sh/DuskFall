@@ -255,9 +255,10 @@
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
 | 1 | 신성한 손길 (lay_on_hands) |  | 스크립트 lay_on_hands |  |
+| 1 | 맹세 변환 (channel_oath) |  | 처리: 자원 channel_divinity |  |
+| 1 | 신성 감지 (divine_sense) |  | 스크립트 divine_sense |  |
 | 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
-| 2 | 팔라딘의 강타 (paladins_smite) |  | 처리: 클래스 always_prepared(신성한 강타) + 자원 innate_divine_smite(슬롯 없이 긴 휴식마다 1회 — 무료 횟수 먼저) |  |
-| 3 | 자연의 분노 (natures_wrath) | ancients | 스크립트 oath_save_condition |  |
+| 2 | 팔라딘의 강타 (paladins_smite) |  | 처리: 클래스 always_prepared(신성한 강타 — 슬롯으로, BG3 무료 횟수 없음) |  |
 | 3 | 신앙 없는 자 퇴치 (turn_the_faithless) | ancients | 스크립트 oath_turn |  |
 | 3 | 맹세 주문(복수) (oath_spells_vengeance) | vengeance | 처리: 하위 클래스 always_prepared |  |
 | 3 | 심문관의 힘 (inquisitors_might) | vengeance | 스크립트 oath_ally_condition |  |
@@ -271,23 +272,21 @@
 | 3 | 앙심 어린 고통 (spiteful_suffering) | oathbreaker | 스크립트 oath_save_condition |  |
 | 3 | 언데드 조종 (control_undead) | oathbreaker | 스크립트 control_undead |  |
 | 3 | 무시무시한 모습 (dreadful_aspect) | oathbreaker | 스크립트 dreadful_aspect |  |
-| 3 | 치유의 광휘 (healing_radiance) | ancients | 스크립트 healing_radiance |  |
-| 3 | 맹세 주문(고대인) (oath_spells_ancients) | ancients | 처리: 하위 클래스 always_prepared |  |
-| 3 | 신성 변환 (channel_divinity) |  | 처리: 자원 channel_divinity(2회, 짧은 휴식에 1회 회복) — 하위 클래스 기능이 쓴다 |  |
-| 3 | 부정한 것 퇴치 (turn_the_unholy) | devotion | 스크립트 oath_turn |  |
-| 3 | 신성한 무기 (sacred_weapon) | devotion | 스크립트 sacred_weapon |  |
-| 3 | 신성한 질책 (holy_rebuke) | devotion | 스크립트 holy_rebuke |  |
+| 3 | 신성한 건강 (divine_health) |  | 처리: 질병 없음 |  |
 | 3 | 맹세 주문(헌신) (oath_spells_devotion) | devotion | 처리: 하위 클래스 always_prepared |  |
-| 3 | 신성 감지 (divine_sense) |  | 스크립트 divine_sense |  |
+| 3 | 신성한 질책 (holy_rebuke) | devotion | 스크립트 holy_rebuke |  |
+| 3 | 신성한 무기 (sacred_weapon) | devotion | 스크립트 sacred_weapon |  |
+| 3 | 부정한 것 퇴치 (turn_the_unholy) | devotion | 스크립트 oath_turn |  |
+| 3 | 맹세 주문(고대인) (oath_spells_ancients) | ancients | 처리: 하위 클래스 always_prepared |  |
+| 3 | 치유의 광휘 (healing_radiance) | ancients | 스크립트 healing_radiance |  |
+| 3 | 자연의 분노 (natures_wrath) | ancients | 스크립트 oath_save_condition |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
-| 5 | 충직한 탈것 (faithful_steed) |  | 처리: 클래스 always_prepared(탈것 찾기) + 자원 innate_find_steed(슬롯 없이 긴 휴식마다 1회). 올라타기 없음(BG3식 동료) |  |
 | 6 | 보호의 오라 (aura_of_protection) |  | 오라(auras.gd) |  |
-| 7 | 증오의 오라 (aura_of_hate) | oathbreaker | 오라(auras.gd) |  |
-| 7 | 신성한 충성 (divine_allegiance) | crown | 반응 |  |
+| 7 | 헌신의 오라 (aura_of_devotion) | devotion | 오라(auras.gd) |  |
 | 7 | 끈질긴 복수자 (relentless_avenger) | vengeance | 태그 relentless_avenger |  |
 | 7 | 수호의 오라 (aura_of_warding) | ancients | 오라(auras.gd) |  |
-| 7 | 헌신의 오라 (aura_of_devotion) | devotion | 오라(auras.gd) |  |
-| 9 | 적 퇴치 (abjure_foes) |  | 스크립트 abjure_foes |  |
+| 7 | 신성한 충성 (divine_allegiance) | crown | 반응 |  |
+| 7 | 증오의 오라 (aura_of_hate) | oathbreaker | 오라(auras.gd) |  |
 | 10 | 용기의 오라 (aura_of_courage) |  | 오라(auras.gd) |  |
 | 11 | 빛나는 일격 (radiant_strikes) |  | 부여 weapon_hit_bonus |  |
 
@@ -334,18 +333,15 @@
 | 3 | 주문 시전(비전 사기꾼) (at_spellcasting) | arcane_trickster | 처리: 생성기 — 하위 클래스 spellcasting(1/3 시전자, 위저드 목록, 지능, 명세 subclass_spells) |  |
 | 3 | 2층 작업 (second_story_work) | thief | 태그 fall_resistance, climber |  |
 | 3 | 빠른 손 (fast_hands) | thief | 태그 extra_bonus_action |  |
-| 3 | 안정된 조준 (steady_aim) |  | 스크립트 steady_aim |  |
 | 4 | 지저분한 수법 (dirty_tricks) | swashbuckler | 부여 special_attacks |  |
 | 5 | 교묘한 회피 (uncanny_dodge) |  | 스크립트 uncanny_dodge; 반응 |  |
-| 5 | 교활한 일격 (cunning_strike) |  | 스크립트 cunning_strike; 태그 cunning_strike; 설정 |  |
 | 6 | 전문화(6레벨) (expertise_6) |  | 고르기(expertise) |  |
-| 7 | 믿음직한 재능 (reliable_talent) |  | 태그 reliable_talent |  |
 | 7 | 회피 (evasion) |  | 태그 evasion |  |
 | 9 | 최상급 은신 (supreme_sneak) | thief | 스크립트 supreme_sneak |  |
 | 9 | 마법 매복 (magical_ambush) | arcane_trickster | 태그 magical_ambush |  |
 | 9 | 위장 신분 (infiltration_expertise) | assassin |  | 보류(deferred) |
 | 9 | 허세 (panache) | swashbuckler | 스크립트 panache |  |
-| 11 | 향상된 교활한 일격 (improved_cunning_strike) |  | 태그 improved_cunning_strike; 설정 |  |
+| 11 | 믿음직한 재능 (reliable_talent) |  | 태그 reliable_talent |  |
 
 ### 소서러 (sorcerer) — 생명 주사위 d6, 역할 caster
 
@@ -356,25 +352,22 @@
 | 1 | 폭풍 비행 (tempestuous_flight) | storm | 스크립트 surge_teleport |  |
 | 1 | 폭풍의 마법 (tempestuous_magic) | storm | 태그 tempestuous_magic |  |
 | 1 | 급증: 순간 이동 (surge_teleport_action) | wild_magic | 스크립트 surge_teleport |  |
+| 1 | 용의 회복력 (draconic_resilience) | draconic | 태그 unarmored_defense_13; 부여 hp_per_level |  |
+| 1 | 용의 혈통 조상 (draconic_ancestry) | draconic | 고르기(option) |  |
 | 1 | 혼돈의 물결 (tides_of_chaos) | wild_magic | 스크립트 tides_of_chaos |  |
 | 1 | 야생 마법 급증 (wild_magic_surge) | wild_magic | 태그 wild_magic_surge |  |
-| 1 | 용의 혈통 조상 (draconic_ancestry) | draconic | 고르기(option) |  |
-| 1 | 용의 회복력 (draconic_resilience) | draconic | 태그 unarmored_defense_13; 부여 hp_per_level |  |
-| 1 | 타고난 마법 (innate_sorcery) |  | 스크립트 innate_sorcery |  |
-| 2 | 마법의 샘 (font_of_magic) |  | 처리: 자원 sorcery_points(레벨만큼, 긴 휴식) + 기능 슬롯→점수·점수→슬롯 |  |
-| 2 | 슬롯을 마법 점수로 (convert_slot) |  | 스크립트 convert_slot |  |
-| 2 | 마법 점수로 슬롯 (create_slot) |  | 스크립트 create_slot |  |
 | 2 | 주문 변형 (metamagic) |  | 고르기(option); 설정 |  |
+| 2 | 마법 점수로 슬롯 (create_slot) |  | 스크립트 create_slot |  |
+| 2 | 슬롯을 마법 점수로 (convert_slot) |  | 스크립트 convert_slot |  |
+| 2 | 마법의 샘 (font_of_magic) |  | 처리: 자원 sorcery_points(레벨만큼, 긴 휴식) + 기능 슬롯→점수·점수→슬롯 |  |
 | 3 | 어둠의 눈: 어둠 (eyes_darkness) | shadow_magic | 스크립트 ki_spell |  |
-| 5 | 마법 회복 (sorcerous_restoration) |  | 태그 sorcerous_restoration |  |
+| 6 | 원소 친화 (elemental_affinity) | draconic | 고르기(option) |  |
 | 6 | 운 비틀기 (bend_luck) | wild_magic | 태그 bend_luck; 반응 |  |
 | 6 | 폭풍의 심장 (heart_of_the_storm) | storm | 태그 heart_of_the_storm; 부여 resistances |  |
-| 6 | 원소 친화 (elemental_affinity) | draconic | 고르기(option) |  |
 | 6 | 불길한 징조의 사냥개 (hound_of_ill_omen) | shadow_magic | 스크립트 hound_of_ill_omen |  |
-| 7 | 마법의 화신 (sorcery_incarnate) |  | 태그 sorcery_incarnate |  |
 | 10 | 주문 변형(10레벨) (metamagic_10) |  | 고르기(option) |  |
-| 11 | 통제된 혼돈 (controlled_chaos) | wild_magic | 태그 controlled_chaos |  |
 | 11 | 용의 날개 (draconic_wings) | draconic | 스크립트 draconic_wings |  |
+| 11 | 통제된 혼돈 (controlled_chaos) | wild_magic | 태그 controlled_chaos |  |
 | 11 | 폭풍의 분노 (storms_fury) | storm | 태그 storms_fury; 반응 |  |
 | 11 | 그림자 걷기 (shadow_walk) | shadow_magic | 스크립트 surge_teleport |  |
 
@@ -429,30 +422,28 @@
 | 2 | 방출학파 학자 (evoker_savant) | evoker | 부여 scribe_discount |  |
 | 2 | 최면 응시 (hypnotic_gaze) | enchanter | 스크립트 hypnotic_gaze |  |
 | 2 | 환혹학파 학자 (enchanter_savant) | enchanter | 부여 scribe_discount |  |
-| 2 | 비전 결계 (arcane_ward) | abjurer | 태그 arcane_ward |  |
-| 2 | 방호학파 학자 (abjurer_savant) | abjurer | 부여 scribe_discount |  |
+| 2 | 소환학파 학자 (conjurer_savant) | conjurer | 부여 scribe_discount |  |
 | 2 | 예지 (portent) | diviner | 태그 portent; 반응 |  |
 | 2 | 예언학파 학자 (diviner_savant) | diviner | 부여 scribe_discount |  |
-| 2 | 소환학파 학자 (conjurer_savant) | conjurer | 부여 scribe_discount |  |
 | 2 | 하급 소환: 물 (minor_conjuration) | conjurer | 스크립트 minor_conjuration |  |
-| 2 | 학자 (scholar) |  | 고르기(expertise) |  |
-| 5 | 주문 암기 (memorize_spell) |  | 태그 prepare_swap_short_rest |  |
-| 6 | 강력한 소마법 (potent_cantrip) | evoker | 태그 cantrip_half_on_save |  |
+| 2 | 방호학파 학자 (abjurer_savant) | abjurer | 부여 scribe_discount |  |
+| 2 | 비전 결계 (arcane_ward) | abjurer | 태그 arcane_ward |  |
+| 6 | 투사 결계 (projected_ward) | abjurer | 반응 |  |
+| 6 | 변환자의 돌 (transmuters_stone) | transmuter | 스크립트 transmuters_stone; 설정 |  |
+| 6 | 언데드 노예 (undead_thralls) | necromancer |  | 보류(deferred) |
+| 6 | 투명 간파 (reveal_invisible) | illusionist | 스크립트 reveal_invisible |  |
 | 6 | 선한 자리바꿈 (benign_transposition) | conjurer | 스크립트 benign_transposition |  |
+| 6 | 강력한 소마법 (potent_cantrip) | evoker | 태그 cantrip_half_on_save |  |
 | 6 | 추가 공격(검무가) (bladesinger_extra_attack) | bladesinger | 태그 extra_attack; 부여 attacks_per_action |  |
 | 6 | 본능적 매혹 (instinctive_charm) | enchanter | 반응 |  |
-| 6 | 투명 간파 (reveal_invisible) | illusionist | 스크립트 reveal_invisible |  |
-| 6 | 변환자의 돌 (transmuters_stone) | transmuter | 스크립트 transmuters_stone; 설정 |  |
-| 6 | 투사 결계 (projected_ward) | abjurer | 반응 |  |
-| 6 | 언데드 노예 (undead_thralls) | necromancer |  | 보류(deferred) |
 | 6 | 숙련된 예언 (expert_divination) | diviner | 태그 expert_divination |  |
 | 10 | 변신술사 (shapechanger) | transmuter |  | 보류(deferred) |
 | 10 | 방어의 노래 (song_of_defence) | bladesinger | 반응 |  |
-| 10 | 죽음에 익숙함 (inured_to_undeath) | necromancer | 부여 resistances |  |
 | 10 | 향상된 방호 (improved_abjuration) | abjurer | 태그 improved_abjuration |  |
+| 10 | 죽음에 익숙함 (inured_to_undeath) | necromancer | 부여 resistances |  |
 | 10 | 환영 분신 (illusory_self) | illusionist | 반응 |  |
-| 10 | 강화된 방출 (empowered_evocation) | evoker | 태그 evocation_add_mod |  |
 | 10 | 집중된 소환 (focused_conjuration) | conjurer | 태그 focused_conjuration |  |
+| 10 | 강화된 방출 (empowered_evocation) | evoker | 태그 evocation_add_mod |  |
 | 10 | 갈라진 환혹 (split_enchantment) | enchanter | 태그 split_enchantment |  |
 | 10 | 셋째 눈 (third_eye) | diviner | 스크립트 third_eye; 설정 |  |
 
@@ -512,7 +503,7 @@
 | crit_free_move | 치명타 뒤 이동 | (몬스터 특성 또는 아직 없음) |
 | crossbow_point_blank | 근접 석궁 | (몬스터 특성 또는 아직 없음) |
 | crossbow_wounding | 깊은 상처 석궁 | (몬스터 특성 또는 아직 없음) |
-| cunning_strike | 교활한 일격 | rogue |
+| cunning_strike | 교활한 일격 | (몬스터 특성 또는 아직 없음) |
 | curving_shot | 휘는 화살 | fighter |
 | dark_ones_blessing | 어둠의 축복 | warlock |
 | dash_ignores_difficult | 질주 험지 무시 | (몬스터 특성 또는 아직 없음) |
@@ -574,7 +565,7 @@
 | ignore_difficult_terrain | 험지 무시 | barbarian, druid, monk |
 | immune_magic_sleep | 마법 수면 면역 | 종족 drow, 종족 elf, 종족 half_elf |
 | improved_abjuration | 향상된 방호 | wizard |
-| improved_cunning_strike | 향상된 교활한 일격 | rogue |
+| improved_cunning_strike | 향상된 교활한 일격 | (몬스터 특성 또는 아직 없음) |
 | improved_elemental_casting | 향상된 원소 시전 | monk |
 | improved_wild_strike | 향상된 야생의 일격 | druid |
 | instinctive_pounce | 본능적 도약 | (몬스터 특성 또는 아직 없음) |
@@ -614,7 +605,7 @@
 | polearm_haft | 자루 공격 | (몬스터 특성 또는 아직 없음) |
 | portent | 예지 | wizard |
 | precision_attack | 정밀 공격 | (몬스터 특성 또는 아직 없음) |
-| prepare_swap_short_rest | 주문 암기 | wizard |
+| prepare_swap_short_rest | 주문 암기 | (몬스터 특성 또는 아직 없음) |
 | primal_strike | 원초의 일격 | druid |
 | rakish_sneak | 대담한 급소 | rogue |
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |
@@ -636,8 +627,8 @@
 | short_rest_full_heal | 짧은 휴식 완전 회복 | (몬스터 특성 또는 아직 없음) |
 | slow_fall | 느린 낙하 | monk |
 | sneak_attack | 급소 공격 | rogue |
-| sorcerous_restoration | 마법 회복 | sorcerer |
-| sorcery_incarnate | 마법의 화신 | sorcerer |
+| sorcerous_restoration | 마법 회복 | (몬스터 특성 또는 아직 없음) |
+| sorcery_incarnate | 마법의 화신 | (몬스터 특성 또는 아직 없음) |
 | spell_crit_minus_1 | 주문 치명타 범위 | (몬스터 특성 또는 아직 없음) |
 | spell_heal_bonus | 생명의 제자 | cleric |
 | split_enchantment | 갈라진 환혹 | wizard |

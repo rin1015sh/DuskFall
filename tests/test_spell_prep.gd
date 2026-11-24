@@ -80,18 +80,6 @@ func test_wizard_spellbook_scroll_learning_and_reactions() -> void:
 	assert_eq(SpellPrep.learn_blocked(w, wz, "spell_scroll_magic_missile"), "이미 주문서에 있다")
 
 
-func test_memorize_spell_short_rest() -> void:
-	var w := {}
-	var wz := _pc("wizard", 5)
-	SpellPrep.close_window(wz)
-	SpellPrep.open_window(wz, "short")
-	assert_eq(SpellPrep.swaps_left(wz), 1, "주문 암기: 짧은 휴식 뒤 1개")
-	var c3 := _pc("cleric", 3)
-	SpellPrep.close_window(c3)
-	SpellPrep.open_window(c3, "short")
-	assert_eq(c3.prep_swaps, 0, "태그가 없으면 짧은 휴식으로 열리지 않는다")
-
-
 func test_ritual_casting_and_ritual_adept() -> void:
 	var w := make_world(["......"])
 	var wz := _pc("wizard", 1, {"spells": ["shield", "sleep"], "spellbook": ["detect_magic"]})

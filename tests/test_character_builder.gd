@@ -53,7 +53,7 @@ func test_rogue_1_to_5() -> void:
 	assert_true("rapier" in l1.weapon_proficiencies and not "longsword" in l1.weapon_proficiencies, "교묘·가벼움 군용 무기만")
 	assert_true(l1.has_feature("halfling_luck"))
 	var l5 := _build("rogue", 5)
-	assert_true(l5.has_feature("cunning_strike") and l5.has_feature("uncanny_dodge"))
+	assert_true(l5.has_feature("uncanny_dodge") and not l5.has_feature("cunning_strike"), "BG3: 교활한 일격 없음")
 	assert_true("uncanny_dodge" in l5.known_reactions)
 	assert_true(l5.has_feature("fast_hands"), "도둑")
 
@@ -85,7 +85,7 @@ func test_wizard_1_to_5() -> void:
 	var l5 := _build("wizard", 5)
 	assert_eq(l5.hp_max, 27, "7 + 4 × (4 + 1) — 룰북 예시 전투 3의 HP 27")
 	assert_true(l5.spells.has("fireball") and l5.spells.has("misty_step"), "준비 주문 + 혈통 5레벨 주문")
-	assert_eq(l5.skill_bonuses["arcana"], 6, "학자 전문화")
+	assert_eq(l5.skill_bonuses["arcana"], 3, "학자 없음(BG3)")
 	assert_true(l5.has_feature("sculpt_spells"), "BG3 방출학파 2레벨 주문 조각")
 	assert_eq(l5.abilities["int"], 19)
 

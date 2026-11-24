@@ -3097,6 +3097,18 @@
       "stack": "keep_longest",
       "notes_ko": "저주한 워락의 피해 + 숙련, 치명타 범위 −1, 죽으면 워락 회복.",
       "source": "original"
+    },
+    {
+      "id": "divine_sense_active",
+      "name": {
+        "ko": "신성 감지",
+        "en": "Divine Sense"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "default_duration_turns": 2,
+      "notes_ko": "천상체·악마·언데드 공격 유리(primal.attack_context).",
+      "source": "original"
     }
   ]
 }

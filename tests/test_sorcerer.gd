@@ -21,7 +21,7 @@ func test_build_draconic() -> void:
 	assert_eq(s.hp_max, 6 + con + 4 * (4 + con) + 5, "용의 회복력 +5")
 	assert_true(s.spells.has("burning_hands"), "용의 조상(붉은 용) 주문")
 	assert_eq(s.resource("sorcery_points"), 5)
-	assert_true(s.has_cap("metamagic_quickened") and s.has_cap("metamagic_distant") and not s.has_cap("metamagic_heightened"))
+	assert_true(s.has_cap("metamagic_quickened") and s.has_cap("metamagic_distant") and s.has_cap("metamagic_heightened"), "BG3: 3레벨 변형 3개")
 
 
 func test_innate_sorcery_and_font() -> void:
@@ -30,9 +30,7 @@ func test_innate_sorcery_and_font() -> void:
 	w["grid"].place(s, Vector2i(0, 0))
 	var dc: int = Spellcasting.spell_dc(s)
 	s.reset_turn()
-	assert_true(Features.use(w, s, "innate_sorcery")["ok"])
-	assert_eq(Spellcasting.spell_dc(s), dc + 1, "DC +1")
-	assert_eq(s.resource("innate_sorcery"), 1)
+	assert_false(s.feature_data.has("innate_sorcery"), "타고난 마법 없음(BG3)")
 	assert_true(Features.use(w, s, "convert_slot")["ok"] == false, "점수가 가득하면 못 바꾼다")
 	s.resources["sorcery_points"]["current"] = 0
 	assert_true(Features.use(w, s, "convert_slot")["ok"])
@@ -68,19 +66,6 @@ func test_metamagic_quickened_distant() -> void:
 	assert_eq(s.resource("sorcery_points"), 0)
 
 
-func test_sorcerous_restoration() -> void:
-	var w := make_world(["...."])
-	var s := _sorc(5)
-	w["grid"].place(s, Vector2i(0, 0))
-	s.resources["sorcery_points"]["current"] = 0
-	assert_true(Rest.short_rest(w, [s])["ok"])
-	assert_eq(s.resource("sorcery_points"), 2, "레벨 절반")
-	s.resources["sorcery_points"]["current"] = 0
-	Rest.short_rest(w, [s])
-	assert_eq(s.resource("sorcery_points"), 0, "긴 휴식마다 1회")
-
-
-## 신중한 주문(범위 안 아군 자동 성공·피해 없음), 은밀한 주문(주문 방해를 받지 않음), 추적 주문(빗나가면 다시).
 func test_metamagic_careful_subtle_seeking() -> void:
 	var spec := Builder.default_spec("sorcerer", 3)
 	spec["metamagic"] = ["careful", "seeking"]

@@ -1,9 +1,7 @@
 extends "res://scripts/rules/effect_script.gd"
-## 신성한 손길(팔라딘 1레벨, SRD): 치유 풀(자원 lay_on_hands = 팔라딘 레벨 × 5). 보너스 행동으로 만진 생물(자신 포함).
-## BG3식 자동: 대상이 중독이면 풀 5로 먼저 해독(그 5는 회복하지 않는다), 남은 풀에서 잃은 HP만큼 회복.
-
+## 신성한 손길(팔라딘 1레벨, BG3): 행동 + 신성한 손길 1회(1레벨 3회, 4레벨 4회, 10레벨 5회 — 긴 휴식). 근접 생물(자신 포함) —
+## 중독이면 해독, 아니면 팔라딘 레벨 × 2 회복(BG3식 자동 선택 — 중독이면서 다쳤으면 둘 다).
 const Resolver := preload("res://scripts/rules/resolver.gd")
-const CURE_COST := 5
 
 
 func is_implemented() -> bool:
@@ -17,18 +15,14 @@ func apply(ctx: Dictionary) -> Dictionary:
 		t = c
 	if t.dead:
 		return {"ok": false, "reason": "대상이 없다"}
-	var pool: int = c.resource("lay_on_hands")
+	if t != c and ctx.get("world", {}).has("grid") and ctx["world"]["grid"].distance_between(c, t) > 1:
+		return {"ok": false, "reason": "옆의 생물만"}
 	var cured := false
-	if t.has_condition("poisoned") and pool >= CURE_COST:
+	if t.has_condition("poisoned"):
 		t.remove_condition("poisoned")
-		pool -= CURE_COST
 		cured = true
-	var want: int = t.hp_max - t.hp
-	var amount := mini(pool, want)
-	if amount <= 0 and not cured:
+	if t.hp >= t.hp_max and not cured:
 		return {"ok": false, "reason": "회복할 것이 없다"}
-	if amount > 0:
-		Resolver.heal(t, amount, c)
-	c.resources["lay_on_hands"]["current"] = pool - amount
-	Dice.log_text("%s: 신성한 손길 → %s %d 회복%s(남은 풀 %d)" % [c.label(), t.label(), amount, ", 해독" if cured else "", pool - amount])
-	return {"ok": true, "healed": amount, "cured": cured, "keep_resource": true}
+	var n: int = Resolver.heal(t, 2 * c.feature_level("lay_on_hands"), c)
+	Dice.log_text("%s: 신성한 손길 → %s %d 회복%s" % [c.label(), t.label(), n, ", 해독" if cured else ""])
+	return {"ok": true, "healed": n, "cured": cured}

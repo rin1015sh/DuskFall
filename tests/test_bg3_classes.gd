@@ -73,13 +73,7 @@ func test_sneak_attack_manual_mode() -> void:
 	Dice.force([15, 3, 4])
 	var s: Dictionary = Actions.execute(w, r, "sneak_melee", Vector2i(1, 0))
 	assert_eq(int(s.get("sneak_attack", 0)), 1, "급소 공격 행동이면 붙는다")
-	Actions.toggle_passive(r, "cunning_strike")
-	assert_false(r.options.has("cunning_strike"), "1레벨에는 교활한 일격 설정이 없다(기능 데이터 toggle)")
-	var r5 := _pc("rogue", 5)
-	assert_true(Actions.passives(r5).any(func(p: Dictionary) -> bool: return p["id"] == "cunning_strike"), "5레벨 상시 발동 탭에 교활한 일격")
-	Actions.toggle_passive(r5, "cunning_strike")
-	assert_eq(r5.options["cunning_strike"], "poison", "교활한 일격 선택을 돌린다")
-
+	assert_false(r.feature_data.has("cunning_strike"), "교활한 일격 없음(BG3)")
 
 func test_passives_reaction_toggle() -> void:
 	var wz := _pc("wizard", 1)

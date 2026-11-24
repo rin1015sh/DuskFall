@@ -35,6 +35,8 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 			ctx["attack_add"] = int(ctx.get("attack_add", 0)) - 4
 		elif not ctx.get("preview", false):
 			attacker.turn[key] = true
+	if attacker.has_condition("divine_sense_active") and str(target.creature_type) in ["celestial", "fiend", "undead"]:
+		ctx["advantage"].append("신성 감지")
 	var rc: Dictionary = attacker.condition_instance("righteous_clarity")
 	if not rc.is_empty():
 		ctx["attack_add"] = int(ctx.get("attack_add", 0)) + int(rc.get("params", {}).get("bonus", 2))  # 올바른 명료함(왕관): 명중 + 숙련

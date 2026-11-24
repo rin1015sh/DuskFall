@@ -43,9 +43,6 @@
   "always_prepared": {
     "2": [
       "divine_smite"
-    ],
-    "5": [
-      "find_steed"
     ]
   },
   "spellcasting": {
@@ -132,62 +129,53 @@
         "en": "Lay On Hands"
       },
       "max": {
-        "1": 5,
-        "2": 10,
-        "3": 15,
-        "4": 20,
-        "5": 25,
-        "6": 30,
-        "7": 35,
-        "8": 40,
-        "9": 45,
-        "10": 50,
-        "11": 55,
-        "12": 60
-      },
-      "recharge": "long"
-    },
-    {
-      "id": "innate_divine_smite",
-      "name": {
-        "ko": "팔라딘의 강타",
-        "en": "Paladin's Smite"
-      },
-      "max": {
-        "2": 1
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 4,
+        "5": 4,
+        "6": 4,
+        "7": 4,
+        "8": 4,
+        "9": 4,
+        "10": 5,
+        "11": 5,
+        "12": 5
       },
       "recharge": "long"
     },
     {
       "id": "channel_divinity",
       "name": {
-        "ko": "신성 변환",
-        "en": "Channel Divinity"
+        "ko": "맹세 변환",
+        "en": "Channel Oath"
       },
       "max": {
-        "3": 2,
-        "4": 2,
-        "5": 2,
-        "6": 2,
-        "7": 2,
-        "8": 2,
-        "9": 2,
-        "10": 2,
-        "11": 3,
-        "12": 3
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1,
+        "6": 1,
+        "7": 1,
+        "8": 1,
+        "9": 1,
+        "10": 1,
+        "11": 1,
+        "12": 1
       },
-      "recharge": "short_one"
+      "recharge": "short"
     },
     {
-      "id": "innate_find_steed",
+      "id": "divine_sense",
       "name": {
-        "ko": "충직한 탈것",
-        "en": "Faithful Steed"
+        "ko": "신성 감지",
+        "en": "Divine Sense"
       },
       "max": {
-        "5": 1
+        "1": 1
       },
-      "recharge": "long"
+      "recharge": "short"
     }
   ],
   "features": [
@@ -198,17 +186,43 @@
         "en": "Lay On Hands"
       },
       "level": 1,
-      "kind": "bonus_action",
+      "kind": "action",
       "resource": "lay_on_hands",
       "script": "lay_on_hands",
       "target": "ally",
-      "notes_ko": "치유 풀(팔라딘 레벨 × 5, 긴 휴식). 보너스 행동으로 만진 생물(자신 포함)의 잃은 HP만큼 풀에서 회복. 중독이면 풀 5로 먼저 해독(BG3식 자동).",
-      "source": "SRD 5.2.1",
+      "notes_ko": "BG3: 행동, 1레벨 3회·4레벨 4회·10레벨 5회(긴 휴식). 옆 생물 팔라딘 레벨 × 2 회복, 중독이면 해독.",
+      "source": "original",
       "glyph": "hand",
       "explore": true,
       "ai": {
         "when": "hp_below_half"
       }
+    },
+    {
+      "id": "channel_oath",
+      "name": {
+        "ko": "맹세 변환",
+        "en": "Channel Oath"
+      },
+      "level": 1,
+      "handled_by": "자원 channel_divinity",
+      "notes_ko": "BG3: 맹세 변환 1회(짧은 휴식) — 맹세 기능이 쓴다(자원 channel_divinity).",
+      "source": "original"
+    },
+    {
+      "id": "divine_sense",
+      "name": {
+        "ko": "신성 감지",
+        "en": "Divine Sense"
+      },
+      "level": 1,
+      "kind": "bonus_action",
+      "resource": "divine_sense",
+      "script": "divine_sense",
+      "target": "self",
+      "glyph": "eye",
+      "notes_ko": "BG3: 보너스 행동, 짧은 휴식 1회. 2턴 동안 천상체·악마·언데드 공격 유리.",
+      "source": "original"
     },
     {
       "id": "fighting_style",
@@ -234,33 +248,19 @@
         "en": "Paladin's Smite"
       },
       "level": 2,
-      "handled_by": "클래스 always_prepared(신성한 강타) + 자원 innate_divine_smite(슬롯 없이 긴 휴식마다 1회 — 무료 횟수 먼저)",
+      "handled_by": "클래스 always_prepared(신성한 강타 — 슬롯으로, BG3 무료 횟수 없음)",
       "source": "SRD 5.2.1"
     },
     {
-      "id": "channel_divinity",
+      "id": "divine_health",
       "name": {
-        "ko": "신성 변환",
-        "en": "Channel Divinity"
+        "ko": "신성한 건강",
+        "en": "Divine Health"
       },
       "level": 3,
-      "handled_by": "자원 channel_divinity(2회, 짧은 휴식에 1회 회복) — 하위 클래스 기능이 쓴다",
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "divine_sense",
-      "name": {
-        "ko": "신성 감지",
-        "en": "Divine Sense"
-      },
-      "level": 3,
-      "notes_ko": "신성 변환 1회, 보너스 행동: 12칸 안 천상체·악마·언데드의 위치·종류를 안다(10분 표시, 숨어 있어도 드러남). 축성·모독 장소 감지 생략.",
-      "source": "SRD 5.2.1",
-      "kind": "bonus_action",
-      "resource": "channel_divinity",
-      "script": "divine_sense",
-      "explore": true,
-      "glyph": "eye"
+      "handled_by": "질병 없음",
+      "notes_ko": "BG3: 질병 면역(질병 장치가 없어 표시만).",
+      "source": "original"
     },
     {
       "id": "extra_attack",
@@ -278,17 +278,6 @@
       "source": "SRD 5.2.1"
     },
     {
-      "id": "faithful_steed",
-      "name": {
-        "ko": "충직한 탈것",
-        "en": "Faithful Steed"
-      },
-      "level": 5,
-      "notes_ko": "탈것 찾기 항상 준비 + 긴 휴식마다 1회 무료. 탈것은 동료로 싸운다(올라타기 규칙 없음).",
-      "source": "SRD 5.2.1",
-      "handled_by": "클래스 always_prepared(탈것 찾기) + 자원 innate_find_steed(슬롯 없이 긴 휴식마다 1회). 올라타기 없음(BG3식 동료)"
-    },
-    {
       "id": "aura_of_protection",
       "name": {
         "ko": "보호의 오라",
@@ -303,25 +292,6 @@
       },
       "source": "SRD 5.2.1",
       "notes_ko": "자신과 2칸(18레벨 6칸) 안 아군의 내성 + 매력 수정치(최소 +1). 무력화되면 꺼진다. 여러 팔라딘이면 가장 큰 하나."
-    },
-    {
-      "id": "abjure_foes",
-      "name": {
-        "ko": "적 퇴치",
-        "en": "Abjure Foes"
-      },
-      "level": 9,
-      "kind": "action",
-      "resource": "channel_divinity",
-      "script": "abjure_foes",
-      "target": "enemy",
-      "icon": "statuses/fear.webp",
-      "glyph": "skull_rays",
-      "ai": {
-        "when": "foes_2plus"
-      },
-      "source": "SRD 5.2.1",
-      "notes_ko": "신성 변환. 12칸 안 보이는 적 매력 수정치(최소 1)명 지혜 내성, 실패 시 공포 10턴(피해를 받으면 끝). '한 가지만 하기'는 생략."
     },
     {
       "id": "aura_of_courage",

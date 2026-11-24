@@ -135,75 +135,6 @@
       ]
     },
     {
-      "id": "steady_aim",
-      "name": {
-        "ko": "안정된 조준",
-        "en": "Steady Aim"
-      },
-      "level": 3,
-      "kind": "bonus_action",
-      "script": "steady_aim",
-      "notes_ko": "이번 턴에 이동하지 않았으면 다음 공격 유리, 이후 속도 0.",
-      "source": "SRD 5.2.1",
-      "icon": "statuses/marked.webp",
-      "glyph": "crosshair"
-    },
-    {
-      "id": "cunning_strike",
-      "name": {
-        "ko": "교활한 일격",
-        "en": "Cunning Strike"
-      },
-      "level": 5,
-      "script": "cunning_strike",
-      "choices": [
-        "poison",
-        "trip",
-        "withdraw"
-      ],
-      "notes_ko": "급소 공격 주사위 1개로 독(건강 내성, 중독 10턴)·넘어뜨리기(민첩 내성)·물러나기(속도 절반, 기회 공격 없음). DC 8 + 민첩 + 숙련. 독 도구 요구 삭제.",
-      "source": "SRD 5.2.1",
-      "caps": [
-        "cunning_strike"
-      ],
-      "toggle": {
-        "values": [
-          {
-            "id": "",
-            "name": {
-              "ko": "끔",
-              "en": "Off"
-            }
-          },
-          {
-            "id": "poison",
-            "name": {
-              "ko": "독",
-              "en": "Poison"
-            }
-          },
-          {
-            "id": "trip",
-            "name": {
-              "ko": "넘어뜨리기",
-              "en": "Trip"
-            }
-          },
-          {
-            "id": "withdraw",
-            "name": {
-              "ko": "물러나기",
-              "en": "Withdraw"
-            }
-          }
-        ],
-        "desc": {
-          "ko": "급소 공격 주사위 1개를 써서 효과를 더한다(누를 때마다 바뀜).",
-          "en": "Spend one Sneak Attack die for an effect (click to cycle)."
-        }
-      }
-    },
-    {
       "id": "uncanny_dodge",
       "name": {
         "ko": "교묘한 회피",
@@ -248,61 +179,12 @@
         "ko": "믿음직한 재능",
         "en": "Reliable Talent"
       },
-      "level": 7,
+      "level": 11,
       "caps": [
         "reliable_talent"
       ],
-      "notes_ko": "숙련 기능 판정에서 d20 9 이하를 10으로.",
+      "notes_ko": "BG3 11레벨: 숙련 기능 판정에서 d20 9 이하를 10으로.",
       "source": "SRD 5.2.1"
-    },
-    {
-      "id": "improved_cunning_strike",
-      "name": {
-        "ko": "향상된 교활한 일격",
-        "en": "Improved Cunning Strike"
-      },
-      "level": 11,
-      "caps": [
-        "improved_cunning_strike"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "급소 공격에 교활한 일격 효과 둘(각각 비용). 두 번째 효과는 이 설정에서.",
-      "toggle": {
-        "values": [
-          {
-            "id": "",
-            "name": {
-              "ko": "끔",
-              "en": "Off"
-            }
-          },
-          {
-            "id": "poison",
-            "name": {
-              "ko": "독",
-              "en": "Poison"
-            }
-          },
-          {
-            "id": "trip",
-            "name": {
-              "ko": "넘어뜨리기",
-              "en": "Trip"
-            }
-          },
-          {
-            "id": "withdraw",
-            "name": {
-              "ko": "물러나기",
-              "en": "Withdraw"
-            }
-          }
-        ],
-        "desc": {
-          "ko": "두 번째 교활한 일격 효과(첫 번째와 달라야 함).",
-          "en": "Second Cunning Strike effect (must differ from the first)."
-        }
-      }
     }
   ],
   "subclasses": [

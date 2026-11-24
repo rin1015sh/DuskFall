@@ -1,5 +1,5 @@
 extends "res://scripts/rules/effect_script.gd"
-## 신성 감지(팔라딘 3레벨, SRD): 보너스 행동, 신성 변환 1회. 10분(100턴) 동안 12칸 안 천상체·악마·언데드의 위치와 종류를 안다 —
+## 신성 감지(팔라딘 1레벨, BG3): 보너스 행동, 짧은 휴식 1회 — 2턴 동안 천상체·악마·언데드 공격 유리. 덧붙여(SRD 장치) 10분(100턴) 동안 12칸 안 천상체·악마·언데드의 위치와 종류를 안다 —
 ## 그 생물에게 상태 divine_sensed(표시, 숨기로 얻은 투명이 통하지 않음)를 걸고 기록에 남긴다. 축성·모독된 곳 감지는 생략.
 
 const RANGE := 12
@@ -12,6 +12,7 @@ func is_implemented() -> bool:
 
 func apply(ctx: Dictionary) -> Dictionary:
 	var c: Node = ctx["self"]
+	c.apply_condition("divine_sense_active", 2, c)  # BG3: 2턴 동안 천상체·악마·언데드 공격 유리(primal.attack_context)
 	var w: Dictionary = ctx.get("world", {})
 	var found: Array = []
 	if w.has("grid"):

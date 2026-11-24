@@ -25,16 +25,16 @@ func _foe(hp := 60, extra := {}) -> Node:
 
 func test_build_and_spells() -> void:
 	var p1 := _pal(1)
-	assert_eq(p1.resource("lay_on_hands"), 5)
+	assert_eq(p1.resource("lay_on_hands"), 3, "BG3: 신성한 손길 3회")
 	assert_false(p1.spells.has("divine_smite"), "강타는 2레벨부터")
 	var p5 := _pal(5)
-	assert_eq(p5.resource("lay_on_hands"), 25)
+	assert_eq(p5.resource("lay_on_hands"), 4, "4레벨 4회")
 	assert_eq(p5.resource("spell_slot_2"), 2, "반쪽 시전자 5레벨 4/2")
 	assert_eq(p5.attacks_per_action, 2)
 	for s: String in ["divine_smite", "protection_from_evil_and_good", "sanctuary", "lesser_restoration", "silence"]:
 		assert_true(p5.spells.has(s), "항상 준비 %s" % s)
-	assert_eq(p5.resource("channel_divinity"), 2)
-	assert_eq(p5.resource("innate_divine_smite"), 1)
+	assert_eq(p5.resource("channel_divinity"), 1, "맹세 변환 1회(BG3)")
+	assert_false(p5.resources.has("innate_divine_smite"), "무료 강타 없음(BG3)")
 
 
 func test_lay_on_hands_pool_and_cure() -> void:
@@ -48,9 +48,9 @@ func test_lay_on_hands_pool_and_cure() -> void:
 	p.reset_turn()
 	var r := Features.use(w, p, "lay_on_hands", ally)
 	assert_true(r["ok"], str(r))
-	assert_false(ally.has_condition("poisoned"), "풀 5로 해독")
+	assert_false(ally.has_condition("poisoned"), "해독")
 	assert_eq(ally.hp, 30)
-	assert_eq(p.resource("lay_on_hands"), 15 - 5 - 5, "해독 5 + 회복 5")
+	assert_eq(p.resource("lay_on_hands"), 2, "1회 사용(BG3)")
 	p.reset_turn()
 	assert_false(Features.use(w, p, "lay_on_hands", ally)["ok"], "회복할 것이 없다")
 
@@ -123,7 +123,7 @@ func test_heroism_and_sacred_weapon() -> void:
 	var before: int = Combat.build_weapon_attack(p, "longsword")["bonus"]
 	p.reset_turn()
 	assert_true(Features.use(w, p, "sacred_weapon")["ok"])
-	assert_eq(p.resource("channel_divinity"), 1)
+	assert_eq(p.resource("channel_divinity"), 0)
 	assert_eq(int(Combat.build_weapon_attack(p, "longsword")["bonus"]), before + maxi(1, p.ability_mod("cha")), "명중 + 매력")
 
 
@@ -140,15 +140,4 @@ func test_divine_sense_and_faithful_steed() -> void:
 	assert_true(Features.use(w, p, "divine_sense")["ok"])
 	assert_true(undead.has_condition("divine_sensed") and not undead.has_condition("invisible"), "언데드가 드러난다")
 	assert_false(orc.has_condition("divine_sensed"))
-	p.reset_turn()
-	var r: Dictionary = Spellcasting.cast(w, p, "find_steed", Vector2i(1, 1))
-	assert_true(r.get("ok", false), str(r))
-	assert_eq(p.resource("innate_find_steed"), 0, "무료 1회 먼저")
-	var steeds: Array = w.get("summons", []).filter(func(m: Node) -> bool: return m.name.begins_with("otherworldly_steed"))
-	assert_eq(steeds.size(), 1)
-	for m: Node in w["summons"]:
-		own(m)  # 테스트가 끝나면 지운다
-	assert_eq(steeds[0].ac_base, 12, "AC 10 + 2")
-	assert_eq(steeds[0].hp_max, 25)
-	assert_eq(steeds[0].team, p.team, "아군")
-	load("res://scripts/rules/spellcasting.gd").instances.clear()
+	assert_true(p.has_condition("divine_sense_active"), "신성 감지: 공격 유리(BG3)")

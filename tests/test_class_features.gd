@@ -84,20 +84,6 @@ func test_sneak_attack_conditions() -> void:
 	assert_false(Combat.attack(w, rogue, g).has("sneak_attack"), "턴당 1회")
 
 
-func test_cunning_strike_trip() -> void:
-	var w := _world()
-	var rogue := _pc("rogue", 5)
-	var g := _foe()
-	rogue.extra_modifiers.append({"effect": {"type": "advantage", "roll": "attack", "side": "self", "value": "advantage"}, "source": "test"})
-	w["grid"].place(rogue, Vector2i(0, 1))
-	w["grid"].place(g, Vector2i(1, 1))
-	rogue.turn["cunning_strike"] = "trip"
-	Dice.force([15, 15, 3, 2, 2, 5])  # 유리 [15,15], 1d6+4, 2d6(3d6에서 1개), 민첩 내성 5
-	var r := Combat.attack(w, rogue, g)
-	assert_eq(r["sneak_attack"], 2, "주사위 하나를 쓴다")
-	assert_true(g.has_condition("prone"), "넘어뜨리기")
-
-
 func test_uncanny_dodge_halves() -> void:
 	var w := _world()
 	var rogue := _pc("rogue", 5)
@@ -229,7 +215,7 @@ func test_orc_traits() -> void:
 	assert_eq(orc.resource("relentless_endurance"), 0)
 
 
-func test_cunning_action_and_steady_aim() -> void:
+func test_cunning_action() -> void:
 	var w := _world()
 	var rogue := _pc("rogue", 3)
 	w["grid"].place(rogue, Vector2i(0, 0))
@@ -238,8 +224,5 @@ func test_cunning_action_and_steady_aim() -> void:
 	assert_true(Combat.cunning_action(w, rogue, "disengage")["ok"], "빠른 손(BG3식): 보너스 행동 하나 더")
 	assert_false(Combat.cunning_action(w, rogue, "hide")["ok"], "세 번째는 없다")
 	rogue.reset_turn()
-	assert_true(Features.use(w, rogue, "steady_aim")["ok"])
-	assert_eq(rogue.turn["movement"], 0, "속도 0")
 	var g := _foe()
 	w["grid"].place(g, Vector2i(1, 0))
-	assert_eq(Combat.preview_attack(w, rogue, g)["mode"], 1, "다음 공격 유리")

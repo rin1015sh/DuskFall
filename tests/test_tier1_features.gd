@@ -40,7 +40,7 @@ func test_champion_7_10() -> void:
 
 
 func test_rogue_expertise_evasion_reliable() -> void:
-	var r := _pc("rogue", 7)
+	var r := _pc("rogue", 11)  # 믿음직한 재능 11레벨(BG3)
 	assert_eq(int(r.skill_bonuses["acrobatics"]), r.proficiency_bonus * 2, "6레벨 전문화")
 	assert_true(r.has_cap("evasion") and r.has_cap("reliable_talent"))
 	Dice.force([3])

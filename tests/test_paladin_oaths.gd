@@ -27,6 +27,7 @@ func _world(p: Node, e: Node) -> Dictionary:
 	w["grid"].place(p, Vector2i(0, 0))
 	w["grid"].place(e, Vector2i(1, 0))
 	p.reset_turn()
+	p.resources["channel_divinity"]["current"] = 1  # 맹세 변환 1회(BG3) — 테스트마다 채운다
 	return w
 
 
@@ -38,6 +39,7 @@ func test_devotion() -> void:
 	assert_true(Features.use(w, p, "turn_the_unholy")["ok"])
 	assert_true(e.has_condition("frightened") and e.has_condition("incapacitated"), "부정한 것 퇴치")
 	p.reset_turn()
+	p.resources["channel_divinity"]["current"] = 1  # 맹세 변환 1회(BG3) — 테스트마다 채운다
 	assert_true(Features.use(w, p, "holy_rebuke", p)["ok"])
 	var hp: int = e.hp
 	e.remove_condition("incapacitated")
@@ -57,6 +59,7 @@ func test_ancients() -> void:
 	assert_true(e.has_condition("restrained"), "자연의 분노: 속박")
 	p.hp = 10
 	p.reset_turn()
+	p.resources["channel_divinity"]["current"] = 1  # 맹세 변환 1회(BG3) — 테스트마다 채운다
 	assert_true(Features.use(w, p, "healing_radiance")["ok"])
 	var n: int = p.proficiency_bonus + 7 + p.ability_mod("cha")
 	assert_eq(p.hp, 10 + n)
@@ -81,6 +84,7 @@ func test_vengeance() -> void:
 	var r: Dictionary = Combat.attack(w, p, e, {"weapon": p.weapon("main")})
 	assert_eq(int(r["mode"]), 1, "적대의 맹세 유리")
 	p.reset_turn()
+	p.resources["channel_divinity"]["current"] = 1  # 맹세 변환 1회(BG3) — 테스트마다 채운다
 	assert_true(Features.use(w, p, "inquisitors_might", p)["ok"])
 	Dice.force([15, 3, 3])
 	var r2: Dictionary = Combat.attack(w, p, e, {"weapon": p.weapon("main")})
@@ -112,6 +116,7 @@ func test_oathbreaker() -> void:
 	var e := _foe()
 	w["grid"].place(e, Vector2i(0, 1))
 	p.reset_turn()
+	p.resources["channel_divinity"]["current"] = 1  # 맹세 변환 1회(BG3) — 테스트마다 채운다
 	Dice.force([1])
 	assert_true(Features.use(w, p, "spiteful_suffering", e)["applied"])
 	var hp: int = e.hp
@@ -119,6 +124,7 @@ func test_oathbreaker() -> void:
 	Resolver.start_turn(e, {})
 	assert_eq(e.hp, hp - maxi(0, 3 + p.ability_mod("cha")), "매 턴 사령")
 	p.reset_turn()
+	p.resources["channel_divinity"]["current"] = 1  # 맹세 변환 1회(BG3) — 테스트마다 채운다
 	Dice.force([15, 3])
 	var r: Dictionary = Combat.attack(w, p, e, {"weapon": p.weapon("main")})
 	assert_true(r["extra_damage"].any(func(x: Dictionary) -> bool: return x["dice"] == str(p.ability_mod("cha"))), "증오의 오라")

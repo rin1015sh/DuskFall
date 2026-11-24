@@ -43,17 +43,7 @@ func test_barbarian_11() -> void:
 
 func test_rogue_11() -> void:
 	var r := _pc("rogue", 12)
-	var foe := make_creature({"team": "enemy", "hp_max": 300, "ac_base": 1})
-	var w := _arena(r, foe)
-	var ally := make_creature({"team": "party", "hp_max": 30})
-	w["grid"].place(ally, Vector2i(3, 1))
-	r.options["cunning_strike"] = "trip"
-	r.options["improved_cunning_strike"] = "poison"
-	Dice.force([15])
-	var res := Combat.attack(w, r, foe)
-	assert_eq(str(res.get("cunning_strike", "")), "trip")
-	assert_eq(str(res.get("cunning_strike_2", "")), "poison", "두 번째 효과")
-	assert_eq(int(res["sneak_attack"]), 6 - 1 - 1, "6d6 − 넘어뜨리기 1 − 독 1")
+	assert_true(r.has_cap("reliable_talent") and not r.feature_data.has("improved_cunning_strike"), "BG3 11레벨: 믿음직한 재능")
 
 
 func test_paladin_radiant_strikes() -> void:

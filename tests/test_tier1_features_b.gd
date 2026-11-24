@@ -112,14 +112,7 @@ func test_paladin_6_10() -> void:
 	assert_eq(Resolver.Auras.save_bonus(ally), 0, "무력화되면 꺼진다")
 	pd.remove_condition("incapacitated")
 	pd.reset_turn()
-	var cd: int = pd.resource("channel_divinity")
-	Dice.force([1])
-	assert_true(Features.use(w, pd, "abjure_foes", foe)["ok"])
-	assert_eq(pd.resource("channel_divinity"), cd - 1)
-	assert_true(foe.has_condition("frightened"), "적 퇴치: 공포")
-	Resolver.apply_damage(foe, [{"amount": 1, "damage_type": "fire"}])
-	assert_false(foe.has_condition("frightened"), "피해를 받으면 끝")
-
+	assert_false(pd.feature_data.has("abjure_foes"), "적 퇴치 없음(BG3)")
 
 func test_ranger_6_10() -> void:
 	var w := make_world(["......"])
@@ -144,11 +137,10 @@ func test_sorcerer_warlock_6_10() -> void:
 	assert_true(s.has_cap("metamagic_careful") and s.has_cap("metamagic_heightened"), "10레벨 변형 2개 더")
 	var w := make_world(["...."])
 	w["grid"].place(s, Vector2i(0, 0))
-	s.resources["innate_sorcery"]["current"] = 0
+
 	var sp: int = s.resource("sorcery_points")
 	s.reset_turn()
-	assert_true(Features.use(w, s, "innate_sorcery")["ok"], "마법의 화신: 점수 2로")
-	assert_eq(s.resource("sorcery_points"), sp - 2)
+	assert_false(s.feature_data.has("sorcery_incarnate"), "마법의 화신 없음(BG3)")
 	var wl := _pc("warlock", 10)
 	assert_true("fire" in wl.damage_resistances, "악마의 회복력")
 	var n: int = wl.resource("dark_ones_own_luck")

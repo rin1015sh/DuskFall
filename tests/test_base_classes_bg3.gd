@@ -74,3 +74,32 @@ func test_monk() -> void:
 	var m9 := _pc("monk", 9)
 	assert_eq(load("res://scripts/rules/combat.gd").martial_arts_die(m9), "1d8")
 	assert_eq(load("res://scripts/rules/combat.gd").jump_distance(m9) >= 7, true, "고급 맨몸 이동 도약 +4칸")
+
+
+func test_rogue_sorcerer_wizard() -> void:
+	var r := _pc("rogue", 11)
+	assert_true(r.has_cap("reliable_talent") and not r.feature_data.has("cunning_strike") and not r.feature_data.has("steady_aim"))
+	assert_false(_pc("rogue", 10).has_cap("reliable_talent"), "믿음직한 재능 11레벨")
+	var s := _pc("sorcerer", 3)
+	assert_false(s.feature_data.has("innate_sorcery"))
+	assert_true(s.has_cap("metamagic_heightened"), "3레벨 변형 3개")
+	var wz := _pc("wizard", 5)
+	assert_false(wz.feature_data.has("scholar") or wz.feature_data.has("memorize_spell"))
+
+
+func test_paladin() -> void:
+	var p := _pc("paladin", 1)
+	assert_eq(p.resources["lay_on_hands"]["max"], 3)
+	assert_true(p.feature_data.has("divine_sense"), "1레벨 신성 감지")
+	var u := make_creature({"team": "enemy", "hp_max": 60, "creature_type": "undead"})
+	var w := make_world(["...."])
+	w["grid"].place(p, Vector2i(0, 0))
+	w["grid"].place(u, Vector2i(1, 0))
+	p.reset_turn()
+	assert_true(Features.use(w, p, "divine_sense")["ok"])
+	var ctx: Dictionary = load("res://scripts/rules/combat.gd").attack_context(w, p, u, {"kind": "melee"})
+	assert_true("신성 감지" in ctx["advantage"])
+	p.hp = 2
+	p.reset_turn()
+	assert_true(Features.use(w, p, "lay_on_hands", p)["ok"])
+	assert_eq(p.hp, 4, "레벨 × 2")
