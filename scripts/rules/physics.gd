@@ -132,6 +132,15 @@ static func max_throw_kg(thrower: Node) -> float:
 	return 0.2 * thrower.abilities["str"] * thrower.abilities["str"]
 
 
+## 던지기 사거리(BG3 — bg3.wiki Throw): round(3 + 15 × (근력²/5 − 무게) / (2 × 무게)) m를 3~18m로 자른 뒤
+## 칸(1.5m)으로 내린다 → 2~12칸. 물건·투척 소모품·물약·던지는 무기가 모두 이 거리를 쓴다(룰북 3단계 던지기).
+static func throw_range_tiles(thrower: Node, weight_kg: float) -> int:
+	var s := float(thrower.abilities["str"])
+	var w := maxf(weight_kg, 0.01)
+	var meters := clampf(roundf(3.0 + 15.0 * (s * s / 5.0 - w) / (2.0 * w)), 3.0, 18.0)
+	return int(floor(meters / 1.5 + 0.001))
+
+
 ## 무게 구간별 피해: 10kg 미만 1, 10~50kg 1d4, 50kg 초과 2d4 타격.
 static func throw_damage_dice(weight_kg: float) -> String:
 	if weight_kg < 10.0:

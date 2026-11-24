@@ -73,11 +73,11 @@ func test_range_and_long_range() -> void:
 	w["grid"].place(f, Vector2i(0, 0))
 	w["grid"].place(g, Vector2i(10, 0))
 	Combat.switch_weapon_set(f)
-	assert_eq(Combat.preview_attack(w, f, g)["mode"], 0, "단궁 16칸 안")
-	w["grid"].move_creature(g, Vector2i(30, 0))
-	assert_eq(Combat.preview_attack(w, f, g)["mode"], -1, "먼 사거리 불리")
-	w["grid"].move_creature(g, Vector2i(65, 0))
-	assert_false(Combat.preview_attack(w, f, g)["valid"], "64칸 밖")
+	assert_eq(Combat.preview_attack(w, f, g)["mode"], 0, "단궁 12칸 안")
+	w["grid"].move_creature(g, Vector2i(12, 0))
+	assert_eq(Combat.preview_attack(w, f, g)["mode"], 0, "12칸(18m)까지 불리 없음 — BG3식, 먼 사거리 없음")
+	w["grid"].move_creature(g, Vector2i(13, 0))
+	assert_false(Combat.preview_attack(w, f, g)["valid"], "12칸 밖")
 
 
 func test_threatened_ranged_disadvantage() -> void:

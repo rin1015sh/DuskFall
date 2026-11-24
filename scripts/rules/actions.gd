@@ -288,9 +288,9 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 				return {"valid": false, "lines": ["너무 무겁다"]}
 			out["lines"].append("%s 던지기 · 피해 %s" % [obj.get("id", ""), Physics.throw_damage_dice(w)])
 		"throw_item":
-			var th: Dictionary = RulesDB.get_entry("item", key.get_slice(":", 1)).get("use", {}).get("throw", {})
-			if grid.distance(grid.cell_of(c), cell) > int(th.get("range_tiles", 4)):
-				return {"valid": false, "lines": ["4칸 안"]}
+			var rng := Combat.gear_throw_range(c, RulesDB.get_entry("item", key.get_slice(":", 1)))
+			if grid.distance(grid.cell_of(c), cell) > rng:
+				return {"valid": false, "lines": ["%d칸 안" % rng]}
 			out["lines"].append("민첩 내성 DC %d" % (8 + c.ability_mod("dex") + c.proficiency_bonus))
 		"spread_item":
 			var sp: Dictionary = RulesDB.get_entry("item", key.get_slice(":", 1)).get("use", {}).get("spread", {})
@@ -303,6 +303,9 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 			if grid.distance(grid.cell_of(c), cell) > int(sp.get("range_tiles", 1)):
 				return {"valid": false, "lines": ["너무 멀다"]}
 		"throw_potion":
+			var prng := Combat.gear_throw_range(c, RulesDB.get_entry("item", key.get_slice(":", 1)))
+			if grid.distance(grid.cell_of(c), cell) > prng:
+				return {"valid": false, "lines": ["%d칸 안" % prng]}
 			var cells: Array = [cell]
 			for dd: Vector2i in grid.DIRS_4:
 				cells.append(cell + dd)
@@ -453,6 +456,8 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 			return Combat.spread_gear(world, c, parts[1], cell)
 		"throw_potion":
 			var item := RulesDB.get_entry("item", parts[1])
+			if grid.distance(grid.cell_of(c), cell) > Combat.gear_throw_range(c, item):
+				return {"ok": false, "reason": "너무 멀다"}
 			if not Combat.spend(c, "action"):
 				return {"ok": false, "reason": "행동이 없다"}
 			Interact.take(world, parts[1], 1, c)

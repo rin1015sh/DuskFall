@@ -7,7 +7,7 @@ const DiceExpr := preload("res://scripts/rules/dice_expr.gd")
 
 var _rng := RandomNumberGenerator.new()
 var _forced: Array[int] = []
-## 굴림 기록. 항목: {"kind": "d20"|"dice"|"text", "reason", "rolls", "total", "text"}
+## 굴림 기록. 항목: {"kind": "d20"|"d4"(이니셔티브)|"dice"|"text", "reason", "rolls", "total", "text"}
 var roll_log: Array[Dictionary] = []
 
 
@@ -56,13 +56,18 @@ func die(sides: int) -> int:
 ## d20 테스트 한 번. mode: 1 유리, -1 불리, 0 보통. 유리·불리면 두 개를 굴려 고른다.
 ## 결과: {"rolls": [..], "natural": int, "mode": int}
 func d20(mode: int, reason: String = "") -> Dictionary:
-	var rolls: Array[int] = [die(20)]
+	return dn(20, mode, reason)
+
+
+## 유리·불리가 붙는 주사위 한 개(이니셔티브 d4 — BG3). 결과·로그는 d20과 같은 모양.
+func dn(sides: int, mode: int, reason: String = "") -> Dictionary:
+	var rolls: Array[int] = [die(sides)]
 	if mode != 0:
-		rolls.append(die(20))
+		rolls.append(die(sides))
 	var natural: int = rolls.max() if mode > 0 else rolls.min()
 	var res := {"rolls": rolls, "natural": natural, "mode": mode}
-	roll_log.append({"kind": "d20", "reason": reason, "rolls": rolls, "total": natural,
-		"text": "d20%s %s → %d" % [_mode_text(mode), str(rolls), natural]})
+	roll_log.append({"kind": "d%d" % sides, "reason": reason, "rolls": rolls, "total": natural,
+		"text": "d%d%s %s → %d" % [sides, _mode_text(mode), str(rolls), natural]})
 	return res
 
 

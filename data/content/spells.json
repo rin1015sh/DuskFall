@@ -22,7 +22,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 18
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -718,7 +718,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -1136,7 +1136,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 18
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -1684,7 +1684,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -2153,7 +2153,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -2804,7 +2804,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -2852,7 +2852,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -2916,7 +2916,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 30
+        "tiles": 12
       },
       "area": {
         "shape": "sphere",
@@ -3160,7 +3160,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": {
         "shape": "sphere",
@@ -3485,7 +3485,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -3934,7 +3934,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": {
         "shape": "cube",
@@ -4867,7 +4867,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -5023,7 +5023,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": {
         "shape": "cube",
@@ -5234,7 +5234,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -5274,7 +5274,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -6466,7 +6466,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -6859,7 +6859,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": {
         "shape": "sphere",
@@ -7026,7 +7026,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 30
+        "tiles": 12
       },
       "area": {
         "shape": "cylinder",
@@ -7098,7 +7098,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": {
         "shape": "cube",
@@ -7481,7 +7481,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 18
+        "tiles": 12
       },
       "area": {
         "shape": "sphere",
@@ -8260,7 +8260,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 18
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -8366,7 +8366,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 18
+        "tiles": 12
       },
       "area": {
         "shape": "square",
@@ -8534,7 +8534,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 30
+        "tiles": 12
       },
       "area": {
         "shape": "sphere",
@@ -9048,7 +9048,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -9103,7 +9103,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 18
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -9372,7 +9372,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 18
+        "tiles": 12
       },
       "area": {
         "shape": "cube",
@@ -9634,7 +9634,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 100
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -9841,7 +9841,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 60
+        "tiles": 12
       },
       "area": {
         "shape": "cylinder",
@@ -9931,7 +9931,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -10064,7 +10064,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 30
+        "tiles": 12
       },
       "area": {
         "shape": "sphere",
@@ -10149,7 +10149,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": {
         "shape": "cylinder",
@@ -10309,7 +10309,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": {
         "shape": "sphere",
@@ -10725,7 +10725,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 18
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -10790,7 +10790,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 60
+        "tiles": 12
       },
       "area": {
         "shape": "sphere",
@@ -11051,7 +11051,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 18
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -11131,7 +11131,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 60
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -11250,7 +11250,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -11406,7 +11406,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 60
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -11527,7 +11527,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -11682,7 +11682,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -11759,7 +11759,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -12704,7 +12704,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -12745,7 +12745,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -12785,7 +12785,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 30
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -12852,7 +12852,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 30
+        "tiles": 12
       },
       "area": {
         "shape": "sphere",
@@ -13047,7 +13047,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 60
+        "tiles": 12
       },
       "area": {
         "shape": "sphere",
@@ -13446,7 +13446,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 18
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -13911,7 +13911,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -13988,7 +13988,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -14106,7 +14106,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {
@@ -14145,7 +14145,7 @@
       },
       "range": {
         "type": "tiles",
-        "tiles": 24
+        "tiles": 12
       },
       "area": null,
       "duration": {

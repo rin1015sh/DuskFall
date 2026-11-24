@@ -274,16 +274,22 @@ static func attack(world: Dictionary, attacker: Node, target: Node, opts: Dictio
 	return res
 
 
-## 모험 장비 던지기(SRD 산·연금술사의 불·성수·기름): 공격 행동의 공격 하나를 쓴다(첫 번째면 행동). 4칸 안 보이는 칸.
+## 모험 장비 던지기(SRD 산·연금술사의 불·성수·기름): 공격 행동의 공격 하나를 쓴다(첫 번째면 행동).
+## 사거리는 BG3 던지기 거리(근력·무게, 최대 12칸) 안 보이는 칸.
 ## 생물이면 민첩 내성(DC 8 + 민첩 + 숙련) 실패 시 fail 효과(creature_types가 있으면 그 종류만), surface가 있으면 그 칸에 표면.
+## 아이템(투척 소모품·물약) 던지기 사거리: BG3 던지기 거리(아이템 무게, 없으면 0.5kg).
+static func gear_throw_range(c: Node, item: Dictionary) -> int:
+	return Physics.throw_range_tiles(c, float(item.get("weight_kg", 0.5)))
+
+
 static func throw_gear(world: Dictionary, c: Node, item_id: String, cell: Vector2i) -> Dictionary:
 	var item := RulesDB.get_entry("item", item_id)
 	var th: Dictionary = item.get("use", {}).get("throw", {})
 	if th.is_empty() or int(c.inventory.get(item_id, 0)) <= 0:
 		return _fail("던질 것이 없다")
 	var grid: Node = world["grid"]
-	if grid.distance(grid.cell_of(c), cell) > int(th.get("range_tiles", 4)) or not grid.has_line_of_sight(grid.cell_of(c), cell):
-		return _fail("4칸 안 보이는 곳만")
+	if grid.distance(grid.cell_of(c), cell) > gear_throw_range(c, item) or not grid.has_line_of_sight(grid.cell_of(c), cell):
+		return _fail("던질 수 있는 거리 안 보이는 곳만")
 	if int(c.turn.get("attacks_left", 0)) <= 0:
 		if not spend(c, "action"):
 			return _fail("행동이 없다")
@@ -836,10 +842,13 @@ static func jump_distance(c: Node) -> int:
 
 
 ## 던지기(행동): 즉석 무기 공격(근력, 숙련 없음 — SRD Improvised Weapons). 맞으면 무게 피해.
-static func throw_object(world: Dictionary, c: Node, target: Node, weight_kg: float, range_tiles: int = 6) -> Dictionary:
+## range_tiles < 0이면 BG3 던지기 거리(Physics.throw_range_tiles — 근력·무게).
+static func throw_object(world: Dictionary, c: Node, target: Node, weight_kg: float, range_tiles: int = -1) -> Dictionary:
 	if weight_kg > Physics.max_throw_kg(c):
 		return _fail("너무 무겁다")
 	var grid: Node = world["grid"]
+	if range_tiles < 0:
+		range_tiles = Physics.throw_range_tiles(c, weight_kg)
 	if grid.distance_between(c, target) > grid.effective_range(c, grid.cell_of(target), range_tiles):
 		return _fail("사거리 밖")
 	if not spend(c, "action"):

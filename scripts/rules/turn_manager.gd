@@ -6,6 +6,8 @@ extends Node
 
 const SpellPrep := preload("res://scripts/rules/spell_prep.gd")
 const Resolver := preload("res://scripts/rules/resolver.gd")
+## 이니셔티브 주사위(BG3: d4 + 민첩 — 룰북 3단계)
+const INITIATIVE_DIE := 4
 
 var world: Dictionary = {}
 var in_combat := false
@@ -70,12 +72,12 @@ func _join_if_hit(attacker: Variant, target: Variant) -> void:
 # 이니셔티브
 # ======================================================================
 
-## d20 + 민첩 수정치. 투명이면 유리, 무력화면 불리(상태 데이터의 initiative 수정치).
+## d4 + 민첩 수정치 + 이니셔티브 보너스(BG3 — bg3.wiki Initiative). 투명이면 유리, 무력화면 불리(상태 데이터의 initiative 수정치).
 func roll_initiative(c: Node) -> int:
 	var res := {"advantage": [], "disadvantage": [], "distance": 1}
 	for m in c.modifier_entries():
 		Resolver._add_adv(m, "initiative", "self", c, null, res)
-	var d := Dice.d20(Resolver.mode_of(res["advantage"], res["disadvantage"]), "%s 이니셔티브" % c.label())
+	var d := Dice.dn(INITIATIVE_DIE, Resolver.mode_of(res["advantage"], res["disadvantage"]), "%s 이니셔티브" % c.label())
 	c.initiative = d["natural"] + c.ability_mod("dex") + c.initiative_bonus
 	_tiebreak[c] = Dice.die(1000)
 	_uncanny_metabolism(c)

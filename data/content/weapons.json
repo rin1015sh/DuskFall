@@ -34,7 +34,7 @@
         "thrown"
       ],
       "range_tiles": [
-        4,
+        12,
         12
       ],
       "weight_kg": 0.45,
@@ -73,7 +73,7 @@
         "thrown"
       ],
       "range_tiles": [
-        4,
+        12,
         12
       ],
       "weight_kg": 0.91,
@@ -94,8 +94,8 @@
         "thrown"
       ],
       "range_tiles": [
-        6,
-        24
+        12,
+        12
       ],
       "weight_kg": 0.91,
       "price_gp": 0.5,
@@ -116,7 +116,7 @@
         "thrown"
       ],
       "range_tiles": [
-        4,
+        12,
         12
       ],
       "weight_kg": 0.91,
@@ -188,7 +188,7 @@
         "versatile"
       ],
       "range_tiles": [
-        4,
+        12,
         12
       ],
       "versatile_damage": "1d8",
@@ -211,7 +211,7 @@
         "thrown"
       ],
       "range_tiles": [
-        4,
+        12,
         12
       ],
       "weight_kg": 0.11,
@@ -234,8 +234,8 @@
         "two_handed"
       ],
       "range_tiles": [
-        16,
-        64
+        12,
+        12
       ],
       "ammunition": "bolt",
       "weight_kg": 2.27,
@@ -257,8 +257,8 @@
         "two_handed"
       ],
       "range_tiles": [
-        16,
-        64
+        12,
+        12
       ],
       "ammunition": "arrow",
       "weight_kg": 0.91,
@@ -279,8 +279,8 @@
         "ammunition"
       ],
       "range_tiles": [
-        6,
-        24
+        12,
+        12
       ],
       "ammunition": "bullet",
       "weight_kg": 0.0,
@@ -551,7 +551,7 @@
         "versatile"
       ],
       "range_tiles": [
-        4,
+        12,
         12
       ],
       "versatile_damage": "1d10",
@@ -629,7 +629,7 @@
       ],
       "range_tiles": [
         5,
-        20
+        5
       ],
       "ammunition": "needle",
       "weight_kg": 0.45,
@@ -652,8 +652,8 @@
         "loading"
       ],
       "range_tiles": [
-        6,
-        24
+        10,
+        10
       ],
       "ammunition": "bolt",
       "weight_kg": 1.36,
@@ -677,8 +677,8 @@
         "two_handed"
       ],
       "range_tiles": [
-        20,
-        80
+        12,
+        12
       ],
       "ammunition": "bolt",
       "weight_kg": 8.16,
@@ -701,8 +701,8 @@
         "two_handed"
       ],
       "range_tiles": [
-        30,
-        120
+        12,
+        12
       ],
       "ammunition": "arrow",
       "weight_kg": 0.91,
@@ -726,7 +726,7 @@
       ],
       "range_tiles": [
         8,
-        24
+        8
       ],
       "ammunition": "bullet",
       "weight_kg": 4.54,
@@ -748,7 +748,7 @@
       ],
       "range_tiles": [
         6,
-        18
+        6
       ],
       "ammunition": "bullet",
       "weight_kg": 1.36,

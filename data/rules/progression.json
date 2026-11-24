@@ -1,7 +1,7 @@
 {
   "schema": "progression_v1",
   "id": "standard",
-  "note_ko": "레벨·경험치·숙련 보너스 단일 출처(SRD 5.2.1 Character Advancement, docs/srd/02_CharacterCreation.md). 게임 레벨 상한은 level_cap 하나만 바꾼다(지금 12 — BG3식, 사용자 결정 2026-11-23. 13~20레벨은 게임에서 뺐다). multiclass_slots = SRD 멀티클래스 시전자 슬롯표(시전 레벨 → 슬롯 레벨별 수).",
+  "note_ko": "레벨·경험치·숙련 보너스 단일 출처. 경험치는 BG3 표(bg3.wiki Experience — 2026-11-24 BG3 수치 우선), 숙련 보너스는 SRD 5.2.1 Character Advancement(BG3와 같음). 게임 레벨 상한은 level_cap 하나만 바꾼다(지금 12 — BG3식, 사용자 결정 2026-11-23. 13~20레벨은 게임에서 뺐다). multiclass_slots = SRD 멀티클래스 시전자 슬롯표(시전 레벨 → 슬롯 레벨별 수).",
   "level_cap": 12,
   "levels": [
     {
@@ -31,32 +31,32 @@
     },
     {
       "level": 6,
-      "xp": 14000,
+      "xp": 13000,
       "proficiency_bonus": 3
     },
     {
       "level": 7,
-      "xp": 23000,
+      "xp": 21000,
       "proficiency_bonus": 3
     },
     {
       "level": 8,
-      "xp": 34000,
+      "xp": 30000,
       "proficiency_bonus": 3
     },
     {
       "level": 9,
-      "xp": 48000,
+      "xp": 42000,
       "proficiency_bonus": 4
     },
     {
       "level": 10,
-      "xp": 64000,
+      "xp": 56000,
       "proficiency_bonus": 4
     },
     {
       "level": 11,
-      "xp": 85000,
+      "xp": 76000,
       "proficiency_bonus": 4
     },
     {
