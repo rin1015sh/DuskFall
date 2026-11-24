@@ -1837,6 +1837,33 @@
       },
       "note_ko": "옭아매는 일격 내성 불리(Resolver on_weapon_hit save)",
       "source": "original"
+    },
+    {
+      "id": "one_with_shadows",
+      "name": {
+        "ko": "그림자와 하나",
+        "en": "one_with_shadows"
+      },
+      "note_ko": "가려진 곳에서 투명(기능 one_with_shadows_action)",
+      "source": "original"
+    },
+    {
+      "id": "lifedrinker",
+      "name": {
+        "ko": "생명을 마시는 자",
+        "en": "lifedrinker"
+      },
+      "note_ko": "계약 무기 명중 + 매력 사령(Resolver)",
+      "source": "original"
+    },
+    {
+      "id": "chain_deepened",
+      "name": {
+        "ko": "깊어진 사슬",
+        "en": "chain_deepened"
+      },
+      "note_ko": "표시만",
+      "source": "original"
     }
   ]
 }

@@ -143,17 +143,6 @@
   },
   "resources": [
     {
-      "id": "magical_cunning",
-      "name": {
-        "ko": "마법적 기지",
-        "en": "Magical Cunning"
-      },
-      "max": {
-        "2": 1
-      },
-      "recharge": "long"
-    },
-    {
       "id": "dark_ones_own_luck",
       "name": {
         "ko": "어둠의 자의 행운",
@@ -223,106 +212,6 @@
       "source": "SRD 5.2.1"
     },
     {
-      "id": "eldritch_invocations",
-      "name": {
-        "ko": "섬뜩한 영창",
-        "en": "Eldritch Invocations"
-      },
-      "level": 1,
-      "choices": [
-        "agonizing_blast",
-        "repelling_blast",
-        "armor_of_shadows",
-        "devils_sight",
-        "fiendish_vigor",
-        "otherworldly_leap",
-        "pact_of_the_blade",
-        "thirsting_blade",
-        "eldritch_mind",
-        "mask_of_many_faces",
-        "misty_visions",
-        "pact_of_the_chain"
-      ],
-      "choice_kind": "option",
-      "count": 1,
-      "choice_grants": {
-        "agonizing_blast": {
-          "caps": [
-            "agonizing_blast"
-          ]
-        },
-        "repelling_blast": {
-          "caps": [
-            "repelling_blast"
-          ]
-        },
-        "armor_of_shadows": {
-          "at_will": [
-            "mage_armor"
-          ]
-        },
-        "devils_sight": {
-          "darkvision_tiles": 24
-        },
-        "fiendish_vigor": {
-          "at_will": [
-            "false_life"
-          ]
-        },
-        "otherworldly_leap": {
-          "at_will": [
-            "jump"
-          ]
-        },
-        "pact_of_the_blade": {
-          "caps": [
-            "pact_blade"
-          ],
-          "weapon_training": [
-            "martial"
-          ]
-        },
-        "thirsting_blade": {
-          "caps": [
-            "extra_attack"
-          ],
-          "attacks_per_action": 2
-        },
-        "eldritch_mind": {
-          "caps": [
-            "eldritch_mind"
-          ]
-        },
-        "mask_of_many_faces": {
-          "at_will": [
-            "disguise_self"
-          ]
-        },
-        "misty_visions": {
-          "at_will": [
-            "silent_image"
-          ]
-        },
-        "pact_of_the_chain": {
-          "at_will": [
-            "find_familiar"
-          ]
-        }
-      },
-      "choice_min_level": {
-        "agonizing_blast": 2,
-        "repelling_blast": 2,
-        "devils_sight": 2,
-        "fiendish_vigor": 2,
-        "otherworldly_leap": 2,
-        "thirsting_blade": 5,
-        "mask_of_many_faces": 2,
-        "misty_visions": 2
-      },
-      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~)·섬뜩한 정신(1레벨~, 집중 유지 내성 유리)·천의 얼굴(2레벨~)·안개 환영(2레벨~)·계약의 사슬(1레벨~, 사역마 찾기 슬롯 없이 — 특수 형태·사역마 공격 생략). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
-      "source": "SRD 5.2.1"
-    },
-    {
       "id": "eldritch_invocations_2",
       "name": {
         "ko": "섬뜩한 영창(2레벨)",
@@ -336,12 +225,16 @@
         "devils_sight",
         "fiendish_vigor",
         "otherworldly_leap",
-        "pact_of_the_blade",
-        "thirsting_blade",
-        "eldritch_mind",
         "mask_of_many_faces",
-        "misty_visions",
-        "pact_of_the_chain"
+        "beast_speech",
+        "beguiling_influence",
+        "one_with_shadows",
+        "thief_of_five_fates",
+        "sign_of_ill_omen",
+        "mire_the_mind",
+        "book_of_ancient_secrets",
+        "whispers_of_the_grave",
+        "lifedrinker"
       ],
       "choice_kind": "option",
       "count": 2,
@@ -374,7 +267,101 @@
             "jump"
           ]
         },
-        "pact_of_the_blade": {
+        "mask_of_many_faces": {
+          "at_will": [
+            "disguise_self"
+          ]
+        },
+        "beast_speech": {
+          "at_will": [
+            "speak_with_animals"
+          ]
+        },
+        "beguiling_influence": {
+          "skills": [
+            "deception",
+            "persuasion"
+          ]
+        },
+        "one_with_shadows": {
+          "caps": [
+            "one_with_shadows"
+          ]
+        },
+        "thief_of_five_fates": {
+          "innate_spells": [
+            "bane"
+          ]
+        },
+        "sign_of_ill_omen": {
+          "innate_spells": [
+            "bestow_curse"
+          ]
+        },
+        "mire_the_mind": {
+          "innate_spells": [
+            "slow"
+          ]
+        },
+        "book_of_ancient_secrets": {
+          "caps": [
+            "ritual_from_spellbook"
+          ]
+        },
+        "whispers_of_the_grave": {
+          "at_will": [
+            "speak_with_dead"
+          ]
+        },
+        "lifedrinker": {
+          "caps": [
+            "lifedrinker"
+          ]
+        }
+      },
+      "choice_min_level": {
+        "sign_of_ill_omen": 5,
+        "mire_the_mind": 5,
+        "book_of_ancient_secrets": 7,
+        "whispers_of_the_grave": 9,
+        "lifedrinker": 12,
+        "agonizing_blast": 2,
+        "repelling_blast": 2
+      },
+      "notes_ko": "BG3 영창: 고통의 화살·그림자 갑옷·짐승의 말·현혹하는 영향력·악마의 시야·악마의 활력·천의 얼굴·그림자와 하나·밀어내는 화살·다섯 운명의 도둑(약화 1회)·5 불길한 징조(저주 1회)·마음의 수렁(둔화 1회)·7 고대 비밀의 책(의식)·9 이계의 도약·무덤의 속삭임·12 생명을 마시는 자(계약 무기 + 매력 사령). 공포의 말·살의 조각가·혼돈의 하수인은 주문이 빠져 생략.",
+      "source": "original"
+    },
+    {
+      "id": "one_with_shadows_action",
+      "name": {
+        "ko": "그림자와 하나",
+        "en": "One with Shadows"
+      },
+      "level": 2,
+      "kind": "action",
+      "script": "shadow_cloak",
+      "requires_cap": "one_with_shadows",
+      "target": "self",
+      "icon": "statuses/invisible.webp",
+      "glyph": "eye",
+      "notes_ko": "영창 그림자와 하나(BG3): 가려진(밝지 않은) 곳에서 행동으로 투명(공격·주문으로 풀림).",
+      "source": "original"
+    },
+    {
+      "id": "pact_boon",
+      "name": {
+        "ko": "계약의 은혜",
+        "en": "Pact Boon"
+      },
+      "level": 3,
+      "choice_kind": "option",
+      "choices": [
+        "blade",
+        "chain",
+        "tome"
+      ],
+      "choice_grants": {
+        "blade": {
           "caps": [
             "pact_blade"
           ],
@@ -382,45 +369,21 @@
             "martial"
           ]
         },
-        "thirsting_blade": {
-          "caps": [
-            "extra_attack"
-          ],
-          "attacks_per_action": 2
-        },
-        "eldritch_mind": {
-          "caps": [
-            "eldritch_mind"
-          ]
-        },
-        "mask_of_many_faces": {
-          "at_will": [
-            "disguise_self"
-          ]
-        },
-        "misty_visions": {
-          "at_will": [
-            "silent_image"
-          ]
-        },
-        "pact_of_the_chain": {
+        "chain": {
           "at_will": [
             "find_familiar"
           ]
+        },
+        "tome": {
+          "at_will": [
+            "guidance",
+            "vicious_mockery",
+            "produce_flame"
+          ]
         }
       },
-      "choice_min_level": {
-        "agonizing_blast": 2,
-        "repelling_blast": 2,
-        "devils_sight": 2,
-        "fiendish_vigor": 2,
-        "otherworldly_leap": 2,
-        "thirsting_blade": 5,
-        "mask_of_many_faces": 2,
-        "misty_visions": 2
-      },
-      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~)·섬뜩한 정신(1레벨~, 집중 유지 내성 유리)·천의 얼굴(2레벨~)·안개 환영(2레벨~)·계약의 사슬(1레벨~, 사역마 찾기 슬롯 없이 — 특수 형태·사역마 공격 생략). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
-      "source": "SRD 5.2.1"
+      "notes_ko": "BG3: 칼날(계약 무기 — 군용 숙련, 근접 무기에 매력)·사슬(사역마 찾기 슬롯 없이)·책(인도·악의적 조롱·불꽃 생성 — 가시 채찍 대신) 중 하나.",
+      "source": "original"
     },
     {
       "id": "eldritch_invocations_5",
@@ -436,15 +399,19 @@
         "devils_sight",
         "fiendish_vigor",
         "otherworldly_leap",
-        "pact_of_the_blade",
-        "thirsting_blade",
-        "eldritch_mind",
         "mask_of_many_faces",
-        "misty_visions",
-        "pact_of_the_chain"
+        "beast_speech",
+        "beguiling_influence",
+        "one_with_shadows",
+        "thief_of_five_fates",
+        "sign_of_ill_omen",
+        "mire_the_mind",
+        "book_of_ancient_secrets",
+        "whispers_of_the_grave",
+        "lifedrinker"
       ],
       "choice_kind": "option",
-      "count": 2,
+      "count": 1,
       "choice_grants": {
         "agonizing_blast": {
           "caps": [
@@ -474,53 +441,106 @@
             "jump"
           ]
         },
-        "pact_of_the_blade": {
-          "caps": [
-            "pact_blade"
-          ],
-          "weapon_training": [
-            "martial"
-          ]
-        },
-        "thirsting_blade": {
-          "caps": [
-            "extra_attack"
-          ],
-          "attacks_per_action": 2
-        },
-        "eldritch_mind": {
-          "caps": [
-            "eldritch_mind"
-          ]
-        },
         "mask_of_many_faces": {
           "at_will": [
             "disguise_self"
           ]
         },
-        "misty_visions": {
+        "beast_speech": {
           "at_will": [
-            "silent_image"
+            "speak_with_animals"
           ]
         },
-        "pact_of_the_chain": {
+        "beguiling_influence": {
+          "skills": [
+            "deception",
+            "persuasion"
+          ]
+        },
+        "one_with_shadows": {
+          "caps": [
+            "one_with_shadows"
+          ]
+        },
+        "thief_of_five_fates": {
+          "innate_spells": [
+            "bane"
+          ]
+        },
+        "sign_of_ill_omen": {
+          "innate_spells": [
+            "bestow_curse"
+          ]
+        },
+        "mire_the_mind": {
+          "innate_spells": [
+            "slow"
+          ]
+        },
+        "book_of_ancient_secrets": {
+          "caps": [
+            "ritual_from_spellbook"
+          ]
+        },
+        "whispers_of_the_grave": {
           "at_will": [
-            "find_familiar"
+            "speak_with_dead"
+          ]
+        },
+        "lifedrinker": {
+          "caps": [
+            "lifedrinker"
           ]
         }
       },
       "choice_min_level": {
+        "sign_of_ill_omen": 5,
+        "mire_the_mind": 5,
+        "book_of_ancient_secrets": 7,
+        "whispers_of_the_grave": 9,
+        "lifedrinker": 12,
         "agonizing_blast": 2,
-        "repelling_blast": 2,
-        "devils_sight": 2,
-        "fiendish_vigor": 2,
-        "otherworldly_leap": 2,
-        "thirsting_blade": 5,
-        "mask_of_many_faces": 2,
-        "misty_visions": 2
+        "repelling_blast": 2
       },
-      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~)·섬뜩한 정신(1레벨~, 집중 유지 내성 유리)·천의 얼굴(2레벨~)·안개 환영(2레벨~)·계약의 사슬(1레벨~, 사역마 찾기 슬롯 없이 — 특수 형태·사역마 공격 생략). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
-      "source": "SRD 5.2.1"
+      "notes_ko": "BG3 영창: 고통의 화살·그림자 갑옷·짐승의 말·현혹하는 영향력·악마의 시야·악마의 활력·천의 얼굴·그림자와 하나·밀어내는 화살·다섯 운명의 도둑(약화 1회)·5 불길한 징조(저주 1회)·마음의 수렁(둔화 1회)·7 고대 비밀의 책(의식)·9 이계의 도약·무덤의 속삭임·12 생명을 마시는 자(계약 무기 + 매력 사령). 공포의 말·살의 조각가·혼돈의 하수인은 주문이 빠져 생략.",
+      "source": "original"
+    },
+    {
+      "id": "deepened_pact",
+      "name": {
+        "ko": "깊어진 계약",
+        "en": "Deepened Pact"
+      },
+      "level": 5,
+      "choice_kind": "option",
+      "choice_from": "pact_boon",
+      "choices": [
+        "blade",
+        "chain",
+        "tome"
+      ],
+      "choice_grants": {
+        "blade": {
+          "caps": [
+            "extra_attack"
+          ],
+          "attacks_per_action": 2
+        },
+        "chain": {
+          "caps": [
+            "chain_deepened"
+          ]
+        },
+        "tome": {
+          "innate_spells": [
+            "animate_dead",
+            "haste",
+            "lightning_bolt"
+          ]
+        }
+      },
+      "notes_ko": "BG3: 칼날 — 추가 공격 / 사슬 — 사역마 추가 공격(생략) / 책 — 시체 되살리기·가속·번개(번개 부르기 대신) 긴 휴식 1회씩.",
+      "source": "original"
     },
     {
       "id": "eldritch_invocations_7",
@@ -536,12 +556,16 @@
         "devils_sight",
         "fiendish_vigor",
         "otherworldly_leap",
-        "pact_of_the_blade",
-        "thirsting_blade",
-        "eldritch_mind",
         "mask_of_many_faces",
-        "misty_visions",
-        "pact_of_the_chain"
+        "beast_speech",
+        "beguiling_influence",
+        "one_with_shadows",
+        "thief_of_five_fates",
+        "sign_of_ill_omen",
+        "mire_the_mind",
+        "book_of_ancient_secrets",
+        "whispers_of_the_grave",
+        "lifedrinker"
       ],
       "choice_kind": "option",
       "count": 1,
@@ -574,53 +598,69 @@
             "jump"
           ]
         },
-        "pact_of_the_blade": {
-          "caps": [
-            "pact_blade"
-          ],
-          "weapon_training": [
-            "martial"
-          ]
-        },
-        "thirsting_blade": {
-          "caps": [
-            "extra_attack"
-          ],
-          "attacks_per_action": 2
-        },
-        "eldritch_mind": {
-          "caps": [
-            "eldritch_mind"
-          ]
-        },
         "mask_of_many_faces": {
           "at_will": [
             "disguise_self"
           ]
         },
-        "misty_visions": {
+        "beast_speech": {
           "at_will": [
-            "silent_image"
+            "speak_with_animals"
           ]
         },
-        "pact_of_the_chain": {
+        "beguiling_influence": {
+          "skills": [
+            "deception",
+            "persuasion"
+          ]
+        },
+        "one_with_shadows": {
+          "caps": [
+            "one_with_shadows"
+          ]
+        },
+        "thief_of_five_fates": {
+          "innate_spells": [
+            "bane"
+          ]
+        },
+        "sign_of_ill_omen": {
+          "innate_spells": [
+            "bestow_curse"
+          ]
+        },
+        "mire_the_mind": {
+          "innate_spells": [
+            "slow"
+          ]
+        },
+        "book_of_ancient_secrets": {
+          "caps": [
+            "ritual_from_spellbook"
+          ]
+        },
+        "whispers_of_the_grave": {
           "at_will": [
-            "find_familiar"
+            "speak_with_dead"
+          ]
+        },
+        "lifedrinker": {
+          "caps": [
+            "lifedrinker"
           ]
         }
       },
       "choice_min_level": {
+        "sign_of_ill_omen": 5,
+        "mire_the_mind": 5,
+        "book_of_ancient_secrets": 7,
+        "whispers_of_the_grave": 9,
+        "lifedrinker": 12,
         "agonizing_blast": 2,
-        "repelling_blast": 2,
-        "devils_sight": 2,
-        "fiendish_vigor": 2,
-        "otherworldly_leap": 2,
-        "thirsting_blade": 5,
-        "mask_of_many_faces": 2,
-        "misty_visions": 2
+        "repelling_blast": 2
       },
-      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~)·섬뜩한 정신(1레벨~, 집중 유지 내성 유리)·천의 얼굴(2레벨~)·안개 환영(2레벨~)·계약의 사슬(1레벨~, 사역마 찾기 슬롯 없이 — 특수 형태·사역마 공격 생략). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
-      "source": "SRD 5.2.1"
+      "notes_ko": "BG3 영창: 고통의 화살·그림자 갑옷·짐승의 말·현혹하는 영향력·악마의 시야·악마의 활력·천의 얼굴·그림자와 하나·밀어내는 화살·다섯 운명의 도둑(약화 1회)·5 불길한 징조(저주 1회)·마음의 수렁(둔화 1회)·7 고대 비밀의 책(의식)·9 이계의 도약·무덤의 속삭임·12 생명을 마시는 자(계약 무기 + 매력 사령). 공포의 말·살의 조각가·혼돈의 하수인은 주문이 빠져 생략.",
+      "source": "original"
     },
     {
       "id": "eldritch_invocations_9",
@@ -636,12 +676,16 @@
         "devils_sight",
         "fiendish_vigor",
         "otherworldly_leap",
-        "pact_of_the_blade",
-        "thirsting_blade",
-        "eldritch_mind",
         "mask_of_many_faces",
-        "misty_visions",
-        "pact_of_the_chain"
+        "beast_speech",
+        "beguiling_influence",
+        "one_with_shadows",
+        "thief_of_five_fates",
+        "sign_of_ill_omen",
+        "mire_the_mind",
+        "book_of_ancient_secrets",
+        "whispers_of_the_grave",
+        "lifedrinker"
       ],
       "choice_kind": "option",
       "count": 1,
@@ -674,179 +718,69 @@
             "jump"
           ]
         },
-        "pact_of_the_blade": {
-          "caps": [
-            "pact_blade"
-          ],
-          "weapon_training": [
-            "martial"
-          ]
-        },
-        "thirsting_blade": {
-          "caps": [
-            "extra_attack"
-          ],
-          "attacks_per_action": 2
-        },
-        "eldritch_mind": {
-          "caps": [
-            "eldritch_mind"
-          ]
-        },
         "mask_of_many_faces": {
           "at_will": [
             "disguise_self"
           ]
         },
-        "misty_visions": {
+        "beast_speech": {
           "at_will": [
-            "silent_image"
+            "speak_with_animals"
           ]
         },
-        "pact_of_the_chain": {
+        "beguiling_influence": {
+          "skills": [
+            "deception",
+            "persuasion"
+          ]
+        },
+        "one_with_shadows": {
+          "caps": [
+            "one_with_shadows"
+          ]
+        },
+        "thief_of_five_fates": {
+          "innate_spells": [
+            "bane"
+          ]
+        },
+        "sign_of_ill_omen": {
+          "innate_spells": [
+            "bestow_curse"
+          ]
+        },
+        "mire_the_mind": {
+          "innate_spells": [
+            "slow"
+          ]
+        },
+        "book_of_ancient_secrets": {
+          "caps": [
+            "ritual_from_spellbook"
+          ]
+        },
+        "whispers_of_the_grave": {
           "at_will": [
-            "find_familiar"
+            "speak_with_dead"
+          ]
+        },
+        "lifedrinker": {
+          "caps": [
+            "lifedrinker"
           ]
         }
       },
       "choice_min_level": {
+        "sign_of_ill_omen": 5,
+        "mire_the_mind": 5,
+        "book_of_ancient_secrets": 7,
+        "whispers_of_the_grave": 9,
+        "lifedrinker": 12,
         "agonizing_blast": 2,
-        "repelling_blast": 2,
-        "devils_sight": 2,
-        "fiendish_vigor": 2,
-        "otherworldly_leap": 2,
-        "thirsting_blade": 5,
-        "mask_of_many_faces": 2,
-        "misty_visions": 2
+        "repelling_blast": 2
       },
-      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~)·섬뜩한 정신(1레벨~, 집중 유지 내성 유리)·천의 얼굴(2레벨~)·안개 환영(2레벨~)·계약의 사슬(1레벨~, 사역마 찾기 슬롯 없이 — 특수 형태·사역마 공격 생략). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "eldritch_invocations_12",
-      "name": {
-        "ko": "섬뜩한 영창(12레벨)",
-        "en": "Eldritch Invocations (Lv12)"
-      },
-      "level": 12,
-      "choices": [
-        "agonizing_blast",
-        "repelling_blast",
-        "armor_of_shadows",
-        "devils_sight",
-        "fiendish_vigor",
-        "otherworldly_leap",
-        "pact_of_the_blade",
-        "thirsting_blade",
-        "eldritch_mind",
-        "mask_of_many_faces",
-        "misty_visions",
-        "pact_of_the_chain"
-      ],
-      "choice_kind": "option",
-      "count": 1,
-      "choice_grants": {
-        "agonizing_blast": {
-          "caps": [
-            "agonizing_blast"
-          ]
-        },
-        "repelling_blast": {
-          "caps": [
-            "repelling_blast"
-          ]
-        },
-        "armor_of_shadows": {
-          "at_will": [
-            "mage_armor"
-          ]
-        },
-        "devils_sight": {
-          "darkvision_tiles": 24
-        },
-        "fiendish_vigor": {
-          "at_will": [
-            "false_life"
-          ]
-        },
-        "otherworldly_leap": {
-          "at_will": [
-            "jump"
-          ]
-        },
-        "pact_of_the_blade": {
-          "caps": [
-            "pact_blade"
-          ],
-          "weapon_training": [
-            "martial"
-          ]
-        },
-        "thirsting_blade": {
-          "caps": [
-            "extra_attack"
-          ],
-          "attacks_per_action": 2
-        },
-        "eldritch_mind": {
-          "caps": [
-            "eldritch_mind"
-          ]
-        },
-        "mask_of_many_faces": {
-          "at_will": [
-            "disguise_self"
-          ]
-        },
-        "misty_visions": {
-          "at_will": [
-            "silent_image"
-          ]
-        },
-        "pact_of_the_chain": {
-          "at_will": [
-            "find_familiar"
-          ]
-        }
-      },
-      "choice_min_level": {
-        "agonizing_blast": 2,
-        "repelling_blast": 2,
-        "devils_sight": 2,
-        "fiendish_vigor": 2,
-        "otherworldly_leap": 2,
-        "thirsting_blade": 5,
-        "mask_of_many_faces": 2,
-        "misty_visions": 2
-      },
-      "notes_ko": "영창: 고통의 화살(2레벨~), 밀어내는 화살(2레벨~), 그림자 갑옷(1레벨~), 악마의 시야(2레벨~), 악마의 활력(2레벨~), 이계의 도약(2레벨~), 계약의 칼날(1레벨~), 갈망의 칼날(5레벨~)·섬뜩한 정신(1레벨~, 집중 유지 내성 유리)·천의 얼굴(2레벨~)·안개 환영(2레벨~)·계약의 사슬(1레벨~, 사역마 찾기 슬롯 없이 — 특수 형태·사역마 공격 생략). 그림자 갑옷·악마의 활력·이계의 도약은 슬롯 없이 시전. 계약의 칼날은 군용 무기 숙련 + 근접 무기에 매력(무기 소환·피해 종류 바꾸기 생략). 갈망의 칼날은 추가 공격(계약 무기 한정 생략). 나머지 영창은 1차 생략.",
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "magical_cunning",
-      "name": {
-        "ko": "마법적 기지",
-        "en": "Magical Cunning"
-      },
-      "level": 2,
-      "kind": "free",
-      "resource": "magical_cunning",
-      "script": "magical_cunning",
-      "explore": true,
-      "notes_ko": "1분 의식(탐험 중) — 슬롯을 최대치 절반(올림)까지 회복, 긴 휴식마다 1회.",
-      "source": "SRD 5.2.1",
-      "glyph": "sparkle"
-    },
-    {
-      "id": "contact_patron",
-      "name": {
-        "ko": "후원자와 접촉",
-        "en": "Contact Patron"
-      },
-      "level": 9,
-      "status": "deferred",
-      "source": "SRD 5.2.1",
-      "notes_ko": "다른 세계와 접촉(5레벨 주문) 항상 준비·무료 1회 — 서술형 주문이라 대화 분기와 함께 다음에."
+      "notes_ko": "BG3 영창: 고통의 화살·그림자 갑옷·짐승의 말·현혹하는 영향력·악마의 시야·악마의 활력·천의 얼굴·그림자와 하나·밀어내는 화살·다섯 운명의 도둑(약화 1회)·5 불길한 징조(저주 1회)·마음의 수렁(둔화 1회)·7 고대 비밀의 책(의식)·9 이계의 도약·무덤의 속삭임·12 생명을 마시는 자(계약 무기 + 매력 사령). 공포의 말·살의 조각가·혼돈의 하수인은 주문이 빠져 생략.",
+      "source": "original"
     },
     {
       "id": "mystic_arcanum_6",
@@ -863,6 +797,126 @@
       "spell_level": 6,
       "source": "SRD 5.2.1",
       "notes_ko": "6레벨 워락 주문 하나 — 긴 휴식마다 슬롯 없이 1회(innate)."
+    },
+    {
+      "id": "eldritch_invocations_12",
+      "name": {
+        "ko": "섬뜩한 영창(12레벨)",
+        "en": "Eldritch Invocations (Lv12)"
+      },
+      "level": 12,
+      "choices": [
+        "agonizing_blast",
+        "repelling_blast",
+        "armor_of_shadows",
+        "devils_sight",
+        "fiendish_vigor",
+        "otherworldly_leap",
+        "mask_of_many_faces",
+        "beast_speech",
+        "beguiling_influence",
+        "one_with_shadows",
+        "thief_of_five_fates",
+        "sign_of_ill_omen",
+        "mire_the_mind",
+        "book_of_ancient_secrets",
+        "whispers_of_the_grave",
+        "lifedrinker"
+      ],
+      "choice_kind": "option",
+      "count": 1,
+      "choice_grants": {
+        "agonizing_blast": {
+          "caps": [
+            "agonizing_blast"
+          ]
+        },
+        "repelling_blast": {
+          "caps": [
+            "repelling_blast"
+          ]
+        },
+        "armor_of_shadows": {
+          "at_will": [
+            "mage_armor"
+          ]
+        },
+        "devils_sight": {
+          "darkvision_tiles": 24
+        },
+        "fiendish_vigor": {
+          "at_will": [
+            "false_life"
+          ]
+        },
+        "otherworldly_leap": {
+          "at_will": [
+            "jump"
+          ]
+        },
+        "mask_of_many_faces": {
+          "at_will": [
+            "disguise_self"
+          ]
+        },
+        "beast_speech": {
+          "at_will": [
+            "speak_with_animals"
+          ]
+        },
+        "beguiling_influence": {
+          "skills": [
+            "deception",
+            "persuasion"
+          ]
+        },
+        "one_with_shadows": {
+          "caps": [
+            "one_with_shadows"
+          ]
+        },
+        "thief_of_five_fates": {
+          "innate_spells": [
+            "bane"
+          ]
+        },
+        "sign_of_ill_omen": {
+          "innate_spells": [
+            "bestow_curse"
+          ]
+        },
+        "mire_the_mind": {
+          "innate_spells": [
+            "slow"
+          ]
+        },
+        "book_of_ancient_secrets": {
+          "caps": [
+            "ritual_from_spellbook"
+          ]
+        },
+        "whispers_of_the_grave": {
+          "at_will": [
+            "speak_with_dead"
+          ]
+        },
+        "lifedrinker": {
+          "caps": [
+            "lifedrinker"
+          ]
+        }
+      },
+      "choice_min_level": {
+        "sign_of_ill_omen": 5,
+        "mire_the_mind": 5,
+        "book_of_ancient_secrets": 7,
+        "whispers_of_the_grave": 9,
+        "lifedrinker": 12,
+        "agonizing_blast": 2,
+        "repelling_blast": 2
+      },
+      "notes_ko": "BG3 영창: 고통의 화살·그림자 갑옷·짐승의 말·현혹하는 영향력·악마의 시야·악마의 활력·천의 얼굴·그림자와 하나·밀어내는 화살·다섯 운명의 도둑(약화 1회)·5 불길한 징조(저주 1회)·마음의 수렁(둔화 1회)·7 고대 비밀의 책(의식)·9 이계의 도약·무덤의 속삭임·12 생명을 마시는 자(계약 무기 + 매력 사령). 공포의 말·살의 조각가·혼돈의 하수인은 주문이 빠져 생략.",
+      "source": "original"
     }
   ],
   "subclasses": [
@@ -1382,16 +1436,12 @@
       "arcana",
       "deception"
     ],
-    "eldritch_invocations": [
-      "armor_of_shadows"
-    ],
     "eldritch_invocations_2": [
       "agonizing_blast",
-      "repelling_blast"
+      "armor_of_shadows"
     ],
     "eldritch_invocations_5": [
-      "devils_sight",
-      "fiendish_vigor"
+      "devils_sight"
     ],
     "cantrips": [
       "eldritch_blast",
@@ -1427,7 +1477,17 @@
     "fiendish_resilience": "fire",
     "mystic_arcanum_6": [
       "circle_of_death"
-    ]
+    ],
+    "eldritch_invocations_7": [
+      "repelling_blast"
+    ],
+    "eldritch_invocations_9": [
+      "fiendish_vigor"
+    ],
+    "eldritch_invocations_12": [
+      "mask_of_many_faces"
+    ],
+    "pact_boon": "blade"
   },
   "source": "SRD 5.2.1",
   "multiclass": {

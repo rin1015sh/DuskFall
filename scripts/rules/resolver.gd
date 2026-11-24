@@ -496,6 +496,8 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 		var hc: Dictionary = target.condition_instance("hexblades_curse")
 		if not hc.is_empty() and hc.get("source") == attacker:
 			res["extra_damage"].append({"dice": str(attacker.proficiency_bonus), "damage_type": atk["damage"][0]["damage_type"]})  # 주술검사의 저주: 피해 + 숙련
+		if attacker.has_cap("lifedrinker") and attacker.has_cap("pact_blade") and str(atk.get("kind", "")) == "melee" and atk.get("weapon", false) and str(atk.get("weapon_id", "")) != "unarmed":
+			res["extra_damage"].append({"dice": str(maxi(1, attacker.ability_mod("cha"))), "damage_type": "necrotic"})  # 생명을 마시는 자(영창 12, BG3)
 		if attacker.has_meta("bonus_damage") and int(attacker.get_meta("bonus_damage")) > 0:
 			res["extra_damage"].append({"dice": str(attacker.get_meta("bonus_damage")), "damage_type": atk["damage"][0]["damage_type"]})  # 동료의 결속(야수 조련사)
 		if atk.get("weapon", false) and str(atk.get("kind", "")) == "melee":

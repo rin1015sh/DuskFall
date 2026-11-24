@@ -332,6 +332,12 @@
               "items": {
                 "type": "string"
               }
+            },
+            "innate_spells": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
@@ -501,6 +507,12 @@
                 "type": "object"
               },
               "damage_immunities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "innate_spells": {
                 "type": "array",
                 "items": {
                   "type": "string"

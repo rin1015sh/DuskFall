@@ -18,13 +18,13 @@ func _wl(lv: int) -> Node:
 
 func test_pact_magic_and_invocations() -> void:
 	var w1 := _wl(1)
-	assert_false(w1.has_cap("agonizing_blast"), "고통의 화살은 2레벨부터(명세에 있어도)")
-	assert_true(w1.spells.has("mage_armor"), "그림자 갑옷")
+	assert_false(w1.has_cap("agonizing_blast") or w1.spells.has("mage_armor"), "영창은 2레벨부터(BG3)")
+	assert_true(_wl(2).spells.has("mage_armor"), "그림자 갑옷")
 	var w5 := _wl(5)
 	assert_eq(w5.resource("spell_slot_3"), 2, "5레벨: 3레벨 슬롯 2")
 	assert_eq(w5.resource("spell_slot_1"), 0)
 	assert_eq(w5.resources["spell_slot_3"]["recharge"], "short", "짧은 휴식")
-	assert_true(w5.has_cap("agonizing_blast") and w5.has_cap("repelling_blast"))
+	assert_true(w5.has_cap("agonizing_blast") and not w5.has_cap("repelling_blast"), "5레벨 영창 3개(BG3)")
 	assert_eq(w5.darkvision_tiles, 24, "악마의 시야")
 	assert_true(w5.spells.has("fireball") and w5.spells.has("stinking_cloud"), "악마의 주문")
 
@@ -55,26 +55,18 @@ func test_at_will_and_hex_upcast_slot() -> void:
 	assert_true(c.temp_hp > 0, "어둠의 축복")
 
 
-func test_magical_cunning_and_short_rest() -> void:
-	var w := make_world(["...."])
-	var c := _wl(5)
-	w["grid"].place(c, Vector2i(0, 0))
-	c.resources["spell_slot_3"]["current"] = 0
-	assert_true(Features.use(w, c, "magical_cunning")["ok"])
-	assert_eq(c.resource("spell_slot_3"), 1, "절반(올림)")
-	c.resources["spell_slot_3"]["current"] = 0
-	Rest.short_rest(w, [c])
-	assert_eq(c.resource("spell_slot_3"), 2, "짧은 휴식에 계약 슬롯 회복")
-
-
 func test_more_invocations() -> void:
-	var spec := Builder.default_spec("warlock", 2)
-	spec["eldritch_invocations"] = ["pact_of_the_chain"]
-	spec["eldritch_invocations_2"] = ["eldritch_mind", "mask_of_many_faces"]
+	var spec := Builder.default_spec("warlock", 5)
+	spec["eldritch_invocations_2"] = ["beguiling_influence", "thief_of_five_fates"]
+	spec["eldritch_invocations_5"] = ["mire_the_mind"]
+	spec["pact_boon"] = "tome"
 	var c: Node = own(Builder.build(spec)["creature"])
-	assert_true(c.has_cap("eldritch_mind"))
-	assert_true("disguise_self" in c.get_meta("at_will") and "find_familiar" in c.get_meta("at_will"))
-	c.start_concentration("hex", {"instance": -1, "turns_left": 10})
-	Dice.force([5, 15])
-	var r: Dictionary = Resolver.concentration_check(c, 4)
-	assert_eq(int(r["mode"]), 1, "섬뜩한 정신: 집중 유지 유리")
+	assert_true(c.skill_bonuses.has("persuasion"), "현혹하는 영향력")
+	assert_eq(c.resource("innate_bane"), 1, "다섯 운명의 도둑: 약화 1회")
+	assert_eq(c.resource("innate_slow"), 1, "마음의 수렁: 둔화 1회")
+	assert_true(c.spells.has("vicious_mockery"), "책의 계약")
+	assert_eq(c.resource("innate_haste"), 1, "깊어진 계약(책): 가속 1회")
+	var b := _wl(5)
+	assert_true(b.has_cap("pact_blade") and b.attacks_per_action == 2, "칼날의 계약 + 깊어진 계약 추가 공격")
+
+

@@ -559,6 +559,12 @@
               "items": {
                 "type": "string"
               }
+            },
+            "innate_spells": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },

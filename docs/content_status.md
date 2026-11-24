@@ -15,7 +15,7 @@
 | species | 39 |
 | background | 4 |
 | monster | 60 |
-| capability | 204 |
+| capability | 207 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -389,16 +389,16 @@
 | 1 | 악마의 주문 (fiend_spells) | fiend | 처리: 하위 클래스 always_prepared |  |
 | 1 | 어둠의 축복 (dark_ones_blessing) | fiend | 태그 dark_ones_blessing |  |
 | 1 | 계약 마법 (pact_magic) |  | 처리: 클래스 spellcasting — 슬롯이 모두 같은 레벨(1·2·3), 짧은 휴식에 회복(slot_recharge short), 낮은 주문은 그 레벨로 올려 시전 |  |
-| 1 | 섬뜩한 영창 (eldritch_invocations) |  | 고르기(option) |  |
-| 2 | 마법적 기지 (magical_cunning) |  | 스크립트 magical_cunning |  |
 | 2 | 섬뜩한 영창(2레벨) (eldritch_invocations_2) |  | 고르기(option) |  |
+| 2 | 그림자와 하나 (one_with_shadows_action) |  | 스크립트 shadow_cloak |  |
+| 3 | 계약의 은혜 (pact_boon) |  | 고르기(option) |  |
+| 5 | 깊어진 계약 (deepened_pact) |  | 고르기(option) |  |
 | 5 | 섬뜩한 영창(5레벨) (eldritch_invocations_5) |  | 고르기(option) |  |
-| 6 | 어둠의 자의 행운 (dark_ones_own_luck) | fiend | 스크립트 dark_ones_own_luck |  |
 | 6 | 저주받은 망령 (accursed_spectre) | hexblade |  | 보류(deferred) |
+| 6 | 어둠의 자의 행운 (dark_ones_own_luck) | fiend | 스크립트 dark_ones_own_luck |  |
 | 6 | 안개 탈출 (misty_escape) | archfey | 태그 misty_escape; 반응 |  |
 | 6 | 엔트로피의 결계 (entropic_ward) | great_old_one | 반응 |  |
 | 7 | 섬뜩한 영창(7레벨) (eldritch_invocations_7) |  | 고르기(option) |  |
-| 9 | 후원자와 접촉 (contact_patron) |  |  | 보류(deferred) |
 | 9 | 섬뜩한 영창(9레벨) (eldritch_invocations_9) |  | 고르기(option) |  |
 | 10 | 저주의 갑옷 (armour_of_hexes) | hexblade | 태그 armour_of_hexes; 반응 |  |
 | 10 | 생각의 방패 (thought_shield) | great_old_one | 태그 thought_shield; 부여 resistances |  |
@@ -496,6 +496,7 @@
 | cantrip_half_on_miss | 강력한 소마법 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_save | 강력한 소마법(BG3) | wizard |
 | carry_quarter_more | 운반 +25% | barbarian, 종족 human |
+| chain_deepened | 깊어진 사슬 | (몬스터 특성 또는 아직 없음) |
 | charger | 돌격병 | (몬스터 특성 또는 아직 없음) |
 | check_boost_d10 | 전술적 판단 | (몬스터 특성 또는 아직 없음) |
 | climber | 등반 | rogue |
@@ -578,6 +579,7 @@
 | jump_half_more | 도약 +50% | (몬스터 특성 또는 아직 없음) |
 | jump_plus_1 | 도약 +1칸 | fighter, fighter, monk, monk, monk, monk |
 | life_of_the_party | 파티의 주인공 | monk |
+| lifedrinker | 생명을 마시는 자 | (몬스터 특성 또는 아직 없음) |
 | long_rest_inspiration | 기지 | (몬스터 특성 또는 아직 없음) |
 | lucky | 행운의 별 | (몬스터 특성 또는 아직 없음) |
 | mage_slayer | 마법사 사냥꾼 | (몬스터 특성 또는 아직 없음) |
@@ -602,6 +604,7 @@
 | multiattack_defense | 다중 공격 방어 | (몬스터 특성 또는 아직 없음) |
 | nimble_escape | 날렵한 탈출 | (몬스터 특성 또는 아직 없음) |
 | no_oa_from_melee_target | 치고 빠지기 | rogue |
+| one_with_shadows | 그림자와 하나 | (몬스터 특성 또는 아직 없음) |
 | open_hand_technique | 열린 손 기법 | monk |
 | pack_tactics | 무리 전술 | (몬스터 특성 또는 아직 없음) |
 | pact_blade | 계약의 칼날 | (몬스터 특성 또는 아직 없음) |

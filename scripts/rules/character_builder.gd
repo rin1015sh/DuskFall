@@ -449,6 +449,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var hp_per_level := 0
 	var at_will: Array = []
 	var grant_spells: Array = []
+	var innate_grants: Array = []
 	var skill_bonus_ability := {}
 	var hit_bonus: Array = []
 	var type_bonus: Array = []
@@ -469,6 +470,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 		extra_cantrips += int(gr.get("extra_cantrips", 0))
 		hp_per_level += int(gr.get("hp_per_level", 0))
 		at_will.append_array(gr.get("at_will", []))  # 슬롯 없이 마음대로 쓰는 주문(워락 영창)
+		innate_grants.append_array(gr.get("innate_spells", []))  # 긴 휴식마다 슬롯 없이 1회(워락 영창·깊어진 계약 — BG3)
 		for k: String in gr.get("always_prepared", {}):
 			if c.feature_level(str(g[0])) >= int(k):
 				grant_spells.append_array(gr["always_prepared"][k])  # 선택에 따른 항상 준비(대지 회합 주문)
@@ -657,9 +659,12 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			if int(e["level"]) >= int(k):
 				sub_spells.append_array(e["sub"]["always_prepared"][k])
 	c.set_meta("subclass_spells", sub_spells)
-	for sid: String in at_will + grant_spells:
+	for sid: String in at_will + grant_spells + innate_grants:
 		if not c.spells.has(sid) and not RulesDB.get_entry("spell", sid).is_empty():
 			c.spells.append(sid)
+	for sid: String in innate_grants:
+		if not RulesDB.get_entry("spell", sid).is_empty():
+			c.resources["innate_" + sid] = {"current": 1, "max": 1, "recharge": "long"}
 	# 반응
 	c.known_reactions = ["opportunity_attack"]
 	for sid: String in c.spells:
