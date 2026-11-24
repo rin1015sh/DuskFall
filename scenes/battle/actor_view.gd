@@ -18,7 +18,7 @@ const SIZE_K := {"tiny": 0.5, "small": 0.8, "medium": 1.0, "large": 1.7, "huge":
 const SHADOW_Z := 0.45 / V.SIN_P
 
 static var _disc: Texture2D
-## BG3: 머리 위 HP 막대는 아군만. Shift를 누르는 동안(reveal_hp) 모두.
+## BG3: 머리 위 HP 막대는 아군만. H 키·화면 버튼으로 켜면(reveal_hp) 모두.
 static var reveal_hp := false
 
 var creature: Node

@@ -63,8 +63,10 @@ var selected: Node = null
 var mode := "move"
 ## 여러 대상 고르기(BG3식): 고른 칸 목록과 그 주문 모드. Spellcasting.target_plan이 수·종류를 정한다.
 var _picked: Array = []
-## Alt를 누르는 동안 상호작용 물체 강조(BG3)
+## 상호작용 물체 강조(G 또는 화면 버튼으로 켜고 끄기 — iPad 키보드·터치)
 var alt_highlight := false
+var hp_btn: Button
+var hl_btn: Button
 var _picked_mode := ""
 var cast_now_btn: Button
 var preview_cell := Vector2i(-1, -1)
@@ -558,14 +560,6 @@ func _on_zoom(factor: float, _at: Vector2) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.keycode == KEY_ALT and not event.echo:
-		alt_highlight = event.pressed
-		highlights.queue_redraw()
-		return
-	if event is InputEventKey and event.keycode == KEY_SHIFT and not event.echo:
-		ActorView.reveal_hp = event.pressed  # BG3: Shift를 누르는 동안 모든 생물 HP
-		_refresh()
-		return
 	if event is InputEventKey and event.pressed:
 		var pan := {KEY_LEFT: Vector2(-40, 0), KEY_RIGHT: Vector2(40, 0), KEY_UP: Vector2(0, -40), KEY_DOWN: Vector2(0, 40)}
 		if pan.has(event.keycode):
@@ -587,6 +581,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				_on_action(str(hotbar.slot_keys[idx]))
 		elif event.keycode == KEY_SPACE and not event.echo and not exploring:
 			_end_turn()  # BG3: Space = 턴 끝내기
+		elif event.keycode == KEY_H and not event.echo:
+			_toggle_reveal_hp()  # 모든 HP 보기 켜고 끄기(iPad 키보드 — 누르고 있는 Shift 대신)
+		elif event.keycode == KEY_G and not event.echo:
+			_toggle_highlight()  # 상호작용 물체 강조 켜고 끄기(누르고 있는 Alt 대신)
 		elif event.keycode == KEY_Z and not event.echo:
 			_on_action("jump")  # BG3: Z 점프
 		elif event.keycode == KEY_V and not event.echo:
@@ -709,6 +707,22 @@ func _advance() -> void:
 			explore.leader = selected
 			mode = "move"
 			_refresh()
+
+
+## 모든 생물 HP 보기(H·화면 버튼 — 켜고 끄기).
+func _toggle_reveal_hp() -> void:
+	ActorView.reveal_hp = not ActorView.reveal_hp
+	if hp_btn != null:
+		hp_btn.button_pressed = ActorView.reveal_hp
+	_refresh()
+
+
+## 상호작용 물체 강조(G·화면 버튼 — 켜고 끄기).
+func _toggle_highlight() -> void:
+	alt_highlight = not alt_highlight
+	if hl_btn != null:
+		hl_btn.button_pressed = alt_highlight
+	highlights.queue_redraw()
 
 
 ## 고르던 행동·대상 취소(Esc·우클릭 — BG3).
@@ -1608,6 +1622,32 @@ func _build_ui() -> void:
 	minimap.offset_bottom = 198
 	minimap.grid = world["grid"]
 	root.add_child(minimap)
+	# 미니맵 아래: 켜고 끄는 보기 버튼(터치·iPad — H 모든 HP, G 물체 강조)
+	var vbox := HBoxContainer.new()
+	vbox.anchor_left = 1.0
+	vbox.anchor_right = 1.0
+	vbox.offset_left = -200
+	vbox.offset_right = -10
+	vbox.offset_top = 202
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 6)
+	root.add_child(vbox)
+	hp_btn = Button.new()
+	hp_btn.text = UiText.t("toggle_hp")
+	hp_btn.toggle_mode = true
+	hp_btn.focus_mode = Control.FOCUS_NONE
+	hp_btn.pressed.connect(func() -> void:
+		ActorView.reveal_hp = hp_btn.button_pressed
+		_refresh())
+	vbox.add_child(hp_btn)
+	hl_btn = Button.new()
+	hl_btn.text = UiText.t("toggle_highlight")
+	hl_btn.toggle_mode = true
+	hl_btn.focus_mode = Control.FOCUS_NONE
+	hl_btn.pressed.connect(func() -> void:
+		alt_highlight = hl_btn.button_pressed
+		highlights.queue_redraw())
+	vbox.add_child(hl_btn)
 	# 아래: 단축 막대(BG3 구조 — scenes/ui/hotbar.gd)
 	var bottom := VBoxContainer.new()
 	bottom.anchor_left = 0.5
