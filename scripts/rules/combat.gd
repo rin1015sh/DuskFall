@@ -153,12 +153,12 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		dmg_bonus += brawl
 	var expr := dice if dmg_mod + dmg_bonus + str_bonus == 0 else "%s%+d" % [dice, dmg_mod + dmg_bonus + str_bonus]
 	if w["id"] == "unarmed":
-		expr = str(maxi(1 + mod, 0)) if mod != 0 else "1"
+		expr = str(maxi(1 + mod + str_bonus + dmg_bonus, 0))  # 비무장 1 + 근력(+분노 — BG3)
 		if martial_die != "":
 			expr = martial_die if mod + str_bonus == 0 else "%s%+d" % [martial_die, mod + str_bonus]  # 무술: 비무장 공격 = 무술 주사위 + 수정치
 	var hit_bonus := dmg_bonus
 	if w["id"] == "unarmed" and brawl != 0:
-		expr = str(maxi(1 + mod + brawl, 0)) if martial_die == "" else "%s%+d" % [martial_die, mod + str_bonus + brawl]
+		expr = str(maxi(1 + mod + str_bonus + dmg_bonus, 0)) if martial_die == "" else "%s%+d" % [martial_die, mod + str_bonus + brawl]
 	for m in c.modifier_entries():
 		if m["effect"]["type"] == "modify" and m["effect"]["stat"] == "weapon_attack":
 			hit_bonus += int(m["effect"].get("add", 0))  # 신성한 무기: 명중만
@@ -594,7 +594,8 @@ static func move(world: Dictionary, c: Node, to: Vector2i, opts: Dictionary = {}
 		grid.move_creature(c, nxt)
 		out["moved"] += 1
 		cur = nxt
-		_polearm_enter_oa(world, c, prev, cur)
+		if not c.turn.get("disengaged", false) and not free:
+			_polearm_enter_oa(world, c, prev, cur)  # 이탈·기회 공격 없는 이동이면 장병기 진입 공격도 없다
 		if c.dead or c.is_down() or c.has_meta("sentinel_stopped"):
 			out["stopped"] = "이동 중 쓰러지거나 멈춤"
 			break
@@ -762,6 +763,9 @@ static func help(world: Dictionary, c: Node, ally: Node, range_tiles: int = 1) -
 	for a in ally.active_conditions():
 		if a["def"].get("helpable", false) or str(a["id"]) == "prone":
 			helpable.append(str(a["id"]))
+	for cond in ally.conditions:
+		if str(cond["id"]) == "restrained" and cond.get("params", {}).has("escape_dc") and not "restrained" in helpable:
+			helpable.append("restrained")  # BG3 돕기: 거미줄·덩굴에 걸린 아군을 풀어 준다
 	if not ally.is_down() and helpable.is_empty():
 		return _fail("쓰러졌거나 돕기로 풀 상태가 있는 아군에게만")
 	if world["grid"].distance_between(c, ally) > range_tiles:
@@ -771,7 +775,7 @@ static func help(world: Dictionary, c: Node, ally: Node, range_tiles: int = 1) -
 	if ally.is_down():
 		Resolver.heal(ally, 1, c)
 	for cid: String in helpable:
-		ally.remove_condition(cid)  # BG3 돕기: 넘어짐·비틀거림·균형 잃음·힘 빠진 손을 풀어 준다
+		ally.remove_condition(cid)  # BG3 돕기: 넘어짐·잠듦·연소·휘감김·거미줄 속박·비틀거림·균형 잃음 등을 풀어 준다
 	return {"ok": true, "removed": helpable}
 
 
@@ -800,7 +804,7 @@ static func shove(world: Dictionary, c: Node, target: Node) -> Dictionary:
 		return _fail(plan["reason"])  # 미리보기가 막는다 — 비용을 쓰지 않는다
 	if not spend(c, "bonus"):
 		return _fail("보너스 행동이 없다")
-	var r := Physics.shove(grid, c, target, not c.is_hostile_to(target))
+	var r := Physics.shove(grid, c, target, c.team == target.team)  # 같은 편만 판정 없이(중립은 판정 — BG3)
 	r["ok"] = true
 	return r
 
@@ -863,21 +867,24 @@ static func throw_object(world: Dictionary, c: Node, target: Node, weight_kg: fl
 		range_tiles = Physics.throw_range_tiles(c, weight_kg)
 	if grid.distance_between(c, target) > grid.effective_range(c, grid.cell_of(target), range_tiles):
 		return _fail("사거리 밖")
-	if not spend(c, "action"):
-		return _fail("행동이 없다")
+	if int(c.turn.get("attacks_left", 0)) <= 0:  # 공격 행동의 공격 하나(추가 공격과 이어진다 — BG3)
+		if not spend(c, "action"):
+			return _fail("행동이 없다")
+		c.turn["attacks_left"] = c.attacks_per_action
+	c.turn["attacks_left"] -= 1
 	var brawl: int = c.ability_mod("str") if c.has_cap("brawler") else 0  # 주먹다짐: 근력 수정치를 한 번 더
-	var atk := {"name": "던지기", "bonus": c.ability_mod("str") + brawl, "kind": "ranged", "weapon": false, "damage": []}
+	var rb := Resolver.rage_bonus(c) * (2 if c.has_flag("throw_rage_double") else 1)  # 분노 피해는 던지기에도(BG3), 거인의 분노는 두 배
+	var extra := rb + brawl
+	var dice := Physics.throw_damage_dice(weight_kg)
+	# 피해는 공격 한 번으로 굴린다(치명타 두 배·집중·사망 내성 한 번 — 2026-11-24 버그 수정)
+	var atk := {"name": "던지기", "bonus": c.ability_mod("str") + brawl, "kind": "ranged", "weapon": false,
+		"damage": [{"dice": dice if extra == 0 else "%s%+d" % [dice, extra], "damage_type": "bludgeoning"}]}
 	var ctx: Dictionary = grid.attack_context(c, target)
 	if is_threatened(world, c):
 		ctx["disadvantage"].append("근접 위협")
 	var res := Resolver.attack(c, target, atk, ctx)
 	if res["hit"]:
-		res["throw"] = Physics.throw_hit(grid, c, target, weight_kg)
-		var rb := Resolver.rage_bonus(c) * (2 if c.has_flag("throw_rage_double") else 1)
-		if rb > 0 and not target.dead:
-			Resolver.apply_damage(target, [{"amount": rb, "damage_type": "bludgeoning"}], {"attacker": c})  # 분노 피해는 던지기에도(BG3), 거인의 분노는 두 배
-		if brawl > 0 and not target.dead:
-			Resolver.apply_damage(target, [{"amount": brawl, "damage_type": "bludgeoning"}], {"attacker": c})
+		res["throw"] = Physics.throw_hit(grid, c, target, weight_kg, false)
 	res["ok"] = true
 	return res
 
@@ -1032,6 +1039,29 @@ static func _monster_save_action(world: Dictionary, m: Node, a: Dictionary, targ
 
 ## 범위 내성 행동(용의 숨결 등): area {shape cone·line·sphere, length_tiles·radius_tiles}. 큰 몬스터는 차지한 칸 가운데에서 대상 쪽으로.
 ## 범위 안 모든 생물(자신 제외)이 내성 — 실패 fail, 성공 success(절반 피해). 피해 주사위는 한 번만(원문). 칸 반응(화염·냉기 등)도.
+## 몬스터 범위 행동이 맞힐 생물(AI 아군 피격 검사·실행 공용).
+static func monster_area_targets(world: Dictionary, m: Node, a: Dictionary, target: Node) -> Array:
+	var grid: Node = world["grid"]
+	var ar: Dictionary = a["area"]
+	var sz: int = grid.size_of(m)
+	var origin: Vector2i = grid.cell_of(m) + Vector2i((sz - 1) / 2, (sz - 1) / 2)
+	var aim := Vector2(grid.cell_of(target)) + Vector2(0.5, 0.5)
+	var cov: Dictionary = {}
+	match str(ar["shape"]):
+		"cone":
+			cov = Area.cov_cone(grid, origin, aim, int(ar["length_tiles"]))
+		"line":
+			cov = Area.cov_line(grid, origin, aim, int(ar["length_tiles"]), 0.5 * int(ar.get("width_tiles", 1)))
+		_:
+			cov = Area.cov_circle(grid, grid.cell_of(target), int(ar.get("radius_tiles", 1)))
+	var own_cells: Array[Vector2i] = grid.occupied_cells(m)
+	var cells: Array[Vector2i] = []
+	for c: Vector2i in cov:
+		if not c in own_cells:
+			cells.append(c)
+	return Area.creatures_in(grid, cells).filter(func(o: Node) -> bool: return o != m and not o.dead)
+
+
 static func _monster_area_save(world: Dictionary, m: Node, a: Dictionary, target: Node) -> Dictionary:
 	var grid: Node = world["grid"]
 	var ar: Dictionary = a["area"]

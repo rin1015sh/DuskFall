@@ -19,7 +19,7 @@ static func pool(spell: Dictionary, slot: int) -> int:
 
 
 static func immune(t: Node, cond: String) -> bool:
-	if cond == "unconscious" and (t.has_cap("immune_magic_sleep") or t.creature_type in ["undead", "construct"]):
+	if cond in ["unconscious", "asleep"] and (t.has_cap("immune_magic_sleep") or t.creature_type in ["undead", "construct"]):
 		return true  # 잠들지 않는 생물(엘프 요정 혈통·언데드·구조물)
 	return t.is_condition_immune(cond)
 

@@ -426,7 +426,8 @@
         ]
       },
       "notes_ko": "물·젖음으로 풀린다.",
-      "source": "original"
+      "source": "original",
+      "helpable": true
     },
     {
       "id": "acid",
@@ -732,7 +733,8 @@
       },
       "ends_on_heal": true,
       "notes_ko": "무기 액션 '꿰뚫기·관통 사격': 이 생물을 맞힌 공격은 관통 2 추가. 회복하면 풀린다(BG3).",
-      "source": "original"
+      "source": "original",
+      "helpable": true
     },
     {
       "id": "weak_grip",
@@ -1010,7 +1012,8 @@
       "source": "SRD 5.2.1",
       "includes": [
         "restrained"
-      ]
+      ],
+      "helpable": true
     },
     {
       "id": "barkskin",
@@ -1471,7 +1474,8 @@
         "speed_zero": true
       },
       "notes_ko": "마름쇠: 속도 0(자기 다음 턴 시작까지 — 이번 턴 끝에 풀린다).",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "default_duration_turns": 1
     },
     {
       "id": "heroic_inspiration",
@@ -1649,7 +1653,8 @@
         "one_thing_only": true
       },
       "notes_ko": "교묘한 일격 현혹: 다음 턴에 이동·행동·보너스 행동 중 하나만 — 1차는 행동만 남긴다.",
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "helpable": true
     },
     {
       "id": "feasted",
@@ -3511,7 +3516,8 @@
         "poisoned"
       ],
       "notes_ko": "죽은 듯한 잠: 정신 외 모든 피해 저항, 중독 면역.",
-      "source": "original"
+      "source": "original",
+      "helpable": true
     },
     {
       "id": "thunder_echo",
@@ -3687,6 +3693,22 @@
         ]
       },
       "notes_ko": "원소 무기화: 무기 명중 +1, 무기 명중마다 천둥 1d4(5·6레벨 슬롯 2d4).",
+      "source": "original"
+    },
+    {
+      "id": "asleep",
+      "name": {
+        "ko": "잠듦",
+        "en": "Asleep"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "includes": [
+        "unconscious"
+      ],
+      "helpable": true,
+      "ends_on_damage": true,
+      "notes_ko": "수면(BG3 잠듦): 무의식(무력화·넘어짐, 근접 자동 치명타). 피해를 받거나 돕기로 깬다.",
       "source": "original"
     }
   ]

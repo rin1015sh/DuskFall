@@ -276,7 +276,7 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 		"shove":
 			if grid.distance_between(c, t) > 1:
 				return {"valid": false, "lines": ["인접한 대상만"]}
-			var p := Physics.preview_shove(grid, c, t, not c.is_hostile_to(t))
+			var p := Physics.preview_shove(grid, c, t, c.team == t.team)
 			if not p["valid"]:
 				return {"valid": false, "lines": [p.get("reason", "")]}
 			out["path"] = p["path"]
@@ -288,6 +288,11 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 			var w := float(obj.get("weight_kg", 10))
 			if w > Physics.max_throw_kg(c):
 				return {"valid": false, "lines": ["너무 무겁다"]}
+			var trng := Physics.throw_range_tiles(c, w)
+			if t != null and grid.distance_between(c, t) > grid.effective_range(c, cell, trng):
+				return {"valid": false, "lines": ["사거리 밖(%d칸)" % trng]}
+			if not grid.has_line_of_sight(grid.cell_of(c), cell):
+				return {"valid": false, "lines": ["보이지 않는다"]}
 			out["lines"].append("%s 던지기 · 피해 %s" % [obj.get("id", ""), Physics.throw_damage_dice(w)])
 		"throw_item":
 			var rng := Combat.gear_throw_range(c, RulesDB.get_entry("item", key.get_slice(":", 1)))

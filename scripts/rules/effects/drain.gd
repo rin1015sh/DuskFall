@@ -17,7 +17,7 @@ func apply(ctx: Dictionary) -> Dictionary:
 		return {"ok": false, "reason": "대상이 없다"}
 	var dice := Spellcasting.scaled_dice(c, ctx["spell"], "3d6", int(ctx["slot"]))
 	var r := Resolver.attack(c, t, {"name": "Vampiric Touch", "bonus": Spellcasting.spell_attack_bonus(c), "kind": "melee",
-		"weapon": false, "damage": [{"dice": dice, "damage_type": "necrotic"}]}, grid.attack_context(c, t))
+		"weapon": false, "spell": true, "damage": [{"dice": dice, "damage_type": "necrotic"}]}, grid.attack_context(c, t))
 	if r["hit"]:
 		Resolver.heal(c, int(r["damage"]["total"]) / 2, c)
 	if not ctx["opts"].get("no_slot", false):

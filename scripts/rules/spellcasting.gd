@@ -1054,6 +1054,9 @@ static func on_turn_end(world: Dictionary, c: Node) -> void:
 			continue
 		if s["success"]:
 			var id: Variant = cond["params"].get("instance")
+			if id == null:
+				c.remove_condition(cond["id"])  # 주문 기록이 없으면 그 상태만(다른 상태·장비 수정치를 지우지 않는다)
+				continue
 			for other in c.conditions.duplicate():
 				if other.get("params", {}).get("instance") == id:
 					c.remove_condition(other["id"])

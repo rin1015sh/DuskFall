@@ -306,7 +306,17 @@
       "obscurity": "heavy",
       "blocks_sight": true,
       "source": "SRD 5.2.1",
-      "notes_ko": "내성·중독은 주문 효과(5단계)."
+      "notes_ko": "악취 구름: 들어오거나 안에서 턴을 시작하면 건강 내성(주문 DC), 실패 → 중독 1턴(행동 잃음). 턴마다 한 번.",
+      "save": {
+        "ability": "con",
+        "on_fail": [
+          {
+            "type": "apply_condition",
+            "id": "poisoned",
+            "turns": 1
+          }
+        ]
+      }
     },
     {
       "id": "illusory_image",

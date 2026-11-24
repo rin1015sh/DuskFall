@@ -54,11 +54,7 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	var d := luck(attacker, Dice.d20(res["mode"], "%s 공격" % attacker.label()))
 	res["rolls"] = d["rolls"]
 	res["natural"] = d["natural"]
-	res["crit_threshold"] = attacker.crit_threshold if atk.get("weapon", false) else 20
-	if atk.has("spell"):
-		res["crit_threshold"] = 20 - attacker.cap_count("spell_crit_minus_1")  # 주문 저격: 주문 공격 치명타 눈 −1(겹친다)
-	if target.condition_instance("hexblades_curse").get("source") == attacker:
-		res["crit_threshold"] = int(res["crit_threshold"]) - 1  # 주술검사의 저주: 치명타 범위 −1
+	res["crit_threshold"] = crit_threshold_for(attacker, target, atk)
 	var bonus_dice := roll_bonus_dice(attacker, "attack_roll")
 	res["bonus_dice"] = bonus_dice
 	res["total"] = res["natural"] + res["attack_bonus"] + bonus_dice
@@ -201,9 +197,11 @@ static func preview_attack(attacker: Node, target: Node, atk: Dictionary, ctx: D
 	var res := _attack_setup(attacker, target, atk, ctx, true)
 	if not res["valid"]:
 		return res
-	var p := hit_probability(target.ac() + res["ac_bonus"], res["attack_bonus"] + avg_bonus_dice(attacker, "attack_roll"))
+	var thr := crit_threshold_for(attacker, target, atk)
+	var pc := clampf((21.0 - thr) / 20.0, 0.05, 1.0)  # 치명타 눈(챔피언 19 등)은 늘 명중
+	var p := maxf(hit_probability(target.ac() + res["ac_bonus"], res["attack_bonus"] + avg_bonus_dice(attacker, "attack_roll")), pc)
 	res["hit_chance"] = apply_mode(p, res["mode"])
-	res["crit_chance"] = apply_mode(0.05, res["mode"])
+	res["crit_chance"] = apply_mode(pc, res["mode"])
 	var lo := 0.0
 	var hi := 0.0
 	var avg := 0.0
@@ -215,6 +213,16 @@ static func preview_attack(attacker: Node, target: Node, atk: Dictionary, ctx: D
 		avg += modify_amount(target, maxf(s["avg"], 0.0), t, 1.0, false)
 	res["damage"] = {"min": lo, "max": hi, "avg": avg}
 	return res
+
+
+## 치명타 눈: 무기 공격은 생물의 crit_threshold(챔피언 등), 주문 공격은 20 − 주문 저격, 주술검사의 저주 −1.
+static func crit_threshold_for(attacker: Node, target: Node, atk: Dictionary) -> int:
+	var thr: int = attacker.crit_threshold if atk.get("weapon", false) else 20
+	if atk.has("spell"):
+		thr = 20 - attacker.cap_count("spell_crit_minus_1")  # 주문 저격: 주문 공격 치명타 눈 −1(겹친다)
+	if target.condition_instance("hexblades_curse").get("source") == attacker:
+		thr -= 1  # 주술검사의 저주: 치명타 범위 −1
+	return thr
 
 
 ## 명중 확률 p = (21 − (AC − 공격 보너스)) / 20, 5~95%로 자른다(자연 1·20).
@@ -265,6 +273,12 @@ static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Di
 		return res
 	# 3. 유리·불리 수집
 	_collect_attack_mods(attacker, target, res)
+	# 근접 위협(BG3 Threatened): 원거리 공격 굴림은 모두 — 무기·주문·스크립트 주문을 한곳에서(이미 넣었으면 그대로)
+	if str(atk.get("kind", "")) == "ranged" and not "근접 위협" in res["disadvantage"] and not ctx.get("ignore_threat", false):
+		var rq: Node = EventBus.reaction_queue
+		if rq != null and is_instance_valid(rq) and rq.world.has("grid") and rq.world["grid"].creatures().has(attacker) \
+				and load("res://scripts/rules/combat.gd").is_threatened(rq.world, attacker):
+			res["disadvantage"].append("근접 위협")
 	EventBus.on_before_attack_roll.emit(res)
 	_brutal_strike_setup(attacker, atk, res, preview)
 	if not preview:
@@ -1185,6 +1199,9 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 			var s := saving_throw(target, sod["ability"], int(sod["dc"]), {"advantage": ["피해"]})
 			if s["success"]:
 				var id: Variant = cond["params"].get("instance")
+				if id == null:
+					target.remove_condition(cond["id"])
+					continue
 				for other in target.conditions.duplicate():
 					if other.get("params", {}).get("instance") == id:
 						target.remove_condition(other["id"])

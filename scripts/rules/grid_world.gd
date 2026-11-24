@@ -314,7 +314,8 @@ func can_step_sized(from_anchor: Vector2i, to_anchor: Vector2i, creature_size: i
 
 ## 경로 탐색(A*). 결과: {"path": [칸...](출발 제외), "cost": int}. 길이 없으면 빈 Dictionary.
 ## max_cost를 넘는 길은 찾지 않는다(-1 = 제한 없음). 다른 생물 칸은 지나갈 수 없다(ignore로 예외).
-func find_path(mover: Node, to: Vector2i, max_cost: int = -1, ignore: Array = []) -> Dictionary:
+## penalty: {칸: 추가 가중치} — AI가 위험한 표면을 돌아가게(실제 이동 비용 cost에는 넣지 않는다).
+func find_path(mover: Node, to: Vector2i, max_cost: int = -1, ignore: Array = [], penalty: Dictionary = {}) -> Dictionary:
 	var start := cell_of(mover)
 	var sz := size_of(mover)
 	if start == to:
@@ -322,6 +323,7 @@ func find_path(mover: Node, to: Vector2i, max_cost: int = -1, ignore: Array = []
 	var open := {start: 0}
 	var came := {}
 	var g := {start: 0}
+	var wg := {start: 0}  # 가중 비용(실제 비용 + 위험 가중치)
 	while not open.is_empty():
 		var cur: Vector2i = Vector2i.ZERO
 		var best := 1 << 30
@@ -346,10 +348,12 @@ func find_path(mover: Node, to: Vector2i, max_cost: int = -1, ignore: Array = []
 				cost = maxi(cost, g[cur] + step_cost(c - d, c, mover))
 			if max_cost >= 0 and cost > max_cost:
 				continue
-			if not g.has(nxt) or cost < g[nxt]:
+			var wcost: int = int(wg[cur]) + (cost - int(g[cur])) + int(penalty.get(nxt, 0))
+			if not wg.has(nxt) or wcost < int(wg[nxt]):
 				g[nxt] = cost
+				wg[nxt] = wcost
 				came[nxt] = cur
-				open[nxt] = cost + distance(nxt, to)
+				open[nxt] = wcost + distance(nxt, to)
 	return {}
 
 

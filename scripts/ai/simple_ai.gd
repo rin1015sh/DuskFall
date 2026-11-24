@@ -141,19 +141,20 @@ static func _approach(world: Dictionary, c: Node, target: Node) -> bool:
 	if budget <= 0:
 		return false
 	var allies: Array = grid.creatures().filter(func(o: Node) -> bool: return o != c and not o.is_hostile_to(c))
+	var danger := _danger_map(grid, c)
 	for cell in grid.occupied_cells(target):
 		for d in grid.DIRS_8:
 			var n: Vector2i = cell + d
 			if not grid.in_bounds(n) or grid.blocks_movement(n) or grid.creature_at(n) != null:
 				continue
-			var p: Dictionary = grid.find_path(c, n, -1, allies)
+			var p: Dictionary = grid.find_path(c, n, -1, allies, danger)
 			if not p.is_empty() and p["cost"] < best_cost:
 				best_cost = p["cost"]
 				best = n
 	if best.x < 0:
 		return false
 	# 이동력이 모자라면 경로를 따라 갈 수 있는 데까지
-	var path: Dictionary = grid.find_path(c, best, -1, allies)
+	var path: Dictionary = grid.find_path(c, best, -1, allies, danger)
 	var stop: Vector2i = grid.cell_of(c)
 	var spent := 0
 	var cur: Vector2i = stop
@@ -162,11 +163,25 @@ static func _approach(world: Dictionary, c: Node, target: Node) -> bool:
 		if spent > budget:
 			break
 		cur = n
-		if grid.creature_at(n) == null:
-			stop = n
+		if grid.creature_at(n) == null and not danger.has(n):
+			stop = n  # 위험한 표면 위에서는 멈추지 않는다
 	if stop == grid.cell_of(c):
 		return false
 	return Combat.move(world, c, stop).get("ok", false)
+
+
+## AI 경로 가중치: 위험한 표면 칸(피해·연소 — Tactics.surface_danger)은 돌아가게. 비행하면 무시.
+static func _danger_map(grid: Node, c: Node) -> Dictionary:
+	var out := {}
+	if c.has_flag("flying"):
+		return out
+	for cell in grid.all_cells():
+		var sid: String = grid.surface_id(cell)
+		if sid != "":
+			var n: int = Tactics.surface_danger(sid)
+			if n > 0:
+				out[cell] = 6 * n
+	return out
 
 
 ## 광기의 관: 건 생물이 아닌 가장 가까운 생물(아군이어도)에게 다가가 근접 공격 한 번.
@@ -219,6 +234,7 @@ static func monster_turn(world: Dictionary, m: Node) -> void:
 		Combat.escape(world, m)
 		return
 	Tactics.pre_turn(world, m)
+	_monster_bonus(world, m, "start")
 	var guard := 0
 	while guard < 8 and not m.dead and not m.is_down():
 		guard += 1
@@ -234,7 +250,7 @@ static func monster_turn(world: Dictionary, m: Node) -> void:
 			if a["type"] == "save" and int(m.cooldowns.get(a["id"], 0)) == 0 and not a.get("replaces_attack", false):
 				var rng: Variant = a.get("range_tiles", 1)
 				if dist <= (int(rng) if typeof(rng) != TYPE_ARRAY else int(rng[0])) and grid.can_see(m, foe) \
-						and int(m.turn.get("attacks_left", 0)) <= 0:
+						and int(m.turn.get("attacks_left", 0)) <= 0 and _area_ok(world, m, a, foe):
 					did = Combat.monster_action(world, m, a["id"], foe).get("ok", false)
 					break
 		if did:
@@ -268,6 +284,41 @@ static func monster_turn(world: Dictionary, m: Node) -> void:
 	var f := _nearest_foe(world, m)
 	if f != null and not m.dead and grid.distance_between(m, f) > 1 and int(m.turn.get("movement", 0)) > 0:
 		_approach(world, m, f)
+	_monster_bonus(world, m)
+
+
+## 범위 행동(숨결 등): 같은 편이 맞으면 적이 더 많이 맞을 때만 쓴다(BG3 AI는 아군 피격을 꺼린다).
+static func _area_ok(world: Dictionary, m: Node, a: Dictionary, foe: Node) -> bool:
+	if not a.has("area"):
+		return true
+	var hit: Array = Combat.monster_area_targets(world, m, a, foe)
+	var friends := hit.filter(func(o: Node) -> bool: return not m.is_hostile_to(o)).size()
+	var foes := hit.filter(func(o: Node) -> bool: return m.is_hostile_to(o)).size()
+	return foes > 0 and friends * 2 < foes
+
+
+## 몬스터 보너스 행동(데이터 bonus_actions, 이름이 아니라 필드로):
+##   move "half_toward_enemy" — 턴 앞에서 속도 절반만큼 더 다가간다(돌진류).
+##   options ["disengage", "hide"] — 턴 끝에 적과 붙어 있으면 숨기(안 보일 때) 또는 이탈(날렵한 탈출류).
+static func _monster_bonus(world: Dictionary, m: Node, phase: String = "end") -> void:
+	if m.dead or m.is_down() or int(m.turn.get("bonus", 0)) <= 0:
+		return
+	var grid: Node = world["grid"]
+	var foe := _nearest_foe(world, m)
+	if foe == null:
+		return
+	for b: Dictionary in m.get_meta("monster", {}).get("bonus_actions", []):
+		if phase == "start" and str(b.get("move", "")) == "half_toward_enemy" and grid.distance_between(m, foe) > 1:
+			m.turn["bonus"] = int(m.turn["bonus"]) - 1
+			m.turn["movement"] = int(m.turn.get("movement", 0)) + m.speed() / 2
+			_approach(world, m, foe)
+			return
+		if phase == "end" and b.has("options") and grid.distance_between(m, foe) <= 1:
+			if "hide" in b["options"] and Combat.hide(world, m, "bonus").get("ok", false):
+				return
+			if "disengage" in b["options"]:
+				Combat.disengage(m, "bonus")
+				return
 
 
 static func _foes(world: Dictionary, c: Node) -> Array:

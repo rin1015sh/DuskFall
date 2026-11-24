@@ -157,10 +157,12 @@ static func throw_damage_dice(weight_kg: float) -> String:
 
 ## 던진 물체가 생물에 맞았을 때(명중 판정은 3단계 던지기 행동). 대상 무게의 절반을 넘으면 1칸 밀림,
 ## 대상보다 무거우면 넘어짐.
-static func throw_hit(grid: Node, thrower: Node, target: Node, weight_kg: float) -> Dictionary:
-	var r := Dice.roll(throw_damage_dice(weight_kg), "던지기 피해")
-	var out := {"damage": Resolver.apply_damage(target, [{"amount": r["total"], "damage_type": "bludgeoning"}]),
-		"pushed": false, "prone": false}
+## deal_damage false: 피해는 공격 굴림(Combat.throw_object)이 이미 넣었다 — 밀림·넘어짐만.
+static func throw_hit(grid: Node, thrower: Node, target: Node, weight_kg: float, deal_damage: bool = true) -> Dictionary:
+	var out := {"damage": {}, "pushed": false, "prone": false}
+	if deal_damage:
+		var r := Dice.roll(throw_damage_dice(weight_kg), "던지기 피해")
+		out["damage"] = Resolver.apply_damage(target, [{"amount": r["total"], "damage_type": "bludgeoning"}], {"attacker": thrower})
 	if target.dead:
 		return out
 	if weight_kg > target.weight_kg / 2.0:

@@ -202,7 +202,7 @@ func test_throw_object() -> void:
 	Dice.force([18, 3])
 	var r := Combat.throw_object(w, f, g, 12.0)
 	assert_true(r["hit"])
-	assert_eq(r["throw"]["damage"]["total"], 3, "10~50kg → 1d4")
+	assert_eq(g.hp, g.hp_max - 3, "10~50kg → 1d4(공격 한 번으로 — 치명타 두 배)")
 	assert_true(r["throw"]["pushed"], "대상 무게 절반 초과 → 1칸")
 
 

@@ -24,6 +24,7 @@ func test_accuracy_trade_toggle() -> void:
 	AI.decide_toggles(w, f, weak)
 	assert_eq(str(f.options.get("great_weapon_master")), "on", "AC 낮으면 켠다")
 	weak.ac_base = 25
+	f.crit_threshold = 20  # 치명타 눈이 넓으면(챔피언 19) 치명타는 늘 맞아 켜는 편이 낫다 — 여기서는 20만
 	AI.decide_toggles(w, f, weak)
 	assert_eq(str(f.options.get("great_weapon_master")), "off", "AC 높으면 끈다")
 

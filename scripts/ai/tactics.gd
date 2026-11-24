@@ -21,6 +21,8 @@ static func pick_target(world: Dictionary, c: Node) -> Node:
 	for o: Node in grid.creatures():
 		if o.dead or o.is_down() or not c.is_hostile_to(o) or o.has_flag("ethereal"):
 			continue
+		if load("res://scripts/rules/resolver.gd").can_attack(c, o) != "":
+			continue  # 매혹한 상대 등 공격할 수 없는 대상은 고르지 않는다
 		var s: float = grid.distance_between(c, o) + 4.0 * float(o.hp) / maxf(o.hp_max, 1)
 		if not o.concentration.is_empty():
 			s -= 2.0
@@ -62,11 +64,24 @@ static func _hazard(grid: Node, cell: Vector2i) -> bool:
 	var sid: String = grid.surface_id(cell)
 	if sid == "":
 		return false
+	return surface_danger(sid) > 0
+
+
+## 표면 위험도(AI): 피해 효과 수, 피해를 주는 상태(연소 등 — 턴 시작 피해 훅)를 거는 효과도 센다. 0 = 안전.
+static func surface_danger(sid: String) -> int:
+	if sid == "":
+		return 0
 	var def := RulesDB.get_entry("surface", sid)
-	for e: Dictionary in def.get("on_enter_or_turn_start", []) + def.get("on_move", []):
+	var n := 0
+	for e: Dictionary in def.get("on_enter_or_turn_start", []) + def.get("on_move", []) + def.get("on_turn_start", []):
 		if e.get("type", "") == "damage":
-			return true
-	return false
+			n += 1
+		elif e.get("type", "") == "apply_condition":
+			var cd := RulesDB.get_entry("condition", str(e.get("id", "")))
+			for h: Dictionary in cd.get("hooks", {}).get("on_turn_start", []) + cd.get("hooks", {}).get("on_turn_end", []):
+				if h.get("type", "") == "damage":
+					n += 1
+	return n
 
 
 static func _shove_hazard(world: Dictionary, c: Node) -> bool:

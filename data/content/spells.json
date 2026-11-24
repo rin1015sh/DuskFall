@@ -6999,7 +6999,7 @@
       "hp_pool": {
         "base": 24,
         "per_slot": 8,
-        "condition": "unconscious",
+        "condition": "asleep",
         "turns": 2,
         "ends_on_damage": true
       },
@@ -8157,7 +8157,8 @@
         "fail": [
           {
             "type": "apply_condition",
-            "id": "restrained"
+            "id": "restrained",
+            "escape": true
           }
         ],
         "apply": [

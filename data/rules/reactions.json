@@ -115,9 +115,15 @@
       "cause": "damage:fire",
       "target": "surface:web",
       "result": {
-        "replace_surface": "burning_web"
+        "replace_surface": "fire",
+        "creatures": [
+          {
+            "type": "apply_condition",
+            "id": "burning"
+          }
+        ]
       },
-      "basis": "SRD Web"
+      "basis": "BG3: 거미줄은 타서 화염 표면이 된다"
     },
     {
       "id": "flammable_fire",
@@ -161,6 +167,74 @@
         "keep": true
       },
       "basis": "거미줄은 불 위에 생기지 않는다(타 버림)"
+    },
+    {
+      "id": "fire_onto_oil",
+      "cause": "surface:fire",
+      "target": "surface:oil",
+      "result": {
+        "replace_surface": "fire",
+        "creatures": [
+          {
+            "type": "apply_condition",
+            "id": "burning"
+          }
+        ]
+      },
+      "basis": "BG3: 불이 기름에 닿으면 점화"
+    },
+    {
+      "id": "fire_onto_water",
+      "cause": "surface:fire",
+      "target": "surface:water",
+      "result": {
+        "remove_surface": true,
+        "create_cloud": "steam"
+      },
+      "basis": "BG3: 불 + 물 → 증기"
+    },
+    {
+      "id": "fire_onto_ewater",
+      "cause": "surface:fire",
+      "target": "surface:electrified_water",
+      "result": {
+        "remove_surface": true,
+        "create_cloud": "steam"
+      },
+      "basis": "BG3: 불 + 물 → 증기"
+    },
+    {
+      "id": "fire_onto_ice",
+      "cause": "surface:fire",
+      "target": "surface:ice",
+      "result": {
+        "replace_surface": "water"
+      },
+      "basis": "BG3: 불이 얼음을 녹인다"
+    },
+    {
+      "id": "fire_onto_web",
+      "cause": "surface:fire",
+      "target": "surface:web",
+      "result": {
+        "replace_surface": "fire",
+        "creatures": [
+          {
+            "type": "apply_condition",
+            "id": "burning"
+          }
+        ]
+      },
+      "basis": "BG3: 거미줄이 탄다"
+    },
+    {
+      "id": "fire_onto_blood",
+      "cause": "surface:fire",
+      "target": "surface:blood",
+      "result": {
+        "block": true
+      },
+      "basis": "BG3: 피는 불을 끈다"
     }
   ]
 }

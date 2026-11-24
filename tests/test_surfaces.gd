@@ -71,20 +71,14 @@ func test_electrified_water_and_fire_reactions() -> void:
 	assert_eq(g.cloud_id(Vector2i(3, 0)), "steam", "+ 증기")
 
 
-func test_web_burns_for_one_round() -> void:
+func test_web_burns_into_fire_bg3() -> void:
+	# BG3: 거미줄은 타서 보통 화염 표면이 된다(SRD 타는 거미줄 대신)
 	var gs := _setup()
 	var g: Node = gs[0]
 	var s: Node = gs[1]
 	_put(s, Vector2i(0, 0), "web")
 	s.tile_damage([Vector2i(0, 0)], "fire")
-	assert_eq(g.surface_id(Vector2i(0, 0)), "burning_web")
-	var cr := make_creature({"hp_max": 30})
-	g.place(cr, Vector2i(0, 0))
-	Dice.force([3, 4])
-	s.creature_turn_start(cr)
-	assert_eq(cr.hp, 23, "타는 거미줄에서 턴 시작 → 2d4 화염")
-	s.end_round()
-	assert_eq(g.surface_id(Vector2i(0, 0)), "", "1라운드 뒤 타서 사라진다")
+	assert_eq(g.surface_id(Vector2i(0, 0)), "fire")
 
 
 func test_flammable_material_ignites_and_burns_out() -> void:

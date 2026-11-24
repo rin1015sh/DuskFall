@@ -108,8 +108,11 @@ func _handle_damage(e: Dictionary, queue: Array) -> void:
 	if e["amount"] > 0 and not grid.object_at(c).is_empty():
 		_damage_object(c, e["damage_type"], e["amount"], e["depth"], queue)
 	if not _handle_reaction_or_nothing(e, "damage:" + e["damage_type"], queue):
+		# 반응표에 없는 가연성 표면(덩굴·무성한 풀)은 화염에 타서 화염 표면이 된다
+		if grid.surface_id(c) != "" and e["damage_type"] == "fire" and RulesDB.get_entry("surface", grid.surface_id(c)).get("flammable", false):
+			_apply_result(c, {"id": "flammable_surface_fire", "result": {"replace_surface": "fire", "creatures": [{"type": "apply_condition", "id": "burning"}]}}, e["depth"], queue)
 		# 표면이 없으면 재질 반응(가연성 + 화염 → 화염 표면)
-		if grid.surface_id(c) == "" and e["damage_type"] == "fire" and _material_flammable(c):
+		elif grid.surface_id(c) == "" and e["damage_type"] == "fire" and _material_flammable(c):
 			_apply_result(c, _reactions.get("damage:fire|material:flammable", {}), e["depth"], queue)
 
 
@@ -165,7 +168,14 @@ func _set_surface(c: Vector2i, id: String, opts: Dictionary, depth: int, queue: 
 		push_error("모르는 표면 '%s'" % id)
 		return
 	var turns := int(opts.get("turns", def["duration_turns"]))
-	grid.set_surface(c, {"id": id, "turns_left": turns, "source": opts.get("source"), "dc": int(opts.get("dc", DEFAULT_DC))})
+	var base := _base_of(grid.surface(c))
+	var inst := {"id": id, "turns_left": turns, "source": opts.get("source"), "dc": int(opts.get("dc", DEFAULT_DC))}
+	if base != "":
+		if base == id:
+			inst["turns_left"] = -1  # 맵 고유 표면으로 돌아옴
+		else:
+			inst["base"] = base  # 끝나면 맵 고유 표면(물)으로 돌아간다(map_permanent)
+	grid.set_surface(c, inst)
 	_changed += 1
 	# 불이 붙은 가연성 재질은 탄 땅이 된다(changes.md 2026-11-22). 다시 불붙지 않는다.
 	if id == "fire" and _material_flammable(c):
@@ -178,8 +188,20 @@ func _set_surface(c: Vector2i, id: String, opts: Dictionary, depth: int, queue: 
 
 
 func _clear_surface(c: Vector2i) -> void:
-	grid.set_surface(c, null)
+	var base := _base_of(grid.surface(c))
+	grid.set_surface(c, {"id": base, "turns_left": -1, "source": null, "dc": DEFAULT_DC} if base != "" else null)  # 맵 물은 남는다
 	_changed += 1
+
+
+## 칸 표면의 맵 고유 바탕(map_permanent 표면이 영구로 있거나, 그 위에 다른 표면이 덮여 있으면 그 id). 없으면 "".
+func _base_of(inst: Variant) -> String:
+	if not (inst is Dictionary):
+		return ""
+	if inst.has("base"):
+		return str(inst["base"])
+	if int(inst.get("turns_left", 0)) < 0 and RulesDB.get_entry("surface", str(inst["id"])).get("map_permanent", false):
+		return str(inst["id"])
+	return ""
 
 
 func _set_cloud(c: Vector2i, id: String, opts: Dictionary) -> void:
@@ -274,6 +296,10 @@ func _tick_layer(c: Vector2i, ground: bool) -> void:
 		return
 	var def := RulesDB.get_entry("surface", inst["id"])
 	if ground:
+		if inst.has("base"):
+			grid.set_surface(c, {"id": inst["base"], "turns_left": -1, "source": null, "dc": DEFAULT_DC})  # 맵 물로 돌아간다
+			_changed += 1
+			return
 		grid.set_surface(c, null)
 		if def.has("expires_to"):
 			grid.set_surface(c, {"id": def["expires_to"], "turns_left": int(RulesDB.get_entry("surface", def["expires_to"])["duration_turns"]),
@@ -359,8 +385,9 @@ func _on_enter_tile(creature: Object, cell: Vector2i) -> void:
 
 
 func creature_entered(creature: Node, _cell: Vector2i) -> void:
+	var stepped := {}  # 큰 생물: 한 걸음에 같은 표면의 이동 피해(가시)는 한 번만
 	for c in grid.occupied_cells(creature):
-		_apply_layers(creature, c, "enter")
+		_apply_layers(creature, c, "enter", stepped)
 
 
 ## 턴 시작: 새 턴이므로 '한 번만' 기록을 비우고 서 있는 칸의 효과를 받는다.
@@ -371,18 +398,19 @@ func creature_turn_start(creature: Node) -> void:
 		_apply_layers(creature, c, "turn_start")
 
 
-func _apply_layers(creature: Node, c: Vector2i, trigger: String) -> void:
+func _apply_layers(creature: Node, c: Vector2i, trigger: String, stepped: Dictionary = {}) -> void:
 	for inst: Variant in [grid.surface(c), grid.cloud(c)]:
 		if inst == null or creature.dead:
 			continue
 		if inst == grid.surface(c) and (creature.has_flag("flying") or int(creature.altitude) > 0):
 			continue  # 공중에 있으면 바닥 표면을 밟지 않는다
-		if inst == grid.surface(c) and inst["id"] == "water" and creature.has_flag("water_walk"):
+		if inst == grid.surface(c) and inst["id"] in ["water", "deep_water", "electrified_water"] and creature.has_flag("water_walk"):
 			continue
 		var def := RulesDB.get_entry("surface", inst["id"])
-		if trigger == "enter":
+		if trigger == "enter" and not stepped.has(inst["id"]):
+			stepped[inst["id"]] = true
 			for eff: Dictionary in def.get("on_move", []):
-				_apply_effect(creature, eff)  # 가시: 칸마다
+				_apply_effect(creature, eff, inst)  # 가시: 걸음마다
 		if not _hits.has(creature):
 			_hits[creature] = {"turn": 0, "ids": {}}
 		if _hits[creature]["ids"].has(inst["id"]):
@@ -393,21 +421,25 @@ func _apply_layers(creature: Node, c: Vector2i, trigger: String) -> void:
 		var save: Dictionary = def.get("save", {})
 		var used := not effects.is_empty()
 		for eff: Dictionary in effects:
-			_apply_effect(creature, eff)
+			_apply_effect(creature, eff, inst)
 		if not save.is_empty() and (trigger == "enter" or not save.get("on_enter_only", false)):
 			used = true
 			var r := Resolver.saving_throw(creature, save["ability"], int(inst.get("dc", DEFAULT_DC)))
 			if not r["success"]:
 				for eff: Dictionary in save["on_fail"]:
-					_apply_effect(creature, eff)
+					_apply_effect(creature, eff, inst)
 		if used:
 			_hits[creature]["ids"][inst["id"]] = true
 
 
-func _apply_effect(creature: Node, eff: Dictionary) -> void:
+func _apply_effect(creature: Node, eff: Dictionary, inst: Variant = null) -> void:
 	match eff["type"]:
 		"apply_condition":
-			creature.apply_condition(eff["id"])
+			var params := {}
+			var def := RulesDB.get_entry("condition", str(eff["id"]))
+			if str(eff["id"]) == "restrained" or "restrained" in def.get("includes", []):
+				params["escape_dc"] = int(inst.get("dc", DEFAULT_DC)) if inst is Dictionary else DEFAULT_DC  # 거미줄: 행동으로 빠져나온다
+			creature.apply_condition(eff["id"], int(eff.get("turns", 0)), null, params)
 		"remove_condition":
 			creature.remove_condition(eff["id"])
 		"damage":
