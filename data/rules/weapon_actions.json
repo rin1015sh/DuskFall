@@ -1177,6 +1177,90 @@
       "icon": "res://assets/statuses/taunt.webp",
       "glyph": "voice",
       "source": "original"
+    },
+    {
+      "id": "wa_f_defensive",
+      "name": {
+        "ko": "방어 묘기",
+        "en": "Defensive Flourish"
+      },
+      "desc": {
+        "ko": "바드의 영감: 무기 피해 + 영감 주사위, 맞히면 다음 턴까지 AC +4.",
+        "en": "Bardic Inspiration: weapon damage + inspiration die; on hit, +4 AC until your next turn."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "flourish",
+      "resource": "bardic_inspiration",
+      "weapon_kind": "any",
+      "consume": "hit",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "self_condition": "defensive_flourish",
+      "self_turns": 1,
+      "icon": "res://assets/statuses/shield_wall.webp",
+      "glyph": "shield",
+      "source": "original"
+    },
+    {
+      "id": "wa_f_slashing",
+      "name": {
+        "ko": "베기 묘기",
+        "en": "Slashing Flourish"
+      },
+      "desc": {
+        "ko": "바드의 영감: 앞쪽 적 2명까지 무기 피해 + 영감 주사위(하나라도 맞히면 영감을 쓴다).",
+        "en": "Bardic Inspiration: strike up to 2 foes in front, weapon damage + inspiration die (spent if any hits)."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "flourish",
+      "resource": "bardic_inspiration",
+      "weapon_kind": "any",
+      "consume": "hit",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "kind": "sweep",
+      "keep_weapon_damage": true,
+      "max_targets": 2,
+      "icon": "res://assets/statuses/blast_scorched.webp",
+      "glyph": "sweep",
+      "source": "original"
+    },
+    {
+      "id": "wa_f_mobile",
+      "name": {
+        "ko": "이동 묘기",
+        "en": "Mobile Flourish"
+      },
+      "desc": {
+        "ko": "바드의 영감: 무기 피해 + 영감 주사위, 맞으면 4칸(6m) 밀려난다(뒤따라 순간 이동은 생략).",
+        "en": "Bardic Inspiration: weapon damage + inspiration die; on hit, push 4 tiles (6 m)."
+      },
+      "cost": "action",
+      "weapons": [],
+      "group": "flourish",
+      "resource": "bardic_inspiration",
+      "weapon_kind": "any",
+      "consume": "hit",
+      "extra_damage": [
+        {
+          "dice": "superiority",
+          "damage_type": "weapon"
+        }
+      ],
+      "push_tiles": 4,
+      "icon": "res://assets/statuses/suppress.webp",
+      "glyph": "shove",
+      "source": "original"
     }
   ]
 }

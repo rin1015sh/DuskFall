@@ -2225,6 +2225,52 @@
       },
       "notes_ko": "집중 유지 내성 9 이하는 10, 보너스 행동 눈부신 숨결.",
       "source": "original"
+    },
+    {
+      "id": "defensive_flourish",
+      "name": {
+        "ko": "방어 묘기",
+        "en": "Defensive Flourish"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "ac",
+          "add": 4
+        }
+      ],
+      "default_duration_turns": 1,
+      "notes_ko": "AC +4(다음 내 턴까지).",
+      "source": "original"
+    },
+    {
+      "id": "mantle_of_inspiration",
+      "name": {
+        "ko": "영감의 망토",
+        "en": "Mantle of Inspiration"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "retaliate": {
+        "condition": "charmed",
+        "turns": 1
+      },
+      "notes_ko": "근접 공격으로 이 생물을 맞힌 생물은 1턴 매혹(긴 휴식까지).",
+      "source": "original"
+    },
+    {
+      "id": "mantle_of_majesty",
+      "name": {
+        "ko": "위엄의 망토",
+        "en": "Mantle of Majesty"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "default_duration_turns": 10,
+      "notes_ko": "매 턴 보너스 행동으로 명령(슬롯 없이).",
+      "source": "original"
     }
   ]
 }

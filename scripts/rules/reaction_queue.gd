@@ -342,6 +342,21 @@ func miss_bonus(res: Dictionary) -> void:
 			return
 
 
+## 전투 영감(용맹 학파): 받은 영감(params.combat)으로 맞을 공격을 AC로 막을 수 있으면 자동으로 쓴다(반응 아님).
+func _combat_inspiration_ac(res: Dictionary) -> void:
+	var t: Node = res["target"]
+	var inst: Dictionary = t.condition_instance("bardic_inspiration")
+	if inst.is_empty() or not inst.get("params", {}).get("combat", false):
+		return
+	var die := str(inst["params"].get("die", "1d6"))
+	if res["total"] >= res["ac"] + res["ac_bonus"] + int(die.get_slice("d", 1)):
+		return
+	var n: int = Dice.roll(die, "전투 영감")["total"]
+	t.remove_condition("bardic_inspiration")
+	res["ac_bonus"] += n
+	Dice.log_text("%s 전투 영감: AC +%d" % [t.label(), n])
+
+
 ## 환영 분신(환영학파 10레벨, trigger self_hit_any + 자원): 나를 맞힌 공격을 반응으로 빗나가게 한다.
 func _illusory_self(res: Dictionary) -> void:
 	var t: Node = res["target"]
@@ -388,6 +403,8 @@ func _on_after_attack_roll(res: Dictionary) -> void:
 	_enemy_hit_reactions(res)
 	if res.get("hit", false) and res["total"] >= res["ac"] + res["ac_bonus"]:
 		_self_hit_reactions(res)
+	if res.get("hit", false) and res["total"] >= res["ac"] + res["ac_bonus"]:
+		_combat_inspiration_ac(res)
 	if res.get("hit", false) and not res.get("forced_miss", false):
 		_illusory_self(res)
 	if res.get("hit", false) and not res.get("forced_miss", false):

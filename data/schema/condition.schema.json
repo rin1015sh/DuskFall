@@ -519,7 +519,6 @@
           "type": "string"
         },
         "retaliate": {
-          "$comment": "1칸 안 근접 명중 시 공격자에게 피해 {dice, damage_type}(화염 방패)",
           "type": "object"
         },
         "reveals_defenses": {

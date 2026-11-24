@@ -281,6 +281,9 @@ static func _retaliate(attacker: Node, target: Node, atk: Dictionary, res: Dicti
 		var r: Dictionary = a["def"].get("retaliate", {})
 		if r.is_empty():
 			continue
+		if r.has("condition"):
+			attacker.apply_condition(str(r["condition"]), int(r.get("turns", 1)), a["instance"].get("source"))  # 영감의 망토: 근접 공격자 매혹
+			continue
 		var n: int = Dice.roll(str(r["dice"]), a["id"])["total"]
 		apply_damage(attacker, [{"amount": n, "damage_type": str(r["damage_type"])}], {"attacker": target})
 

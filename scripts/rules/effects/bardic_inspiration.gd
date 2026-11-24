@@ -20,6 +20,6 @@ func apply(ctx: Dictionary) -> Dictionary:
 	if t.has_condition("bardic_inspiration"):
 		return {"ok": false, "reason": "이미 영감을 받았다"}
 	var die: String = load("res://scripts/rules/reaction_queue.gd")._feature_die(c, ctx.get("feature", {}))
-	t.apply_condition("bardic_inspiration", -1, c, {"die": die})
+	t.apply_condition("bardic_inspiration", -1, c, {"die": die, "combat": c.has_cap("combat_inspiration")})  # 전투 영감(용맹 학파): AC에도
 	Dice.log_text("%s: %s에게 바드의 영감(%s)" % [c.label(), t.label(), die])
 	return {"ok": true, "die": die}

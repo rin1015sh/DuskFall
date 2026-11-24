@@ -1207,6 +1207,15 @@
       },
       "note_ko": "짐승 형태 공격이 마법 공격(combat._beast_attack)",
       "source": "original"
+    },
+    {
+      "id": "combat_inspiration",
+      "name": {
+        "ko": "전투 영감",
+        "en": "Combat Inspiration"
+      },
+      "note_ko": "내가 준 바드의 영감을 AC에도(reaction_queue._combat_inspiration_ac)",
+      "source": "original"
     }
   ]
 }

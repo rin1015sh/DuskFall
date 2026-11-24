@@ -173,6 +173,18 @@
         "1": "long",
         "5": "short"
       }
+    },
+    {
+      "id": "mantle_of_majesty",
+      "name": {
+        "ko": "위엄의 망토",
+        "en": "Mantle of Majesty"
+      },
+      "max": {
+        "6": 1
+      },
+      "recharge": "long",
+      "subclass": "glamour"
     }
   ],
   "features": [
@@ -353,6 +365,200 @@
           ],
           "source": "SRD 5.2.1",
           "notes_ko": "클레릭·드루이드·위저드 목록에서 주문 2개(소마법이거나 가진 슬롯 레벨 이하) — 항상 준비. 레벨 업 때 바꾸기는 생략(명세에서 바꿈)."
+        }
+      ]
+    },
+    {
+      "id": "valour",
+      "name": {
+        "ko": "용맹 학파",
+        "en": "College of Daring"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "valour_training",
+          "name": {
+            "ko": "용맹의 훈련",
+            "en": "Daring Training"
+          },
+          "level": 3,
+          "grants": {
+            "armor_training": [
+              "medium",
+              "shield"
+            ],
+            "weapon_training": [
+              "martial"
+            ]
+          },
+          "notes_ko": "BG3: 중형 갑옷·방패·군용 무기 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "combat_inspiration",
+          "name": {
+            "ko": "전투 영감",
+            "en": "Combat Inspiration"
+          },
+          "level": 3,
+          "caps": [
+            "combat_inspiration"
+          ],
+          "notes_ko": "BG3: 내가 준 바드의 영감은 공격·판정·내성 실패에 더하는 것 말고도, 맞을 공격을 AC로 막을 수 있으면 AC에 더한다(자동).",
+          "source": "original"
+        },
+        {
+          "id": "valour_extra_attack",
+          "name": {
+            "ko": "추가 공격(용맹)",
+            "en": "Extra Attack (Daring)"
+          },
+          "level": 6,
+          "grants": {
+            "attacks_per_action": 2
+          },
+          "caps": [
+            "extra_attack"
+          ],
+          "notes_ko": "BG3: 공격 행동에 2회.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "swords",
+      "name": {
+        "ko": "칼날 학파",
+        "en": "College of Blades"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "swords_training",
+          "name": {
+            "ko": "칼날의 훈련",
+            "en": "Blade Training"
+          },
+          "level": 3,
+          "grants": {
+            "armor_training": [
+              "medium"
+            ],
+            "weapon_training": [
+              "scimitar"
+            ]
+          },
+          "notes_ko": "BG3: 중형 갑옷·시미터 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "swords_fighting_style",
+          "name": {
+            "ko": "칼날 전투 방식",
+            "en": "Blade Fighting Style"
+          },
+          "level": 3,
+          "choice_kind": "feat",
+          "choices": [
+            "dueling",
+            "two_weapon_fighting"
+          ],
+          "notes_ko": "BG3: 결투 또는 쌍수 전투.",
+          "source": "original"
+        },
+        {
+          "id": "blade_flourish",
+          "name": {
+            "ko": "칼날 묘기",
+            "en": "Blade Flourish"
+          },
+          "level": 3,
+          "grants": {
+            "special_attacks": [
+              "wa_f_defensive",
+              "wa_f_slashing",
+              "wa_f_mobile"
+            ]
+          },
+          "notes_ko": "BG3: 바드의 영감으로 방어·베기·이동 묘기(맞혀야 영감을 쓴다).",
+          "source": "original"
+        },
+        {
+          "id": "swords_extra_attack",
+          "name": {
+            "ko": "추가 공격(칼날)",
+            "en": "Extra Attack (Blades)"
+          },
+          "level": 6,
+          "grants": {
+            "attacks_per_action": 2
+          },
+          "caps": [
+            "extra_attack"
+          ],
+          "notes_ko": "BG3: 공격 행동에 2회.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "glamour",
+      "name": {
+        "ko": "매혹 학파",
+        "en": "College of Allure"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "mantle_of_inspiration",
+          "name": {
+            "ko": "영감의 망토",
+            "en": "Mantle of Inspiration"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "resource": "bardic_inspiration",
+          "script": "mantle_of_inspiration",
+          "target": "self",
+          "icon": "statuses/charm.webp",
+          "glyph": "heart_plus",
+          "notes_ko": "BG3: 보너스 행동 + 바드의 영감, 6칸 안 아군 2명(6레벨 3, 10레벨 4)에게 임시 HP 5(8·11), 근접 공격자는 1턴 매혹.",
+          "source": "original"
+        },
+        {
+          "id": "mantle_of_majesty",
+          "name": {
+            "ko": "위엄의 망토",
+            "en": "Mantle of Majesty"
+          },
+          "level": 6,
+          "kind": "bonus_action",
+          "resource": "mantle_of_majesty",
+          "script": "mantle_of_majesty",
+          "target": "self",
+          "icon": "statuses/rally.webp",
+          "glyph": "voice",
+          "notes_ko": "BG3: 보너스 행동, 10턴 동안 매 턴 보너스 행동으로 명령(슬롯 없이). 긴 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "majesty_command",
+          "name": {
+            "ko": "위엄의 명령",
+            "en": "Majestic Command"
+          },
+          "level": 6,
+          "kind": "bonus_action",
+          "script": "majesty_command",
+          "target": "creature",
+          "icon": "statuses/intimidated.webp",
+          "glyph": "voice",
+          "notes_ko": "위엄의 망토 중 보너스 행동으로 명령(슬롯 없이).",
+          "source": "original"
         }
       ]
     }

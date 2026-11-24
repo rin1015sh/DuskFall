@@ -157,7 +157,8 @@
             "enum": [
               "maneuver",
               "arcane_shot",
-              "dirty_trick"
+              "dirty_trick",
+              "flourish"
             ]
           },
           "kind": {
@@ -228,6 +229,18 @@
           },
           "line_extra": {
             "type": "object"
+          },
+          "self_condition": {
+            "type": "string"
+          },
+          "self_turns": {
+            "type": "integer"
+          },
+          "keep_weapon_damage": {
+            "type": "boolean"
+          },
+          "max_targets": {
+            "type": "integer"
           }
         }
       }

@@ -767,18 +767,27 @@ static func _special_attack(world: Dictionary, c: Node, key: String, wa: Diction
 	match kind:
 		"sweep":
 			# 휩쓸어 치기: 앞쪽 호(대상 쪽, 내 도달 안)의 적 모두, 피해는 우월 주사위만
-			c.spend_resource(res_id)
-			atk["damage"] = [{"dice": die, "damage_type": atk["damage"][0]["damage_type"]}]
-			atk["flat_damage"] = 0
+			if not wa.get("keep_weapon_damage", false):
+				atk["damage"] = [{"dice": die, "damage_type": atk["damage"][0]["damage_type"]}]
+				atk["flat_damage"] = 0
 			var me: Vector2i = grid.cell_of(c)
 			var dir: Vector2i = grid.cell_of(t) - me
 			out["sweep"] = []
-			for o: Node in grid.creatures().duplicate():
-				if o == c or o.dead or not c.is_hostile_to(o) or grid.distance_between(c, o) > Combat.reach_of(c):
+			var maxn := int(wa.get("max_targets", 99))
+			var any_hit := false
+			for o: Node in [t] + grid.creatures().duplicate():
+				if out["sweep"].size() >= maxn:
+					break
+				if o.dead or o == c or not c.is_hostile_to(o) or grid.distance_between(c, o) > Combat.reach_of(c) or (o != t and out.has("_t_" + str(o.get_instance_id()))):
 					continue
 				var v: Vector2i = grid.cell_of(o) - me
-				if o == t or v.x * dir.x + v.y * dir.y > 0:
-					out["sweep"].append(Combat._do_attack(world, c, o, atk.duplicate(true)))
+				if (o == t or v.x * dir.x + v.y * dir.y > 0) and not out.has("_t_" + str(o.get_instance_id())):
+					out["_t_" + str(o.get_instance_id())] = true
+					var rr := Combat._do_attack(world, c, o, atk.duplicate(true))
+					any_hit = any_hit or rr.get("hit", false)
+					out["sweep"].append(rr)
+			if str(wa.get("consume", "always")) == "always" or any_hit:
+				c.spend_resource(res_id)
 		"line":
 			# 관통 화살: 곧게 line_tiles 선 위 모두 민첩 내성 — 무기 피해, 실패하면 추가 피해(명중 굴림 없음)
 			c.spend_resource(res_id)
@@ -819,9 +828,13 @@ static func _special_attack(world: Dictionary, c: Node, key: String, wa: Diction
 			_wa_condition(c, key, t, out)
 			if out.get("hit", false) and not t.dead:
 				if int(wa.get("push_tiles", 0)) > 0:
-					var sv2 := Resolver.saving_throw(t, str(wa["save"]), weapon_action_dc(c, key), {"source": c})
-					if not sv2["success"]:
-						out["push"] = Combat._push_up_to(world, c, t, int(wa["push_tiles"]))
+					var pushed := true
+					if wa.has("save"):
+						pushed = not Resolver.saving_throw(t, str(wa["save"]), weapon_action_dc(c, key), {"source": c})["success"]
+					if pushed:
+						out["push"] = Combat._push_up_to(world, c, t, int(wa["push_tiles"]))  # 내성 없는 밀기(이동 묘기)
+				if wa.has("self_condition"):
+					c.apply_condition(str(wa["self_condition"]), int(wa.get("self_turns", 1)), c)  # 방어 묘기: AC +4
 				if wa.has("ally_condition"):
 					var best: Node = null
 					for o: Node in grid.creatures():
