@@ -157,6 +157,16 @@ static func theme() -> Theme:
 
 ## 걷기 시트 앞모습에서 얼굴·상반신을 잘라 초상으로 쓴다(전용 초상 그림이 없어서).
 static func portrait_tex(c: Node, region: Rect2 = Rect2(144 + 14, 6, 44, 44)) -> Texture2D:
+	if load("res://scripts/rules/cutout.gd").enabled_for(c):
+		# 컷아웃(룰북 1단계): 숨은 앞모습 그림에서 얼굴(작은 영역) 또는 전신(큰 영역)을 잘라 쓴다
+		var tex: Texture2D = load("res://scenes/battle/cutout_portraits.gd").texture_for(c)
+		if tex != null:
+			var at2 := AtlasTexture.new()
+			at2.atlas = tex
+			var Cut: Variant = load("res://scripts/rules/cutout.gd")
+			var regs: Dictionary = Cut.portrait_regions(str(Cut.look(c)["template"]))
+			at2.region = regs["body"] if region.size.y >= 100 else regs["face"]
+			return at2
 	var art: Dictionary = c.get_meta("art", {})
 	if art.has("sheet") and ResourceLoader.exists(art["sheet"]):
 		var at := AtlasTexture.new()

@@ -1,0 +1,461 @@
+{
+  "schema": "cutout_look_v1",
+  "note_ko": "컷아웃 모습(룰북 1단계 체형 틀): 종족 → 체형·피부·머리 색·부가 부위(귀·뿔·꼬리·수염·엄니·주둥이), 장비 재질 색(색 바꾸기). 종족 id는 species.json 기본 종족, 혈통은 부모를 따른다. items: 무기·갑옷 id → 컷아웃 모양(sword·axe·mace·spear·staff·dagger·bow·crossbow·sling·gun / padded·leather·studded·hide·chain·scale·breastplate·plate·shield)·재질·길이(px)·빛(불러낸 무기). 마법 변형(+1 등)은 바탕 id를 따른다.",
+  "species": [
+    {
+      "id": "human",
+      "template": "medium",
+      "skin": "#c99a7a",
+      "hair": "#4a3222",
+      "extras": []
+    },
+    {
+      "id": "elf",
+      "template": "medium",
+      "skin": "#e0bfa0",
+      "hair": "#d8c27a",
+      "extras": [
+        "ears_pointed"
+      ]
+    },
+    {
+      "id": "drow",
+      "template": "medium",
+      "skin": "#5b5470",
+      "hair": "#e8e4f0",
+      "extras": [
+        "ears_pointed"
+      ]
+    },
+    {
+      "id": "half_elf",
+      "template": "medium",
+      "skin": "#d4ad8c",
+      "hair": "#6a4a2a",
+      "extras": [
+        "ears_pointed"
+      ]
+    },
+    {
+      "id": "half_orc",
+      "template": "medium",
+      "skin": "#7f9a6a",
+      "hair": "#22201c",
+      "extras": [
+        "tusks"
+      ]
+    },
+    {
+      "id": "halfling",
+      "template": "small",
+      "skin": "#d6a888",
+      "hair": "#7a4e2a",
+      "extras": []
+    },
+    {
+      "id": "gnome",
+      "template": "small",
+      "skin": "#e2b896",
+      "hair": "#c45a30",
+      "extras": [
+        "ears_pointed"
+      ]
+    },
+    {
+      "id": "dwarf",
+      "template": "dwarf",
+      "skin": "#c9937a",
+      "hair": "#8a3e1e",
+      "extras": [
+        "beard"
+      ]
+    },
+    {
+      "id": "tiefling",
+      "template": "medium",
+      "skin": "#b0504a",
+      "hair": "#2a1c2a",
+      "extras": [
+        "horns",
+        "tail"
+      ]
+    },
+    {
+      "id": "astran",
+      "template": "medium",
+      "skin": "#9fb4c8",
+      "hair": "#e6ecf2",
+      "extras": []
+    },
+    {
+      "id": "dragonborn",
+      "template": "medium",
+      "skin": "#8a5a3a",
+      "hair": "#00000000",
+      "extras": [
+        "snout",
+        "horns"
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "mat_cloth",
+      "color": "#6b5a48"
+    },
+    {
+      "id": "mat_leather",
+      "color": "#6e4a2e"
+    },
+    {
+      "id": "mat_hide",
+      "color": "#8a6a48"
+    },
+    {
+      "id": "mat_chain",
+      "color": "#8c949c"
+    },
+    {
+      "id": "mat_scale",
+      "color": "#7d8a86"
+    },
+    {
+      "id": "mat_plate",
+      "color": "#b4b8bc"
+    },
+    {
+      "id": "mat_wood",
+      "color": "#7a5a36"
+    },
+    {
+      "id": "mat_steel",
+      "color": "#c8ccd2"
+    },
+    {
+      "id": "mat_gold",
+      "color": "#c9a24a"
+    }
+  ],
+  "items": [
+    {
+      "id": "look_longsword",
+      "shape": "sword",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_shortsword",
+      "shape": "sword",
+      "material": "mat_steel",
+      "length": 26
+    },
+    {
+      "id": "look_scimitar",
+      "shape": "sword",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_rapier",
+      "shape": "sword",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_greatsword",
+      "shape": "sword",
+      "material": "mat_steel",
+      "length": 58
+    },
+    {
+      "id": "look_conjured_flame_blade",
+      "shape": "sword",
+      "material": "mat_steel",
+      "length": 40,
+      "glow": "#ff8a30"
+    },
+    {
+      "id": "look_conjured_gloom_blade",
+      "shape": "sword",
+      "material": "mat_steel",
+      "length": 40,
+      "glow": "#8a5ad0"
+    },
+    {
+      "id": "look_sickle",
+      "shape": "sword",
+      "material": "mat_steel",
+      "length": 26
+    },
+    {
+      "id": "look_handaxe",
+      "shape": "axe",
+      "material": "mat_steel",
+      "length": 26
+    },
+    {
+      "id": "look_battleaxe",
+      "shape": "axe",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_greataxe",
+      "shape": "axe",
+      "material": "mat_steel",
+      "length": 58
+    },
+    {
+      "id": "look_war_pick",
+      "shape": "axe",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_club",
+      "shape": "mace",
+      "material": "mat_wood",
+      "length": 26
+    },
+    {
+      "id": "look_greatclub",
+      "shape": "mace",
+      "material": "mat_wood",
+      "length": 58
+    },
+    {
+      "id": "look_light_hammer",
+      "shape": "mace",
+      "material": "mat_steel",
+      "length": 26
+    },
+    {
+      "id": "look_mace",
+      "shape": "mace",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_flail",
+      "shape": "mace",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_maul",
+      "shape": "mace",
+      "material": "mat_steel",
+      "length": 58
+    },
+    {
+      "id": "look_morningstar",
+      "shape": "mace",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_warhammer",
+      "shape": "mace",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_javelin",
+      "shape": "spear",
+      "material": "mat_wood",
+      "length": 40
+    },
+    {
+      "id": "look_spear",
+      "shape": "spear",
+      "material": "mat_wood",
+      "length": 40
+    },
+    {
+      "id": "look_glaive",
+      "shape": "spear",
+      "material": "mat_steel",
+      "length": 58
+    },
+    {
+      "id": "look_halberd",
+      "shape": "spear",
+      "material": "mat_steel",
+      "length": 58
+    },
+    {
+      "id": "look_lance",
+      "shape": "spear",
+      "material": "mat_steel",
+      "length": 58
+    },
+    {
+      "id": "look_pike",
+      "shape": "spear",
+      "material": "mat_steel",
+      "length": 58
+    },
+    {
+      "id": "look_trident",
+      "shape": "spear",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_quarterstaff",
+      "shape": "staff",
+      "material": "mat_wood",
+      "length": 58
+    },
+    {
+      "id": "look_blowgun",
+      "shape": "staff",
+      "material": "mat_wood",
+      "length": 40
+    },
+    {
+      "id": "look_dagger",
+      "shape": "dagger",
+      "material": "mat_steel",
+      "length": 26
+    },
+    {
+      "id": "look_dart",
+      "shape": "dagger",
+      "material": "mat_steel",
+      "length": 26
+    },
+    {
+      "id": "look_shortbow",
+      "shape": "bow",
+      "material": "mat_wood",
+      "length": 40
+    },
+    {
+      "id": "look_longbow",
+      "shape": "bow",
+      "material": "mat_wood",
+      "length": 58
+    },
+    {
+      "id": "look_light_crossbow",
+      "shape": "crossbow",
+      "material": "mat_wood",
+      "length": 40
+    },
+    {
+      "id": "look_hand_crossbow",
+      "shape": "crossbow",
+      "material": "mat_wood",
+      "length": 26
+    },
+    {
+      "id": "look_heavy_crossbow",
+      "shape": "crossbow",
+      "material": "mat_wood",
+      "length": 58
+    },
+    {
+      "id": "look_sling",
+      "shape": "sling",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_whip",
+      "shape": "sling",
+      "material": "mat_steel",
+      "length": 40
+    },
+    {
+      "id": "look_musket",
+      "shape": "gun",
+      "material": "mat_steel",
+      "length": 58
+    },
+    {
+      "id": "look_pistol",
+      "shape": "gun",
+      "material": "mat_steel",
+      "length": 26
+    },
+    {
+      "id": "look_padded_armor",
+      "shape": "padded",
+      "material": "mat_cloth",
+      "length": 0
+    },
+    {
+      "id": "look_leather_armor",
+      "shape": "leather",
+      "material": "mat_leather",
+      "length": 0
+    },
+    {
+      "id": "look_studded_leather_armor",
+      "shape": "studded",
+      "material": "mat_leather",
+      "length": 0
+    },
+    {
+      "id": "look_hide_armor",
+      "shape": "hide",
+      "material": "mat_hide",
+      "length": 0
+    },
+    {
+      "id": "look_chain_shirt",
+      "shape": "chain",
+      "material": "mat_chain",
+      "length": 0
+    },
+    {
+      "id": "look_scale_mail",
+      "shape": "scale",
+      "material": "mat_scale",
+      "length": 0
+    },
+    {
+      "id": "look_breastplate",
+      "shape": "breastplate",
+      "material": "mat_plate",
+      "length": 0
+    },
+    {
+      "id": "look_half_plate_armor",
+      "shape": "plate",
+      "material": "mat_plate",
+      "length": 0
+    },
+    {
+      "id": "look_ring_mail",
+      "shape": "chain",
+      "material": "mat_chain",
+      "length": 0
+    },
+    {
+      "id": "look_chain_mail",
+      "shape": "chain",
+      "material": "mat_chain",
+      "length": 0
+    },
+    {
+      "id": "look_splint_armor",
+      "shape": "scale",
+      "material": "mat_scale",
+      "length": 0
+    },
+    {
+      "id": "look_plate_armor",
+      "shape": "plate",
+      "material": "mat_plate",
+      "length": 0
+    },
+    {
+      "id": "look_shield",
+      "shape": "shield",
+      "material": "mat_wood",
+      "length": 0
+    }
+  ]
+}

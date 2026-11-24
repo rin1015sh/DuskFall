@@ -45,6 +45,11 @@ var _last_hp := -1
 var _cell := Vector2i(-1, -1)
 var _last_facing := Vector2i.ZERO
 var _state_col := Color.WHITE
+## 컷아웃 캐릭터(룰북 1단계): 뼈대 그림을 SubViewport로 그려 세운 판에 입힌다. 종족이 있는 사람만(몬스터는 그림).
+var _cutout := false
+var _cut_vp: SubViewport
+var _rig: Node2D
+const CUT_K := 0.56  # 컷아웃 그림 1px → 화면 px(걷기 시트 키에 맞춤)
 
 
 class Hud extends Node2D:
@@ -94,7 +99,9 @@ func setup(c: Node, g: Node) -> void:
 	_body.add_child(_pivot)
 	sprite = Sprite3D.new()
 	var art: Dictionary = c.get_meta("art", {})
-	if art.has("sheet") and ResourceLoader.exists(art["sheet"]):
+	if preload("res://scripts/rules/cutout.gd").enabled_for(c):
+		_setup_cutout(c)
+	elif art.has("sheet") and ResourceLoader.exists(art["sheet"]):
 		sprite.texture = load(art["sheet"])
 		sprite.region_enabled = true
 		sprite.region_rect = Rect2(Vector2(FRAME.x * 2, 0), Vector2(FRAME))
@@ -113,6 +120,49 @@ func setup(c: Node, g: Node) -> void:
 	_cell = grid.cell_of(c)
 	position = _foot(_cell)
 	sync()
+
+
+func _setup_cutout(c: Node) -> void:
+	var Cutout := preload("res://scripts/rules/cutout.gd")
+	var lk := Cutout.look(c)
+	var canvas: Array = Cutout.template(str(lk["template"])).get("canvas", [160, 240])
+	_cut_vp = SubViewport.new()
+	_cut_vp.transparent_bg = true
+	_cut_vp.disable_3d = true
+	_cut_vp.size = Vector2i(int(canvas[0]), int(canvas[1]))
+	_cut_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(_cut_vp)
+	_rig = preload("res://scenes/battle/cutout_rig.gd").new()
+	_cut_vp.add_child(_rig)
+	_rig.apply_look(lk)
+	sprite.texture = _cut_vp.get_texture()
+	_cutout = true
+	_k = CUT_K * float(SIZE_K.get(c.size, 1.0))
+	EventBus.on_after_attack_roll.connect(_on_attack_anim)
+	EventBus.on_spell_cast.connect(_on_cast_anim)
+	EventBus.on_damage_taken.connect(_on_hit_anim)
+
+
+func _exit_tree() -> void:
+	for pair: Array in [[EventBus.on_after_attack_roll, _on_attack_anim], [EventBus.on_spell_cast, _on_cast_anim], [EventBus.on_damage_taken, _on_hit_anim]]:
+		if (pair[0] as Signal).is_connected(pair[1]):
+			(pair[0] as Signal).disconnect(pair[1])
+
+
+## 판정 결과에 맞춰 동작(공격·시전·피격)을 한 번 재생한다.
+func _on_attack_anim(res: Dictionary) -> void:
+	if _rig != null and res.get("attacker") == creature and not res.get("preview", false):
+		_rig.play("attack_ranged" if str(res.get("attack", {}).get("kind", "melee")) == "ranged" else "attack_melee")
+
+
+func _on_cast_anim(ctx: Dictionary) -> void:
+	if _rig != null and ctx.get("caster") == creature:
+		_rig.play("cast")
+
+
+func _on_hit_anim(info: Dictionary) -> void:
+	if _rig != null and info.get("target") == creature and int(info.get("amount", 0)) > 0 and _rig.anim in ["idle", "walk"]:
+		_rig.play("hit")
 
 
 ## 발밑 그림자(눕힌 원판)·선택 고리(눕힌 고리)
@@ -200,6 +250,8 @@ func sync() -> void:
 	_shadow.visible = not creature.dead
 	_ring.visible = (current or selected) and not creature.dead
 	_ring_mat.albedo_color = Color(1, 0.85, 0.2) if current else Color(0.4, 0.8, 1.0)
+	if _cutout:
+		_rig.apply_look(preload("res://scripts/rules/cutout.gd").look(creature))  # 장비가 바뀌면 부위를 갈아 끼운다
 	_place_sprite()
 	_apply_color()
 	_tilt_ground_marks()
@@ -234,6 +286,8 @@ func _face(d: Vector2i) -> void:
 func sprite_px_height() -> float:
 	if sprite.texture == null:
 		return 60.0
+	if _cutout:
+		return _rig.height_px() * _k
 	var h: float = float(FRAME.y) if _sheet else sprite.texture.get_size().y
 	return h * _k
 
@@ -241,12 +295,19 @@ func sprite_px_height() -> float:
 func _place_sprite() -> void:
 	if sprite.texture == null:
 		return
-	var size: Vector2 = Vector2(FRAME) if _sheet else sprite.texture.get_size()
-	# 판 가운데 정렬 → 발(그림 아래 가운데에서 4px 위)이 _pivot에 오게
-	sprite.position = (Vector3(0, size.y * 0.5 - 4.0, 0) + preload("res://scenes/kit/kit3d.gd").footprint_shift(4.0)) * _k / V.T
+	var size: Vector2 = Vector2(FRAME) if _sheet else (Vector2(_cut_vp.size) if _cutout else sprite.texture.get_size())
+	var foot_px := 12.0 if _cutout else 4.0  # 컷아웃은 원점(발)이 그림 아래에서 12px 위
+	# 판 가운데 정렬 → 발(그림 아래 가운데에서 foot_px 위)이 _pivot에 오게
+	sprite.position = (Vector3(0, size.y * 0.5 - foot_px, 0) + preload("res://scenes/kit/kit3d.gd").footprint_shift(4.0)) * _k / V.T
 	# 비행·부양: 고도만큼 그림을 띄운다(그림자는 바닥에 남는다)
 	_body.position.y = float(int(creature.altitude))
-	if _sheet:
+	if _cutout:
+		_rig.set_facing(facing)
+		if not _path.is_empty():
+			_rig.play("walk")
+		elif _rig.anim == "walk":
+			_rig.play("idle")
+	elif _sheet:
 		var col: int = WALK_CYCLE[int(_walk_t * WALK_FPS) % WALK_CYCLE.size()] if not _path.is_empty() else 2
 		sprite.region_rect = Rect2(Vector2(FRAME.x * col, FRAME.y * facing), Vector2(FRAME))
 	else:

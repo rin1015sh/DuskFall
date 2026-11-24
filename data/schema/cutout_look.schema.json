@@ -1,0 +1,104 @@
+{
+  "$comment": "컷아웃 모습 스키마(룰북 1단계).",
+  "type": "object",
+  "required": [
+    "schema",
+    "species",
+    "materials"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "cutout_look_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "species": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "template",
+          "skin",
+          "hair",
+          "extras"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "template": {
+            "type": "string"
+          },
+          "skin": {
+            "type": "string"
+          },
+          "hair": {
+            "type": "string"
+          },
+          "extras": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "color"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^mat_"
+          },
+          "color": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "shape",
+          "material",
+          "length"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^look_"
+          },
+          "shape": {
+            "type": "string"
+          },
+          "material": {
+            "type": "string",
+            "pattern": "^mat_"
+          },
+          "length": {
+            "type": "number"
+          },
+          "glow": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -88,7 +88,9 @@ res://
   지형 프리셋 도장: 맵 `stamps`(`data/content/terrain_presets.json`, scripts/rules/map_stamps.gd — 높이·재질·오르기 지점·빛·바닥·소품을 한꺼번에, 돌리기·뒤집기·base). 모음 맵 terrain_presets_demo, 시범 맵 hill_path.
   캡처: `--shot=<png> --frames=<n>`, 카메라 고정 `--cam=x,y --zoom=<배율>`. 맵 그림은 던전 에셋 키트로 그린다:
   맵 데이터 `art`(wall·wall_top·cliff·floors[범례 글자 → 키트 바닥]·props[키트 물건 at/id/v]). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`·`asset_library/`.
-- 캐릭터 그림(지금): assets/actors 걷기 시트 4방향(아래·왼·오른·위). 최종은 2D 일러스트 컷아웃(Skeleton2D를 SubViewport로 그려 세운 판에 입힘) — 룰북 1단계.
+- 캐릭터 그림: 종족이 있는 사람(파티·동료·NPC)은 2D 일러스트 컷아웃 — Skeleton2D 뼈대(scenes/battle/cutout_rig.gd)를 SubViewport로 그려 세운 판에 입힘(actor_view.gd),
+  체형 틀·뼈·애니메이션 data/rules/body_templates.json, 종족 모습·재질 색·무기/갑옷 모양 data/rules/cutout_looks.json, 모습 계산 scripts/rules/cutout.gd,
+  부위 그림 assets/cutout/<체형>/<부위>.png(없으면 코드로 그린 임시 그림, 규격 docs/art/cutout_spec.md), 초상·소지품 전신은 cutout_portraits.gd(앞모습). 몬스터는 그림(art.image), art.cutout = false면 걷기 시트.
 - 체형 틀: 보통(인간·엘프·드로우·하프엘프·하프오크·티플링·아스트란), 작은(하플링·노움), 드워프는 작은 체형 변형. 드래곤본은 보통 체형 임시(전용 틀은 나중), 골리앗은 없다.
 - 장비는 `sprite_parts`로 부위를 바꿔 끼우고, 재질·등급은 색 바꾸기 셰이더로 표현한다.
 - 화면 UI는 BG3 배치를 참고한다: 하단 단축 막대(scenes/ui/hotbar.gd), 왼쪽 세로 파티 초상, 위 이니셔티브 초상 줄, 오른쪽 위 원형 미니맵, 캐릭터·소지품 창(I — scenes/ui/character_sheet.gd: 위 탭 소지품(파티원 나란히)·캐릭터·주문서, 왼쪽 종족·클래스·능력치·상태·저항·특성, 가운데 장비 칸·방어도·무기별 명중/피해, 오른쪽 검색·정렬(최신·가치·무게·유형)·소지품 칸·무게 막대. 모든 동작은 누르면 나오는 메뉴로도 된다 — iPad).

@@ -1,0 +1,87 @@
+{
+  "$comment": "2D 일러스트 컷아웃 체형 틀 스키마(룰북 1단계).",
+  "type": "object",
+  "required": [
+    "schema",
+    "templates"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "body_template_v1"
+    },
+    "note_ko": {
+      "type": "string"
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "canvas",
+          "bones",
+          "animations",
+          "proportions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "object"
+          },
+          "canvas": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "bones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "parent",
+                "x",
+                "y",
+                "len"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "parent": {
+                  "type": "string"
+                },
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                },
+                "len": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "animations": {
+            "type": "object"
+          },
+          "proportions": {
+            "type": "object"
+          },
+          "draw_order": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}
