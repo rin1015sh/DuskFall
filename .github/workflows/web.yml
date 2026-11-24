@@ -1,0 +1,72 @@
+# 웹 빌드(Godot Web 프리셋)를 만들어 GitHub Pages에 올린다 — 아이패드 사파리 플레이테스트용.
+# 빌드는 모든 브랜치 push에서 돌고, Pages 배포는 main에서만 한다.
+name: web
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: web-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Godot·내보내기 템플릿 캐시
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Godot 받기
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          V=${GODOT_VERSION}-stable
+          BASE=https://github.com/godotengine/godot-builds/releases/download/$V
+          mkdir -p ~/godot ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          curl -sSL -o g.zip $BASE/Godot_v${V}_linux.x86_64.zip
+          unzip -q g.zip -d ~/godot && mv ~/godot/Godot_v${V}_linux.x86_64 ~/godot/godot
+          curl -sSL -o t.tpz $BASE/Godot_v${V}_export_templates.tpz
+          unzip -q t.tpz -d tpl
+          mv tpl/templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          rm -rf g.zip t.tpz tpl
+
+      - name: 가져오기(import)
+        run: ~/godot/godot --headless --path . --import || true
+
+      - name: 웹 내보내기
+        run: |
+          mkdir -p build/web
+          ~/godot/godot --headless --path . --export-release "Web" build/web/index.html
+          test -f build/web/index.pck
+          ls -lh build/web
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
