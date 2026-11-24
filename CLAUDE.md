@@ -7,7 +7,7 @@ BG3류 CRPG. 타일 격자 + 2D 일러스트 3/4 탑뷰(위에서 살짝 비스�
 
 - 모든 게임 규칙은 `docs/rules/rulebook.md`가 정한다. 코드와 룰북이 다르면 룰북이 맞다.
 - 수치는 BG3 우선(2026-11-24): BG3와 SRD 5.2가 다르면 BG3. SRD는 BG3에 없는 콘텐츠 수치와 라이선스 근거로만 쓴다.
-- 주문 변환표는 `docs/rules/spells_table.md`, 주문 데이터는 `data/content/spells.json`.
+- 주문 변환표는 `docs/rules/spells_table.md`(데이터에서 생성 — `godot --headless --path . -s res://tools/spells_table.gd`, 손으로 고치지 않는다), 주문 데이터는 `data/content/spells.json`.
 - SRD 원문 수치는 `docs/srd/`(SRD 5.2.1 마크다운)에서 확인한다. 기억에 의존하지 않는다.
 - 룰북에 없는 규칙이 필요하면 지어내지 말고 사용자에게 묻는다. 결정되면 `docs/rules/changes.md`에 날짜·내용·이유를 남긴다.
 - 우선순위: 구체 규칙 > 일반 규칙, 룰북 결정 기록 > SRD 원문, 데이터 > 스크립트.

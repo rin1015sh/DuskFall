@@ -691,7 +691,8 @@
       "icon": {
         "glyph": "up_arrows",
         "family": "radiant"
-      }
+      },
+      "notes_ko": "재료 5gp"
     },
     {
       "id": "blindness_deafness",
@@ -928,7 +929,8 @@
       "icon": {
         "glyph": "flame_cone",
         "family": "fire"
-      }
+      },
+      "notes_ko": "표면 반응(4단계)"
     },
     {
       "id": "calm_emotions",
@@ -5883,7 +5885,8 @@
       "icon": {
         "glyph": "shield",
         "family": "abjuration"
-      }
+      },
+      "notes_ko": "재료 25gp 소모"
     },
     {
       "id": "protection_from_poison",
@@ -8012,7 +8015,8 @@
       "icon": {
         "glyph": "chains",
         "family": "abjuration"
-      }
+      },
+      "notes_ko": "재료 50gp"
     },
     {
       "id": "water_breathing",

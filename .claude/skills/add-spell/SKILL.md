@@ -14,6 +14,7 @@ description: 주문을 spells.json에 추가하거나 고친다. 4레벨 이상 
 
 ## 변환 규칙 요약
 
+- 수치는 BG3 우선(2026-11-24): bg3.wiki 주문 틀의 미터 ÷ 1.5 내림 = 칸('ranged' 12칸, 'melee' 접촉), 지속·집중·비용도 BG3. BG3에 없는 주문만 아래 SRD 변환.
 - 거리: 피트 ÷ 5 = 칸. 접촉 = 인접 8칸.
 - 지속: 1라운드 = 1턴, 1분 = 10턴, 10분 = 100턴, 1시간 이상 = 긴 휴식까지.
 - 시전 시간 1분 이상 = 탐험 전용. 의식 = 탐험 중에만 슬롯 없이.
@@ -38,7 +39,7 @@ description: 주문을 spells.json에 추가하거나 고친다. 4레벨 이상 
 3. 테스트: 판정 종류, 피해·회복 주사위, 범위 칸 수, 지속 턴, 상위 슬롯 효과를 확인하는 테스트를 하나 이상 추가한다.
 4. 1차 범위 밖이면 `game_status`를 맞게 둔다(included / excluded_v1 / candidate_exclusion).
 5. `/verify` — `tests/test_content_smoke.gd`가 포함(included) 주문을 모두 시험 장면에서 시전해 스크립트 오류를 찾는다.
-6. `godot --headless --path . -s res://tools/content_report.gd`로 현황표(미구현 스크립트·아이콘 없는 주문)를 새로 만든다.
+6. `godot --headless --path . -s res://tools/content_report.gd`로 현황표(미구현 스크립트·아이콘 없는 주문)를, `res://tools/spells_table.gd`로 주문 변환표(`docs/rules/spells_table.md`)를 새로 만든다. 게임 메모 열은 주문 `notes_ko`다.
 
 ## 보고
 
