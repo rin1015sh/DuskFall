@@ -31,7 +31,7 @@ func test_build_and_spells() -> void:
 	assert_eq(p5.resource("lay_on_hands"), 25)
 	assert_eq(p5.resource("spell_slot_2"), 2, "반쪽 시전자 5레벨 4/2")
 	assert_eq(p5.attacks_per_action, 2)
-	for s: String in ["divine_smite", "protection_from_evil_and_good", "shield_of_faith", "aid", "zone_of_truth"]:
+	for s: String in ["divine_smite", "protection_from_evil_and_good", "sanctuary", "lesser_restoration", "silence"]:
 		assert_true(p5.spells.has(s), "항상 준비 %s" % s)
 	assert_eq(p5.resource("channel_divinity"), 2)
 	assert_eq(p5.resource("innate_divine_smite"), 1)
@@ -121,6 +121,7 @@ func test_heroism_and_sacred_weapon() -> void:
 	Resolver.start_turn(ally)
 	assert_eq(ally.temp_hp, maxi(1, p.ability_mod("cha")), "턴 시작 임시 HP")
 	var before: int = Combat.build_weapon_attack(p, "longsword")["bonus"]
+	p.reset_turn()
 	assert_true(Features.use(w, p, "sacred_weapon")["ok"])
 	assert_eq(p.resource("channel_divinity"), 1)
 	assert_eq(int(Combat.build_weapon_attack(p, "longsword")["bonus"]), before + maxi(1, p.ability_mod("cha")), "명중 + 매력")

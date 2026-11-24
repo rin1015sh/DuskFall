@@ -205,6 +205,11 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 			f.call()
 	world["on_long_rest"] = []
 	# 긴 휴식에 사라지는 아이템(아이템 데이터 expires: long_rest — 좋은열매)
+	if world.has("grid"):
+		for o: Node in world["grid"].creatures():
+			if o.has_meta("controlled_from_team"):
+				o.team = str(o.get_meta("controlled_from_team"))  # 언데드 조종(맹세 파기자): 긴 휴식까지
+				o.remove_meta("controlled_from_team")
 	var bags := _bags(world)
 	for c: Node in everyone:
 		if not c.inventory in bags:

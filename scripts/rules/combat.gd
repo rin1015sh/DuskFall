@@ -451,6 +451,8 @@ static func opportunity_attack(world: Dictionary, attacker: Node, target: Node) 
 	if attacker.has_cap("sentinel_oa"):
 		atk["advantage_add"] = ["파수"]  # 파수: 기회 공격 유리
 	var r := _do_attack(world, attacker, target, atk, true)
+	if r.get("hit", false) and attacker.has_cap("relentless_avenger"):
+		attacker.apply_condition("relentless_avenger", 1, attacker)  # 끈질긴 복수자(복수의 맹세 7레벨, BG3): 다음 턴 이동 +3칸
 	if r.get("hit", false) and attacker.has_cap("sentinel_oa") and not target.dead:
 		target.turn["movement"] = 0
 		target.turn["free_move_no_oa"] = 0

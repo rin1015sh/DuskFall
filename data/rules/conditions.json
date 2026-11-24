@@ -2801,6 +2801,213 @@
       "default_duration_turns": 1,
       "notes_ko": "취한 대상에게 명중 + 지혜, 취한 공격자에게 AC +1(primal.attack_context).",
       "source": "original"
+    },
+    {
+      "id": "holy_rebuke",
+      "name": {
+        "ko": "신성한 질책",
+        "en": "Holy Rebuke"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "retaliate": {
+        "dice": "1d4",
+        "damage_type": "radiant"
+      },
+      "notes_ko": "근접으로 맞힌 생물 1d4 광휘.",
+      "source": "original"
+    },
+    {
+      "id": "healing_radiance",
+      "name": {
+        "ko": "치유의 광휘",
+        "en": "Healing Radiance"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "heal",
+            "amount": "param"
+          }
+        ]
+      },
+      "notes_ko": "다음 턴 시작에 한 번 더 회복.",
+      "source": "original"
+    },
+    {
+      "id": "natures_wrath",
+      "name": {
+        "ko": "자연의 분노",
+        "en": "Nature's Wrath"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "includes": [
+        "restrained"
+      ],
+      "notes_ko": "속박(턴 끝 근력 내성).",
+      "source": "original"
+    },
+    {
+      "id": "abjured",
+      "name": {
+        "ko": "적 물리치기",
+        "en": "Abjure Enemy"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "includes": [
+        "frightened"
+      ],
+      "flags": {
+        "speed_zero": true
+      },
+      "notes_ko": "공포 + 이동 불가.",
+      "source": "original"
+    },
+    {
+      "id": "inquisitors_might",
+      "name": {
+        "ko": "심문관의 힘",
+        "en": "Inquisitor's Might"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1",
+            "damage_type": "radiant",
+            "apply": [
+              {
+                "id": "dazed",
+                "turns": 1
+              }
+            ]
+          }
+        ]
+      },
+      "notes_ko": "무기 명중 + 팔라딘 매력 광휘, 1턴 멍함.",
+      "source": "original"
+    },
+    {
+      "id": "vow_of_enmity",
+      "name": {
+        "ko": "적대의 맹세",
+        "en": "Vow of Enmity"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage",
+          "requires": "other_is_source"
+        }
+      ],
+      "notes_ko": "맹세한 팔라딘이 이 생물을 공격하면 유리.",
+      "source": "original"
+    },
+    {
+      "id": "vow_of_enmity_self",
+      "name": {
+        "ko": "적대의 맹세(자신)",
+        "en": "Vow of Enmity (Self)"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "advantage"
+        }
+      ],
+      "notes_ko": "모든 공격 유리.",
+      "source": "original"
+    },
+    {
+      "id": "relentless_avenger",
+      "name": {
+        "ko": "끈질긴 복수자",
+        "en": "Relentless Avenger"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "add": 3
+        }
+      ],
+      "notes_ko": "이동 +3칸.",
+      "source": "original"
+    },
+    {
+      "id": "righteous_clarity",
+      "name": {
+        "ko": "올바른 명료함",
+        "en": "Righteous Clarity"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "명중 + 숙련 보너스(primal.attack_context).",
+      "source": "original"
+    },
+    {
+      "id": "champion_challenged",
+      "name": {
+        "ko": "투사의 도전",
+        "en": "Champion Challenge"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage",
+          "requires": "other_not_source"
+        }
+      ],
+      "notes_ko": "도전한 팔라딘 말고 다른 대상 공격 불리.",
+      "source": "original"
+    },
+    {
+      "id": "spiteful_suffering",
+      "name": {
+        "ko": "앙심 어린 고통",
+        "en": "Spiteful Suffering"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "necrotic"
+          }
+        ]
+      },
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "advantage"
+        }
+      ],
+      "notes_ko": "매 턴 1d4 + 매력 사령, 공격받을 때 유리.",
+      "source": "original"
     }
   ]
 }

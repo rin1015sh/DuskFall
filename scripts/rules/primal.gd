@@ -28,6 +28,9 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 			ctx["ac_add"] = int(ctx.get("ac_add", 0)) + 1  # 보호의 빛: 2칸 안 아군(나 포함) AC +1
 	if atk.get("opportunity", false) and target.has_flag("oa_disadvantage_against"):
 		ctx["disadvantage"].append("독수리의 심장")
+	var rc: Dictionary = attacker.condition_instance("righteous_clarity")
+	if not rc.is_empty():
+		ctx["attack_add"] = int(ctx.get("attack_add", 0)) + int(rc.get("params", {}).get("bonus", 2))  # 올바른 명료함(왕관): 명중 + 숙련
 	var strain: Dictionary = attacker.condition_instance("frenzied_strain")
 	if not strain.is_empty():
 		ctx["attack_add"] = int(ctx.get("attack_add", 0)) - int(strain.get("params", {}).get("n", 1))

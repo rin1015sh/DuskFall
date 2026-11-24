@@ -552,6 +552,7 @@ func _on_damage_taken(info: Dictionary) -> void:
 	var t: Node = info.get("target")
 	if t != null and int(info.get("amount", 0)) > 0:
 		_unstable_backlash(t)
+		_divine_allegiance(t, int(info.get("amount", 0)))
 	var attacker: Variant = info.get("opts", {}).get("attacker")
 	if t == null or t.dead or t.hp <= 0 or not (attacker is Node) or attacker == t or attacker.dead \
 			or not attacker.is_hostile_to(t) or int(info.get("amount", 0)) <= 0:
@@ -618,3 +619,26 @@ func _redirect_attack(t: Node, attacker: Node, res: Dictionary) -> void:
 		atk["name"] = "공격 되돌리기"
 		atk["opportunity"] = true
 		Combat._do_attack(world, t, attacker, atk, true))
+
+
+## 신성한 충성(왕관의 맹세 7레벨, BG3 — 반응 trigger ally_damaged_adjacent): 1칸 안 아군이 피해를 받으면 반응으로
+## 그 아군을 팔라딘 레벨 × 2(받은 피해까지) 회복하고 나는 그만큼 피해(막을 수 없음)를 받는다.
+func _divine_allegiance(t: Node, amount: int) -> void:
+	if t.dead or t.hp <= 0 or not world.has("grid"):
+		return
+	var grid: Node = world["grid"]
+	for p: Node in grid.creatures():
+		if p == t or p.dead or p.hp <= 0 or p.is_hostile_to(t) or not p.can_react() or grid.distance_between(p, t) > 1:
+			continue
+		var fid := _trigger_feature(p, "ally_damaged_adjacent")
+		if fid == "":
+			continue
+		var n: int = mini(amount, 2 * p.feature_level(fid))
+		if p.hp <= n:
+			continue
+		if offer(p, fid, {"ally": t, "amount": n}, func() -> void:
+			p.turn["reaction"] = int(p.turn.get("reaction", 1)) - 1
+			p.hp -= n
+			Resolver.heal(t, n, p)
+			Dice.log_text("%s 신성한 충성: %s 대신 %d" % [p.label(), t.label(), n])):
+			return

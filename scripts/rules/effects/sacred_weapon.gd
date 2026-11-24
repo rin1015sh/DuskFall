@@ -1,8 +1,6 @@
 extends "res://scripts/rules/effect_script.gd"
-## 신성한 무기(헌신의 맹세 3레벨, SRD): 신성 변환 1회. 10분(100턴) 동안 무기 명중 굴림 + 매력 수정치(최소 +1).
-## 다시 쓰면 앞의 것을 바꾼다. 광휘 피해 종류 선택과 빛은 1차 생략(changes.md).
-
-const TURNS := 100
+## 신성한 무기(헌신의 맹세 3레벨, BG3): 행동 + 신성 변환. 10턴 동안 무기 명중 굴림 + 매력 수정치(최소 +1), 밝은 빛(생략).
+const TURNS := 10
 
 
 func is_implemented() -> bool:

@@ -632,7 +632,8 @@
             "self_hit_any",
             "song_of_defence",
             "halo_of_spores",
-            "self_missed_melee"
+            "self_missed_melee",
+            "ally_damaged_adjacent"
           ]
         },
         "range_tiles": {
@@ -774,6 +775,27 @@
         },
         "upcast_cap": {
           "type": "string"
+        },
+        "turn_types": {
+          "type": "array"
+        },
+        "save": {
+          "type": "string"
+        },
+        "condition": {
+          "type": "string"
+        },
+        "turns": {
+          "type": "integer"
+        },
+        "repeat_save": {
+          "type": "boolean"
+        },
+        "save_disadvantage_types": {
+          "type": "array"
+        },
+        "dot_dice": {
+          "type": "boolean"
         }
       }
     }

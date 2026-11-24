@@ -369,31 +369,48 @@
         "en": "Oath of Devotion"
       },
       "level": 3,
-      "source": "SRD 5.2.1",
+      "source": "original",
       "always_prepared": {
         "3": [
           "protection_from_evil_and_good",
-          "shield_of_faith"
+          "sanctuary"
         ],
         "5": [
-          "aid",
-          "zone_of_truth"
+          "lesser_restoration",
+          "silence"
         ],
         "9": [
-          "beacon_of_hope",
-          "dispel_magic"
+          "remove_curse",
+          "beacon_of_hope"
         ]
       },
       "features": [
         {
           "id": "oath_spells_devotion",
           "name": {
-            "ko": "헌신의 맹세 주문",
-            "en": "Oath of Devotion Spells"
+            "ko": "맹세 주문(헌신)",
+            "en": "Oath Spells (Devotion)"
           },
           "level": 3,
-          "handled_by": "하위 클래스 always_prepared(3레벨 악과 선 보호·신앙의 방패, 5레벨 원조·진실의 구역)",
-          "source": "SRD 5.2.1"
+          "handled_by": "하위 클래스 always_prepared",
+          "notes_ko": "BG3: 3 악과 선 보호·성역, 5 하급 회복·침묵, 9 저주 해제·희망의 등불(항상 준비).",
+          "source": "original"
+        },
+        {
+          "id": "holy_rebuke",
+          "name": {
+            "ko": "신성한 질책",
+            "en": "Holy Rebuke"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "holy_rebuke",
+          "target": "ally",
+          "icon": "statuses/shining.webp",
+          "glyph": "shield",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 행동 + 신성 변환, 12칸 안 나나 아군 2턴 — 근접으로 맞힌 생물 1d4 광휘.",
+          "source": "original"
         },
         {
           "id": "sacred_weapon",
@@ -402,13 +419,33 @@
             "en": "Sacred Weapon"
           },
           "level": 3,
-          "kind": "free",
-          "resource": "channel_divinity",
+          "kind": "action",
           "script": "sacred_weapon",
-          "notes_ko": "신성 변환 1회: 10분(100턴) 동안 무기 명중 굴림 + 매력 수정치(최소 +1). 원문은 공격 행동 때 — 게임은 자기 턴에 행동 없이. 광휘 피해 선택·빛은 1차 생략.",
-          "source": "SRD 5.2.1",
+          "target": "self",
           "glyph": "sword",
-          "explore": true
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 행동 + 신성 변환, 10턴 무기 명중 + 매력(최소 +1). 빛은 생략.",
+          "source": "original"
+        },
+        {
+          "id": "turn_the_unholy",
+          "name": {
+            "ko": "부정한 것 퇴치",
+            "en": "Turn the Unholy"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "oath_turn",
+          "turn_types": [
+            "undead",
+            "fiend"
+          ],
+          "target": "self",
+          "icon": "statuses/fear.webp",
+          "glyph": "skull_rays",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 행동 + 신성 변환, 6칸 안 언데드·악마 지혜 내성 실패 시 3턴 퇴치(공포 + 무력화, 피해를 받으면 끝).",
+          "source": "original"
         },
         {
           "id": "aura_of_devotion",
@@ -422,8 +459,433 @@
               "charmed"
             ]
           },
-          "source": "SRD 5.2.1",
-          "notes_ko": "오라 안 자신과 아군은 매혹 면역."
+          "notes_ko": "오라 안 나와 아군 매혹 면역.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "ancients",
+      "name": {
+        "ko": "고대인의 맹세",
+        "en": "Oath of the Ancients"
+      },
+      "level": 3,
+      "source": "original",
+      "always_prepared": {
+        "3": [
+          "speak_with_animals",
+          "ensnaring_strike"
+        ],
+        "5": [
+          "misty_step",
+          "barkskin"
+        ],
+        "9": [
+          "protection_from_energy",
+          "daylight"
+        ]
+      },
+      "features": [
+        {
+          "id": "oath_spells_ancients",
+          "name": {
+            "ko": "맹세 주문(고대인)",
+            "en": "Oath Spells (Ancients)"
+          },
+          "level": 3,
+          "handled_by": "하위 클래스 always_prepared",
+          "notes_ko": "BG3: 3 동물과 대화·옭아매는 일격, 5 안개 걸음·나무껍질 피부(달빛 광선 대신 — 미포함), 9 에너지 보호·햇빛(식물 성장 대신 — 미포함).",
+          "source": "original"
+        },
+        {
+          "id": "healing_radiance",
+          "name": {
+            "ko": "치유의 광휘",
+            "en": "Healing Radiance"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "healing_radiance",
+          "target": "self",
+          "icon": "statuses/regen.webp",
+          "glyph": "heart_plus",
+          "ai": {
+            "when": "hp_below_half"
+          },
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 보너스 행동 + 신성 변환, 나와 6칸 안 아군 숙련 + 레벨 + 매력 회복, 다음 턴 한 번 더.",
+          "source": "original"
+        },
+        {
+          "id": "natures_wrath",
+          "name": {
+            "ko": "자연의 분노",
+            "en": "Nature's Wrath"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "oath_save_condition",
+          "target": "enemy",
+          "range_tiles": 2,
+          "save": "str",
+          "condition": "natures_wrath",
+          "turns": 10,
+          "repeat_save": true,
+          "icon": "statuses/restrained.webp",
+          "glyph": "vine",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 행동 + 신성 변환, 2칸(3m) 안 적 근력 내성 실패 시 10턴 속박(턴 끝 다시 내성).",
+          "source": "original"
+        },
+        {
+          "id": "turn_the_faithless",
+          "name": {
+            "ko": "신앙 없는 자 퇴치",
+            "en": "Turn the Faithless"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "oath_turn",
+          "turn_types": [
+            "fey",
+            "fiend"
+          ],
+          "target": "self",
+          "icon": "statuses/fear.webp",
+          "glyph": "skull_rays",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 행동 + 신성 변환, 6칸 안 요정·악마 지혜 내성 실패 시 3턴 퇴치.",
+          "source": "original"
+        },
+        {
+          "id": "aura_of_warding",
+          "name": {
+            "ko": "수호의 오라",
+            "en": "Aura of Warding"
+          },
+          "level": 7,
+          "aura": {
+            "spell_resistance": true
+          },
+          "notes_ko": "BG3: 오라 안 나와 아군 주문 피해 절반(다른 저항과 겹치지 않음).",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "vengeance",
+      "name": {
+        "ko": "복수의 맹세",
+        "en": "Oath of Vengeance"
+      },
+      "level": 3,
+      "source": "original",
+      "always_prepared": {
+        "3": [
+          "bane",
+          "hunters_mark"
+        ],
+        "5": [
+          "misty_step",
+          "hold_person"
+        ],
+        "9": [
+          "haste",
+          "protection_from_energy"
+        ]
+      },
+      "features": [
+        {
+          "id": "oath_spells_vengeance",
+          "name": {
+            "ko": "맹세 주문(복수)",
+            "en": "Oath Spells (Vengeance)"
+          },
+          "level": 3,
+          "handled_by": "하위 클래스 always_prepared",
+          "notes_ko": "BG3: 3 약화·사냥꾼의 표식, 5 안개 걸음·인간형 속박, 9 가속·에너지 보호.",
+          "source": "original"
+        },
+        {
+          "id": "inquisitors_might",
+          "name": {
+            "ko": "심문관의 힘",
+            "en": "Inquisitor's Might"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "oath_ally_condition",
+          "target": "ally",
+          "range_tiles": 6,
+          "condition": "inquisitors_might",
+          "turns": 2,
+          "icon": "statuses/shining.webp",
+          "glyph": "sword",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 보너스 행동 + 신성 변환, 6칸 안 나나 아군 2턴 — 무기 명중 + 매력(최소 1) 광휘, 맞으면 1턴 멍함(내성 없음).",
+          "source": "original"
+        },
+        {
+          "id": "abjure_enemy",
+          "name": {
+            "ko": "적 물리치기",
+            "en": "Abjure Enemy"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "oath_save_condition",
+          "target": "enemy",
+          "range_tiles": 12,
+          "save": "wis",
+          "condition": "abjured",
+          "turns": 3,
+          "repeat_save": true,
+          "save_disadvantage_types": [
+            "fiend",
+            "undead"
+          ],
+          "icon": "statuses/fear.webp",
+          "glyph": "skull_rays",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 행동 + 신성 변환, 12칸 안 적 지혜 내성(악마·언데드 불리) 실패 시 3턴 공포 + 이동 불가(턴 끝 다시 내성).",
+          "source": "original"
+        },
+        {
+          "id": "vow_of_enmity",
+          "name": {
+            "ko": "적대의 맹세",
+            "en": "Vow of Enmity"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "vow_of_enmity",
+          "target": "creature",
+          "icon": "statuses/hunters_mark.webp",
+          "glyph": "target",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 보너스 행동 + 신성 변환, 2칸 안 적에게 10턴 공격 유리(나에게 쓰면 모든 대상).",
+          "source": "original"
+        },
+        {
+          "id": "relentless_avenger",
+          "name": {
+            "ko": "끈질긴 복수자",
+            "en": "Relentless Avenger"
+          },
+          "level": 7,
+          "caps": [
+            "relentless_avenger"
+          ],
+          "notes_ko": "BG3: 기회 공격이 맞으면 다음 턴 이동 +3칸.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "crown",
+      "name": {
+        "ko": "왕관의 맹세",
+        "en": "Oath of the Crown"
+      },
+      "level": 3,
+      "source": "original",
+      "always_prepared": {
+        "3": [
+          "command",
+          "heroism"
+        ],
+        "5": [
+          "warding_bond",
+          "spiritual_weapon"
+        ],
+        "9": [
+          "spirit_guardians",
+          "beacon_of_hope"
+        ]
+      },
+      "features": [
+        {
+          "id": "oath_spells_crown",
+          "name": {
+            "ko": "맹세 주문(왕관)",
+            "en": "Oath Spells (Crown)"
+          },
+          "level": 3,
+          "handled_by": "하위 클래스 always_prepared",
+          "notes_ko": "BG3: 3 명령·영웅심(강제 결투 대신 — SRD 없음), 5 수호의 결속·영적 무기, 9 영혼 수호자·희망의 등불(성전사의 망토 대신 — SRD 없음).",
+          "source": "original"
+        },
+        {
+          "id": "righteous_clarity",
+          "name": {
+            "ko": "올바른 명료함",
+            "en": "Righteous Clarity"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "oath_ally_condition",
+          "target": "ally",
+          "range_tiles": 12,
+          "condition": "righteous_clarity",
+          "turns": 10,
+          "icon": "statuses/buff.webp",
+          "glyph": "target",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 보너스 행동 + 신성 변환, 12칸 안 나나 아군 10턴 명중 + 숙련 보너스.",
+          "source": "original"
+        },
+        {
+          "id": "champion_challenge",
+          "name": {
+            "ko": "투사의 도전",
+            "en": "Champion Challenge"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "champion_challenge",
+          "target": "self",
+          "icon": "statuses/goaded.webp",
+          "glyph": "voice",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 보너스 행동 + 신성 변환, 6칸 안 적 지혜 내성 실패 시 10턴 나 말고 다른 대상 공격 불리.",
+          "source": "original"
+        },
+        {
+          "id": "turn_the_tide",
+          "name": {
+            "ko": "전세 역전",
+            "en": "Turn the Tide"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "turn_the_tide",
+          "target": "self",
+          "icon": "statuses/regen.webp",
+          "glyph": "heart_plus",
+          "ai": {
+            "when": "hp_below_half"
+          },
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 보너스 행동 + 신성 변환, 6칸 안 적 아닌 생물 1d6 + 레벨 + 매력 회복.",
+          "source": "original"
+        },
+        {
+          "id": "divine_allegiance",
+          "name": {
+            "ko": "신성한 충성",
+            "en": "Divine Allegiance"
+          },
+          "level": 7,
+          "kind": "reaction",
+          "trigger": "ally_damaged_adjacent",
+          "notes_ko": "BG3: 1칸 안 아군이 피해를 받으면 반응으로 그 아군을 레벨 × 2(받은 피해까지) 회복하고 내가 그만큼 받는다.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "oathbreaker",
+      "name": {
+        "ko": "맹세 파기자",
+        "en": "Oathbreaker"
+      },
+      "level": 3,
+      "source": "original",
+      "always_prepared": {
+        "3": [
+          "hellish_rebuke",
+          "inflict_wounds"
+        ],
+        "5": [
+          "hold_person",
+          "darkness"
+        ],
+        "9": [
+          "bestow_curse",
+          "animate_dead"
+        ]
+      },
+      "features": [
+        {
+          "id": "oath_spells_oathbreaker",
+          "name": {
+            "ko": "파기자 주문",
+            "en": "Oathbreaker Spells"
+          },
+          "level": 3,
+          "handled_by": "하위 클래스 always_prepared",
+          "notes_ko": "BG3: 3 지옥의 질책·상처 입히기, 5 인간형 속박(광기의 왕관 대신 — SRD 없음)·어둠, 9 저주 내리기·시체 되살리기. [변형] 맹세 파기 사건 없이 처음부터 고를 수 있다.",
+          "source": "original"
+        },
+        {
+          "id": "spiteful_suffering",
+          "name": {
+            "ko": "앙심 어린 고통",
+            "en": "Spiteful Suffering"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "oath_save_condition",
+          "target": "enemy",
+          "range_tiles": 2,
+          "save": "cha",
+          "condition": "spiteful_suffering",
+          "turns": 3,
+          "dot_dice": true,
+          "icon": "statuses/necrotic.webp",
+          "glyph": "skull",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 행동 + 신성 변환, 2칸 안 적 매력 내성 실패 시 3턴 매 턴 1d4 + 매력 사령, 공격받을 때 유리.",
+          "source": "original"
+        },
+        {
+          "id": "control_undead",
+          "name": {
+            "ko": "언데드 조종",
+            "en": "Control Undead"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "control_undead",
+          "target": "enemy",
+          "icon": "statuses/charm.webp",
+          "glyph": "skull",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 행동 + 신성 변환, 4칸 안 언데드 지혜 내성 실패 시 긴 휴식까지 내 편.",
+          "source": "original"
+        },
+        {
+          "id": "dreadful_aspect",
+          "name": {
+            "ko": "무시무시한 모습",
+            "en": "Dreadful Aspect"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "dreadful_aspect",
+          "target": "self",
+          "icon": "statuses/fear.webp",
+          "glyph": "skull_rays",
+          "resource": "channel_divinity",
+          "notes_ko": "BG3: 행동 + 신성 변환, 6칸 안 적 지혜 내성 실패 시 공포(턴 끝 다시 내성, 2턴).",
+          "source": "original"
+        },
+        {
+          "id": "aura_of_hate",
+          "name": {
+            "ko": "증오의 오라",
+            "en": "Aura of Hate"
+          },
+          "level": 7,
+          "aura": {
+            "melee_bonus_types": [
+              "fiend",
+              "undead"
+            ]
+          },
+          "notes_ko": "BG3: 나와 오라 안 악마·언데드(적 포함) 근접 무기 피해 + 매력.",
+          "source": "original"
         }
       ]
     }

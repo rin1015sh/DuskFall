@@ -1558,6 +1558,15 @@
       },
       "note_ko": "Resolver.drunkards_luck",
       "source": "original"
+    },
+    {
+      "id": "relentless_avenger",
+      "name": {
+        "ko": "끈질긴 복수자",
+        "en": "Relentless Avenger"
+      },
+      "note_ko": "Combat.opportunity_attack 명중 시 상태",
+      "source": "original"
     }
   ]
 }

@@ -624,6 +624,10 @@ static func apply(c: Node, spec: Dictionary) -> void:
 			aura["feature"] = fid
 		if fa.has("save_bonus"):
 			aura["save_bonus"] = fa["save_bonus"]
+		if fa.has("spell_resistance"):
+			aura["spell_resistance"] = true  # 수호의 오라
+		if fa.has("melee_bonus_types"):
+			aura["melee_bonus_types"] = fa["melee_bonus_types"]  # 증오의 오라
 		var im: Array = aura.get("immune", [])
 		im.append_array(fa.get("immune", []))
 		aura["immune"] = im

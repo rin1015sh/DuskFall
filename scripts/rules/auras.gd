@@ -54,3 +54,28 @@ static func immune(c: Node, condition_id: String) -> bool:
 		if condition_id in o.get_meta("aura").get("immune", []):
 			return true
 	return false
+
+
+## 수호의 오라(aura spell_resistance): 오라 안 나·아군은 주문 피해 절반.
+static func spell_resistance(c: Node) -> bool:
+	for o: Node in owners_for(c):
+		if o.get_meta("aura").get("spell_resistance", false):
+			return true
+	return false
+
+
+## 증오의 오라(aura melee_bonus_types — 맹세 파기자 7레벨, BG3): 주인과 범위 안 그 종류(악마·언데드 — 적 포함) 생물의 근접 무기 피해 + 주인 매력 수정치.
+static func melee_bonus(attacker: Node) -> int:
+	var grid := _grid()
+	if grid == null or not grid.creatures().has(attacker):
+		return 0
+	var best := 0
+	for o: Node in grid.creatures():
+		if not o.has_meta("aura") or o.dead or o.hp <= 0 or o.is_incapacitated():
+			continue
+		var types: Array = o.get_meta("aura").get("melee_bonus_types", [])
+		if types.is_empty():
+			continue
+		if o == attacker or (str(attacker.creature_type) in types and grid.distance_between(o, attacker) <= range_of(o)):
+			best = maxi(best, maxi(o.ability_mod("cha"), 0))
+	return best

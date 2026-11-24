@@ -485,6 +485,10 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 				attacker.remove_condition(str(a["id"]))
 		_stunning_strike(attacker, target, atk)
 		_feature_hit_bonus(attacker, target, atk, res)
+		if atk.get("weapon", false) and str(atk.get("kind", "")) == "melee":
+			var hate := Auras.melee_bonus(attacker)
+			if hate > 0:
+				res["extra_damage"].append({"dice": str(hate), "damage_type": atk["damage"][0]["damage_type"]})
 		if attacker.has_cap("manifestation") and str(atk.get("weapon_id", "")) == "unarmed":
 			# 발현(열린 손 6레벨, BG3): 비무장 명중 +1d4 + 지혜(설정 manifestation: body 사령·mind 정신·soul 광휘)
 			var mt: String = {"body": "necrotic", "mind": "psychic", "soul": "radiant"}.get(str(attacker.options.get("manifestation", "body")), "necrotic")
@@ -711,7 +715,7 @@ static func _weapon_hit_damage(attacker: Node, target: Node, inst: Dictionary, e
 	var spell_inst: Dictionary = Sp.instances.get(params.get("instance", -1), {})
 	if not spell_inst.is_empty():
 		extra = maxi(0, int(spell_inst.get("slot", 0)) - int(RulesDB.get_entry("spell", str(spell_inst["spell"])).get("level", 0)))
-	var dice := str(e["dice"])
+	var dice := str(inst.get("params", {}).get("hit_dice", e["dice"]))  # params.hit_dice: 건 쪽 수치(심문관의 힘 — 팔라딘 매력)
 	for i in extra:
 		dice += "+" + str(e.get("per_slot", ""))
 	dice = dice.trim_suffix("+")
@@ -1067,6 +1071,8 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 		var src: Variant = opts.get("attacker")
 		if src is Node and (t in adept_types(src) or t in src.get_meta("ignore_resistance", [])) and target.resists(t) and not target.immune_to(t) and not target.vulnerable_to(t):
 			v = int(raw[t])  # 원소 통달: 그 원소 저항 무시
+		if src is Node and src.has_meta("casting_spell") and src != target and not target.resists(t) and not target.immune_to(t) and Auras.spell_resistance(target):
+			v = v / 2  # 수호의 오라(고대인의 맹세 7레벨, BG3): 주문 피해 절반(다른 저항과 겹치지 않는다)
 		out["by_type"][t] = v
 		total += v
 	out["total"] = total
@@ -1539,7 +1545,10 @@ static func start_turn(creature: Node, ctx: Dictionary = {}) -> void:
 				var r := Dice.roll(str(a["instance"].get("params", {}).get("dice", e["dice"])), "%s(%s)" % [a["id"], creature.label()])
 				parts.append({"amount": r["total"], "damage_type": e["damage_type"]})
 			elif e["type"] == "heal" and not creature.dead and creature.hp > 0:
-				heal(creature, int(e.get("amount", 1)), a["id"])  # 재생(Regenerate)
+				var ha: Variant = e.get("amount", 1)
+				heal(creature, int(a["instance"].get("params", {}).get("heal", 1)) if str(ha) == "param" else int(ha), a["id"])  # 재생, param = 건 쪽 수치(치유의 광휘)
+				if str(ha) == "param":
+					creature.remove_condition(a["id"])  # 한 번만(치유의 광휘: 다음 턴)
 			elif e["type"] == "resource" and creature.resources.has(str(e["resource"])):
 				var rr: Dictionary = creature.resources[str(e["resource"])]  # 몸의 완전함: 턴마다 기 1
 				rr["current"] = mini(int(rr["max"]), int(rr["current"]) + int(e.get("amount", 1)))

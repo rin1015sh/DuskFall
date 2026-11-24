@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 48 |
-| capability | 173 |
+| capability | 174 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -267,13 +267,35 @@
 | 1 | 신성한 손길 (lay_on_hands) |  | 스크립트 lay_on_hands |  |
 | 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
 | 2 | 팔라딘의 강타 (paladins_smite) |  | 처리: 클래스 always_prepared(신성한 강타) + 자원 innate_divine_smite(슬롯 없이 긴 휴식마다 1회 — 무료 횟수 먼저) |  |
+| 3 | 자연의 분노 (natures_wrath) | ancients | 스크립트 oath_save_condition |  |
+| 3 | 신앙 없는 자 퇴치 (turn_the_faithless) | ancients | 스크립트 oath_turn |  |
+| 3 | 맹세 주문(복수) (oath_spells_vengeance) | vengeance | 처리: 하위 클래스 always_prepared |  |
+| 3 | 심문관의 힘 (inquisitors_might) | vengeance | 스크립트 oath_ally_condition |  |
+| 3 | 적 물리치기 (abjure_enemy) | vengeance | 스크립트 oath_save_condition |  |
+| 3 | 적대의 맹세 (vow_of_enmity) | vengeance | 스크립트 vow_of_enmity |  |
+| 3 | 맹세 주문(왕관) (oath_spells_crown) | crown | 처리: 하위 클래스 always_prepared |  |
+| 3 | 올바른 명료함 (righteous_clarity) | crown | 스크립트 oath_ally_condition |  |
+| 3 | 투사의 도전 (champion_challenge) | crown | 스크립트 champion_challenge |  |
+| 3 | 전세 역전 (turn_the_tide) | crown | 스크립트 turn_the_tide |  |
+| 3 | 파기자 주문 (oath_spells_oathbreaker) | oathbreaker | 처리: 하위 클래스 always_prepared |  |
+| 3 | 앙심 어린 고통 (spiteful_suffering) | oathbreaker | 스크립트 oath_save_condition |  |
+| 3 | 언데드 조종 (control_undead) | oathbreaker | 스크립트 control_undead |  |
+| 3 | 무시무시한 모습 (dreadful_aspect) | oathbreaker | 스크립트 dreadful_aspect |  |
+| 3 | 치유의 광휘 (healing_radiance) | ancients | 스크립트 healing_radiance |  |
+| 3 | 맹세 주문(고대인) (oath_spells_ancients) | ancients | 처리: 하위 클래스 always_prepared |  |
 | 3 | 신성 변환 (channel_divinity) |  | 처리: 자원 channel_divinity(2회, 짧은 휴식에 1회 회복) — 하위 클래스 기능이 쓴다 |  |
-| 3 | 신성 감지 (divine_sense) |  | 스크립트 divine_sense |  |
-| 3 | 헌신의 맹세 주문 (oath_spells_devotion) | devotion | 처리: 하위 클래스 always_prepared(3레벨 악과 선 보호·신앙의 방패, 5레벨 원조·진실의 구역) |  |
+| 3 | 부정한 것 퇴치 (turn_the_unholy) | devotion | 스크립트 oath_turn |  |
 | 3 | 신성한 무기 (sacred_weapon) | devotion | 스크립트 sacred_weapon |  |
+| 3 | 신성한 질책 (holy_rebuke) | devotion | 스크립트 holy_rebuke |  |
+| 3 | 맹세 주문(헌신) (oath_spells_devotion) | devotion | 처리: 하위 클래스 always_prepared |  |
+| 3 | 신성 감지 (divine_sense) |  | 스크립트 divine_sense |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 충직한 탈것 (faithful_steed) |  | 처리: 클래스 always_prepared(탈것 찾기) + 자원 innate_find_steed(슬롯 없이 긴 휴식마다 1회). 올라타기 없음(BG3식 동료) |  |
 | 6 | 보호의 오라 (aura_of_protection) |  | 오라(auras.gd) |  |
+| 7 | 증오의 오라 (aura_of_hate) | oathbreaker | 오라(auras.gd) |  |
+| 7 | 신성한 충성 (divine_allegiance) | crown | 반응 |  |
+| 7 | 끈질긴 복수자 (relentless_avenger) | vengeance | 태그 relentless_avenger |  |
+| 7 | 수호의 오라 (aura_of_warding) | ancients | 오라(auras.gd) |  |
 | 7 | 헌신의 오라 (aura_of_devotion) | devotion | 오라(auras.gd) |  |
 | 9 | 적 퇴치 (abjure_foes) |  | 스크립트 abjure_foes |  |
 | 10 | 용기의 오라 (aura_of_courage) |  | 오라(auras.gd) |  |
@@ -551,6 +573,7 @@
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |
 | reaper | 수확자 | cleric |
 | reckless | 무모한 공격 | barbarian |
+| relentless_avenger | 끈질긴 복수자 | paladin |
 | reliable_talent | 믿음직한 재능 | rogue |
 | repelling_blast | 밀어내는 화살 | (몬스터 특성 또는 아직 없음) |
 | reroll_low_damage_two_handed | 대형 무기 전투 | 재주 great_weapon_fighting |
