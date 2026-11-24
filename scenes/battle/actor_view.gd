@@ -18,6 +18,8 @@ const SIZE_K := {"tiny": 0.5, "small": 0.8, "medium": 1.0, "large": 1.7, "huge":
 const SHADOW_Z := 0.45 / V.SIN_P
 
 static var _disc: Texture2D
+## BG3: 머리 위 HP 막대는 아군만. Shift를 누르는 동안(reveal_hp) 모두.
+static var reveal_hp := false
 
 var creature: Node
 var grid: Node
@@ -62,9 +64,10 @@ class Hud extends Node2D:
 		var top := Vector2(0, -head - 6)
 		var w := 46.0
 		var ratio: float = float(c.hp) / maxf(c.hp_max, 1)
-		draw_rect(Rect2(top + Vector2(-w / 2, 0), Vector2(w, 6)), Color(0, 0, 0, 0.7))
-		var col2: Color = {"party": Color(0.3, 0.85, 0.35), "enemy": Color(0.9, 0.3, 0.25)}.get(c.team, Color(0.9, 0.75, 0.3))
-		draw_rect(Rect2(top + Vector2(-w / 2 + 1, 1), Vector2((w - 2) * ratio, 4)), col2)
+		if c.team == "party" or view.reveal_hp:
+			draw_rect(Rect2(top + Vector2(-w / 2, 0), Vector2(w, 6)), Color(0, 0, 0, 0.7))
+			var col2: Color = {"party": Color(0.3, 0.85, 0.35), "enemy": Color(0.9, 0.3, 0.25)}.get(c.team, Color(0.9, 0.75, 0.3))
+			draw_rect(Rect2(top + Vector2(-w / 2 + 1, 1), Vector2((w - 2) * ratio, 4)), col2)
 		# 알아챔 표시(5단계): 의심·수색 = ?, 발견 = !
 		var mark := ""
 		for k in c.awareness:
@@ -77,7 +80,7 @@ class Hud extends Node2D:
 			var f := ThemeDB.fallback_font
 			draw_string(f, top + Vector2(-6, -8), mark, HORIZONTAL_ALIGNMENT_LEFT, -1, 26,
 				Color(1, 0.25, 0.2) if mark == "!" else Color(1, 0.85, 0.2))
-		if c.temp_hp > 0:
+		if c.temp_hp > 0 and (c.team == "party" or view.reveal_hp):
 			draw_rect(Rect2(top + Vector2(-w / 2, -3), Vector2(minf(w, c.temp_hp * 4.0), 2)), Color(0.6, 0.8, 1.0))
 
 

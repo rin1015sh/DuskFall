@@ -226,3 +226,22 @@ func test_attack_any_creature_and_neutral_group_turns_hostile() -> void:
 	assert_eq(n1.team, "enemy", "중립을 공격하면 적대")
 	assert_eq(n2.team, "enemy", "같은 세력 전원 적대")
 	assert_eq(other.team, "neutral", "다른 중립은 그대로")
+
+
+func test_target_info_and_roll_chips_for_ui() -> void:
+	var Actions := preload("res://scripts/rules/actions.gd")
+	var w := make_world(["........"])
+	var r := _pc("rogue", 1)
+	var e := make_creature({"team": "enemy", "hp_max": 20, "ac_base": 10})
+	var adj := make_creature({"team": "enemy", "hp_max": 20})
+	w["grid"].place(r, Vector2i(0, 0))
+	w["grid"].place(adj, Vector2i(1, 0))
+	w["grid"].place(e, Vector2i(6, 0))
+	e.apply_condition("prone", -1)
+	var info: Dictionary = Actions.target_info(e)
+	assert_eq(int(info["hp_max"]), 20)
+	assert_true(info["conditions"].any(func(c: Dictionary) -> bool: return c["id"] == "prone"), "상태 칩")
+	r.reset_turn()
+	var pv: Dictionary = Actions.preview(w, r, "ranged_attack", Vector2i(6, 0))
+	assert_true(pv.has("chance"), "커서 옆 확률")
+	assert_true("근접 위협" in pv.get("disadvantage", []), "불리 칩 이유")

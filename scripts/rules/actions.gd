@@ -214,6 +214,40 @@ static func unavailable(world: Dictionary, c: Node, key: String, explore: bool =
 	return ""
 
 
+## 굴림 칩(BG3 대상 막대): 공격 미리보기에서 유리·불리 이유와 명중 보정({"text", "value"}).
+static func roll_chips(p: Dictionary) -> Dictionary:
+	var mods: Array = []
+	if p.has("high_ground"):
+		mods.append({"text": "높은 곳" if int(p["high_ground"]) > 0 else "낮은 곳", "value": int(p["high_ground"])})
+	var atk: Dictionary = p.get("attack", {})
+	if int(atk.get("flat_damage", 0)) >= 10:
+		mods.append({"text": "전력 공격", "value": -5})  # 대형 무기 강타·명사수 켬
+	return {"advantage": Array(p.get("advantage", [])).duplicate(), "disadvantage": Array(p.get("disadvantage", [])).duplicate(), "mods": mods}
+
+
+## 대상 정보(BG3 위 가운데 막대): 이름·레벨·HP·상태. 표현 계층이 그린다.
+static func target_info(t: Node) -> Dictionary:
+	var conds: Array = []
+	var seen := {}
+	for cond in t.conditions:
+		var cid := str(cond["id"])
+		if seen.has(cid):
+			continue
+		seen[cid] = true
+		var def := RulesDB.get_entry("condition", cid)
+		conds.append({"id": cid, "name": def.get("name", {"ko": cid, "en": cid}), "turns": int(cond.get("turns_left", -1))})
+	return {"name": t.label(), "level": int(t.level), "hp": int(t.hp), "hp_max": int(t.hp_max), "temp_hp": int(t.temp_hp),
+		"team": str(t.team), "conditions": conds, "dead": bool(t.dead)}
+
+
+## 원거리 무기 칸의 던지는 근접 무기(투창·손도끼 등)는 던져서 공격한다(그렇지 않으면 근접 도달로 판정되던 문제).
+static func _thrown_opts(wid: String) -> Dictionary:
+	var w := Combat.weapon_data(wid)
+	if not Combat.is_ranged_weapon(w) and "thrown" in w.get("properties", []):
+		return {"thrown": true}
+	return {}
+
+
 ## 아군·중립을 노릴 때 경고(BG3 붉은 표시): "" = 적.
 static func friendly_fire_warning(c: Node, t: Node) -> String:
 	if t == null or c.is_hostile_to(t):
@@ -262,6 +296,7 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 			var opts := {}
 			if key == "ranged_attack" or key == "sneak_ranged":
 				opts["weapon"] = c.weapon_sets.get("ranged", {}).get("main", "")
+				opts.merge(_thrown_opts(str(opts["weapon"])), true)
 			elif key == "offhand_attack":
 				opts["weapon"] = c.weapon("off")
 			var p := Combat.preview_attack(world, c, t, opts)
@@ -270,6 +305,7 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 			out["lines"].append("명중 %d%%" % roundi(p["hit_chance"] * 100))
 			out["lines"].append("피해 %d~%d" % [p["damage"]["min"], p["damage"]["max"]])
 			out["chance"] = p["hit_chance"]
+			out.merge(roll_chips(p), true)
 			if key.begins_with("sneak_"):
 				out["lines"].append("급소 공격 +%dd6(조건이 맞으면)" % sneak_dice(c))
 		"jump":
@@ -334,6 +370,8 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 				if not p.get("valid", false):
 					return {"valid": false, "lines": [p.get("reason", "")]}
 				out["lines"].append("명중 %d%%" % roundi(p["hit_chance"] * 100))
+				out["chance"] = p["hit_chance"]
+				out.merge(roll_chips(p), true)
 				if wa.has("save"):
 					out["lines"].append("%s 내성 DC %d" % [str(wa["save"]).to_upper(), weapon_action_dc(c, wid)])
 			elif key.begins_with("spell:"):
@@ -413,7 +451,7 @@ static func _run(world: Dictionary, c: Node, key: String, cell: Vector2i, t: Nod
 				Combat.switch_weapon_set(c)
 			if t == null:
 				return Combat.attack_object(world, c, cell)
-			return Combat.attack(world, c, t)
+			return Combat.attack(world, c, t, _thrown_opts(c.weapon("main")))
 		"offhand_attack":
 			return Combat.offhand_attack(world, c, t)
 		"sneak_melee", "sneak_ranged":

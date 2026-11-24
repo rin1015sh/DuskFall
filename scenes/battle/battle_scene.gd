@@ -80,6 +80,14 @@ var status_label: Label
 var log_box: RichTextLabel
 var tooltip: PanelContainer
 var tooltip_label: Label
+## BG3식 대상 정보 막대(위 가운데)·커서 옆 확률
+var target_panel: PanelContainer
+var tp_name: Label
+var tp_bar: ProgressBar
+var tp_hp: Label
+var tp_conds: HBoxContainer
+var tp_chips: HBoxContainer
+var hit_label: Label
 var info_panel: PanelContainer
 var info_label: Label
 var banner: Label
@@ -538,6 +546,10 @@ func _on_zoom(factor: float, _at: Vector2) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.keycode == KEY_SHIFT and not event.echo:
+		ActorView.reveal_hp = event.pressed  # BG3: Shift를 누르는 동안 모든 생물 HP
+		_refresh()
+		return
 	if event is InputEventKey and event.pressed:
 		var pan := {KEY_LEFT: Vector2(-40, 0), KEY_RIGHT: Vector2(40, 0), KEY_UP: Vector2(0, -40), KEY_DOWN: Vector2(0, 40)}
 		if pan.has(event.keycode):
@@ -585,6 +597,12 @@ func _process(delta: float) -> void:
 			occ.append(views[c].occlusion_info())
 	map_view.update_occlusion(occ)
 	_frames += 1
+	if args.has("hover") and _frames == int(args.get("frames", "30")) - 3:
+		# 캡처용: --hover=x,y 칸에 마우스를 올린 것처럼 미리보기(대상 막대·확률), --mode=act:attack 등
+		if args.has("mode"):
+			mode = args["mode"]
+		var hv: PackedStringArray = args["hover"].split(",")
+		_show_preview(Vector2i(int(hv[0]), int(hv[1])))
 	if args.has("shot") and _frames == int(args.get("frames", "30")):
 		get_viewport().get_texture().get_image().save_png(args["shot"])
 		get_tree().quit()
@@ -732,12 +750,74 @@ func _show_preview(cell: Vector2i) -> void:
 	tooltip_label.text = text
 	var screen := camera.unproject_position(V.top(world["grid"], cell)) if world["grid"].in_bounds(cell) else Vector2.ZERO
 	tooltip.position = screen + Vector2(24, -60)
+	_show_target_info(cell, screen)
+
+
+## BG3 대상 막대: 커서 아래 생물의 이름·레벨·HP·상태, 노리는 중이면 유리·불리·보정 칩과 커서 옆 확률.
+func _show_target_info(cell: Vector2i, screen: Vector2) -> void:
+	if target_panel == null:
+		return
+	var g: Node = world["grid"]
+	var t: Node = g.creature_at(cell) if g.in_bounds(cell) else null
+	if t == null or (t != selected and not views.has(t)) or (views.has(t) and not views[t].visible):
+		target_panel.visible = false
+		hit_label.visible = false
+		return
+	var info := Actions.target_info(t)
+	tp_name.text = "%s  %s" % [info["name"], UiText.t("level_short") % int(info["level"])]
+	tp_bar.max_value = maxi(1, int(info["hp_max"]))
+	tp_bar.value = int(info["hp"])
+	var col: Color = S.HP_ALLY if t.team == "party" else (S.HP_ENEMY if selected != null and selected.is_hostile_to(t) else S.MOVE)
+	tp_bar.add_theme_stylebox_override("fill", S.bar_fill(col))
+	tp_hp.text = "%d/%d%s" % [int(info["hp"]), int(info["hp_max"]), "  (+%d)" % int(info["temp_hp"]) if int(info["temp_hp"]) > 0 else ""]
+	for ch in tp_conds.get_children():
+		ch.queue_free()
+	for cd: Dictionary in info["conditions"]:
+		tp_conds.add_child(_chip(UiText.name_of(cd["name"]), S.TEXT_DIM, ""))
+	for ch in tp_chips.get_children():
+		ch.queue_free()
+	var aiming := t != selected and not preview_data.is_empty()
+	for r: Variant in (preview_data.get("advantage", []) if aiming else []):
+		tp_chips.add_child(_chip(str(r), Color(0.35, 0.62, 0.36), "▲"))
+	for r: Variant in (preview_data.get("disadvantage", []) if aiming else []):
+		tp_chips.add_child(_chip(str(r), Color(0.72, 0.25, 0.22), "▼"))
+	for m: Dictionary in (preview_data.get("mods", []) if aiming else []):
+		tp_chips.add_child(_chip("%s %+d" % [m["text"], int(m["value"])], Color(0.35, 0.62, 0.36) if int(m["value"]) > 0 else Color(0.72, 0.25, 0.22), ""))
+	if aiming and preview_data.has("warning"):
+		tp_chips.add_child(_chip(str(preview_data["warning"]), Color(0.85, 0.2, 0.18), "⚠"))
+	target_panel.visible = true
+	if aiming and preview_data.has("chance") and preview_data.get("valid", false):
+		hit_label.text = "%d%%" % roundi(float(preview_data["chance"]) * 100)
+		hit_label.position = screen + Vector2(-26, -96)
+		hit_label.visible = true
+	else:
+		hit_label.visible = false
+
+
+## 칩(BG3 유리·불리 표시): 색 테두리 둥근 판에 기호 + 글.
+func _chip(text: String, color: Color, mark: String) -> Control:
+	var p := PanelContainer.new()
+	var sb := S.panel(10, color, Color(color, 0.28), 1)
+	sb.set_content_margin_all(3)
+	sb.content_margin_left = 8
+	sb.content_margin_right = 8
+	p.add_theme_stylebox_override("panel", sb)
+	var l := Label.new()
+	l.text = ("%s %s" % [mark, text]) if mark != "" else text
+	l.add_theme_font_size_override("font_size", 13)
+	l.add_theme_color_override("font_color", S.TEXT)
+	p.add_child(l)
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return p
 
 
 func _clear_preview() -> void:
 	preview_cell = Vector2i(-1, -1)
 	preview_data = {}
 	tooltip.visible = false
+	if target_panel != null:
+		target_panel.visible = false
+		hit_label.visible = false
 	router.previewed_cell = Vector2i(-1, -1)
 	highlights.queue_redraw()
 
@@ -755,6 +835,9 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 	if mode.begins_with("act:"):
 		var ap: Dictionary = Actions.preview(world, c, mode.trim_prefix("act:"), cell, exploring)
 		var ao := {"valid": ap.get("valid", false), "text": "\n".join(PackedStringArray(ap.get("lines", [])))}
+		for k: String in ["chance", "advantage", "disadvantage", "mods"]:
+			if ap.has(k):
+				ao[k] = ap[k]
 		if ap.has("warning"):
 			ao["warning"] = ap["warning"]  # 아군·중립 공격 경고(BG3 — 붉은 표시)
 			ao["text"] = "⚠ %s\n%s" % [ap["warning"], ao["text"]]
@@ -783,6 +866,8 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 		var p := Combat.preview_attack(world, c, target)
 		if not p.get("valid", false):
 			return {"valid": false, "text": UiText.t("blocked") % p.get("reason", "")}
+		out["chance"] = p["hit_chance"]
+		out.merge(Actions.roll_chips(p), true)
 		var ffw := Actions.friendly_fire_warning(c, target)
 		if ffw != "":
 			out["warning"] = ffw
@@ -825,6 +910,8 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 		for row: Dictionary in p["targets"]:
 			var t: Node = row["creature"]
 			var check: Dictionary = RulesDB.get_entry("spell", sid)["effects"].get("check", {})
+			if row.has("chance") and t == target:
+				out["chance"] = row["chance"]  # 커서 옆 확률(내성 주문은 실패 확률)
 			if check.get("type") == "save":
 				lines.append(UiText.t("fail_chance") % [t.label(), roundi(row["chance"] * 100)])
 			elif row.has("chance"):
@@ -1536,6 +1623,55 @@ func _build_ui() -> void:
 	log_bg.shadow_size = 0
 	log_box.add_theme_stylebox_override("normal", log_bg)
 	root.add_child(log_box)
+	# 위 가운데: 대상 정보 막대(BG3 — 이름·레벨·HP·상태·유리/불리 칩)
+	target_panel = PanelContainer.new()
+	target_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	target_panel.position = Vector2(-210, 86)
+	target_panel.custom_minimum_size = Vector2(420, 0)
+	target_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tps := S.panel(10, S.BRONZE_DARK, Color(S.BG_DEEP, 0.72), 1)
+	tps.set_content_margin_all(6)
+	target_panel.add_theme_stylebox_override("panel", tps)
+	var tpv := VBoxContainer.new()
+	tpv.add_theme_constant_override("separation", 4)
+	tpv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	target_panel.add_child(tpv)
+	tp_name = S.title("", 20)
+	tp_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tp_name.add_theme_color_override("font_outline_color", Color.BLACK)
+	tp_name.add_theme_constant_override("outline_size", 5)
+	tpv.add_child(tp_name)
+	var bar_box := Control.new()
+	bar_box.custom_minimum_size = Vector2(400, 18)
+	bar_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tpv.add_child(bar_box)
+	tp_bar = S.bar(S.HP_ENEMY, Vector2(400, 18))
+	bar_box.add_child(tp_bar)
+	tp_hp = Label.new()
+	tp_hp.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tp_hp.size = Vector2(400, 18)
+	tp_hp.add_theme_font_size_override("font_size", 13)
+	tp_hp.add_theme_color_override("font_outline_color", Color.BLACK)
+	tp_hp.add_theme_constant_override("outline_size", 4)
+	bar_box.add_child(tp_hp)
+	tp_conds = HBoxContainer.new()
+	tp_conds.alignment = BoxContainer.ALIGNMENT_CENTER
+	tp_conds.add_theme_constant_override("separation", 4)
+	tpv.add_child(tp_conds)
+	tp_chips = HBoxContainer.new()
+	tp_chips.alignment = BoxContainer.ALIGNMENT_CENTER
+	tp_chips.add_theme_constant_override("separation", 4)
+	tpv.add_child(tp_chips)
+	target_panel.visible = false
+	root.add_child(target_panel)
+	# 커서 옆 확률(BG3 — 노리는 대상 위 큰 %)
+	hit_label = S.title("", 26)
+	hit_label.add_theme_color_override("font_color", S.TEXT)
+	hit_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	hit_label.add_theme_constant_override("outline_size", 6)
+	hit_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hit_label.visible = false
+	root.add_child(hit_label)
 	tooltip = PanelContainer.new()
 	tooltip_label = Label.new()
 	tooltip.add_child(tooltip_label)
@@ -1675,8 +1811,9 @@ func _order_portrait(c: Node, current: bool) -> Control:
 	var bar := S.bar(S.HP_ALLY if c.team == "party" else S.HP_ENEMY, Vector2(42 * k, 5))
 	bar.max_value = c.hp_max
 	bar.value = c.hp
+	bar.visible = c.team == "party" or ActorView.reveal_hp  # BG3: 적 HP는 마우스를 올렸을 때만(대상 막대)
 	v.add_child(bar)
-	p.tooltip_text = "%s  HP %d/%d  (%d)" % [c.label(), c.hp, c.hp_max, c.initiative]
+	p.tooltip_text = "%s  HP %d/%d  (%d)" % [c.label(), c.hp, c.hp_max, c.initiative] if c.team == "party" else "%s  (%d)" % [c.label(), c.initiative]
 	return p
 
 

@@ -18,6 +18,7 @@ const TEXT := {
 	"enemy_turn": {"ko": "적의 턴", "en": "Enemy Turn"},
 	"pick_targets": {"ko": "대상 %d/%s: %s — Enter·[시전]으로 바로 시전, 다시 누르면 빼기, Esc 취소", "en": "Targets %d/%s: %s — Enter or [Cast] to cast now, click again to remove, Esc to cancel"},
 	"cast_now": {"ko": "시전", "en": "Cast"},
+	"level_short": {"ko": "%d레벨", "en": "Lv %d"},
 	"victory": {"ko": "승리", "en": "Victory"},
 	"defeat": {"ko": "패배 — 게임 오버", "en": "Defeat — Game Over"},
 	"move_cost": {"ko": "이동 %d칸 (남은 %d)", "en": "Move %d (left %d)"},
