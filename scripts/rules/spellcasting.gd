@@ -444,6 +444,8 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 	caster.set_meta("casting_spell", spell_id)  # 섬뜩한 수확: 이 주문으로 쓰러뜨렸나
 	caster.set_meta("casting_slot", int(opts.get("slot", RulesDB.get_entry("spell", spell_id).get("level", 0))))
 	var r := _cast(world, caster, spell_id, aim, opts)
+	if is_instance_valid(caster) and not opts.get("reaper", false):
+		load("res://scripts/rules/sorcery.gd").after_cast(world, caster, RulesDB.get_entry("spell", spell_id), r)  # 소서러 하위 클래스(BG3)
 	if is_instance_valid(caster):
 		caster.remove_meta("casting_spell")
 		caster.remove_meta("casting_slot")

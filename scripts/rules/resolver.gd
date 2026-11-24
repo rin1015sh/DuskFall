@@ -57,6 +57,8 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	res["crit_threshold"] = attacker.crit_threshold if atk.get("weapon", false) else 20
 	if atk.has("spell"):
 		res["crit_threshold"] = 20 - attacker.cap_count("spell_crit_minus_1")  # 주문 저격: 주문 공격 치명타 눈 −1(겹친다)
+	if target.condition_instance("hexblades_curse").get("source") == attacker:
+		res["crit_threshold"] = int(res["crit_threshold"]) - 1  # 주술검사의 저주: 치명타 범위 −1
 	var bonus_dice := roll_bonus_dice(attacker, "attack_roll")
 	res["bonus_dice"] = bonus_dice
 	res["total"] = res["natural"] + res["attack_bonus"] + bonus_dice
@@ -267,6 +269,7 @@ static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Di
 	_brutal_strike_setup(attacker, atk, res, preview)
 	if not preview:
 		drunkards_luck(attacker, res)
+		_tides(attacker, res)
 	res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 	return res
 
@@ -481,6 +484,9 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 				attacker.remove_condition(str(a["id"]))
 		_stunning_strike(attacker, target, atk)
 		_feature_hit_bonus(attacker, target, atk, res)
+		var hc: Dictionary = target.condition_instance("hexblades_curse")
+		if not hc.is_empty() and hc.get("source") == attacker:
+			res["extra_damage"].append({"dice": str(attacker.proficiency_bonus), "damage_type": atk["damage"][0]["damage_type"]})  # 주술검사의 저주: 피해 + 숙련
 		if attacker.has_meta("bonus_damage") and int(attacker.get_meta("bonus_damage")) > 0:
 			res["extra_damage"].append({"dice": str(attacker.get_meta("bonus_damage")), "damage_type": atk["damage"][0]["damage_type"]})  # 동료의 결속(야수 조련사)
 		if atk.get("weapon", false) and str(atk.get("kind", "")) == "melee":
@@ -1075,6 +1081,9 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 		total += v
 	out["total"] = total
 	target.set_meta("last_damage_total", total)
+	var psrc: Variant = opts.get("attacker")
+	if target.has_cap("thought_shield") and int(out["by_type"].get("psychic", 0)) > 0 and psrc is Node and psrc != target and not opts.get("reflected", false):
+		apply_damage(psrc, [{"amount": int(out["by_type"]["psychic"]), "damage_type": "psychic"}], {"attacker": target, "reflected": true})  # 생각의 방패(위대한 옛것 10레벨, BG3)
 	var tsrc: Variant = opts.get("attacker")
 	if tsrc is Node and tsrc != target and tsrc.has_cap("thunderbolt_strike") and (int(out["by_type"].get("lightning", 0)) > 0 or int(out["by_type"].get("thunder", 0)) > 0) \
 			and ["tiny", "small", "medium", "large"].has(str(target.size)):
@@ -1165,6 +1174,10 @@ static func _hp_zero(target: Node, remainder: int, opts: Dictionary, out: Dictio
 		return
 	_transfer_on_drop(target)
 	_dark_ones_blessing(target, opts)
+	var hcs: Dictionary = target.condition_instance("hexblades_curse")
+	if not hcs.is_empty() and hcs.get("source") is Node and not hcs["source"].dead:
+		var hsrc: Node = hcs["source"]
+		heal(hsrc, maxi(1, hsrc.feature_level("hexblades_curse") + hsrc.ability_mod("cha")), "hexblades_curse")  # 저주받은 대상이 죽으면 회복
 	if target.has_meta("beast_form"):
 		load("res://scripts/rules/effects/wild_shape.gd").revert(target)  # 0 HP(무력화)면 야생 변신이 풀린다
 	if not target.is_player_character:
@@ -1261,6 +1274,7 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 		res["advantage"].append("강철 의지")  # 사냥꾼 방어 전술(BG3): 공포 내성 유리
 	EventBus.on_save.emit(res)
 	drunkards_luck(creature, res)
+	_tides(creature, res)
 	res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 	var d := luck(creature, Dice.d20(res["mode"], "%s %s 내성" % [creature.label(), ability]))
 	if int(opts.get("min_natural", 0)) > int(d["natural"]):
@@ -1357,6 +1371,13 @@ static func concentration_check(creature: Node, damage: int, attacker: Variant =
 ## 능력 판정. opts: {"skill": String, "bonus": int, "advantage": [], "disadvantage": [],
 ##   "requires_sight": bool, "social": bool, "other": Node}
 ## 자연 20 자동 성공, 자연 1 자동 실패(2단계 공통 처리 규칙 1).
+## 혼돈의 물결(야생 마법 소서러, 상태 tides_of_chaos): 다음 공격·판정·내성 하나에 유리, 쓰면 끝.
+static func _tides(c: Node, res: Dictionary) -> void:
+	if c.has_condition("tides_of_chaos"):
+		res["advantage"].append("혼돈의 물결")
+		c.remove_condition("tides_of_chaos")
+
+
 ## 술꾼의 행운(술 취한 달인 11레벨, 능력 태그 drunkards_luck): 불리가 있는 굴림(공격·내성·능력 판정)에 기 2로 불리를 없앤다(설정 켜면 자동).
 static func drunkards_luck(c: Node, res: Dictionary) -> void:
 	if not c.has_cap("drunkards_luck") or (res["disadvantage"] as Array).is_empty() or str(c.options.get("drunkards_luck", "on")) != "on" \
@@ -1408,6 +1429,7 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 				if m["effect"].get("check", "") == "social":
 					_add_adv(m, "ability_check", "against", other, creature, res)
 		drunkards_luck(creature, res)
+		_tides(creature, res)
 		res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 		var d := luck(creature, Dice.d20(res["mode"], "%s %s 판정" % [creature.label(), ability]))
 		res["natural"] = d["natural"]

@@ -182,6 +182,42 @@
         "5": 1
       },
       "recharge": "long"
+    },
+    {
+      "id": "tides_of_chaos",
+      "name": {
+        "ko": "혼돈의 물결",
+        "en": "Tides of Chaos"
+      },
+      "max": {
+        "1": 1
+      },
+      "recharge": "long",
+      "subclass": "wild_magic"
+    },
+    {
+      "id": "strength_of_the_grave",
+      "name": {
+        "ko": "무덤의 힘",
+        "en": "Strength of the Grave"
+      },
+      "max": {
+        "1": 1
+      },
+      "recharge": "long",
+      "subclass": "shadow_magic"
+    },
+    {
+      "id": "hound_of_ill_omen",
+      "name": {
+        "ko": "불길한 징조의 사냥개",
+        "en": "Hound of Ill Omen"
+      },
+      "max": {
+        "6": 1
+      },
+      "recharge": "short",
+      "subclass": "shadow_magic"
     }
   ],
   "features": [
@@ -455,25 +491,10 @@
       "id": "draconic",
       "name": {
         "ko": "용의 혈통",
-        "en": "Draconic Sorcery"
+        "en": "Draconic Bloodline"
       },
-      "level": 3,
-      "source": "SRD 5.2.1",
-      "always_prepared": {
-        "3": [
-          "alter_self",
-          "chromatic_orb",
-          "command",
-          "dragon_s_breath"
-        ],
-        "5": [
-          "fear",
-          "fly"
-        ],
-        "7": [
-          "charm_monster"
-        ]
-      },
+      "level": 1,
+      "source": "original",
       "features": [
         {
           "id": "draconic_resilience",
@@ -481,25 +502,140 @@
             "ko": "용의 회복력",
             "en": "Draconic Resilience"
           },
-          "level": 3,
+          "level": 1,
           "caps": [
-            "unarmored_defense_cha"
+            "unarmored_defense_13"
           ],
           "grants": {
             "hp_per_level": 1
           },
-          "notes_ko": "최대 HP + 소서러 레벨(3레벨에 +3, 레벨마다 +1), 갑옷이 없으면 AC 10 + 민첩 + 매력.",
-          "source": "SRD 5.2.1"
+          "notes_ko": "BG3: 최대 HP + 소서러 레벨, 갑옷이 없으면 AC 13 + 민첩.",
+          "source": "original"
         },
         {
-          "id": "draconic_spells",
+          "id": "draconic_ancestry",
           "name": {
-            "ko": "용의 주문",
-            "en": "Draconic Spells"
+            "ko": "용의 혈통 조상",
+            "en": "Draconic Ancestry"
           },
-          "level": 3,
-          "handled_by": "하위 클래스 always_prepared(3레벨 변신·색채의 구슬·명령·용의 숨결, 5레벨 공포·비행)",
-          "source": "SRD 5.2.1"
+          "level": 1,
+          "choice_kind": "option",
+          "choices": [
+            "black",
+            "blue",
+            "brass",
+            "bronze",
+            "copper",
+            "gold",
+            "green",
+            "red",
+            "silver",
+            "white"
+          ],
+          "choice_grants": {
+            "black": {
+              "always_prepared": {
+                "1": [
+                  "grease"
+                ]
+              },
+              "caps": [
+                "draconic_acid"
+              ]
+            },
+            "blue": {
+              "always_prepared": {
+                "1": [
+                  "shocking_grasp"
+                ]
+              },
+              "caps": [
+                "draconic_lightning"
+              ]
+            },
+            "brass": {
+              "always_prepared": {
+                "1": [
+                  "sleep"
+                ]
+              },
+              "caps": [
+                "draconic_fire"
+              ]
+            },
+            "bronze": {
+              "always_prepared": {
+                "1": [
+                  "fog_cloud"
+                ]
+              },
+              "caps": [
+                "draconic_lightning"
+              ]
+            },
+            "copper": {
+              "always_prepared": {
+                "1": [
+                  "hideous_laughter"
+                ]
+              },
+              "caps": [
+                "draconic_acid"
+              ]
+            },
+            "gold": {
+              "always_prepared": {
+                "1": [
+                  "disguise_self"
+                ]
+              },
+              "caps": [
+                "draconic_fire"
+              ]
+            },
+            "green": {
+              "always_prepared": {
+                "1": [
+                  "ray_of_sickness"
+                ]
+              },
+              "caps": [
+                "draconic_poison"
+              ]
+            },
+            "red": {
+              "always_prepared": {
+                "1": [
+                  "burning_hands"
+                ]
+              },
+              "caps": [
+                "draconic_fire"
+              ]
+            },
+            "silver": {
+              "always_prepared": {
+                "1": [
+                  "feather_fall"
+                ]
+              },
+              "caps": [
+                "draconic_cold"
+              ]
+            },
+            "white": {
+              "always_prepared": {
+                "1": [
+                  "ray_of_frost"
+                ]
+              },
+              "caps": [
+                "draconic_cold"
+              ]
+            }
+          },
+          "notes_ko": "BG3: 용 10종 하나 — 피해 종류와 주문 하나(항상 준비). 검은 용(acid) / 푸른 용(lightning) / 놋쇠 용(fire) / 청동 용(lightning) / 구리 용(acid) / 황금 용(fire) / 초록 용(poison) / 붉은 용(fire) / 은빛 용(cold) / 하얀 용(cold). [변형] 푸른 용 마녀의 화살 → 전격 손길, 하얀 용 아가티스의 갑옷 → 서리 광선(SRD에 없음).",
+          "source": "original"
         },
         {
           "id": "elemental_affinity",
@@ -509,57 +645,379 @@
           },
           "level": 6,
           "choice_kind": "option",
+          "choice_from": "draconic_ancestry",
           "choices": [
-            "acid",
-            "cold",
-            "fire",
-            "lightning",
-            "poison"
+            "black",
+            "blue",
+            "brass",
+            "bronze",
+            "copper",
+            "gold",
+            "green",
+            "red",
+            "silver",
+            "white"
           ],
-          "source": "SRD 5.2.1",
           "choice_grants": {
-            "acid": {
-              "resistances": [
-                "acid"
-              ],
+            "black": {
               "spell_damage_types": [
                 "acid"
-              ]
-            },
-            "cold": {
-              "resistances": [
-                "cold"
               ],
-              "spell_damage_types": [
-                "cold"
+              "resistances": [
+                "acid"
               ]
             },
-            "fire": {
-              "resistances": [
-                "fire"
-              ],
+            "blue": {
               "spell_damage_types": [
-                "fire"
-              ]
-            },
-            "lightning": {
-              "resistances": [
                 "lightning"
               ],
-              "spell_damage_types": [
+              "resistances": [
                 "lightning"
               ]
             },
-            "poison": {
-              "resistances": [
-                "poison"
+            "brass": {
+              "spell_damage_types": [
+                "fire"
               ],
+              "resistances": [
+                "fire"
+              ]
+            },
+            "bronze": {
+              "spell_damage_types": [
+                "lightning"
+              ],
+              "resistances": [
+                "lightning"
+              ]
+            },
+            "copper": {
+              "spell_damage_types": [
+                "acid"
+              ],
+              "resistances": [
+                "acid"
+              ]
+            },
+            "gold": {
+              "spell_damage_types": [
+                "fire"
+              ],
+              "resistances": [
+                "fire"
+              ]
+            },
+            "green": {
               "spell_damage_types": [
                 "poison"
+              ],
+              "resistances": [
+                "poison"
+              ]
+            },
+            "red": {
+              "spell_damage_types": [
+                "fire"
+              ],
+              "resistances": [
+                "fire"
+              ]
+            },
+            "silver": {
+              "spell_damage_types": [
+                "cold"
+              ],
+              "resistances": [
+                "cold"
+              ]
+            },
+            "white": {
+              "spell_damage_types": [
+                "cold"
+              ],
+              "resistances": [
+                "cold"
               ]
             }
           },
-          "notes_ko": "용의 원소(산·냉기·화염·번개·독) 하나: 그 피해 저항, 그 종류 주문 피해 + 매력 수정치(효과 모델 주문)."
+          "notes_ko": "BG3: 조상 피해 종류의 주문 피해 + 매력, 그 종류 저항. [변형] 저항은 마법 점수 반응 대신 상시.",
+          "source": "original"
+        },
+        {
+          "id": "draconic_wings",
+          "name": {
+            "ko": "용의 날개",
+            "en": "Draconic Wings"
+          },
+          "level": 11,
+          "kind": "bonus_action",
+          "script": "draconic_wings",
+          "target": "self",
+          "icon": "statuses/haste.webp",
+          "glyph": "wind",
+          "notes_ko": "BG3: 보너스 행동으로 비행을 켜고 끈다.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "wild_magic",
+      "name": {
+        "ko": "야생 마법",
+        "en": "Wild Magic"
+      },
+      "level": 1,
+      "source": "original",
+      "features": [
+        {
+          "id": "wild_magic_surge",
+          "name": {
+            "ko": "야생 마법 급증",
+            "en": "Wild Magic Surge"
+          },
+          "level": 1,
+          "caps": [
+            "wild_magic_surge"
+          ],
+          "notes_ko": "BG3: 레벨 주문을 쓰면 d20 = 20이면 급증(10종: 행동 추가·흐릿함·연소·덩굴·비행·안개·방패·둔화·가시·순간 이동). [변형] BG3 표 23종 중 기존 장치로 되는 10종.",
+          "source": "original"
+        },
+        {
+          "id": "tides_of_chaos",
+          "name": {
+            "ko": "혼돈의 물결",
+            "en": "Tides of Chaos"
+          },
+          "level": 1,
+          "kind": "free",
+          "resource": "tides_of_chaos",
+          "script": "tides_of_chaos",
+          "target": "self",
+          "icon": "statuses/buff.webp",
+          "glyph": "star",
+          "notes_ko": "BG3: 행동 없이, 긴 휴식 1회. 다음 공격·판정·내성 하나 유리, 이후 급증 확률 50%.",
+          "source": "original"
+        },
+        {
+          "id": "surge_teleport_action",
+          "name": {
+            "ko": "급증: 순간 이동",
+            "en": "Surge: Teleport"
+          },
+          "level": 1,
+          "kind": "bonus_action",
+          "script": "surge_teleport",
+          "target": "cell",
+          "requires_condition": "surge_teleport",
+          "icon": "statuses/haste.webp",
+          "glyph": "run",
+          "notes_ko": "급증 효과 중 보너스 행동 6칸 순간 이동.",
+          "source": "original"
+        },
+        {
+          "id": "bend_luck",
+          "name": {
+            "ko": "운 비틀기",
+            "en": "Bend Luck"
+          },
+          "level": 6,
+          "kind": "reaction",
+          "caps": [
+            "bend_luck"
+          ],
+          "notes_ko": "BG3: 12칸 안 적이 아군을 맞히면 반응 + 마법 점수 2로 1d4 빼기(빗나가게 할 수 있을 때).",
+          "source": "original"
+        },
+        {
+          "id": "controlled_chaos",
+          "name": {
+            "ko": "통제된 혼돈",
+            "en": "Controlled Chaos"
+          },
+          "level": 11,
+          "caps": [
+            "controlled_chaos"
+          ],
+          "notes_ko": "BG3: 4칸 안 적이 레벨 주문을 쓰면 25%로 그 적에게 해로운 급증(연소·둔화).",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "storm",
+      "name": {
+        "ko": "폭풍 마법",
+        "en": "Storm Sorcery"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "thunderwave"
+        ],
+        "3": [
+          "gust_of_wind"
+        ],
+        "5": [
+          "sleet_storm",
+          "lightning_bolt"
+        ]
+      },
+      "features": [
+        {
+          "id": "tempestuous_magic",
+          "name": {
+            "ko": "폭풍의 마법",
+            "en": "Tempestuous Magic"
+          },
+          "level": 1,
+          "caps": [
+            "tempestuous_magic"
+          ],
+          "notes_ko": "BG3: 레벨 주문을 쓴 턴에 보너스 행동으로 6칸 날아 이동(기회 공격 없음).",
+          "source": "original"
+        },
+        {
+          "id": "tempestuous_flight",
+          "name": {
+            "ko": "폭풍 비행",
+            "en": "Tempestuous Flight"
+          },
+          "level": 1,
+          "kind": "bonus_action",
+          "script": "surge_teleport",
+          "tempest": true,
+          "target": "cell",
+          "icon": "statuses/haste.webp",
+          "glyph": "wind",
+          "notes_ko": "레벨 주문 뒤 보너스 행동 6칸.",
+          "source": "original"
+        },
+        {
+          "id": "heart_of_the_storm",
+          "name": {
+            "ko": "폭풍의 심장",
+            "en": "Heart of the Storm"
+          },
+          "level": 6,
+          "caps": [
+            "heart_of_the_storm"
+          ],
+          "grants": {
+            "resistances": [
+              "lightning",
+              "thunder"
+            ]
+          },
+          "notes_ko": "BG3: 번개·천둥 저항, 번개·천둥 레벨 주문을 쓰면 4칸 안 적 소서러 레벨/2 피해. 주문(BG3 폭풍 주문): 천둥파·돌풍·진눈깨비 폭풍·번개(번개 부르기 대신 — 미포함). 물 만들기 생략.",
+          "source": "original"
+        },
+        {
+          "id": "storms_fury",
+          "name": {
+            "ko": "폭풍의 분노",
+            "en": "Storm's Fury"
+          },
+          "level": 11,
+          "kind": "reaction",
+          "caps": [
+            "storms_fury"
+          ],
+          "notes_ko": "BG3: 근접 공격에 맞으면 반응으로 소서러 레벨 번개 + 근력 내성 실패 시 4칸 밀기.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "shadow_magic",
+      "name": {
+        "ko": "그림자 마법",
+        "en": "Shadow Magic"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "3": [
+          "darkness"
+        ]
+      },
+      "features": [
+        {
+          "id": "eyes_of_the_dark",
+          "name": {
+            "ko": "어둠의 눈",
+            "en": "Eyes of the Dark"
+          },
+          "level": 1,
+          "grants": {
+            "darkvision_tiles": 16
+          },
+          "notes_ko": "BG3: 암시야 16칸(24m).",
+          "source": "original"
+        },
+        {
+          "id": "strength_of_the_grave",
+          "name": {
+            "ko": "무덤의 힘",
+            "en": "Strength of the Grave"
+          },
+          "level": 1,
+          "hook": "on_hp_zero",
+          "script": "strength_of_the_grave",
+          "notes_ko": "BG3: 0 HP가 되면 쓰러지는 대신 HP 1(긴 휴식 1회).",
+          "source": "original"
+        },
+        {
+          "id": "eyes_darkness",
+          "name": {
+            "ko": "어둠의 눈: 어둠",
+            "en": "Eyes of the Dark: Darkness"
+          },
+          "level": 3,
+          "kind": "action",
+          "resource": "sorcery_points",
+          "resource_amount": 2,
+          "script": "ki_spell",
+          "spell": "darkness",
+          "ability": "cha",
+          "target": "cell",
+          "icon": "statuses/blinded.webp",
+          "glyph": "eye",
+          "notes_ko": "BG3: 마법 점수 2로 어둠(슬롯 없이, 매력).",
+          "source": "original"
+        },
+        {
+          "id": "hound_of_ill_omen",
+          "name": {
+            "ko": "불길한 징조의 사냥개",
+            "en": "Hound of Ill Omen"
+          },
+          "level": 6,
+          "kind": "bonus_action",
+          "resource": "hound_of_ill_omen",
+          "script": "hound_of_ill_omen",
+          "target": "enemy",
+          "icon": "statuses/fear.webp",
+          "glyph": "paw",
+          "notes_ko": "BG3: 보너스 행동 + 마법 점수 3, 짧은 휴식 1회. 12칸 안 적 옆에 사냥개, 그 적 10턴 내성 불리.",
+          "source": "original"
+        },
+        {
+          "id": "shadow_walk",
+          "name": {
+            "ko": "그림자 걷기",
+            "en": "Shadow Walk"
+          },
+          "level": 11,
+          "kind": "bonus_action",
+          "script": "surge_teleport",
+          "shadow": true,
+          "range_tiles": 12,
+          "target": "cell",
+          "icon": "statuses/invisible.webp",
+          "glyph": "run",
+          "notes_ko": "BG3: 보너스 행동, 12칸 안 가려진(밝지 않은) 칸으로 순간 이동. [변형] 다음 주문 원격 변형 무료는 생략.",
+          "source": "original"
         }
       ]
     }
@@ -643,11 +1101,11 @@
         "main": "light_crossbow"
       }
     },
-    "elemental_affinity": "fire",
     "metamagic_10": [
       "careful",
       "heightened"
-    ]
+    ],
+    "draconic_ancestry": "red"
   },
   "source": "SRD 5.2.1",
   "multiclass": {}

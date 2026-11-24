@@ -411,6 +411,10 @@ func _on_after_attack_roll(res: Dictionary) -> void:
 	if res.get("hit", false) and res["total"] >= res["ac"] + res["ac_bonus"]:
 		_combat_inspiration_ac(res)
 	if res.get("hit", false) and not res.get("forced_miss", false):
+		_armour_of_hexes(res)
+	if res.get("hit", false) and not res.get("forced_miss", false):
+		_bend_luck(res)
+	if res.get("hit", false) and not res.get("forced_miss", false):
 		_illusory_self(res)
 	if res.get("hit", false) and not res.get("forced_miss", false):
 		_song_of_defence(res)
@@ -552,6 +556,7 @@ func _on_damage_taken(info: Dictionary) -> void:
 	var t: Node = info.get("target")
 	if t != null and int(info.get("amount", 0)) > 0:
 		_unstable_backlash(t)
+		_misty_escape(t)
 		_divine_allegiance(t, int(info.get("amount", 0)))
 	var attacker: Variant = info.get("opts", {}).get("attacker")
 	if t == null or t.dead or t.hp <= 0 or not (attacker is Node) or attacker == t or attacker.dead \
@@ -641,4 +646,53 @@ func _divine_allegiance(t: Node, amount: int) -> void:
 			p.hp -= n
 			Resolver.heal(t, n, p)
 			Dice.log_text("%s 신성한 충성: %s 대신 %d" % [p.label(), t.label(), n])):
+			return
+
+
+## 안개 탈출(요정 후원자 6레벨, BG3 — 능력 태그 misty_escape + 자원): 피해를 받으면 반응으로 2턴 투명(공격하면 풀림).
+## [변형] 다음 턴 무료 안개 걸음은 생략.
+func _misty_escape(t: Node) -> void:
+	if t.dead or t.hp <= 0 or not t.has_cap("misty_escape") or t.resource("misty_escape") <= 0 or not world.has("grid"):
+		return
+	offer(t, "misty_escape", {}, func() -> void:
+		t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
+		t.spend_resource("misty_escape")
+		t.apply_condition("invisible", 2, "misty_escape", {"ends_on_attack": true}))
+
+
+## 저주의 갑옷(주술검사 10레벨, BG3 — 능력 태그 armour_of_hexes): 내가 저주한 적이 나를 맞히면 반응으로 50% 빗나가게.
+func _armour_of_hexes(res: Dictionary) -> void:
+	var t: Node = res["target"]
+	var a: Node = res["attacker"]
+	if not t.has_cap("armour_of_hexes") or not t.can_react() or a.condition_instance("hexblades_curse").get("source") != t:
+		return
+	offer(t, "armour_of_hexes", {"attack": res}, func() -> void:
+		t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
+		if Dice.roll("1d2", "저주의 갑옷")["total"] == 2:
+			res["forced_miss"] = true
+			res["hit"] = false
+			Dice.log_text("%s 저주의 갑옷: 빗나갔다" % t.label()))
+
+
+## 운 비틀기(야생 마법 6레벨, BG3 — 능력 태그 bend_luck): 12칸 안 보이는 적이 아군(나 포함)을 맞히면 반응 + 마법 점수 2로
+## 1d4를 빼서 빗나가게 할 수 있을 때 쓴다. [변형] 아군 굴림에 더하기는 생략.
+func _bend_luck(res: Dictionary) -> void:
+	var t: Node = res["target"]
+	var a: Node = res["attacker"]
+	var grid: Node = world["grid"]
+	var need: int = int(res["total"]) - (int(res["ac"]) + int(res["ac_bonus"])) + 1
+	if need > 4:
+		return
+	for o: Node in grid.creatures():
+		if o.dead or not o.has_cap("bend_luck") or o.is_hostile_to(t) or not o.is_hostile_to(a) or not o.can_react() \
+				or o.resource("sorcery_points") < 2 or grid.distance_between(o, a) > 12 or not grid.can_see(o, a):
+			continue
+		if offer(o, "bend_luck", {"attack": res}, func() -> void:
+			o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+			o.spend_resource("sorcery_points", 2)
+			var n: int = Dice.roll("1d4", "운 비틀기")["total"]
+			res["total"] = int(res["total"]) - n
+			if int(res["total"]) < int(res["ac"]) + int(res["ac_bonus"]) and not res.get("crit", false):
+				res["hit"] = false
+			Dice.log_text("%s 운 비틀기: −%d" % [o.label(), n])):
 			return

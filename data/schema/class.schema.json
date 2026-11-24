@@ -799,6 +799,15 @@
         },
         "whirlwind": {
           "type": "boolean"
+        },
+        "ability": {
+          "type": "string"
+        },
+        "tempest": {
+          "type": "boolean"
+        },
+        "shadow": {
+          "type": "boolean"
         }
       }
     }

@@ -110,8 +110,11 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		ability = "dex"  # 교묘 무기, 몽크 무술(민첩 공격)
 	if c.has_cap("pact_blade") and not is_ranged_weapon(w) and w["id"] != "unarmed" and c.ability_mod("cha") > c.ability_mod(ability):
 		ability = "cha"  # 계약의 칼날(워락): 근접 무기에 매력
+	var hexed: bool = c.has_meta("hexed_weapon") and str(c.get_meta("hexed_weapon")) == str(w["id"])
+	if hexed and c.ability_mod("cha") > c.ability_mod(ability):
+		ability = "cha"  # 저주 무기 결속(주술검사, BG3): 결속한 무기에 매력
 	var mod: int = c.ability_mod(ability)
-	var proficient: bool = w["id"] == "unarmed" or c.weapon_proficiencies.has(w["id"]) \
+	var proficient: bool = w["id"] == "unarmed" or hexed or c.weapon_proficiencies.has(w["id"]) \
 		or c.weapon_proficiencies.has(str(w.get("category", "")).get_slice("_", 0))
 	var dice: String = w["damage"]
 	var free_off: bool = c.weapon("off") == "" and not bool(c.get_meta("shield", false))

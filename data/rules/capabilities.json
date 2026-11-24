@@ -1639,6 +1639,150 @@
       },
       "note_ko": "hunt._swarm",
       "source": "original"
+    },
+    {
+      "id": "unarmored_defense_13",
+      "name": {
+        "ko": "용의 회복력 AC 13",
+        "en": "unarmored_defense_13"
+      },
+      "note_ko": "armor_class",
+      "source": "original"
+    },
+    {
+      "id": "wild_magic_surge",
+      "name": {
+        "ko": "야생 마법 급증",
+        "en": "wild_magic_surge"
+      },
+      "note_ko": "sorcery.after_cast",
+      "source": "original"
+    },
+    {
+      "id": "bend_luck",
+      "name": {
+        "ko": "운 비틀기",
+        "en": "bend_luck"
+      },
+      "note_ko": "reaction_queue._bend_luck",
+      "source": "original"
+    },
+    {
+      "id": "controlled_chaos",
+      "name": {
+        "ko": "통제된 혼돈",
+        "en": "controlled_chaos"
+      },
+      "note_ko": "sorcery.after_cast",
+      "source": "original"
+    },
+    {
+      "id": "tempestuous_magic",
+      "name": {
+        "ko": "폭풍의 마법",
+        "en": "tempestuous_magic"
+      },
+      "note_ko": "sorcery.after_cast tempest_ready",
+      "source": "original"
+    },
+    {
+      "id": "heart_of_the_storm",
+      "name": {
+        "ko": "폭풍의 심장",
+        "en": "heart_of_the_storm"
+      },
+      "note_ko": "sorcery.after_cast",
+      "source": "original"
+    },
+    {
+      "id": "storms_fury",
+      "name": {
+        "ko": "폭풍의 분노",
+        "en": "storms_fury"
+      },
+      "note_ko": "hunt.after_attack",
+      "source": "original"
+    },
+    {
+      "id": "misty_escape",
+      "name": {
+        "ko": "안개 탈출",
+        "en": "misty_escape"
+      },
+      "note_ko": "reaction_queue._misty_escape",
+      "source": "original"
+    },
+    {
+      "id": "mortal_reminder",
+      "name": {
+        "ko": "필멸의 상기",
+        "en": "mortal_reminder"
+      },
+      "note_ko": "hunt.after_attack",
+      "source": "original"
+    },
+    {
+      "id": "thought_shield",
+      "name": {
+        "ko": "생각의 방패",
+        "en": "thought_shield"
+      },
+      "note_ko": "Resolver.apply_damage",
+      "source": "original"
+    },
+    {
+      "id": "armour_of_hexes",
+      "name": {
+        "ko": "저주의 갑옷",
+        "en": "armour_of_hexes"
+      },
+      "note_ko": "reaction_queue._armour_of_hexes",
+      "source": "original"
+    },
+    {
+      "id": "draconic_acid",
+      "name": {
+        "ko": "용의 혈통 acid",
+        "en": "draconic_acid"
+      },
+      "note_ko": "조상 피해 종류",
+      "source": "original"
+    },
+    {
+      "id": "draconic_lightning",
+      "name": {
+        "ko": "용의 혈통 lightning",
+        "en": "draconic_lightning"
+      },
+      "note_ko": "조상 피해 종류",
+      "source": "original"
+    },
+    {
+      "id": "draconic_fire",
+      "name": {
+        "ko": "용의 혈통 fire",
+        "en": "draconic_fire"
+      },
+      "note_ko": "조상 피해 종류",
+      "source": "original"
+    },
+    {
+      "id": "draconic_poison",
+      "name": {
+        "ko": "용의 혈통 poison",
+        "en": "draconic_poison"
+      },
+      "note_ko": "조상 피해 종류",
+      "source": "original"
+    },
+    {
+      "id": "draconic_cold",
+      "name": {
+        "ko": "용의 혈통 cold",
+        "en": "draconic_cold"
+      },
+      "note_ko": "조상 피해 종류",
+      "source": "original"
     }
   ]
 }

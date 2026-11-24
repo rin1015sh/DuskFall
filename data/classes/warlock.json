@@ -161,6 +161,54 @@
       },
       "max": "ability_mod:cha",
       "recharge": "long"
+    },
+    {
+      "id": "fey_presence",
+      "name": {
+        "ko": "요정의 존재감",
+        "en": "Fey Presence"
+      },
+      "max": {
+        "1": 1
+      },
+      "recharge": "short",
+      "subclass": "archfey"
+    },
+    {
+      "id": "misty_escape",
+      "name": {
+        "ko": "안개 탈출",
+        "en": "Misty Escape"
+      },
+      "max": {
+        "6": 1
+      },
+      "recharge": "short",
+      "subclass": "archfey"
+    },
+    {
+      "id": "entropic_ward",
+      "name": {
+        "ko": "엔트로피의 결계",
+        "en": "Entropic Ward"
+      },
+      "max": {
+        "6": 1
+      },
+      "recharge": "short",
+      "subclass": "great_old_one"
+    },
+    {
+      "id": "hexblades_curse",
+      "name": {
+        "ko": "주술검사의 저주",
+        "en": "Hexblade's Curse"
+      },
+      "max": {
+        "1": 1
+      },
+      "recharge": "short",
+      "subclass": "hexblade"
     }
   ],
   "features": [
@@ -824,14 +872,16 @@
         "ko": "악마 후원자",
         "en": "Fiend Patron"
       },
-      "level": 3,
+      "level": 1,
       "source": "SRD 5.2.1",
       "always_prepared": {
-        "3": [
+        "1": [
           "burning_hands",
-          "command",
-          "scorching_ray",
-          "suggestion"
+          "command"
+        ],
+        "3": [
+          "blindness_deafness",
+          "scorching_ray"
         ],
         "5": [
           "fireball",
@@ -842,7 +892,8 @@
           "wall_of_fire"
         ],
         "9": [
-          "insect_plague"
+          "cone_of_cold",
+          "flame_strike"
         ]
       },
       "features": [
@@ -852,7 +903,7 @@
             "ko": "어둠의 축복",
             "en": "Dark One's Blessing"
           },
-          "level": 3,
+          "level": 1,
           "caps": [
             "dark_ones_blessing"
           ],
@@ -865,9 +916,10 @@
             "ko": "악마의 주문",
             "en": "Fiend Spells"
           },
-          "level": 3,
-          "handled_by": "하위 클래스 always_prepared(3레벨 불타는 손·명령·작열 광선·암시, 5레벨 화염구·악취 구름)",
-          "source": "SRD 5.2.1"
+          "level": 1,
+          "handled_by": "하위 클래스 always_prepared",
+          "source": "SRD 5.2.1",
+          "notes_ko": "BG3: 1 불타는 손·명령, 3 실명/귀먹음(실명 대신)·작열 광선, 5 화염구·악취 구름, 7 화염 방패·화염 벽, 9 냉기 원뿔·화염 기둥."
         },
         {
           "id": "dark_ones_own_luck",
@@ -970,7 +1022,325 @@
               ]
             }
           },
-          "notes_ko": "역장 외 피해 종류 하나에 저항. 원문은 휴식마다 바꿈 — 명세 선택으로(BG3식 고정)."
+          "notes_ko": "BG3: 피해 종류 하나 저항(빌드에서 고름 — 짧은 휴식마다 바꾸기는 레벨 업 때)."
+        }
+      ]
+    },
+    {
+      "id": "archfey",
+      "name": {
+        "ko": "요정 후원자",
+        "en": "The Archfey"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "faerie_fire",
+          "sleep"
+        ],
+        "3": [
+          "calm_emotions",
+          "invisibility"
+        ],
+        "5": [
+          "blink",
+          "hypnotic_pattern"
+        ],
+        "7": [
+          "greater_invisibility",
+          "banishment"
+        ],
+        "9": [
+          "hold_monster"
+        ]
+      },
+      "features": [
+        {
+          "id": "archfey_spells",
+          "name": {
+            "ko": "요정 후원자 주문",
+            "en": "Archfey Spells"
+          },
+          "level": 1,
+          "handled_by": "하위 클래스 always_prepared",
+          "notes_ko": "BG3 확장 주문(항상 준비). 대체: 환영력 → 투명화, 식물 성장 → 최면 무늬, 야수 지배 → 추방, 인간형 지배·위장 → 괴물 속박(미포함·제외 주문).",
+          "source": "original"
+        },
+        {
+          "id": "fey_presence",
+          "name": {
+            "ko": "요정의 존재감",
+            "en": "Fey Presence"
+          },
+          "level": 1,
+          "kind": "action",
+          "resource": "fey_presence",
+          "script": "fey_presence",
+          "target": "self",
+          "icon": "statuses/charm.webp",
+          "glyph": "heart",
+          "toggle": {
+            "values": [
+              {
+                "id": "charmed",
+                "name": {
+                  "ko": "매혹",
+                  "en": "Charm"
+                }
+              },
+              {
+                "id": "frightened",
+                "name": {
+                  "ko": "공포",
+                  "en": "Frighten"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "요정의 존재감 효과",
+              "en": "Fey Presence effect"
+            }
+          },
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 2칸 안 적 지혜 내성 실패 시 1턴 매혹 또는 공포(설정).",
+          "source": "original"
+        },
+        {
+          "id": "misty_escape",
+          "name": {
+            "ko": "안개 탈출",
+            "en": "Misty Escape"
+          },
+          "level": 6,
+          "kind": "reaction",
+          "caps": [
+            "misty_escape"
+          ],
+          "notes_ko": "BG3: 피해를 받으면 반응으로 2턴 투명(공격하면 풀림). 짧은 휴식 1회. [변형] 무료 안개 걸음 생략.",
+          "source": "original"
+        },
+        {
+          "id": "beguiling_defences",
+          "name": {
+            "ko": "현혹하는 방어",
+            "en": "Beguiling Defences"
+          },
+          "level": 10,
+          "grants": {
+            "condition_immunities": [
+              "charmed"
+            ]
+          },
+          "notes_ko": "BG3: 매혹 면역.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "great_old_one",
+      "name": {
+        "ko": "위대한 옛것",
+        "en": "The Great Old One"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "dissonant_whispers",
+          "hideous_laughter"
+        ],
+        "3": [
+          "detect_thoughts",
+          "suggestion"
+        ],
+        "5": [
+          "bestow_curse",
+          "slow"
+        ],
+        "7": [
+          "black_tentacles",
+          "banishment"
+        ],
+        "9": [
+          "hold_monster"
+        ]
+      },
+      "features": [
+        {
+          "id": "goo_spells",
+          "name": {
+            "ko": "위대한 옛것 주문",
+            "en": "Great Old One Spells"
+          },
+          "level": 1,
+          "handled_by": "하위 클래스 always_prepared",
+          "notes_ko": "BG3 확장 주문(항상 준비). 대체: 환영력 → 암시, 야수 지배 → 추방, 인간형 지배·염동력 → 괴물 속박.",
+          "source": "original"
+        },
+        {
+          "id": "mortal_reminder",
+          "name": {
+            "ko": "필멸의 상기",
+            "en": "Mortal Reminder"
+          },
+          "level": 1,
+          "caps": [
+            "mortal_reminder"
+          ],
+          "notes_ko": "BG3: 치명타면 대상과 2칸 안 적 지혜 내성 실패 시 1턴 공포.",
+          "source": "original"
+        },
+        {
+          "id": "entropic_ward",
+          "name": {
+            "ko": "엔트로피의 결계",
+            "en": "Entropic Ward"
+          },
+          "level": 6,
+          "kind": "reaction",
+          "trigger": "attack_before_disadvantage",
+          "include_self": true,
+          "resource": "entropic_ward",
+          "notes_ko": "BG3: 나를 노린 공격에 반응으로 불리. 짧은 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "thought_shield",
+          "name": {
+            "ko": "생각의 방패",
+            "en": "Thought Shield"
+          },
+          "level": 10,
+          "caps": [
+            "thought_shield"
+          ],
+          "grants": {
+            "resistances": [
+              "psychic"
+            ]
+          },
+          "notes_ko": "BG3: 정신 저항, 정신 피해를 받으면 공격자도 같은 피해.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "hexblade",
+      "name": {
+        "ko": "주술검사",
+        "en": "The Hexblade"
+      },
+      "level": 1,
+      "source": "original",
+      "always_prepared": {
+        "1": [
+          "shield",
+          "searing_smite"
+        ],
+        "3": [
+          "blur",
+          "shining_smite"
+        ],
+        "5": [
+          "blink",
+          "magic_weapon"
+        ],
+        "7": [
+          "phantasmal_killer",
+          "stoneskin"
+        ],
+        "9": [
+          "cone_of_cold",
+          "hold_monster"
+        ]
+      },
+      "features": [
+        {
+          "id": "hexblade_spells",
+          "name": {
+            "ko": "주술검사 주문",
+            "en": "Hexblade Spells"
+          },
+          "level": 1,
+          "handled_by": "하위 클래스 always_prepared",
+          "notes_ko": "BG3 확장 주문(항상 준비). 대체: 분노의 강타 → 작열 강타, 낙인 강타 → 빛나는 강타, 원소 무기 → 마법 무기, 비틀거리는 강타 → 돌 피부, 추방 강타 → 괴물 속박(SRD에 없음).",
+          "source": "original"
+        },
+        {
+          "id": "hex_warrior",
+          "name": {
+            "ko": "주술 전사",
+            "en": "Hex Warrior"
+          },
+          "level": 1,
+          "grants": {
+            "armor_training": [
+              "medium",
+              "shield"
+            ],
+            "weapon_training": [
+              "martial"
+            ]
+          },
+          "notes_ko": "BG3: 중형 갑옷·방패·군용 무기 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "bind_hexed_weapon",
+          "name": {
+            "ko": "저주 무기 결속",
+            "en": "Bind Hexed Weapon"
+          },
+          "level": 1,
+          "kind": "action",
+          "script": "bind_hexed_weapon",
+          "target": "self",
+          "explore": true,
+          "icon": "statuses/curse.webp",
+          "glyph": "sword",
+          "notes_ko": "BG3: 행동, 주 무기 결속 — 숙련, 명중·피해 매력(높으면), 맞히면 20% 주술검사의 저주.",
+          "source": "original"
+        },
+        {
+          "id": "hexblades_curse",
+          "name": {
+            "ko": "주술검사의 저주",
+            "en": "Hexblade's Curse"
+          },
+          "level": 1,
+          "kind": "bonus_action",
+          "resource": "hexblades_curse",
+          "script": "hexblades_curse",
+          "target": "enemy",
+          "icon": "statuses/curse.webp",
+          "glyph": "target",
+          "notes_ko": "BG3: 보너스 행동, 짧은 휴식 1회, 12칸 안 적 — 내 피해 + 숙련, 치명타 범위 −1, 죽으면 워락 레벨 + 매력 회복.",
+          "source": "original"
+        },
+        {
+          "id": "accursed_spectre",
+          "name": {
+            "ko": "저주받은 망령",
+            "en": "Accursed Spectre"
+          },
+          "level": 6,
+          "status": "deferred",
+          "notes_ko": "BG3: 인간형을 죽이면 망령으로 부림. [보류] 소환 몬스터 장치 다음에.",
+          "source": "original"
+        },
+        {
+          "id": "armour_of_hexes",
+          "name": {
+            "ko": "저주의 갑옷",
+            "en": "Armour of Hexes"
+          },
+          "level": 10,
+          "kind": "reaction",
+          "caps": [
+            "armour_of_hexes"
+          ],
+          "notes_ko": "BG3: 내가 저주한 적이 나를 맞히면 반응으로 50% 빗나가게.",
+          "source": "original"
         }
       ]
     }

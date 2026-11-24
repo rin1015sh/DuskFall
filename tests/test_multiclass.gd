@@ -53,7 +53,7 @@ func test_wizard_cleric_slots_and_ability() -> void:
 
 func test_warlock_sorcerer_pact_slots() -> void:
 	var c := _multi("sorcerer", [{"class": "sorcerer", "level": 3, "subclass": "draconic"},
-		{"class": "warlock", "level": 2, "cantrips": ["eldritch_blast", "minor_illusion"], "spells": ["hex", "charm_person"]}])
+		{"class": "warlock", "level": 2, "subclass": "fiend", "cantrips": ["eldritch_blast", "minor_illusion"], "spells": ["hex", "charm_person"]}])
 	assert_eq(c.resource("pact_slot_1"), 2, "계약 마법 슬롯은 따로")
 	assert_eq(c.resources["pact_slot_1"]["recharge"], "short")
 	assert_eq(c.resource("spell_slot_2"), 2, "소서러 3레벨 자기 표(시전 클래스가 하나)")

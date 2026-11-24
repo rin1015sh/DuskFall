@@ -3008,6 +3008,95 @@
       ],
       "notes_ko": "매 턴 1d4 + 매력 사령, 공격받을 때 유리.",
       "source": "original"
+    },
+    {
+      "id": "tides_of_chaos",
+      "name": {
+        "ko": "혼돈의 물결",
+        "en": "Tides of Chaos"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "다음 공격·판정·내성 유리(Resolver._tides).",
+      "source": "original"
+    },
+    {
+      "id": "surge_blur",
+      "name": {
+        "ko": "급증: 흐릿함",
+        "en": "Surge: Blur"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "against",
+          "value": "disadvantage"
+        }
+      ],
+      "notes_ko": "공격받을 때 불리.",
+      "source": "original"
+    },
+    {
+      "id": "surge_shield",
+      "name": {
+        "ko": "급증: 방패",
+        "en": "Surge: Shield"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "ac",
+          "add": 5
+        }
+      ],
+      "notes_ko": "AC +5.",
+      "source": "original"
+    },
+    {
+      "id": "surge_teleport",
+      "name": {
+        "ko": "급증: 순간 이동",
+        "en": "Surge: Teleport"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "보너스 행동 6칸 순간 이동.",
+      "source": "original"
+    },
+    {
+      "id": "ill_omen",
+      "name": {
+        "ko": "불길한 징조",
+        "en": "Ill Omen"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "save",
+          "side": "self",
+          "value": "disadvantage"
+        }
+      ],
+      "notes_ko": "내성 불리.",
+      "source": "original"
+    },
+    {
+      "id": "hexblades_curse",
+      "name": {
+        "ko": "주술검사의 저주",
+        "en": "Hexblade's Curse"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "저주한 워락의 피해 + 숙련, 치명타 범위 −1, 죽으면 워락 회복.",
+      "source": "original"
     }
   ]
 }

@@ -31,6 +31,24 @@ static func after_attack(world: Dictionary, attacker: Node, target: Node, atk: D
 		again["name"] = "추적자의 연타"
 		again["opportunity"] = true  # 다시 이 장치를 부르지 않게
 		Combat._do_attack(world, attacker, target, again, true)
+	# 저주 무기 결속: 맞히면 20%(d20 17+) 주술검사의 저주
+	if res.get("hit", false) and attacker.has_meta("hexed_weapon") and str(atk.get("weapon_id", "")) == str(attacker.get_meta("hexed_weapon")) \
+			and not target.dead and not target.has_condition("hexblades_curse") and Dice.roll("1d20", "저주 무기")["total"] >= 17:
+		target.apply_condition("hexblades_curse", -1, attacker)
+	# 필멸의 상기(위대한 옛것 1레벨, BG3): 치명타면 대상과 2칸 안 적 지혜 내성 실패 시 1턴 공포
+	if res.get("crit", false) and attacker.has_cap("mortal_reminder"):
+		var dc: int = load("res://scripts/rules/spellcasting.gd").spell_dc(attacker)
+		for o: Node in grid.creatures():
+			if not o.dead and o.is_hostile_to(attacker) and grid.distance_between(o, target) <= 2:
+				if not Resolver.saving_throw(o, "wis", dc, {"source": attacker, "magic": true, "vs_condition": "frightened"})["success"]:
+					o.apply_condition("frightened", 1, attacker)
+	# 폭풍의 분노(폭풍 소서러 11레벨, BG3): 근접 공격에 맞으면 반응으로 소서러 레벨 번개 + 근력 내성 실패 시 4칸 밀기
+	if res.get("hit", false) and target.has_cap("storms_fury") and str(atk.get("kind", "")) == "melee" and not target.dead and not attacker.dead \
+			and target.can_react() and target.reaction_setting("storms_fury") != "off" and grid.distance_between(attacker, target) <= 1:
+		target.turn["reaction"] = int(target.turn.get("reaction", 1)) - 1
+		Resolver.apply_damage(attacker, [{"amount": target.feature_level("storms_fury"), "damage_type": "lightning"}], {"attacker": target})
+		if not attacker.dead and not Resolver.saving_throw(attacker, "str", load("res://scripts/rules/spellcasting.gd").spell_dc(target), {"source": target, "magic": true})["success"]:
+			Combat._push_up_to(world, target, attacker, 4)
 	# 모인 무리
 	if res.get("hit", false) and atk.get("weapon", false) and swarm_kind(attacker) != "" and not target.dead \
 			and not attacker.turn.get("swarm_used", false) and attacker.can_react():

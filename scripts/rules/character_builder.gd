@@ -713,6 +713,8 @@ static func armor_class(c: Node, armor_id: String, shield: bool, training: Array
 		extra = maxi(extra, c.ability_mod("con"))  # 바바리안 맨몸 방어: 10 + 민첩 + 건강(방패 가능)
 	if armor_id == "" and c.has_cap("unarmored_defense_cha"):
 		extra = maxi(extra, c.ability_mod("cha"))  # 용의 회복력(소서러): 갑옷이 없으면 10 + 민첩 + 매력
+	if armor_id == "" and c.has_cap("unarmored_defense_13"):
+		extra = maxi(extra, 3)  # 용의 회복력(BG3): 갑옷이 없으면 13 + 민첩(방패 가능)
 	if armor_id == "" and not shield and c.has_cap("unarmored_defense_wis"):
 		extra = maxi(extra, c.ability_mod("wis"))  # 몽크 맨몸 방어: 10 + 민첩 + 지혜(방패 없이)
 	ac += extra

@@ -26,7 +26,7 @@ func test_pact_magic_and_invocations() -> void:
 	assert_eq(w5.resources["spell_slot_3"]["recharge"], "short", "짧은 휴식")
 	assert_true(w5.has_cap("agonizing_blast") and w5.has_cap("repelling_blast"))
 	assert_eq(w5.darkvision_tiles, 24, "악마의 시야")
-	assert_true(w5.spells.has("fireball") and w5.spells.has("suggestion"), "악마의 주문")
+	assert_true(w5.spells.has("fireball") and w5.spells.has("stinking_cloud"), "악마의 주문")
 
 
 func test_at_will_and_hex_upcast_slot() -> void:

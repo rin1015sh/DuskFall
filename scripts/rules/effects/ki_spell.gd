@@ -18,6 +18,6 @@ func apply(ctx: Dictionary) -> Dictionary:
 		slot += 1
 	var t: Variant = ctx.get("target")
 	var aim: Vector2i = t if t is Vector2i else (w["grid"].cell_of(t) if t is Node and w.has("grid") else (w["grid"].cell_of(c) if w.has("grid") else Vector2i.ZERO))
-	var opts := {"free": true, "granted": true, "ability": "wis", "slot": slot}
+	var opts := {"free": true, "granted": true, "ability": str(f.get("ability", "wis")), "slot": slot}
 	opts.merge(ctx.get("opts", {}), false)
 	return load("res://scripts/rules/spellcasting.gd").cast(w, c, sid, aim, opts)

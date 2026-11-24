@@ -14,8 +14,8 @@
 | feat | 56 |
 | species | 15 |
 | background | 4 |
-| monster | 53 |
-| capability | 182 |
+| monster | 54 |
+| capability | 198 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -361,33 +361,62 @@
 
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
+| 1 | 무덤의 힘 (strength_of_the_grave) | shadow_magic | 스크립트 strength_of_the_grave |  |
+| 1 | 어둠의 눈 (eyes_of_the_dark) | shadow_magic | 부여 darkvision_tiles |  |
+| 1 | 폭풍 비행 (tempestuous_flight) | storm | 스크립트 surge_teleport |  |
+| 1 | 폭풍의 마법 (tempestuous_magic) | storm | 태그 tempestuous_magic |  |
+| 1 | 급증: 순간 이동 (surge_teleport_action) | wild_magic | 스크립트 surge_teleport |  |
+| 1 | 혼돈의 물결 (tides_of_chaos) | wild_magic | 스크립트 tides_of_chaos |  |
+| 1 | 야생 마법 급증 (wild_magic_surge) | wild_magic | 태그 wild_magic_surge |  |
+| 1 | 용의 혈통 조상 (draconic_ancestry) | draconic | 고르기(option) |  |
+| 1 | 용의 회복력 (draconic_resilience) | draconic | 태그 unarmored_defense_13; 부여 hp_per_level |  |
 | 1 | 타고난 마법 (innate_sorcery) |  | 스크립트 innate_sorcery |  |
 | 2 | 마법의 샘 (font_of_magic) |  | 처리: 자원 sorcery_points(레벨만큼, 긴 휴식) + 기능 슬롯→점수·점수→슬롯 |  |
 | 2 | 슬롯을 마법 점수로 (convert_slot) |  | 스크립트 convert_slot |  |
 | 2 | 마법 점수로 슬롯 (create_slot) |  | 스크립트 create_slot |  |
 | 2 | 주문 변형 (metamagic) |  | 고르기(option); 설정 |  |
-| 3 | 용의 회복력 (draconic_resilience) | draconic | 태그 unarmored_defense_cha; 부여 hp_per_level |  |
-| 3 | 용의 주문 (draconic_spells) | draconic | 처리: 하위 클래스 always_prepared(3레벨 변신·색채의 구슬·명령·용의 숨결, 5레벨 공포·비행) |  |
+| 3 | 어둠의 눈: 어둠 (eyes_darkness) | shadow_magic | 스크립트 ki_spell |  |
 | 5 | 마법 회복 (sorcerous_restoration) |  | 태그 sorcerous_restoration |  |
+| 6 | 운 비틀기 (bend_luck) | wild_magic | 태그 bend_luck; 반응 |  |
+| 6 | 폭풍의 심장 (heart_of_the_storm) | storm | 태그 heart_of_the_storm; 부여 resistances |  |
 | 6 | 원소 친화 (elemental_affinity) | draconic | 고르기(option) |  |
+| 6 | 불길한 징조의 사냥개 (hound_of_ill_omen) | shadow_magic | 스크립트 hound_of_ill_omen |  |
 | 7 | 마법의 화신 (sorcery_incarnate) |  | 태그 sorcery_incarnate |  |
 | 10 | 주문 변형(10레벨) (metamagic_10) |  | 고르기(option) |  |
+| 11 | 통제된 혼돈 (controlled_chaos) | wild_magic | 태그 controlled_chaos |  |
+| 11 | 용의 날개 (draconic_wings) | draconic | 스크립트 draconic_wings |  |
+| 11 | 폭풍의 분노 (storms_fury) | storm | 태그 storms_fury; 반응 |  |
+| 11 | 그림자 걷기 (shadow_walk) | shadow_magic | 스크립트 surge_teleport |  |
 
 ### 워락 (warlock) — 생명 주사위 d8, 역할 caster
 
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
+| 1 | 주술검사의 저주 (hexblades_curse) | hexblade | 스크립트 hexblades_curse |  |
+| 1 | 저주 무기 결속 (bind_hexed_weapon) | hexblade | 스크립트 bind_hexed_weapon |  |
+| 1 | 주술 전사 (hex_warrior) | hexblade | 부여 armor_training, weapon_training |  |
+| 1 | 주술검사 주문 (hexblade_spells) | hexblade | 처리: 하위 클래스 always_prepared |  |
+| 1 | 필멸의 상기 (mortal_reminder) | great_old_one | 태그 mortal_reminder |  |
+| 1 | 위대한 옛것 주문 (goo_spells) | great_old_one | 처리: 하위 클래스 always_prepared |  |
+| 1 | 요정의 존재감 (fey_presence) | archfey | 스크립트 fey_presence; 설정 |  |
+| 1 | 요정 후원자 주문 (archfey_spells) | archfey | 처리: 하위 클래스 always_prepared |  |
+| 1 | 악마의 주문 (fiend_spells) | fiend | 처리: 하위 클래스 always_prepared |  |
+| 1 | 어둠의 축복 (dark_ones_blessing) | fiend | 태그 dark_ones_blessing |  |
 | 1 | 계약 마법 (pact_magic) |  | 처리: 클래스 spellcasting — 슬롯이 모두 같은 레벨(1·2·3), 짧은 휴식에 회복(slot_recharge short), 낮은 주문은 그 레벨로 올려 시전 |  |
 | 1 | 섬뜩한 영창 (eldritch_invocations) |  | 고르기(option) |  |
-| 2 | 섬뜩한 영창(2레벨) (eldritch_invocations_2) |  | 고르기(option) |  |
 | 2 | 마법적 기지 (magical_cunning) |  | 스크립트 magical_cunning |  |
-| 3 | 어둠의 축복 (dark_ones_blessing) | fiend | 태그 dark_ones_blessing |  |
-| 3 | 악마의 주문 (fiend_spells) | fiend | 처리: 하위 클래스 always_prepared(3레벨 불타는 손·명령·작열 광선·암시, 5레벨 화염구·악취 구름) |  |
+| 2 | 섬뜩한 영창(2레벨) (eldritch_invocations_2) |  | 고르기(option) |  |
 | 5 | 섬뜩한 영창(5레벨) (eldritch_invocations_5) |  | 고르기(option) |  |
 | 6 | 어둠의 자의 행운 (dark_ones_own_luck) | fiend | 스크립트 dark_ones_own_luck |  |
+| 6 | 저주받은 망령 (accursed_spectre) | hexblade |  | 보류(deferred) |
+| 6 | 안개 탈출 (misty_escape) | archfey | 태그 misty_escape; 반응 |  |
+| 6 | 엔트로피의 결계 (entropic_ward) | great_old_one | 반응 |  |
 | 7 | 섬뜩한 영창(7레벨) (eldritch_invocations_7) |  | 고르기(option) |  |
-| 9 | 섬뜩한 영창(9레벨) (eldritch_invocations_9) |  | 고르기(option) |  |
 | 9 | 후원자와 접촉 (contact_patron) |  |  | 보류(deferred) |
+| 9 | 섬뜩한 영창(9레벨) (eldritch_invocations_9) |  | 고르기(option) |  |
+| 10 | 저주의 갑옷 (armour_of_hexes) | hexblade | 태그 armour_of_hexes; 반응 |  |
+| 10 | 생각의 방패 (thought_shield) | great_old_one | 태그 thought_shield; 부여 resistances |  |
+| 10 | 현혹하는 방어 (beguiling_defences) | archfey | 부여 condition_immunities |  |
 | 10 | 악마의 회복력 (fiendish_resilience) | fiend | 고르기(option) |  |
 | 11 | 신비한 비전(6레벨) (mystic_arcanum_6) |  | 고르기(spell) |  |
 | 12 | 섬뜩한 영창(12레벨) (eldritch_invocations_12) |  | 고르기(option) |  |
@@ -457,6 +486,7 @@
 | agonizing_blast | 고통의 화살 | (몬스터 특성 또는 아직 없음) |
 | arcane_ward | 비전 결계 | wizard |
 | armor_ac_plus_1 | 방어 | 재주 defense |
+| armour_of_hexes | 저주의 갑옷 | warlock |
 | aspect_bear | 짐승의 면모: 곰 | (몬스터 특성 또는 아직 없음) |
 | aspect_crocodile | 짐승의 면모: 악어 | (몬스터 특성 또는 아직 없음) |
 | aspect_elk | 짐승의 면모: 엘크 | (몬스터 특성 또는 아직 없음) |
@@ -465,6 +495,7 @@
 | aspect_wolf | 짐승의 면모: 늑대 | (몬스터 특성 또는 아직 없음) |
 | aspect_wolverine | 짐승의 면모: 울버린 | (몬스터 특성 또는 아직 없음) |
 | assassinate | 암살 | rogue |
+| bend_luck | 운 비틀기 | sorcerer |
 | bestial_bear | 곰의 심장 | (몬스터 특성 또는 아직 없음) |
 | bestial_eagle | 독수리의 심장 | (몬스터 특성 또는 아직 없음) |
 | bestial_elk | 엘크의 심장 | (몬스터 특성 또는 아직 없음) |
@@ -484,6 +515,7 @@
 | climber | 등반 | monk, ranger, rogue |
 | combat_inspiration | 전투 영감 | bard |
 | concentration_advantage | 집중 유리 | (몬스터 특성 또는 아직 없음) |
+| controlled_chaos | 통제된 혼돈 | sorcerer |
 | cosmic_omen | 우주의 징조 | druid |
 | countercharm | 대항 매혹 | bard |
 | crit_free_move | 치명타 뒤 이동 | (몬스터 특성 또는 아직 없음) |
@@ -511,6 +543,11 @@
 | disc_sweeping_cinder_strike | 휩쓰는 불씨 일격 | (몬스터 특성 또는 아직 없음) |
 | disc_touch_of_the_storm | 폭풍의 손길 | (몬스터 특성 또는 아직 없음) |
 | disc_water_whip | 물 채찍 | (몬스터 특성 또는 아직 없음) |
+| draconic_acid | 용의 혈통 acid | (몬스터 특성 또는 아직 없음) |
+| draconic_cold | 용의 혈통 cold | (몬스터 특성 또는 아직 없음) |
+| draconic_fire | 용의 혈통 fire | (몬스터 특성 또는 아직 없음) |
+| draconic_lightning | 용의 혈통 lightning | (몬스터 특성 또는 아직 없음) |
+| draconic_poison | 용의 혈통 poison | (몬스터 특성 또는 아직 없음) |
 | dread_ambusher | 공포의 매복자 | ranger |
 | drunkards_luck | 술꾼의 행운 | monk |
 | dual_wield_ac | 쌍수 방어 | (몬스터 특성 또는 아직 없음) |
@@ -537,6 +574,7 @@
 | guided_strike | 인도된 일격 | cleric |
 | gwm_all_in | 강타 | (몬스터 특성 또는 아직 없음) |
 | half_proficiency_physical | 절반 숙련(신체) | fighter |
+| heart_of_the_storm | 폭풍의 심장 | sorcerer |
 | heavy_armor_damage_reduction | 중갑 피해 감소 | (몬스터 특성 또는 아직 없음) |
 | heightened_focus | 고양된 집중 | monk |
 | heroic_warrior | 영웅 전사 | (몬스터 특성 또는 아직 없음) |
@@ -572,6 +610,8 @@
 | metamagic_subtle | 은밀한 주문 | (몬스터 특성 또는 아직 없음) |
 | mighty_swarm | 강력한 무리 | ranger |
 | mindless_rage | 광기 없는 분노 | barbarian |
+| misty_escape | 안개 탈출 | warlock |
+| mortal_reminder | 필멸의 상기 | warlock |
 | multiattack_defense | 다중 공격 방어 | (몬스터 특성 또는 아직 없음) |
 | nimble_escape | 날렵한 탈출 | (몬스터 특성 또는 아직 없음) |
 | no_oa_from_melee_target | 치고 빠지기 | rogue |
@@ -614,19 +654,23 @@
 | stand_up_one_tile | 빠르게 일어서기 | monk |
 | stealth_attack | 은신 공격 | (몬스터 특성 또는 아직 없음) |
 | steel_will | 강철 의지 | (몬스터 특성 또는 아직 없음) |
+| storms_fury | 폭풍의 분노 | sorcerer |
 | stunning_strike | 충격의 일격 | monk |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |
 | surprise_immune | 기습 면역 | (몬스터 특성 또는 아직 없음) |
 | swarm_bees | 벌 군단 | (몬스터 특성 또는 아직 없음) |
 | swarm_jellyfish | 해파리 구름 | (몬스터 특성 또는 아직 없음) |
 | swarm_moths | 나방 떼 | (몬스터 특성 또는 아직 없음) |
+| tempestuous_magic | 폭풍의 마법 | sorcerer |
+| thought_shield | 생각의 방패 | warlock |
 | thunderbolt_strike | 벼락 일격 | cleric |
 | touch_of_death | 죽음의 손길 | cleric |
 | tranquillity | 평온 | monk |
 | trap_sense | 함정 감각 | (몬스터 특성 또는 아직 없음) |
 | twinkling_constellations | 반짝이는 별자리 | druid |
 | two_weapon_fighting | 쌍수 전투 | 재주 two_weapon_fighting |
-| unarmored_defense_cha | 용의 비늘 | sorcerer |
+| unarmored_defense_13 | 용의 회복력 AC 13 | sorcerer |
+| unarmored_defense_cha | 용의 비늘 | (몬스터 특성 또는 아직 없음) |
 | unarmored_defense_con | 맨몸 방어(건강) | barbarian |
 | unarmored_defense_wis | 맨몸 방어(지혜) | monk |
 | unarmored_movement | 맨몸 이동 | monk |
@@ -636,3 +680,4 @@
 | war_magic | 전쟁 마법 | fighter |
 | war_priest | 전쟁 사제 | cleric |
 | wild_magic_rage | 야생 마법 분노 | barbarian |
+| wild_magic_surge | 야생 마법 급증 | sorcerer |

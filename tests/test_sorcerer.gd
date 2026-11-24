@@ -16,10 +16,10 @@ func _sorc(lv: int) -> Node:
 
 func test_build_draconic() -> void:
 	var s := _sorc(5)
-	assert_eq(s.ac(), 10 + s.ability_mod("dex") + s.ability_mod("cha"), "용의 비늘 AC")
+	assert_eq(s.ac(), 13 + s.ability_mod("dex"), "용의 회복력 AC 13 + 민첩(BG3)")
 	var con: int = s.ability_mod("con")
 	assert_eq(s.hp_max, 6 + con + 4 * (4 + con) + 5, "용의 회복력 +5")
-	assert_true(s.spells.has("chromatic_orb") and s.spells.has("fly"), "용의 주문")
+	assert_true(s.spells.has("burning_hands"), "용의 조상(붉은 용) 주문")
 	assert_eq(s.resource("sorcery_points"), 5)
 	assert_true(s.has_cap("metamagic_quickened") and s.has_cap("metamagic_distant") and not s.has_cap("metamagic_heightened"))
 
