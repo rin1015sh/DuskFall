@@ -65,3 +65,12 @@ func test_druid_forms_and_wild_strike() -> void:
 	Dice.force([15, 3, 3])
 	load("res://scripts/rules/combat.gd").attack(w, d, e)
 	assert_eq(int(d.turn["attacks_left"]), 2, "향상된 야생의 일격: 3회 중 1회")
+
+
+func test_monk() -> void:
+	var m := _pc("monk", 1)
+	assert_eq(m.resources["focus"]["max"], 2, "기 = 레벨 + 1")
+	assert_true(m.feature_data.has("flurry_of_blows"), "1레벨 연타")
+	var m9 := _pc("monk", 9)
+	assert_eq(load("res://scripts/rules/combat.gd").martial_arts_die(m9), "1d8")
+	assert_eq(load("res://scripts/rules/combat.gd").jump_distance(m9) >= 7, true, "고급 맨몸 이동 도약 +4칸")

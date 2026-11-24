@@ -43,30 +43,20 @@
         "en": "Focus Points"
       },
       "max": {
-        "2": 2,
-        "3": 3,
-        "4": 4,
-        "5": 5,
-        "6": 6,
-        "7": 7,
-        "8": 8,
-        "9": 9,
-        "10": 10,
-        "11": 11,
-        "12": 12
+        "1": 2,
+        "2": 3,
+        "3": 4,
+        "4": 5,
+        "5": 6,
+        "6": 7,
+        "7": 8,
+        "8": 9,
+        "9": 10,
+        "10": 11,
+        "11": 12,
+        "12": 13
       },
       "recharge": "short"
-    },
-    {
-      "id": "uncanny_metabolism",
-      "name": {
-        "ko": "신비한 대사",
-        "en": "Uncanny Metabolism"
-      },
-      "max": {
-        "2": 1
-      },
-      "recharge": "long"
     },
     {
       "id": "wholeness_of_body",
@@ -104,20 +94,20 @@
         "martial_arts"
       ],
       "dice_by_level": {
-        "1": "1d6",
-        "2": "1d6",
+        "1": "1d4",
+        "2": "1d4",
         "3": "1d6",
         "4": "1d6",
-        "5": "1d8",
-        "6": "1d8",
-        "7": "1d8",
-        "8": "1d8",
+        "5": "1d6",
+        "6": "1d6",
+        "7": "1d6",
+        "8": "1d6",
         "9": "1d8",
         "10": "1d8",
-        "11": "1d10",
-        "12": "1d10"
+        "11": "1d8",
+        "12": "1d8"
       },
-      "notes_ko": "갑옷·방패 없이 비무장·몽크 무기(단순 근접·가벼운 군용 근접): 민첩 사용, 무술 주사위(d6, 5레벨 d8).",
+      "notes_ko": "BG3: 갑옷·방패 없이 비무장·몽크 무기에 민첩, 기민한 타격 1d4(3레벨 1d6, 9레벨 1d8).",
       "source": "SRD 5.2.1"
     },
     {
@@ -157,8 +147,8 @@
         "ko": "몽크의 기",
         "en": "Monk's Focus"
       },
-      "level": 2,
-      "handled_by": "자원 focus(레벨만큼, 짧은 휴식) — 연타·인내의 방어·바람의 걸음·충격의 일격이 쓴다",
+      "level": 1,
+      "handled_by": "자원 focus = 몽크 레벨 + 1(짧은 휴식 — BG3 기)",
       "source": "SRD 5.2.1"
     },
     {
@@ -167,7 +157,7 @@
         "ko": "연타",
         "en": "Flurry of Blows"
       },
-      "level": 2,
+      "level": 1,
       "kind": "bonus_action",
       "resource": "focus",
       "script": "flurry_of_blows",
@@ -189,9 +179,10 @@
       "level": 2,
       "kind": "bonus_action",
       "script": "patient_defense",
-      "notes_ko": "보너스 행동으로 이탈. 기가 있으면 기 1로 이탈 + 회피(다음 턴 시작까지 노리는 공격 불리·민첩 내성 유리).",
+      "notes_ko": "BG3: 보너스 행동 + 기 1, 다음 턴까지 나를 노리는 공격 불리·민첩 내성 유리.",
       "source": "SRD 5.2.1",
-      "glyph": "shield"
+      "glyph": "shield",
+      "resource": "focus"
     },
     {
       "id": "step_of_the_wind",
@@ -202,10 +193,28 @@
       "level": 2,
       "kind": "bonus_action",
       "script": "step_of_the_wind",
-      "notes_ko": "보너스 행동으로 질주. 기가 있으면 기 1로 질주 + 이탈 + 이번 턴 도약 2배.",
+      "notes_ko": "BG3: 보너스 행동 + 기 1, 질주(이번 턴 도약 2배).",
       "source": "SRD 5.2.1",
       "glyph": "wind",
-      "explore": true
+      "explore": true,
+      "resource": "focus",
+      "mode": "dash"
+    },
+    {
+      "id": "step_of_the_wind_disengage",
+      "name": {
+        "ko": "바람의 걸음: 이탈",
+        "en": "Step of the Wind: Disengage"
+      },
+      "level": 2,
+      "kind": "bonus_action",
+      "resource": "focus",
+      "script": "step_of_the_wind",
+      "mode": "disengage",
+      "target": "self",
+      "glyph": "wind",
+      "notes_ko": "BG3: 보너스 행동 + 기 1, 이탈.",
+      "source": "original"
     },
     {
       "id": "unarmored_movement",
@@ -235,30 +244,18 @@
       }
     },
     {
-      "id": "uncanny_metabolism",
+      "id": "deflect_missiles",
       "name": {
-        "ko": "신비한 대사",
-        "en": "Uncanny Metabolism"
-      },
-      "level": 2,
-      "caps": [
-        "uncanny_metabolism"
-      ],
-      "notes_ko": "이니셔티브를 굴릴 때 기가 모자라면 자동 — 기 전부 회복 + 몽크 레벨 + 무술 주사위 회복. 긴 휴식마다 1회.",
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "deflect_attacks",
-      "name": {
-        "ko": "공격 쳐내기",
-        "en": "Deflect Attacks"
+        "ko": "화살 튕기기",
+        "en": "Deflect Missiles"
       },
       "level": 3,
       "kind": "reaction",
       "hook": "on_hit",
       "script": "deflect_attacks",
-      "notes_ko": "타격·관통·참격 공격에 맞으면 반응으로 피해 −(1d10 + 민첩 + 몽크 레벨). 되돌려 보내기는 1차 생략.",
-      "source": "SRD 5.2.1"
+      "notes_ko": "BG3: 원거리 무기 공격에 맞으면 반응으로 피해 −(1d10 + 민첩 + 몽크 레벨). 되돌려 보내기는 생략.",
+      "source": "original",
+      "ranged_only": true
     },
     {
       "id": "slow_fall",
@@ -327,15 +324,15 @@
     {
       "id": "empowered_strikes",
       "name": {
-        "ko": "강화된 타격",
-        "en": "Empowered Strikes"
+        "ko": "기 강화 타격",
+        "en": "Ki-Empowered Strikes"
       },
       "level": 6,
       "caps": [
         "empowered_strikes"
       ],
       "source": "SRD 5.2.1",
-      "notes_ko": "비무장 공격 피해를 역장으로(BG3식 자동 — 원문은 고를 수 있음)."
+      "notes_ko": "BG3 기 강화 타격: 비무장 공격이 마법 공격(비마법 저항·면역 무시)."
     },
     {
       "id": "evasion",
@@ -351,43 +348,52 @@
       "notes_ko": "성공하면 절반인 민첩 내성: 성공 0, 실패 절반."
     },
     {
-      "id": "acrobatic_movement",
+      "id": "stillness_of_mind",
       "name": {
-        "ko": "곡예 이동",
-        "en": "Acrobatic Movement"
+        "ko": "마음의 고요",
+        "en": "Stillness of Mind"
+      },
+      "level": 7,
+      "caps": [
+        "stillness_of_mind"
+      ],
+      "notes_ko": "BG3: 턴 시작에 매혹·공포면 자동으로 풀고 그 턴 행동을 쓴다.",
+      "source": "original"
+    },
+    {
+      "id": "advanced_unarmoured_movement",
+      "name": {
+        "ko": "고급 맨몸 이동",
+        "en": "Advanced Unarmoured Movement"
       },
       "level": 9,
       "caps": [
-        "climber"
+        "ignore_difficult_terrain",
+        "jump_plus_1",
+        "jump_plus_1",
+        "jump_plus_1",
+        "jump_plus_1"
       ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "벽을 오르내린다(오르기 지점이 아닌 높이 차). 액체 위 이동은 생략. 갑옷·방패 조건은 생략."
+      "notes_ko": "BG3: 험지 무시, 도약 +4칸(6m). 갑옷·방패 조건은 생략.",
+      "source": "original"
     },
     {
-      "id": "heightened_focus",
+      "id": "purity_of_body",
       "name": {
-        "ko": "고양된 집중",
-        "en": "Heightened Focus"
+        "ko": "신체의 순수",
+        "en": "Purity of Body"
       },
       "level": 10,
-      "caps": [
-        "heightened_focus"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "연타 3회, 인내의 방어(기 사용)에 무술 주사위 2개 임시 HP. 바람 걸음의 동행은 생략."
-    },
-    {
-      "id": "self_restoration",
-      "name": {
-        "ko": "자기 회복",
-        "en": "Self-Restoration"
+      "grants": {
+        "damage_immunities": [
+          "poison"
+        ],
+        "condition_immunities": [
+          "poisoned"
+        ]
       },
-      "level": 10,
-      "caps": [
-        "self_restoration"
-      ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "턴 끝마다 매혹·공포·중독 중 하나를 푼다."
+      "notes_ko": "BG3: 독 피해·중독 면역.",
+      "source": "original"
     }
   ],
   "subclasses": [

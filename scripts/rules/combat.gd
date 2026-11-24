@@ -181,8 +181,9 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		"bonus": mod + (c.proficiency_bonus if proficient else 0) + hit_bonus, "ability": ability, "ability_mod": mod,
 		"two_handed": opts.get("two_handed", false) or "two_handed" in props,
 		"kind": "ranged" if ranged else "melee", "weapon": true, "properties": props,
-		"damage": [{"dice": expr, "damage_type": "force" if w["id"] == "unarmed" and c.has_cap("empowered_strikes") else w["damage_type"]}],
-		"extra_disadvantage": dis, "flat_damage": flat, "magical": ranged and c.has_cap("magic_ranged"),
+		"damage": [{"dice": expr, "damage_type": w["damage_type"]}],
+		"extra_disadvantage": dis, "flat_damage": flat,
+		"magical": (ranged and c.has_cap("magic_ranged")) or (w["id"] == "unarmed" and c.has_cap("empowered_strikes")),  # 기 강화 타격(BG3): 비무장이 마법 공격
 		"range_tiles": w.get("range_tiles", [reach_of(c), reach_of(c)]) if ranged else [1, 1]}
 
 

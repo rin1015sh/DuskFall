@@ -15,7 +15,7 @@
 | species | 39 |
 | background | 4 |
 | monster | 60 |
-| capability | 202 |
+| capability | 203 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -189,12 +189,12 @@
 | 1 | 무술 (martial_arts) |  | 태그 martial_arts |  |
 | 1 | 보너스 비무장 공격 (martial_arts_strike) |  | 스크립트 martial_arts_strike |  |
 | 1 | 맨몸 방어 (unarmored_defense) |  | 태그 unarmored_defense_wis |  |
-| 2 | 신비한 대사 (uncanny_metabolism) |  | 태그 uncanny_metabolism |  |
+| 1 | 몽크의 기 (monks_focus) |  | 처리: 자원 focus = 몽크 레벨 + 1(짧은 휴식 — BG3 기) |  |
+| 1 | 연타 (flurry_of_blows) |  | 스크립트 flurry_of_blows |  |
 | 2 | 맨몸 이동 (unarmored_movement) |  | 태그 unarmored_movement |  |
+| 2 | 바람의 걸음: 이탈 (step_of_the_wind_disengage) |  | 스크립트 step_of_the_wind |  |
 | 2 | 바람의 걸음 (step_of_the_wind) |  | 스크립트 step_of_the_wind |  |
 | 2 | 인내의 방어 (patient_defense) |  | 스크립트 patient_defense |  |
-| 2 | 연타 (flurry_of_blows) |  | 스크립트 flurry_of_blows |  |
-| 2 | 몽크의 기 (monks_focus) |  | 처리: 자원 focus(레벨만큼, 짧은 휴식) — 연타·인내의 방어·바람의 걸음·충격의 일격이 쓴다 |  |
 | 3 | 그림자 기술: 숨기 (shadow_arts_hide) | shadow | 스크립트 shadow_arts_hide |  |
 | 3 | 그림자 기술: 어둠 (shadow_arts_darkness) | shadow | 스크립트 ki_spell |  |
 | 3 | 그림자 기술: 암시야 (shadow_arts_darkvision) | shadow | 스크립트 ki_spell |  |
@@ -211,7 +211,7 @@
 | 3 | 불뱀의 송곳니 (fangs_of_the_fire_snake) | four_elements | 스크립트 fangs_of_the_fire_snake |  |
 | 3 | 네 천둥의 주먹 (fist_of_four_thunders) | four_elements | 스크립트 ki_spell |  |
 | 3 | 꺾이지 않는 바람의 주먹 (fist_of_unbroken_air) | four_elements | 스크립트 fist_of_unbroken_air |  |
-| 3 | 공격 쳐내기 (deflect_attacks) |  | 스크립트 deflect_attacks; 반응 |  |
+| 3 | 화살 튕기기 (deflect_missiles) |  | 스크립트 deflect_attacks; 반응 |  |
 | 3 | 취권 (drunken_technique) | drunken_master | 스크립트 drunken_technique |  |
 | 3 | 취중 공연 (drunken_performance) | drunken_master | 부여 skills |  |
 | 3 | 능청스러운 한 잔 (cheeky_tipple) | drunken_master | 부여 condition_immunities |  |
@@ -228,24 +228,24 @@
 | 4 | 취하게 하는 일격(보너스) (intoxicating_strike_bonus) | drunken_master | 스크립트 intoxicating_strike |  |
 | 4 | 파티의 주인공 (life_of_the_party) | drunken_master | 태그 life_of_the_party |  |
 | 4 | 느린 낙하 (slow_fall) |  | 태그 slow_fall; 반응 |  |
-| 5 | 그림자 망토 (shadow_cloak) | shadow | 스크립트 shadow_cloak |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 충격의 일격 (stunning_strike) |  | 태그 stunning_strike; 설정 |  |
-| 6 | 그림자 걸음 (shadow_step) | shadow | 스크립트 shadow_step |  |
-| 6 | 공격 되돌리기 (redirect_attack) | drunken_master | 반응 |  |
-| 6 | 몸의 완전함 (wholeness_of_body) | open_hand | 스크립트 wholeness_of_body |  |
-| 6 | 기의 발현 (manifestation) | open_hand | 태그 manifestation; 설정 |  |
+| 5 | 그림자 망토 (shadow_cloak) | shadow | 스크립트 shadow_cloak |  |
+| 6 | 기 강화 타격 (empowered_strikes) |  | 태그 empowered_strikes |  |
 | 6 | 벌떡 일어서기 (leap_to_your_feet) | drunken_master | 태그 stand_up_one_tile |  |
-| 6 | 강화된 타격 (empowered_strikes) |  | 태그 empowered_strikes |  |
+| 6 | 기의 발현 (manifestation) | open_hand | 태그 manifestation; 설정 |  |
+| 6 | 몸의 완전함 (wholeness_of_body) | open_hand | 스크립트 wholeness_of_body |  |
+| 6 | 공격 되돌리기 (redirect_attack) | drunken_master | 반응 |  |
+| 6 | 그림자 걸음 (shadow_step) | shadow | 스크립트 shadow_step |  |
+| 7 | 마음의 고요 (stillness_of_mind) |  | 태그 stillness_of_mind |  |
 | 7 | 회피 (evasion) |  | 태그 evasion |  |
-| 9 | 향상된 원소 시전 (improved_elemental_casting) | four_elements | 태그 improved_elemental_casting |  |
-| 9 | 술 깨는 깨달음 (sobering_realisation) | drunken_master | 스크립트 sobering_realisation |  |
-| 9 | 기 공명: 폭발 (ki_resonation_blast) | open_hand | 스크립트 ki_resonation_blast |  |
-| 9 | 기 공명: 주먹(보너스) (ki_resonation_punch_bonus) | open_hand | 스크립트 ki_resonation_punch |  |
 | 9 | 기 공명: 주먹 (ki_resonation_punch) | open_hand | 스크립트 ki_resonation_punch |  |
-| 9 | 곡예 이동 (acrobatic_movement) |  | 태그 climber |  |
-| 10 | 고양된 집중 (heightened_focus) |  | 태그 heightened_focus |  |
-| 10 | 자기 회복 (self_restoration) |  | 태그 self_restoration |  |
+| 9 | 기 공명: 주먹(보너스) (ki_resonation_punch_bonus) | open_hand | 스크립트 ki_resonation_punch |  |
+| 9 | 기 공명: 폭발 (ki_resonation_blast) | open_hand | 스크립트 ki_resonation_blast |  |
+| 9 | 고급 맨몸 이동 (advanced_unarmoured_movement) |  | 태그 ignore_difficult_terrain, jump_plus_1, jump_plus_1, jump_plus_1, jump_plus_1 |  |
+| 9 | 술 깨는 깨달음 (sobering_realisation) | drunken_master | 스크립트 sobering_realisation |  |
+| 9 | 향상된 원소 시전 (improved_elemental_casting) | four_elements | 태그 improved_elemental_casting |  |
+| 10 | 신체의 순수 (purity_of_body) |  | 부여 damage_immunities, condition_immunities |  |
 | 11 | 평온 (tranquillity) | open_hand | 태그 tranquillity |  |
 | 11 | 그림자 일격 (shadow_strike) | shadow | 스크립트 shadow_strike |  |
 | 11 | 술꾼의 행운 (drunkards_luck) | drunken_master | 태그 drunkards_luck; 설정 |  |
@@ -503,7 +503,7 @@
 | carry_quarter_more | 운반 +25% | barbarian, 종족 human |
 | charger | 돌격병 | (몬스터 특성 또는 아직 없음) |
 | check_boost_d10 | 전술적 판단 | (몬스터 특성 또는 아직 없음) |
-| climber | 등반 | monk, ranger, rogue |
+| climber | 등반 | ranger, rogue |
 | combat_inspiration | 전투 영감 | bard |
 | concentration_advantage | 집중 유리 | (몬스터 특성 또는 아직 없음) |
 | controlled_chaos | 통제된 혼돈 | sorcerer |
@@ -567,11 +567,11 @@
 | half_proficiency_physical | 절반 숙련(신체) | fighter |
 | heart_of_the_storm | 폭풍의 심장 | sorcerer |
 | heavy_armor_damage_reduction | 중갑 피해 감소 | (몬스터 특성 또는 아직 없음) |
-| heightened_focus | 고양된 집중 | monk |
+| heightened_focus | 고양된 집중 | (몬스터 특성 또는 아직 없음) |
 | heroic_warrior | 영웅 전사 | (몬스터 특성 또는 아직 없음) |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
 | hunters_lore | 사냥꾼의 지식 | (몬스터 특성 또는 아직 없음) |
-| ignore_difficult_terrain | 험지 무시 | barbarian, druid |
+| ignore_difficult_terrain | 험지 무시 | barbarian, druid, monk |
 | immune_magic_sleep | 마법 수면 면역 | 종족 drow, 종족 elf, 종족 half_elf |
 | improved_abjuration | 향상된 방호 | wizard |
 | improved_cunning_strike | 향상된 교활한 일격 | rogue |
@@ -581,7 +581,7 @@
 | jack_of_all_trades | 만물박사 | bard |
 | jump_dex | 민첩 도약 | (몬스터 특성 또는 아직 없음) |
 | jump_half_more | 도약 +50% | (몬스터 특성 또는 아직 없음) |
-| jump_plus_1 | 도약 +1칸 | fighter, fighter |
+| jump_plus_1 | 도약 +1칸 | fighter, fighter, monk, monk, monk, monk |
 | life_of_the_party | 파티의 주인공 | monk |
 | long_rest_inspiration | 기지 | (몬스터 특성 또는 아직 없음) |
 | lucky | 행운의 별 | (몬스터 특성 또는 아직 없음) |
@@ -630,7 +630,7 @@
 | ritual_from_spellbook | 의식 숙련 | wizard |
 | savage_attacks | 야만적인 공격 | 종족 half_orc |
 | sculpt_spells | 주문 조각 | wizard |
-| self_restoration | 자기 회복 | monk |
+| self_restoration | 자기 회복 | (몬스터 특성 또는 아직 없음) |
 | sentinel_oa | 파수 기회 공격 | (몬스터 특성 또는 아직 없음) |
 | shield_dex_save_bonus | 방패 민첩 내성 | (몬스터 특성 또는 아직 없음) |
 | short_rest_full_heal | 짧은 휴식 완전 회복 | (몬스터 특성 또는 아직 없음) |
@@ -647,6 +647,7 @@
 | stand_up_one_tile | 빠르게 일어서기 | monk |
 | stealth_attack | 은신 공격 | (몬스터 특성 또는 아직 없음) |
 | steel_will | 강철 의지 | (몬스터 특성 또는 아직 없음) |
+| stillness_of_mind | 마음의 고요 | monk |
 | storms_fury | 폭풍의 분노 | sorcerer |
 | stunning_strike | 충격의 일격 | monk |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |
@@ -667,7 +668,7 @@
 | unarmored_defense_con | 맨몸 방어(건강) | barbarian |
 | unarmored_defense_wis | 맨몸 방어(지혜) | monk |
 | unarmored_movement | 맨몸 이동 | monk |
-| uncanny_metabolism | 신비한 대사 | monk |
+| uncanny_metabolism | 신비한 대사 | (몬스터 특성 또는 아직 없음) |
 | unstable_backlash | 불안정한 반발 | barbarian |
 | war_caster_oa | 주문 기회 공격 | (몬스터 특성 또는 아직 없음) |
 | war_magic | 전쟁 마법 | fighter |

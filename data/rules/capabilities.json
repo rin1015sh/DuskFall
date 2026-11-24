@@ -1819,6 +1819,15 @@
       },
       "note_ko": "야생 변신 중 공격 횟수(Combat.attack)",
       "source": "original"
+    },
+    {
+      "id": "stillness_of_mind",
+      "name": {
+        "ko": "마음의 고요",
+        "en": "Stillness of Mind"
+      },
+      "note_ko": "primal.turn_start 매혹·공포 해제(행동 소모)",
+      "source": "original"
     }
   ]
 }

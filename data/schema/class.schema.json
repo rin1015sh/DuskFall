@@ -814,6 +814,12 @@
         },
         "form_bonus_dice": {
           "type": "object"
+        },
+        "ranged_only": {
+          "type": "boolean"
+        },
+        "mode": {
+          "type": "string"
         }
       }
     }

@@ -24,12 +24,12 @@ func test_build_martial_arts() -> void:
 	var m := _monk(5)
 	assert_eq(m.ac(), 10 + m.ability_mod("dex") + m.ability_mod("wis"), "맨몸 방어(지혜)")
 	assert_eq(m.speed_tiles, 8, "맨몸 이동 +2칸")
-	assert_eq(m.resource("focus"), 5)
+	assert_eq(m.resource("focus"), 6, "기 = 레벨 + 1(BG3)")
 	var a := Combat.build_weapon_attack(m, "unarmed")
 	assert_eq(a["ability"], "dex", "무술: 민첩")
-	assert_eq(a["damage"][0]["dice"], "1d8%+d" % m.ability_mod("dex"), "5레벨 무술 주사위 d8")
+	assert_eq(a["damage"][0]["dice"], "1d6%+d" % m.ability_mod("dex"), "5레벨 기민한 타격 d6(BG3)")
 	var d := Combat.build_weapon_attack(m, "dagger")
-	assert_eq(d["damage"][0]["dice"], "1d8%+d" % m.ability_mod("dex"), "대거 1d4 → 무술 1d8")
+	assert_eq(d["damage"][0]["dice"], "1d6%+d" % m.ability_mod("dex"), "대거 1d4 → 1d6")
 
 
 func test_flurry_open_hand_and_bonus_strike() -> void:
@@ -43,7 +43,7 @@ func test_flurry_open_hand_and_bonus_strike() -> void:
 	var r := Features.use(w, m, "flurry_of_blows", f)
 	assert_true(r["ok"], str(r))
 	assert_eq(int(r["hits"]), 2)
-	assert_eq(m.resource("focus"), 2, "기 1")
+	assert_eq(m.resource("focus"), 3, "기 1(4 → 3)")
 	assert_true(f.has_condition("prone"), "열린 손: 넘어뜨리기")
 	assert_false(Features.use(w, m, "martial_arts_strike", f)["ok"], "보너스 행동은 하나")
 
@@ -54,16 +54,16 @@ func test_patient_defense_step_metabolism() -> void:
 	w["grid"].place(m, Vector2i(0, 0))
 	m.reset_turn()
 	assert_true(Features.use(w, m, "patient_defense")["ok"])
-	assert_true(m.turn.get("disengaged", false))
-	assert_eq(m.resource("focus"), 2)
+	assert_false(m.turn.get("disengaged", false), "인내의 방어는 회피만(BG3)")
+	assert_eq(m.resource("focus"), 3)
 	m.reset_turn()
 	var mv: int = m.turn["movement"]
 	Features.use(w, m, "step_of_the_wind")
 	assert_eq(int(m.turn["movement"]), mv + m.speed(), "질주")
-	m.hp -= 5
-	w["turns"].roll_initiative(m)
-	assert_eq(m.resource("focus"), 3, "신비한 대사: 기 전부")
-	assert_eq(m.resource("uncanny_metabolism"), 0)
+	assert_eq(m.resource("focus"), 2, "바람의 걸음 기 1")
+	m.reset_turn()
+	assert_true(Features.use(w, m, "step_of_the_wind_disengage")["ok"])
+	assert_true(m.turn.get("disengaged", false))
 
 
 func test_deflect_slow_fall_stunning() -> void:
@@ -72,13 +72,20 @@ func test_deflect_slow_fall_stunning() -> void:
 	var f := _foe({"abilities": {"con": 1}})
 	w["grid"].place(m, Vector2i(0, 0))
 	w["grid"].place(f, Vector2i(1, 0))
-	m.reaction_settings["deflect_attacks"] = "auto"
+	m.reaction_settings["deflect_missiles"] = "auto"
 	m.reset_turn()
 	f.reset_turn()
 	var hp: int = m.hp
-	Dice.force([18, 10, 4])  # 적 명중, 쳐내기 1d10=10(명중 직후 반응), 피해 1d4=4
+	Dice.force([18, 4])  # 근접 단검: 화살 튕기기는 원거리만(BG3) — 피해 그대로
 	Combat.attack(w, f, m, {"weapon": "dagger"})
-	assert_eq(m.hp, hp, "공격 쳐내기로 피해 0")
+	assert_true(m.hp < hp, "근접은 튕기지 못한다")
+	m.hp = hp
+	f.reset_turn()
+	w["grid"].move_creature(f, Vector2i(4, 0))
+	Dice.force([18, 10, 4])
+	Combat.attack(w, f, m, {"weapon": "shortbow"})
+	assert_eq(m.hp, hp, "화살 튕기기로 피해 0")
+	w["grid"].move_creature(f, Vector2i(1, 0))
 	m.reset_turn()
 	m.refresh_reaction()  # 반응은 라운드마다 돌아온다
 	Dice.force([6, 6, 6])
@@ -88,5 +95,5 @@ func test_deflect_slow_fall_stunning() -> void:
 	Dice.force([18, 3, 1])  # 명중·피해·건강 내성 1
 	Combat.attack(w, m, f, {"weapon": "unarmed"})
 	assert_true(f.has_condition("stunned"), "충격의 일격")
-	assert_eq(m.resource("focus"), 4)
+	assert_eq(m.resource("focus"), 5)
 	m.options["stunning_strike"] = "off"

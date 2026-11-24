@@ -53,6 +53,11 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 
 
 static func turn_start(world: Dictionary, c: Node) -> void:
+	if c.has_cap("stillness_of_mind") and (c.has_condition("charmed") or c.has_condition("frightened")):
+		c.remove_condition("charmed")
+		c.remove_condition("frightened")
+		c.turn["action"] = 0  # 마음의 고요(몽크 7레벨, BG3): 자동으로 풀고 행동을 쓴다
+		Dice.log_text("%s 마음의 고요: 매혹·공포 해제" % c.label())
 	var grid: Node = world["grid"]
 	if not grid.creatures().has(c):
 		return
