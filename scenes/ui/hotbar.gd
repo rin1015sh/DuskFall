@@ -31,6 +31,8 @@ var weapons_box: VBoxContainer
 var res_marks: Control
 var move_bar: ProgressBar
 var slots_label: Label
+## 숫자키(1~0)에 붙는 칸 순서(BG3 단축키) — 보이는 순서대로 앞 10개
+var slot_keys: Array = []
 var sections: HBoxContainer
 var tabs_row: HBoxContainer
 var end_button: Button
@@ -214,6 +216,7 @@ func _draw_resources(c: Node, explore: bool) -> void:
 func _draw_tabs(world: Dictionary, c: Node, explore: bool) -> void:
 	for ch in tabs_row.get_children():
 		ch.queue_free()
+	slot_keys = []
 	var lists: Dictionary = Actions.list_for(world, c, explore)
 	for id: String in TABS:
 		if id == "explore" and not explore:
@@ -304,6 +307,17 @@ func _slot(world: Dictionary, c: Node, key: String, explore: bool) -> Control:
 	var b := Button.new()
 	b.custom_minimum_size = SLOT
 	b.focus_mode = Control.FOCUS_NONE
+	slot_keys.append(key)
+	if slot_keys.size() <= 10:
+		var nl := Label.new()  # BG3: 칸 왼쪽 위 숫자키
+		nl.text = str(slot_keys.size() % 10)
+		nl.add_theme_font_size_override("font_size", 11)
+		nl.add_theme_color_override("font_color", S.TEXT)
+		nl.add_theme_color_override("font_outline_color", Color.BLACK)
+		nl.add_theme_constant_override("outline_size", 4)
+		nl.position = Vector2(3, SLOT.y - 18)  # BG3: 칸 왼쪽 아래 숫자키(오른쪽 아래는 남은 횟수)
+		nl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(nl)
 	var sel := key == selected_key
 	b.add_theme_stylebox_override("normal", S.slot(S.BRONZE_DARK, sel))
 	b.add_theme_stylebox_override("hover", S.slot(S.GOLD_SOFT, sel))

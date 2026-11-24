@@ -63,6 +63,8 @@ var selected: Node = null
 var mode := "move"
 ## 여러 대상 고르기(BG3식): 고른 칸 목록과 그 주문 모드. Spellcasting.target_plan이 수·종류를 정한다.
 var _picked: Array = []
+## Alt를 누르는 동안 상호작용 물체 강조(BG3)
+var alt_highlight := false
 var _picked_mode := ""
 var cast_now_btn: Button
 var preview_cell := Vector2i(-1, -1)
@@ -190,6 +192,15 @@ class Highlights extends Node3D:
 		_entities(g)
 		if scene.exploring:
 			_explore_marks(g)
+		if scene.alt_highlight:
+			# BG3: Alt를 누르는 동안 상호작용할 수 있는 물체(전리품·자물쇠·문·살펴볼 것) 강조
+			for oc: Vector2i in g.objects.keys():
+				var obj: Dictionary = g.objects[oc]
+				if not obj.get("loot", {}).is_empty() or obj.has("lock") or obj.has("door") or obj.has("contents"):
+					_cell(g, oc, Color(1, 0.85, 0.3, 0.18), Color(1, 0.85, 0.3, 1.0))
+			for e: Dictionary in scene.world.get("examines", []):
+				if not e.get("done", false):
+					_cell(g, Vector2i(int(e["cell"][0]), int(e["cell"][1])), Color(1, 0.85, 0.3, 0.18), Color(1, 0.85, 0.3, 1.0))
 		var partial: Array = d.get("partial", [])
 		for c: Vector2i in d.get("area", []):
 			_cell(g, c, Color(1, 0.55, 0.1, 0.33), Color(1, 0.6, 0.2, 0.0))  # 걸친 칸도 똑같이 맞는다
@@ -324,6 +335,7 @@ func _ready() -> void:
 		follow = false
 		cam_target -= V.pan_delta(delta, cam_zoom))
 	router.zoom.connect(_on_zoom)
+	router.cancel.connect(_cancel_mode)
 	EventBus.on_enter_tile.connect(func(c: Object, _cell: Vector2i) -> void:
 		if views.has(c):
 			views[c].sync())
@@ -546,6 +558,10 @@ func _on_zoom(factor: float, _at: Vector2) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.keycode == KEY_ALT and not event.echo:
+		alt_highlight = event.pressed
+		highlights.queue_redraw()
+		return
 	if event is InputEventKey and event.keycode == KEY_SHIFT and not event.echo:
 		ActorView.reveal_hp = event.pressed  # BG3: Shift를 누르는 동안 모든 생물 HP
 		_refresh()
@@ -564,17 +580,23 @@ func _unhandled_input(event: InputEvent) -> void:
 			_refresh()
 		elif (event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER) and not _picked.is_empty():
 			_cast_picked()
+		elif event.keycode >= KEY_0 and event.keycode <= KEY_9 and not event.echo:
+			# BG3: 숫자키 = 단축 막대 칸(1~9, 0 = 10번째)
+			var idx := 9 if event.keycode == KEY_0 else int(event.keycode - KEY_1)
+			if idx < hotbar.slot_keys.size():
+				_on_action(str(hotbar.slot_keys[idx]))
+		elif event.keycode == KEY_SPACE and not event.echo and not exploring:
+			_end_turn()  # BG3: Space = 턴 끝내기
+		elif event.keycode == KEY_Z and not event.echo:
+			_on_action("jump")  # BG3: Z 점프
+		elif event.keycode == KEY_V and not event.echo:
+			_on_action("shove")  # BG3: V 밀치기
 		elif event.keycode == KEY_ESCAPE:
-			_picked = []
-			_picked_mode = ""
 			if sheet.visible or spellbook.visible:
 				sheet.visible = false
 				spellbook.visible = false
 				return
-			mode = "move"
-			hotbar.selected_key = ""
-			_clear_preview()
-			_refresh()
+			_cancel_mode()
 		return
 	router.handle(event, Time.get_ticks_msec())
 
@@ -687,6 +709,16 @@ func _advance() -> void:
 			explore.leader = selected
 			mode = "move"
 			_refresh()
+
+
+## 고르던 행동·대상 취소(Esc·우클릭 — BG3).
+func _cancel_mode() -> void:
+	_picked = []
+	_picked_mode = ""
+	mode = "move"
+	hotbar.selected_key = ""
+	_clear_preview()
+	_refresh()
 
 
 func _end_turn() -> void:

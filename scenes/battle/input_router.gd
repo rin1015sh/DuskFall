@@ -10,6 +10,8 @@ signal confirm(pos: Vector2)
 signal info(pos: Vector2)
 signal pan(delta: Vector2)
 signal zoom(factor: float, at: Vector2)
+## 우클릭(끌지 않고 뗌) = 고르던 행동 취소(BG3)
+signal cancel()
 
 const DRAG_THRESHOLD := 12.0
 const LONG_PRESS_MS := 500
@@ -23,6 +25,7 @@ var cell_at: Callable
 var previewed_cell := Vector2i(-1, -1)
 
 var _press_pos := Vector2.ZERO
+var _right_dragged := false
 var _press_ms := 0
 var _touches := {}  # index → 위치
 var _pinch_dist := 0.0
@@ -61,6 +64,8 @@ func _mouse_motion(e: InputEventMouseMotion) -> void:
 	match state:
 		State.MOUSE_PAN:
 			pan.emit(e.relative)
+			if e.relative.length() > 1.0:
+				_right_dragged = true
 		State.IDLE:
 			_show(e.position)
 
@@ -74,6 +79,10 @@ func _mouse_button(e: InputEventMouseButton) -> void:
 			if e.pressed:
 				zoom.emit(1.0 / WHEEL_STEP, e.position)
 		MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE:
+			if e.pressed:
+				_right_dragged = false
+			elif e.button_index == MOUSE_BUTTON_RIGHT and not _right_dragged:
+				cancel.emit()
 			state = State.MOUSE_PAN if e.pressed else State.IDLE
 		MOUSE_BUTTON_LEFT:
 			if e.pressed:
