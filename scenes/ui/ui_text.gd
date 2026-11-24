@@ -192,3 +192,24 @@ static func t(key: String) -> String:
 static func name_of(names: Dictionary) -> String:
 	var v: Variant = names.get(lang)
 	return v if v != null and v != "" else str(names.get("en", ""))
+
+
+## 고르는 기능의 선택지 이름(생성 화면). 기능 데이터에 이름이 없는 option 값 — 모르면 id 그대로.
+const CHOICE_NAMES := {
+	"black": {"ko": "검은 용(산)", "en": "Black (Acid)"}, "blue": {"ko": "푸른 용(번개)", "en": "Blue (Lightning)"},
+	"brass": {"ko": "놋쇠 용(화염)", "en": "Brass (Fire)"}, "bronze": {"ko": "청동 용(번개)", "en": "Bronze (Lightning)"},
+	"copper": {"ko": "구리 용(산)", "en": "Copper (Acid)"}, "gold": {"ko": "황금 용(화염)", "en": "Gold (Fire)"},
+	"green": {"ko": "초록 용(독)", "en": "Green (Poison)"}, "red": {"ko": "붉은 용(화염)", "en": "Red (Fire)"},
+	"silver": {"ko": "은빛 용(냉기)", "en": "Silver (Cold)"}, "white": {"ko": "하얀 용(냉기)", "en": "White (Cold)"},
+	"bounty_hunter": {"ko": "현상금 사냥꾼", "en": "Bounty Hunter"}, "keeper_of_the_veil": {"ko": "장막의 수호자", "en": "Keeper of the Veil"},
+	"mage_breaker": {"ko": "마법 파괴자", "en": "Mage Breaker"}, "ranger_knight": {"ko": "레인저 기사", "en": "Ranger Knight"},
+	"sanctified_stalker": {"ko": "성별된 추적자", "en": "Sanctified Stalker"}, "beast_tamer": {"ko": "짐승 조련사", "en": "Beast Tamer"},
+	"urban_tracker": {"ko": "도시 추적자", "en": "Urban Tracker"}, "wasteland_cold": {"ko": "황무지 방랑자: 냉기", "en": "Wasteland Wanderer: Cold"},
+	"wasteland_fire": {"ko": "황무지 방랑자: 화염", "en": "Wasteland Wanderer: Fire"}, "wasteland_poison": {"ko": "황무지 방랑자: 독", "en": "Wasteland Wanderer: Poison"},
+}
+
+
+static func choice_name(id: String) -> String:
+	if CHOICE_NAMES.has(id):
+		return name_of(CHOICE_NAMES[id])
+	return id

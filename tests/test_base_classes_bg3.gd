@@ -111,3 +111,17 @@ func test_ranger() -> void:
 	assert_true("cold" in r.damage_resistances)
 	assert_true(r.has_cap("ignore_difficult_terrain"), "대지 걸음")
 	assert_false(r.feature_data.has("tireless") or r.feature_data.has("roving"))
+
+
+func test_default_armor_fits_subclass() -> void:
+	var life := _pc("cleric", 3)
+	assert_eq(str(life.get_meta("armor")), "chain_mail", "생명 영역은 중갑 숙련 — 사슬 갑옷 그대로")
+	var death := _pc("cleric", 3, {"subclass": "death"})
+	assert_false(death.has_condition("armor_unproficient"), "죽음 영역: 숙련 있는 갑옷으로 바뀐다")
+	assert_eq(RulesDB.get_entry("armor", str(death.get_meta("armor")))["category"], "medium")
+	var spec := Builder.default_spec("cleric", 3)
+	spec["subclass"] = "death"
+	spec["auto_armor"] = false
+	var r := Builder.build(spec)
+	own(r["creature"])
+	assert_true(r["creature"].has_condition("armor_unproficient"), "직접 정한 갑옷은 건드리지 않는다")

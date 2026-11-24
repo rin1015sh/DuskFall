@@ -116,7 +116,7 @@ func test_war() -> void:
 
 
 func test_death_and_trickery() -> void:
-	var d := _cl(6, "death", {"armor": "scale_mail"})  # 죽음 영역은 중갑 숙련이 없다(BG3 — 수호자 신성 질서 삭제)
+	var d := _cl(6, "death")  # 추천 빌드 갑옷은 숙련에 맞춰 바뀐다(fit_armor)
 	var e := _foe({"damage_resistances": ["necrotic"]})
 	var out := Resolver.apply_damage(e, [{"amount": 10, "damage_type": "necrotic"}], {"attacker": d})
 	assert_eq(int(out["total"]), 10, "피할 수 없는 파괴: 사령 저항 무시")

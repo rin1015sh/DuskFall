@@ -70,6 +70,9 @@ func final_score(a: String) -> int:
 func set_class(class_id: String) -> void:
 	var keep := {"name": spec["name"], "scores": spec["scores"], "bonus": spec["bonus"], "species": spec["species"],
 		"lineage": spec.get("lineage", ""), "background": spec["background"], "size": spec.get("size", "")}
+	for f: Dictionary in species_choices():
+		if spec.has(str(f["id"])):
+			keep[str(f["id"])] = spec[str(f["id"])]  # 별계의 지식·하이 엘프 소마법 선택은 클래스를 바꿔도 남긴다
 	spec = Builder.default_spec(class_id, 1)
 	spec.merge(keep, true)
 	spec["skills"] = []
@@ -81,9 +84,34 @@ func set_species(id: String) -> void:
 	var sp := RulesDB.get_entry("species", id)
 	spec["size"] = sp.get("size", "medium")
 	if sp.get("lineage_required", false):
-		for lid: String in lineages(id):
-			spec["lineage"] = lid
-			break
+		spec["lineage"] = Builder.lineage_of({"species": id})  # 기본 서브종족(default_lineage)
+	for f: Dictionary in species_choices():
+		spec.erase(str(f["id"]))
+
+
+## 1레벨 클래스·하위 클래스의 고르는 기능(하나 고르는 option·feat — 전투 방식·선호하는 적·자연 탐험가·용의 조상 등).
+func class_choices() -> Array:
+	var out: Array = []
+	var cls := RulesDB.get_entry("class", str(spec.get("class", "")))
+	var feats: Array = cls.get("features", []).duplicate()
+	for sc: Dictionary in cls.get("subclasses", []):
+		if str(sc["id"]) == str(spec.get("subclass", "")) and int(sc.get("level", 3)) <= 1:
+			feats.append_array(sc.get("features", []))
+	for f: Dictionary in feats:
+		if int(f.get("level", 1)) <= 1 and str(f.get("choice_kind", "")) in ["option", "feat"] and int(f.get("count", 1)) == 1 \
+				and not f.has("count_by_level") and not f.has("choice_from") and not (f.get("choices", []) as Array).is_empty():
+			out.append(f)
+	return out
+
+
+## 종족·서브종족의 고르는 기능(별계의 지식·하이 엘프 소마법 — choice_kind option·spell_pick).
+func species_choices() -> Array:
+	var out: Array = []
+	for sid: String in [str(spec.get("species", "")), str(spec.get("lineage", ""))]:
+		for f: Dictionary in RulesDB.get_entry("species", sid).get("features", []):
+			if str(f.get("choice_kind", "")) in ["option", "spell_pick"]:
+				out.append(f)
+	return out
 
 
 func lineages(species_id: String) -> Array:

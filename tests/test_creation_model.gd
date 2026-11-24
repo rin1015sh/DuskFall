@@ -57,3 +57,14 @@ func test_skills_and_valid_preview() -> void:
 	var p: Dictionary = m.preview()
 	assert_eq(p["hp"], 8 + 2, "d8 + 건강 2")
 	assert_eq(p["body"], "small")
+
+
+func test_bg3_species_and_class_choices() -> void:
+	var m := Model.new("sorcerer")
+	m.set_species("dragonborn")
+	assert_eq(str(m.spec["lineage"]), "dragonborn_red", "기본 서브종족")
+	assert_true(m.class_choices().any(func(f: Dictionary) -> bool: return f["id"] == "draconic_ancestry"), "1레벨 용의 조상 선택")
+	m.set_species("astran")
+	assert_true(m.species_choices().any(func(f: Dictionary) -> bool: return f["id"] == "astral_knowledge"), "별계의 지식 선택")
+	m.set_species("elf")
+	assert_true(m.species_choices().any(func(f: Dictionary) -> bool: return f["id"] == "high_elf_cantrip"), "하이 엘프 소마법 선택")

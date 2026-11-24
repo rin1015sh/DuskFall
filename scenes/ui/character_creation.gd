@@ -13,6 +13,7 @@ const SKILL_KO := {"acrobatics": "곡예", "animal_handling": "동물 조련", "
 	"stealth": "은신", "survival": "생존"}
 const ABIL_KO := {"str": "근력", "dex": "민첩", "con": "건강", "int": "지능", "wis": "지혜", "cha": "매력"}
 
+const Builder := preload("res://scripts/rules/character_builder.gd")
 var model := Model.new("fighter")
 var _box: VBoxContainer
 var _preview: Label
@@ -22,6 +23,7 @@ var _frames := 0
 
 
 func _ready() -> void:
+	model = Model.new("fighter")  # RulesDB가 _ready에서 데이터를 읽은 뒤에 만든다(씬을 바로 실행하면 멤버 초기화가 더 먼저)
 	for a: String in OS.get_cmdline_user_args():
 		var kv := a.trim_prefix("--").split("=", true, 1)
 		_args[kv[0]] = kv[1] if kv.size() > 1 else "true"
@@ -62,6 +64,12 @@ func _ready() -> void:
 	right.add_child(done)
 	if _args.has("demo"):
 		_demo()
+	if _args.has("class"):
+		model.set_class(_args["class"])  # 캡처용: --class= --species= --lineage=
+	if _args.has("species"):
+		model.set_species(_args["species"])
+	if _args.has("lineage"):
+		model.spec["lineage"] = _args["lineage"]
 	_rebuild()
 
 
@@ -92,6 +100,30 @@ func _rebuild() -> void:
 	_option_row("클래스 / Class", RulesDB.ids("class"), model.spec["class"], func(id: String) -> void:
 		model.set_class(id)
 		_rebuild(), func(id: String) -> String: return UiText.name_of(RulesDB.get_entry("class", id)["name"]))
+	# 하위 클래스(1레벨에 고르는 클래스 — 클레릭·소서러·워락, BG3)
+	var cls_d := RulesDB.get_entry("class", model.spec["class"])
+	var subs: Array = (cls_d.get("subclasses", []) as Array).filter(func(sc: Dictionary) -> bool: return int(sc.get("level", 3)) <= 1).map(func(sc: Dictionary) -> String: return str(sc["id"]))
+	if not subs.is_empty():
+		if not str(model.spec.get("subclass", "")) in subs:
+			model.spec["subclass"] = subs[0]
+		_option_row("하위 클래스 / Subclass", subs, str(model.spec["subclass"]), func(id: String) -> void:
+			model.spec["subclass"] = id
+			_rebuild(), func(id: String) -> String:
+				for sc: Dictionary in cls_d["subclasses"]:
+					if str(sc["id"]) == id:
+						return UiText.name_of(sc["name"])
+				return id)
+	for f: Dictionary in model.class_choices():
+		var cfid := str(f["id"])
+		if not str(model.spec.get(cfid, "")) in f["choices"]:
+			model.spec[cfid] = str(f["choices"][0])
+		var feat_kind := str(f.get("choice_kind", "")) == "feat"
+		_option_row(UiText.name_of(f["name"]), f["choices"], str(model.spec[cfid]), func(id: String) -> void:
+			model.spec[cfid] = id
+			_rebuild(), func(id: String) -> String:
+				if feat_kind:
+					return UiText.name_of(RulesDB.get_entry("feat", id).get("name", {"ko": id, "en": id}))
+				return UiText.choice_name(id))
 	# 종족·혈통·크기
 	_option_row("종족 / Species", model.species_list(), model.spec["species"], func(id: String) -> void:
 		model.set_species(id)
@@ -100,8 +132,29 @@ func _rebuild() -> void:
 	if not lins.is_empty():
 		_option_row("혈통 / Lineage", lins, model.spec.get("lineage", ""), func(id: String) -> void:
 			model.spec["lineage"] = id
+			for f: Dictionary in model.species_choices():
+				model.spec.erase(str(f["id"]))
 			_rebuild(), func(id: String) -> String: return UiText.name_of(RulesDB.get_entry("species", id)["name"]))
+	for f: Dictionary in model.species_choices():
+		var fid := str(f["id"])
+		if not model.spec.has(fid):
+			model.spec[fid] = str(f["choices"][0])
+		var is_spell := str(f.get("choice_kind", "")) == "spell_pick"
+		_option_row(UiText.name_of(f["name"]), f["choices"], str(model.spec[fid]), func(id: String) -> void:
+			model.spec[fid] = id
+			_rebuild(), func(id: String) -> String:
+				if is_spell:
+					return UiText.name_of(RulesDB.get_entry("spell", id).get("name", {"ko": id, "en": id}))
+				return {"str": "근력 / STR", "dex": "민첩 / DEX", "int": "지능 / INT", "wis": "지혜 / WIS", "cha": "매력 / CHA"}.get(id, id))
 	var sp := RulesDB.get_entry("species", model.spec["species"])
+	if sp.has("skill_choice"):
+		var from: Variant = sp["skill_choice"].get("from", "any")
+		var opts: Array = Builder.SKILL_ABILITY.keys() if str(from) == "any" else from
+		if not str(model.spec.get("species_skill", "")) in opts:
+			model.spec["species_skill"] = str(opts[0])
+		_option_row("종족 기능 / Species Skill", opts, str(model.spec["species_skill"]), func(id: String) -> void:
+			model.spec["species_skill"] = id
+			_rebuild(), func(id: String) -> String: return "%s %s" % [SKILL_KO.get(id, id), id])
 	if sp.has("size_choice"):
 		_option_row("체형 / Size", sp["size_choice"], model.spec.get("size", "medium"), func(id: String) -> void:
 			model.spec["size"] = id

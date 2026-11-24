@@ -35,7 +35,34 @@ static func build(spec: Dictionary) -> Dictionary:
 		return {"creature": null, "errors": errors}
 	var c: Node = CreatureScript.new()
 	apply(c, spec)
+	if fit_armor(c, spec):
+		apply(c, spec)  # 추천 빌드 갑옷을 숙련 있는 것으로 바꿨다
 	return {"creature": c, "errors": errors}
+
+
+## 추천 빌드(명세 auto_armor)의 갑옷·방패가 숙련 밖이면(서브클래스·멀티클래스로 바뀜 — 예: 죽음 영역 클레릭의 사슬 갑옷)
+## 숙련 있는 갑옷 중 AC가 가장 높은 것(같으면 은신 불리 없는 것)으로 명세를 고친다. 고쳤으면 true. 장비 칸 명세(equipment)는 건드리지 않는다.
+static func fit_armor(c: Node, spec: Dictionary) -> bool:
+	if not spec.get("auto_armor", false) or spec.has("equipment") or not Equipment.unproficient(c):
+		return false
+	var training: Array = c.get_meta("armor_training", [])
+	var shield: bool = bool(spec.get("shield", false)) and "shield" in training
+	var best := ""
+	var best_ac := -1
+	var best_quiet := false
+	for a: Dictionary in RulesDB.entries("armor"):
+		var cat := str(a.get("category", ""))
+		if cat == "shield" or not cat in training:
+			continue
+		var ac: int = armor_class(c, str(a["id"]), shield, training)
+		var quiet: bool = not bool(a.get("stealth_disadvantage", false))
+		if ac > best_ac or (ac == best_ac and quiet and not best_quiet):
+			best = str(a["id"])
+			best_ac = ac
+			best_quiet = quiet
+	spec["armor"] = best
+	spec["shield"] = shield
+	return true
 
 
 # ======================================================================
@@ -1061,6 +1088,7 @@ static func default_spec(class_id: String, level: int = 1) -> Dictionary:
 		return base
 	base.merge((cls.get("default_build", {}) as Dictionary).duplicate(true))
 	base["class"] = class_id
+	base["auto_armor"] = true  # 추천 빌드 갑옷은 숙련에 맞춰 바꿔도 된다(fit_armor)
 	fill_asi(base)
 	return base
 
