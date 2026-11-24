@@ -1783,6 +1783,15 @@
       },
       "note_ko": "조상 피해 종류",
       "source": "original"
+    },
+    {
+      "id": "savage_attacks",
+      "name": {
+        "ko": "야만적인 공격",
+        "en": "Savage Attacks"
+      },
+      "note_ko": "근접 무기 치명타 무기 주사위 하나 더(Resolver)",
+      "source": "original"
     }
   ]
 }

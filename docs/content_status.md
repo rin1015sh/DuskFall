@@ -12,10 +12,10 @@
 | armor | 13 |
 | item | 59 |
 | feat | 56 |
-| species | 15 |
+| species | 39 |
 | background | 4 |
 | monster | 54 |
-| capability | 198 |
+| capability | 199 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -509,7 +509,7 @@
 | cantrip_add_mod | 강력한 주문 시전 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_miss | 강력한 소마법 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_save | 강력한 소마법(BG3) | wizard |
-| carry_quarter_more | 운반 +25% | barbarian |
+| carry_quarter_more | 운반 +25% | barbarian, 종족 human |
 | charger | 돌격병 | (몬스터 특성 또는 아직 없음) |
 | check_boost_d10 | 전술적 판단 | fighter |
 | climber | 등반 | monk, ranger, rogue |
@@ -581,7 +581,7 @@
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
 | hunters_lore | 사냥꾼의 지식 | (몬스터 특성 또는 아직 없음) |
 | ignore_difficult_terrain | 험지 무시 | barbarian, druid |
-| immune_magic_sleep | 마법 수면 면역 | 종족 elf |
+| immune_magic_sleep | 마법 수면 면역 | 종족 drow, 종족 elf, 종족 half_elf |
 | improved_abjuration | 향상된 방호 | wizard |
 | improved_cunning_strike | 향상된 교활한 일격 | rogue |
 | improved_elemental_casting | 향상된 원소 시전 | monk |
@@ -591,7 +591,7 @@
 | jump_half_more | 도약 +50% | (몬스터 특성 또는 아직 없음) |
 | jump_plus_1 | 도약 +1칸 | fighter, fighter |
 | life_of_the_party | 파티의 주인공 | monk |
-| long_rest_inspiration | 기지 | 종족 human |
+| long_rest_inspiration | 기지 | (몬스터 특성 또는 아직 없음) |
 | lucky | 행운의 별 | (몬스터 특성 또는 아직 없음) |
 | mage_slayer | 마법사 사냥꾼 | (몬스터 특성 또는 아직 없음) |
 | magic_ranged | 마법 화살 | fighter |
@@ -636,6 +636,7 @@
 | retaliation | 보복 | (몬스터 특성 또는 아직 없음) |
 | riposte | 반격 | (몬스터 특성 또는 아직 없음) |
 | ritual_from_spellbook | 의식 숙련 | wizard |
+| savage_attacks | 야만적인 공격 | 종족 half_orc |
 | sculpt_spells | 주문 조각 | wizard |
 | self_restoration | 자기 회복 | monk |
 | sentinel_oa | 파수 기회 공격 | (몬스터 특성 또는 아직 없음) |

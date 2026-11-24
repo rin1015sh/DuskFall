@@ -1161,7 +1161,7 @@
   },
   "default_build": {
     "subclass": "berserker",
-    "species": "orc",
+    "species": "half_orc",
     "background": "soldier",
     "scores": {
       "str": 15,

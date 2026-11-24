@@ -79,7 +79,7 @@ func test_wizard_1_to_5() -> void:
 	var l1 := _build("wizard", 1)
 	assert_eq(l1.hp_max, 7, "d6 + 건강 1 — 룰북 예시 전투 1의 HP 7")
 	assert_eq(l1.ac(), 12, "갑옷 없음 10 + 민첩 2")
-	assert_true(l1.spells.has("prestidigitation"), "하이 엘프 소마법")
+	assert_true(l1.spells.has("fire_bolt"), "하이 엘프 소마법(고른 위저드 소마법 — BG3)")
 	assert_true(l1.spells.has("shield") and "shield" in l1.known_reactions)
 	assert_eq(l1.skill_bonuses.get("arcana", 0), 2, "1레벨엔 학자 없음")
 	var l5 := _build("wizard", 5)
@@ -91,10 +91,10 @@ func test_wizard_1_to_5() -> void:
 
 
 func test_species_lineage_spells_by_level() -> void:
-	var l1 := _build("wizard", 1, {"lineage": "elf_drow"})
-	assert_eq(l1.darkvision_tiles, 24, "드로우 암시야 120피트")
+	var l1 := _build("wizard", 1, {"species": "drow", "lineage": "drow_moonlit"})
+	assert_eq(l1.darkvision_tiles, 16, "드로우 뛰어난 암시야 24m(BG3)")
 	assert_true(l1.spells.has("dancing_lights") and not l1.spells.has("faerie_fire"))
-	var l3 := _build("wizard", 3, {"lineage": "elf_drow"})
+	var l3 := _build("wizard", 3, {"species": "drow", "lineage": "drow_moonlit"})
 	assert_true(l3.spells.has("faerie_fire"), "3레벨 혈통 주문")
 	var wood := _build("wizard", 1, {"lineage": "elf_wood"})
 	assert_eq(wood.speed_tiles, 7, "우드 엘프 속도 7칸")
@@ -102,8 +102,8 @@ func test_species_lineage_spells_by_level() -> void:
 
 func test_invalid_specs() -> void:
 	var spec := Builder.default_spec("wizard", 1)
-	spec.erase("lineage")
-	assert_true(Builder.build(spec)["errors"].size() > 0, "엘프는 혈통을 골라야")
+	spec["lineage"] = "dwarf_hill"
+	assert_true(Builder.build(spec)["errors"].size() > 0, "엘프에 드워프 혈통은 안 된다")
 	var s2 := Builder.default_spec("fighter", 3)
 	s2["subclass"] = ""
 	assert_true(Builder.build(s2)["errors"].size() > 0, "3레벨 하위 클래스")

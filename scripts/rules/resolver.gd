@@ -484,6 +484,10 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 				attacker.remove_condition(str(a["id"]))
 		_stunning_strike(attacker, target, atk)
 		_feature_hit_bonus(attacker, target, atk, res)
+		if res["crit"] and attacker.has_cap("savage_attacks") and atk.get("weapon", false) and str(atk.get("kind", "")) == "melee" and not atk["damage"].is_empty():
+			# 야만적인 공격(하프오크, BG3): 근접 무기 치명타에 무기 주사위 하나 더(치명타 배로 굴린다)
+			var d0 := str(atk["damage"][0]["dice"]).get_slice("+", 0).get_slice("-", 0)
+			res["extra_damage"].append({"dice": d0, "damage_type": atk["damage"][0]["damage_type"]})
 		var hc: Dictionary = target.condition_instance("hexblades_curse")
 		if not hc.is_empty() and hc.get("source") == attacker:
 			res["extra_damage"].append({"dice": str(attacker.proficiency_bonus), "damage_type": atk["damage"][0]["damage_type"]})  # 주술검사의 저주: 피해 + 숙련

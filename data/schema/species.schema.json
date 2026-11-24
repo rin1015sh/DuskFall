@@ -222,6 +222,9 @@
             "SRD 5.2.1",
             "original"
           ]
+        },
+        "default_lineage": {
+          "type": "string"
         }
       }
     },
@@ -408,6 +411,28 @@
               "type": "integer",
               "minimum": 0
             },
+            "spellbook_school": {
+              "$comment": "주문서에 학파 주문 무료 추가(방출 학자): count개 + 기능 레벨 뒤 새 슬롯 레벨마다 per_new_slot_level개",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "school",
+                "count"
+              ],
+              "properties": {
+                "school": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "per_new_slot_level": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
             "caps": {
               "type": "array",
               "items": {
@@ -419,15 +444,131 @@
               "items": {
                 "type": "object"
               }
+            },
+            "resistances": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ability_increase": {
+              "type": "object"
+            },
+            "save_proficiencies": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "condition_immunities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "spell_damage_types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "weapon_hit_bonus": {
+              "$comment": "턴당 1회 무기 명중 추가 피해 {dice_by_level, damage_types}(신성한 일격·원초의 일격)",
+              "type": "object"
+            },
+            "hp_per_level": {
+              "$comment": "레벨당 최대 HP 추가(용의 회복력)",
+              "type": "integer"
+            },
+            "at_will": {
+              "$comment": "슬롯 없이 마음대로 쓰는 주문(워락 영창)",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "darkvision_tiles": {
+              "type": "integer"
+            },
+            "always_prepared": {
+              "$comment": "선택에 따른 항상 준비 주문 레벨표",
+              "type": "object"
+            },
+            "skill_bonus_ability": {
+              "$comment": "기능 판정에 능력 수정치(최소 1)를 더한다 {기능: 능력}",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "expertise": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "initiative_bonus": {
+              "type": [
+                "array",
+                "integer"
+              ]
+            },
+            "speed_tiles": {
+              "type": [
+                "array",
+                "integer"
+              ]
+            },
+            "initiative_bonus_from": {
+              "enum": [
+                "proficiency_bonus"
+              ]
+            },
+            "special_attacks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ignore_resistance": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "scribe_discount": {
+              "type": "string"
+            },
+            "bonus_action_spells": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "condition_immunity_from": {
+              "type": "object"
+            },
+            "damage_immunities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
         "choice_kind": {
           "$comment": "choices를 고르는 방식: feat = 재주를 얻음, expertise = 그 기능에 전문화, option = choice_grants의 효과. 명세 키는 기능 id",
           "enum": [
-            "feat",
             "expertise",
-            "option"
+            "feat",
+            "option",
+            "spell_pick"
           ]
         },
         "choice_grants": {
@@ -462,6 +603,28 @@
                 "type": "integer",
                 "minimum": 0
               },
+              "spellbook_school": {
+                "$comment": "주문서에 학파 주문 무료 추가(방출 학자): count개 + 기능 레벨 뒤 새 슬롯 레벨마다 per_new_slot_level개",
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "school",
+                  "count"
+                ],
+                "properties": {
+                  "school": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "per_new_slot_level": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              },
               "caps": {
                 "type": "array",
                 "items": {
@@ -472,6 +635,121 @@
                 "type": "array",
                 "items": {
                   "type": "object"
+                }
+              },
+              "resistances": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "ability_increase": {
+                "type": "object"
+              },
+              "save_proficiencies": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "condition_immunities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "spell_damage_types": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "weapon_hit_bonus": {
+                "$comment": "턴당 1회 무기 명중 추가 피해 {dice_by_level, damage_types}(신성한 일격·원초의 일격)",
+                "type": "object"
+              },
+              "hp_per_level": {
+                "$comment": "레벨당 최대 HP 추가(용의 회복력)",
+                "type": "integer"
+              },
+              "at_will": {
+                "$comment": "슬롯 없이 마음대로 쓰는 주문(워락 영창)",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "darkvision_tiles": {
+                "type": "integer"
+              },
+              "always_prepared": {
+                "$comment": "선택에 따른 항상 준비 주문 레벨표",
+                "type": "object"
+              },
+              "skill_bonus_ability": {
+                "$comment": "기능 판정에 능력 수정치(최소 1)를 더한다 {기능: 능력}",
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "skills": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "expertise": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "initiative_bonus": {
+                "type": [
+                  "array",
+                  "integer"
+                ]
+              },
+              "speed_tiles": {
+                "type": [
+                  "array",
+                  "integer"
+                ]
+              },
+              "initiative_bonus_from": {
+                "enum": [
+                  "proficiency_bonus"
+                ]
+              },
+              "special_attacks": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "ignore_resistance": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "scribe_discount": {
+                "type": "string"
+              },
+              "bonus_action_spells": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "condition_immunity_from": {
+                "type": "object"
+              },
+              "damage_immunities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
                 }
               }
             }
@@ -564,6 +842,15 @@
         },
         "handled_by": {
           "$comment": "다른 곳이 이 기능을 처리할 때 그곳(현황 보고서가 '설명만'으로 세지 않는다)",
+          "type": "string"
+        },
+        "shape": {
+          "type": "string"
+        },
+        "damage_type": {
+          "type": "string"
+        },
+        "save": {
           "type": "string"
         }
       }

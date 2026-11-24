@@ -1,56 +1,67 @@
 {
   "schema": "species_v1",
-  "note_ko": "룰북 6단계 종족 7종(드래곤본·골리앗 없음)과 혈통. 칸 단위(암시야 60피트 = 12칸). 혈통 3·5레벨 주문은 긴 휴식마다 슬롯 없이 1회. 체형 틀 body: medium / small / dwarf(1단계).",
+  "note_ko": "종족·혈통(BG3 구조 — changes.md 2026-11-24). SRD 밖 이름은 자체 이름.",
   "species": [
     {
-      "id": "dwarf",
+      "id": "human",
       "name": {
-        "ko": "드워프",
-        "en": "Dwarf"
+        "ko": "인간",
+        "en": "Human"
       },
       "size": "medium",
-      "body": "dwarf",
+      "body": "medium",
       "speed_tiles": 6,
-      "darkvision_tiles": 24,
-      "resistances": [
-        "poison"
-      ],
-      "save_advantage_vs": [
-        "poisoned"
-      ],
-      "hp_per_level": 1,
+      "darkvision_tiles": 0,
+      "skill_choice": {
+        "choose": 1,
+        "from": "any"
+      },
       "features": [
         {
-          "id": "stonecunning",
+          "id": "civil_militia",
           "name": {
-            "ko": "돌의 감각",
-            "en": "Stonecunning"
+            "ko": "시민 군사 훈련",
+            "en": "Civil Militia"
           },
-          "kind": "bonus_action",
-          "resource": "stonecunning",
-          "status": "deferred",
-          "notes_ko": "12칸 안 은신·투명 생물 위치 표시 100턴, 돌 재질 칸에서만(6단계 종족 표). 감지 시스템은 6단계(탐험).",
-          "source": "SRD 5.2.1"
-        }
-      ],
-      "resources": [
+          "grants": {
+            "weapon_training": [
+              "spear",
+              "pike",
+              "halberd",
+              "glaive"
+            ],
+            "armor_training": [
+              "light",
+              "shield"
+            ]
+          },
+          "notes_ko": "BG3: 창·장창·미늘창·언월도, 경갑·방패 숙련.",
+          "source": "original"
+        },
         {
-          "id": "stonecunning",
-          "max": "proficiency_bonus",
-          "recharge": "long"
+          "id": "human_versatility",
+          "name": {
+            "ko": "인간의 다재다능",
+            "en": "Human Versatility"
+          },
+          "caps": [
+            "carry_quarter_more"
+          ],
+          "notes_ko": "BG3: 기능 숙련 하나(skill_choice), 운반 무게 +25%.",
+          "source": "original"
         }
       ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "BG3: 시민 군사 훈련·다재다능.",
       "art": {
         "skin": [
-          "#c8a07a",
-          "#a8784e",
-          "#7a5236"
+          "#f0d6b8",
+          "#c89a72",
+          "#8a5a3c",
+          "#5a3a24"
         ],
-        "extras": [
-          "beard"
-        ]
-      },
-      "source": "SRD 5.2.1"
+        "extras": []
+      }
     },
     {
       "id": "elf",
@@ -61,19 +72,57 @@
       "size": "medium",
       "body": "medium",
       "speed_tiles": 6,
-      "darkvision_tiles": 12,
+      "darkvision_tiles": 8,
       "save_advantage_vs": [
         "charmed"
       ],
-      "skill_choice": {
-        "choose": 1,
-        "from": [
-          "insight",
-          "perception",
-          "survival"
-        ]
-      },
       "lineage_required": true,
+      "features": [
+        {
+          "id": "keen_senses",
+          "name": {
+            "ko": "예리한 감각",
+            "en": "Keen Senses"
+          },
+          "grants": {
+            "skills": [
+              "perception"
+            ]
+          },
+          "notes_ko": "BG3: 지각 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "elven_weapon_training",
+          "name": {
+            "ko": "엘프 무기 훈련",
+            "en": "Elven Weapon Training"
+          },
+          "grants": {
+            "weapon_training": [
+              "longsword",
+              "shortsword",
+              "shortbow",
+              "longbow"
+            ]
+          },
+          "notes_ko": "BG3: 롱소드·숏소드·숏보우·롱보우.",
+          "source": "original"
+        },
+        {
+          "id": "fey_ancestry",
+          "name": {
+            "ko": "요정 혈통",
+            "en": "Fey Ancestry"
+          },
+          "caps": [
+            "immune_magic_sleep"
+          ],
+          "notes_ko": "BG3: 매혹 내성 유리, 마법 수면 면역.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1",
       "art": {
         "skin": [
           "#f0d6b8",
@@ -84,256 +133,22 @@
           "pointed_ears"
         ]
       },
-      "features": [
-        {
-          "id": "trance",
-          "name": {
-            "ko": "트랜스",
-            "en": "Trance"
-          },
-          "notes_ko": "수면 면역만 남김(6단계).",
-          "source": "SRD 5.2.1",
-          "caps": [
-            "immune_magic_sleep"
-          ]
-        }
-      ],
-      "source": "SRD 5.2.1"
+      "default_lineage": "elf_high"
     },
     {
-      "id": "gnome",
-      "name": {
-        "ko": "노움",
-        "en": "Gnome"
-      },
-      "size": "small",
-      "body": "small",
-      "speed_tiles": 6,
-      "darkvision_tiles": 12,
-      "save_advantage_abilities": [
-        "int",
-        "wis",
-        "cha"
-      ],
-      "lineage_required": true,
-      "art": {
-        "skin": [
-          "#f0d6b8",
-          "#c89a72"
-        ],
-        "extras": [
-          "big_nose"
-        ]
-      },
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "halfling",
-      "name": {
-        "ko": "하플링",
-        "en": "Halfling"
-      },
-      "size": "small",
-      "body": "small",
-      "speed_tiles": 6,
-      "darkvision_tiles": 0,
-      "save_advantage_vs": [
-        "frightened"
-      ],
-      "features": [
-        {
-          "id": "halfling_luck",
-          "name": {
-            "ko": "행운",
-            "en": "Luck"
-          },
-          "notes_ko": "d20 테스트에서 자연 1이면 다시 굴려 새 값을 쓴다(숨은 굴림 자동).",
-          "source": "SRD 5.2.1",
-          "caps": [
-            "reroll_natural_1"
-          ]
-        },
-        {
-          "id": "halfling_nimbleness",
-          "name": {
-            "ko": "날렵함",
-            "en": "Halfling Nimbleness"
-          },
-          "status": "deferred",
-          "notes_ko": "한 단계 큰 생물 칸 통과. 이동은 3단계 아군 통과 규칙에 더한다.",
-          "source": "SRD 5.2.1"
-        },
-        {
-          "id": "naturally_stealthy",
-          "name": {
-            "ko": "타고난 은신",
-            "en": "Naturally Stealthy"
-          },
-          "status": "deferred",
-          "notes_ko": "큰 생물에 가려져도 숨기(5단계).",
-          "source": "SRD 5.2.1"
-        }
-      ],
-      "art": {
-        "skin": [
-          "#f0d6b8",
-          "#c89a72",
-          "#8a5a3c"
-        ],
-        "extras": [
-          "curly_hair"
-        ]
-      },
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "human",
-      "name": {
-        "ko": "인간",
-        "en": "Human"
-      },
-      "size": "medium",
-      "size_choice": [
-        "medium",
-        "small"
-      ],
-      "body": "medium",
-      "speed_tiles": 6,
-      "darkvision_tiles": 0,
-      "skill_choice": {
-        "choose": 1,
-        "from": "any"
-      },
-      "features": [
-        {
-          "id": "resourceful",
-          "name": {
-            "ko": "기지",
-            "en": "Resourceful"
-          },
-          "caps": [
-            "long_rest_inspiration"
-          ],
-          "notes_ko": "긴 휴식 때 공용 영감 +1(5단계 영감, 7단계 휴식).",
-          "source": "SRD 5.2.1"
-        }
-      ],
-      "art": {
-        "skin": [
-          "#f0d6b8",
-          "#c89a72",
-          "#8a5a3c",
-          "#5a3a24"
-        ],
-        "extras": []
-      },
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "orc",
-      "name": {
-        "ko": "오크",
-        "en": "Orc"
-      },
-      "size": "medium",
-      "body": "medium",
-      "speed_tiles": 6,
-      "darkvision_tiles": 24,
-      "features": [
-        {
-          "id": "adrenaline_rush",
-          "name": {
-            "ko": "아드레날린",
-            "en": "Adrenaline Rush"
-          },
-          "kind": "bonus_action",
-          "resource": "adrenaline_rush",
-          "script": "adrenaline_rush",
-          "notes_ko": "보너스 행동 질주 + 임시 HP(숙련 보너스).",
-          "source": "SRD 5.2.1"
-        },
-        {
-          "id": "relentless_endurance",
-          "name": {
-            "ko": "끈질긴 인내",
-            "en": "Relentless Endurance"
-          },
-          "hook": "on_hp_zero",
-          "resource": "relentless_endurance",
-          "script": "relentless_endurance",
-          "notes_ko": "즉사가 아니면 HP 1로 버틴다, 긴 휴식 1회.",
-          "source": "SRD 5.2.1"
-        }
-      ],
-      "resources": [
-        {
-          "id": "adrenaline_rush",
-          "max": "proficiency_bonus",
-          "recharge": "short"
-        },
-        {
-          "id": "relentless_endurance",
-          "max": 1,
-          "recharge": "long"
-        }
-      ],
-      "art": {
-        "skin": [
-          "#7a9a6a",
-          "#5a7a4a",
-          "#8a8a6a"
-        ],
-        "extras": [
-          "tusks"
-        ]
-      },
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "tiefling",
-      "name": {
-        "ko": "티플링",
-        "en": "Tiefling"
-      },
-      "size": "medium",
-      "size_choice": [
-        "medium",
-        "small"
-      ],
-      "body": "medium",
-      "speed_tiles": 6,
-      "darkvision_tiles": 12,
-      "lineage_required": true,
-      "spells": [
-        {
-          "level": 1,
-          "spell": "thaumaturgy",
-          "cantrip": true
-        }
-      ],
-      "art": {
-        "skin": [
-          "#b85a4a",
-          "#8a4a6a",
-          "#c8a07a"
-        ],
-        "extras": [
-          "horns",
-          "tail"
-        ]
-      },
-      "source": "SRD 5.2.1"
-    }
-  ],
-  "lineages": [
-    {
-      "id": "elf_drow",
-      "parent": "elf",
+      "id": "drow",
       "name": {
         "ko": "드로우",
         "en": "Drow"
       },
-      "darkvision_tiles": 24,
+      "size": "medium",
+      "body": "medium",
+      "speed_tiles": 6,
+      "darkvision_tiles": 16,
+      "save_advantage_vs": [
+        "charmed"
+      ],
+      "lineage_required": true,
       "spells": [
         {
           "level": 1,
@@ -349,8 +164,538 @@
           "spell": "darkness"
         }
       ],
-      "source": "SRD 5.2.1"
+      "features": [
+        {
+          "id": "keen_senses",
+          "name": {
+            "ko": "예리한 감각",
+            "en": "Keen Senses"
+          },
+          "grants": {
+            "skills": [
+              "perception"
+            ]
+          },
+          "notes_ko": "BG3: 지각 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "drow_weapon_training",
+          "name": {
+            "ko": "드로우 무기 훈련",
+            "en": "Drow Weapon Training"
+          },
+          "grants": {
+            "weapon_training": [
+              "rapier",
+              "shortsword",
+              "hand_crossbow"
+            ]
+          },
+          "notes_ko": "BG3: 레이피어·숏소드·손 석궁.",
+          "source": "original"
+        },
+        {
+          "id": "fey_ancestry",
+          "name": {
+            "ko": "요정 혈통",
+            "en": "Fey Ancestry"
+          },
+          "caps": [
+            "immune_magic_sleep"
+          ],
+          "notes_ko": "BG3: 매혹 내성 유리, 마법 수면 면역.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "BG3: 별도 종족. 뛰어난 암시야 16칸(24m), 드로우 마법(춤추는 빛·요정불 3·어둠 5).",
+      "art": {
+        "skin": [
+          "#f0d6b8",
+          "#c89a72",
+          "#8a5a3c",
+          "#5a3a24"
+        ],
+        "extras": []
+      },
+      "default_lineage": "drow_moonlit"
     },
+    {
+      "id": "half_elf",
+      "name": {
+        "ko": "하프엘프",
+        "en": "Half-Elf"
+      },
+      "size": "medium",
+      "body": "medium",
+      "speed_tiles": 6,
+      "darkvision_tiles": 8,
+      "save_advantage_vs": [
+        "charmed"
+      ],
+      "lineage_required": true,
+      "features": [
+        {
+          "id": "civil_militia",
+          "name": {
+            "ko": "시민 군사 훈련",
+            "en": "Civil Militia"
+          },
+          "grants": {
+            "weapon_training": [
+              "spear",
+              "pike",
+              "halberd",
+              "glaive"
+            ],
+            "armor_training": [
+              "light",
+              "shield"
+            ]
+          },
+          "notes_ko": "BG3: 창·장창·미늘창·언월도, 경갑·방패 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "fey_ancestry",
+          "name": {
+            "ko": "요정 혈통",
+            "en": "Fey Ancestry"
+          },
+          "caps": [
+            "immune_magic_sleep"
+          ],
+          "notes_ko": "BG3: 매혹 내성 유리, 마법 수면 면역.",
+          "source": "original"
+        }
+      ],
+      "source": "original",
+      "notes_ko": "BG3: 시민 군사 훈련·암시야·요정 혈통.",
+      "art": {
+        "skin": [
+          "#f0d6b8",
+          "#c89a72",
+          "#8a5a3c",
+          "#5a3a24"
+        ],
+        "extras": []
+      },
+      "default_lineage": "half_elf_high"
+    },
+    {
+      "id": "half_orc",
+      "name": {
+        "ko": "하프오크",
+        "en": "Half-Orc"
+      },
+      "size": "medium",
+      "body": "medium",
+      "speed_tiles": 6,
+      "darkvision_tiles": 8,
+      "features": [
+        {
+          "id": "menacing",
+          "name": {
+            "ko": "위협적",
+            "en": "Menacing"
+          },
+          "grants": {
+            "skills": [
+              "intimidation"
+            ]
+          },
+          "notes_ko": "BG3: 위협 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "relentless_endurance",
+          "name": {
+            "ko": "끈질긴 인내",
+            "en": "Relentless Endurance"
+          },
+          "hook": "on_hp_zero",
+          "resource": "relentless_endurance",
+          "script": "relentless_endurance",
+          "notes_ko": "즉사가 아니면 HP 1로 버틴다, 긴 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "savage_attacks",
+          "name": {
+            "ko": "야만적인 공격",
+            "en": "Savage Attacks"
+          },
+          "caps": [
+            "savage_attacks"
+          ],
+          "notes_ko": "BG3: 근접 무기 치명타에 무기 주사위 하나 더.",
+          "source": "original"
+        }
+      ],
+      "resources": [
+        {
+          "id": "relentless_endurance",
+          "max": 1,
+          "recharge": "long"
+        }
+      ],
+      "source": "original",
+      "art": {
+        "skin": [
+          "#7a9a6a",
+          "#5a7a4a",
+          "#8a8a6a"
+        ],
+        "extras": [
+          "tusks"
+        ]
+      }
+    },
+    {
+      "id": "halfling",
+      "name": {
+        "ko": "하플링",
+        "en": "Halfling"
+      },
+      "size": "small",
+      "body": "small",
+      "speed_tiles": 5,
+      "darkvision_tiles": 0,
+      "save_advantage_vs": [
+        "frightened"
+      ],
+      "lineage_required": true,
+      "features": [
+        {
+          "id": "halfling_luck",
+          "name": {
+            "ko": "하플링의 행운",
+            "en": "Halfling Luck"
+          },
+          "caps": [
+            "reroll_natural_1"
+          ],
+          "notes_ko": "공격·판정·내성에서 자연 1이면 다시 굴린다.",
+          "source": "original"
+        },
+        {
+          "id": "brave",
+          "name": {
+            "ko": "용감함",
+            "en": "Brave"
+          },
+          "handled_by": "save_advantage_vs frightened",
+          "notes_ko": "BG3: 공포 내성 유리.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1",
+      "art": {
+        "skin": [
+          "#f0d6b8",
+          "#c89a72",
+          "#8a5a3c"
+        ],
+        "extras": [
+          "curly_hair"
+        ]
+      },
+      "default_lineage": "halfling_swiftfoot"
+    },
+    {
+      "id": "dwarf",
+      "name": {
+        "ko": "드워프",
+        "en": "Dwarf"
+      },
+      "size": "medium",
+      "body": "dwarf",
+      "speed_tiles": 5,
+      "darkvision_tiles": 8,
+      "resistances": [
+        "poison"
+      ],
+      "save_advantage_vs": [
+        "poisoned"
+      ],
+      "lineage_required": true,
+      "features": [
+        {
+          "id": "dwarven_combat_training",
+          "name": {
+            "ko": "드워프 전투 훈련",
+            "en": "Dwarven Combat Training"
+          },
+          "grants": {
+            "weapon_training": [
+              "battleaxe",
+              "handaxe",
+              "light_hammer",
+              "warhammer"
+            ]
+          },
+          "notes_ko": "BG3: 전투도끼·손도끼·경량 망치·워해머.",
+          "source": "original"
+        },
+        {
+          "id": "dwarven_resilience",
+          "name": {
+            "ko": "드워프의 강인함",
+            "en": "Dwarven Resilience"
+          },
+          "handled_by": "resistances·save_advantage_vs",
+          "notes_ko": "BG3: 독 저항, 중독 내성 유리.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1",
+      "art": {
+        "skin": [
+          "#c8a07a",
+          "#a8784e",
+          "#7a5236"
+        ],
+        "extras": [
+          "beard"
+        ]
+      },
+      "default_lineage": "dwarf_hill"
+    },
+    {
+      "id": "gnome",
+      "name": {
+        "ko": "노움",
+        "en": "Gnome"
+      },
+      "size": "small",
+      "body": "small",
+      "speed_tiles": 5,
+      "darkvision_tiles": 0,
+      "save_advantage_abilities": [
+        "int",
+        "wis",
+        "cha"
+      ],
+      "lineage_required": true,
+      "features": [
+        {
+          "id": "gnome_cunning",
+          "name": {
+            "ko": "노움의 교활함",
+            "en": "Gnome Cunning"
+          },
+          "handled_by": "save_advantage_abilities",
+          "notes_ko": "BG3: 지능·지혜·매력 내성 유리.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1",
+      "art": {
+        "skin": [
+          "#f0d6b8",
+          "#c89a72"
+        ],
+        "extras": [
+          "big_nose"
+        ]
+      },
+      "default_lineage": "gnome_rock"
+    },
+    {
+      "id": "tiefling",
+      "name": {
+        "ko": "티플링",
+        "en": "Tiefling"
+      },
+      "size": "medium",
+      "body": "medium",
+      "speed_tiles": 6,
+      "darkvision_tiles": 8,
+      "resistances": [
+        "fire"
+      ],
+      "lineage_required": true,
+      "features": [
+        {
+          "id": "hellish_resistance",
+          "name": {
+            "ko": "지옥의 저항",
+            "en": "Hellish Resistance"
+          },
+          "handled_by": "resistances",
+          "notes_ko": "BG3: 화염 저항.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1",
+      "art": {
+        "skin": [
+          "#b85a4a",
+          "#8a4a6a",
+          "#c8a07a"
+        ],
+        "extras": [
+          "horns",
+          "tail"
+        ]
+      },
+      "default_lineage": "tiefling_infernal"
+    },
+    {
+      "id": "astran",
+      "name": {
+        "ko": "아스트란",
+        "en": "Astran"
+      },
+      "size": "medium",
+      "body": "medium",
+      "speed_tiles": 6,
+      "darkvision_tiles": 0,
+      "spells": [
+        {
+          "level": 1,
+          "spell": "mage_hand",
+          "cantrip": true
+        },
+        {
+          "level": 3,
+          "spell": "jump"
+        },
+        {
+          "level": 5,
+          "spell": "misty_step"
+        }
+      ],
+      "features": [
+        {
+          "id": "astral_knowledge",
+          "name": {
+            "ko": "별계의 지식",
+            "en": "Astral Knowledge"
+          },
+          "choice_kind": "option",
+          "choices": [
+            "str",
+            "dex",
+            "int",
+            "wis",
+            "cha"
+          ],
+          "choice_grants": {
+            "str": {
+              "skills": [
+                "athletics"
+              ]
+            },
+            "dex": {
+              "skills": [
+                "acrobatics",
+                "sleight_of_hand",
+                "stealth"
+              ]
+            },
+            "int": {
+              "skills": [
+                "arcana",
+                "history",
+                "investigation",
+                "nature",
+                "religion"
+              ]
+            },
+            "wis": {
+              "skills": [
+                "animal_handling",
+                "insight",
+                "medicine",
+                "perception",
+                "survival"
+              ]
+            },
+            "cha": {
+              "skills": [
+                "deception",
+                "intimidation",
+                "performance",
+                "persuasion"
+              ]
+            }
+          },
+          "notes_ko": "능력 하나를 골라 그 능력의 모든 기능 숙련(BG3는 긴 휴식마다 바꿈 — 여기서는 레벨 업 때).",
+          "source": "original"
+        },
+        {
+          "id": "martial_prodigy",
+          "name": {
+            "ko": "무예의 천재",
+            "en": "Martial Prodigy"
+          },
+          "grants": {
+            "armor_training": [
+              "light",
+              "medium"
+            ],
+            "weapon_training": [
+              "shortsword",
+              "longsword",
+              "greatsword"
+            ]
+          },
+          "notes_ko": "경갑·중형 갑옷, 숏소드·롱소드·그레이트소드 숙련.",
+          "source": "original"
+        }
+      ],
+      "source": "original",
+      "notes_ko": "자체 종족(BG3의 별계 전사 종족 구조): 별계에서 태어나 정신 수련과 검술로 이름난 전사 민족. 염력 — 마법사의 손 1, 도약 3, 안개 걸음 5(긴 휴식 1회).",
+      "art": {
+        "skin": [
+          "#f0d6b8",
+          "#c89a72",
+          "#8a5a3c",
+          "#5a3a24"
+        ],
+        "extras": []
+      }
+    },
+    {
+      "id": "dragonborn",
+      "name": {
+        "ko": "드래곤본",
+        "en": "Dragonborn"
+      },
+      "size": "medium",
+      "body": "medium",
+      "speed_tiles": 6,
+      "darkvision_tiles": 0,
+      "lineage_required": true,
+      "features": [],
+      "resources": [
+        {
+          "id": "breath_weapon",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "max": 1,
+          "recharge": "short"
+        }
+      ],
+      "source": "SRD 5.2.1",
+      "notes_ko": "BG3: 용 10색 혈통 — 숨결·저항. 그림은 보통 체형 임시.",
+      "art": {
+        "skin": [
+          "#f0d6b8",
+          "#c89a72",
+          "#8a5a3c",
+          "#5a3a24"
+        ],
+        "extras": []
+      },
+      "default_lineage": "dragonborn_red"
+    }
+  ],
+  "lineages": [
     {
       "id": "elf_high",
       "parent": "elf",
@@ -358,21 +703,34 @@
         "ko": "하이 엘프",
         "en": "High Elf"
       },
-      "spells": [
+      "features": [
         {
-          "level": 1,
-          "spell": "prestidigitation",
-          "cantrip": true
-        },
-        {
-          "level": 3,
-          "spell": "detect_magic"
-        },
-        {
-          "level": 5,
-          "spell": "misty_step"
+          "id": "high_elf_cantrip",
+          "name": {
+            "ko": "하이 엘프 소마법",
+            "en": "High Elf Cantrip"
+          },
+          "choice_kind": "spell_pick",
+          "choices": [
+            "acid_splash",
+            "blade_ward",
+            "chill_touch",
+            "dancing_lights",
+            "fire_bolt",
+            "friends",
+            "light",
+            "mage_hand",
+            "minor_illusion",
+            "poison_spray",
+            "ray_of_frost",
+            "shocking_grasp",
+            "true_strike"
+          ],
+          "notes_ko": "BG3: 위저드 소마법 하나(지능).",
+          "source": "original"
         }
       ],
+      "notes_ko": "BG3: 위저드 소마법 하나.",
       "source": "SRD 5.2.1"
     },
     {
@@ -383,19 +741,308 @@
         "en": "Wood Elf"
       },
       "speed_tiles": 7,
+      "features": [
+        {
+          "id": "wood_elf_stealth",
+          "name": {
+            "ko": "숲의 은신",
+            "en": "Wood Elf Stealth"
+          },
+          "grants": {
+            "skills": [
+              "stealth"
+            ]
+          },
+          "notes_ko": "BG3: 은신 숙련, 이동 +1칸(1.5m).",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "drow_spidersworn",
+      "parent": "drow",
+      "name": {
+        "ko": "거미 서약 드로우",
+        "en": "Spider-Sworn Drow"
+      },
+      "notes_ko": "BG3 구조: 거미 여신을 섬기는 드로우(능력 같음, 대화 분기용).",
+      "source": "original",
+      "features": []
+    },
+    {
+      "id": "drow_moonlit",
+      "parent": "drow",
+      "name": {
+        "ko": "달빛 드로우",
+        "en": "Moonlit Drow"
+      },
+      "notes_ko": "BG3 구조: 지상의 신들을 따르는 드로우(능력 같음, 대화 분기용).",
+      "source": "original",
+      "features": []
+    },
+    {
+      "id": "half_elf_high",
+      "parent": "half_elf",
+      "name": {
+        "ko": "하이 하프엘프",
+        "en": "High Half-Elf"
+      },
+      "features": [
+        {
+          "id": "high_elf_cantrip",
+          "name": {
+            "ko": "하이 엘프 소마법",
+            "en": "High Elf Cantrip"
+          },
+          "choice_kind": "spell_pick",
+          "choices": [
+            "acid_splash",
+            "blade_ward",
+            "chill_touch",
+            "dancing_lights",
+            "fire_bolt",
+            "friends",
+            "light",
+            "mage_hand",
+            "minor_illusion",
+            "poison_spray",
+            "ray_of_frost",
+            "shocking_grasp",
+            "true_strike"
+          ],
+          "notes_ko": "BG3: 위저드 소마법 하나(지능).",
+          "source": "original"
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "half_elf_wood",
+      "parent": "half_elf",
+      "name": {
+        "ko": "우드 하프엘프",
+        "en": "Wood Half-Elf"
+      },
+      "speed_tiles": 7,
+      "features": [
+        {
+          "id": "wood_half_elf_stealth",
+          "name": {
+            "ko": "숲의 은신",
+            "en": "Wood Elf Stealth"
+          },
+          "grants": {
+            "skills": [
+              "stealth"
+            ]
+          },
+          "notes_ko": "BG3: 은신 숙련, 이동 +1칸.",
+          "source": "original"
+        }
+      ],
+      "source": "original"
+    },
+    {
+      "id": "half_elf_drow",
+      "parent": "half_elf",
+      "name": {
+        "ko": "드로우 하프엘프",
+        "en": "Drow Half-Elf"
+      },
       "spells": [
         {
           "level": 1,
-          "spell": "druidcraft",
+          "spell": "dancing_lights",
           "cantrip": true
         },
         {
           "level": 3,
-          "spell": "longstrider"
+          "spell": "faerie_fire"
         },
         {
           "level": 5,
-          "spell": "pass_without_trace"
+          "spell": "darkness"
+        }
+      ],
+      "notes_ko": "BG3: 드로우 마법.",
+      "source": "original",
+      "features": []
+    },
+    {
+      "id": "halfling_swiftfoot",
+      "parent": "halfling",
+      "name": {
+        "ko": "날쌘발 하플링",
+        "en": "Swiftfoot Halfling"
+      },
+      "features": [
+        {
+          "id": "naturally_stealthy",
+          "name": {
+            "ko": "타고난 은신",
+            "en": "Naturally Stealthy"
+          },
+          "grants": {
+            "advantage": [
+              {
+                "type": "advantage",
+                "roll": "ability_check",
+                "side": "self",
+                "value": "advantage",
+                "skill": [
+                  "stealth"
+                ]
+              }
+            ]
+          },
+          "notes_ko": "BG3: 은신 판정 유리.",
+          "source": "original"
+        }
+      ],
+      "notes_ko": "BG3 경족 하플링 구조(자체 이름).",
+      "source": "original"
+    },
+    {
+      "id": "halfling_stoutheart",
+      "parent": "halfling",
+      "name": {
+        "ko": "굳센심장 하플링",
+        "en": "Stoutheart Halfling"
+      },
+      "resistances": [
+        "poison"
+      ],
+      "features": [
+        {
+          "id": "stoutheart_resilience",
+          "name": {
+            "ko": "굳센심장의 강인함",
+            "en": "Stoutheart Resilience"
+          },
+          "handled_by": "resistances·save_advantage_vs",
+          "notes_ko": "BG3: 독 저항, 중독 내성 유리.",
+          "source": "original"
+        }
+      ],
+      "notes_ko": "BG3 강심장 하플링 구조(자체 이름).",
+      "source": "original",
+      "save_advantage_vs": [
+        "poisoned"
+      ]
+    },
+    {
+      "id": "dwarf_hill",
+      "parent": "dwarf",
+      "name": {
+        "ko": "언덕 드워프",
+        "en": "Hill Dwarf"
+      },
+      "hp_per_level": 1,
+      "features": [
+        {
+          "id": "dwarven_toughness",
+          "name": {
+            "ko": "드워프의 끈기",
+            "en": "Dwarven Toughness"
+          },
+          "handled_by": "hp_per_level",
+          "notes_ko": "BG3: 최대 HP + 레벨.",
+          "source": "original"
+        }
+      ],
+      "notes_ko": "BG3 금 드워프 구조(자체 이름).",
+      "source": "original"
+    },
+    {
+      "id": "dwarf_mountain",
+      "parent": "dwarf",
+      "name": {
+        "ko": "산악 드워프",
+        "en": "Mountain Dwarf"
+      },
+      "features": [
+        {
+          "id": "dwarven_armour_training",
+          "name": {
+            "ko": "드워프 갑옷 훈련",
+            "en": "Dwarven Armour Training"
+          },
+          "grants": {
+            "armor_training": [
+              "light",
+              "medium"
+            ]
+          },
+          "notes_ko": "BG3: 경갑·중형 갑옷 숙련.",
+          "source": "original"
+        }
+      ],
+      "notes_ko": "BG3 방패 드워프 구조(자체 이름).",
+      "source": "original"
+    },
+    {
+      "id": "dwarf_gray",
+      "parent": "dwarf",
+      "name": {
+        "ko": "회색 드워프",
+        "en": "Gray Dwarf"
+      },
+      "darkvision_tiles": 16,
+      "spells": [
+        {
+          "level": 3,
+          "spell": "enlarge_reduce"
+        },
+        {
+          "level": 5,
+          "spell": "invisibility"
+        }
+      ],
+      "features": [
+        {
+          "id": "gray_dwarf_resilience",
+          "name": {
+            "ko": "회색 드워프의 강인함",
+            "en": "Gray Dwarf Resilience"
+          },
+          "handled_by": "save_advantage_vs",
+          "notes_ko": "BG3: 매혹·마비 내성 유리(환영 쪽은 생략).",
+          "source": "original"
+        }
+      ],
+      "notes_ko": "BG3 지하 드워프 구조(자체 이름). 뛰어난 암시야 16칸, 확대 3·투명화 5(긴 휴식 1회).",
+      "source": "original",
+      "save_advantage_vs": [
+        "charmed",
+        "paralyzed"
+      ]
+    },
+    {
+      "id": "gnome_rock",
+      "parent": "gnome",
+      "name": {
+        "ko": "바위 노움",
+        "en": "Rock Gnome"
+      },
+      "darkvision_tiles": 8,
+      "features": [
+        {
+          "id": "artificers_lore",
+          "name": {
+            "ko": "장인의 지식",
+            "en": "Artificer's Lore"
+          },
+          "grants": {
+            "skills": [
+              "history"
+            ],
+            "expertise": [
+              "history"
+            ]
+          },
+          "notes_ko": "BG3: 역사 판정에 숙련 두 배(역사 숙련 + 전문화).",
+          "source": "original"
         }
       ],
       "source": "SRD 5.2.1"
@@ -407,110 +1054,62 @@
         "ko": "숲 노움",
         "en": "Forest Gnome"
       },
+      "darkvision_tiles": 8,
       "spells": [
         {
           "level": 1,
-          "spell": "minor_illusion",
-          "cantrip": true
-        },
-        {
-          "level": 1,
-          "spell": "speak_with_animals",
-          "uses": "proficiency_bonus"
+          "spell": "speak_with_animals"
         }
       ],
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "features": []
     },
     {
-      "id": "gnome_rock",
+      "id": "gnome_cavern",
       "parent": "gnome",
       "name": {
-        "ko": "바위 노움",
-        "en": "Rock Gnome"
+        "ko": "동굴 노움",
+        "en": "Cavern Gnome"
       },
-      "spells": [
+      "darkvision_tiles": 16,
+      "features": [
         {
-          "level": 1,
-          "spell": "mending",
-          "cantrip": true
-        },
-        {
-          "level": 1,
-          "spell": "prestidigitation",
-          "cantrip": true
+          "id": "stone_camouflage",
+          "name": {
+            "ko": "바위 위장",
+            "en": "Stone Camouflage"
+          },
+          "grants": {
+            "advantage": [
+              {
+                "type": "advantage",
+                "roll": "ability_check",
+                "side": "self",
+                "value": "advantage",
+                "skill": [
+                  "stealth"
+                ]
+              }
+            ]
+          },
+          "notes_ko": "BG3: 은신 판정 유리(바위 지형 조건은 생략).",
+          "source": "original"
         }
       ],
-      "notes_ko": "태엽 장치는 1차 제외(6단계).",
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "tiefling_abyssal",
-      "parent": "tiefling",
-      "name": {
-        "ko": "심연 유산",
-        "en": "Abyssal"
-      },
-      "resistances": [
-        "poison"
-      ],
-      "spells": [
-        {
-          "level": 1,
-          "spell": "poison_spray",
-          "cantrip": true
-        },
-        {
-          "level": 3,
-          "spell": "ray_of_sickness"
-        },
-        {
-          "level": 5,
-          "spell": "hold_person"
-        }
-      ],
-      "source": "SRD 5.2.1"
-    },
-    {
-      "id": "tiefling_chthonic",
-      "parent": "tiefling",
-      "name": {
-        "ko": "명계 유산",
-        "en": "Chthonic"
-      },
-      "resistances": [
-        "necrotic"
-      ],
-      "spells": [
-        {
-          "level": 1,
-          "spell": "chill_touch",
-          "cantrip": true
-        },
-        {
-          "level": 3,
-          "spell": "false_life"
-        },
-        {
-          "level": 5,
-          "spell": "ray_of_enfeeblement"
-        }
-      ],
-      "source": "SRD 5.2.1"
+      "notes_ko": "BG3 심층 노움 구조(자체 이름). 뛰어난 암시야 16칸.",
+      "source": "original"
     },
     {
       "id": "tiefling_infernal",
       "parent": "tiefling",
       "name": {
-        "ko": "지옥 유산",
-        "en": "Infernal"
+        "ko": "지옥 계보",
+        "en": "Infernal Legacy"
       },
-      "resistances": [
-        "fire"
-      ],
       "spells": [
         {
           "level": 1,
-          "spell": "fire_bolt",
+          "spell": "produce_flame",
           "cantrip": true
         },
         {
@@ -520,6 +1119,380 @@
         {
           "level": 5,
           "spell": "darkness"
+        }
+      ],
+      "notes_ko": "BG3: 불꽃 생성·지옥의 질책 3·어둠 5.",
+      "source": "SRD 5.2.1",
+      "features": []
+    },
+    {
+      "id": "tiefling_arcane",
+      "parent": "tiefling",
+      "name": {
+        "ko": "비전 계보",
+        "en": "Arcane Legacy"
+      },
+      "spells": [
+        {
+          "level": 1,
+          "spell": "mage_hand",
+          "cantrip": true
+        },
+        {
+          "level": 3,
+          "spell": "burning_hands"
+        },
+        {
+          "level": 5,
+          "spell": "scorching_ray"
+        }
+      ],
+      "notes_ko": "BG3 마법사 군주 혈통 구조(자체 이름). 화염 칼날 → 작열 광선(SRD에 없음).",
+      "source": "original",
+      "features": []
+    },
+    {
+      "id": "tiefling_warlord",
+      "parent": "tiefling",
+      "name": {
+        "ko": "투사 계보",
+        "en": "Warlord Legacy"
+      },
+      "spells": [
+        {
+          "level": 1,
+          "spell": "thaumaturgy",
+          "cantrip": true
+        },
+        {
+          "level": 3,
+          "spell": "searing_smite"
+        },
+        {
+          "level": 5,
+          "spell": "shining_smite"
+        }
+      ],
+      "notes_ko": "BG3 전쟁 군주 혈통 구조(자체 이름). 낙인 강타 → 빛나는 강타(SRD에 없음).",
+      "source": "original",
+      "features": []
+    },
+    {
+      "id": "dragonborn_black",
+      "parent": "dragonborn",
+      "name": {
+        "ko": "검은 드래곤본",
+        "en": "Black Dragonborn"
+      },
+      "resistances": [
+        "acid"
+      ],
+      "features": [
+        {
+          "id": "breath_weapon_black",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "kind": "action",
+          "resource": "breath_weapon",
+          "script": "breath_weapon",
+          "target": "cell",
+          "shape": "line",
+          "damage_type": "acid",
+          "save": "dex",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "flame",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 6칸 직선 acid, dex 내성, 2d6(5레벨 3d6, 11레벨 4d6), DC 8 + 건강 + 숙련.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dragonborn_blue",
+      "parent": "dragonborn",
+      "name": {
+        "ko": "푸른 드래곤본",
+        "en": "Blue Dragonborn"
+      },
+      "resistances": [
+        "lightning"
+      ],
+      "features": [
+        {
+          "id": "breath_weapon_blue",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "kind": "action",
+          "resource": "breath_weapon",
+          "script": "breath_weapon",
+          "target": "cell",
+          "shape": "line",
+          "damage_type": "lightning",
+          "save": "dex",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "flame",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 6칸 직선 lightning, dex 내성, 2d6(5레벨 3d6, 11레벨 4d6), DC 8 + 건강 + 숙련.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dragonborn_brass",
+      "parent": "dragonborn",
+      "name": {
+        "ko": "놋쇠 드래곤본",
+        "en": "Brass Dragonborn"
+      },
+      "resistances": [
+        "fire"
+      ],
+      "features": [
+        {
+          "id": "breath_weapon_brass",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "kind": "action",
+          "resource": "breath_weapon",
+          "script": "breath_weapon",
+          "target": "cell",
+          "shape": "line",
+          "damage_type": "fire",
+          "save": "dex",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "flame",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 6칸 직선 fire, dex 내성, 2d6(5레벨 3d6, 11레벨 4d6), DC 8 + 건강 + 숙련.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dragonborn_bronze",
+      "parent": "dragonborn",
+      "name": {
+        "ko": "청동 드래곤본",
+        "en": "Bronze Dragonborn"
+      },
+      "resistances": [
+        "lightning"
+      ],
+      "features": [
+        {
+          "id": "breath_weapon_bronze",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "kind": "action",
+          "resource": "breath_weapon",
+          "script": "breath_weapon",
+          "target": "cell",
+          "shape": "line",
+          "damage_type": "lightning",
+          "save": "dex",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "flame",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 6칸 직선 lightning, dex 내성, 2d6(5레벨 3d6, 11레벨 4d6), DC 8 + 건강 + 숙련.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dragonborn_copper",
+      "parent": "dragonborn",
+      "name": {
+        "ko": "구리 드래곤본",
+        "en": "Copper Dragonborn"
+      },
+      "resistances": [
+        "acid"
+      ],
+      "features": [
+        {
+          "id": "breath_weapon_copper",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "kind": "action",
+          "resource": "breath_weapon",
+          "script": "breath_weapon",
+          "target": "cell",
+          "shape": "line",
+          "damage_type": "acid",
+          "save": "dex",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "flame",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 6칸 직선 acid, dex 내성, 2d6(5레벨 3d6, 11레벨 4d6), DC 8 + 건강 + 숙련.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dragonborn_gold",
+      "parent": "dragonborn",
+      "name": {
+        "ko": "황금 드래곤본",
+        "en": "Gold Dragonborn"
+      },
+      "resistances": [
+        "fire"
+      ],
+      "features": [
+        {
+          "id": "breath_weapon_gold",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "kind": "action",
+          "resource": "breath_weapon",
+          "script": "breath_weapon",
+          "target": "cell",
+          "shape": "cone",
+          "damage_type": "fire",
+          "save": "dex",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "flame",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 3칸 원뿔 fire, dex 내성, 2d6(5레벨 3d6, 11레벨 4d6), DC 8 + 건강 + 숙련.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dragonborn_green",
+      "parent": "dragonborn",
+      "name": {
+        "ko": "초록 드래곤본",
+        "en": "Green Dragonborn"
+      },
+      "resistances": [
+        "poison"
+      ],
+      "features": [
+        {
+          "id": "breath_weapon_green",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "kind": "action",
+          "resource": "breath_weapon",
+          "script": "breath_weapon",
+          "target": "cell",
+          "shape": "cone",
+          "damage_type": "poison",
+          "save": "con",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "flame",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 3칸 원뿔 poison, con 내성, 2d6(5레벨 3d6, 11레벨 4d6), DC 8 + 건강 + 숙련.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dragonborn_red",
+      "parent": "dragonborn",
+      "name": {
+        "ko": "붉은 드래곤본",
+        "en": "Red Dragonborn"
+      },
+      "resistances": [
+        "fire"
+      ],
+      "features": [
+        {
+          "id": "breath_weapon_red",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "kind": "action",
+          "resource": "breath_weapon",
+          "script": "breath_weapon",
+          "target": "cell",
+          "shape": "cone",
+          "damage_type": "fire",
+          "save": "dex",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "flame",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 3칸 원뿔 fire, dex 내성, 2d6(5레벨 3d6, 11레벨 4d6), DC 8 + 건강 + 숙련.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dragonborn_silver",
+      "parent": "dragonborn",
+      "name": {
+        "ko": "은빛 드래곤본",
+        "en": "Silver Dragonborn"
+      },
+      "resistances": [
+        "cold"
+      ],
+      "features": [
+        {
+          "id": "breath_weapon_silver",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "kind": "action",
+          "resource": "breath_weapon",
+          "script": "breath_weapon",
+          "target": "cell",
+          "shape": "cone",
+          "damage_type": "cold",
+          "save": "con",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "flame",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 3칸 원뿔 cold, con 내성, 2d6(5레벨 3d6, 11레벨 4d6), DC 8 + 건강 + 숙련.",
+          "source": "original"
+        }
+      ],
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "dragonborn_white",
+      "parent": "dragonborn",
+      "name": {
+        "ko": "하얀 드래곤본",
+        "en": "White Dragonborn"
+      },
+      "resistances": [
+        "cold"
+      ],
+      "features": [
+        {
+          "id": "breath_weapon_white",
+          "name": {
+            "ko": "용의 숨결",
+            "en": "Breath Weapon"
+          },
+          "kind": "action",
+          "resource": "breath_weapon",
+          "script": "breath_weapon",
+          "target": "cell",
+          "shape": "cone",
+          "damage_type": "cold",
+          "save": "con",
+          "icon": "statuses/blast_scorched.webp",
+          "glyph": "flame",
+          "notes_ko": "BG3: 행동, 짧은 휴식 1회. 3칸 원뿔 cold, con 내성, 2d6(5레벨 3d6, 11레벨 4d6), DC 8 + 건강 + 숙련.",
+          "source": "original"
         }
       ],
       "source": "SRD 5.2.1"

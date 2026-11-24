@@ -239,11 +239,9 @@ func test_arcane_recovery() -> void:
 
 func test_orc_traits() -> void:
 	var w := _world()
-	var orc := _pc("fighter", 1, {"species": "orc", "origin_feat": "", "species_skill": ""})
+	var orc := _pc("fighter", 1, {"species": "half_orc", "origin_feat": "", "species_skill": ""})
 	w["grid"].place(orc, Vector2i(0, 0))
-	assert_true(Features.use(w, orc, "adrenaline_rush")["ok"])
-	assert_eq(orc.temp_hp, 2)
-	assert_eq(orc.turn["movement"], 12, "질주")
+	assert_true(orc.has_cap("savage_attacks") and orc.skill_bonuses.has("intimidation"), "하프오크(BG3)")
 	Resolver.apply_damage(orc, [{"amount": orc.hp + orc.temp_hp, "damage_type": "slashing"}])
 	assert_eq(orc.hp, 1, "끈질긴 인내")
 	assert_eq(orc.resource("relentless_endurance"), 0)

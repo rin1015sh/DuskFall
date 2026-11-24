@@ -73,7 +73,10 @@
         "wizard",
         "sorcerer"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "elf_high",
+        "half_elf_high"
+      ],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -864,7 +867,9 @@
         "wizard",
         "sorcerer"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "tiefling_arcane"
+      ],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -1062,7 +1067,8 @@
         "warlock"
       ],
       "granted_by": [
-        "tiefling_chthonic"
+        "elf_high",
+        "half_elf_high"
       ],
       "cast": {
         "cost": "action",
@@ -1666,7 +1672,10 @@
         "sorcerer"
       ],
       "granted_by": [
-        "elf_drow"
+        "drow",
+        "elf_high",
+        "half_elf_drow",
+        "half_elf_high"
       ],
       "cast": {
         "cost": "action",
@@ -1721,8 +1730,9 @@
         "warlock"
       ],
       "granted_by": [
-        "elf_drow",
-        "tiefling_infernal"
+        "tiefling_infernal",
+        "drow",
+        "half_elf_drow"
       ],
       "cast": {
         "cost": "action",
@@ -2399,7 +2409,9 @@
         "sorcerer",
         "druid"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "dwarf_gray"
+      ],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -2503,7 +2515,8 @@
         "druid"
       ],
       "granted_by": [
-        "elf_drow"
+        "drow",
+        "half_elf_drow"
       ],
       "cast": {
         "cost": "action",
@@ -2563,9 +2576,7 @@
         "wizard",
         "sorcerer"
       ],
-      "granted_by": [
-        "tiefling_chthonic"
-      ],
+      "granted_by": [],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -2830,7 +2841,9 @@
         "sorcerer"
       ],
       "granted_by": [
-        "tiefling_infernal"
+        "tiefling_infernal",
+        "elf_high",
+        "half_elf_high"
       ],
       "cast": {
         "cost": "action",
@@ -3847,9 +3860,7 @@
         "warlock",
         "druid"
       ],
-      "granted_by": [
-        "tiefling_abyssal"
-      ],
+      "granted_by": [],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -4194,7 +4205,9 @@
         "sorcerer",
         "warlock"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "dwarf_gray"
+      ],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -4252,7 +4265,9 @@
         "sorcerer",
         "druid"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "astran"
+      ],
       "cast": {
         "cost": "bonus_action",
         "ritual": false,
@@ -4451,7 +4466,10 @@
         "bard",
         "sorcerer"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "elf_high",
+        "half_elf_high"
+      ],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -4739,7 +4757,12 @@
         "sorcerer",
         "warlock"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "astran",
+        "elf_high",
+        "half_elf_high",
+        "tiefling_arcane"
+      ],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -5316,7 +5339,9 @@
         "warlock"
       ],
       "granted_by": [
-        "gnome_forest"
+        "gnome_forest",
+        "elf_high",
+        "half_elf_high"
       ],
       "cast": {
         "cost": "action",
@@ -5419,7 +5444,8 @@
         "warlock"
       ],
       "granted_by": [
-        "elf_high"
+        "elf_high",
+        "astran"
       ],
       "cast": {
         "cost": "bonus_action",
@@ -5606,7 +5632,8 @@
         "druid"
       ],
       "granted_by": [
-        "tiefling_abyssal"
+        "elf_high",
+        "half_elf_high"
       ],
       "cast": {
         "cost": "action",
@@ -5961,9 +5988,7 @@
         "wizard",
         "warlock"
       ],
-      "granted_by": [
-        "tiefling_chthonic"
-      ],
+      "granted_by": [],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -6014,7 +6039,10 @@
         "wizard",
         "sorcerer"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "elf_high",
+        "half_elf_high"
+      ],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -6079,9 +6107,7 @@
         "wizard",
         "sorcerer"
       ],
-      "granted_by": [
-        "tiefling_abyssal"
-      ],
+      "granted_by": [],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -6430,7 +6456,9 @@
         "wizard",
         "sorcerer"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "tiefling_arcane"
+      ],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -6761,7 +6789,10 @@
         "wizard",
         "sorcerer"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "elf_high",
+        "half_elf_high"
+      ],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -7568,7 +7599,8 @@
         "cleric"
       ],
       "granted_by": [
-        "tiefling"
+        "tiefling",
+        "tiefling_warlord"
       ],
       "cast": {
         "cost": "action",
@@ -7802,7 +7834,10 @@
         "sorcerer",
         "warlock"
       ],
-      "granted_by": [],
+      "granted_by": [
+        "elf_high",
+        "half_elf_high"
+      ],
       "cast": {
         "cost": "action",
         "ritual": false,
@@ -8578,7 +8613,9 @@
       "notes_ko": "원문: 근접 명중 직후 보너스 행동. 게임: 보너스 행동으로 준비해 두면 다음 근접 무기·비무장 명중에 발동(얽어매는 일격과 같은 방식). 2d8 광휘 + 상위 슬롯마다 1d8, 악마·언데드 +1d8."
     },
     {
-      "granted_by": [],
+      "granted_by": [
+        "tiefling_warlord"
+      ],
       "components": {
         "verbal": true,
         "somatic": false,
@@ -8630,7 +8667,9 @@
       "notes_ko": "준비해 두면 다음 근접 명중에 1d6 화염 + 타오름(턴 시작 1d6, 턴 끝 건강 내성으로 끝 — 원문은 턴 시작 내성). 상위 슬롯마다 모든 피해 +1d6."
     },
     {
-      "granted_by": [],
+      "granted_by": [
+        "tiefling_warlord"
+      ],
       "components": {
         "verbal": true,
         "somatic": false,
@@ -9090,7 +9129,9 @@
       "notes_ko": "명중마다 +1d6 사령, 대상이 쓰러지면 자동으로 옮김(사냥꾼의 표식과 같은 방식). 능력 판정 불리 생략. 1시간 → 긴 휴식까지."
     },
     {
-      "granted_by": [],
+      "granted_by": [
+        "tiefling_infernal"
+      ],
       "components": {
         "verbal": true,
         "somatic": true,

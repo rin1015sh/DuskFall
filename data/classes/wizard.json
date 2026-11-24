@@ -1142,7 +1142,8 @@
       "ranged": {
         "main": "dagger"
       }
-    }
+    },
+    "high_elf_cantrip": "fire_bolt"
   },
   "source": "SRD 5.2.1",
   "multiclass": {}

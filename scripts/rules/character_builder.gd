@@ -62,10 +62,10 @@ static func validate(spec: Dictionary) -> PackedStringArray:
 	var sp := RulesDB.get_entry("species", spec.get("species", ""))
 	if sp.is_empty():
 		e.append("모르는 종족 '%s'" % spec.get("species", ""))
-	elif sp.get("lineage_required", false):
+	elif sp.get("lineage_required", false) and str(spec.get("lineage", "")) != "":
 		var lin := RulesDB.get_entry("species", spec.get("lineage", ""))
 		if lin.is_empty() or lin.get("parent", "") != sp["id"]:
-			e.append("%s는 혈통을 골라야 한다" % sp["id"])
+			e.append("%s의 혈통이 아니다: %s" % [sp["id"], spec.get("lineage", "")])
 	if RulesDB.get_entry("background", spec.get("background", "")).is_empty():
 		e.append("모르는 배경 '%s'" % spec.get("background", ""))
 	e.append_array(validate_point_buy(spec.get("scores", {})))
@@ -257,11 +257,27 @@ static func validate_bonus(bonus: Dictionary) -> PackedStringArray:
 # 적용
 # ======================================================================
 
+## 명세의 혈통(서브종족). 고르지 않았으면 그 종족의 첫 혈통(BG3 — 서브종족은 늘 하나 골라져 있다).
+static func lineage_of(spec: Dictionary) -> String:
+	var lid := str(spec.get("lineage", ""))
+	if lid != "":
+		return lid
+	var sp := RulesDB.get_entry("species", spec.get("species", ""))
+	if not sp.get("lineage_required", false):
+		return ""
+	if str(sp.get("default_lineage", "")) != "":
+		return str(sp["default_lineage"])
+	for l: Dictionary in RulesDB.entries("species"):
+		if str(l.get("parent", "")) == str(sp.get("id", "")):
+			return str(l["id"])
+	return ""
+
+
 static func apply(c: Node, spec: Dictionary) -> void:
 	var entries := class_entries(spec)  # 멀티클래스: 첫 클래스가 주 클래스(내성·기능 숙련·전체 훈련)
 	var cls: Dictionary = entries[0]["cls"]
 	var sp := RulesDB.get_entry("species", spec["species"])
-	var lin := RulesDB.get_entry("species", spec.get("lineage", ""))
+	var lin := RulesDB.get_entry("species", lineage_of(spec))
 	var bg := RulesDB.get_entry("background", spec["background"])
 	var lv := total_level(spec)
 	var sub: Dictionary = entries[0]["sub"]
@@ -311,7 +327,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	c.senses = ["darkvision"] if c.darkvision_tiles > 0 else []
 	c.weight_kg = 35.0 if c.size == "small" else 75.0
 	c.damage_resistances = sp.get("resistances", []) + lin.get("resistances", [])
-	c.save_advantage_vs = sp.get("save_advantage_vs", []).duplicate()
+	c.save_advantage_vs = sp.get("save_advantage_vs", []) + lin.get("save_advantage_vs", [])  # 혈통도(굳센심장·회색 드워프)
 	c.save_advantage_abilities = sp.get("save_advantage_abilities", []).duplicate()
 	c.condition_immunities = sp.get("condition_immunities", []) + lin.get("condition_immunities", [])
 	# 기능·재주(먼저 모아야 전문화·숙련 부여를 기능 계산에 쓸 수 있다)
@@ -539,7 +555,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	c.weapon_proficiencies = _weapon_profs(wt)
 	# HP: 1레벨 최대, 이후 평균 올림(룰북 6단계) + 건강 수정치, 드워프 +1/레벨
 	var con: int = c.ability_mod("con")
-	var hp: int = int(sp.get("hp_per_level", 0)) * lv
+	var hp: int = (int(sp.get("hp_per_level", 0)) + int(RulesDB.get_entry("species", lineage_of(spec)).get("hp_per_level", 0))) * lv  # 언덕 드워프(혈통)
 	for e: Dictionary in entries:
 		var hd: int = e["cls"]["hit_die"]
 		var n := int(e["level"])
