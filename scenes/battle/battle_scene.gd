@@ -376,6 +376,8 @@ func _ready() -> void:
 		for it: String in str(args["equip"]).split(","):
 			Equipment.equip(world, selected, it)  # 시험용: --equip=아이템,아이템(소지품에 있어야)
 	if args.has("sheet"):
+		if str(args["sheet"]) == "party":
+			sheet.view_mode = "party"  # 캡처용: --sheet=party
 		sheet.show_for(world, selected)
 	if args.has("spellbook"):
 		var bi := int(str(args["spellbook"])) if str(args["spellbook"]).is_valid_int() else 0
@@ -1785,6 +1787,9 @@ func _build_ui() -> void:
 	sheet.select_requested.connect(func(c: Node) -> void:
 		if exploring and not c.dead:
 			_select(c))  # 탐험 중이면 고른 캐릭터도 바꾼다(BG3), 전투 중에는 보기만
+	sheet.spellbook_requested.connect(func(c: Node) -> void:
+		sheet.visible = false
+		spellbook.show_for(world, c if c != null else selected))  # 위 탭 '주문서'
 	root.add_child(sheet)
 	spellbook = SpellbookWindow.new()
 	spellbook.changed.connect(_refresh)

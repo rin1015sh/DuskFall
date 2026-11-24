@@ -220,3 +220,34 @@ func test_versatile_stealth_strength() -> void:
 	var sp: int = wz.speed_tiles
 	Equipment.equip(w, wz, "plate_armor")
 	assert_eq(wz.speed_tiles, sp - 2, "판금 근력 15 미달: −2칸")
+
+
+## 화면(BG3 소지품): 검색·정렬, 파티 보기에서 다른 사람 칸으로 끌어 넘기기.
+func test_inventory_search_sort_and_party_view_transfer() -> void:
+	var Sheet := preload("res://scenes/ui/character_sheet.gd")
+	var a := _pc("fighter")
+	var b := _pc("rogue")
+	var w := {"party": [a, b]}
+	a.inventory = {"rations": 2, "potion_of_healing": 1, "ring_of_protection": 1}
+	var sheet: Control = Sheet.new()
+	tree.root.add_child(sheet)
+	own(sheet)
+	sheet.show_for(w, a)
+	assert_eq(sheet._sorted_items(a.inventory, true)[0], "ring_of_protection", "최신(나중에 얻은 것이 앞)")
+	sheet.sort_key = "value"
+	assert_eq(sheet._sorted_items(a.inventory, true)[0], "ring_of_protection", "가치순")
+	sheet.search = "potion"
+	assert_eq(sheet._sorted_items(a.inventory, true), ["potion_of_healing"], "이름(id)로 찾기")
+	sheet.search = ""
+	sheet.view_mode = "party"
+	sheet.show_for(w, a)
+	assert_eq(sheet.body.get_child_count() - sheet.body.get_children().filter(func(n: Node) -> bool: return n.is_queued_for_deletion()).size(), 2, "파티원마다 열")
+	var dst: Control = Sheet.ItemSlot.new()
+	dst.kind = "inventory"
+	dst.member = b
+	dst.sheet = sheet
+	own(dst)
+	assert_true(dst._can_drop_data(Vector2.ZERO, {"kind": "inv", "item": "rations", "owner": a}), "다른 사람 칸에 놓을 수 있다")
+	sheet.drop({"kind": "inv", "item": "rations", "slot": "", "owner": a}, dst)
+	assert_eq(int(b.inventory.get("rations", 0)), 1, "넘기기")
+	assert_eq(int(a.inventory.get("rations", 0)), 1)

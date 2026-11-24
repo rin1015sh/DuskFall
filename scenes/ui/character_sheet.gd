@@ -6,6 +6,7 @@ extends Control
 
 signal changed
 signal select_requested(c: Node)
+signal spellbook_requested(c: Node)
 
 const S := preload("res://scenes/ui/ui_style.gd")
 const UiText := preload("res://scenes/ui/ui_text.gd")
@@ -13,6 +14,7 @@ const Combat := preload("res://scripts/rules/combat.gd")
 const Equipment := preload("res://scripts/rules/equipment.gd")
 const Interact := preload("res://scripts/rules/interact.gd")
 const Actions := preload("res://scripts/rules/actions.gd")
+const DiceExpr := preload("res://scripts/rules/dice_expr.gd")
 const ABIL := ["str", "dex", "con", "int", "wis", "cha"]
 const ABIL_KO := {"str": "근력", "dex": "민첩", "con": "건강", "int": "지능", "wis": "지혜", "cha": "매력"}
 const ABIL_EN := {"str": "STR", "dex": "DEX", "con": "CON", "int": "INT", "wis": "WIS", "cha": "CHA"}
@@ -29,6 +31,15 @@ var world: Dictionary = {}
 var creature: Node
 var show_stash := false
 var _menu_actions: Array = []
+## 보기: "character"(한 명 — BG3 캐릭터 창) | "party"(파티원 나란히 — BG3 파티 소지품)
+var view_mode := "character"
+## 소지품 검색어·정렬(최신·가치·무게·유형 — BG3 정렬 메뉴)
+var search := ""
+var sort_key := "recent"
+## 메뉴를 연 칸의 주인(파티 보기에서 다른 파티원 칸)
+var _menu_owner: Node
+const DAMAGE_KO := {"acid": "산", "bludgeoning": "타격", "cold": "냉기", "fire": "화염", "force": "역장", "lightning": "번개", "necrotic": "사령",
+	"piercing": "관통", "poison": "독", "psychic": "정신", "radiant": "광휘", "slashing": "참격", "thunder": "천둥", "all": "모든 피해"}
 
 
 func _ready() -> void:
@@ -90,12 +101,24 @@ func show_for(w: Dictionary, c: Node, message: String = "") -> void:
 		return
 	if not world.get("at_camp", false):
 		show_stash = false
+	_resize()
 	_build_tabs()
-	body.add_child(_left(c))
-	body.add_child(_center(c))
-	body.add_child(_right(c))
+	if view_mode == "party":
+		for p: Node in Interact.party_members(world):
+			body.add_child(_member_column(p))
+	else:
+		body.add_child(_left(c))
+		body.add_child(_center(c))
+		body.add_child(_right(c))
 	note.text = message
 	visible = true
+
+
+## 파티 보기는 넓게(파티원 넷 나란히).
+func _resize() -> void:
+	var half := 620 if view_mode == "party" else 490
+	offset_left = -half
+	offset_right = half
 
 
 func _refresh(message: String = "") -> void:
@@ -120,6 +143,35 @@ func _build_tabs() -> void:
 		t.add_child(tr)
 		t.tooltip_text = p.label()
 		tabs.add_child(t)
+	var gap := Control.new()
+	gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tabs.add_child(gap)
+	# BG3 위 탭: 소지품(파티) · 캐릭터 · 주문서(K)
+	for m: Array in [["party", "tab_party_inventory"], ["character", "tab_character"], ["spellbook", "tab_spellbook"]]:
+		var b := Button.new()
+		b.text = UiText.t(m[1])
+		b.toggle_mode = true
+		b.button_pressed = view_mode == m[0]
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2(0, 36)
+		var mode_id: String = m[0]
+		b.pressed.connect(func() -> void:
+			if mode_id == "spellbook":
+				spellbook_requested.emit(creature)
+				return
+			view_mode = mode_id
+			show_for(world, creature))
+		tabs.add_child(b)
+	var info := Label.new()
+	var lv: int = creature.level if creature != null else 1
+	var cap: int = int(RulesDB.get_entry("progression", "standard").get("level_cap", 12))
+	info.text = "   %s   %s %d" % [UiText.t("max_level") if lv >= cap else UiText.t("xp_line") % int(world.get("xp", 0)),
+		UiText.t("gold"), Interact.count(world, "gold", creature)]
+	info.add_theme_color_override("font_color", S.GOLD)
+	tabs.add_child(info)
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(40, 0)  # 닫기 버튼 자리
+	tabs.add_child(spacer)
 
 
 func _left(c: Node) -> Control:
@@ -131,12 +183,13 @@ func _left(c: Node) -> Control:
 	v.add_child(S.title(c.label(), 22))
 	var sub := Label.new()
 	var cls_text := UiText.name_of(cls.get("name", {"ko": "", "en": ""}))
-	if c.class_levels.size() > 1:
-		var parts: Array = []
-		for k: String in c.class_levels:
-			parts.append("%s %d" % [UiText.name_of(RulesDB.get_entry("class", k).get("name", {"ko": k, "en": k})), int(c.class_levels[k])])
-		cls_text = " / ".join(parts)  # 멀티클래스: 전사 3 / 로그 2
-	sub.text = "%d%s %s · %s" % [c.level, UiText.t("lv"), cls_text, UiText.name_of(sp.get("name", {"ko": "", "en": ""}))]
+	var parts: Array = []
+	for k: String in c.class_levels:
+		parts.append(UiText.t("class_level") % [int(c.class_levels[k]), UiText.name_of(RulesDB.get_entry("class", k).get("name", {"ko": k, "en": k}))])
+	if parts.is_empty():
+		parts.append(UiText.t("class_level") % [c.level, cls_text])
+	sub.text = "%s\n%s" % [UiText.name_of(sp.get("name", {"ko": "", "en": ""})), " / ".join(parts)]  # BG3: 5레벨 파이터 / 5레벨 바드
+	sub.autowrap_mode = TextServer.AUTOWRAP_WORD
 	sub.add_theme_color_override("font_color", S.TEXT_DIM)
 	v.add_child(sub)
 	v.add_child(_rule())
@@ -162,10 +215,32 @@ func _left(c: Node) -> Control:
 	v.add_child(g)
 	v.add_child(_rule())
 	v.add_child(S.title(UiText.t("conditions"), 15))
-	var conds := Label.new()
-	conds.text = ", ".join(c.conditions.map(func(i: Dictionary) -> String: return i["id"])) if not c.conditions.is_empty() else UiText.t("none")
-	conds.autowrap_mode = TextServer.AUTOWRAP_WORD
+	var conds := HFlowContainer.new()
+	conds.add_theme_constant_override("h_separation", 4)
+	conds.add_theme_constant_override("v_separation", 4)
+	var seen := {}
+	for ci: Dictionary in c.conditions:
+		if seen.has(ci["id"]):
+			continue
+		seen[ci["id"]] = true
+		var cd := RulesDB.get_entry("condition", str(ci["id"]))
+		conds.add_child(_chip(UiText.name_of(cd.get("name", {"ko": ci["id"], "en": ci["id"]})), str(cd.get("notes_ko", ""))))
+	if seen.is_empty():
+		conds.add_child(_chip(UiText.t("none"), ""))
 	v.add_child(conds)
+	v.add_child(S.title(UiText.t("resistances"), 15))
+	var res := Label.new()
+	var rl: Array = []
+	for dt: String in c._damage_list("damage_resistance", c.damage_resistances):
+		var nm: String = DAMAGE_KO.get(dt, dt) if UiText.lang == "ko" else dt
+		if not nm in rl:
+			rl.append(nm)
+	for dt: String in c._damage_list("damage_immunity", c.damage_immunities):
+		rl.append("%s(%s)" % [DAMAGE_KO.get(dt, dt) if UiText.lang == "ko" else dt, UiText.t("immune")])
+	res.text = ", ".join(rl) if not rl.is_empty() else UiText.t("none")
+	res.autowrap_mode = TextServer.AUTOWRAP_WORD
+	res.add_theme_font_size_override("font_size", 13)
+	v.add_child(res)
 	v.add_child(S.title(UiText.t("features"), 15))
 	var feats := Label.new()
 	var names: Array = []
@@ -218,30 +293,44 @@ func _center(c: Node) -> Control:
 	row.add_child(ac)
 	row.add_child(_equip_slot(c, "ranged_main"))
 	row.add_child(_equip_slot(c, "ranged_off"))
-	var atk := Label.new()
-	atk.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	atk.add_theme_font_size_override("font_size", 12)
-	atk.add_theme_color_override("font_color", S.TEXT_DIM)
-	var parts: Array = []
-	for set_name: String in ["melee", "ranged"]:
-		var wid: String = c.weapon_sets.get(set_name, {}).get("main", "")
-		if wid != "":
-			var a: Dictionary = Combat.build_weapon_attack(c, wid)
-			parts.append("%s %+d · %s" % [UiText.t("set_" + set_name), int(a["bonus"]), a["damage"][0]["dice"]])
-	atk.text = "   ".join(parts)
-	v.add_child(atk)
+	v.add_child(_weapon_stats(c, 46))
 	return v
 
 
+## BG3: 무기 칸 아래 무기마다 명중 보너스와 피해 범위(근거리 주·보조 | 공격 보너스·피해 | 원거리 주·보조).
+func _weapon_stats(c: Node, w: int) -> Control:
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 6)
+	for cdef: Array in [["melee", "main"], ["melee", "off"], [], ["ranged", "main"], ["ranged", "off"]]:
+		var l := Label.new()
+		l.custom_minimum_size = Vector2(w if not cdef.is_empty() else 56, 0)
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.add_theme_font_size_override("font_size", 12)
+		if cdef.is_empty():
+			l.text = "%s\n%s" % [UiText.t("attack_bonus"), UiText.t("damage")]
+			l.add_theme_color_override("font_color", S.TEXT_DIM)
+			l.add_theme_font_size_override("font_size", 10)
+		else:
+			var wid: String = c.weapon_sets.get(cdef[0], {}).get(cdef[1], "")
+			if wid != "" and Combat.weapon_data(wid).has("damage"):
+				var a: Dictionary = Combat.build_weapon_attack(c, wid, {"hand": "off"} if cdef[1] == "off" else {})
+				var st := DiceExpr.stats(str(a["damage"][0]["dice"]))
+				l.text = "%+d\n%d~%d" % [int(a["bonus"]), int(st["min"]), int(st["max"])]
+		row.add_child(l)
+	return row
+
+
 ## 장비 칸: 비면 칸 이름, 차 있으면 그림. 누르면 벗기, 소지품에서 끌어다 놓으면 장착.
-func _equip_slot(c: Node, slot: String) -> Control:
+func _equip_slot(c: Node, slot: String, size_px: int = 46) -> Control:
 	var id := str(c.equipment.get(slot, ""))
 	var p := ItemSlot.new()
 	p.sheet = self
 	p.kind = "slot"
 	p.slot = slot
 	p.item = id
-	p.custom_minimum_size = Vector2(46, 46)
+	p.member = c
+	p.custom_minimum_size = Vector2(size_px, size_px)
 	p.add_theme_stylebox_override("panel", S.slot(_rarity_color(id) if id != "" else S.BRONZE_DARK))
 	if id != "":
 		p.add_child(_icon(id))
@@ -264,11 +353,9 @@ func _right(c: Node) -> Control:
 	v.add_theme_constant_override("separation", 6)
 	var head := HBoxContainer.new()
 	head.add_child(S.title(UiText.t("camp_stash") if show_stash else UiText.t("inventory"), 18))
-	var gold := Label.new()
-	gold.text = "   %s %d" % [UiText.t("gold"), Interact.count(world, "gold", c)]
-	gold.add_theme_color_override("font_color", S.GOLD)
-	gold.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_child(gold)
+	var fill := Control.new()
+	fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(fill)  # 골드는 위 탭 줄에(BG3)
 	if world.get("at_camp", false):
 		var sb := Button.new()
 		sb.text = UiText.t("inventory") if show_stash else UiText.t("camp_stash")
@@ -278,6 +365,7 @@ func _right(c: Node) -> Control:
 			show_for(world, creature))
 		head.add_child(sb)
 	v.add_child(head)
+	v.add_child(_search_row())
 	var grid := ItemSlot.new()  # 칸 묶음 전체가 놓을 곳(장비 칸 → 소지품 = 벗기)
 	grid.sheet = self
 	grid.kind = "inventory"
@@ -290,13 +378,8 @@ func _right(c: Node) -> Control:
 	v.add_child(grid)
 	var bag: Dictionary = world.get("stash", {}) if show_stash else c.inventory
 	var shown := 0
-	var keys: Array = bag.keys()
-	keys.sort_custom(func(a: String, b: String) -> bool: return _order(a) < _order(b))
-	for item: String in keys:
-		var n := int(bag[item])
-		if n <= 0 or (item == "gold" and not show_stash):
-			continue
-		g.add_child(_item_slot(item, n, "stash" if show_stash else "inv"))
+	for item: String in _sorted_items(bag, not show_stash):
+		g.add_child(_item_slot(item, int(bag[item]), "stash" if show_stash else "inv", c))
 		shown += 1
 	for i in range(shown, 36):
 		var empty := PanelContainer.new()
@@ -304,31 +387,63 @@ func _right(c: Node) -> Control:
 		empty.add_theme_stylebox_override("panel", S.slot())
 		empty.mouse_filter = Control.MOUSE_FILTER_PASS
 		g.add_child(empty)
-	var cap := Interact.capacity_kg(c)
-	var kg := Interact.carried_kg(c)
-	var wrow := HBoxContainer.new()
-	wrow.add_theme_constant_override("separation", 8)
-	var wl := Label.new()
-	wl.text = "%s %.1f / %.0f kg" % [UiText.t("weight"), kg, cap]
-	wl.add_theme_font_size_override("font_size", 12)
-	if kg > cap:
-		wl.add_theme_color_override("font_color", Color(0.9, 0.45, 0.35))  # 짐 매우 무거움
-	elif kg > Interact.load_limit_kg(c, "encumbered"):
-		wl.add_theme_color_override("font_color", Color(0.9, 0.7, 0.35))  # 짐 무거움
-	wl.tooltip_text = "%s > %.0f kg · %s > %.0f kg" % [UiText.name_of(RulesDB.get_entry("condition", "encumbered")["name"]), Interact.load_limit_kg(c, "encumbered"),
-		UiText.name_of(RulesDB.get_entry("condition", "heavily_encumbered")["name"]), cap]
-	wl.mouse_filter = Control.MOUSE_FILTER_PASS
-	wrow.add_child(wl)
-	var wb := S.bar(S.GOLD_SOFT, Vector2(150, 8))
-	wb.max_value = cap
-	wb.value = minf(kg, cap)
-	wb.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	wrow.add_child(wb)
-	v.add_child(wrow)
+	v.add_child(_weight_row(c, 200))
 	return v
 
 
-## 소지품 정렬: 장비 → 물약·두루마리 → 나머지(이름순)
+## 검색창과 정렬 메뉴(BG3: 모두 표시 · 최신·가치·무게·유형). iPad: 누르기만으로 쓴다.
+func _search_row() -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var le := LineEdit.new()
+	le.placeholder_text = UiText.t("search_all")
+	le.text = search
+	le.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	le.custom_minimum_size = Vector2(0, 34)
+	le.text_submitted.connect(func(t: String) -> void:
+		search = t
+		show_for(world, creature))
+	le.text_changed.connect(func(t: String) -> void:
+		search = t)
+	row.add_child(le)
+	var ob := OptionButton.new()
+	ob.focus_mode = Control.FOCUS_NONE
+	ob.custom_minimum_size = Vector2(0, 34)
+	var keys := ["recent", "value", "weight", "type"]
+	for i in keys.size():
+		ob.add_item(UiText.t("sort_" + keys[i]), i)
+	ob.selected = keys.find(sort_key)
+	ob.item_selected.connect(func(i: int) -> void:
+		sort_key = keys[i]
+		show_for(world, creature))
+	row.add_child(ob)
+	return row
+
+
+## 보이는 아이템(검색어로 거르고 정렬). recent = 얻은 순서의 역순(사전 순서 — 새로 얻은 것이 앞).
+func _sorted_items(bag: Dictionary, hide_gold: bool) -> Array:
+	var items: Array = []
+	for item: String in bag.keys():
+		if int(bag[item]) <= 0 or (item == "gold" and hide_gold):
+			continue
+		if search != "":
+			var nm := UiText.name_of(Equipment.entry(item).get("name", {"ko": item, "en": item})).to_lower()
+			if not search.to_lower() in nm and not search.to_lower() in item:
+				continue
+		items.append(item)
+	match sort_key:
+		"recent":
+			items.reverse()
+		"value":
+			items.sort_custom(func(a: String, b: String) -> bool: return float(Equipment.entry(a).get("price_gp", 0)) > float(Equipment.entry(b).get("price_gp", 0)))
+		"weight":
+			items.sort_custom(func(a: String, b: String) -> bool: return float(Equipment.entry(a).get("weight_kg", 0)) > float(Equipment.entry(b).get("weight_kg", 0)))
+		_:
+			items.sort_custom(func(a: String, b: String) -> bool: return _order(a) < _order(b))
+	return items
+
+
+## 소지품 정렬(유형): 장비 → 물약·두루마리 → 나머지(이름순)
 func _order(item: String) -> String:
 	var k := Equipment.kind_of(item)
 	var cat := str(RulesDB.get_entry("item", item).get("category", ""))
@@ -336,12 +451,13 @@ func _order(item: String) -> String:
 	return rank + UiText.name_of(Equipment.entry(item).get("name", {"ko": item, "en": item}))
 
 
-func _item_slot(item: String, n: int, where: String) -> Control:
+func _item_slot(item: String, n: int, where: String, owner_c: Node = null, size_px: int = 48) -> Control:
 	var p := ItemSlot.new()
 	p.sheet = self
 	p.kind = where
 	p.item = item
-	p.custom_minimum_size = Vector2(48, 48)
+	p.member = owner_c
+	p.custom_minimum_size = Vector2(size_px, size_px)
 	p.add_theme_stylebox_override("panel", S.slot(_rarity_color(item)))
 	p.add_child(_icon(item))
 	if n > 1:
@@ -411,7 +527,7 @@ func _tooltip(item: String) -> String:
 func open_menu(src: ItemSlot) -> void:
 	menu.clear()
 	_menu_actions.clear()
-	var c := creature
+	var c: Node = src.member if src.member != null else creature  # 파티 보기: 그 칸 주인
 	if src.kind == "slot":
 		if src.item == "":
 			return
@@ -453,19 +569,135 @@ func _apply(r: Dictionary) -> void:
 
 ## 끌어다 놓기 결과.
 func drop(src: Dictionary, dst: ItemSlot) -> void:
-	var c := creature
+	var c: Node = dst.member if dst.member != null and dst.kind != "member" else creature  # 놓은 칸의 주인
+	var from: Node = src.get("owner", creature)
 	match dst.kind:
 		"slot":
 			if src["kind"] == "inv":
+				if from != c:
+					if not Interact.transfer(world, from, c, src["item"]):
+						return
 				_apply(Equipment.equip(world, c, src["item"], dst.slot))
 		"inventory", "inv":
-			if src["kind"] == "slot":
+			if src["kind"] == "slot" and from == c:
 				_apply(Equipment.unequip(world, c, src["slot"]))
 			elif src["kind"] == "stash":
 				_apply({"ok": Interact.take_from_stash(world, c, src["item"])})
+			elif src["kind"] == "inv" and from != c:
+				_apply({"ok": Interact.transfer(world, from, c, src["item"])})  # 파티 보기: 다른 사람 칸으로 넘기기
 		"member":
-			if src["kind"] == "inv" and dst.member != c:
-				_apply({"ok": Interact.transfer(world, c, dst.member, src["item"])})
+			if src["kind"] == "inv" and dst.member != from:
+				_apply({"ok": Interact.transfer(world, from, dst.member, src["item"])})
+
+
+## 파티 보기의 한 사람 열(BG3 파티 소지품): 이름·레벨, 장비 칸, 방어도·무기별 명중/피해, 작은 소지품 칸, 무게 막대.
+## 다른 열의 소지품 칸으로 끌어다 놓으면 넘기기(누르면 메뉴 — 넘기기).
+func _member_column(p: Node) -> Control:
+	var col := PanelContainer.new()
+	var sb := S.panel(12, S.GOLD if p == creature else S.BRONZE_DARK, S.BG, 1 if p != creature else 2)
+	sb.set_content_margin_all(8)
+	col.add_theme_stylebox_override("panel", sb)
+	col.custom_minimum_size = Vector2(286, 0)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 6)
+	col.add_child(v)
+	var name_l := S.title("%s  %s" % [p.label(), UiText.t("level_short") % p.level], 17)
+	name_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(name_l)
+	var mid := HBoxContainer.new()
+	mid.alignment = BoxContainer.ALIGNMENT_CENTER
+	mid.add_theme_constant_override("separation", 4)
+	v.add_child(mid)
+	var lc := VBoxContainer.new()
+	lc.add_theme_constant_override("separation", 3)
+	for slot: String in ["head", "cloak", "armor", "hands", "feet"]:
+		lc.add_child(_equip_slot(p, slot, 34))
+	mid.add_child(lc)
+	var fig := TextureRect.new()
+	fig.texture = S.portrait_tex(p, Rect2(144, 0, 72, 108))
+	fig.custom_minimum_size = Vector2(110, 180)
+	fig.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	fig.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	mid.add_child(fig)
+	var rc := VBoxContainer.new()
+	rc.add_theme_constant_override("separation", 3)
+	for slot: String in ["amulet", "ring1", "ring2"]:
+		rc.add_child(_equip_slot(p, slot, 34))
+	mid.add_child(rc)
+	var wrow := HBoxContainer.new()
+	wrow.alignment = BoxContainer.ALIGNMENT_CENTER
+	wrow.add_theme_constant_override("separation", 4)
+	wrow.add_child(_equip_slot(p, "melee_main", 34))
+	wrow.add_child(_equip_slot(p, "melee_off", 34))
+	var ac := ACBadge.new()
+	ac.value = p.ac()
+	ac.custom_minimum_size = Vector2(48, 54)
+	wrow.add_child(ac)
+	wrow.add_child(_equip_slot(p, "ranged_main", 34))
+	wrow.add_child(_equip_slot(p, "ranged_off", 34))
+	v.add_child(wrow)
+	v.add_child(_weapon_stats(p, 34))
+	var grid := ItemSlot.new()
+	grid.sheet = self
+	grid.kind = "inventory"
+	grid.member = p
+	grid.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	var g := GridContainer.new()
+	g.columns = 7
+	g.add_theme_constant_override("h_separation", 3)
+	g.add_theme_constant_override("v_separation", 3)
+	grid.add_child(g)
+	v.add_child(grid)
+	var shown := 0
+	for item: String in _sorted_items(p.inventory, true):
+		g.add_child(_item_slot(item, int(p.inventory[item]), "inv", p, 36))
+		shown += 1
+	for i in range(shown, 21):
+		var empty := PanelContainer.new()
+		empty.custom_minimum_size = Vector2(36, 36)
+		empty.add_theme_stylebox_override("panel", S.slot())
+		empty.mouse_filter = Control.MOUSE_FILTER_PASS
+		g.add_child(empty)
+	v.add_child(_weight_row(p, 170))
+	return col
+
+
+## 무게 막대(BG3: 막대 + 지금/한도 숫자).
+func _weight_row(c: Node, bar_w: int) -> Control:
+	var cap := Interact.capacity_kg(c)
+	var kg := Interact.carried_kg(c)
+	var wrow := HBoxContainer.new()
+	wrow.add_theme_constant_override("separation", 6)
+	var wb := S.bar(S.GOLD_SOFT, Vector2(bar_w, 8))
+	wb.max_value = cap
+	wb.value = minf(kg, cap)
+	wb.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	wrow.add_child(wb)
+	var wl := Label.new()
+	wl.text = "%.1f / %.0f kg" % [kg, cap]
+	wl.add_theme_font_size_override("font_size", 12)
+	if kg > cap:
+		wl.add_theme_color_override("font_color", Color(0.9, 0.45, 0.35))
+	elif kg > Interact.load_limit_kg(c, "encumbered"):
+		wl.add_theme_color_override("font_color", Color(0.9, 0.7, 0.35))
+	wrow.add_child(wl)
+	return wrow
+
+
+## 상태 칩(BG3 상태 목록 — 이름, 누르거나 올리면 설명).
+func _chip(text: String, tip: String) -> Control:
+	var p := PanelContainer.new()
+	var sb := S.panel(8, S.BRONZE_DARK, S.BG_SLOT, 1)
+	sb.set_content_margin_all(2)
+	sb.content_margin_left = 6
+	sb.content_margin_right = 6
+	p.add_theme_stylebox_override("panel", sb)
+	var l := Label.new()
+	l.text = text
+	l.add_theme_font_size_override("font_size", 12)
+	p.add_child(l)
+	p.tooltip_text = tip
+	return p
 
 
 func _rule() -> Control:
@@ -485,7 +717,7 @@ class ItemSlot extends PanelContainer:
 
 	func _gui_input(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
-			if kind == "member":
+			if kind == "member" or (kind == "inventory" and member != null and member != sheet.creature):
 				sheet.select_requested.emit(member)
 				sheet.show_for(sheet.world, member)
 			elif kind in ["inv", "stash", "slot"]:
@@ -500,7 +732,7 @@ class ItemSlot extends PanelContainer:
 		prev.custom_minimum_size = Vector2(40, 40)
 		prev.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		set_drag_preview(prev)
-		return {"kind": kind, "item": item, "slot": slot}
+		return {"kind": kind, "item": item, "slot": slot, "owner": member if member != null else sheet.creature}
 
 	func _can_drop_data(_at: Vector2, data: Variant) -> bool:
 		if not data is Dictionary:
@@ -509,7 +741,7 @@ class ItemSlot extends PanelContainer:
 			"slot":
 				return data["kind"] == "inv" and slot in sheet.Equipment.slots_for(data["item"])
 			"inventory", "inv":
-				return data["kind"] in ["slot", "stash"]
+				return data["kind"] in ["slot", "stash"] or (data["kind"] == "inv" and member != null and data.get("owner") != member)
 			"member":
 				return data["kind"] == "inv"
 		return false
