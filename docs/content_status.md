@@ -15,7 +15,7 @@
 | species | 39 |
 | background | 4 |
 | monster | 60 |
-| capability | 203 |
+| capability | 204 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -294,29 +294,32 @@
 
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
-| 1 | 선호하는 적 (favored_enemy) |  | 처리: 클래스 always_prepared(사냥꾼의 표식) + 자원 innate_hunters_mark(슬롯 없이 긴 휴식마다 2회, 5레벨 3회 — 무료 횟수 먼저) |  |
-| 2 | 노련한 탐험가 (deft_explorer) |  | 고르기(expertise) |  |
+| 1 | 선호하는 적 (favoured_enemy) |  | 고르기(option) |  |
+| 1 | 자연 탐험가 (natural_explorer) |  | 고르기(option) |  |
 | 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
-| 3 | 모인 무리 (gathered_swarm) | swarmkeeper | 고르기(option); 설정 |  |
 | 3 | 공포의 매복자 (dread_ambusher) | gloom_stalker | 태그 dread_ambusher; 부여 initiative_bonus |  |
 | 3 | 뛰어난 암시야 (superior_darkvision) | gloom_stalker | 부여 darkvision_tiles |  |
 | 3 | 그늘 장막 (umbral_shroud) | gloom_stalker | 스크립트 shadow_cloak |  |
-| 3 | 레인저의 동료 (rangers_companion) | beast_master | 스크립트 rangers_companion; 설정 |  |
 | 3 | 사냥감 (hunters_prey) | hunter | 고르기(option) |  |
-| 5 | 동료의 결속 (companions_bond) | beast_master | 처리: rangers_companion |  |
+| 3 | 모인 무리 (gathered_swarm) | swarmkeeper | 고르기(option); 설정 |  |
+| 3 | 레인저의 동료 (rangers_companion) | beast_master | 스크립트 rangers_companion; 설정 |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
-| 6 | 방랑 (roving) |  | 태그 fast_movement, climber |  |
-| 7 | 방어 전술 (defensive_tactics) | hunter | 고르기(option) |  |
-| 7 | 뛰어난 훈련 (exceptional_training) | beast_master | 처리: 생략 |  |
+| 5 | 동료의 결속 (companions_bond) | beast_master | 처리: rangers_companion |  |
+| 6 | 선호하는 적(6레벨) (favoured_enemy_6) |  | 고르기(option) |  |
+| 6 | 자연 탐험가(6레벨) (natural_explorer_6) |  | 고르기(option) |  |
 | 7 | 강철 정신 (iron_mind) | gloom_stalker | 부여 save_proficiencies |  |
+| 7 | 뛰어난 훈련 (exceptional_training) | beast_master | 처리: 생략 |  |
 | 7 | 꿈틀대는 물결 (writhing_tide) | swarmkeeper | 스크립트 writhing_tide |  |
-| 9 | 전문화(9레벨) (expertise_9) |  | 고르기(expertise) |  |
-| 10 | 지치지 않음 (tireless) |  | 스크립트 tireless |  |
-| 11 | 일제 사격 (volley) | hunter | 스크립트 volley |  |
-| 11 | 소용돌이 공격 (whirlwind_attack) | hunter | 스크립트 volley |  |
-| 11 | 야수의 분노 (bestial_fury) | beast_master | 처리: rangers_companion |  |
-| 11 | 추적자의 연타 (stalkers_flurry) | gloom_stalker | 태그 stalkers_flurry |  |
+| 7 | 방어 전술 (defensive_tactics) | hunter | 고르기(option) |  |
+| 8 | 대지 걸음 (lands_stride) |  | 태그 ignore_difficult_terrain |  |
+| 10 | 눈앞에 숨기 (hide_in_plain_sight) |  | 스크립트 hide_in_plain_sight |  |
+| 10 | 자연 탐험가(10레벨) (natural_explorer_10) |  | 고르기(option) |  |
+| 10 | 선호하는 적(10레벨) (favoured_enemy_10) |  | 고르기(option) |  |
 | 11 | 강력한 무리 (mighty_swarm) | swarmkeeper | 태그 mighty_swarm |  |
+| 11 | 추적자의 연타 (stalkers_flurry) | gloom_stalker | 태그 stalkers_flurry |  |
+| 11 | 야수의 분노 (bestial_fury) | beast_master | 처리: rangers_companion |  |
+| 11 | 소용돌이 공격 (whirlwind_attack) | hunter | 스크립트 volley |  |
+| 11 | 일제 사격 (volley) | hunter | 스크립트 volley |  |
 
 ### 로그 (rogue) — 생명 주사위 d8, 역할 ranged
 
@@ -485,6 +488,7 @@
 | blessed_healer | 축복받은 치유자 | cleric |
 | bonus_attack_on_crit_kill | 강타 추가 공격 | (몬스터 특성 또는 아직 없음) |
 | bonus_dash_disengage_hide | 교활한 행동 | rogue |
+| bounty_hunter | 현상금 사냥꾼 | (몬스터 특성 또는 아직 없음) |
 | brawler | 주먹다짐 | (몬스터 특성 또는 아직 없음) |
 | brutal_critical | 잔혹한 치명타 | barbarian |
 | brutal_strike | 잔혹한 일격 | (몬스터 특성 또는 아직 없음) |
@@ -494,7 +498,7 @@
 | carry_quarter_more | 운반 +25% | barbarian, 종족 human |
 | charger | 돌격병 | (몬스터 특성 또는 아직 없음) |
 | check_boost_d10 | 전술적 판단 | (몬스터 특성 또는 아직 없음) |
-| climber | 등반 | ranger, rogue |
+| climber | 등반 | rogue |
 | combat_inspiration | 전투 영감 | bard |
 | concentration_advantage | 집중 유리 | (몬스터 특성 또는 아직 없음) |
 | controlled_chaos | 통제된 혼돈 | sorcerer |
@@ -546,7 +550,7 @@
 | extra_bonus_action | 추가 보너스 행동 | rogue |
 | extra_damage_wounded | 거상 학살자 | (몬스터 특성 또는 아직 없음) |
 | fall_resistance | 낙하 저항 | rogue |
-| fast_movement | 빠른 이동 | barbarian, ranger |
+| fast_movement | 빠른 이동 | barbarian |
 | focused_conjuration | 집중된 소환 | wizard |
 | free_cast_class_spell | 신성 개입 | cleric |
 | frenzy | 광란 | barbarian |
@@ -562,7 +566,7 @@
 | heroic_warrior | 영웅 전사 | (몬스터 특성 또는 아직 없음) |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
 | hunters_lore | 사냥꾼의 지식 | (몬스터 특성 또는 아직 없음) |
-| ignore_difficult_terrain | 험지 무시 | barbarian, druid, monk |
+| ignore_difficult_terrain | 험지 무시 | barbarian, druid, monk, ranger |
 | immune_magic_sleep | 마법 수면 면역 | 종족 drow, 종족 elf, 종족 half_elf |
 | improved_abjuration | 향상된 방호 | wizard |
 | improved_cunning_strike | 향상된 교활한 일격 | (몬스터 특성 또는 아직 없음) |

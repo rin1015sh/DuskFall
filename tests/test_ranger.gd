@@ -26,26 +26,18 @@ func _foe(hp := 40, ac := 5) -> Node:
 
 func test_build_and_favored_enemy_free_casts() -> void:
 	var r1 := _ranger(1)
-	assert_true(r1.spells.has("hunters_mark"), "사냥꾼의 표식 항상 준비")
-	assert_eq(r1.resource("innate_hunters_mark"), 2, "1레벨 무료 2회")
-	assert_eq(_ranger(5).resource("innate_hunters_mark"), 3, "5레벨 3회")
+	assert_true(r1.skill_bonuses.has("history"), "선호하는 적: 레인저 기사(역사)")
+	assert_true("poison" in r1.damage_resistances, "자연 탐험가: 황무지 방랑자(독)")
 	assert_eq(_ranger(5).attacks_per_action, 2, "5레벨 추가 공격")
 	assert_true(_ranger(3).has_cap("extra_damage_wounded"), "추천 빌드: 거상 학살자")
 	var w := make_world(["......"])
 	var foe := _foe()
 	w["grid"].place(r1, Vector2i(0, 0))
 	w["grid"].place(foe, Vector2i(4, 0))
-	r1.reset_turn()
-	var r: Dictionary = Spellcasting.cast(w, r1, "hunters_mark", Vector2i(4, 0))
-	assert_true(r.get("ok", false), str(r))
-	assert_eq(r1.resource("innate_hunters_mark"), 1, "무료 횟수를 먼저 쓴다")
-	assert_eq(r1.resource("spell_slot_1"), 2, "슬롯은 그대로")
-	assert_true(foe.has_condition("hunters_marked"), "표식")
-
 
 func test_mark_bonus_damage_and_auto_transfer() -> void:
 	var w := make_world([".......", "......."])
-	var r := _ranger(1)
+	var r := _ranger(1, {"spells": ["hunters_mark", "cure_wounds"]})  # BG3: 준비 주문으로
 	var a := _foe(40)
 	var b := _foe(40)
 	w["grid"].place(r, Vector2i(0, 0))

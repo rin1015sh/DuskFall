@@ -103,3 +103,11 @@ func test_paladin() -> void:
 	p.reset_turn()
 	assert_true(Features.use(w, p, "lay_on_hands", p)["ok"])
 	assert_eq(p.hp, 4, "레벨 × 2")
+
+
+func test_ranger() -> void:
+	var r := _pc("ranger", 10, {"favoured_enemy": "bounty_hunter", "natural_explorer": "wasteland_cold"})
+	assert_true(r.skill_bonuses.has("investigation") and r.has_cap("bounty_hunter"))
+	assert_true("cold" in r.damage_resistances)
+	assert_true(r.has_cap("ignore_difficult_terrain"), "대지 걸음")
+	assert_false(r.feature_data.has("tireless") or r.feature_data.has("roving"))

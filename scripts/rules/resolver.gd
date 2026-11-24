@@ -472,6 +472,8 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 				if e["type"] != "save":
 					continue
 				var sopts := {}
+				if caster is Node and caster.has_cap("bounty_hunter") and a["id"] == "ensnaring_ready":
+					sopts["disadvantage"] = ["현상금 사냥꾼"]  # 선호하는 적: 현상금 사냥꾼(BG3)
 				if e["save"].get("large_advantage", false) and str(target.size) in ["large", "huge", "gargantuan"]:
 					sopts["advantage"] = ["큰 생물"]
 				var sv := saving_throw(target, str(e["save"]["ability"]), dc, sopts)

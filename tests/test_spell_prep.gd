@@ -51,7 +51,7 @@ func test_ranger_one_swap_and_free_empty_slot() -> void:
 	assert_false(SpellPrep.set_prepared(w, full, ["cure_wounds", "fog_cloud", "ensnaring_strike"])["ok"], "두 번째 교체는 안 된다")
 	assert_true(SpellPrep.set_prepared(w, full, ["cure_wounds", "goodberry", "entangle"])["ok"], "되돌리기는 공짜(창이 열릴 때와 비교)")
 	assert_false("barkskin" in SpellPrep.pool(full), "슬롯이 없는 레벨은 고를 수 없다")
-	assert_false("hunters_mark" in SpellPrep.pool(full), "항상 준비 주문은 목록에 없다")
+	assert_true("hunters_mark" in SpellPrep.pool(full), "사냥꾼의 표식은 준비 주문(BG3 — 선호하는 적 무료 시전 삭제)")
 
 
 func test_wizard_spellbook_scroll_learning_and_reactions() -> void:

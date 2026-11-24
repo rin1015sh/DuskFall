@@ -1828,6 +1828,15 @@
       },
       "note_ko": "primal.turn_start 매혹·공포 해제(행동 소모)",
       "source": "original"
+    },
+    {
+      "id": "bounty_hunter",
+      "name": {
+        "ko": "현상금 사냥꾼",
+        "en": "Bounty Hunter"
+      },
+      "note_ko": "옭아매는 일격 내성 불리(Resolver on_weapon_hit save)",
+      "source": "original"
     }
   ]
 }

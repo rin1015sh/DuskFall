@@ -41,11 +41,6 @@
     8,
     12
   ],
-  "always_prepared": {
-    "1": [
-      "hunters_mark"
-    ]
-  },
   "spellcasting": {
     "ability": "wis",
     "swap": {
@@ -124,37 +119,6 @@
   },
   "resources": [
     {
-      "id": "innate_hunters_mark",
-      "name": {
-        "ko": "선호하는 적",
-        "en": "Favored Enemy"
-      },
-      "max": {
-        "1": 2,
-        "2": 2,
-        "3": 2,
-        "4": 2,
-        "5": 3,
-        "6": 3,
-        "7": 3,
-        "8": 3,
-        "9": 4,
-        "10": 4,
-        "11": 4,
-        "12": 4
-      },
-      "recharge": "long"
-    },
-    {
-      "id": "tireless",
-      "name": {
-        "ko": "지치지 않음",
-        "en": "Tireless"
-      },
-      "max": "ability_mod:wis",
-      "recharge": "long"
-    },
-    {
       "id": "rangers_companion",
       "name": {
         "ko": "레인저의 동료",
@@ -189,40 +153,126 @@
       },
       "recharge": "long",
       "subclass": "swarmkeeper"
+    },
+    {
+      "id": "hide_in_plain_sight",
+      "name": {
+        "ko": "눈앞에 숨기",
+        "en": "Hide in Plain Sight"
+      },
+      "max": {
+        "10": 1
+      },
+      "recharge": "long"
     }
   ],
   "features": [
     {
-      "id": "favored_enemy",
+      "id": "favoured_enemy",
       "name": {
         "ko": "선호하는 적",
-        "en": "Favored Enemy"
+        "en": "Favoured Enemy"
       },
       "level": 1,
-      "handled_by": "클래스 always_prepared(사냥꾼의 표식) + 자원 innate_hunters_mark(슬롯 없이 긴 휴식마다 2회, 5레벨 3회 — 무료 횟수 먼저)",
-      "notes_ko": "원문 그대로. 사냥꾼의 표식을 항상 준비하고 슬롯 없이 시전.",
-      "source": "SRD 5.2.1"
+      "choice_kind": "option",
+      "choices": [
+        "bounty_hunter",
+        "keeper_of_the_veil",
+        "mage_breaker",
+        "ranger_knight",
+        "sanctified_stalker"
+      ],
+      "choice_grants": {
+        "bounty_hunter": {
+          "skills": [
+            "investigation"
+          ],
+          "caps": [
+            "bounty_hunter"
+          ]
+        },
+        "keeper_of_the_veil": {
+          "skills": [
+            "arcana"
+          ],
+          "always_prepared": {
+            "1": [
+              "protection_from_evil_and_good"
+            ]
+          }
+        },
+        "mage_breaker": {
+          "skills": [
+            "arcana"
+          ],
+          "at_will": [
+            "true_strike"
+          ]
+        },
+        "ranger_knight": {
+          "skills": [
+            "history"
+          ],
+          "armor_training": [
+            "heavy"
+          ]
+        },
+        "sanctified_stalker": {
+          "skills": [
+            "religion"
+          ],
+          "at_will": [
+            "sacred_flame"
+          ]
+        }
+      },
+      "notes_ko": "BG3: 현상금 사냥꾼(조사, 옭아매는 일격 내성 불리)·장막의 수호자(비전, 악과 선 보호 항상 준비)·마법 파괴자(비전, 진실의 일격)·레인저 기사(역사, 중갑)·성별된 추적자(종교, 신성한 불꽃) 중 하나(1·6·10레벨마다).",
+      "source": "original"
     },
     {
-      "id": "deft_explorer",
+      "id": "natural_explorer",
       "name": {
-        "ko": "노련한 탐험가",
-        "en": "Deft Explorer"
+        "ko": "자연 탐험가",
+        "en": "Natural Explorer"
       },
-      "level": 2,
+      "level": 1,
+      "choice_kind": "option",
       "choices": [
-        "animal_handling",
-        "athletics",
-        "insight",
-        "investigation",
-        "nature",
-        "perception",
-        "stealth",
-        "survival"
+        "beast_tamer",
+        "urban_tracker",
+        "wasteland_cold",
+        "wasteland_fire",
+        "wasteland_poison"
       ],
-      "choice_kind": "expertise",
-      "notes_ko": "숙련 기능 1개 전문화(원문). 언어는 삭제(룰북 6단계 공통 규칙).",
-      "source": "SRD 5.2.1"
+      "choice_grants": {
+        "beast_tamer": {
+          "at_will": [
+            "find_familiar"
+          ]
+        },
+        "urban_tracker": {
+          "skills": [
+            "sleight_of_hand"
+          ]
+        },
+        "wasteland_cold": {
+          "resistances": [
+            "cold"
+          ]
+        },
+        "wasteland_fire": {
+          "resistances": [
+            "fire"
+          ]
+        },
+        "wasteland_poison": {
+          "resistances": [
+            "poison"
+          ]
+        }
+      },
+      "notes_ko": "BG3: 짐승 조련사(사역마 찾기)·도시 추적자(손재주)·황무지 방랑자(냉기·화염·독 저항 중 하나) 중 하나(1·6·10레벨마다).",
+      "source": "original"
     },
     {
       "id": "fighting_style",
@@ -257,47 +307,247 @@
       "source": "SRD 5.2.1"
     },
     {
-      "id": "roving",
+      "id": "favoured_enemy_6",
       "name": {
-        "ko": "방랑",
-        "en": "Roving"
+        "ko": "선호하는 적(6레벨)",
+        "en": "Favoured Enemy"
       },
       "level": 6,
-      "caps": [
-        "fast_movement",
-        "climber"
+      "choice_kind": "option",
+      "choices": [
+        "bounty_hunter",
+        "keeper_of_the_veil",
+        "mage_breaker",
+        "ranger_knight",
+        "sanctified_stalker"
       ],
-      "source": "SRD 5.2.1",
-      "notes_ko": "중갑이 아니면 속도 +10피트, 등반·수영 속도(오르기 지점이 아닌 높이 차도 오르내림)."
-    },
-    {
-      "id": "expertise_9",
-      "name": {
-        "ko": "전문화(9레벨)",
-        "en": "Expertise (level 9)"
+      "choice_grants": {
+        "bounty_hunter": {
+          "skills": [
+            "investigation"
+          ],
+          "caps": [
+            "bounty_hunter"
+          ]
+        },
+        "keeper_of_the_veil": {
+          "skills": [
+            "arcana"
+          ],
+          "always_prepared": {
+            "1": [
+              "protection_from_evil_and_good"
+            ]
+          }
+        },
+        "mage_breaker": {
+          "skills": [
+            "arcana"
+          ],
+          "at_will": [
+            "true_strike"
+          ]
+        },
+        "ranger_knight": {
+          "skills": [
+            "history"
+          ],
+          "armor_training": [
+            "heavy"
+          ]
+        },
+        "sanctified_stalker": {
+          "skills": [
+            "religion"
+          ],
+          "at_will": [
+            "sacred_flame"
+          ]
+        }
       },
-      "level": 9,
-      "choice_kind": "expertise",
-      "count": 2,
-      "choices": [],
-      "source": "SRD 5.2.1",
-      "notes_ko": "숙련 기능 2개 더 전문화."
+      "notes_ko": "BG3: 현상금 사냥꾼(조사, 옭아매는 일격 내성 불리)·장막의 수호자(비전, 악과 선 보호 항상 준비)·마법 파괴자(비전, 진실의 일격)·레인저 기사(역사, 중갑)·성별된 추적자(종교, 신성한 불꽃) 중 하나(1·6·10레벨마다).",
+      "source": "original"
     },
     {
-      "id": "tireless",
+      "id": "natural_explorer_6",
       "name": {
-        "ko": "지치지 않음",
-        "en": "Tireless"
+        "ko": "자연 탐험가(6레벨)",
+        "en": "Natural Explorer"
+      },
+      "level": 6,
+      "choice_kind": "option",
+      "choices": [
+        "beast_tamer",
+        "urban_tracker",
+        "wasteland_cold",
+        "wasteland_fire",
+        "wasteland_poison"
+      ],
+      "choice_grants": {
+        "beast_tamer": {
+          "at_will": [
+            "find_familiar"
+          ]
+        },
+        "urban_tracker": {
+          "skills": [
+            "sleight_of_hand"
+          ]
+        },
+        "wasteland_cold": {
+          "resistances": [
+            "cold"
+          ]
+        },
+        "wasteland_fire": {
+          "resistances": [
+            "fire"
+          ]
+        },
+        "wasteland_poison": {
+          "resistances": [
+            "poison"
+          ]
+        }
+      },
+      "notes_ko": "BG3: 짐승 조련사(사역마 찾기)·도시 추적자(손재주)·황무지 방랑자(냉기·화염·독 저항 중 하나) 중 하나(1·6·10레벨마다).",
+      "source": "original"
+    },
+    {
+      "id": "lands_stride",
+      "name": {
+        "ko": "대지 걸음",
+        "en": "Land's Stride"
+      },
+      "level": 8,
+      "caps": [
+        "ignore_difficult_terrain"
+      ],
+      "notes_ko": "BG3: 험지 무시(식물 내성 유리는 생략).",
+      "source": "original"
+    },
+    {
+      "id": "favoured_enemy_10",
+      "name": {
+        "ko": "선호하는 적(10레벨)",
+        "en": "Favoured Enemy"
+      },
+      "level": 10,
+      "choice_kind": "option",
+      "choices": [
+        "bounty_hunter",
+        "keeper_of_the_veil",
+        "mage_breaker",
+        "ranger_knight",
+        "sanctified_stalker"
+      ],
+      "choice_grants": {
+        "bounty_hunter": {
+          "skills": [
+            "investigation"
+          ],
+          "caps": [
+            "bounty_hunter"
+          ]
+        },
+        "keeper_of_the_veil": {
+          "skills": [
+            "arcana"
+          ],
+          "always_prepared": {
+            "1": [
+              "protection_from_evil_and_good"
+            ]
+          }
+        },
+        "mage_breaker": {
+          "skills": [
+            "arcana"
+          ],
+          "at_will": [
+            "true_strike"
+          ]
+        },
+        "ranger_knight": {
+          "skills": [
+            "history"
+          ],
+          "armor_training": [
+            "heavy"
+          ]
+        },
+        "sanctified_stalker": {
+          "skills": [
+            "religion"
+          ],
+          "at_will": [
+            "sacred_flame"
+          ]
+        }
+      },
+      "notes_ko": "BG3: 현상금 사냥꾼(조사, 옭아매는 일격 내성 불리)·장막의 수호자(비전, 악과 선 보호 항상 준비)·마법 파괴자(비전, 진실의 일격)·레인저 기사(역사, 중갑)·성별된 추적자(종교, 신성한 불꽃) 중 하나(1·6·10레벨마다).",
+      "source": "original"
+    },
+    {
+      "id": "natural_explorer_10",
+      "name": {
+        "ko": "자연 탐험가(10레벨)",
+        "en": "Natural Explorer"
+      },
+      "level": 10,
+      "choice_kind": "option",
+      "choices": [
+        "beast_tamer",
+        "urban_tracker",
+        "wasteland_cold",
+        "wasteland_fire",
+        "wasteland_poison"
+      ],
+      "choice_grants": {
+        "beast_tamer": {
+          "at_will": [
+            "find_familiar"
+          ]
+        },
+        "urban_tracker": {
+          "skills": [
+            "sleight_of_hand"
+          ]
+        },
+        "wasteland_cold": {
+          "resistances": [
+            "cold"
+          ]
+        },
+        "wasteland_fire": {
+          "resistances": [
+            "fire"
+          ]
+        },
+        "wasteland_poison": {
+          "resistances": [
+            "poison"
+          ]
+        }
+      },
+      "notes_ko": "BG3: 짐승 조련사(사역마 찾기)·도시 추적자(손재주)·황무지 방랑자(냉기·화염·독 저항 중 하나) 중 하나(1·6·10레벨마다).",
+      "source": "original"
+    },
+    {
+      "id": "hide_in_plain_sight",
+      "name": {
+        "ko": "눈앞에 숨기",
+        "en": "Hide in Plain Sight"
       },
       "level": 10,
       "kind": "action",
-      "resource": "tireless",
-      "script": "tireless",
-      "icon": "statuses/buff.webp",
-      "glyph": "shield",
-      "explore": true,
-      "source": "SRD 5.2.1",
-      "notes_ko": "임시 HP 1d8 + 지혜(최소 1). 지혜 수정치(최소 1)회, 긴 휴식. 탈진 감소는 생략."
+      "resource": "hide_in_plain_sight",
+      "script": "hide_in_plain_sight",
+      "target": "self",
+      "icon": "statuses/invisible.webp",
+      "glyph": "eye",
+      "notes_ko": "BG3: 행동, 투명 + 은신 +10(움직이면 풀림 — [변형] 공격·주문으로 풀림, 은신 보너스 생략), 긴 휴식 1회.",
+      "source": "original"
     }
   ],
   "subclasses": [
@@ -756,7 +1006,6 @@
       "survival"
     ],
     "species_skill": "insight",
-    "deft_explorer": "perception",
     "fighting_style": "archery",
     "hunters_prey": "colossus_slayer",
     "spells": [
@@ -767,6 +1016,7 @@
       "spike_growth",
       "barkskin",
       "pass_without_trace",
+      "hunters_mark",
       "lesser_restoration",
       "freedom_of_movement",
       "conjure_woodland_beings"
@@ -786,7 +1036,13 @@
         "main": "longbow"
       }
     },
-    "defensive_tactics": "multiattack_defense"
+    "defensive_tactics": "multiattack_defense",
+    "favoured_enemy": "ranger_knight",
+    "natural_explorer": "wasteland_poison",
+    "favoured_enemy_6": "mage_breaker",
+    "natural_explorer_6": "urban_tracker",
+    "favoured_enemy_10": "sanctified_stalker",
+    "natural_explorer_10": "wasteland_fire"
   },
   "source": "SRD 5.2.1",
   "multiclass": {
