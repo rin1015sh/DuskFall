@@ -293,9 +293,11 @@
         "en": "Bladesong"
       },
       "max": {
-        "2": 2
+        "2": 2,
+        "5": 3,
+        "9": 4
       },
-      "recharge": "short",
+      "recharge": "long",
       "subclass": "bladesinger"
     }
   ],
@@ -1018,7 +1020,7 @@
           "target": "self",
           "icon": "statuses/haste.webp",
           "glyph": "sword",
-          "notes_ko": "BG3: 보너스 행동, 10턴 — AC·건강 내성 +2(9레벨 +4), 속도 +2칸, 곡예 유리. 중형·중갑·방패면 못 쓴다. 짧은 휴식마다 2회.",
+          "notes_ko": "BG3: 보너스 행동, 10턴 — AC·건강 내성 +2(9레벨 +4), 속도 +2칸, 곡예 유리. 중형·중갑·방패면 못 쓴다. 긴 휴식 2회(5레벨 3, 9레벨 4 — BG3).",
           "source": "original"
         },
         {

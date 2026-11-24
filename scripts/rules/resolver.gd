@@ -1152,7 +1152,10 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 	# 집중 유지 내성(피해를 받으면 — 임시 HP가 막아도 받은 것이다)
 	if not target.concentration.is_empty() and target.hp > 0:
 		out["concentration"] = concentration_check(target, total, opts.get("attacker"))
-	# 10. 0 HP
+	# 10. 0 HP — 야생 변신 형태 HP가 다하면 원래 모습·원래 HP로(BG3, 쓰러지지 않음)
+	if not was_down and target.hp == 0 and target.has_meta("beast_form") and target.has_meta("wild_shape_hp"):
+		load("res://scripts/rules/effects/wild_shape.gd").revert(target)
+		return out
 	if not was_down and target.hp == 0:
 		_hp_zero(target, rest - out["hp_lost"], opts, out)
 	return out

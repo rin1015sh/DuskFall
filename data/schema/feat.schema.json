@@ -209,6 +209,10 @@
         },
         "dice_by_level": {
           "type": "object"
+        },
+        "ai": {
+          "type": "object",
+          "$comment": "AI: {toggle: accuracy_trade} — 명중 −5/피해 +10 켜기 판단"
         }
       }
     },

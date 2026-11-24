@@ -926,7 +926,10 @@
           "en": "Heavy Swing: −5 to hit / +10 damage"
         }
       },
-      "source": "original"
+      "source": "original",
+      "ai": {
+        "toggle": "accuracy_trade"
+      }
     },
     {
       "id": "sharpshooter",
@@ -967,7 +970,10 @@
           "en": "Deadeye: −5 to hit / +10 damage"
         }
       },
-      "source": "original"
+      "source": "original",
+      "ai": {
+        "toggle": "accuracy_trade"
+      }
     },
     {
       "id": "polearm_master",

@@ -1,8 +1,9 @@
 extends "res://scripts/rules/effect_script.gd"
 ## 야생 변신(드루이드 2레벨, SRD 5.2.1): 보너스 행동으로 아는 짐승 형태가 된다(형태 = 기능 데이터 forms 레벨표의 몬스터 ID,
 ## 최대 도전 등급 cr_by_level, 비행 불가). 고르는 형태는 opts.form → 설정 options.wild_shape_form → 첫 형태.
-## 변신 중: 근력·민첩·건강·AC·속도·크기·공격은 짐승 것(공격 = 짐승의 첫 근접 공격 — combat.attack), HP는 그대로 +
-## 임시 HP = 드루이드 레벨, 주문 불가(상태 wild_shaped). 보너스 행동으로 풀거나, 0 HP·긴 휴식에 풀린다(revert).
+## 변신 중: 근력·민첩·건강·AC·속도·크기·공격은 짐승 것(공격 = 짐승의 첫 근접 공격 — combat.attack), 주문 불가(상태 wild_shaped).
+## HP(BG3식, changes.md 2026-11-24): 형태의 HP를 따로 쓴다(드루이드 HP·임시 HP는 meta wild_shape_hp에 남겨 둔다). 형태 HP가 0이 되면
+## 원래 모습과 원래 HP로 돌아오고 넘친 피해는 이어지지 않는다. 보너스 행동으로 풀거나 긴 휴식에 풀린다(revert).
 
 const Resolver := preload("res://scripts/rules/resolver.gd")
 
@@ -50,15 +51,19 @@ func apply(ctx: Dictionary) -> Dictionary:
 	if c.has_meta("beast_form"):
 		revert(c)
 	shape_stats(c, want)
-	Resolver.grant_temp_hp(c, c.feature_level("wild_shape"))
 	c.apply_condition("wild_shaped", -1, c)
 	Dice.log_text("%s: 야생 변신 — %s" % [c.label(), RulesDB.get_entry("monster", want)["name"]["ko"]])
 	return {"ok": true, "form": want}
 
 
 ## 짐승의 신체 능력치로 바꾼다(원래 값은 meta wild_shape_saved).
-static func shape_stats(c: Node, id: String) -> void:
+static func shape_stats(c: Node, id: String, restoring: bool = false) -> void:
 	var m := RulesDB.get_entry("monster", id)
+	if not restoring:
+		c.set_meta("wild_shape_hp", {"hp": c.hp, "hp_max": c.hp_max, "temp_hp": c.temp_hp})  # 드루이드 HP(BG3: 형태 HP 따로)
+		c.hp_max = int(m.get("hp", c.hp_max))
+		c.hp = c.hp_max
+		c.temp_hp = 0
 	c.set_meta("wild_shape_saved", {"str": c.abilities["str"], "dex": c.abilities["dex"], "con": c.abilities["con"],
 		"ac_base": c.ac_base, "speed_tiles": c.speed_tiles, "size": c.size, "weight_kg": c.weight_kg})
 	for a: String in ["str", "dex", "con"]:
@@ -81,6 +86,12 @@ static func revert(c: Node) -> void:
 	for k: String in ["ac_base", "speed_tiles", "size", "weight_kg"]:
 		if s.has(k):
 			c.set(k, s[k])
+	var h: Dictionary = c.get_meta("wild_shape_hp", {})
+	if not h.is_empty():
+		c.hp_max = int(h["hp_max"])
+		c.hp = mini(int(h["hp"]), c.hp_max)  # 원래 HP로(넘친 피해는 이어지지 않는다 — BG3)
+		c.temp_hp = int(h.get("temp_hp", 0))
+		c.remove_meta("wild_shape_hp")
 	c.remove_meta("beast_form")
 	c.remove_meta("wild_shape_saved")
 	c.remove_condition("wild_shaped")

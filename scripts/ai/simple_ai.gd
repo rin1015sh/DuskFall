@@ -5,6 +5,7 @@ extends RefCounted
 
 const SpellRoles := preload("res://scripts/ai/spell_roles.gd")
 const Combat := preload("res://scripts/rules/combat.gd")
+const DiceExpr := preload("res://scripts/rules/dice_expr.gd")
 const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
 
 
@@ -69,6 +70,9 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 		if grid.distance_between(c, foe) <= Combat.reach_of(c):
 			if c.active_set != "melee":
 				Combat.switch_weapon_set(c)
+			decide_toggles(world, c, foe)
+			if try_weapon_action(world, c, foe):
+				continue
 			if not Combat.attack(world, c, foe).get("ok", false):
 				break
 			continue
@@ -88,6 +92,9 @@ static func take_turn(world: Dictionary, c: Node) -> void:
 				Combat.switch_weapon_set(c)
 			var p := Combat.preview_attack(world, c, foe)
 			if p.get("valid", false):
+				decide_toggles(world, c, foe)
+				if try_weapon_action(world, c, foe):
+					continue
 				if Combat.attack(world, c, foe).get("ok", false):
 					continue
 		if c.active_set != "melee":
@@ -346,5 +353,50 @@ static func _cast_best_single(world: Dictionary, c: Node) -> void:
 static func _already_has(t: Node, spell: Dictionary) -> bool:
 	for e: Dictionary in spell.get("effects", {}).get("fail", []):
 		if str(e.get("type", "")) == "apply_condition" and t.has_condition(str(e["id"])):
+			return true
+	return false
+
+
+## 명중 −5 / 피해 +10 재주(기능 ai.toggle accuracy_trade — 대형 무기 달인·저격수): 이 대상에게 켠 쪽의 기대 피해가 크면 켠다.
+static func decide_toggles(world: Dictionary, c: Node, foe: Node) -> void:
+	for fid: String in c.feature_data:
+		if str(c.feature_data[fid].get("ai", {}).get("toggle", "")) != "accuracy_trade":
+			continue
+		c.options[fid] = "off"
+		var off := Combat.preview_attack(world, c, foe)
+		c.options[fid] = "on"
+		var on := Combat.preview_attack(world, c, foe)
+		if not off.get("valid", false) or not on.get("valid", false):
+			c.options[fid] = "off"
+			continue
+		var avg := 0.0
+		for p: Dictionary in off.get("attack", {}).get("damage", []):
+			avg += float(DiceExpr.stats(str(p["dice"])).get("avg", 0.0))
+		avg += float(off.get("attack", {}).get("flat_damage", 0))
+		var gain_on := float(on.get("hit_chance", 0.0)) * (avg + 10.0)
+		var gain_off := float(off.get("hit_chance", 0.0)) * avg
+		c.options[fid] = "on" if gain_on > gain_off else "off"
+
+
+## 무기 액션·특수 공격(BG3): 턴의 첫 공격에서, 대상에게 쓸 수 있는 공격형 무기 액션(자원이 남은 것)을 하나 쓴다.
+## 자원이 짧은 휴식마다 회복되는 것만(무기 액션 1회·기법 주사위 등). 대상이 이미 그 효과에 걸렸으면 건너뛴다.
+static func try_weapon_action(world: Dictionary, c: Node, foe: Node) -> bool:
+	if c.turn.get("ai_wa_used", false) or c.has_meta("monster"):
+		return false
+	var Actions := preload("res://scripts/rules/actions.gd")
+	for key: String in Actions.weapon_actions_for(c):
+		var wa := RulesDB.get_entry("weapon_action", key)
+		if str(wa.get("cost", "")) != "action" or str(wa.get("kind", "")) in ["self_buff", "ally_temp_hp", "passive", "command"]:
+			continue
+		if str(wa.get("target", "enemy")) != "enemy":
+			continue
+		var cond := str(wa.get("condition", ""))
+		if cond != "" and foe.has_condition(cond):
+			continue
+		if Actions.unavailable(world, c, key) != "":
+			continue
+		var r: Dictionary = Actions.execute(world, c, key, world["grid"].cell_of(foe))
+		if r.get("ok", true):
+			c.turn["ai_wa_used"] = true
 			return true
 	return false

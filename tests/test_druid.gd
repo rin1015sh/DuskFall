@@ -39,8 +39,8 @@ func test_wild_shape_attack_and_revert() -> void:
 	assert_eq(int(d.abilities["str"]), 14, "늑대 근력")
 	assert_eq(d.ac(), 12, "늑대 AC")
 	assert_eq(d.speed(), 8)
-	assert_eq(d.hp, hp, "HP는 그대로")
-	assert_eq(d.temp_hp, 2, "임시 HP = 드루이드 레벨")
+	assert_eq(d.hp, int(RulesDB.get_entry("monster", "wolf")["hp"]), "형태 HP(BG3)")
+	assert_eq(d.temp_hp, 0)
 	assert_true(Spellcasting.can_cast(w, d, "cure_wounds", Vector2i(0, 0)) != "", "변신 중 주문 불가")
 	assert_true(d.has_flag("no_spellcasting"), "주문 불가")
 	d.reset_turn()
@@ -50,11 +50,14 @@ func test_wild_shape_attack_and_revert() -> void:
 	d.reset_turn()
 	assert_true(Features.use(w, d, "revert_wild_shape")["ok"])
 	assert_eq(int(d.abilities["str"]), 8, "원래 근력")
+	assert_eq(d.hp, hp, "원래 HP")
 	assert_false(d.has_flag("no_spellcasting"))
 	d.reset_turn()
 	Features.use(w, d, "wild_shape")
 	Resolver.apply_damage(d, [{"amount": 999, "damage_type": "force"}], {})
 	assert_false(d.has_meta("beast_form"), "0 HP면 풀린다")
+	assert_eq(d.hp, hp, "넘친 피해는 이어지지 않는다(BG3)")
+	assert_false(d.is_down())
 
 
 func test_wild_shape_save_restore() -> void:
