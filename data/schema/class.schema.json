@@ -323,6 +323,15 @@
               "items": {
                 "type": "string"
               }
+            },
+            "condition_immunity_from": {
+              "type": "object"
+            },
+            "damage_immunities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
@@ -487,6 +496,15 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "condition_immunity_from": {
+                "type": "object"
+              },
+              "damage_immunities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -612,7 +630,8 @@
             "portent",
             "attacked_charm",
             "self_hit_any",
-            "song_of_defence"
+            "song_of_defence",
+            "halo_of_spores"
           ]
         },
         "range_tiles": {
@@ -722,6 +741,9 @@
             "array",
             "string"
           ]
+        },
+        "requires_meta": {
+          "type": "object"
         }
       }
     }

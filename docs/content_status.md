@@ -14,8 +14,8 @@
 | feat | 56 |
 | species | 15 |
 | background | 4 |
-| monster | 43 |
-| capability | 130 |
+| monster | 48 |
+| capability | 134 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -101,16 +101,30 @@
 | --- | --- | --- | --- | --- |
 | 1 | 드루이드어 (druidic) |  | 처리: 클래스 always_prepared(동물과 대화). 숨은 글 남기기는 삭제(언어) |  |
 | 1 | 원초의 질서 (primal_order) |  | 고르기(option) |  |
-| 2 | 야생 변신 (wild_shape) |  | 스크립트 wild_shape |  |
-| 2 | 변신 풀기 (revert_wild_shape) |  | 스크립트 revert_wild_shape |  |
+| 2 | 눈부신 숨결 (dazzling_breath) | stars | 스크립트 dazzling_breath |  |
+| 2 | 빛의 화살 (luminous_arrow) | stars | 스크립트 luminous_arrow |  |
+| 2 | 별의 형상 (starry_form) | stars | 스크립트 starry_form; 설정 |  |
+| 2 | 별자리 지도 (star_map) | stars | 처리: 자원 innate_guiding_bolt(타고난 시전 — 무료 횟수 먼저) |  |
+| 2 | 공생체 (symbiotic_entity) | spores | 스크립트 symbiotic_entity |  |
+| 2 | 포자 후광 (halo_of_spores) | spores | 반응 |  |
+| 2 | 달빛 치유 (lunar_mend) | moon | 스크립트 lunar_mend |  |
+| 2 | 전투 야생 변신 (combat_wild_shape) | moon | 처리: 야생 변신 형태 목록(wild_shape.forms_for) |  |
+| 2 | 대지의 소마법 (land_cantrip) | land | 고르기(spell_pick) |  |
+| 2 | 자연 회복 (natural_recovery) | land | 스크립트 arcane_recovery |  |
 | 2 | 야생 동료 (wild_companion) |  | 스크립트 wild_companion |  |
+| 2 | 변신 풀기 (revert_wild_shape) |  | 스크립트 revert_wild_shape |  |
+| 2 | 야생 변신 (wild_shape) |  | 스크립트 wild_shape |  |
 | 3 | 대지 회합 주문 (circle_land_spells) | land | 고르기(option) |  |
-| 3 | 땅의 도움 (lands_aid) | land | 스크립트 lands_aid |  |
 | 5 | 야생의 부활 (wild_resurgence) |  | 스크립트 wild_resurgence |  |
-| 6 | 자연 회복 (natural_recovery) | land | 스크립트 arcane_recovery |  |
-| 6 | 자연 회복: 무료 시전 (natural_recovery_cast) | land | 태그 free_cast_class_spell; 설정 |  |
+| 6 | 대지 걸음 (lands_stride) | land | 태그 ignore_difficult_terrain |  |
+| 6 | 원초의 일격 (primal_strike) | moon | 태그 primal_strike |  |
+| 6 | 곰팡이 감염 (fungal_infestation) | spores |  | 보류(deferred) |
+| 6 | 우주의 징조: 행운 (cosmic_omen_weal) | stars | 태그 cosmic_omen; 반응 |  |
+| 6 | 우주의 징조: 불운 (cosmic_omen_woe) | stars | 반응 |  |
 | 7 | 원소의 격노 (elemental_fury) |  | 고르기(option) |  |
-| 10 | 자연의 수호 (natures_ward) | land | 고르기(option) |  |
+| 10 | 자연의 수호 (natures_ward) | land | 부여 condition_immunities, damage_immunities, condition_immunity_from |  |
+| 10 | 퍼지는 포자 (spreading_spores) | spores | 스크립트 spreading_spores |  |
+| 10 | 반짝이는 별자리 (twinkling_constellations) | stars | 태그 twinkling_constellations |  |
 
 ### 전사 (fighter) — 생명 주사위 d10, 역할 melee
 
@@ -340,6 +354,7 @@
 | check_boost_d10 | 전술적 판단 | fighter |
 | climber | 등반 | monk, ranger, rogue |
 | concentration_advantage | 집중 유리 | (몬스터 특성 또는 아직 없음) |
+| cosmic_omen | 우주의 징조 | druid |
 | countercharm | 대항 매혹 | bard |
 | crit_free_move | 치명타 뒤 이동 | (몬스터 특성 또는 아직 없음) |
 | crossbow_point_blank | 근접 석궁 | (몬스터 특성 또는 아직 없음) |
@@ -365,7 +380,7 @@
 | fall_resistance | 낙하 저항 | rogue |
 | fast_movement | 빠른 이동 | barbarian, ranger |
 | focused_conjuration | 집중된 소환 | wizard |
-| free_cast_class_spell | 신성 개입 | cleric, druid |
+| free_cast_class_spell | 신성 개입 | cleric |
 | frenzy | 광란 | barbarian |
 | grim_harvest | 섬뜩한 수확 | wizard |
 | guided_strike | 인도된 일격 | cleric |
@@ -376,6 +391,7 @@
 | heroic_warrior | 영웅 전사 | (몬스터 특성 또는 아직 없음) |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
 | hunters_lore | 사냥꾼의 지식 | ranger |
+| ignore_difficult_terrain | 험지 무시 | druid |
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
 | improved_abjuration | 향상된 방호 | wizard |
 | improved_cunning_strike | 향상된 교활한 일격 | rogue |
@@ -412,6 +428,7 @@
 | portent | 예지 | wizard |
 | precision_attack | 정밀 공격 | (몬스터 특성 또는 아직 없음) |
 | prepare_swap_short_rest | 주문 암기 | wizard |
+| primal_strike | 원초의 일격 | druid |
 | rakish_sneak | 대담한 급소 | rogue |
 | ranged_weapon_attack_bonus | 궁술 | 재주 archery |
 | reaper | 수확자 | cleric |
@@ -445,6 +462,7 @@
 | thunderbolt_strike | 벼락 일격 | cleric |
 | touch_of_death | 죽음의 손길 | cleric |
 | trap_sense | 함정 감각 | (몬스터 특성 또는 아직 없음) |
+| twinkling_constellations | 반짝이는 별자리 | druid |
 | two_weapon_fighting | 쌍수 전투 | 재주 two_weapon_fighting |
 | unarmored_defense_cha | 용의 비늘 | sorcerer |
 | unarmored_defense_con | 맨몸 방어(건강) | barbarian |

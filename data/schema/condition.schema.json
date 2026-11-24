@@ -443,6 +443,9 @@
             },
             "disarmed": {
               "type": "boolean"
+            },
+            "concentration_floor_10": {
+              "type": "boolean"
             }
           }
         },

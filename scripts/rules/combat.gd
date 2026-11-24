@@ -333,7 +333,10 @@ static func _beast_attack(world: Dictionary, attacker: Node, target: Node) -> Di
 			break
 	if a.is_empty():
 		return _fail("짐승 공격이 없다")
-	var res := _do_attack(world, attacker, target, preload("res://scripts/rules/monster_factory.gd").to_attack(a, "melee"))
+	var batk: Dictionary = preload("res://scripts/rules/monster_factory.gd").to_attack(a, "melee")
+	if attacker.has_cap("primal_strike"):
+		batk["magical"] = true  # 원초의 일격(달 회합): 짐승 공격은 마법 공격
+	var res := _do_attack(world, attacker, target, batk)
 	if not res.get("ok", true):
 		return res
 	attacker.turn["attacks_left"] -= 1

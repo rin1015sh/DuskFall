@@ -1,0 +1,75 @@
+{
+  "schema": "monster_v1",
+  "id": "saber_toothed_tiger",
+  "name": {
+    "ko": "검치호랑이",
+    "en": "Saber-Toothed Tiger"
+  },
+  "size": "large",
+  "creature_type": "beast",
+  "cr": 2,
+  "xp": 450,
+  "proficiency_bonus": 2,
+  "ac": 13,
+  "hp": 52,
+  "speed_tiles": 8,
+  "abilities": {
+    "str": 18,
+    "dex": 17,
+    "con": 15,
+    "int": 3,
+    "wis": 12,
+    "cha": 8
+  },
+  "saves": {
+    "str": 6,
+    "dex": 5,
+    "con": 2,
+    "int": -4,
+    "wis": 1,
+    "cha": -1
+  },
+  "actions": [
+    {
+      "id": "rend",
+      "name": {
+        "ko": "찢기",
+        "en": "Rend"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 6,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "2d6+4",
+          "damage_type": "slashing"
+        }
+      ]
+    }
+  ],
+  "weight_kg": 300,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/sabertooth.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "skills": {
+    "perception": 5,
+    "stealth": 7
+  },
+  "multiattack": {
+    "count": 2,
+    "actions": [
+      "rend"
+    ]
+  },
+  "ai": {
+    "style": "melee"
+  },
+  "notes_ko": "도움닫기 도약(25피트)은 도약 규칙으로 생략. 달 회합 야생 변신 형태."
+}

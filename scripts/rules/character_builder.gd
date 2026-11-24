@@ -441,6 +441,7 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	c.remove_meta("ignore_resistance")
 	c.remove_meta("scribe_discount")
 	c.remove_meta("bonus_action_spells")
+	c.remove_meta("condition_immunity_from")
 	wt.append_array(feat_weapons)  # 무기 수련: 고른 무기 4종
 	for g: Array in grants:
 		var gr: Dictionary = g[1]
@@ -487,6 +488,12 @@ static func apply(c: Node, spec: Dictionary) -> void:
 					sl.append(sa)  # 정해진 특수 공격(지저분한 수법)
 			c.set_meta("special_attacks", sl)
 		c.speed_tiles += int(gr.get("speed_tiles", 0))  # 날랜 발 +2칸
+		if gr.has("condition_immunity_from"):
+			c.set_meta("condition_immunity_from", gr["condition_immunity_from"])
+		if gr.has("damage_immunities"):
+			for di: String in gr["damage_immunities"]:
+				if not di in c.damage_immunities:
+					c.damage_immunities.append(di)
 		if gr.has("bonus_action_spells"):
 			var ba: Array = c.get_meta("bonus_action_spells", []).duplicate()
 			ba.append_array(gr["bonus_action_spells"])
@@ -640,6 +647,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	for fid: String in c.feature_data:
 		if str(c.feature_data[fid].get("kind", "")) == "reaction":
 			c.known_reactions.append(fid)  # 반응 기능(교묘한 회피 등)
+	if c.has_cap("cosmic_omen"):
+		c.set_meta("omen", "weal" if Dice.die(20) % 2 == 0 else "woe")  # 우주의 징조: 긴 휴식마다 짝수 행운·홀수 불운
 	if c.has_cap("portent") and c.resources.has("portent_dice"):
 		var pv: Array = []
 		for i in int(c.resources["portent_dice"]["max"]):

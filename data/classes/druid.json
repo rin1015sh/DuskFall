@@ -188,20 +188,30 @@
         "en": "Natural Recovery"
       },
       "max": {
-        "6": 1
+        "2": 1
       },
-      "recharge": "long"
+      "recharge": "long",
+      "subclass": "land"
     },
     {
-      "id": "natural_recovery_cast",
+      "id": "cosmic_omen",
       "name": {
-        "ko": "자연 회복: 무료 시전",
-        "en": "Natural Recovery: Free Cast"
+        "ko": "우주의 징조",
+        "en": "Cosmic Omen"
       },
-      "max": {
-        "6": 1
+      "max": "proficiency_bonus",
+      "recharge": "long",
+      "subclass": "stars"
+    },
+    {
+      "id": "innate_guiding_bolt",
+      "name": {
+        "ko": "별자리 지도",
+        "en": "Star Map"
       },
-      "recharge": "long"
+      "max": "proficiency_bonus",
+      "recharge": "long",
+      "subclass": "stars"
     }
   ],
   "features": [
@@ -355,9 +365,46 @@
         "ko": "대지 회합",
         "en": "Circle of the Land"
       },
-      "level": 3,
+      "level": 2,
       "source": "SRD 5.2.1",
       "features": [
+        {
+          "id": "natural_recovery",
+          "name": {
+            "ko": "자연 회복",
+            "en": "Natural Recovery"
+          },
+          "level": 2,
+          "resource": "natural_recovery",
+          "script": "arcane_recovery",
+          "usable": true,
+          "explore": true,
+          "icon": "statuses/riddle_empowered.webp",
+          "glyph": "swirl",
+          "notes_ko": "BG3: 전투 밖, 쓴 슬롯을 합계 레벨 ≤ 드루이드 레벨 절반(올림)만큼 회복(6레벨 이상 제외), 긴 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "land_cantrip",
+          "name": {
+            "ko": "대지의 소마법",
+            "en": "Land's Cantrip"
+          },
+          "level": 2,
+          "choice_kind": "spell_pick",
+          "choices": [
+            "druidcraft",
+            "guidance",
+            "mending",
+            "poison_spray",
+            "resistance",
+            "spare_the_dying",
+            "starry_wisp",
+            "produce_flame"
+          ],
+          "notes_ko": "BG3: 드루이드 소마법 하나 더.",
+          "source": "original"
+        },
         {
           "id": "circle_land_spells",
           "name": {
@@ -365,149 +412,187 @@
             "en": "Circle of the Land Spells"
           },
           "level": 3,
-          "choices": [
-            "arid",
-            "polar",
-            "temperate",
-            "tropical"
-          ],
           "choice_kind": "option",
+          "choices": [
+            "arctic",
+            "coast",
+            "desert",
+            "forest",
+            "grassland",
+            "mountain",
+            "swamp",
+            "underdark"
+          ],
           "choice_grants": {
-            "arid": {
+            "arctic": {
               "always_prepared": {
                 "3": [
-                  "blur",
-                  "burning_hands",
-                  "fire_bolt"
+                  "hold_person",
+                  "spike_growth"
                 ],
                 "5": [
-                  "fireball"
+                  "sleet_storm",
+                  "haste"
                 ],
                 "7": [
-                  "blight"
+                  "conjure_minor_elementals",
+                  "ice_storm"
+                ],
+                "9": [
+                  "cone_of_cold",
+                  "contagion"
                 ]
               }
             },
-            "polar": {
+            "coast": {
               "always_prepared": {
                 "3": [
-                  "fog_cloud",
-                  "hold_person",
-                  "ray_of_frost"
+                  "mirror_image",
+                  "misty_step"
                 ],
                 "5": [
                   "sleet_storm"
                 ],
                 "7": [
-                  "ice_storm"
+                  "freedom_of_movement",
+                  "confusion"
                 ],
                 "9": [
-                  "cone_of_cold"
+                  "conjure_elemental",
+                  "greater_restoration"
                 ]
               }
             },
-            "temperate": {
+            "desert": {
               "always_prepared": {
                 "3": [
-                  "misty_step",
-                  "shocking_grasp",
-                  "sleep"
+                  "blur",
+                  "silence"
                 ],
                 "5": [
-                  "lightning_bolt"
+                  "protection_from_energy",
+                  "hypnotic_pattern"
                 ],
                 "7": [
-                  "freedom_of_movement"
-                ]
-              }
-            },
-            "tropical": {
-              "always_prepared": {
-                "3": [
-                  "acid_splash",
-                  "ray_of_sickness",
-                  "web"
-                ],
-                "5": [
-                  "stinking_cloud"
+                  "blight",
+                  "wall_of_fire"
                 ],
                 "9": [
+                  "wall_of_stone",
                   "insect_plague"
                 ]
               }
+            },
+            "forest": {
+              "always_prepared": {
+                "3": [
+                  "barkskin",
+                  "hold_person"
+                ],
+                "7": [
+                  "conjure_minor_elementals"
+                ],
+                "9": [
+                  "mass_cure_wounds",
+                  "contagion"
+                ]
+              }
+            },
+            "grassland": {
+              "always_prepared": {
+                "3": [
+                  "invisibility",
+                  "pass_without_trace"
+                ],
+                "5": [
+                  "daylight",
+                  "haste"
+                ],
+                "7": [
+                  "freedom_of_movement",
+                  "polymorph"
+                ],
+                "9": [
+                  "greater_restoration",
+                  "insect_plague"
+                ]
+              }
+            },
+            "mountain": {
+              "always_prepared": {
+                "3": [
+                  "mirror_image",
+                  "spike_growth"
+                ],
+                "5": [
+                  "lightning_bolt",
+                  "fly"
+                ],
+                "7": [
+                  "stoneskin",
+                  "dominate_beast"
+                ],
+                "9": [
+                  "wall_of_stone",
+                  "conjure_elemental"
+                ]
+              }
+            },
+            "swamp": {
+              "always_prepared": {
+                "3": [
+                  "acid_arrow",
+                  "darkness"
+                ],
+                "5": [
+                  "stinking_cloud",
+                  "vampiric_touch"
+                ],
+                "7": [
+                  "blight"
+                ],
+                "9": [
+                  "insect_plague",
+                  "cloudkill"
+                ]
+              }
+            },
+            "underdark": {
+              "always_prepared": {
+                "3": [
+                  "web",
+                  "misty_step"
+                ],
+                "5": [
+                  "gaseous_form",
+                  "stinking_cloud"
+                ],
+                "7": [
+                  "greater_invisibility",
+                  "dominate_beast"
+                ],
+                "9": [
+                  "contagion",
+                  "cloudkill"
+                ]
+              }
             }
           },
-          "notes_ko": "땅 종류(건조·극지·온대·열대)에 따라 3·5레벨 주문 항상 준비. 원문은 긴 휴식마다 다시 고름 — 지금은 생성 때 고정(1차).",
-          "source": "SRD 5.2.1"
+          "notes_ko": "BG3: 땅 8종(극지·해안·사막·숲·초원·산·늪·지하) 중 하나 — 3·5·7·9레벨 주문 항상 준비(SRD에 있는 것만).",
+          "source": "original"
         },
         {
-          "id": "lands_aid",
+          "id": "lands_stride",
           "name": {
-            "ko": "땅의 도움",
-            "en": "Land's Aid"
-          },
-          "level": 3,
-          "kind": "action",
-          "resource": "wild_shape",
-          "script": "lands_aid",
-          "target": "cell",
-          "notes_ko": "야생 변신 1회: 12칸 안 반지름 2칸 — 적 건강 내성 2d6 사령(성공 절반), 아군 하나 2d6 회복.",
-          "source": "SRD 5.2.1",
-          "glyph": "leaf"
-        },
-        {
-          "id": "natural_recovery",
-          "name": {
-            "ko": "자연 회복",
-            "en": "Natural Recovery"
-          },
-          "level": 6,
-          "resource": "natural_recovery",
-          "script": "arcane_recovery",
-          "usable": true,
-          "explore": true,
-          "icon": "statuses/riddle_empowered.webp",
-          "glyph": "swirl",
-          "source": "SRD 5.2.1",
-          "notes_ko": "전투 밖에서 쓴 슬롯을 합계 레벨 ≤ 드루이드 레벨 절반(올림)만큼 회복(6레벨 이상 슬롯 제외), 긴 휴식 1회."
-        },
-        {
-          "id": "natural_recovery_cast",
-          "name": {
-            "ko": "자연 회복: 무료 시전",
-            "en": "Natural Recovery: Free Cast"
+            "ko": "대지 걸음",
+            "en": "Land's Stride"
           },
           "level": 6,
           "caps": [
-            "free_cast_class_spell"
+            "ignore_difficult_terrain"
           ],
-          "free_cast_from": "subclass",
-          "max_spell_level": 9,
-          "resource": "natural_recovery_cast",
-          "source": "SRD 5.2.1",
-          "notes_ko": "켜 두면 다음 회합 주문(1레벨 이상) 하나를 슬롯 없이. 긴 휴식 1회.",
-          "toggle": {
-            "values": [
-              {
-                "id": "off",
-                "name": {
-                  "ko": "끔",
-                  "en": "Off"
-                }
-              },
-              {
-                "id": "on",
-                "name": {
-                  "ko": "다음 주문",
-                  "en": "Next spell"
-                }
-              }
-            ],
-            "desc": {
-              "ko": "다음 회합 주문을 슬롯 없이(한 번 쓰면 꺼짐).",
-              "en": "Next Circle spell costs no slot (turns off after use)."
-            }
-          }
+          "notes_ko": "BG3: 험지가 느리게 하지 않는다(식물 공격 유리는 그런 적이 없어 생략).",
+          "source": "original"
         },
         {
           "id": "natures_ward",
@@ -516,50 +601,339 @@
             "en": "Nature's Ward"
           },
           "level": 10,
-          "choice_kind": "option",
-          "choice_from": "circle_land_spells",
-          "choices": [
-            "arid",
-            "polar",
-            "temperate",
-            "tropical"
-          ],
-          "source": "SRD 5.2.1",
-          "choice_grants": {
-            "arid": {
-              "resistances": [
-                "fire"
+          "grants": {
+            "condition_immunities": [
+              "poisoned"
+            ],
+            "damage_immunities": [
+              "poison"
+            ],
+            "condition_immunity_from": {
+              "charmed": [
+                "elemental",
+                "fey"
               ],
-              "condition_immunities": [
-                "poisoned"
-              ]
-            },
-            "polar": {
-              "resistances": [
-                "cold"
-              ],
-              "condition_immunities": [
-                "poisoned"
-              ]
-            },
-            "temperate": {
-              "resistances": [
-                "lightning"
-              ],
-              "condition_immunities": [
-                "poisoned"
-              ]
-            },
-            "tropical": {
-              "resistances": [
-                "poison"
-              ],
-              "condition_immunities": [
-                "poisoned"
+              "frightened": [
+                "elemental",
+                "fey"
               ]
             }
           },
-          "notes_ko": "중독 면역 + 대지 종류의 저항(건조 화염·극지 냉기·온대 번개·열대 독)."
+          "notes_ko": "BG3: 중독 상태·독 피해 면역, 원소·요정이 거는 매혹·공포 면역.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "moon",
+      "name": {
+        "ko": "월광 회합",
+        "en": "Circle of the Moonlight"
+      },
+      "level": 2,
+      "source": "original",
+      "features": [
+        {
+          "id": "combat_wild_shape",
+          "name": {
+            "ko": "전투 야생 변신",
+            "en": "Combat Wild Shape"
+          },
+          "level": 2,
+          "forms": {
+            "2": [
+              "brown_bear"
+            ],
+            "8": [
+              "saber_toothed_tiger"
+            ],
+            "10": [
+              "earth_elemental",
+              "fire_elemental",
+              "water_elemental"
+            ]
+          },
+          "handled_by": "야생 변신 형태 목록(wild_shape.forms_for)",
+          "notes_ko": "BG3: 보너스 행동으로 변신(바탕 기능과 같다). 전투 형태: 2레벨 갈색 곰, 8레벨 검치호랑이, 10레벨 흙·불·물 정령(도전 등급 상한 없음). BG3의 큰까마귀·바람 미르미돈은 비행이라 뺐다.",
+          "source": "original"
+        },
+        {
+          "id": "lunar_mend",
+          "name": {
+            "ko": "달빛 치유",
+            "en": "Lunar Mend"
+          },
+          "level": 2,
+          "kind": "bonus_action",
+          "script": "lunar_mend",
+          "target": "self",
+          "icon": "statuses/moon_frenzy.webp",
+          "glyph": "moon",
+          "notes_ko": "BG3: 보너스 행동, 야생 변신 중 가장 낮은 슬롯으로 슬롯 레벨 × 1d8 회복.",
+          "source": "original"
+        },
+        {
+          "id": "primal_strike",
+          "name": {
+            "ko": "원초의 일격",
+            "en": "Primal Strike"
+          },
+          "level": 6,
+          "caps": [
+            "primal_strike"
+          ],
+          "notes_ko": "BG3: 짐승 형태 공격이 마법 공격.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "spores",
+      "name": {
+        "ko": "균사 회합",
+        "en": "Circle of Mycelium"
+      },
+      "level": 2,
+      "source": "original",
+      "always_prepared": {
+        "2": [
+          "chill_touch"
+        ],
+        "3": [
+          "blindness_deafness",
+          "detect_thoughts"
+        ],
+        "5": [
+          "animate_dead",
+          "gaseous_form"
+        ],
+        "7": [
+          "blight",
+          "confusion"
+        ],
+        "9": [
+          "cloudkill",
+          "contagion"
+        ]
+      },
+      "features": [
+        {
+          "id": "halo_of_spores",
+          "name": {
+            "ko": "포자 후광",
+            "en": "Halo of Spores"
+          },
+          "level": 2,
+          "kind": "reaction",
+          "trigger": "halo_of_spores",
+          "dice_by_level": {
+            "2": "1d4",
+            "6": "1d6",
+            "10": "1d8"
+          },
+          "notes_ko": "BG3: 반응 — 4칸 안 적이 공격하면 건강 내성 실패 시 사령 1d4(6레벨 1d6, 10레벨 1d8), 공생체면 두 배.",
+          "source": "original"
+        },
+        {
+          "id": "symbiotic_entity",
+          "name": {
+            "ko": "공생체",
+            "en": "Symbiotic Entity"
+          },
+          "level": 2,
+          "kind": "action",
+          "resource": "wild_shape",
+          "script": "symbiotic_entity",
+          "target": "self",
+          "icon": "statuses/rot.webp",
+          "glyph": "leaf",
+          "notes_ko": "BG3: 행동 + 야생 변신 1회, 임시 HP 레벨 × 4(긴 휴식까지, 임시 HP가 다 하면 끝), 무기·맨손 명중 사령 1d6, 포자 후광 두 배.",
+          "source": "original"
+        },
+        {
+          "id": "fungal_infestation",
+          "name": {
+            "ko": "곰팡이 감염",
+            "en": "Fungal Infestation"
+          },
+          "level": 6,
+          "status": "deferred",
+          "notes_ko": "BG3: 반응으로 시체를 곰팡이 좀비로 — 시체·소환 장치가 생기면 넣는다.",
+          "source": "original"
+        },
+        {
+          "id": "spreading_spores",
+          "name": {
+            "ko": "퍼지는 포자",
+            "en": "Spreading Spores"
+          },
+          "level": 10,
+          "kind": "bonus_action",
+          "script": "spreading_spores",
+          "target": "cell",
+          "icon": "statuses/rot.webp",
+          "glyph": "cloud",
+          "notes_ko": "BG3: 보너스 행동, 공생체 중 6칸 안 칸 둘레 적 건강 내성 실패 사령 2d8(남는 구름은 단순화).",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "stars",
+      "name": {
+        "ko": "별빛 회합",
+        "en": "Circle of Starlight"
+      },
+      "level": 2,
+      "source": "original",
+      "always_prepared": {
+        "2": [
+          "guidance",
+          "guiding_bolt"
+        ]
+      },
+      "features": [
+        {
+          "id": "star_map",
+          "name": {
+            "ko": "별자리 지도",
+            "en": "Star Map"
+          },
+          "level": 2,
+          "handled_by": "자원 innate_guiding_bolt(타고난 시전 — 무료 횟수 먼저)",
+          "notes_ko": "BG3: 인도·인도하는 화살 항상 준비, 인도하는 화살을 숙련 보너스 횟수만큼 슬롯 없이(긴 휴식).",
+          "source": "original"
+        },
+        {
+          "id": "starry_form",
+          "name": {
+            "ko": "별의 형상",
+            "en": "Starry Form"
+          },
+          "level": 2,
+          "kind": "bonus_action",
+          "resource": "wild_shape",
+          "script": "starry_form",
+          "target": "self",
+          "icon": "statuses/rally.webp",
+          "glyph": "star",
+          "toggle": {
+            "values": [
+              {
+                "id": "archer",
+                "name": {
+                  "ko": "궁수",
+                  "en": "Archer"
+                }
+              },
+              {
+                "id": "chalice",
+                "name": {
+                  "ko": "성배",
+                  "en": "Chalice"
+                }
+              },
+              {
+                "id": "dragon",
+                "name": {
+                  "ko": "용",
+                  "en": "Dragon"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "별의 형상",
+              "en": "Starry Form"
+            }
+          },
+          "notes_ko": "BG3: 보너스 행동 + 야생 변신 1회, 긴 휴식까지 — 궁수(보너스 행동 빛의 화살 1d8 + 지혜)·성배(슬롯 회복 주문에 1d8 + 지혜 더)·용(집중 유지 내성 9 이하는 10, 5레벨부터 눈부신 숨결). 상시 설정으로 형상을 고른다.",
+          "source": "original"
+        },
+        {
+          "id": "luminous_arrow",
+          "name": {
+            "ko": "빛의 화살",
+            "en": "Luminous Arrow"
+          },
+          "level": 2,
+          "kind": "bonus_action",
+          "script": "luminous_arrow",
+          "target": "enemy",
+          "icon": "statuses/heat.webp",
+          "glyph": "arrow",
+          "notes_ko": "궁수 형상: 보너스 행동, 12칸 원거리 주문 공격 광휘 1d8(10레벨 2d8) + 지혜.",
+          "source": "original"
+        },
+        {
+          "id": "dazzling_breath",
+          "name": {
+            "ko": "눈부신 숨결",
+            "en": "Dazzling Breath"
+          },
+          "level": 2,
+          "kind": "bonus_action",
+          "script": "dazzling_breath",
+          "target": "cell",
+          "icon": "statuses/heat.webp",
+          "glyph": "breath",
+          "notes_ko": "용 형상: 보너스 행동, 3칸 원뿔 민첩 내성 광휘 2d6(5레벨 3d6, 10레벨 4d6) + 지혜, 성공 절반.",
+          "source": "original"
+        },
+        {
+          "id": "cosmic_omen_weal",
+          "name": {
+            "ko": "우주의 징조: 행운",
+            "en": "Cosmic Omen: Weal"
+          },
+          "level": 6,
+          "caps": [
+            "cosmic_omen"
+          ],
+          "kind": "reaction",
+          "trigger": "ally_attack_missed_bonus",
+          "dice_by_level": {
+            "6": "1d6"
+          },
+          "resource": "cosmic_omen",
+          "range_tiles": 6,
+          "requires_meta": {
+            "omen": "weal"
+          },
+          "notes_ko": "BG3: 긴 휴식마다 행운(짝수)·불운(홀수). 행운이면 반응으로 6칸 안 아군의 빗나간 공격에 1d6(숙련 보너스 회/긴 휴식).",
+          "source": "original"
+        },
+        {
+          "id": "cosmic_omen_woe",
+          "name": {
+            "ko": "우주의 징조: 불운",
+            "en": "Cosmic Omen: Woe"
+          },
+          "level": 6,
+          "kind": "reaction",
+          "trigger": "enemy_attack_hit",
+          "dice_by_level": {
+            "6": "1d6"
+          },
+          "resource": "cosmic_omen",
+          "range_tiles": 6,
+          "requires_meta": {
+            "omen": "woe"
+          },
+          "notes_ko": "불운이면 반응으로 6칸 안 적의 명중 굴림에서 1d6을 뺀다(내성 쪽은 1차 생략).",
+          "source": "original"
+        },
+        {
+          "id": "twinkling_constellations",
+          "name": {
+            "ko": "반짝이는 별자리",
+            "en": "Twinkling Constellations"
+          },
+          "level": 10,
+          "caps": [
+            "twinkling_constellations"
+          ],
+          "notes_ko": "BG3: 궁수·성배 주사위 +1d8(용 비행은 비행 장치가 없어 생략).",
+          "source": "original"
         }
       ]
     }
@@ -603,7 +977,7 @@
     ],
     "species_skill": "survival",
     "primal_order": "magician",
-    "circle_land_spells": "arid",
+    "circle_land_spells": "desert",
     "cantrips": [
       "produce_flame",
       "starry_wisp",
@@ -643,7 +1017,8 @@
         "main": "sling"
       }
     },
-    "elemental_fury": "potent_spellcasting"
+    "elemental_fury": "potent_spellcasting",
+    "land_cantrip": "guidance"
   },
   "source": "SRD 5.2.1",
   "multiclass": {

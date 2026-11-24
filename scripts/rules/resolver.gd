@@ -1084,6 +1084,8 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 	var was_down: bool = target.hp == 0
 	var absorbed := mini(target.temp_hp, total)
 	target.temp_hp -= absorbed
+	if absorbed > 0 and target.temp_hp == 0 and target.has_condition("symbiotic_entity"):
+		target.remove_condition("symbiotic_entity")  # 공생체: 임시 HP가 다 하면 끝
 	var rest := total - absorbed
 	out["temp_absorbed"] = absorbed
 	var info := {"target": target, "amount": total, "opts": opts, "result": out}
@@ -1248,6 +1250,8 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 	EventBus.on_save.emit(res)
 	res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 	var d := luck(creature, Dice.d20(res["mode"], "%s %s 내성" % [creature.label(), ability]))
+	if int(opts.get("min_natural", 0)) > int(d["natural"]):
+		d["natural"] = int(opts["min_natural"])
 	res["natural"] = d["natural"]
 	res["total"] = d["natural"] + res["bonus"] + roll_bonus_dice(creature, "saving_throw")
 	res["success"] = res["total"] >= dc
@@ -1329,6 +1333,8 @@ static func concentration_check(creature: Node, damage: int, attacker: Variant =
 		copts["advantage"] = ["집중 유리"]  # 섬뜩한 정신(워락 영창)·연장된 주문·전투 시전자
 	if attacker is Node and attacker.has_cap("mage_slayer"):
 		copts["disadvantage"] = ["마법사 사냥꾼"]  # 내가 맞힌 적의 집중 유지 불리
+	if creature.has_flag("concentration_floor_10"):
+		copts["min_natural"] = 10  # 별자리 용: 집중 유지 내성 9 이하는 10
 	var res := saving_throw(creature, "con", dc, copts)
 	if not res["success"]:
 		creature.break_concentration("집중 유지 내성 실패")

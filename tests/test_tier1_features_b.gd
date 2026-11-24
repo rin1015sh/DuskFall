@@ -74,7 +74,7 @@ func test_bard_6_10() -> void:
 func test_druid_6_10() -> void:
 	var d := _pc("druid", 10)
 	assert_true(d.has_cap("cantrip_add_mod"), "원소의 격노(강력한 주문 시전)")
-	assert_true("fire" in d.damage_resistances and "poisoned" in d.condition_immunities, "자연의 수호(건조)")
+	assert_true("poison" in d.damage_immunities and "poisoned" in d.condition_immunities, "자연의 수호(BG3): 독 면역")
 	var p := _pc("druid", 7, {"elemental_fury": "primal_strike"})
 	assert_eq(p.get_meta("weapon_hit_bonus").size(), 1, "원초의 일격")
 	var w := make_world(["......"])
@@ -86,15 +86,6 @@ func test_druid_6_10() -> void:
 	for i in range(1, 4):
 		sum += d.resource("spell_slot_%d" % i) * i
 	assert_eq(sum, 5, "드루이드 10레벨 절반 = 5레벨어치")
-	d.reset_turn()
-	d.options["natural_recovery_cast"] = "on"
-	var foe := make_creature({"team": "enemy", "hp_max": 100})
-	w["grid"].place(foe, Vector2i(5, 0))
-	var slots3: int = d.resource("spell_slot_3")
-	assert_eq(Spellcasting.free_cast_feature(d, RulesDB.get_entry("spell", "fireball")), "natural_recovery_cast", "회합 주문(화염구)")
-	assert_eq(Spellcasting.free_cast_feature(d, RulesDB.get_entry("spell", "cure_wounds")), "", "회합 주문이 아니면 안 된다")
-	assert_true(Spellcasting.cast(w, d, "fireball", Vector2i(5, 0)).get("ok", false))
-	assert_eq(d.resource("spell_slot_3"), slots3, "슬롯을 쓰지 않는다")
 
 
 func test_monk_6_10() -> void:

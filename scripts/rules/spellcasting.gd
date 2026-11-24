@@ -464,6 +464,23 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 	return r
 
 
+static func world_of(inst: Dictionary) -> Dictionary:
+	return inst.get("world", {})
+
+
+## 별자리 성배(별 회합): 슬롯을 쓴 회복 주문을 쓰면 6칸 안 가장 다친 생물(자신 포함) 1d8(10레벨 2d8) + 지혜 회복.
+static func _chalice(world: Dictionary, caster: Node) -> void:
+	if not world.has("grid"):
+		return
+	var grid: Node = world["grid"]
+	var best: Node = caster
+	for o: Node in grid.creatures():
+		if not o.dead and not o.is_hostile_to(caster) and grid.distance_between(caster, o) <= 6 and float(o.hp) / o.hp_max < float(best.hp) / best.hp_max:
+			best = o
+	var n := 2 if caster.has_cap("twinkling_constellations") else 1
+	Resolver.heal(best, Dice.roll("%dd8" % n, "성배 회복")["total"] + caster.ability_mod("wis"), caster)
+
+
 ## 수확자(죽음 영역, 능력 태그 reaper): 한 생물만 노리는 사령술 소마법은 한 생물을 더 — 원래 대상에 가장 가까운 다른 적에게 한 번 더(무료).
 static func _reaper(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i) -> void:
 	var sp := RulesDB.get_entry("spell", spell_id)
@@ -665,6 +682,9 @@ static func apply_effect(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 			if has_max_healing(t):
 				amount = _max_heal(caster, spell, e, slot)  # Beacon of Hope
 			Resolver.heal(t, amount, caster)
+			if slot > 0 and caster.has_condition("starry_chalice") and not inst.get("chalice", false):
+				inst["chalice"] = true
+				_chalice(world_of(inst), caster)
 			if level_of(spell) > 0 and t != caster and caster.has_cap("blessed_healer") and not inst.get("blessed_healer", false):
 				inst["blessed_healer"] = true  # 축복받은 치유자(생명 영역 6레벨): 남을 치유하면 나도 2 + 슬롯 레벨
 				Resolver.heal(caster, 2 + slot, caster)

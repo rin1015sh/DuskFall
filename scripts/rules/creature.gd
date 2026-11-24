@@ -405,6 +405,8 @@ func apply_condition(id: String, turns: int = 0, source: Variant = null, params:
 		return false
 	if dead or is_condition_immune(id) or creature_type in def.get("immune_creature_types", []):
 		return false
+	if source is Node and str(source.creature_type) in get_meta("condition_immunity_from", {}).get(id, []):
+		return false  # 자연의 수호(대지 회합): 원소·요정이 거는 매혹·공포 면역
 	if turns == 0:
 		turns = int(def.get("default_duration_turns", -1))
 	for r: String in def.get("removes_on_apply", []):

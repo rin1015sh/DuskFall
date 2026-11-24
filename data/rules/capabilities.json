@@ -1171,6 +1171,42 @@
       },
       "note_ko": "주문으로 쓰러뜨리면 회복(resolver.apply_damage)",
       "source": "original"
+    },
+    {
+      "id": "ignore_difficult_terrain",
+      "name": {
+        "ko": "험지 무시",
+        "en": "Land's Stride"
+      },
+      "note_ko": "험지 비용 1배(grid.step_cost)",
+      "source": "original"
+    },
+    {
+      "id": "cosmic_omen",
+      "name": {
+        "ko": "우주의 징조",
+        "en": "Cosmic Omen"
+      },
+      "note_ko": "긴 휴식마다 meta omen weal/woe",
+      "source": "original"
+    },
+    {
+      "id": "twinkling_constellations",
+      "name": {
+        "ko": "반짝이는 별자리",
+        "en": "Twinkling Constellations"
+      },
+      "note_ko": "별의 형상 주사위 +1d8",
+      "source": "original"
+    },
+    {
+      "id": "primal_strike",
+      "name": {
+        "ko": "원초의 일격",
+        "en": "Primal Strike"
+      },
+      "note_ko": "짐승 형태 공격이 마법 공격(combat._beast_attack)",
+      "source": "original"
     }
   ]
 }

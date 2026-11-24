@@ -279,7 +279,7 @@ func _corner_blocks(c: Vector2i) -> bool:
 ## 들어가는 칸의 이동 비용. 어려운 지형 2배, 오르기는 높이 1단계마다 +1칸(3단계).
 ## mover가 질주한 턴에 능력 태그 dash_ignores_difficult(날랜 발)면 어려운 지형을 1배로.
 func step_cost(from: Vector2i, to: Vector2i, mover: Node = null) -> int:
-	var easy: bool = mover != null and mover.has_cap("dash_ignores_difficult") and mover.turn.get("dashed", false)
+	var easy: bool = mover != null and ((mover.has_cap("dash_ignores_difficult") and mover.turn.get("dashed", false)) or mover.has_cap("ignore_difficult_terrain"))
 	var cost := 2 if is_difficult(to) and not easy else 1
 	var dh := height(to) - height(from)
 	if dh >= 2:

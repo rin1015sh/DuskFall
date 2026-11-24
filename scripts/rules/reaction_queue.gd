@@ -108,6 +108,14 @@ static func _spell_name(spell_id: String) -> String:
 	return str(RulesDB.get_entry("spell", spell_id).get("name", {}).get("en", spell_id))
 
 
+## 기능 requires_meta {키: 값}(우주의 징조: omen weal/woe)가 맞는지.
+static func meta_ok(c: Node, f: Dictionary) -> bool:
+	for k: String in f.get("requires_meta", {}):
+		if str(c.get_meta(k, "")) != str(f["requires_meta"][k]):
+			return false
+	return true
+
+
 ## 반응 재주(기능 데이터 kind reaction + trigger)를 가진 생물의 그 기능 id. 없으면 "".
 static func _trigger_feature(c: Node, trigger: String) -> String:
 	for fid: String in c.feature_data:
@@ -233,6 +241,7 @@ func after_attack(res: Dictionary) -> void:
 	if attacker == null or target == null or not grid.creatures().has(attacker) or attacker.dead:
 		return
 	_storm_retaliate(res, grid)
+	_halo_of_spores(res, grid)
 	if attacker.dead:
 		return
 	if _trigger_feature(target, "enemy_attacks_ally") != "":
@@ -250,6 +259,28 @@ func after_attack(res: Dictionary) -> void:
 			atk["name"] = "파수(%s)" % atk["name"]
 			Combat._do_attack(world, o, attacker, atk, true))
 		if attacker.dead:
+			return
+
+
+## 포자 후광(포자 회합, trigger halo_of_spores): 4칸 안 적이 공격하면 반응으로 그 적 건강 내성 — 실패 사령 기능 주사위(공생체면 두 배).
+func _halo_of_spores(res: Dictionary, grid: Node) -> void:
+	var attacker: Node = res["attacker"]
+	for o: Node in grid.creatures():
+		if o.dead or not o.is_hostile_to(attacker) or not o.can_react() or grid.distance_between(o, attacker) > 4:
+			continue
+		var fid := _trigger_feature(o, "halo_of_spores")
+		if fid == "":
+			continue
+		var f: Dictionary = o.feature_data[fid]
+		var die := _feature_die(o, f)
+		if offer(o, fid, {"target": attacker}, func() -> void:
+			o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+			var n := int(die.get_slice("d", 0)) * (2 if o.has_condition("symbiotic_entity") else 1)
+			var dice := "%dd%s" % [n, die.get_slice("d", 1)]
+			var Spellcasting: Variant = load("res://scripts/rules/spellcasting.gd")
+			load("res://scripts/rules/resolver.gd").save_effect([attacker], {"ability": "con", "dc": Spellcasting.spell_dc(o)},
+				[{"type": "damage", "dice": dice, "damage_type": "necrotic"}], [], {"source": o, "magic": true})
+			Dice.log_text("%s 포자 후광(%s)" % [o.label(), dice])):
 			return
 
 
@@ -291,10 +322,11 @@ func miss_bonus(res: Dictionary) -> void:
 		if o.dead or o.is_hostile_to(attacker) or not o.can_react():
 			continue
 		var fid := _trigger_feature(o, "ally_attack_missed_bonus")
-		if fid == "":
+		if fid == "" or not meta_ok(o, o.feature_data[fid]):
 			continue
 		var f: Dictionary = o.feature_data[fid]
-		var add := int(f.get("attack_bonus", 10))
+		var die := _feature_die(o, f) if f.has("dice_by_level") else ""
+		var add := int(f.get("attack_bonus", 10)) if die == "" else int(die.get_slice("d", 1))  # 주사위면 최댓값으로 맞힐 수 있는지 본다
 		var rid := str(f.get("resource", ""))
 		if (rid != "" and o.resource(rid) <= 0) or grid.distance_between(o, attacker) > int(f.get("range_tiles", 6)) \
 				or res["total"] + add < res["ac"] + res["ac_bonus"]:
@@ -303,9 +335,10 @@ func miss_bonus(res: Dictionary) -> void:
 			o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
 			if rid != "":
 				o.spend_resource(rid)
-			res["total"] += add
-			res["hit"] = true
-			Dice.log_text("%s %s: %s의 공격 +%d" % [o.label(), str(f.get("name", {}).get("ko", fid)), attacker.label(), add])):
+			var got: int = add if die == "" else int(Dice.roll(die, str(f.get("name", {}).get("en", fid)))["total"])
+			res["total"] += got
+			res["hit"] = res["total"] >= res["ac"] + res["ac_bonus"]
+			Dice.log_text("%s %s: %s의 공격 +%d" % [o.label(), str(f.get("name", {}).get("ko", fid)), attacker.label(), got])):
 			return
 
 
@@ -394,7 +427,7 @@ func _enemy_hit_reactions(res: Dictionary) -> void:
 			continue
 		for fid: String in o.feature_data:
 			var f: Dictionary = o.feature_data[fid]
-			if str(f.get("kind", "")) != "reaction" or str(f.get("trigger", "")) != "enemy_attack_hit":
+			if str(f.get("kind", "")) != "reaction" or str(f.get("trigger", "")) != "enemy_attack_hit" or not meta_ok(o, f):
 				continue
 			var res_id := str(f.get("resource", ""))
 			if res_id != "" and o.resource(res_id) <= 0:

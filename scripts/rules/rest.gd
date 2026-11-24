@@ -172,6 +172,8 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 		if c.has_meta("base_darkvision"):
 			c.darkvision_tiles = int(c.get_meta("base_darkvision"))
 			c.remove_meta("base_darkvision")
+		if c.has_cap("cosmic_omen"):
+			c.set_meta("omen", "weal" if Dice.die(20) % 2 == 0 else "woe")
 		if c.has_cap("portent"):
 			c.set_meta("portent_values", roll_portent(c, c.resources.get("portent_dice", {}).get("max", 2)))  # 예지: 긴 휴식에 새로 굴린다
 		if c.has_meta("beast_form"):

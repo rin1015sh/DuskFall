@@ -2168,6 +2168,63 @@
       "default_duration_turns": 10,
       "notes_ko": "칼날노래: AC·건강 내성 +4, 속도 +2칸, 곡예 유리.",
       "source": "original"
+    },
+    {
+      "id": "symbiotic_entity",
+      "name": {
+        "ko": "공생체",
+        "en": "Symbiotic Entity"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_hit": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "necrotic",
+            "requires": "weapon_attack"
+          }
+        ]
+      },
+      "notes_ko": "공생체(균사 회합): 무기·맨손 명중 사령 1d6. 임시 HP가 다 하면 끝.",
+      "source": "original"
+    },
+    {
+      "id": "starry_archer",
+      "name": {
+        "ko": "별의 형상: 궁수",
+        "en": "Starry Form: Archer"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "보너스 행동 빛의 화살.",
+      "source": "original"
+    },
+    {
+      "id": "starry_chalice",
+      "name": {
+        "ko": "별의 형상: 성배",
+        "en": "Starry Form: Chalice"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "notes_ko": "슬롯 회복 주문에 성배 회복.",
+      "source": "original"
+    },
+    {
+      "id": "starry_dragon",
+      "name": {
+        "ko": "별의 형상: 용",
+        "en": "Starry Form: Dragon"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "flags": {
+        "concentration_floor_10": true
+      },
+      "notes_ko": "집중 유지 내성 9 이하는 10, 보너스 행동 눈부신 숨결.",
+      "source": "original"
     }
   ]
 }

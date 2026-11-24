@@ -15,6 +15,16 @@ func is_implemented() -> bool:
 static func forms_for(c: Node) -> Array:
 	var f: Dictionary = c.feature_data.get("wild_shape", {})
 	var out: Array = []
+	# 다른 기능의 형태(달 회합 전투 형태 — forms + ignore_cr): 도전 등급 상한 없이, 그 기능 레벨표대로
+	for fid: String in c.feature_data:
+		var g: Dictionary = c.feature_data[fid]
+		if fid == "wild_shape" or not g.has("forms"):
+			continue
+		for k: String in g["forms"]:
+			if c.feature_level(fid) >= int(k):
+				for id: String in g["forms"][k]:
+					if not RulesDB.get_entry("monster", id).is_empty() and not id in out:
+						out.append(id)
 	var max_cr := 0.0
 	for k: String in f.get("cr_by_level", {}):
 		if c.feature_level("wild_shape") >= int(k):

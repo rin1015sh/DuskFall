@@ -1,0 +1,94 @@
+{
+  "schema": "monster_v1",
+  "id": "fire_elemental",
+  "name": {
+    "ko": "불 정령",
+    "en": "Fire Elemental"
+  },
+  "size": "large",
+  "creature_type": "elemental",
+  "cr": 5,
+  "xp": 1800,
+  "proficiency_bonus": 3,
+  "ac": 13,
+  "hp": 93,
+  "speed_tiles": 10,
+  "abilities": {
+    "str": 10,
+    "dex": 17,
+    "con": 16,
+    "int": 6,
+    "wis": 10,
+    "cha": 7
+  },
+  "saves": {
+    "str": 0,
+    "dex": 3,
+    "con": 3,
+    "int": -2,
+    "wis": 0,
+    "cha": -2
+  },
+  "actions": [
+    {
+      "id": "burn",
+      "name": {
+        "ko": "불사르기",
+        "en": "Burn"
+      },
+      "type": "attack",
+      "kind": "melee",
+      "bonus": 6,
+      "reach_tiles": 1,
+      "damage": [
+        {
+          "dice": "2d6+3",
+          "damage_type": "fire"
+        }
+      ],
+      "on_hit": [
+        {
+          "type": "apply_condition",
+          "id": "burning"
+        }
+      ]
+    }
+  ],
+  "weight_kg": 50,
+  "weight_note_ko": "SRD에 무게가 없어 크기·종류로 추정(밀치기·던지기 한계용).",
+  "sight_cone_tiles": 8,
+  "art": {
+    "image": "res://assets/actors/monsters/witch_lamp.webp"
+  },
+  "source": "SRD 5.2.1",
+  "senses": {
+    "darkvision_tiles": 12
+  },
+  "resistances": [
+    "bludgeoning",
+    "piercing",
+    "slashing"
+  ],
+  "immunities": [
+    "fire",
+    "poison"
+  ],
+  "condition_immunities": [
+    "paralyzed",
+    "petrified",
+    "poisoned",
+    "prone",
+    "restrained",
+    "unconscious"
+  ],
+  "multiattack": {
+    "count": 2,
+    "actions": [
+      "burn"
+    ]
+  },
+  "ai": {
+    "style": "melee"
+  },
+  "notes_ko": "불의 오라·불의 몸·빛·물 약점은 1차 생략(불사르기는 연소). 달 회합 10레벨 형태."
+}

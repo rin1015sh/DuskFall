@@ -19,9 +19,9 @@ func _dru(lv: int) -> Node:
 func test_build_order_land() -> void:
 	var d := _dru(5)
 	assert_true(d.spells.has("speak_with_animals"), "드루이드어")
-	assert_true(d.spells.has("burning_hands") and d.spells.has("fireball"), "건조한 땅 주문")
+	assert_true(d.spells.has("blur") and d.spells.has("silence") and d.spells.has("hypnotic_pattern"), "사막 땅 주문(BG3)")
 	assert_eq(int(d.skill_bonuses.get("nature", 0)), maxi(1, d.ability_mod("wis")), "마법사: 자연 + 지혜")
-	assert_eq(d.spells.filter(func(s: String) -> bool: return int(RulesDB.get_entry("spell", s)["level"]) == 0).size(), 4 + 1, "소마법 3 + 마법사 1 + 땅 소마법")
+	assert_true(d.spells.has("guidance"), "대지의 소마법(BG3)")
 	assert_eq(d.prep_swaps, -1, "긴 휴식 뒤 전부 교체")
 
 
@@ -85,10 +85,7 @@ func test_lands_aid_and_resurgence() -> void:
 	w["grid"].place(ally, Vector2i(5, 1))
 	ally.hp = 10
 	d.reset_turn()
-	var r := Features.use(w, d, "lands_aid", Vector2i(5, 0))
-	assert_true(r["ok"], str(r))
-	assert_true(foe.hp < 40 and ally.hp > 10, "적 피해·아군 회복")
-	assert_eq(d.resource("wild_shape"), 1)
+	assert_false(d.has_feature("lands_aid"), "BG3 대지 회합에는 땅의 도움이 없다")
 	d.resources["wild_shape"]["current"] = 0
 	assert_true(Features.use(w, d, "wild_resurgence")["ok"])
 	assert_eq(d.resource("wild_shape"), 1, "슬롯 → 야생 변신")
