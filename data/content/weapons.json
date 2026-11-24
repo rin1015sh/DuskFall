@@ -754,6 +754,44 @@
       "weight_kg": 1.36,
       "price_gp": 250,
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "conjured_flame_blade",
+      "name": {
+        "ko": "불꽃 칼날",
+        "en": "Flame Blade"
+      },
+      "category": "simple_melee",
+      "damage": "3d6",
+      "damage_type": "fire",
+      "properties": [
+        "finesse",
+        "light"
+      ],
+      "weight_kg": 0,
+      "price_gp": 0,
+      "conjured": true,
+      "source": "SRD 5.2.1",
+      "icon": "steel_sword"
+    },
+    {
+      "id": "conjured_gloom_blade",
+      "name": {
+        "ko": "그늘 칼날",
+        "en": "Gloom Blade"
+      },
+      "category": "simple_melee",
+      "damage": "2d8",
+      "damage_type": "psychic",
+      "properties": [
+        "finesse",
+        "light"
+      ],
+      "weight_kg": 0,
+      "price_gp": 0,
+      "conjured": true,
+      "source": "original",
+      "icon": "mithril_sword"
     }
   ]
 }

@@ -311,8 +311,10 @@ static func targets_for(world: Dictionary, caster: Node, spell: Dictionary, aim:
 	if spell.get("area") != null:
 		var hostile_only: bool = spell["effects"].has("check")
 		var allies_only: bool = str(spell.get("area_targets", "")) == "allies"  # 아군만(생명의 오라·집단 상처 치료)
+		var enemies_only: bool = str(spell.get("area_targets", "")) == "enemies"  # 적만(분쇄의 파동 — BG3)
 		var found: Array = Area.creatures_in(grid, cells).filter(func(c: Node) -> bool:
-			return not c.dead and (c != caster or not hostile_only) and (not allies_only or not c.is_hostile_to(caster)))
+			return not c.dead and (c != caster or not hostile_only) and (not allies_only or not c.is_hostile_to(caster)) \
+				and (not enemies_only or c.is_hostile_to(caster)))
 		return found.slice(0, max_targets(spell, slot)) if spell.has("targets_max") and allies_only else found
 	if spell["range"]["type"] == "self":
 		return [caster]
@@ -340,8 +342,27 @@ static func ritual_from_book(world: Dictionary, caster: Node, spell_id: String) 
 	return caster.has_cap("ritual_from_spellbook") and spell_id in caster.spellbook and ritual_free(world, spell)
 
 
+## 다시 쓸 수 있는 살아 있는 인스턴스(주문 데이터 recast {"cost"}) — 같은 시전자·같은 주문. 없으면 {}.
+static func recast_instance(caster: Node, spell_id: String) -> Dictionary:
+	var spell := RulesDB.get_entry("spell", spell_id)
+	if not spell.has("recast"):
+		return {}
+	_prune()
+	for inst: Dictionary in instances.values():
+		if inst["spell"] == spell_id and inst["caster"] == caster:
+			if inst.get("concentration", false) and int(caster.concentration.get("instance", -1)) != int(inst["id"]):
+				continue
+			return inst
+	return {}
+
+
 static func can_cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i, opts: Dictionary = {}) -> String:
 	var spell := RulesDB.get_entry("spell", spell_id)
+	if not opts.get("fresh", false) and not recast_instance(caster, spell_id).is_empty():
+		var rc := str(spell["recast"].get("cost", "action")).replace("bonus_action", "bonus")
+		if caster.has_condition("incapacitated"):
+			return "무력화"
+		return "" if Combat.can_spend(caster, rc) else "비용이 없다"
 	if spell.is_empty() or not (caster.spells.has(spell_id) or ritual_from_book(world, caster, spell_id) or opts.get("granted", false)):
 		return "모르는 주문"  # granted: 기능이 주는 한 번의 시전(전투 시전자 기회 공격 — 전격 손길)
 	if ritual_free(world, spell, opts) or spell_id in caster.get_meta("at_will", []) or free_cast_feature(caster, spell) != "":
@@ -550,6 +571,15 @@ static func _cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector
 		return {"ok": false, "reason": why}
 	var spell := RulesDB.get_entry("spell", spell_id)
 	var level := int(spell["level"])
+	var rinst := recast_instance(caster, spell_id) if not opts.get("fresh", false) else {}
+	if not rinst.is_empty():  # 다시 쓰기: 슬롯·집중 없이 인스턴스로 발동(BG3 번개 부르기 등)
+		Combat.spend(caster, str(spell["recast"].get("cost", "action")).replace("bonus_action", "bonus"))
+		Dice.log_text("%s: %s 다시 쓰기" % [caster.label(), spell["name"]["en"]])
+		var rctx := {"world": world, "self": caster, "spell": spell, "aim": aim, "opts": opts, "instance": rinst, "slot": int(rinst["slot"])}
+		var rr: Dictionary = load("res://scripts/rules/features.gd").script_for(str(spell["script"])).recast(rctx)
+		rr["ok"] = rr.get("ok", true)
+		rr["recast"] = true
+		return rr
 	if ritual_free(world, spell, opts):
 		opts = opts.duplicate()
 		opts["no_slot"] = true
@@ -693,7 +723,7 @@ static func resolve_effects(ctx: Dictionary) -> Dictionary:
 				amount = maxi(amount, int(rolled[k]))
 			world["surfaces"].tile_damage(cells, dtype, amount, caster)
 	for e: Dictionary in eff.get("apply", []):
-		var who: Array = targets if not targets.is_empty() else [caster]
+		var who: Array = targets if not targets.is_empty() or spell.get("area") != null else [caster]  # 범위 주문은 범위 안 생물만(빈 범위면 없음)
 		if e["type"] in ["create_surface", "create_cloud", "light", "teleport", "resource", "dialogue_unlock"]:
 			who = [caster]  # 칸·세계에 거는 효과는 한 번만
 		for t: Node in who:
@@ -846,7 +876,7 @@ static func _add_modifier(ctx: Dictionary, t: Node, e: Dictionary) -> void:
 			m.erase("turns_left")
 	if e.get("consume", "") == "attacked":
 		m["consume_on_attacked"] = true
-	if e.get("ability", "") == "chosen":
+	if typeof(e.get("ability")) == TYPE_STRING and e.get("ability") == "chosen":
 		effect["ability"] = [opts.get("choice", "str")]
 	t.extra_modifiers.append(m)
 

@@ -3,6 +3,7 @@ extends "res://scripts/rules/effect_script.gd"
 ## 사거리 self(발산): 시전자를 따라다닌다 — Spirit Guardians(3칸 지혜 3d8 광휘), Conjure Woodland Beings(2칸 지혜 5d8 역장).
 ## 사거리가 있으면 겨눈 칸에 고정 — Cloudkill(4칸 건강 5d8 독), Insect Plague(4칸 건강 4d10 관통). 시전할 때 범위 안 생물도 굴린다(효과 모델).
 ## 반경 = area.radius_tiles. 안의 적 속도 절반·가려짐은 생략(1차 — 피해만).
+## effects.apply의 damage는 내성 없이 늘 들어간다(칼날 회오리·허공의 굶주림 냉기). check가 없으면 내성을 굴리지 않는다.
 const Spellcasting := preload("res://scripts/rules/spellcasting.gd")
 const Resolver := preload("res://scripts/rules/resolver.gd")
 const Area := preload("res://scripts/rules/area.gd")
@@ -20,7 +21,8 @@ func apply(ctx: Dictionary) -> Dictionary:
 	var eff: Dictionary = spell["effects"]
 	var fail: Array = Spellcasting._scaled(c, spell, eff.get("fail", []), slot, ctx.get("opts", {}))
 	var success: Array = Spellcasting._scaled(c, spell, eff.get("success", []), slot, ctx.get("opts", {}))
-	var ability := str(eff.get("check", {}).get("ability", "wis"))
+	var ability := str(eff.get("check", {}).get("ability", ""))
+	var always: Array = Spellcasting._scaled(c, spell, eff.get("apply", []).filter(func(e: Dictionary) -> bool: return e["type"] == "damage"), slot, ctx.get("opts", {}))
 	var radius := int(spell.get("area", {}).get("radius_tiles", 3))
 	var follow: bool = spell["range"]["type"] == "self"
 	var anchor: Vector2i = ctx["aim"]
@@ -37,7 +39,10 @@ func apply(ctx: Dictionary) -> Dictionary:
 		if hit_marks.has(key):
 			return
 		hit_marks[key] = true
-		Resolver.save_effect([o], {"ability": ability, "dc": dc}, fail, success, {"source": c})
+		for d: Dictionary in always:
+			Resolver.apply_damage(o, [{"amount": Dice.roll(str(d["dice"]), str(spell["id"]))["total"], "damage_type": str(d["damage_type"])}], {"attacker": c})
+		if ability != "" and not o.dead:
+			Resolver.save_effect([o], {"ability": ability, "dc": dc}, fail, success, {"source": c})
 	inst["auras"].append({"on_enter": trigger, "on_turn_end": trigger})
 	if not follow:
 		var r := Spellcasting.resolve_effects(ctx)  # 처음 나타날 때 범위 안 생물

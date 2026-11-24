@@ -3109,6 +3109,585 @@
       "default_duration_turns": 2,
       "notes_ko": "천상체·악마·언데드 공격 유리(primal.attack_context).",
       "source": "original"
+    },
+    {
+      "id": "thunderclap_ready",
+      "name": {
+        "ko": "천둥 일격 준비",
+        "en": "Thunderclap Strike Ready"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "consume_on_trigger": true,
+      "melee_only": true,
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "2d6",
+            "damage_type": "thunder"
+          },
+          {
+            "type": "save",
+            "save": {
+              "ability": "str"
+            },
+            "on_fail": [
+              {
+                "type": "push",
+                "tiles": 2
+              },
+              {
+                "type": "apply_condition",
+                "id": "prone"
+              }
+            ]
+          }
+        ]
+      },
+      "notes_ko": "천둥 일격: 근접 무기 명중에 2d6 천둥, 근력 내성 실패면 2칸 밀림·넘어짐.",
+      "source": "original"
+    },
+    {
+      "id": "wrath_strike_ready",
+      "name": {
+        "ko": "분노 일격 준비",
+        "en": "Wrath Strike Ready"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "consume_on_trigger": true,
+      "melee_only": true,
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "psychic"
+          },
+          {
+            "type": "save",
+            "save": {
+              "ability": "wis"
+            },
+            "on_fail": [
+              {
+                "type": "apply_condition",
+                "id": "frightened",
+                "turns": 2
+              }
+            ]
+          }
+        ]
+      },
+      "notes_ko": "분노 일격: 근접 무기 명중에 1d6 정신, 지혜 내성 실패면 공포 2턴.",
+      "source": "original"
+    },
+    {
+      "id": "radiant_brand_ready",
+      "name": {
+        "ko": "광휘 낙인 준비",
+        "en": "Radiant Brand Ready"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "consume_on_trigger": true,
+      "melee_only": true,
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "2d6",
+            "damage_type": "radiant",
+            "per_slot": "1d6",
+            "apply": [
+              {
+                "id": "branded"
+              }
+            ]
+          }
+        ]
+      },
+      "notes_ko": "광휘 낙인: 근접 무기 명중에 2d6 광휘(+1d6/슬롯), 대상 낙인(투명 불가).",
+      "source": "original"
+    },
+    {
+      "id": "branded",
+      "name": {
+        "ko": "낙인",
+        "en": "Branded"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "suppresses": [
+        "invisible"
+      ],
+      "notes_ko": "광휘 낙인: 투명해질 수 없다(주문 동안).",
+      "source": "original"
+    },
+    {
+      "id": "glare_strike_ready",
+      "name": {
+        "ko": "섬광 일격 준비",
+        "en": "Glare Strike Ready"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "consume_on_trigger": true,
+      "melee_only": true,
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "3d8",
+            "damage_type": "radiant"
+          },
+          {
+            "type": "save",
+            "save": {
+              "ability": "con"
+            },
+            "on_fail": [
+              {
+                "type": "apply_condition",
+                "id": "blinded",
+                "turns": 10,
+                "repeat_save": {
+                  "ability": "con"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "notes_ko": "섬광 일격: 근접 무기 명중에 3d8 광휘, 건강 내성 실패면 실명 10턴(턴 끝 건강 내성).",
+      "source": "original"
+    },
+    {
+      "id": "mind_jolt_ready",
+      "name": {
+        "ko": "정신 충격 일격 준비",
+        "en": "Mind-Jolt Strike Ready"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "consume_on_trigger": true,
+      "melee_only": true,
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "4d6",
+            "damage_type": "psychic"
+          },
+          {
+            "type": "save",
+            "save": {
+              "ability": "wis"
+            },
+            "on_fail": [
+              {
+                "type": "apply_condition",
+                "id": "jolted",
+                "turns": 1
+              }
+            ]
+          }
+        ]
+      },
+      "notes_ko": "정신 충격 일격: 근접 무기 명중에 4d6 정신, 지혜 내성 실패면 흔들림 1턴.",
+      "source": "original"
+    },
+    {
+      "id": "jolted",
+      "name": {
+        "ko": "흔들림",
+        "en": "Jolted"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "modify",
+          "stat": "no_reactions"
+        }
+      ],
+      "notes_ko": "정신 충격 일격: 공격·능력 판정 불리, 반응 불가.",
+      "source": "original"
+    },
+    {
+      "id": "exile_strike_ready",
+      "name": {
+        "ko": "추방 일격 준비",
+        "en": "Exile Strike Ready"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "consume_on_trigger": true,
+      "melee_only": true,
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "5d10",
+            "damage_type": "force",
+            "apply": [
+              {
+                "id": "banished",
+                "if_hp_at_most": 50
+              }
+            ]
+          }
+        ]
+      },
+      "notes_ko": "추방 일격: 근접 무기 명중에 5d10 역장, 맞은 뒤 HP 50 이하면 추방(주문 동안).",
+      "source": "original"
+    },
+    {
+      "id": "rime_mantle",
+      "name": {
+        "ko": "서리 갑주",
+        "en": "Rime Mantle"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "retaliate": {
+        "dice": "5",
+        "damage_type": "cold",
+        "while_temp_hp": true
+      },
+      "notes_ko": "서리 갑주: 임시 HP가 남아 있으면 근접으로 맞힌 생물에게 냉기(5 × 슬롯). 임시 HP가 다 떨어지면 끝.",
+      "source": "original"
+    },
+    {
+      "id": "challenged_duel",
+      "name": {
+        "ko": "결투 강요",
+        "en": "Bound to Duel"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage",
+          "requires": "other_not_source"
+        }
+      ],
+      "notes_ko": "결투 강요: 건 생물 아닌 생물을 노린 공격 불리.",
+      "source": "original"
+    },
+    {
+      "id": "maddened",
+      "name": {
+        "ko": "광기",
+        "en": "Maddened"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "immune_creature_types": [
+        "aberration",
+        "beast",
+        "celestial",
+        "construct",
+        "dragon",
+        "elemental",
+        "fey",
+        "fiend",
+        "giant",
+        "monstrosity",
+        "ooze",
+        "plant",
+        "undead"
+      ],
+      "notes_ko": "광기의 관: 자기 턴에 건 생물이 아닌 가장 가까운 생물을 근접 공격한다(AI). 인간형만.",
+      "source": "original"
+    },
+    {
+      "id": "enthralled",
+      "name": {
+        "ko": "매료됨",
+        "en": "Enthralled"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "wis"
+          ]
+        }
+      ],
+      "notes_ko": "매료: 지혜 판정 불리(주변을 살피지 못함).",
+      "source": "original"
+    },
+    {
+      "id": "phantasm",
+      "name": {
+        "ko": "환영",
+        "en": "Phantasm"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_turn_start": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "psychic"
+          }
+        ]
+      },
+      "notes_ko": "환영력: 턴 시작마다 1d6 정신.",
+      "source": "SRD 5.2.1"
+    },
+    {
+      "id": "zealous",
+      "name": {
+        "ko": "열성",
+        "en": "Zealous"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "radiant"
+          }
+        ]
+      },
+      "notes_ko": "열성의 망토: 무기 명중마다 +1d4 광휘.",
+      "source": "original"
+    },
+    {
+      "id": "feigning_death",
+      "name": {
+        "ko": "죽은 듯한 잠",
+        "en": "Deathly Repose"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "acid",
+            "bludgeoning",
+            "cold",
+            "fire",
+            "force",
+            "lightning",
+            "necrotic",
+            "piercing",
+            "poison",
+            "radiant",
+            "slashing",
+            "thunder"
+          ]
+        }
+      ],
+      "condition_immunities": [
+        "poisoned"
+      ],
+      "notes_ko": "죽은 듯한 잠: 정신 외 모든 피해 저항, 중독 면역.",
+      "source": "original"
+    },
+    {
+      "id": "thunder_echo",
+      "name": {
+        "ko": "우레 울림",
+        "en": "Thunder Echo"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "move_damage": {
+        "dice": "1d8",
+        "damage_type": "thunder",
+        "once": true
+      },
+      "notes_ko": "우레 칼날: 스스로 움직이면 천둥 피해(건 쪽 레벨 주사위) 한 번 받고 끝.",
+      "source": "original"
+    },
+    {
+      "id": "heated",
+      "name": {
+        "ko": "달군 금속",
+        "en": "Heated Metal"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "attack",
+          "side": "self",
+          "value": "disadvantage"
+        },
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "disadvantage"
+        }
+      ],
+      "notes_ko": "금속 달구기: 공격·능력 판정 불리.",
+      "source": "original"
+    },
+    {
+      "id": "elemental_edge_fire",
+      "name": {
+        "ko": "원소 무기화(화염)",
+        "en": "Elemental Edge (Fire)"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "weapon_attack",
+          "add": 1
+        }
+      ],
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "fire"
+          }
+        ]
+      },
+      "notes_ko": "원소 무기화: 무기 명중 +1, 무기 명중마다 화염 1d4(5·6레벨 슬롯 2d4).",
+      "source": "original"
+    },
+    {
+      "id": "elemental_edge_cold",
+      "name": {
+        "ko": "원소 무기화(냉기)",
+        "en": "Elemental Edge (Cold)"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "weapon_attack",
+          "add": 1
+        }
+      ],
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "cold"
+          }
+        ]
+      },
+      "notes_ko": "원소 무기화: 무기 명중 +1, 무기 명중마다 냉기 1d4(5·6레벨 슬롯 2d4).",
+      "source": "original"
+    },
+    {
+      "id": "elemental_edge_lightning",
+      "name": {
+        "ko": "원소 무기화(번개)",
+        "en": "Elemental Edge (Lightning)"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "weapon_attack",
+          "add": 1
+        }
+      ],
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "lightning"
+          }
+        ]
+      },
+      "notes_ko": "원소 무기화: 무기 명중 +1, 무기 명중마다 번개 1d4(5·6레벨 슬롯 2d4).",
+      "source": "original"
+    },
+    {
+      "id": "elemental_edge_acid",
+      "name": {
+        "ko": "원소 무기화(산)",
+        "en": "Elemental Edge (Acid)"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "weapon_attack",
+          "add": 1
+        }
+      ],
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "acid"
+          }
+        ]
+      },
+      "notes_ko": "원소 무기화: 무기 명중 +1, 무기 명중마다 산 1d4(5·6레벨 슬롯 2d4).",
+      "source": "original"
+    },
+    {
+      "id": "elemental_edge_thunder",
+      "name": {
+        "ko": "원소 무기화(천둥)",
+        "en": "Elemental Edge (Thunder)"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "weapon_attack",
+          "add": 1
+        }
+      ],
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d4",
+            "damage_type": "thunder"
+          }
+        ]
+      },
+      "notes_ko": "원소 무기화: 무기 명중 +1, 무기 명중마다 천둥 1d4(5·6레벨 슬롯 2d4).",
+      "source": "original"
     }
   ]
 }

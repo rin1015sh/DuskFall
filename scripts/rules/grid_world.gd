@@ -281,6 +281,8 @@ func _corner_blocks(c: Vector2i) -> bool:
 func step_cost(from: Vector2i, to: Vector2i, mover: Node = null) -> int:
 	var easy: bool = mover != null and ((mover.has_cap("dash_ignores_difficult") and mover.turn.get("dashed", false)) or mover.has_cap("ignore_difficult_terrain"))
 	var cost := 2 if is_difficult(to) and not easy else 1
+	if not easy and surface_id(to) != "":
+		cost = maxi(cost, int(RulesDB.get_entry("surface", surface_id(to)).get("move_cost", 0)))  # 무성한 풀(식물 성장 — BG3 속도 1/4): 1칸 4
 	var dh := height(to) - height(from)
 	if dh >= 2:
 		cost += dh

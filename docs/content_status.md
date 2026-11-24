@@ -7,15 +7,15 @@
 | 종류 | 수 |
 | --- | --- |
 | class | 12 |
-| spell | 271 |
-| weapon | 38 |
+| spell | 309 |
+| weapon | 40 |
 | armor | 13 |
 | item | 59 |
 | feat | 56 |
 | species | 39 |
 | background | 4 |
 | monster | 60 |
-| capability | 207 |
+| capability | 208 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -452,11 +452,11 @@
 
 ## 주문
 
-- 상태: included 185, excluded_v1 80, candidate_exclusion 6
-- 포함 주문 레벨별: 2레벨 45, 0레벨 24, 3레벨 30, 4레벨 16, 1레벨 50, 6레벨 10, 5레벨 10
-- 스크립트 주문 77개, 그중 포함인데 미구현: 없음
+- 상태: included 223, excluded_v1 80, candidate_exclusion 6
+- 포함 주문 레벨별: 2레벨 54, 0레벨 32, 3레벨 39, 1레벨 57, 4레벨 18, 6레벨 11, 5레벨 12
+- 스크립트 주문 108개, 그중 포함인데 미구현: 없음
 - 아이콘(icon) 없는 포함 주문(학파 색 별로 표시): 없음
-- 클래스 주문 목록: wizard 178, sorcerer 117, cleric 91, ranger 40, paladin 32, bard 100, druid 93, warlock 55
+- 클래스 주문 목록: wizard 191, sorcerer 128, cleric 94, ranger 44, paladin 42, bard 109, druid 102, warlock 70
 
 ## 아이템
 
@@ -597,6 +597,7 @@
 | metamagic_quickened | 빠른 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_seeking | 추적 주문 | (몬스터 특성 또는 아직 없음) |
 | metamagic_subtle | 은밀한 주문 | (몬스터 특성 또는 아직 없음) |
+| metamagic_twinned | 쌍둥이 주문 | (몬스터 특성 또는 아직 없음) |
 | mighty_swarm | 강력한 무리 | ranger |
 | mindless_rage | 광기 없는 분노 | barbarian |
 | misty_escape | 안개 탈출 | warlock |

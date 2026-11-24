@@ -286,7 +286,10 @@ static func _retaliate(attacker: Node, target: Node, atk: Dictionary, res: Dicti
 		if r.has("condition"):
 			attacker.apply_condition(str(r["condition"]), int(r.get("turns", 1)), a["instance"].get("source"))  # 영감의 망토: 근접 공격자 매혹
 			continue
-		var n: int = Dice.roll(str(r["dice"]), a["id"])["total"]
+		if r.get("while_temp_hp", false) and target.temp_hp <= 0:
+			target.remove_condition(str(a["id"]))  # 서리 갑주: 임시 HP가 다 떨어지면 끝
+			continue
+		var n: int = Dice.roll(str(a["instance"].get("params", {}).get("retaliate_dice", r["dice"])), a["id"])["total"]
 		apply_damage(attacker, [{"amount": n, "damage_type": str(r["damage_type"])}], {"attacker": target})
 
 
@@ -478,9 +481,7 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 					sopts["advantage"] = ["큰 생물"]
 				var sv := saving_throw(target, str(e["save"]["ability"]), dc, sopts)
 				if not sv.get("success", false):
-					for f: Dictionary in e.get("on_fail", []):
-						if f["type"] == "apply_condition":
-							target.apply_condition(f["id"], -1, caster, params)
+					_hit_save_fail(attacker, target, caster, e.get("on_fail", []), params)
 			EventBus.on_weapon_hit.emit(res)
 			if a["def"].get("consume_on_trigger", false):
 				attacker.remove_condition(str(a["id"]))
@@ -515,6 +516,21 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 		if attacker.has_cap("extra_damage_wounded") and target.hp < target.hp_max and not attacker.turn.get("wounded_bonus_used", false):
 			attacker.turn["wounded_bonus_used"] = true
 			res["extra_damage"].append({"dice": "1d8", "damage_type": atk["damage"][0]["damage_type"]})
+
+
+## 무기 명중 훅 save의 실패 효과: apply_condition(turns, repeat_save — 없으면 주문 동안), push(칸, 시전자에게서).
+static func _hit_save_fail(attacker: Node, target: Node, caster: Variant, list: Array, params: Dictionary) -> void:
+	for f: Dictionary in list:
+		match str(f["type"]):
+			"apply_condition":
+				var p := params.duplicate()
+				if f.has("repeat_save") and caster is Node:
+					p["repeat_save"] = {"ability": str(f["repeat_save"]["ability"]), "dc": load("res://scripts/rules/spellcasting.gd").spell_dc(caster)}
+				target.apply_condition(str(f["id"]), int(f.get("turns", -1)), caster, p)
+			"push":
+				var rq: Node = EventBus.reaction_queue
+				if rq != null and is_instance_valid(rq) and rq.world.has("grid") and not target.dead:
+					load("res://scripts/rules/combat.gd")._push_up_to(rq.world, attacker, target, int(f["tiles"]))
 
 
 static func _brutal_effect(attacker: Node, target: Node, opt: String) -> void:
@@ -740,6 +756,8 @@ static func _weapon_hit_damage(attacker: Node, target: Node, inst: Dictionary, e
 	res["extra_damage"].append({"dice": dice, "damage_type": e["damage_type"]})
 	var caster: Variant = inst.get("source")
 	for f: Dictionary in e.get("apply", []):
+		if f.has("if_hp_at_most") and target.hp - _expected_left(res) > int(f["if_hp_at_most"]):
+			continue  # 추방 일격: 맞은 뒤 HP가 기준 이하일 때만
 		var p := params.duplicate()
 		if f.has("repeat_save") and caster is Node:
 			p["repeat_save"] = {"ability": f["repeat_save"]["ability"], "dc": Sp.spell_dc(caster)}
@@ -749,6 +767,14 @@ static func _weapon_hit_damage(attacker: Node, target: Node, inst: Dictionary, e
 				dot += "+" + str(f["dot_dice"])
 			p["dice"] = dot
 		target.apply_condition(f["id"], int(f.get("turns", -1)), caster, p)
+
+
+## 이번 명중에서 아직 들어가지 않은 피해의 평균(효과 조건 판정용 — 정확한 값은 굴린 뒤에야 안다).
+static func _expected_left(res: Dictionary) -> int:
+	var total := 0.0
+	for d: Dictionary in res.get("attack", {}).get("damage", []) + res.get("extra_damage", []):
+		total += float(DiceExpr.stats(str(d.get("dice", "0"))).get("avg", 0.0))
+	return int(total)
 
 
 ## 능력 태그 dark_ones_blessing(악마 후원자): 적을 0 HP로 만들면(또는 2칸 안에서 누가 만들면) 임시 HP = 매력 + 워락 레벨(최소 1).

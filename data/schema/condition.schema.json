@@ -168,7 +168,8 @@
                 "spell_dc",
                 "str_weapon_damage",
                 "attack_roll",
-                "saving_throw"
+                "saving_throw",
+                "weapon_attack"
               ]
             },
             "add": {
@@ -213,7 +214,8 @@
             "apply_condition",
             "remove_condition",
             "save",
-            "resource"
+            "resource",
+            "push"
           ]
         },
         "dice": {
@@ -297,6 +299,26 @@
         },
         "resource": {
           "type": "string"
+        },
+        "tiles": {
+          "$comment": "push: 시전자에게서 밀어내는 칸 수",
+          "type": "integer"
+        },
+        "turns": {
+          "$comment": "apply_condition: 지속 턴(없으면 주문 동안)",
+          "type": "integer"
+        },
+        "repeat_save": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ability"
+          ],
+          "properties": {
+            "ability": {
+              "$ref": "#/$defs/ability"
+            }
+          }
         }
       }
     },

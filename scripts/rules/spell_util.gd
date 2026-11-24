@@ -97,3 +97,27 @@ static func find_entity(caster: Node, kind: String) -> Dictionary:
 		if inst["caster"] == caster and inst.get("entity", {}).get("kind", "") == kind:
 			return inst
 	return {}
+
+
+## 끌어당기기(가시덩굴 채찍·번개 올가미·휘감는 덩굴): toward 칸 쪽으로 한 칸씩 최대 n칸. 막히거나 toward에 닿기 직전이면 멈춘다.
+static func pull(ctx: Dictionary, t: Node, toward: Vector2i, n: int) -> int:
+	var g := grid(ctx)
+	var Physics := preload("res://scripts/rules/physics.gd")
+	var cur: Vector2i = g.cell_of(t)
+	var start := cur
+	var moved := 0
+	for i in n:
+		var d := toward - cur
+		if maxi(absi(d.x), absi(d.y)) <= 1:
+			break
+		var nxt := cur + Vector2i(signi(d.x), signi(d.y))
+		if Physics._push_step_blocked(g, t, cur, nxt) != "":
+			break
+		cur = nxt
+		moved += 1
+	if moved > 0:
+		g.move_creature(t, cur)
+		var drop: int = g.height(start) - g.height(cur)
+		if drop > 0:
+			Physics.fall(t, drop)
+	return moved

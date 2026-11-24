@@ -14,3 +14,8 @@ func is_implemented() -> bool:
 func apply(_ctx: Dictionary) -> Dictionary:
 	push_error("미구현 스크립트 효과: %s" % get_script().resource_path)
 	return {"ok": false, "reason": "미구현"}
+
+
+## 다시 쓰기(주문 데이터 recast — 번개 부르기·마녀 화살 등): 살아 있는 인스턴스로 슬롯 없이 다시 발동한다. ctx는 apply와 같고 instance는 그 인스턴스.
+func recast(_ctx: Dictionary) -> Dictionary:
+	return {"ok": false, "reason": "다시 쓸 수 없는 주문"}

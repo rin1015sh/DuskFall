@@ -69,7 +69,9 @@
             "enum": [
               "bludgeoning",
               "piercing",
-              "slashing"
+              "slashing",
+              "fire",
+              "psychic"
             ]
           },
           "properties": {
@@ -131,6 +133,10 @@
           "icon": {
             "$comment": "그림 파일 이름(assets/items/<icon>.webp — 화면 소지품·장비 칸)",
             "type": "string"
+          },
+          "conjured": {
+            "$comment": "주문이 불러낸 무기(불꽃·그늘 칼날) — 상점·전리품에 나오지 않는다",
+            "type": "boolean"
           }
         }
       }

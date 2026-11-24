@@ -379,6 +379,20 @@
       },
       "source": "SRD 5.2.1",
       "notes_ko": "들어가면 민첩 내성 DC 10, 실패하면 넘어짐. 맵에 남는다."
+    },
+    {
+      "id": "overgrowth",
+      "layer": "ground",
+      "name": {
+        "ko": "무성한 풀",
+        "en": "Overgrowth"
+      },
+      "duration_turns": -1,
+      "difficult": true,
+      "move_cost": 4,
+      "flammable": true,
+      "source": "SRD 5.2.1",
+      "notes_ko": "식물 성장: 1칸에 이동 4(BG3 속도 1/4). 지속은 주문을 따른다."
     }
   ]
 }

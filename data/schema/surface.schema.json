@@ -190,6 +190,10 @@
             "SRD 5.2.1",
             "original"
           ]
+        },
+        "move_cost": {
+          "$comment": "이 칸에 들어가는 이동 비용(칸) — 무성한 풀 4",
+          "type": "integer"
         }
       }
     }

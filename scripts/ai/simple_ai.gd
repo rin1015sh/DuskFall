@@ -14,6 +14,9 @@ const Tactics := preload("res://scripts/ai/tactics.gd")
 static func take_turn(world: Dictionary, c: Node) -> void:
 	if c.dead or c.is_down() or c.has_flag("cannot_act"):
 		return
+	if c.has_condition("maddened"):
+		_maddened_turn(world, c)
+		return
 	if c.has_meta("monster"):
 		monster_turn(world, c)
 		return
@@ -164,6 +167,25 @@ static func _approach(world: Dictionary, c: Node, target: Node) -> bool:
 	if stop == grid.cell_of(c):
 		return false
 	return Combat.move(world, c, stop).get("ok", false)
+
+
+## 광기의 관: 건 생물이 아닌 가장 가까운 생물(아군이어도)에게 다가가 근접 공격 한 번.
+static func _maddened_turn(world: Dictionary, c: Node) -> void:
+	var grid: Node = world["grid"]
+	var src: Variant = c.condition_instance("maddened").get("source")
+	var best: Node = null
+	for o: Node in grid.creatures():
+		if o == c or o == src or o.dead or o.is_down():
+			continue
+		if best == null or grid.distance_between(c, o) < grid.distance_between(c, best):
+			best = o
+	if best == null:
+		return
+	if grid.distance_between(c, best) > 1:
+		_approach(world, c, best)
+	if grid.distance_between(c, best) <= 1:
+		var w: String = c.weapon("main")
+		Combat.attack(world, c, best, {} if w != "" and not Combat.is_ranged_weapon(Combat.weapon_data(w)) else {"weapon": "unarmed"})
 
 
 static func _nearest_foe(world: Dictionary, c: Node) -> Node:

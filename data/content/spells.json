@@ -14255,6 +14255,2121 @@
         "en": "Word of Recall"
       },
       "notes_ko": "서술형 — 1차 제외"
+    },
+    {
+      "id": "parry_veil",
+      "name": {
+        "ko": "칼날 장막",
+        "en": "Parry Veil"
+      },
+      "level": 0,
+      "school": "abjuration",
+      "classes": [
+        "bard",
+        "cleric",
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 2
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "modify",
+            "stat": "damage_resistance",
+            "damage_types": [
+              "bludgeoning",
+              "piercing",
+              "slashing"
+            ]
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 2턴 동안 타격·관통·참격 피해 저항",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "shield",
+        "family": "abjuration"
+      }
+    },
+    {
+      "id": "winning_smile",
+      "name": {
+        "ko": "호감의 미소",
+        "en": "Winning Smile"
+      },
+      "level": 0,
+      "school": "enchantment",
+      "classes": [
+        "bard",
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "advantage",
+            "roll": "ability_check",
+            "side": "self",
+            "value": "advantage",
+            "ability": [
+              "cha"
+            ]
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 집중 10턴 매력 판정 유리(대상 지정은 생략 — 모든 매력 판정)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "mask",
+        "family": "enchantment"
+      }
+    },
+    {
+      "id": "shillelagh",
+      "name": {
+        "ko": "마법 곤봉",
+        "en": "Shillelagh"
+      },
+      "level": 0,
+      "school": "transmutation",
+      "classes": [
+        "druid"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 쥔 곤봉·육척봉 10턴 — 1d8, 시전 능력으로 명중·피해, 마법 무기",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "icon": {
+        "glyph": "leaf",
+        "family": "transmutation"
+      },
+      "script": "shillelagh"
+    },
+    {
+      "id": "bramble_lash",
+      "name": {
+        "ko": "가시덩굴 채찍",
+        "en": "Bramble Lash"
+      },
+      "level": 0,
+      "school": "transmutation",
+      "classes": [
+        "druid"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 6칸 근접 주문 공격 1d6 관통, 맞으면 2칸 끌어옴",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "leaf",
+        "family": "physical"
+      },
+      "script": "bramble_lash",
+      "upcast": {
+        "cantrip_scaling": {
+          "5": "2d6",
+          "10": "3d6"
+        }
+      }
+    },
+    {
+      "id": "death_knell",
+      "name": {
+        "ko": "조종",
+        "en": "Death Knell"
+      },
+      "level": 0,
+      "school": "necromancy",
+      "classes": [
+        "cleric",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 지혜 내성 실패 1d12 사령(HP 가득이면 1d8), 5·10레벨 강화",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "skull",
+        "family": "necrotic"
+      },
+      "script": "death_knell"
+    },
+    {
+      "id": "thunder_edge",
+      "name": {
+        "ko": "우레 칼날",
+        "en": "Thunder Edge"
+      },
+      "level": 0,
+      "school": "evocation",
+      "classes": [
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 1
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 근접 무기 공격, 맞으면 울림 — 대상이 움직이면 1d8 천둥(5레벨 명중 +1d8·이동 2d8, 10레벨 2d8·3d8)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "thunder"
+      },
+      "script": "thunder_edge"
+    },
+    {
+      "id": "ember_edge",
+      "name": {
+        "ko": "잉걸 칼날",
+        "en": "Ember Edge"
+      },
+      "level": 0,
+      "school": "evocation",
+      "classes": [
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 근접 무기 공격, 맞으면 2칸 안 다른 적에게 수정치 화염(5레벨 대상 +1d8·불꽃 1d8 + 수정치, 10레벨 2d8)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "fire"
+      },
+      "script": "ember_edge"
+    },
+    {
+      "id": "storm_tether",
+      "name": {
+        "ko": "번개 올가미",
+        "en": "Storm Tether"
+      },
+      "level": 0,
+      "school": "evocation",
+      "classes": [
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 3
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "str",
+          "dc": "spell"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 3칸 근력 내성 실패 → 3칸 끌어옴, 옆이면 1d8 번개(5·10레벨 강화)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "bolt",
+        "family": "lightning"
+      },
+      "script": "storm_tether"
+    },
+    {
+      "id": "rime_mantle",
+      "name": {
+        "ko": "서리 갑주",
+        "en": "Rime Mantle"
+      },
+      "level": 1,
+      "school": "abjuration",
+      "classes": [
+        "warlock"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "until_long_rest"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 임시 HP 5 × 슬롯, 임시 HP가 남은 동안 근접 공격자에게 5 × 슬롯 냉기",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "snowflake",
+        "family": "cold"
+      },
+      "script": "rime_mantle",
+      "upcast": {
+        "per_slot_level": {
+          "en": "Temporary hit points and retaliation damage increase by 5 for each spell slot level above 1.",
+          "script": true
+        }
+      }
+    },
+    {
+      "id": "umbral_grasp",
+      "name": {
+        "ko": "그늘의 손아귀",
+        "en": "Umbral Grasp"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "warlock"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "emanation",
+        "radius_tiles": 2,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "str",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "2d6",
+            "damage_type": "necrotic"
+          },
+          {
+            "type": "apply_condition",
+            "id": "reactionless",
+            "turns": 1
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "2d6",
+            "damage_type": "necrotic",
+            "scale": 0.5
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 자신 주변 2칸(3m) 근력 내성 2d6 사령, 실패면 1턴 반응 불가",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "hand",
+        "family": "necrotic"
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d6"
+        }
+      }
+    },
+    {
+      "id": "binding_challenge",
+      "name": {
+        "ko": "결투 강요",
+        "en": "Binding Challenge"
+      },
+      "level": 1,
+      "school": "enchantment",
+      "classes": [
+        "paladin"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 3
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "challenged_duel"
+          }
+        ],
+        "success": []
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 지혜 내성 실패 → 집중 3턴 동안 시전자 아닌 생물을 노린 공격 불리",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "enchantment"
+      }
+    },
+    {
+      "id": "thorn_volley",
+      "name": {
+        "ko": "가시 세례",
+        "en": "Thorn Volley"
+      },
+      "level": 1,
+      "school": "conjuration",
+      "classes": [
+        "ranger"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 원거리 무기 공격 + 대상 칸 반경 1칸 민첩 내성 1d10 관통(빗나가도 터짐)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "arrow",
+        "family": "physical"
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d10"
+        }
+      },
+      "script": "thorn_volley"
+    },
+    {
+      "id": "thunderclap_strike",
+      "name": {
+        "ko": "천둥 일격",
+        "en": "Thunderclap Strike"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [
+        "paladin"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "attack",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 1
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "thunderclap_ready"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 근접 무기 공격 + 2d6 천둥, 근력 내성 실패면 2칸 밀림·넘어짐",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "thunder"
+      },
+      "script": "smite_attack"
+    },
+    {
+      "id": "arc_tether",
+      "name": {
+        "ko": "번개 사슬",
+        "en": "Arc Tether"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 원거리 주문 공격 1d12 번개, 맞으면 집중 10턴 — 다시 쓰기(행동, 슬롯 없음) 1d12",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "bolt",
+        "family": "lightning"
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d12"
+        }
+      },
+      "recast": {
+        "cost": "action",
+        "en": "Deal 1d12 lightning damage to the tethered target again."
+      },
+      "script": "arc_tether"
+    },
+    {
+      "id": "wrath_strike",
+      "name": {
+        "ko": "분노 일격",
+        "en": "Wrath Strike"
+      },
+      "level": 1,
+      "school": "evocation",
+      "classes": [
+        "paladin"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "attack",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "wrath_strike_ready"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 근접 무기 공격 + 1d6 정신, 지혜 내성 실패면 공포 2턴(집중)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "psychic"
+      },
+      "script": "smite_attack"
+    },
+    {
+      "id": "radiant_brand",
+      "name": {
+        "ko": "광휘 낙인",
+        "en": "Radiant Brand"
+      },
+      "level": 2,
+      "school": "evocation",
+      "classes": [
+        "paladin"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "attack",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "radiant_brand_ready"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 근접 무기 공격 + 2d6 광휘(+1d6/슬롯), 대상은 투명해질 수 없다(집중 10턴)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "radiant"
+      },
+      "script": "smite_attack"
+    },
+    {
+      "id": "whirling_blades",
+      "name": {
+        "ko": "칼날 회오리",
+        "en": "Whirling Blades"
+      },
+      "level": 2,
+      "school": "conjuration",
+      "classes": [
+        "bard",
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 1,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "damage",
+            "dice": "4d4",
+            "damage_type": "slashing"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 반경 1칸 칼날 구역(집중 10턴) — 시전 때와 적이 들어오거나 턴을 끝낼 때 4d4 참격, 내성 없음",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "darts",
+        "family": "physical"
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "2d4"
+        }
+      },
+      "script": "aura_emanation"
+    },
+    {
+      "id": "maddening_crown",
+      "name": {
+        "ko": "광기의 관",
+        "en": "Maddening Crown"
+      },
+      "level": 2,
+      "school": "enchantment",
+      "classes": [
+        "bard",
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 3
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "maddened"
+          }
+        ],
+        "success": []
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 인간형 지혜 내성 실패 → 집중 3턴 동안 자기 턴에 시전자 아닌 가장 가까운 생물을 공격",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "spiral",
+        "family": "enchantment"
+      },
+      "repeat_save": true
+    },
+    {
+      "id": "enthrall",
+      "name": {
+        "ko": "매료",
+        "en": "Enthrall"
+      },
+      "level": 2,
+      "school": "enchantment",
+      "classes": [
+        "bard",
+        "warlock"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 4
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "wis",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "enthralled"
+          }
+        ],
+        "success": []
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 4칸(6m) 지혜 내성 실패 → 10턴 지혜 판정 불리(주변을 못 봄)",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "icon": {
+        "glyph": "voice",
+        "family": "enchantment"
+      }
+    },
+    {
+      "id": "flame_blade",
+      "name": {
+        "ko": "불꽃 칼날",
+        "en": "Flame Blade"
+      },
+      "level": 2,
+      "school": "evocation",
+      "classes": [
+        "druid"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 10턴 동안 손에 불꽃 시미터 3d6 화염(4레벨 4d6, 6레벨 5d6)",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "icon": {
+        "glyph": "flame",
+        "family": "fire"
+      },
+      "script": "conjure_weapon",
+      "upcast": {
+        "per_slot_level": {
+          "en": "Damage increases by 1d6 for every two slot levels above 2.",
+          "script": true
+        }
+      }
+    },
+    {
+      "id": "heat_metal",
+      "name": {
+        "ko": "금속 달구기",
+        "en": "Heat Metal"
+      },
+      "level": 2,
+      "school": "transmutation",
+      "classes": [
+        "bard",
+        "druid"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 2d8 화염, 건강 내성 실패 무기 놓침·성공 1턴 공격·판정 불리. 다시 쓰기 보너스 행동",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "icon": {
+        "glyph": "flame",
+        "family": "fire"
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d8"
+        }
+      },
+      "recast": {
+        "cost": "bonus_action",
+        "en": "Burn the same target again."
+      },
+      "script": "heat_metal"
+    },
+    {
+      "id": "moonbeam",
+      "name": {
+        "ko": "달빛",
+        "en": "Moonbeam"
+      },
+      "level": 2,
+      "school": "evocation",
+      "classes": [
+        "druid"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 1,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "2d10",
+            "damage_type": "radiant"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "2d10",
+            "damage_type": "radiant",
+            "scale": 0.5
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 반경 1칸 빛기둥(집중 10턴), 들어오거나 턴을 끝내는 적 건강 내성 2d10 광휘. 기둥 옮기기는 1차 생략",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "icon": {
+        "glyph": "moon",
+        "family": "radiant"
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d10"
+        }
+      },
+      "script": "aura_emanation"
+    },
+    {
+      "id": "phantasmal_force",
+      "name": {
+        "ko": "환영력",
+        "en": "Phantasmal Force"
+      },
+      "level": 2,
+      "school": "illusion",
+      "classes": [
+        "bard",
+        "sorcerer",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "int",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "apply_condition",
+            "id": "phantasm"
+          }
+        ],
+        "success": []
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 지능 내성 실패 → 집중 10턴 동안 턴 시작마다 1d6 정신(피해 유형 바뀜은 생략)",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "icon": {
+        "glyph": "eye",
+        "family": "illusion"
+      }
+    },
+    {
+      "id": "gloom_blade",
+      "name": {
+        "ko": "그늘 칼날",
+        "en": "Gloom Blade"
+      },
+      "level": 2,
+      "school": "illusion",
+      "classes": [
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 10턴 동안 손에 그늘 소검 2d8 정신(교묘·가벼움)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "psychic"
+      },
+      "script": "conjure_weapon",
+      "upcast": {
+        "per_slot_level": {
+          "en": "3d8 with a 3rd or 4th level slot, 4d8 with 5th or 6th.",
+          "script": true
+        }
+      }
+    },
+    {
+      "id": "glare_strike",
+      "name": {
+        "ko": "섬광 일격",
+        "en": "Glare Strike"
+      },
+      "level": 3,
+      "school": "evocation",
+      "classes": [
+        "paladin"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "attack",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "glare_strike_ready"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 근접 무기 공격 + 3d8 광휘, 건강 내성 실패면 실명 10턴(턴 끝 내성)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "radiant"
+      },
+      "script": "smite_attack"
+    },
+    {
+      "id": "call_lightning",
+      "name": {
+        "ko": "번개 부르기",
+        "en": "Call Lightning"
+      },
+      "level": 3,
+      "school": "conjuration",
+      "classes": [
+        "druid"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 1,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "3d10",
+            "damage_type": "lightning"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "3d10",
+            "damage_type": "lightning",
+            "scale": 0.5
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 반경 1칸 민첩 내성 3d10 번개, 집중 10턴 동안 다시 쓰기(행동, 슬롯 없음)",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "icon": {
+        "glyph": "bolt",
+        "family": "lightning"
+      },
+      "upcast": {
+        "per_slot_level": {
+          "dice_add": "1d10"
+        }
+      },
+      "recast": {
+        "cost": "action",
+        "en": "Call down lightning again without a spell slot."
+      },
+      "script": "call_lightning"
+    },
+    {
+      "id": "steel_barrage",
+      "name": {
+        "ko": "강철 세례",
+        "en": "Steel Barrage"
+      },
+      "level": 3,
+      "school": "conjuration",
+      "classes": [
+        "ranger"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "cone",
+        "length_tiles": 6
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 원뿔 6칸 민첩 내성 — 주무기 주사위 + 2d8(무기 피해 유형), 성공 절반",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "darts",
+        "family": "physical"
+      },
+      "script": "steel_barrage"
+    },
+    {
+      "id": "zealots_mantle",
+      "name": {
+        "ko": "열성의 망토",
+        "en": "Zealot's Mantle"
+      },
+      "level": 3,
+      "school": "evocation",
+      "classes": [
+        "paladin"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "emanation",
+        "radius_tiles": 6,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "zealous"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 자신 주변 6칸 아군(시전 때) 집중 10턴 무기 명중마다 +1d4 광휘",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sun",
+        "family": "radiant"
+      },
+      "area_targets": "allies"
+    },
+    {
+      "id": "elemental_edge",
+      "name": {
+        "ko": "원소 무기화",
+        "en": "Elemental Edge"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "paladin"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 아군 무기 집중 10턴 명중 +1, 명중마다 1d4 원소(고르기, 5·6레벨 2d4)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "transmutation"
+      },
+      "script": "elemental_edge",
+      "upcast": {
+        "per_slot_level": {
+          "en": "With a 5th or 6th level slot the extra damage is 2d4.",
+          "script": true
+        }
+      }
+    },
+    {
+      "id": "deathly_repose",
+      "name": {
+        "ko": "죽은 듯한 잠",
+        "en": "Deathly Repose"
+      },
+      "level": 3,
+      "school": "necromancy",
+      "classes": [
+        "bard",
+        "cleric",
+        "druid",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "feigning_death"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 아군 10턴 정신 외 모든 피해 저항, 중독 면역",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "skull",
+        "family": "necromancy"
+      }
+    },
+    {
+      "id": "void_hunger",
+      "name": {
+        "ko": "허공의 굶주림",
+        "en": "Void Hunger"
+      },
+      "level": 3,
+      "school": "conjuration",
+      "classes": [
+        "warlock"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "2d6",
+            "damage_type": "acid"
+          }
+        ],
+        "success": [],
+        "apply": [
+          {
+            "type": "create_cloud",
+            "id": "magical_darkness"
+          },
+          {
+            "type": "damage",
+            "dice": "2d6",
+            "damage_type": "cold"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 반경 4칸 어둠(집중 10턴) — 적이 들어오거나 턴을 끝내면 2d6 냉기, 민첩 내성 실패면 2d6 산",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "orb",
+        "family": "necrotic"
+      },
+      "script": "aura_emanation"
+    },
+    {
+      "id": "storm_arrow",
+      "name": {
+        "ko": "폭풍 화살",
+        "en": "Storm Arrow"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "ranger"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "attack",
+          "kind": "ranged"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 원거리 주문 공격 4d8 번개(빗나가면 절반) + 반경 2칸 민첩 내성 2d8, 슬롯마다 둘 다 +1d8",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "arrow",
+        "family": "lightning"
+      },
+      "script": "storm_arrow",
+      "upcast": {
+        "per_slot_level": {
+          "en": "Both the arrow and the burst deal 1d8 more for each slot level above 3.",
+          "script": true
+        }
+      }
+    },
+    {
+      "id": "plant_growth",
+      "name": {
+        "ko": "식물 성장",
+        "en": "Plant Growth"
+      },
+      "level": 3,
+      "school": "transmutation",
+      "classes": [
+        "bard",
+        "druid",
+        "ranger"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": {
+        "shape": "sphere",
+        "radius_tiles": 4,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "create_surface",
+            "id": "overgrowth"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 반경 4칸 무성한 풀 10턴 — 1칸에 이동 4(속도 1/4)",
+      "review": false,
+      "source": "SRD 5.2.1",
+      "icon": {
+        "glyph": "leaf",
+        "family": "transmutation"
+      }
+    },
+    {
+      "id": "strangling_vine",
+      "name": {
+        "ko": "휘감는 덩굴",
+        "en": "Strangling Vine"
+      },
+      "level": 4,
+      "school": "conjuration",
+      "classes": [
+        "druid"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "bonus_action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 6
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "dex",
+          "dc": "spell"
+        }
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 덩굴(집중 10턴) — 6칸 안 적 민첩 내성 실패면 4칸 끌어옴, 다시 쓰기 보너스 행동",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "leaf",
+        "family": "conjuration"
+      },
+      "recast": {
+        "cost": "bonus_action",
+        "en": "The vine pulls a creature again."
+      },
+      "script": "strangling_vine"
+    },
+    {
+      "id": "mind_jolt_strike",
+      "name": {
+        "ko": "정신 충격 일격",
+        "en": "Mind-Jolt Strike"
+      },
+      "level": 4,
+      "school": "enchantment",
+      "classes": [
+        "paladin"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "attack",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 1
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "mind_jolt_ready"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 근접 무기 공격 + 4d6 정신, 지혜 내성 실패면 1턴 공격·판정 불리·반응 불가",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "psychic"
+      },
+      "script": "smite_attack"
+    },
+    {
+      "id": "exile_strike",
+      "name": {
+        "ko": "추방 일격",
+        "en": "Exile Strike"
+      },
+      "level": 5,
+      "school": "abjuration",
+      "classes": [
+        "paladin"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "attack",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "touch"
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 2
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "apply": [
+          {
+            "type": "apply_condition",
+            "id": "exile_strike_ready"
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 근접 무기 공격 + 5d10 역장, 맞은 뒤 HP 50 이하면 추방(집중 2턴)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "sword",
+        "family": "force"
+      },
+      "script": "smite_attack"
+    },
+    {
+      "id": "sundering_wave",
+      "name": {
+        "ko": "분쇄의 파동",
+        "en": "Sundering Wave"
+      },
+      "level": 5,
+      "school": "evocation",
+      "classes": [
+        "paladin"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "self"
+      },
+      "area": {
+        "shape": "emanation",
+        "radius_tiles": 6,
+        "mask": "circle"
+      },
+      "duration": {
+        "type": "instant"
+      },
+      "concentration": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {
+        "check": {
+          "type": "save",
+          "ability": "con",
+          "dc": "spell"
+        },
+        "fail": [
+          {
+            "type": "damage",
+            "dice": "5d6",
+            "damage_type": "thunder"
+          },
+          {
+            "type": "damage",
+            "dice": "5d6",
+            "damage_type": "radiant"
+          },
+          {
+            "type": "apply_condition",
+            "id": "prone"
+          }
+        ],
+        "success": [
+          {
+            "type": "damage",
+            "dice": "5d6",
+            "damage_type": "thunder",
+            "scale": 0.5
+          },
+          {
+            "type": "damage",
+            "dice": "5d6",
+            "damage_type": "radiant",
+            "scale": 0.5
+          }
+        ]
+      },
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 자신 주변 6칸 적만 건강 내성 5d6 천둥 + 5d6 광휘, 실패면 넘어짐",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "waves",
+        "family": "thunder"
+      },
+      "area_targets": "enemies"
+    },
+    {
+      "id": "twin_gate",
+      "name": {
+        "ko": "쌍둥이 관문",
+        "en": "Twin Gate"
+      },
+      "level": 6,
+      "school": "conjuration",
+      "classes": [
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "granted_by": [],
+      "cast": {
+        "cost": "action",
+        "ritual": false,
+        "explore_only": false
+      },
+      "range": {
+        "type": "tiles",
+        "tiles": 12
+      },
+      "area": null,
+      "duration": {
+        "type": "turns",
+        "turns": 10
+      },
+      "concentration": true,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material_cost_gp": 0,
+        "consumed": false
+      },
+      "effects": {},
+      "game_status": "included",
+      "notes_ko": "BG3 수치: 이어진 관문 둘(집중 10턴) — 어느 생물이든 들어서면 다른 관문으로. 둘째 관문은 opts.second_cell(없으면 시전자 칸)",
+      "review": false,
+      "source": "original",
+      "icon": {
+        "glyph": "swirl",
+        "family": "conjuration"
+      },
+      "script": "twin_gate"
     }
   ]
 }

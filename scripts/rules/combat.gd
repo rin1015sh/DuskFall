@@ -113,12 +113,18 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	var hexed: bool = c.has_meta("hexed_weapon") and str(c.get_meta("hexed_weapon")) == str(w["id"])
 	if hexed and c.ability_mod("cha") > c.ability_mod(ability):
 		ability = "cha"  # 저주 무기 결속(주술검사, BG3): 결속한 무기에 매력
+	var shil: Dictionary = c.get_meta("shillelagh", {}) if c.has_meta("shillelagh") else {}
+	var shillelagh: bool = not shil.is_empty() and str(shil.get("weapon", "")) == str(w["id"])
+	if shillelagh:
+		ability = str(shil.get("ability", "wis"))  # 마법 곤봉(BG3): 시전 능력으로 명중·피해, 1d8, 마법
 	var mod: int = c.ability_mod(ability)
 	var proficient: bool = w["id"] == "unarmed" or hexed or c.weapon_proficiencies.has(w["id"]) \
 		or c.weapon_proficiencies.has(str(w.get("category", "")).get_slice("_", 0))
-	var dice: String = w["damage"]
+	var dice: String = "1d8" if shillelagh else w["damage"]
+	if w.get("conjured", false) and c.has_meta("conjured_weapon_dice"):
+		dice = str(c.get_meta("conjured_weapon_dice"))  # 불러낸 무기(불꽃·그늘 칼날): 슬롯에 따른 주사위
 	var free_off: bool = c.weapon("off") == "" and not bool(c.get_meta("shield", false))
-	if "versatile" in props and not ranged and (opts.get("two_handed", false) or free_off):
+	if "versatile" in props and not ranged and not shillelagh and (opts.get("two_handed", false) or free_off):
 		dice = w["versatile_damage"]  # 다용도 무기: 보조 손이 비면 두 손으로(BG3식 자동, SRD Versatile)
 	var martial_die := ""
 	if martial:
@@ -183,7 +189,7 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 		"kind": "ranged" if ranged else "melee", "weapon": true, "properties": props,
 		"damage": [{"dice": expr, "damage_type": w["damage_type"]}],
 		"extra_disadvantage": dis, "flat_damage": flat,
-		"magical": (ranged and c.has_cap("magic_ranged")) or (w["id"] == "unarmed" and c.has_cap("empowered_strikes")),  # 기 강화 타격(BG3): 비무장이 마법 공격
+		"magical": shillelagh or bool(w.get("conjured", false)) or (ranged and c.has_cap("magic_ranged")) or (w["id"] == "unarmed" and c.has_cap("empowered_strikes")),  # 기 강화 타격(BG3): 비무장이 마법 공격
 		"range_tiles": w.get("range_tiles", [reach_of(c), reach_of(c)]) if ranged else [1, 1]}
 
 
@@ -564,8 +570,11 @@ static func move(world: Dictionary, c: Node, to: Vector2i, opts: Dictionary = {}
 		for a in c.active_conditions():
 			var md: Dictionary = a["def"].get("move_damage", {})
 			if not md.is_empty():
-				Resolver.apply_damage(c, [{"amount": Dice.roll(str(md["dice"]), str(a["def"]["name"]["ko"]))["total"], "damage_type": str(md["damage_type"])}],
+				var mdice := str(a["instance"].get("params", {}).get("move_dice", md["dice"]))  # 우레 칼날: 건 쪽 레벨의 주사위
+				Resolver.apply_damage(c, [{"amount": Dice.roll(mdice, str(a["def"]["name"]["ko"]))["total"], "damage_type": str(md["damage_type"])}],
 					{"attacker": a["instance"].get("source")})  # 휘감김: 움직이면 피해
+				if md.get("once", false):
+					c.remove_condition(str(a["id"]))
 		if c.dead or c.is_down():
 			return out
 	for nxt: Vector2i in p["path"]:
@@ -590,6 +599,9 @@ static func move(world: Dictionary, c: Node, to: Vector2i, opts: Dictionary = {}
 			out["stopped"] = "이동 중 쓰러지거나 멈춤"
 			break
 		load("res://scripts/rules/spellcasting.gd").on_moved(world, c)
+		if grid.cell_of(c) != cur:
+			out["stopped"] = "옮겨짐"  # 관문 등으로 다른 칸에 옮겨지면 남은 경로를 버린다
+			break
 	return out
 
 
