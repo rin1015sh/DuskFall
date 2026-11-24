@@ -29,6 +29,24 @@ const DEATH_SAVE_DC := 10
 # ======================================================================
 
 ## 1. 선언: 공격할 수 없으면 이유를 돌려준다. 할 수 있으면 "".
+## 도발(BG3): 파티가 중립 생물을 공격하거나 해치면 그 생물과 같은 세력(faction) 전원이 적대가 된다.
+## 세력이 없으면 그 생물만. 전투 중이면 다음 라운드부터 참가한다.
+static func provoke(attacker: Variant, target: Node) -> void:
+	if not (attacker is Node) or target == null or target.team != "neutral" or attacker.team == "neutral" or attacker == target:
+		return
+	var hostile_team: String = "enemy" if attacker.team == "party" else "party"
+	var group: Array = [target]
+	var rq: Node = EventBus.reaction_queue
+	var world: Dictionary = rq.world if rq != null and is_instance_valid(rq) else {}
+	if target.faction != "" and world.has("grid"):
+		group = world["grid"].creatures().filter(func(o: Node) -> bool: return o.faction == target.faction and o.team == "neutral")
+	for o: Node in group:
+		o.team = hostile_team
+		if world.get("turns") != null:
+			world["turns"].notify_hostile_action(o)
+	Dice.log_text("%s: %s 무리가 적대로 돌아섰다" % [attacker.label(), target.label()])
+
+
 static func can_attack(attacker: Node, target: Node) -> String:
 	if attacker.dead or attacker.is_down():
 		return "공격자가 쓰러졌다"
@@ -267,6 +285,8 @@ static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Di
 	var why := can_attack(attacker, target)
 	if why == "" and not preview:
 		why = _sanctuary(attacker, target)
+	if why == "" and not preview:
+		provoke(attacker, target)
 	if why != "":
 		res["valid"] = false
 		res["reason"] = why
@@ -1125,6 +1145,7 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 		"died": false, "concentration": {}}
 	if target.dead:
 		return out
+	provoke(opts.get("attacker"), target)  # 중립을 해치면 그 무리가 적대(BG3)
 	# 8. 피해 수정(유형별로 모아서 한 번에 — 저항은 한 피해에 한 번만 적용된다)
 	# 배율(내성 성공 절반 등)은 부분마다 먼저 적용하고 내림, 그다음 유형별로 합쳐 저항·취약.
 	var raw := {}
@@ -1549,6 +1570,7 @@ static func save_effect(targets: Array, check: Dictionary, fail: Array, success:
 		func(e: Dictionary) -> String: return e["id"])
 	var careful: Array = opts.get("careful", [])  # 신중한 주문(소서러): 고른 아군은 자동 성공, 절반 피해도 받지 않는다
 	for t: Node in targets:
+		provoke(opts.get("source"), t)  # 해로운 내성 효과도 중립을 적대로(BG3)
 		if t in careful:
 			saves.append({"success": true, "auto": true, "careful": true})
 			continue

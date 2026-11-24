@@ -214,7 +214,16 @@ static func unavailable(world: Dictionary, c: Node, key: String, explore: bool =
 	return ""
 
 
-## 대상 칸에 대한 미리보기: {"valid", "lines": [..], "path", "area"}
+## 아군·중립을 노릴 때 경고(BG3 붉은 표시): "" = 적.
+static func friendly_fire_warning(c: Node, t: Node) -> String:
+	if t == null or c.is_hostile_to(t):
+		return ""
+	if t.team == "neutral":
+		return "중립 — 공격하면 그 무리 전체가 적대가 된다" if t.faction != "" else "중립 — 공격하면 적대가 된다"
+	return "아군을 공격한다"
+
+
+## 대상 칸에 대한 미리보기: {"valid", "lines": [..], "path", "area", "warning"(아군·중립)}
 static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, explore: bool = false) -> Dictionary:
 	var grid: Node = world["grid"]
 	var d := def_of(key)
@@ -230,8 +239,11 @@ static func preview(world: Dictionary, c: Node, key: String, cell: Vector2i, exp
 			if t == null and key in ["attack", "ranged_attack"] and not grid.object_at(cell).is_empty():
 				var obj: Dictionary = grid.object_at(cell)
 				return {"valid": true, "lines": ["%s 공격(AC %d, HP %d)" % [obj.get("id", "물체"), int(obj.get("ac", 10)), int(obj.get("hp", 1))]], "object": true}
-			if t == null or not c.is_hostile_to(t) or t.dead:
-				return {"valid": false, "lines": ["적을 골라야 한다"]}
+			if t == null or t == c or t.dead:
+				return {"valid": false, "lines": ["대상을 골라야 한다"]}  # BG3: 아군·중립도 노릴 수 있다(미리보기에 경고)
+			var warn := friendly_fire_warning(c, t)
+			if warn != "":
+				out["warning"] = warn
 		"ally", "ally_down", "ally_help":
 			if t == null or c.is_hostile_to(t) or t.dead:
 				return {"valid": false, "lines": ["아군을 골라야 한다"]}
@@ -946,8 +958,8 @@ static func _haft_strike(world: Dictionary, c: Node, t: Node) -> Dictionary:
 ## 무기 공격(피해 +5, 공격 행동의 공격 하나 — 추가 공격과 이어짐) 또는 밀치기.
 static func _charge(world: Dictionary, c: Node, t: Node, shove: bool) -> Dictionary:
 	var grid: Node = world["grid"]
-	if t == null or t.dead or not c.is_hostile_to(t):
-		return {"ok": false, "reason": "적을 골라야 한다"}
+	if t == null or t.dead or t == c:
+		return {"ok": false, "reason": "대상을 골라야 한다"}
 	var from: Vector2i = grid.cell_of(c)
 	var goal: Vector2i = grid.cell_of(t)
 	if grid.distance(from, goal) > 7:

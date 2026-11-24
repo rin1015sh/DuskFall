@@ -755,6 +755,9 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 	if mode.begins_with("act:"):
 		var ap: Dictionary = Actions.preview(world, c, mode.trim_prefix("act:"), cell, exploring)
 		var ao := {"valid": ap.get("valid", false), "text": "\n".join(PackedStringArray(ap.get("lines", [])))}
+		if ap.has("warning"):
+			ao["warning"] = ap["warning"]  # 아군·중립 공격 경고(BG3 — 붉은 표시)
+			ao["text"] = "⚠ %s\n%s" % [ap["warning"], ao["text"]]
 		if ap.has("path"):
 			ao["path"] = ap["path"]
 		if ap.has("area"):
@@ -776,10 +779,14 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 		lines.append(UiText.t("move_cost") % [p["cost"], int(c.turn["movement"]) - p["cost"]])
 		if not out["oa"].is_empty():
 			lines.append(UiText.t("opportunity") % out["oa"].size())
-	elif (mode == "move" or mode == "attack") and target != null and c.is_hostile_to(target):
+	elif target != null and target != c and not target.dead and ((mode == "move" and c.is_hostile_to(target)) or mode == "attack"):
 		var p := Combat.preview_attack(world, c, target)
 		if not p.get("valid", false):
 			return {"valid": false, "text": UiText.t("blocked") % p.get("reason", "")}
+		var ffw := Actions.friendly_fire_warning(c, target)
+		if ffw != "":
+			out["warning"] = ffw
+			lines.append("⚠ " + ffw)
 		lines.append(UiText.t("hit_chance") % roundi(p["hit_chance"] * 100))
 		lines.append(UiText.t("damage_range") % [p["damage"]["min"], p["damage"]["max"], p["damage"]["avg"]])
 		if p.has("high_ground"):
@@ -787,7 +794,7 @@ func _compute_preview(cell: Vector2i) -> Dictionary:
 		if "근접 위협" in p.get("disadvantage", []):
 			lines.append(UiText.t("threatened"))
 	elif mode == "shove" and target != null:
-		var p := Physics.preview_shove(g, c, target, not c.is_hostile_to(target))
+		var p := Physics.preview_shove(g, c, target, c.team == target.team)
 		if not p["valid"] or g.distance_between(c, target) > 1:
 			return {"valid": false, "text": UiText.t("blocked") % p.get("reason", "")}
 		out["path"] = p["path"]
@@ -1360,7 +1367,7 @@ func _execute(cell: Vector2i) -> void:
 	var target: Node = g.creature_at(cell)
 	if mode == "move" and target == null:
 		Combat.move(world, c, cell)
-	elif (mode == "move" or mode == "attack") and target != null and c.is_hostile_to(target):
+	elif target != null and target != c and not target.dead and ((mode == "move" and c.is_hostile_to(target)) or mode == "attack"):
 		views[c].face_toward(cell)
 		Combat.attack(world, c, target)
 	elif mode == "shove" and target != null:
