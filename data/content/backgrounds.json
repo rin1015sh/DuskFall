@@ -1,6 +1,6 @@
 {
   "schema": "background_v1",
-  "note_ko": "룰북 6단계: SRD 배경 4개. 능력치 보너스는 배경과 무관하게 자유 배분. 도구 숙련 삭제, 장비는 A 꾸러미 고정(도구 제외, 치료사 키트는 치유 물약으로 — 7단계 치료사 키트 삭제). 영감 목표는 6단계(대화)에서 채운다.",
+  "note_ko": "룰북 6단계: BG3 배경 구성 12개(SRD 4개 + 자체 8개 — 2026-11-24). 기능 숙련 2(BG3 값, 범죄자는 기만·은신), 출신 재주 없음, 능력치 보너스는 자유 배분. 도구 숙련 삭제, 장비는 꾸러미 하나(엔진 미사용). 영감 목표 3개 — 대화·행동 태그(goals.gd).",
   "backgrounds": [
     {
       "id": "acolyte",
@@ -19,7 +19,8 @@
       "gold": 8,
       "inspiration_goals": [
         "show_mercy",
-        "uphold_faith"
+        "uphold_faith",
+        "destroy_undead"
       ],
       "source": "SRD 5.2.1"
     },
@@ -30,7 +31,7 @@
         "en": "Criminal"
       },
       "skills": [
-        "sleight_of_hand",
+        "deception",
         "stealth"
       ],
       "equipment": [
@@ -40,7 +41,8 @@
       "gold": 16,
       "inspiration_goals": [
         "pick_lock",
-        "steal_unseen"
+        "steal_unseen",
+        "lie_successfully"
       ],
       "source": "SRD 5.2.1"
     },
@@ -61,7 +63,8 @@
       "gold": 8,
       "inspiration_goals": [
         "decipher_text",
-        "learn_secret"
+        "learn_secret",
+        "identify_magic"
       ],
       "source": "SRD 5.2.1"
     },
@@ -83,9 +86,181 @@
       "gold": 14,
       "inspiration_goals": [
         "protect_ally",
-        "intimidate_foe"
+        "intimidate_foe",
+        "hold_the_line"
       ],
       "source": "SRD 5.2.1"
+    },
+    {
+      "id": "charlatan",
+      "name": {
+        "ko": "사기꾼",
+        "en": "Charlatan"
+      },
+      "skills": [
+        "deception",
+        "sleight_of_hand"
+      ],
+      "equipment": [
+        "dagger"
+      ],
+      "gold": 15,
+      "inspiration_goals": [
+        "con_a_mark",
+        "talk_out_of_trouble",
+        "false_identity"
+      ],
+      "source": "original"
+    },
+    {
+      "id": "entertainer",
+      "name": {
+        "ko": "예능인",
+        "en": "Entertainer"
+      },
+      "skills": [
+        "acrobatics",
+        "performance"
+      ],
+      "equipment": [
+        "dagger"
+      ],
+      "gold": 15,
+      "inspiration_goals": [
+        "perform_crowd",
+        "win_audience",
+        "daring_stunt"
+      ],
+      "source": "original"
+    },
+    {
+      "id": "village_champion",
+      "name": {
+        "ko": "마을의 영웅",
+        "en": "Village Champion"
+      },
+      "skills": [
+        "animal_handling",
+        "survival"
+      ],
+      "equipment": [
+        "spear",
+        "rations"
+      ],
+      "gold": 10,
+      "inspiration_goals": [
+        "defend_commoners",
+        "stand_up_to_tyrant",
+        "calm_beast"
+      ],
+      "source": "original"
+    },
+    {
+      "id": "guild_crafter",
+      "name": {
+        "ko": "길드 장인",
+        "en": "Guild Crafter"
+      },
+      "skills": [
+        "insight",
+        "persuasion"
+      ],
+      "equipment": [
+        "light_hammer"
+      ],
+      "gold": 15,
+      "inspiration_goals": [
+        "strike_bargain",
+        "appraise_goods",
+        "honor_contract"
+      ],
+      "source": "original"
+    },
+    {
+      "id": "noble",
+      "name": {
+        "ko": "귀족",
+        "en": "Noble"
+      },
+      "skills": [
+        "history",
+        "persuasion"
+      ],
+      "equipment": [
+        "rapier"
+      ],
+      "gold": 25,
+      "inspiration_goals": [
+        "command_respect",
+        "use_family_name",
+        "show_noblesse"
+      ],
+      "source": "original"
+    },
+    {
+      "id": "outlander",
+      "name": {
+        "ko": "이방인",
+        "en": "Outlander"
+      },
+      "skills": [
+        "athletics",
+        "survival"
+      ],
+      "equipment": [
+        "quarterstaff",
+        "rations"
+      ],
+      "gold": 10,
+      "inspiration_goals": [
+        "track_quarry",
+        "forage_wilds",
+        "respect_nature"
+      ],
+      "source": "original"
+    },
+    {
+      "id": "urchin",
+      "name": {
+        "ko": "부랑아",
+        "en": "Urchin"
+      },
+      "skills": [
+        "sleight_of_hand",
+        "stealth"
+      ],
+      "equipment": [
+        "dagger"
+      ],
+      "gold": 10,
+      "inspiration_goals": [
+        "steal_unseen",
+        "help_the_poor",
+        "escape_pursuit"
+      ],
+      "source": "original"
+    },
+    {
+      "id": "haunted",
+      "name": {
+        "ko": "시달리는 자",
+        "en": "Haunted"
+      },
+      "skills": [
+        "medicine",
+        "intimidation"
+      ],
+      "equipment": [
+        "dagger",
+        "potion_of_healing"
+      ],
+      "gold": 5,
+      "inspiration_goals": [
+        "face_the_dark",
+        "save_a_victim",
+        "resist_whispers"
+      ],
+      "source": "original"
     }
   ]
 }
