@@ -33,6 +33,13 @@ static func hook(hook_name: String, creature: Node, ctx: Dictionary) -> void:
 		run(sid, c)
 
 
+## 기능 requires_condition(상태 id 하나 또는 목록 — 하나라도 있으면): 분노 변형·야생 마법 효과에 딸린 행동.
+static func condition_ok(creature: Node, f: Dictionary) -> bool:
+	var rc: Variant = f.get("requires_condition", [])
+	var need: Array = [rc] if rc is String else rc
+	return need.is_empty() or need.any(func(id: String) -> bool: return creature.has_condition(id))
+
+
 ## 행동형 기능 사용. 결과: {"ok", "reason", ...}
 static func use(world: Dictionary, creature: Node, feature_id: String, target: Variant = null, opts: Dictionary = {}) -> Dictionary:
 	var f: Dictionary = creature.feature_data.get(feature_id, {})
@@ -40,6 +47,8 @@ static func use(world: Dictionary, creature: Node, feature_id: String, target: V
 		return {"ok": false, "reason": "기능이 없다"}
 	if not f.has("script"):
 		return {"ok": false, "reason": "쓰는 기능이 아니다"}
+	if not condition_ok(creature, f):
+		return {"ok": false, "reason": "지금은 쓸 수 없다"}
 	var cost: String = {"action": "action", "bonus_action": "bonus", "reaction": "reaction"}.get(f.get("kind", "free"), "free")
 	var Combat := preload("res://scripts/rules/combat.gd")
 	if not Combat.can_spend(creature, cost):

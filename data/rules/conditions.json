@@ -2271,6 +2271,420 @@
       "default_duration_turns": 10,
       "notes_ko": "매 턴 보너스 행동으로 명령(슬롯 없이).",
       "source": "original"
+    },
+    {
+      "id": "frenzy",
+      "name": {
+        "ko": "광란",
+        "en": "Frenzy"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "ends_with": "raging",
+      "notes_ko": "광전사 분노(광란의 일격·격노의 투척).",
+      "source": "original"
+    },
+    {
+      "id": "frenzied_strain",
+      "name": {
+        "ko": "광란의 긴장",
+        "en": "Frenzied Strain"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "ends_with": "frenzy",
+      "notes_ko": "명중 −(층 수). 광란이 끝나면 사라진다(primal.attack_context).",
+      "source": "original"
+    },
+    {
+      "id": "rage_bear_heart",
+      "name": {
+        "ko": "분노: 곰의 심장",
+        "en": "Rage: Bear Heart"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "acid",
+            "bludgeoning",
+            "cold",
+            "fire",
+            "force",
+            "lightning",
+            "necrotic",
+            "piercing",
+            "poison",
+            "radiant",
+            "slashing",
+            "thunder"
+          ]
+        }
+      ],
+      "ends_with": "raging",
+      "notes_ko": "정신 말고 모든 피해 저항.",
+      "source": "original"
+    },
+    {
+      "id": "rage_eagle_heart",
+      "name": {
+        "ko": "분노: 독수리의 심장",
+        "en": "Rage: Eagle Heart"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "flags": {
+        "oa_disadvantage_against": true
+      },
+      "ends_with": "raging",
+      "notes_ko": "나를 노리는 기회 공격 불리, 질주 보너스 행동.",
+      "source": "original"
+    },
+    {
+      "id": "rage_elk_heart",
+      "name": {
+        "ko": "분노: 엘크의 심장",
+        "en": "Rage: Elk Heart"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "add": 3
+        }
+      ],
+      "ends_with": "raging",
+      "notes_ko": "이동 +3칸.",
+      "source": "original"
+    },
+    {
+      "id": "rage_tiger_heart",
+      "name": {
+        "ko": "분노: 호랑이의 심장",
+        "en": "Rage: Tiger Heart"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "jump_tiles",
+          "add": 3
+        }
+      ],
+      "ends_with": "raging",
+      "notes_ko": "도약 +3칸.",
+      "source": "original"
+    },
+    {
+      "id": "rage_wolf_heart",
+      "name": {
+        "ko": "분노: 늑대의 심장",
+        "en": "Rage: Wolf Heart"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "flags": {
+        "ally_melee_advantage_adjacent": true
+      },
+      "ends_with": "raging",
+      "notes_ko": "아군이 내 1칸 안 적을 근접 공격하면 유리.",
+      "source": "original"
+    },
+    {
+      "id": "incited",
+      "name": {
+        "ko": "선동됨",
+        "en": "Incited"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "add": 2
+        }
+      ],
+      "default_duration_turns": 1,
+      "notes_ko": "이동 +2칸.",
+      "source": "original"
+    },
+    {
+      "id": "giants_rage",
+      "name": {
+        "ko": "거인의 분노",
+        "en": "Giant's Rage"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "flags": {
+        "throw_rage_double": true
+      },
+      "ends_with": "raging",
+      "notes_ko": "던지기 분노 피해 두 배.",
+      "source": "original"
+    },
+    {
+      "id": "wm_bolt_of_light",
+      "name": {
+        "ko": "야생 마법: 빛의 화살",
+        "en": "Wild Magic: Bolt of Light"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "ends_with": "raging",
+      "notes_ko": "매 턴 보너스 행동 빛의 화살.",
+      "source": "original"
+    },
+    {
+      "id": "wm_dark_tendrils",
+      "name": {
+        "ko": "야생 마법: 어둠의 덩굴손",
+        "en": "Wild Magic: Dark Tendrils"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "ends_with": "raging",
+      "notes_ko": "들어갈 때 6칸 안 적 건강 내성 실패 1d12 사령, 나 임시 HP 1d12.",
+      "source": "original"
+    },
+    {
+      "id": "wm_intangible_spirit",
+      "name": {
+        "ko": "야생 마법: 무형의 정령",
+        "en": "Wild Magic: Intangible Spirit"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "ends_with": "raging",
+      "notes_ko": "매 턴 보너스 행동 정령 폭발.",
+      "source": "original"
+    },
+    {
+      "id": "wm_magic_retribution",
+      "name": {
+        "ko": "야생 마법: 마법 응징",
+        "en": "Wild Magic: Magic Retribution"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "retaliate": {
+        "dice": "1d6",
+        "damage_type": "force",
+        "any_range": true
+      },
+      "ends_with": "raging",
+      "notes_ko": "나를 맞힌 적 1d6 역장(원거리 포함).",
+      "source": "original"
+    },
+    {
+      "id": "wm_protective_lights",
+      "name": {
+        "ko": "야생 마법: 보호의 빛",
+        "en": "Wild Magic: Protective Lights"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "flags": {
+        "protective_lights": true
+      },
+      "ends_with": "raging",
+      "notes_ko": "나와 2칸 안 아군 AC +1.",
+      "source": "original"
+    },
+    {
+      "id": "wm_teleport",
+      "name": {
+        "ko": "야생 마법: 순간 이동",
+        "en": "Wild Magic: Teleport"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "ends_with": "raging",
+      "notes_ko": "매 턴 보너스 행동 12칸 순간 이동.",
+      "source": "original"
+    },
+    {
+      "id": "wm_vine_growth",
+      "name": {
+        "ko": "야생 마법: 덩굴 자라기",
+        "en": "Wild Magic: Vine Growth"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "ends_with": "raging",
+      "notes_ko": "들어갈 때 3칸 반경 덩굴(어려운 지형, 10턴). [변형] 나도 어려운 지형.",
+      "source": "original"
+    },
+    {
+      "id": "wm_weapon_infusion",
+      "name": {
+        "ko": "야생 마법: 무기 주입",
+        "en": "Wild Magic: Weapon Infusion"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "force"
+          }
+        ]
+      },
+      "ends_with": "raging",
+      "notes_ko": "무기 명중 +1d6 역장(가벼움·던지기 속성 생략).",
+      "source": "original"
+    },
+    {
+      "id": "magic_awareness",
+      "name": {
+        "ko": "마법 인지",
+        "en": "Magic Awareness"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "saving_throw",
+          "add": "1d4"
+        }
+      ],
+      "default_duration_turns": 1,
+      "notes_ko": "내성 +1d4.",
+      "source": "original"
+    },
+    {
+      "id": "bolstering_boon",
+      "name": {
+        "ko": "강화 마법",
+        "en": "Bolstering Magic"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "attack_roll",
+          "add": "1d4"
+        }
+      ],
+      "default_duration_turns": 10,
+      "notes_ko": "명중 +1d4.",
+      "source": "original"
+    },
+    {
+      "id": "elemental_cleaver_acid",
+      "name": {
+        "ko": "원소 쪼개기: 산",
+        "en": "Elemental Cleaver: Acid"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "acid"
+          }
+        ]
+      },
+      "ends_with": "raging",
+      "notes_ko": "무기 명중 +1d6 산.",
+      "source": "original"
+    },
+    {
+      "id": "elemental_cleaver_cold",
+      "name": {
+        "ko": "원소 쪼개기: 냉기",
+        "en": "Elemental Cleaver: Cold"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "cold"
+          }
+        ]
+      },
+      "ends_with": "raging",
+      "notes_ko": "무기 명중 +1d6 냉기.",
+      "source": "original"
+    },
+    {
+      "id": "elemental_cleaver_fire",
+      "name": {
+        "ko": "원소 쪼개기: 화염",
+        "en": "Elemental Cleaver: Fire"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "fire"
+          }
+        ]
+      },
+      "ends_with": "raging",
+      "notes_ko": "무기 명중 +1d6 화염.",
+      "source": "original"
+    },
+    {
+      "id": "elemental_cleaver_lightning",
+      "name": {
+        "ko": "원소 쪼개기: 번개",
+        "en": "Elemental Cleaver: Lightning"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "lightning"
+          }
+        ]
+      },
+      "ends_with": "raging",
+      "notes_ko": "무기 명중 +1d6 번개.",
+      "source": "original"
+    },
+    {
+      "id": "elemental_cleaver_thunder",
+      "name": {
+        "ko": "원소 쪼개기: 천둥",
+        "en": "Elemental Cleaver: Thunder"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "hooks": {
+        "on_weapon_hit": [
+          {
+            "type": "damage",
+            "dice": "1d6",
+            "damage_type": "thunder"
+          }
+        ]
+      },
+      "ends_with": "raging",
+      "notes_ko": "무기 명중 +1d6 천둥.",
+      "source": "original"
     }
   ]
 }

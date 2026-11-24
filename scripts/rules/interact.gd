@@ -131,7 +131,12 @@ static func capacity_kg(c: Node) -> float:
 
 
 static func load_limit_kg(c: Node, cond: String) -> float:
-	return float(c.abilities.get("str", 10)) * float(RulesDB.get_entry("condition", cond).get("load_kg_per_str", 6.8))
+	var mult := 1.0
+	if c.has_cap("aspect_bear"):
+		mult *= 2.0  # 짐승의 면모: 곰 — 운반 두 배
+	if c.has_cap("carry_quarter_more"):
+		mult *= 1.25  # 탐욕의 품(거인): 운반 +25%
+	return float(c.abilities.get("str", 10)) * float(RulesDB.get_entry("condition", cond).get("load_kg_per_str", 6.8)) * mult
 
 
 ## 무게 상태를 맞춘다(소지품·장비·근력이 바뀔 때): 가장 무거운 것 하나만 건다.

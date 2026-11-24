@@ -59,7 +59,7 @@ func test_reckless_and_frenzy() -> void:
 	Dice.force([18, 18])
 	var res: Dictionary = Combat.attack(w, b, f, {"weapon": "greataxe"})
 	assert_eq(int(res["mode"]), 1, "무모한 공격: 근력 공격 유리")
-	assert_true(res.get("extra_damage", []).any(func(e: Dictionary) -> bool: return e["dice"] == "2d6"), "광란 2d6")
+	assert_true(b.has_condition("frenzy"), "광전사: 분노가 광란(BG3)")
 	assert_false(Features.use(w, b, "reckless_attack")["ok"], "턴에 한 번")
 	Dice.force([5, 15])
 	var back: Dictionary = Combat.attack(w, f, b, {"weapon": "unarmed"})

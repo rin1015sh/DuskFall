@@ -166,11 +166,16 @@
                 "jump_tiles",
                 "rage_damage",
                 "spell_dc",
-                "str_weapon_damage"
+                "str_weapon_damage",
+                "attack_roll",
+                "saving_throw"
               ]
             },
             "add": {
-              "type": "integer"
+              "type": [
+                "integer",
+                "string"
+              ]
             },
             "set": {
               "type": "integer"
@@ -446,6 +451,18 @@
             },
             "concentration_floor_10": {
               "type": "boolean"
+            },
+            "oa_disadvantage_against": {
+              "type": "boolean"
+            },
+            "ally_melee_advantage_adjacent": {
+              "type": "boolean"
+            },
+            "throw_rage_double": {
+              "type": "boolean"
+            },
+            "protective_lights": {
+              "type": "boolean"
             }
           }
         },
@@ -565,6 +582,10 @@
         },
         "save_bonus": {
           "type": "object"
+        },
+        "ends_with": {
+          "type": "string",
+          "$comment": "이 상태가 끝나면 함께 끝난다(분노 변형)"
         }
       }
     }

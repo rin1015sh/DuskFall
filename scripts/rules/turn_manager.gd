@@ -292,6 +292,7 @@ func begin_turn(c: Node) -> void:
 	if not c.has_flag("cannot_act"):
 		c.reset_turn()  # 턴 시작 효과로 바뀐 상태(넘어짐·연소 등)를 반영
 		c.turn["movement"] = c.speed()
+		load("res://scripts/rules/primal.gd").turn_start(world, c)
 		for m in c.modifier_entries():
 			var e: Dictionary = m["effect"]
 			if e["type"] == "grant_action" and e.get("action", "") == "haste_action" and not c.is_incapacitated():

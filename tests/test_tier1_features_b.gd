@@ -44,12 +44,7 @@ func test_barbarian_6_10() -> void:
 	Dice.force([15])
 	var res2 := Resolver.attack(b, foe, atk, w["grid"].attack_context(b, foe))
 	assert_false(res2.has("brutal_strike"), "턴당 1회")
-	# 보복
-	b.refresh_reaction()
-	var hp: int = foe.hp
-	Dice.force([15])
-	Resolver.apply_damage(b, [{"amount": 5, "damage_type": "slashing"}], {"attacker": foe})
-	assert_true(foe.hp < hp, "보복: 반응 근접 공격")
+	assert_true(b.feature_data.has("intimidating_presence"), "광전사 10레벨: 위협적인 존재감(BG3 — 보복 대신)")
 
 
 func test_bard_6_10() -> void:

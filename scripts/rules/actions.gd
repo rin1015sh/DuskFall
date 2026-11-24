@@ -52,7 +52,7 @@ static func def_of(key: String) -> Dictionary:
 		return {"id": key, "name": f.get("name", {"ko": fid, "en": fid}), "desc": f.get("desc", f.get("summary", {"ko": f.get("notes_ko", ""), "en": ""})),
 			"cost": COST_NAME.get(str(f.get("kind", "free")), "free"), "target": str(f.get("target", "self")), "tab": "class",
 			"icon": "res://assets/" + str(f.get("icon", "statuses/buff.webp")), "explore": bool(f.get("explore", false)),
-			"resource": f.get("resource", "")}
+			"resource": f.get("resource", ""), "requires_condition": f.get("requires_condition", [])}
 	if key.begins_with("entity:"):
 		var kind := key.trim_prefix("entity:")
 		return ENTITY_ACTIONS.get(kind, {}).duplicate(true)
@@ -164,6 +164,8 @@ static func unavailable(world: Dictionary, c: Node, key: String, explore: bool =
 			return {"action": "행동이 없다", "bonus": "보너스 행동이 없다", "reaction": "반응이 없다"}.get(cost, "비용이 없다")
 	if d.get("resource", "") != "" and c.resource(d["resource"]) <= 0:
 		return "남은 횟수가 없다"
+	if key.begins_with("feature:") and not Features.condition_ok(c, d):
+		return "지금은 쓸 수 없다"
 	if key.begins_with("spell:"):
 		var sp: Dictionary = d["spell"]
 		if int(sp.get("level", 0)) > 0:

@@ -744,6 +744,19 @@
         },
         "requires_meta": {
           "type": "object"
+        },
+        "rage_variants": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "$comment": "분노 기능: {능력 태그: 같이 걸 상태}"
+        },
+        "maintain": {
+          "type": "boolean"
+        },
+        "bolster": {
+          "type": "string"
         }
       }
     }

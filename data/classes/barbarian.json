@@ -71,6 +71,40 @@
         "11": 20
       },
       "recharge": "short"
+    },
+    {
+      "id": "intimidating_presence",
+      "name": {
+        "ko": "위협적인 존재감",
+        "en": "Intimidating Presence"
+      },
+      "max": {
+        "10": 1
+      },
+      "recharge": "short",
+      "subclass": "berserker"
+    },
+    {
+      "id": "magic_awareness",
+      "name": {
+        "ko": "마법 인지",
+        "en": "Magic Awareness"
+      },
+      "max": {
+        "3": 1
+      },
+      "recharge": "short",
+      "subclass": "wild_magic"
+    },
+    {
+      "id": "bolstering_magic",
+      "name": {
+        "ko": "강화 마법",
+        "en": "Bolstering Magic"
+      },
+      "max": "proficiency_bonus",
+      "recharge": "long",
+      "subclass": "wild_magic"
     }
   ],
   "features": [
@@ -103,6 +137,15 @@
         "10": 3,
         "11": 3,
         "12": 3
+      },
+      "rage_variants": {
+        "frenzy": "frenzy",
+        "bestial_bear": "rage_bear_heart",
+        "bestial_eagle": "rage_eagle_heart",
+        "bestial_elk": "rage_elk_heart",
+        "bestial_tiger": "rage_tiger_heart",
+        "bestial_wolf": "rage_wolf_heart",
+        "giants_rage": "giants_rage"
       }
     },
     {
@@ -331,8 +374,43 @@
           "caps": [
             "frenzy"
           ],
-          "notes_ko": "분노 중 무모한 공격이면 턴의 첫 근력 명중에 (분노 피해 보너스)d6 추가 피해.",
-          "source": "SRD 5.2.1"
+          "notes_ko": "BG3: 분노가 광란이 된다 — 광란의 일격(보너스 행동 근접 무기 공격, 턴당 1회, 쓸 때마다 명중 −1 누적)·격노의 투척(보너스 행동 12칸 던지기, 넘어짐).",
+          "source": "original"
+        },
+        {
+          "id": "frenzied_strike",
+          "name": {
+            "ko": "광란의 일격",
+            "en": "Frenzied Strike"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "frenzied_strike",
+          "target": "enemy",
+          "requires_condition": "frenzy",
+          "icon": "statuses/rage.webp",
+          "glyph": "axe",
+          "ai": {
+            "when": "foes_2plus"
+          },
+          "notes_ko": "광란 중 보너스 행동으로 근접 무기 공격(턴당 1회). 광란의 긴장 1층(명중 −1, 광란이 끝나면 사라짐).",
+          "source": "original"
+        },
+        {
+          "id": "enraged_throw",
+          "name": {
+            "ko": "격노의 투척",
+            "en": "Enraged Throw"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "enraged_throw",
+          "target": "enemy",
+          "requires_condition": "frenzy",
+          "icon": "statuses/prone.webp",
+          "glyph": "throw",
+          "notes_ko": "광란 중 보너스 행동, 12칸 안 적에게 물건을 던진다(근력 + 숙련 명중, 1d4 + 근력 + 분노 피해, 맞으면 넘어짐). [변형] 주변 물건을 집지 않는다.",
+          "source": "original"
         },
         {
           "id": "mindless_rage",
@@ -344,22 +422,723 @@
           "caps": [
             "mindless_rage"
           ],
-          "source": "SRD 5.2.1",
-          "notes_ko": "분노 중 매혹·공포 면역, 분노에 들어가면 매혹·공포가 끝난다."
+          "notes_ko": "분노 중 매혹·공포 면역, 분노에 들어가면 매혹·공포가 끝난다.",
+          "source": "original"
         },
         {
-          "id": "retaliation",
+          "id": "intimidating_presence",
           "name": {
-            "ko": "보복",
-            "en": "Retaliation"
+            "ko": "위협적인 존재감",
+            "en": "Intimidating Presence"
+          },
+          "level": 10,
+          "kind": "action",
+          "script": "intimidating_presence",
+          "target": "enemy",
+          "resource": "intimidating_presence",
+          "icon": "statuses/intimidated.webp",
+          "glyph": "voice",
+          "notes_ko": "BG3: 행동, 6칸 안 적 지혜 내성(DC 8 + 숙련 + 매력) 실패 시 2턴 공포. 짧은 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "maintain_intimidation",
+          "name": {
+            "ko": "위협 유지",
+            "en": "Maintain Intimidating Presence"
+          },
+          "level": 10,
+          "kind": "bonus_action",
+          "script": "intimidating_presence",
+          "target": "enemy",
+          "maintain": true,
+          "icon": "statuses/intimidated.webp",
+          "glyph": "voice",
+          "notes_ko": "보너스 행동, 내가 건 공포를 내성 없이 1턴 늘린다.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "wildheart",
+      "name": {
+        "ko": "야생의 심장의 길",
+        "en": "Path of the Wild Heart"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "wildheart_speech",
+          "name": {
+            "ko": "짐승의 말",
+            "en": "Speak with Animals"
+          },
+          "level": 3,
+          "grants": {
+            "at_will": [
+              "speak_with_animals"
+            ]
+          },
+          "notes_ko": "BG3: 동물과 대화(의식처럼 슬롯 없이).",
+          "source": "original"
+        },
+        {
+          "id": "bestial_heart",
+          "name": {
+            "ko": "짐승의 심장",
+            "en": "Bestial Heart"
+          },
+          "level": 3,
+          "choice_kind": "option",
+          "choices": [
+            "bear",
+            "eagle",
+            "elk",
+            "tiger",
+            "wolf"
+          ],
+          "choice_grants": {
+            "bear": {
+              "caps": [
+                "bestial_bear"
+              ]
+            },
+            "eagle": {
+              "caps": [
+                "bestial_eagle"
+              ]
+            },
+            "elk": {
+              "caps": [
+                "bestial_elk"
+              ]
+            },
+            "tiger": {
+              "caps": [
+                "bestial_tiger"
+              ]
+            },
+            "wolf": {
+              "caps": [
+                "bestial_wolf"
+              ]
+            }
+          },
+          "notes_ko": "BG3: 다섯 심장 중 하나 — 곰: 분노 중 정신 피해 말고 모든 피해 저항, 굽히지 않는 흉포함(행동 1d8 + 건강 회복, 분노마다 1회). / 독수리: 분노 중 나를 노리는 기회 공격 불리, 질주를 보너스 행동으로, 급강하 일격(낮은 적에게 뛰어내려 무기 공격 + 넘어짐). / 엘크: 분노 중 이동 +3칸, 원초의 쇄도(6칸 돌진, 길목 적마다 1d4 + 근력, 근력 내성 실패 시 넘어짐). / 호랑이: 분노 중 도약 +3칸, 피의 갈망(옆 적 3명까지 무기 피해 절반 + 출혈). / 늑대: 분노 중 아군이 내 1칸 안 적을 근접 공격하면 유리, 선동의 울부짖음(6칸 안 아군 다음 턴 이동 +2칸). 레벨 업 때 바꿀 수 있다.",
+          "source": "original"
+        },
+        {
+          "id": "unrelenting_ferocity",
+          "name": {
+            "ko": "굽히지 않는 흉포함",
+            "en": "Unrelenting Ferocity"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "unrelenting_ferocity",
+          "target": "self",
+          "requires_condition": "rage_bear_heart",
+          "icon": "statuses/regen.webp",
+          "glyph": "heart_plus",
+          "notes_ko": "곰의 심장 분노 중 행동으로 1d8 + 건강 회복(분노마다 1회).",
+          "source": "original"
+        },
+        {
+          "id": "primal_dash",
+          "name": {
+            "ko": "독수리의 질주",
+            "en": "Eagle Dash"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "primal_dash",
+          "target": "self",
+          "requires_condition": "rage_eagle_heart",
+          "icon": "statuses/haste.webp",
+          "glyph": "run",
+          "notes_ko": "독수리의 심장 분노 중 질주를 보너스 행동으로.",
+          "source": "original"
+        },
+        {
+          "id": "diving_strike",
+          "name": {
+            "ko": "급강하 일격",
+            "en": "Diving Strike"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "diving_strike",
+          "target": "enemy",
+          "requires_condition": "rage_eagle_heart",
+          "icon": "statuses/prone.webp",
+          "glyph": "axe",
+          "notes_ko": "독수리의 심장 분노 중 행동, 1단계 이상 낮은 도약 거리 안 적에게 뛰어내려 무기 공격, 맞으면 넘어짐.",
+          "source": "original"
+        },
+        {
+          "id": "primal_stampede",
+          "name": {
+            "ko": "원초의 쇄도",
+            "en": "Primal Stampede"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "primal_stampede",
+          "target": "cell",
+          "requires_condition": "rage_elk_heart",
+          "icon": "statuses/haste.webp",
+          "glyph": "shove",
+          "notes_ko": "엘크의 심장 분노 중 행동, 6칸 돌진 — 길목 1칸 안 적마다 1d4 + 근력 타격, 근력 내성(DC 10 + 근력) 실패 시 넘어짐. [변형] 이동력을 쓰지 않는다.",
+          "source": "original"
+        },
+        {
+          "id": "tigers_bloodlust",
+          "name": {
+            "ko": "피의 갈망",
+            "en": "Bloodlust"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "tigers_bloodlust",
+          "target": "enemy",
+          "requires_condition": "rage_tiger_heart",
+          "icon": "statuses/bleeding.webp",
+          "glyph": "sweep",
+          "notes_ko": "호랑이의 심장 분노 중 행동, 옆 적 3명까지 무기 피해 절반 + 출혈.",
+          "source": "original"
+        },
+        {
+          "id": "inciting_howl",
+          "name": {
+            "ko": "선동의 울부짖음",
+            "en": "Inciting Howl"
+          },
+          "level": 3,
+          "kind": "action",
+          "script": "inciting_howl",
+          "target": "self",
+          "requires_condition": "rage_wolf_heart",
+          "icon": "statuses/rally.webp",
+          "glyph": "voice",
+          "notes_ko": "늑대의 심장 분노 중 행동, 6칸 안 아군이 다음 턴 이동 +2칸.",
+          "source": "original"
+        },
+        {
+          "id": "animal_aspect",
+          "name": {
+            "ko": "짐승의 면모",
+            "en": "Aspect of the Beast"
+          },
+          "level": 6,
+          "choice_kind": "option",
+          "choices": [
+            "bear",
+            "chimpanzee",
+            "crocodile",
+            "eagle",
+            "elk",
+            "honey_badger",
+            "stallion",
+            "tiger",
+            "wolf",
+            "wolverine"
+          ],
+          "choice_grants": {
+            "bear": {
+              "advantage": [
+                {
+                  "type": "advantage",
+                  "roll": "ability_check",
+                  "side": "self",
+                  "value": "advantage",
+                  "ability": [
+                    "str"
+                  ]
+                }
+              ],
+              "caps": [
+                "aspect_bear"
+              ]
+            },
+            "chimpanzee": {
+              "caps": [
+                "fall_resistance"
+              ]
+            },
+            "crocodile": {
+              "caps": [
+                "aspect_crocodile"
+              ]
+            },
+            "eagle": {
+              "darkvision_tiles": 8,
+              "advantage": [
+                {
+                  "type": "advantage",
+                  "roll": "ability_check",
+                  "side": "self",
+                  "value": "advantage",
+                  "skill": [
+                    "perception"
+                  ]
+                }
+              ]
+            },
+            "elk": {
+              "caps": [
+                "aspect_elk"
+              ]
+            },
+            "honey_badger": {
+              "caps": [
+                "aspect_honey_badger"
+              ]
+            },
+            "stallion": {
+              "caps": [
+                "dash_temp_hp"
+              ]
+            },
+            "tiger": {
+              "caps": [
+                "aspect_tiger"
+              ],
+              "skills": [
+                "survival"
+              ]
+            },
+            "wolf": {
+              "caps": [
+                "aspect_wolf"
+              ]
+            },
+            "wolverine": {
+              "caps": [
+                "aspect_wolverine"
+              ]
+            }
+          },
+          "notes_ko": "BG3: 하나 — 곰: 근력 판정 유리(운반 무게 두 배는 무게 규칙 — 근력 판정만). / 침팬지: 낙하 피해 저항(야영 보급품 던져 실명은 생략). / 악어: 물·진흙 표면에서 턴을 시작하면 이동 +2칸(미끄러운 표면 넘어짐 내성 유리는 생략). / 독수리: 암시야 8칸(12m), 지각 판정 유리. / 엘크: 나와 12칸 안 아군 이동 +1칸. / 벌꿀오소리: 턴 시작에 중독·공포·매혹이면 50% 확률로 횟수 없이 분노. / 종마: 질주하면 임시 HP = 바바리안 레벨 × 2. / 호랑이: 출혈·중독 대상 명중 + 근력 수정치, 생존 숙련. / 늑대: 나와 12칸 안 아군 은신 판정 + 내 민첩 수정치. / 울버린: 출혈·중독 대상을 공격하면 불구(2턴).",
+          "source": "original"
+        },
+        {
+          "id": "lands_stride_wildheart",
+          "name": {
+            "ko": "대지 걸음",
+            "en": "Land's Stride"
+          },
+          "level": 8,
+          "caps": [
+            "ignore_difficult_terrain"
+          ],
+          "notes_ko": "BG3: 험지 무시(식물 내성 유리는 생략).",
+          "source": "original"
+        },
+        {
+          "id": "animal_aspect_10",
+          "name": {
+            "ko": "짐승의 면모(둘째)",
+            "en": "Aspect of the Beast (Second)"
+          },
+          "level": 10,
+          "choice_kind": "option",
+          "choices": [
+            "bear",
+            "chimpanzee",
+            "crocodile",
+            "eagle",
+            "elk",
+            "honey_badger",
+            "stallion",
+            "tiger",
+            "wolf",
+            "wolverine"
+          ],
+          "choice_grants": {
+            "bear": {
+              "advantage": [
+                {
+                  "type": "advantage",
+                  "roll": "ability_check",
+                  "side": "self",
+                  "value": "advantage",
+                  "ability": [
+                    "str"
+                  ]
+                }
+              ],
+              "caps": [
+                "aspect_bear"
+              ]
+            },
+            "chimpanzee": {
+              "caps": [
+                "fall_resistance"
+              ]
+            },
+            "crocodile": {
+              "caps": [
+                "aspect_crocodile"
+              ]
+            },
+            "eagle": {
+              "darkvision_tiles": 8,
+              "advantage": [
+                {
+                  "type": "advantage",
+                  "roll": "ability_check",
+                  "side": "self",
+                  "value": "advantage",
+                  "skill": [
+                    "perception"
+                  ]
+                }
+              ]
+            },
+            "elk": {
+              "caps": [
+                "aspect_elk"
+              ]
+            },
+            "honey_badger": {
+              "caps": [
+                "aspect_honey_badger"
+              ]
+            },
+            "stallion": {
+              "caps": [
+                "dash_temp_hp"
+              ]
+            },
+            "tiger": {
+              "caps": [
+                "aspect_tiger"
+              ],
+              "skills": [
+                "survival"
+              ]
+            },
+            "wolf": {
+              "caps": [
+                "aspect_wolf"
+              ]
+            },
+            "wolverine": {
+              "caps": [
+                "aspect_wolverine"
+              ]
+            }
+          },
+          "notes_ko": "BG3: 면모 하나 더(첫째와 다른 것).",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "wild_magic",
+      "name": {
+        "ko": "야생 마법의 길",
+        "en": "Path of Wild Magic"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "wild_magic_rage",
+          "name": {
+            "ko": "야생 마법 분노",
+            "en": "Rage: Wild Magic"
+          },
+          "level": 3,
+          "caps": [
+            "wild_magic_rage"
+          ],
+          "notes_ko": "BG3: 분노에 들어가면 야생 마법 효과 하나(d8 — 빛의 화살·어둠의 덩굴손·무형의 정령·마법 응징·보호의 빛·순간 이동·덩굴 자라기·무기 주입). 분노가 끝나면 함께 끝난다.",
+          "source": "original"
+        },
+        {
+          "id": "wild_bolt_of_light",
+          "name": {
+            "ko": "빛의 화살",
+            "en": "Bolt of Light"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "wild_bolt_of_light",
+          "target": "enemy",
+          "requires_condition": "wm_bolt_of_light",
+          "icon": "statuses/blinded.webp",
+          "glyph": "bolt",
+          "notes_ko": "야생 마법 효과 중 매 턴 보너스 행동, 6칸 안 1d6 광휘 + 건강 내성 실패 시 1턴 실명.",
+          "source": "original"
+        },
+        {
+          "id": "wild_intangible_spirit",
+          "name": {
+            "ko": "무형의 정령",
+            "en": "Intangible Spirit"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "wild_intangible_spirit",
+          "target": "cell",
+          "requires_condition": "wm_intangible_spirit",
+          "icon": "statuses/buff.webp",
+          "glyph": "burst",
+          "notes_ko": "야생 마법 효과 중 매 턴 보너스 행동, 6칸 안 칸 3칸 반경 민첩 내성 실패 시 1d6 역장. [변형] 바로 터진다.",
+          "source": "original"
+        },
+        {
+          "id": "wild_teleport",
+          "name": {
+            "ko": "야생 순간 이동",
+            "en": "Wild Teleport"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "wild_teleport",
+          "target": "cell",
+          "requires_condition": "wm_teleport",
+          "icon": "statuses/haste.webp",
+          "glyph": "run",
+          "notes_ko": "야생 마법 효과 중 매 턴 보너스 행동, 12칸 안 보이는 빈 칸으로 순간 이동.",
+          "source": "original"
+        },
+        {
+          "id": "magic_awareness",
+          "name": {
+            "ko": "마법 인지",
+            "en": "Magic Awareness"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "script": "magic_awareness",
+          "target": "self",
+          "resource": "magic_awareness",
+          "icon": "statuses/buff.webp",
+          "glyph": "shield",
+          "notes_ko": "BG3: 보너스 행동, 2칸 안 모든 생물(적 포함) 1턴 내성 +1d4. 짧은 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "bolstering_magic_boon",
+          "name": {
+            "ko": "강화 마법: 축복",
+            "en": "Bolstering Magic: Boon"
+          },
+          "level": 6,
+          "kind": "action",
+          "script": "bolstering_magic",
+          "target": "ally",
+          "resource": "bolstering_magic",
+          "bolster": "boon",
+          "icon": "statuses/buff.webp",
+          "glyph": "heart_plus",
+          "notes_ko": "BG3: 행동, 옆의 아군이나 나 10턴 명중 +1d4(능력 판정 쪽은 생략). 강화 마법 횟수(숙련 보너스, 긴 휴식) 공유.",
+          "source": "original"
+        },
+        {
+          "id": "bolstering_magic_slot1",
+          "name": {
+            "ko": "강화 마법: 1레벨 슬롯",
+            "en": "Bolstering Magic: Level 1 Slot"
+          },
+          "level": 6,
+          "kind": "action",
+          "script": "bolstering_magic",
+          "target": "ally",
+          "resource": "bolstering_magic",
+          "bolster": "1",
+          "icon": "statuses/buff.webp",
+          "glyph": "heart_plus",
+          "notes_ko": "행동, 옆의 아군이나 나 1레벨 주문 슬롯 1개 회복.",
+          "source": "original"
+        },
+        {
+          "id": "bolstering_magic_slot2",
+          "name": {
+            "ko": "강화 마법: 2레벨 슬롯",
+            "en": "Bolstering Magic: Level 2 Slot"
+          },
+          "level": 6,
+          "kind": "action",
+          "script": "bolstering_magic",
+          "target": "ally",
+          "resource": "bolstering_magic",
+          "bolster": "2",
+          "icon": "statuses/buff.webp",
+          "glyph": "heart_plus",
+          "notes_ko": "행동, 2레벨 주문 슬롯 1개 회복.",
+          "source": "original"
+        },
+        {
+          "id": "bolstering_magic_slot3",
+          "name": {
+            "ko": "강화 마법: 3레벨 슬롯",
+            "en": "Bolstering Magic: Level 3 Slot"
+          },
+          "level": 9,
+          "kind": "action",
+          "script": "bolstering_magic",
+          "target": "ally",
+          "resource": "bolstering_magic",
+          "bolster": "3",
+          "icon": "statuses/buff.webp",
+          "glyph": "heart_plus",
+          "notes_ko": "행동, 3레벨 주문 슬롯 1개 회복.",
+          "source": "original"
+        },
+        {
+          "id": "unstable_backlash",
+          "name": {
+            "ko": "불안정한 반발",
+            "en": "Unstable Backlash"
           },
           "level": 10,
           "kind": "reaction",
           "caps": [
-            "retaliation"
+            "unstable_backlash"
           ],
-          "source": "SRD 5.2.1",
-          "notes_ko": "1칸 안 생물에게 피해를 받으면 반응으로 그 생물에게 근접 공격 1회(반응 설정 대상)."
+          "notes_ko": "BG3: 분노 중 피해를 받거나 내성에 실패하면 반응으로 야생 마법 효과를 새로 일으킨다.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "giant",
+      "name": {
+        "ko": "거인의 길",
+        "en": "Path of Giants"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "giants_rage",
+          "name": {
+            "ko": "거인의 분노",
+            "en": "Giant's Rage"
+          },
+          "level": 3,
+          "caps": [
+            "giants_rage"
+          ],
+          "notes_ko": "BG3: 분노 중 몸이 커지고(그림만 — [변형]) 던지기 분노 피해 두 배.",
+          "source": "original"
+        },
+        {
+          "id": "vapraks_greed",
+          "name": {
+            "ko": "탐욕의 품",
+            "en": "Giant's Hoard"
+          },
+          "level": 3,
+          "caps": [
+            "carry_quarter_more"
+          ],
+          "notes_ko": "BG3: 운반 무게 +25%.",
+          "source": "original"
+        },
+        {
+          "id": "giant_thaumaturgy",
+          "name": {
+            "ko": "거인의 기적",
+            "en": "Giant Thaumaturgy"
+          },
+          "level": 3,
+          "grants": {
+            "at_will": [
+              "thaumaturgy"
+            ]
+          },
+          "notes_ko": "BG3: 기적술 소마법.",
+          "source": "original"
+        },
+        {
+          "id": "boot_of_the_giants",
+          "name": {
+            "ko": "거인의 발길질",
+            "en": "Boot of the Giants"
+          },
+          "level": 5,
+          "kind": "bonus_action",
+          "script": "boot_of_the_giants",
+          "target": "creature",
+          "icon": "statuses/prone.webp",
+          "glyph": "shove",
+          "notes_ko": "BG3: 보너스 행동, 옆 생물을 걷어참 — 1 + 근력 타격, 밀치기 무게 한계 두 배로 밀어낸다.",
+          "source": "original"
+        },
+        {
+          "id": "elemental_cleaver",
+          "name": {
+            "ko": "원소 쪼개기",
+            "en": "Elemental Cleaver"
+          },
+          "level": 6,
+          "kind": "free",
+          "script": "elemental_cleaver",
+          "target": "self",
+          "requires_condition": "raging",
+          "icon": "statuses/buff.webp",
+          "glyph": "flame",
+          "toggle": {
+            "values": [
+              {
+                "id": "fire",
+                "name": {
+                  "ko": "화염",
+                  "en": "Fire"
+                }
+              },
+              {
+                "id": "cold",
+                "name": {
+                  "ko": "냉기",
+                  "en": "Cold"
+                }
+              },
+              {
+                "id": "lightning",
+                "name": {
+                  "ko": "번개",
+                  "en": "Lightning"
+                }
+              },
+              {
+                "id": "thunder",
+                "name": {
+                  "ko": "천둥",
+                  "en": "Thunder"
+                }
+              },
+              {
+                "id": "acid",
+                "name": {
+                  "ko": "산",
+                  "en": "Acid"
+                }
+              }
+            ]
+          },
+          "notes_ko": "BG3: 분노 중 행동 없이, 분노가 끝날 때까지 무기 +1d6(산·냉기·화염·번개·천둥 — 설정). [변형] 던지기 속성 생략.",
+          "source": "original"
+        },
+        {
+          "id": "mighty_impel",
+          "name": {
+            "ko": "강력한 내던지기",
+            "en": "Mighty Impel"
+          },
+          "level": 10,
+          "kind": "bonus_action",
+          "script": "mighty_impel",
+          "target": "creature",
+          "icon": "statuses/prone.webp",
+          "glyph": "throw",
+          "notes_ko": "BG3: 보너스 행동, 옆의 보통 크기 이하 생물을 6칸까지 던진다(무게 피해 + 분노 피해 두 배, 넘어짐, 적은 근력 내성).",
+          "source": "original"
         }
       ]
     }

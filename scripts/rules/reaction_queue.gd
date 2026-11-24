@@ -28,6 +28,8 @@ func setup(w: Dictionary) -> Node:
 		EventBus.on_fall.connect(_on_fall)
 	if not EventBus.on_damage_taken.is_connected(_on_damage_taken):
 		EventBus.on_damage_taken.connect(_on_damage_taken)
+	if not EventBus.on_save.is_connected(_on_save):
+		EventBus.on_save.connect(_on_save)
 	return self
 
 
@@ -47,6 +49,8 @@ func _notification(what: int) -> void:
 			EventBus.on_fall.disconnect(_on_fall)
 		if EventBus.on_damage_taken.is_connected(_on_damage_taken):
 			EventBus.on_damage_taken.disconnect(_on_damage_taken)
+		if EventBus.on_save.is_connected(_on_save):
+			EventBus.on_save.disconnect(_on_save)
 
 
 ## 반응 창 하나. 쓰기로 하면 action을 실행한다. 쓴 경우 true.
@@ -545,6 +549,8 @@ func _on_damage_taken(info: Dictionary) -> void:
 	if not world.has("grid"):
 		return
 	var t: Node = info.get("target")
+	if t != null and int(info.get("amount", 0)) > 0:
+		_unstable_backlash(t)
 	var attacker: Variant = info.get("opts", {}).get("attacker")
 	if t == null or t.dead or t.hp <= 0 or not (attacker is Node) or attacker == t or attacker.dead \
 			or not attacker.is_hostile_to(t) or int(info.get("amount", 0)) <= 0:
@@ -574,3 +580,17 @@ static func lowest_slot(c: Node, min_level: int) -> String:
 			if c.resource(key % lv) > 0:
 				return key % lv  # 멀티클래스 계약 마법 슬롯도
 	return ""
+
+
+## 불안정한 반발(야생 마법 10레벨, 능력 태그 unstable_backlash): 분노 중 피해를 받거나 내성에 실패하면 반응으로 야생 마법을 다시 일으킨다.
+func _unstable_backlash(t: Node) -> void:
+	if t.dead or t.hp <= 0 or not t.has_cap("unstable_backlash") or not t.has_condition("raging") or not world.has("grid"):
+		return
+	offer(t, "unstable_backlash", {}, func() -> void:
+		t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
+		load("res://scripts/rules/primal.gd").surge(world, t))
+
+
+func _on_save(res: Dictionary) -> void:
+	if str(res.get("phase", "")) == "after" and not res.get("success", true) and res.get("creature") is Node:
+		_unstable_backlash(res["creature"])

@@ -202,6 +202,7 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 	if attacker.has_cap("sunlight_sensitivity") and grid.has_meta("sunlight") \
 			and grid.light_at(grid.cell_of(attacker)) == grid.Light.BRIGHT:
 		ctx["disadvantage"].append("햇빛 민감")
+	load("res://scripts/rules/primal.gd").attack_context(world, attacker, target, atk, ctx)
 	if atk["kind"] == "melee":
 		var reach := int(atk.get("reach_tiles", 2 if "reach" in atk.get("properties", []) else 1))
 		if dist > reach:
@@ -704,6 +705,8 @@ static func dash(c: Node, cost: String = "action") -> Dictionary:
 		return _fail("행동이 없다")
 	c.turn["movement"] = int(c.turn.get("movement", 0)) + c.speed()
 	c.turn["dashed"] = true
+	if c.has_cap("dash_temp_hp"):
+		Resolver.grant_temp_hp(c, 2 * c.feature_level("rage"))  # 짐승의 면모: 종마 — 질주하면 임시 HP = 바바리안 레벨 × 2
 	return {"ok": true}
 
 
@@ -800,6 +803,8 @@ static func jump_distance(c: Node) -> int:
 		var e: Dictionary = m["effect"]
 		if e["type"] == "modify" and e["stat"] == "jump_tiles" and e.has("set"):
 			base = maxi(base, int(e.get("set", 0)))  # Jump 주문: 6칸
+		if e["type"] == "modify" and e["stat"] == "jump_tiles" and e.has("add"):
+			base += int(e["add"])  # 호랑이의 심장: 도약 +3칸
 	if c.has_cap("jump_half_more"):
 		base = floori(base * 1.5)  # 단련된 몸: 도약 +50%
 	for m in c.modifier_entries():
@@ -826,6 +831,9 @@ static func throw_object(world: Dictionary, c: Node, target: Node, weight_kg: fl
 	var res := Resolver.attack(c, target, atk, ctx)
 	if res["hit"]:
 		res["throw"] = Physics.throw_hit(grid, c, target, weight_kg)
+		var rb := Resolver.rage_bonus(c) * (2 if c.has_flag("throw_rage_double") else 1)
+		if rb > 0 and not target.dead:
+			Resolver.apply_damage(target, [{"amount": rb, "damage_type": "bludgeoning"}], {"attacker": c})  # 분노 피해는 던지기에도(BG3), 거인의 분노는 두 배
 		if brawl > 0 and not target.dead:
 			Resolver.apply_damage(target, [{"amount": brawl, "damage_type": "bludgeoning"}], {"attacker": c})
 	res["ok"] = true

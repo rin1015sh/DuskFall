@@ -432,6 +432,9 @@ func remove_condition(id: String) -> bool:
 		if conditions[i]["id"] == id:
 			conditions.remove_at(i)
 			EventBus.on_condition_removed.emit(self, id)
+			for inst in conditions.duplicate():
+				if str(RulesDB.get_entry("condition", inst["id"]).get("ends_with", "")) == id:
+					remove_condition(inst["id"])  # 상태 ends_with: 그 상태가 끝나면 함께 끝난다(분노 변형 — 곰의 심장·야생 마법 효과)
 			return true
 	return false
 

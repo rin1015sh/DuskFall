@@ -255,8 +255,8 @@ static func apply_mode(p: float, mode: int) -> float:
 static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionary, preview: bool) -> Dictionary:
 	var res := {"attacker": attacker, "target": target, "attack": atk, "ctx": ctx, "preview": preview,
 		"valid": true, "reason": "", "distance": int(ctx.get("distance_tiles", 1)),
-		"advantage": [], "disadvantage": [], "attack_bonus": int(atk.get("bonus", 0)),
-		"ac": target.ac(), "ac_bonus": 0, "hit": false, "crit": false, "auto_crit": false,
+		"advantage": [], "disadvantage": [], "attack_bonus": int(atk.get("bonus", 0)) + int(ctx.get("attack_add", 0)),
+		"ac": target.ac(), "ac_bonus": int(ctx.get("ac_add", 0)), "hit": false, "crit": false, "auto_crit": false,
 		"natural": 0, "total": 0, "rolls": []}
 	var why := can_attack(attacker, target)
 	if why == "" and not preview:
@@ -275,12 +275,13 @@ static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Di
 
 ## 상태 retaliate {dice, damage_type}(화염 방패): 1칸 안 생물이 근접 공격으로 나를 맞히면 그 생물이 피해를 받는다.
 static func _retaliate(attacker: Node, target: Node, atk: Dictionary, res: Dictionary) -> void:
-	if str(atk.get("kind", "")) != "melee" or int(res.get("distance", 1)) > 1 or attacker == target:
+	if attacker == target:
 		return
+	var melee := str(atk.get("kind", "")) == "melee" and int(res.get("distance", 1)) <= 1
 	for a in target.active_conditions():
 		var r: Dictionary = a["def"].get("retaliate", {})
-		if r.is_empty():
-			continue
+		if r.is_empty() or not (melee or r.get("any_range", false)):
+			continue  # any_range: 원거리로 맞혀도(야생 마법 — 마법 응징)
 		if r.has("condition"):
 			attacker.apply_condition(str(r["condition"]), int(r.get("turns", 1)), a["instance"].get("source"))  # 영감의 망토: 근접 공격자 매혹
 			continue
@@ -481,11 +482,6 @@ static func _hit_riders(attacker: Node, target: Node, atk: Dictionary, res: Dict
 			if a["def"].get("consume_on_trigger", false):
 				attacker.remove_condition(str(a["id"]))
 		_stunning_strike(attacker, target, atk)
-		# 능력 태그 frenzy(광전사 광란): 분노 중 무모한 공격이면 턴의 첫 근력 명중에 (분노 피해)d6
-		if attacker.has_cap("frenzy") and attacker.has_condition("raging") and attacker.turn.get("reckless", false) \
-				and str(atk.get("ability", "")) == "str" and not attacker.turn.get("frenzy_used", false):
-			attacker.turn["frenzy_used"] = true
-			res["extra_damage"].append({"dice": "%dd6" % rage_bonus(attacker), "damage_type": atk["damage"][0]["damage_type"]})
 		_feature_hit_bonus(attacker, target, atk, res)
 		if res.has("brutal_strike"):
 			res["extra_damage"].append({"dice": "1d10", "damage_type": atk["damage"][0]["damage_type"]})
@@ -1347,6 +1343,21 @@ static func concentration_check(creature: Node, damage: int, attacker: Variant =
 ## 능력 판정. opts: {"skill": String, "bonus": int, "advantage": [], "disadvantage": [],
 ##   "requires_sight": bool, "social": bool, "other": Node}
 ## 자연 20 자동 성공, 자연 1 자동 실패(2단계 공통 처리 규칙 1).
+## 짐승의 면모: 늑대(능력 태그 aspect_wolf): 그 생물과 12칸 안 아군(나 포함)의 은신 판정 + 그 생물 민첩 수정치(가장 큰 하나).
+static func _wolf_stealth(creature: Node) -> int:
+	var rq: Variant = EventBus.reaction_queue
+	if rq == null or not is_instance_valid(rq) or not rq.world.has("grid"):
+		return 0
+	var grid: Node = rq.world["grid"]
+	if not grid.creatures().has(creature):
+		return 0
+	var best := 0
+	for o: Node in grid.creatures():
+		if o.has_cap("aspect_wolf") and not o.dead and not o.is_hostile_to(creature) and grid.distance_between(o, creature) <= 12:
+			best = maxi(best, o.ability_mod("dex"))
+	return best
+
+
 static func ability_check(creature: Node, ability: String, dc: int, opts: Dictionary = {}) -> Dictionary:
 	var res := {"creature": creature, "ability": ability, "dc": dc, "auto": false,
 		"bonus": creature.ability_mod(ability) + _skill_bonus(creature, str(opts.get("skill", ""))) + int(opts.get("bonus", 0)) \
@@ -1359,6 +1370,7 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 		if armor != "" and bool(RulesDB.get_entry("armor", armor).get("stealth_disadvantage", false)) \
 				and not (creature.has_cap("medium_armor_master") and str(RulesDB.get_entry("armor", armor).get("category", "")) == "medium"):
 			res["disadvantage"].append("갑옷(은신 불리)")  # SRD 갑옷 표 Stealth Disadvantage
+		res["bonus"] += _wolf_stealth(creature)
 	if opts.get("requires_sight", false) and creature.has_flag("fails_sight_checks"):
 		res["auto"] = true
 	else:

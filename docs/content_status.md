@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 48 |
-| capability | 135 |
+| capability | 152 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -33,15 +33,45 @@
 | 1 | 맨몸 방어 (unarmored_defense) |  | 태그 unarmored_defense_con |  |
 | 2 | 위험 감지 (danger_sense) |  | 부여 advantage |  |
 | 2 | 무모한 공격 (reckless_attack) |  | 스크립트 reckless_attack; 태그 reckless |  |
+| 3 | 굽히지 않는 흉포함 (unrelenting_ferocity) | wildheart | 스크립트 unrelenting_ferocity |  |
+| 3 | 독수리의 질주 (primal_dash) | wildheart | 스크립트 primal_dash |  |
+| 3 | 급강하 일격 (diving_strike) | wildheart | 스크립트 diving_strike |  |
+| 3 | 원초의 쇄도 (primal_stampede) | wildheart | 스크립트 primal_stampede |  |
+| 3 | 피의 갈망 (tigers_bloodlust) | wildheart | 스크립트 tigers_bloodlust |  |
+| 3 | 선동의 울부짖음 (inciting_howl) | wildheart | 스크립트 inciting_howl |  |
+| 3 | 야생 마법 분노 (wild_magic_rage) | wild_magic | 태그 wild_magic_rage |  |
+| 3 | 빛의 화살 (wild_bolt_of_light) | wild_magic | 스크립트 wild_bolt_of_light |  |
+| 3 | 무형의 정령 (wild_intangible_spirit) | wild_magic | 스크립트 wild_intangible_spirit |  |
+| 3 | 야생 순간 이동 (wild_teleport) | wild_magic | 스크립트 wild_teleport |  |
+| 3 | 마법 인지 (magic_awareness) | wild_magic | 스크립트 magic_awareness |  |
+| 3 | 거인의 분노 (giants_rage) | giant | 태그 giants_rage |  |
+| 3 | 탐욕의 품 (vapraks_greed) | giant | 태그 carry_quarter_more |  |
+| 3 | 거인의 기적 (giant_thaumaturgy) | giant | 부여 at_will |  |
+| 3 | 짐승의 심장 (bestial_heart) | wildheart | 고르기(option) |  |
+| 3 | 짐승의 말 (wildheart_speech) | wildheart | 부여 at_will |  |
+| 3 | 격노의 투척 (enraged_throw) | berserker | 스크립트 enraged_throw |  |
+| 3 | 광란의 일격 (frenzied_strike) | berserker | 스크립트 frenzied_strike |  |
 | 3 | 원시 지식 (primal_knowledge) |  | 고르기(skill) |  |
 | 3 | 광란 (frenzy) | berserker | 태그 frenzy |  |
+| 5 | 거인의 발길질 (boot_of_the_giants) | giant | 스크립트 boot_of_the_giants |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 빠른 이동 (fast_movement) |  | 태그 fast_movement |  |
+| 6 | 원소 쪼개기 (elemental_cleaver) | giant | 스크립트 elemental_cleaver; 설정 |  |
 | 6 | 광기 없는 분노 (mindless_rage) | berserker | 태그 mindless_rage |  |
+| 6 | 짐승의 면모 (animal_aspect) | wildheart | 고르기(option) |  |
+| 6 | 강화 마법: 2레벨 슬롯 (bolstering_magic_slot2) | wild_magic | 스크립트 bolstering_magic |  |
+| 6 | 강화 마법: 1레벨 슬롯 (bolstering_magic_slot1) | wild_magic | 스크립트 bolstering_magic |  |
+| 6 | 강화 마법: 축복 (bolstering_magic_boon) | wild_magic | 스크립트 bolstering_magic |  |
 | 7 | 야생의 본능 (feral_instinct) |  | 부여 advantage |  |
 | 7 | 본능적 도약 (instinctive_pounce) |  | 태그 instinctive_pounce |  |
+| 8 | 대지 걸음 (lands_stride_wildheart) | wildheart | 태그 ignore_difficult_terrain |  |
 | 9 | 잔혹한 일격 (brutal_strike) |  | 태그 brutal_strike; 설정 |  |
-| 10 | 보복 (retaliation) | berserker | 태그 retaliation; 반응 |  |
+| 9 | 강화 마법: 3레벨 슬롯 (bolstering_magic_slot3) | wild_magic | 스크립트 bolstering_magic |  |
+| 10 | 불안정한 반발 (unstable_backlash) | wild_magic | 태그 unstable_backlash; 반응 |  |
+| 10 | 짐승의 면모(둘째) (animal_aspect_10) | wildheart | 고르기(option) |  |
+| 10 | 위협적인 존재감 (intimidating_presence) | berserker | 스크립트 intimidating_presence |  |
+| 10 | 위협 유지 (maintain_intimidation) | berserker | 스크립트 intimidating_presence |  |
+| 10 | 강력한 내던지기 (mighty_impel) | giant | 스크립트 mighty_impel |  |
 | 11 | 끈질긴 분노 (relentless_rage) |  | 스크립트 relentless_rage |  |
 
 ### 바드 (bard) — 생명 주사위 d8, 역할 caster
@@ -351,7 +381,19 @@
 | agonizing_blast | 고통의 화살 | (몬스터 특성 또는 아직 없음) |
 | arcane_ward | 비전 결계 | wizard |
 | armor_ac_plus_1 | 방어 | 재주 defense |
+| aspect_bear | 짐승의 면모: 곰 | (몬스터 특성 또는 아직 없음) |
+| aspect_crocodile | 짐승의 면모: 악어 | (몬스터 특성 또는 아직 없음) |
+| aspect_elk | 짐승의 면모: 엘크 | (몬스터 특성 또는 아직 없음) |
+| aspect_honey_badger | 짐승의 면모: 벌꿀오소리 | (몬스터 특성 또는 아직 없음) |
+| aspect_tiger | 짐승의 면모: 호랑이 | (몬스터 특성 또는 아직 없음) |
+| aspect_wolf | 짐승의 면모: 늑대 | (몬스터 특성 또는 아직 없음) |
+| aspect_wolverine | 짐승의 면모: 울버린 | (몬스터 특성 또는 아직 없음) |
 | assassinate | 암살 | rogue |
+| bestial_bear | 곰의 심장 | (몬스터 특성 또는 아직 없음) |
+| bestial_eagle | 독수리의 심장 | (몬스터 특성 또는 아직 없음) |
+| bestial_elk | 엘크의 심장 | (몬스터 특성 또는 아직 없음) |
+| bestial_tiger | 호랑이의 심장 | (몬스터 특성 또는 아직 없음) |
+| bestial_wolf | 늑대의 심장 | (몬스터 특성 또는 아직 없음) |
 | blessed_healer | 축복받은 치유자 | cleric |
 | bonus_attack_on_crit_kill | 강타 추가 공격 | (몬스터 특성 또는 아직 없음) |
 | bonus_dash_disengage_hide | 교활한 행동 | rogue |
@@ -360,6 +402,7 @@
 | cantrip_add_mod | 강력한 주문 시전 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_miss | 강력한 소마법 | (몬스터 특성 또는 아직 없음) |
 | cantrip_half_on_save | 강력한 소마법(BG3) | wizard |
+| carry_quarter_more | 운반 +25% | barbarian |
 | charger | 돌격병 | (몬스터 특성 또는 아직 없음) |
 | check_boost_d10 | 전술적 판단 | fighter |
 | climber | 등반 | monk, ranger, rogue |
@@ -374,6 +417,7 @@
 | curving_shot | 휘는 화살 | fighter |
 | dark_ones_blessing | 어둠의 축복 | warlock |
 | dash_ignores_difficult | 질주 험지 무시 | (몬스터 특성 또는 아직 없음) |
+| dash_temp_hp | 질주 임시 HP | (몬스터 특성 또는 아직 없음) |
 | destructive_wrath | 파괴의 분노 | cleric |
 | dual_wield_ac | 쌍수 방어 | (몬스터 특성 또는 아직 없음) |
 | dual_wield_any | 무거운 쌍수 | (몬스터 특성 또는 아직 없음) |
@@ -393,6 +437,7 @@
 | focused_conjuration | 집중된 소환 | wizard |
 | free_cast_class_spell | 신성 개입 | cleric |
 | frenzy | 광란 | barbarian |
+| giants_rage | 거인의 분노 | barbarian |
 | grim_harvest | 섬뜩한 수확 | wizard |
 | guided_strike | 인도된 일격 | cleric |
 | gwm_all_in | 강타 | (몬스터 특성 또는 아직 없음) |
@@ -402,7 +447,7 @@
 | heroic_warrior | 영웅 전사 | (몬스터 특성 또는 아직 없음) |
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
 | hunters_lore | 사냥꾼의 지식 | ranger |
-| ignore_difficult_terrain | 험지 무시 | druid |
+| ignore_difficult_terrain | 험지 무시 | barbarian, druid |
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
 | improved_abjuration | 향상된 방호 | wizard |
 | improved_cunning_strike | 향상된 교활한 일격 | rogue |
@@ -448,7 +493,7 @@
 | repelling_blast | 밀어내는 화살 | (몬스터 특성 또는 아직 없음) |
 | reroll_low_damage_two_handed | 대형 무기 전투 | 재주 great_weapon_fighting |
 | reroll_natural_1 | 행운 | 종족 halfling |
-| retaliation | 보복 | barbarian |
+| retaliation | 보복 | (몬스터 특성 또는 아직 없음) |
 | riposte | 반격 | (몬스터 특성 또는 아직 없음) |
 | ritual_from_spellbook | 의식 숙련 | wizard |
 | sculpt_spells | 주문 조각 | wizard |
@@ -480,6 +525,8 @@
 | unarmored_defense_wis | 맨몸 방어(지혜) | monk |
 | unarmored_movement | 맨몸 이동 | monk |
 | uncanny_metabolism | 신비한 대사 | monk |
+| unstable_backlash | 불안정한 반발 | barbarian |
 | war_caster_oa | 주문 기회 공격 | (몬스터 특성 또는 아직 없음) |
 | war_magic | 전쟁 마법 | fighter |
 | war_priest | 전쟁 사제 | cleric |
+| wild_magic_rage | 야생 마법 분노 | barbarian |

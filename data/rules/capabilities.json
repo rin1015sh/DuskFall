@@ -1216,6 +1216,159 @@
       },
       "note_ko": "내가 준 바드의 영감을 AC에도(reaction_queue._combat_inspiration_ac)",
       "source": "original"
+    },
+    {
+      "id": "bestial_bear",
+      "name": {
+        "ko": "곰의 심장",
+        "en": "bestial_bear"
+      },
+      "note_ko": "분노 변형(rage_variants)",
+      "source": "original"
+    },
+    {
+      "id": "bestial_eagle",
+      "name": {
+        "ko": "독수리의 심장",
+        "en": "bestial_eagle"
+      },
+      "note_ko": "분노 변형",
+      "source": "original"
+    },
+    {
+      "id": "bestial_elk",
+      "name": {
+        "ko": "엘크의 심장",
+        "en": "bestial_elk"
+      },
+      "note_ko": "분노 변형",
+      "source": "original"
+    },
+    {
+      "id": "bestial_tiger",
+      "name": {
+        "ko": "호랑이의 심장",
+        "en": "bestial_tiger"
+      },
+      "note_ko": "분노 변형",
+      "source": "original"
+    },
+    {
+      "id": "bestial_wolf",
+      "name": {
+        "ko": "늑대의 심장",
+        "en": "bestial_wolf"
+      },
+      "note_ko": "분노 변형",
+      "source": "original"
+    },
+    {
+      "id": "giants_rage",
+      "name": {
+        "ko": "거인의 분노",
+        "en": "giants_rage"
+      },
+      "note_ko": "분노 변형",
+      "source": "original"
+    },
+    {
+      "id": "wild_magic_rage",
+      "name": {
+        "ko": "야생 마법 분노",
+        "en": "wild_magic_rage"
+      },
+      "note_ko": "분노에 들어가면 primal.surge",
+      "source": "original"
+    },
+    {
+      "id": "unstable_backlash",
+      "name": {
+        "ko": "불안정한 반발",
+        "en": "unstable_backlash"
+      },
+      "note_ko": "reaction_queue._unstable_backlash",
+      "source": "original"
+    },
+    {
+      "id": "aspect_bear",
+      "name": {
+        "ko": "짐승의 면모: 곰",
+        "en": "aspect_bear"
+      },
+      "note_ko": "운반 무게 두 배",
+      "source": "original"
+    },
+    {
+      "id": "aspect_crocodile",
+      "name": {
+        "ko": "짐승의 면모: 악어",
+        "en": "aspect_crocodile"
+      },
+      "note_ko": "primal.turn_start 물 표면 이동 +2",
+      "source": "original"
+    },
+    {
+      "id": "aspect_elk",
+      "name": {
+        "ko": "짐승의 면모: 엘크",
+        "en": "aspect_elk"
+      },
+      "note_ko": "primal.turn_start 아군 이동 +1",
+      "source": "original"
+    },
+    {
+      "id": "aspect_honey_badger",
+      "name": {
+        "ko": "짐승의 면모: 벌꿀오소리",
+        "en": "aspect_honey_badger"
+      },
+      "note_ko": "primal.turn_start 무료 분노",
+      "source": "original"
+    },
+    {
+      "id": "dash_temp_hp",
+      "name": {
+        "ko": "질주 임시 HP",
+        "en": "dash_temp_hp"
+      },
+      "note_ko": "Combat.dash — 바바리안 레벨 × 2",
+      "source": "original"
+    },
+    {
+      "id": "aspect_tiger",
+      "name": {
+        "ko": "짐승의 면모: 호랑이",
+        "en": "aspect_tiger"
+      },
+      "note_ko": "primal.attack_context 출혈·중독 대상 명중 + 근력",
+      "source": "original"
+    },
+    {
+      "id": "aspect_wolf",
+      "name": {
+        "ko": "짐승의 면모: 늑대",
+        "en": "aspect_wolf"
+      },
+      "note_ko": "아군 은신 + 민첩(skill check)",
+      "source": "original"
+    },
+    {
+      "id": "aspect_wolverine",
+      "name": {
+        "ko": "짐승의 면모: 울버린",
+        "en": "aspect_wolverine"
+      },
+      "note_ko": "primal.attack_context 불구",
+      "source": "original"
+    },
+    {
+      "id": "carry_quarter_more",
+      "name": {
+        "ko": "운반 +25%",
+        "en": "carry_quarter_more"
+      },
+      "note_ko": "무게 한계",
+      "source": "original"
     }
   ]
 }

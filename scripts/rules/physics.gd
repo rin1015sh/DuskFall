@@ -15,10 +15,10 @@ const FALL_MAX_DICE := 20
 # ---------- 밀치기 ----------
 
 ## 밀치기 계획(굴림 없음). 결과: {"valid", "reason", "distance", "path", "landing", "fall_levels", "dc"}
-static func plan_shove(grid: Node, shover: Node, target: Node) -> Dictionary:
+static func plan_shove(grid: Node, shover: Node, target: Node, limit_mult: float = 1.0) -> Dictionary:
 	var out := {"valid": false, "reason": "", "distance": 0, "path": [], "landing": grid.cell_of(target),
 		"fall_levels": 0, "dc": 8 + shover.ability_mod("str") + shover.proficiency_bonus}
-	var limit: float = shover.abilities["str"] * SHOVE_KG_PER_STR
+	var limit: float = shover.abilities["str"] * SHOVE_KG_PER_STR * limit_mult  # limit_mult: 거인의 발길질 두 배
 	if target.weight_kg > limit:
 		out["reason"] = "너무 무겁다(%.0fkg > %.0fkg)" % [target.weight_kg, limit]
 		return out
@@ -78,8 +78,8 @@ static func preview_shove(grid: Node, shover: Node, target: Node, ally: bool = f
 
 
 ## 밀치기: 대상이 근력·민첩 중 나은 쪽으로 내성(2단계, 엔진이 자동으로 고른다). 실패하면 밀린다.
-static func shove(grid: Node, shover: Node, target: Node, ally: bool = false) -> Dictionary:
-	var plan := plan_shove(grid, shover, target)
+static func shove(grid: Node, shover: Node, target: Node, ally: bool = false, limit_mult: float = 1.0) -> Dictionary:
+	var plan := plan_shove(grid, shover, target, limit_mult)
 	plan["success"] = false
 	if not plan["valid"]:
 		Dice.log_text("%s → %s 밀치기 불가: %s" % [shover.label(), target.label(), plan["reason"]])
