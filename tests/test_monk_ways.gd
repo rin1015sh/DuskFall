@@ -105,3 +105,37 @@ func test_four_elements() -> void:
 	m.reset_turn()
 	assert_true(Features.use(w, m, "sweeping_cinder_strike", Vector2i(1, 0))["ok"], "불타는 손(기 주문)")
 	assert_eq(m.resource("focus"), ki - 4)
+
+
+func test_drunken_master() -> void:
+	var m := _mk(11, "drunken_master")
+	m.options["stunning_strike"] = "off"
+	var e := _foe()
+	var w := make_world(["......"])
+	w["grid"].place(m, Vector2i(0, 0))
+	w["grid"].place(e, Vector2i(1, 0))
+	assert_false(m.apply_condition("drunk", 5), "능청스러운 한 잔: 취함 면역")
+	m.reset_turn()
+	Dice.force([15, 3, 1])
+	assert_true(Features.use(w, m, "intoxicating_strike", e)["hit"])
+	assert_true(e.has_condition("drunk") and m.has_condition("life_of_the_party"))
+	var ctx := Combat.attack_context(w, m, e, {"kind": "melee"})
+	assert_eq(int(ctx.get("attack_add", 0)), m.ability_mod("wis"), "파티의 주인공 명중 + 지혜")
+	m.reset_turn()
+	var hp: int = e.hp
+	Dice.force([15, 3, 4, 4])
+	assert_true(Features.use(w, m, "sobering_realisation", e)["hit"])
+	assert_false(e.has_condition("drunk"), "술이 깬다")
+	assert_true(e.hp < hp)
+	# 공격 되돌리기
+	m.refresh_reaction()
+	var ki: int = m.resource("focus")
+	Dice.force([1, 15, 3])
+	Combat._do_attack(w, e, m, {"name": "주먹", "bonus": 0, "kind": "melee", "weapon": false, "damage": [{"dice": "1", "damage_type": "bludgeoning"}]})
+	assert_eq(m.resource("focus"), ki - 1, "공격 되돌리기 기 1")
+	# 술꾼의 행운
+	var ki2: int = m.resource("focus")
+	Dice.force([5, 15])
+	var s: Dictionary = load("res://scripts/rules/resolver.gd").saving_throw(m, "str", 10, {"disadvantage": ["시험"]})
+	assert_eq(int(s["mode"]), 0, "불리 없앰")
+	assert_eq(m.resource("focus"), ki2 - 2)

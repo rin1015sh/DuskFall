@@ -631,7 +631,8 @@
             "attacked_charm",
             "self_hit_any",
             "song_of_defence",
-            "halo_of_spores"
+            "halo_of_spores",
+            "self_missed_melee"
           ]
         },
         "range_tiles": {

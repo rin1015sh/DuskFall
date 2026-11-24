@@ -31,6 +31,10 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 	var strain: Dictionary = attacker.condition_instance("frenzied_strain")
 	if not strain.is_empty():
 		ctx["attack_add"] = int(ctx.get("attack_add", 0)) - int(strain.get("params", {}).get("n", 1))
+	if attacker.has_condition("life_of_the_party") and target.has_condition("drunk"):
+		ctx["attack_add"] = int(ctx.get("attack_add", 0)) + maxi(attacker.ability_mod("wis"), 0)  # 파티의 주인공: 취한 대상 명중 + 지혜
+	if target.has_condition("life_of_the_party") and attacker.has_condition("drunk"):
+		ctx["ac_add"] = int(ctx.get("ac_add", 0)) + 1  # 취한 공격자에게 AC +1
 	var weak: bool = target.has_condition("bleeding") or target.has_condition("poisoned")
 	if weak and attacker.has_cap("aspect_tiger"):
 		ctx["attack_add"] = int(ctx.get("attack_add", 0)) + maxi(attacker.ability_mod("str"), 0)

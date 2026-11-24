@@ -2765,6 +2765,42 @@
       "default_duration_turns": 1,
       "notes_ko": "이번 턴 근접 무기·비무장 명중 +1d4 화염.",
       "source": "original"
+    },
+    {
+      "id": "drunk",
+      "name": {
+        "ko": "취함",
+        "en": "Drunk"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "disadvantage",
+          "ability": [
+            "dex",
+            "cha"
+          ]
+        }
+      ],
+      "default_duration_turns": 5,
+      "notes_ko": "민첩·매력 판정 불리.",
+      "source": "original"
+    },
+    {
+      "id": "life_of_the_party",
+      "name": {
+        "ko": "파티의 주인공",
+        "en": "Life of the Party"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "default_duration_turns": 1,
+      "notes_ko": "취한 대상에게 명중 + 지혜, 취한 공격자에게 AC +1(primal.attack_context).",
+      "source": "original"
     }
   ]
 }

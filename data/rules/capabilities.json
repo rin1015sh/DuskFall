@@ -1540,6 +1540,24 @@
       },
       "note_ko": "원소 수련 requires_cap",
       "source": "original"
+    },
+    {
+      "id": "life_of_the_party",
+      "name": {
+        "ko": "파티의 주인공",
+        "en": "life_of_the_party"
+      },
+      "note_ko": "취하게 하는 일격 명중 시 상태",
+      "source": "original"
+    },
+    {
+      "id": "drunkards_luck",
+      "name": {
+        "ko": "술꾼의 행운",
+        "en": "drunkards_luck"
+      },
+      "note_ko": "Resolver.drunkards_luck",
+      "source": "original"
     }
   ]
 }

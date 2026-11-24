@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 48 |
-| capability | 171 |
+| capability | 173 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -199,48 +199,57 @@
 | 1 | 무술 (martial_arts) |  | 태그 martial_arts |  |
 | 1 | 보너스 비무장 공격 (martial_arts_strike) |  | 스크립트 martial_arts_strike |  |
 | 1 | 맨몸 방어 (unarmored_defense) |  | 태그 unarmored_defense_wis |  |
-| 2 | 몽크의 기 (monks_focus) |  | 처리: 자원 focus(레벨만큼, 짧은 휴식) — 연타·인내의 방어·바람의 걸음·충격의 일격이 쓴다 |  |
-| 2 | 연타 (flurry_of_blows) |  | 스크립트 flurry_of_blows |  |
-| 2 | 인내의 방어 (patient_defense) |  | 스크립트 patient_defense |  |
-| 2 | 바람의 걸음 (step_of_the_wind) |  | 스크립트 step_of_the_wind |  |
-| 2 | 맨몸 이동 (unarmored_movement) |  | 태그 unarmored_movement |  |
 | 2 | 신비한 대사 (uncanny_metabolism) |  | 태그 uncanny_metabolism |  |
-| 3 | 돌풍 정령의 쇄도 (rush_of_the_gale_spirits) | four_elements | 스크립트 ki_spell |  |
-| 3 | 꺾이지 않는 바람의 주먹 (fist_of_unbroken_air) | four_elements | 스크립트 fist_of_unbroken_air |  |
-| 3 | 네 천둥의 주먹 (fist_of_four_thunders) | four_elements | 스크립트 ki_spell |  |
-| 3 | 불뱀의 송곳니 (fangs_of_the_fire_snake) | four_elements | 스크립트 fangs_of_the_fire_snake |  |
-| 3 | 산의 냉기 (chill_of_the_mountain) | four_elements | 스크립트 ki_spell |  |
-| 3 | 서리 칼날 (blade_of_rime) | four_elements | 스크립트 ki_spell |  |
-| 3 | 불과 물의 조화 (harmony_of_fire_and_water) | four_elements | 스크립트 harmony_of_fire_and_water |  |
-| 3 | 원소의 제자 (elemental_disciplines) | four_elements | 고르기(option) |  |
-| 3 | 그림자 기술: 침묵 (shadow_arts_silence) | shadow | 스크립트 ki_spell |  |
-| 3 | 그림자 기술: 흔적 없는 이동 (shadow_arts_pass_without_trace) | shadow | 스크립트 ki_spell |  |
-| 3 | 원소 균형의 구 (sphere_of_elemental_balance) | four_elements | 스크립트 ki_spell |  |
-| 3 | 휩쓰는 불씨 일격 (sweeping_cinder_strike) | four_elements | 스크립트 ki_spell |  |
-| 3 | 폭풍의 손길 (touch_of_the_storm) | four_elements | 스크립트 ki_spell |  |
-| 3 | 물 채찍 (water_whip) | four_elements | 스크립트 water_whip; 설정 |  |
-| 3 | 북풍의 움켜쥠 (clench_of_the_north_wind) | four_elements | 스크립트 ki_spell |  |
-| 3 | 지옥불의 포옹 (embrace_of_the_inferno) | four_elements | 스크립트 ki_spell |  |
-| 3 | 정상의 징 (gong_of_the_summit) | four_elements | 스크립트 ki_spell |  |
-| 3 | 불사조의 불꽃 (flames_of_the_phoenix) | four_elements | 스크립트 ki_spell |  |
-| 3 | 안개 자세 (mist_stance) | four_elements | 스크립트 ki_spell |  |
-| 3 | 바람 타기 (ride_the_wind) | four_elements | 스크립트 ki_spell |  |
-| 3 | 공격 쳐내기 (deflect_attacks) |  | 스크립트 deflect_attacks; 반응 |  |
-| 3 | 열린 손 기법 (open_hand_technique) | open_hand | 태그 open_hand_technique; 설정 |  |
-| 3 | 그림자 기술: 환영 (shadow_arts_illusion) | shadow | 부여 at_will |  |
+| 2 | 맨몸 이동 (unarmored_movement) |  | 태그 unarmored_movement |  |
+| 2 | 바람의 걸음 (step_of_the_wind) |  | 스크립트 step_of_the_wind |  |
+| 2 | 인내의 방어 (patient_defense) |  | 스크립트 patient_defense |  |
+| 2 | 연타 (flurry_of_blows) |  | 스크립트 flurry_of_blows |  |
+| 2 | 몽크의 기 (monks_focus) |  | 처리: 자원 focus(레벨만큼, 짧은 휴식) — 연타·인내의 방어·바람의 걸음·충격의 일격이 쓴다 |  |
 | 3 | 그림자 기술: 숨기 (shadow_arts_hide) | shadow | 스크립트 shadow_arts_hide |  |
-| 3 | 그림자 기술: 암시야 (shadow_arts_darkvision) | shadow | 스크립트 ki_spell |  |
 | 3 | 그림자 기술: 어둠 (shadow_arts_darkness) | shadow | 스크립트 ki_spell |  |
+| 3 | 그림자 기술: 암시야 (shadow_arts_darkvision) | shadow | 스크립트 ki_spell |  |
+| 3 | 그림자 기술: 흔적 없는 이동 (shadow_arts_pass_without_trace) | shadow | 스크립트 ki_spell |  |
+| 3 | 그림자 기술: 침묵 (shadow_arts_silence) | shadow | 스크립트 ki_spell |  |
+| 3 | 폭풍의 손길 (touch_of_the_storm) | four_elements | 스크립트 ki_spell |  |
+| 3 | 휩쓰는 불씨 일격 (sweeping_cinder_strike) | four_elements | 스크립트 ki_spell |  |
+| 3 | 원소 균형의 구 (sphere_of_elemental_balance) | four_elements | 스크립트 ki_spell |  |
+| 3 | 원소의 제자 (elemental_disciplines) | four_elements | 고르기(option) |  |
+| 3 | 불과 물의 조화 (harmony_of_fire_and_water) | four_elements | 스크립트 harmony_of_fire_and_water |  |
+| 3 | 돌풍 정령의 쇄도 (rush_of_the_gale_spirits) | four_elements | 스크립트 ki_spell |  |
+| 3 | 서리 칼날 (blade_of_rime) | four_elements | 스크립트 ki_spell |  |
+| 3 | 산의 냉기 (chill_of_the_mountain) | four_elements | 스크립트 ki_spell |  |
+| 3 | 불뱀의 송곳니 (fangs_of_the_fire_snake) | four_elements | 스크립트 fangs_of_the_fire_snake |  |
+| 3 | 네 천둥의 주먹 (fist_of_four_thunders) | four_elements | 스크립트 ki_spell |  |
+| 3 | 꺾이지 않는 바람의 주먹 (fist_of_unbroken_air) | four_elements | 스크립트 fist_of_unbroken_air |  |
+| 3 | 공격 쳐내기 (deflect_attacks) |  | 스크립트 deflect_attacks; 반응 |  |
+| 3 | 취권 (drunken_technique) | drunken_master | 스크립트 drunken_technique |  |
+| 3 | 취중 공연 (drunken_performance) | drunken_master | 부여 skills |  |
+| 3 | 능청스러운 한 잔 (cheeky_tipple) | drunken_master | 부여 condition_immunities |  |
+| 3 | 바람 타기 (ride_the_wind) | four_elements | 스크립트 ki_spell |  |
+| 3 | 열린 손 기법 (open_hand_technique) | open_hand | 태그 open_hand_technique; 설정 |  |
+| 3 | 안개 자세 (mist_stance) | four_elements | 스크립트 ki_spell |  |
+| 3 | 불사조의 불꽃 (flames_of_the_phoenix) | four_elements | 스크립트 ki_spell |  |
+| 3 | 정상의 징 (gong_of_the_summit) | four_elements | 스크립트 ki_spell |  |
+| 3 | 지옥불의 포옹 (embrace_of_the_inferno) | four_elements | 스크립트 ki_spell |  |
+| 3 | 북풍의 움켜쥠 (clench_of_the_north_wind) | four_elements | 스크립트 ki_spell |  |
+| 3 | 물 채찍 (water_whip) | four_elements | 스크립트 water_whip; 설정 |  |
+| 3 | 그림자 기술: 환영 (shadow_arts_illusion) | shadow | 부여 at_will |  |
+| 4 | 취하게 하는 일격 (intoxicating_strike) | drunken_master | 스크립트 intoxicating_strike |  |
+| 4 | 취하게 하는 일격(보너스) (intoxicating_strike_bonus) | drunken_master | 스크립트 intoxicating_strike |  |
+| 4 | 파티의 주인공 (life_of_the_party) | drunken_master | 태그 life_of_the_party |  |
 | 4 | 느린 낙하 (slow_fall) |  | 태그 slow_fall; 반응 |  |
 | 5 | 그림자 망토 (shadow_cloak) | shadow | 스크립트 shadow_cloak |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 5 | 충격의 일격 (stunning_strike) |  | 태그 stunning_strike; 설정 |  |
+| 6 | 그림자 걸음 (shadow_step) | shadow | 스크립트 shadow_step |  |
+| 6 | 공격 되돌리기 (redirect_attack) | drunken_master | 반응 |  |
 | 6 | 몸의 완전함 (wholeness_of_body) | open_hand | 스크립트 wholeness_of_body |  |
 | 6 | 기의 발현 (manifestation) | open_hand | 태그 manifestation; 설정 |  |
-| 6 | 그림자 걸음 (shadow_step) | shadow | 스크립트 shadow_step |  |
+| 6 | 벌떡 일어서기 (leap_to_your_feet) | drunken_master | 태그 stand_up_one_tile |  |
 | 6 | 강화된 타격 (empowered_strikes) |  | 태그 empowered_strikes |  |
 | 7 | 회피 (evasion) |  | 태그 evasion |  |
 | 9 | 향상된 원소 시전 (improved_elemental_casting) | four_elements | 태그 improved_elemental_casting |  |
+| 9 | 술 깨는 깨달음 (sobering_realisation) | drunken_master | 스크립트 sobering_realisation |  |
 | 9 | 기 공명: 폭발 (ki_resonation_blast) | open_hand | 스크립트 ki_resonation_blast |  |
 | 9 | 기 공명: 주먹(보너스) (ki_resonation_punch_bonus) | open_hand | 스크립트 ki_resonation_punch |  |
 | 9 | 기 공명: 주먹 (ki_resonation_punch) | open_hand | 스크립트 ki_resonation_punch |  |
@@ -249,6 +258,7 @@
 | 10 | 자기 회복 (self_restoration) |  | 태그 self_restoration |  |
 | 11 | 평온 (tranquillity) | open_hand | 태그 tranquillity |  |
 | 11 | 그림자 일격 (shadow_strike) | shadow | 스크립트 shadow_strike |  |
+| 11 | 술꾼의 행운 (drunkards_luck) | drunken_master | 태그 drunkards_luck; 설정 |  |
 
 ### 팔라딘 (paladin) — 생명 주사위 d10, 역할 melee
 
@@ -467,6 +477,7 @@
 | disc_sweeping_cinder_strike | 휩쓰는 불씨 일격 | (몬스터 특성 또는 아직 없음) |
 | disc_touch_of_the_storm | 폭풍의 손길 | (몬스터 특성 또는 아직 없음) |
 | disc_water_whip | 물 채찍 | (몬스터 특성 또는 아직 없음) |
+| drunkards_luck | 술꾼의 행운 | monk |
 | dual_wield_ac | 쌍수 방어 | (몬스터 특성 또는 아직 없음) |
 | dual_wield_any | 무거운 쌍수 | (몬스터 특성 또는 아직 없음) |
 | dueling | 결투 | 재주 dueling |
@@ -505,6 +516,7 @@
 | jump_dex | 민첩 도약 | (몬스터 특성 또는 아직 없음) |
 | jump_half_more | 도약 +50% | (몬스터 특성 또는 아직 없음) |
 | jump_plus_1 | 도약 +1칸 | fighter, fighter |
+| life_of_the_party | 파티의 주인공 | monk |
 | long_rest_inspiration | 기지 | 종족 human |
 | lucky | 행운의 별 | (몬스터 특성 또는 아직 없음) |
 | mage_slayer | 마법사 사냥꾼 | (몬스터 특성 또는 아직 없음) |
@@ -560,7 +572,7 @@
 | split_enchantment | 갈라진 환혹 | wizard |
 | ss_all_in | 조준 | (몬스터 특성 또는 아직 없음) |
 | ss_low_ground | 낮은 곳 사격 | (몬스터 특성 또는 아직 없음) |
-| stand_up_one_tile | 빠르게 일어서기 | (몬스터 특성 또는 아직 없음) |
+| stand_up_one_tile | 빠르게 일어서기 | monk |
 | stealth_attack | 은신 공격 | (몬스터 특성 또는 아직 없음) |
 | stunning_strike | 충격의 일격 | monk |
 | sunlight_sensitivity | 햇빛 민감 | (몬스터 특성 또는 아직 없음) |

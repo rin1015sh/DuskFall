@@ -1227,6 +1227,189 @@
           "source": "original"
         }
       ]
+    },
+    {
+      "id": "drunken_master",
+      "name": {
+        "ko": "술 취한 달인의 길",
+        "en": "Way of the Drunken Master"
+      },
+      "level": 3,
+      "source": "original",
+      "features": [
+        {
+          "id": "cheeky_tipple",
+          "name": {
+            "ko": "능청스러운 한 잔",
+            "en": "Cheeky Tipple"
+          },
+          "level": 3,
+          "grants": {
+            "condition_immunities": [
+              "drunk"
+            ]
+          },
+          "notes_ko": "BG3: 취함의 나쁜 효과 면역. [변형] 술을 마셔 기 회복은 술 아이템이 없어 생략.",
+          "source": "original"
+        },
+        {
+          "id": "drunken_performance",
+          "name": {
+            "ko": "취중 공연",
+            "en": "Drunken Performance"
+          },
+          "level": 3,
+          "grants": {
+            "skills": [
+              "performance"
+            ]
+          },
+          "notes_ko": "BG3: 공연 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "drunken_technique",
+          "name": {
+            "ko": "취권",
+            "en": "Drunken Technique"
+          },
+          "level": 3,
+          "kind": "bonus_action",
+          "resource": "focus",
+          "script": "drunken_technique",
+          "target": "enemy",
+          "icon": "statuses/haste.webp",
+          "glyph": "fist",
+          "ai": {
+            "when": "after_attack",
+            "priority": 2
+          },
+          "notes_ko": "BG3: 보너스 행동 + 기 1, 비무장 공격 2회, 이동 +2칸과 이탈.",
+          "source": "original"
+        },
+        {
+          "id": "intoxicating_strike",
+          "name": {
+            "ko": "취하게 하는 일격",
+            "en": "Intoxicating Strike"
+          },
+          "level": 4,
+          "kind": "action",
+          "resource": "focus",
+          "script": "intoxicating_strike",
+          "target": "enemy",
+          "icon": "statuses/dazed.webp",
+          "glyph": "fist",
+          "notes_ko": "BG3: 행동 + 기 1, 비무장 공격 — 맞으면 건강 내성 실패 시 5턴 취함(민첩·매력 판정 불리).",
+          "source": "original"
+        },
+        {
+          "id": "intoxicating_strike_bonus",
+          "name": {
+            "ko": "취하게 하는 일격(보너스)",
+            "en": "Intoxicating Strike (Bonus)"
+          },
+          "level": 4,
+          "kind": "bonus_action",
+          "resource": "focus",
+          "script": "intoxicating_strike",
+          "target": "enemy",
+          "icon": "statuses/dazed.webp",
+          "glyph": "fist",
+          "notes_ko": "보너스 행동판.",
+          "source": "original"
+        },
+        {
+          "id": "life_of_the_party",
+          "name": {
+            "ko": "파티의 주인공",
+            "en": "Life of the Party"
+          },
+          "level": 4,
+          "caps": [
+            "life_of_the_party"
+          ],
+          "notes_ko": "BG3: 취하게 하는 일격이 맞으면 1턴 동안 취한 대상에게 AC +1·명중 + 지혜.",
+          "source": "original"
+        },
+        {
+          "id": "leap_to_your_feet",
+          "name": {
+            "ko": "벌떡 일어서기",
+            "en": "Leap to Your Feet"
+          },
+          "level": 6,
+          "caps": [
+            "stand_up_one_tile"
+          ],
+          "notes_ko": "BG3: 넘어진 상태에서 일어서기에 1칸만.",
+          "source": "original"
+        },
+        {
+          "id": "redirect_attack",
+          "name": {
+            "ko": "공격 되돌리기",
+            "en": "Redirect Attack"
+          },
+          "level": 6,
+          "kind": "reaction",
+          "trigger": "self_missed_melee",
+          "resource": "focus",
+          "notes_ko": "BG3: 2칸 안 근접 공격이 빗나가면 반응 + 기 1로 그 공격자에게 비무장 공격.",
+          "source": "original"
+        },
+        {
+          "id": "sobering_realisation",
+          "name": {
+            "ko": "술 깨는 깨달음",
+            "en": "Sobering Realisation"
+          },
+          "level": 9,
+          "kind": "action",
+          "resource": "focus",
+          "script": "sobering_realisation",
+          "target": "enemy",
+          "icon": "statuses/dazed.webp",
+          "glyph": "fist",
+          "notes_ko": "BG3: 행동 + 기 1, 취한 대상에게 비무장 공격 — 맞으면 2d8 + 지혜 정신, 취함이 풀림.",
+          "source": "original"
+        },
+        {
+          "id": "drunkards_luck",
+          "name": {
+            "ko": "술꾼의 행운",
+            "en": "Drunkard's Luck"
+          },
+          "level": 11,
+          "caps": [
+            "drunkards_luck"
+          ],
+          "toggle": {
+            "values": [
+              {
+                "id": "on",
+                "name": {
+                  "ko": "켜기",
+                  "en": "On"
+                }
+              },
+              {
+                "id": "off",
+                "name": {
+                  "ko": "끄기",
+                  "en": "Off"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "불리에 기 2 자동",
+              "en": "Auto spend 2 Ki on disadvantage"
+            }
+          },
+          "notes_ko": "BG3: 불리가 있는 공격·판정·내성에 기 2로 불리를 없앤다(설정 켜면 자동).",
+          "source": "original"
+        }
+      ]
     }
   ],
   "ai_role": "melee",

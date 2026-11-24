@@ -269,6 +269,8 @@ static func _attack_setup(attacker: Node, target: Node, atk: Dictionary, ctx: Di
 	_collect_attack_mods(attacker, target, res)
 	EventBus.on_before_attack_roll.emit(res)
 	_brutal_strike_setup(attacker, atk, res, preview)
+	if not preview:
+		drunkards_luck(attacker, res)
 	res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 	return res
 
@@ -1252,6 +1254,7 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 		Dice.log_text("%s %s 내성 자동 실패 vs DC %d" % [creature.label(), ability, dc])
 		return res
 	EventBus.on_save.emit(res)
+	drunkards_luck(creature, res)
 	res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 	var d := luck(creature, Dice.d20(res["mode"], "%s %s 내성" % [creature.label(), ability]))
 	if int(opts.get("min_natural", 0)) > int(d["natural"]):
@@ -1348,6 +1351,18 @@ static func concentration_check(creature: Node, damage: int, attacker: Variant =
 ## 능력 판정. opts: {"skill": String, "bonus": int, "advantage": [], "disadvantage": [],
 ##   "requires_sight": bool, "social": bool, "other": Node}
 ## 자연 20 자동 성공, 자연 1 자동 실패(2단계 공통 처리 규칙 1).
+## 술꾼의 행운(술 취한 달인 11레벨, 능력 태그 drunkards_luck): 불리가 있는 굴림(공격·내성·능력 판정)에 기 2로 불리를 없앤다(설정 켜면 자동).
+static func drunkards_luck(c: Node, res: Dictionary) -> void:
+	if not c.has_cap("drunkards_luck") or (res["disadvantage"] as Array).is_empty() or str(c.options.get("drunkards_luck", "on")) != "on" \
+			or c.resource("focus") < 2:
+		return
+	if not (res["advantage"] as Array).is_empty():
+		return  # 유리·불리가 상쇄되면 쓰지 않는다
+	c.spend_resource("focus", 2)
+	res["disadvantage"] = []
+	Dice.log_text("%s 술꾼의 행운: 불리 없앰(기 2)" % c.label())
+
+
 ## 짐승의 면모: 늑대(능력 태그 aspect_wolf): 그 생물과 12칸 안 아군(나 포함)의 은신 판정 + 그 생물 민첩 수정치(가장 큰 하나).
 static func _wolf_stealth(creature: Node) -> int:
 	var rq: Variant = EventBus.reaction_queue
@@ -1386,6 +1401,7 @@ static func ability_check(creature: Node, ability: String, dc: int, opts: Dictio
 			for m in other.modifier_entries():
 				if m["effect"].get("check", "") == "social":
 					_add_adv(m, "ability_check", "against", other, creature, res)
+		drunkards_luck(creature, res)
 		res["mode"] = mode_of(res["advantage"], res["disadvantage"])
 		var d := luck(creature, Dice.d20(res["mode"], "%s %s 판정" % [creature.label(), ability]))
 		res["natural"] = d["natural"]
