@@ -163,22 +163,6 @@
       }
     },
     {
-      "id": "tactical_mind",
-      "name": {
-        "ko": "전술적 판단",
-        "en": "Tactical Mind"
-      },
-      "level": 2,
-      "hook": "on_check_failed",
-      "resource": "second_wind",
-      "script": "tactical_mind",
-      "notes_ko": "능력 판정 실패 시 재기의 숨결 1회로 +1d10, 그래도 실패면 소모 안 함. 숨은 판정에는 자동.",
-      "source": "SRD 5.2.1",
-      "caps": [
-        "check_boost_d10"
-      ]
-    },
-    {
       "id": "extra_attack",
       "name": {
         "ko": "추가 공격",
@@ -192,17 +176,6 @@
       "grants": {
         "attacks_per_action": 2
       }
-    },
-    {
-      "id": "tactical_shift",
-      "name": {
-        "ko": "전술적 이동",
-        "en": "Tactical Shift"
-      },
-      "level": 5,
-      "notes_ko": "재기의 숨결 보너스 행동 사용 시 속도 절반 이동, 기회 공격 없음.",
-      "source": "SRD 5.2.1",
-      "handled_by": "second_wind 스크립트 안"
     },
     {
       "id": "indomitable",

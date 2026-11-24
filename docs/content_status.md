@@ -76,25 +76,26 @@
 | 레벨 | 기능 | 하위 | 장치 | 상태 |
 | --- | --- | --- | --- | --- |
 | 1 | 바드의 영감 (bardic_inspiration) |  | 스크립트 bardic_inspiration |  |
-| 2 | 전문화 (expertise) |  | 처리: 생성기 — 명세 expertise(숙련 기능 2개, 숙련 보너스 2배) |  |
 | 2 | 만물박사 (jack_of_all_trades) |  | 태그 jack_of_all_trades |  |
+| 2 | 휴식의 노래 (song_of_rest) |  | 스크립트 song_of_rest |  |
+| 3 | 전문화 (bard_expertise) |  | 고르기(expertise) |  |
 | 3 | 영감의 망토 (mantle_of_inspiration) | glamour | 스크립트 mantle_of_inspiration |  |
-| 3 | 칼날 묘기 (blade_flourish) | swords | 부여 special_attacks |  |
-| 3 | 칼날 전투 방식 (swords_fighting_style) | swords | 고르기(feat) |  |
-| 3 | 칼날의 훈련 (swords_training) | swords | 부여 armor_training, weapon_training |  |
-| 3 | 전투 영감 (combat_inspiration) | valour | 태그 combat_inspiration |  |
-| 3 | 용맹의 훈련 (valour_training) | valour | 부여 armor_training, weapon_training |  |
-| 3 | 비꼬는 말 (cutting_words) | lore | 반응 |  |
 | 3 | 추가 숙련 (bonus_proficiencies_lore) | lore | 고르기(skill) |  |
-| 5 | 영감의 샘 (font_of_inspiration) |  | 스크립트 font_of_inspiration |  |
-| 6 | 마법의 발견 (magical_discoveries) | lore | 고르기(spell) |  |
-| 6 | 추가 공격(용맹) (valour_extra_attack) | valour | 태그 extra_attack; 부여 attacks_per_action |  |
-| 6 | 추가 공격(칼날) (swords_extra_attack) | swords | 태그 extra_attack; 부여 attacks_per_action |  |
-| 6 | 위엄의 망토 (mantle_of_majesty) | glamour | 스크립트 mantle_of_majesty |  |
+| 3 | 비꼬는 말 (cutting_words) | lore | 반응 |  |
+| 3 | 용맹의 훈련 (valour_training) | valour | 부여 armor_training, weapon_training |  |
+| 3 | 전투 영감 (combat_inspiration) | valour | 태그 combat_inspiration |  |
+| 3 | 칼날 묘기 (blade_flourish) | swords | 부여 special_attacks |  |
+| 3 | 칼날의 훈련 (swords_training) | swords | 부여 armor_training, weapon_training |  |
+| 3 | 칼날 전투 방식 (swords_fighting_style) | swords | 고르기(feat) |  |
+| 5 | 영감의 샘 (font_of_inspiration) |  | 처리: 자원 recharge |  |
 | 6 | 위엄의 명령 (majesty_command) | glamour | 스크립트 majesty_command |  |
-| 7 | 대항 매혹 (countercharm) |  | 태그 countercharm; 반응 |  |
-| 9 | 전문화(9레벨) (expertise_9) |  | 고르기(expertise) |  |
-| 10 | 마법의 비밀 (magical_secrets) |  | 처리: 클래스 spellcasting.extra_lists — 10레벨부터 준비 주문을 클레릭·드루이드·위저드 목록에서도 고른다(주문 창·생성기 검사) |  |
+| 6 | 위엄의 망토 (mantle_of_majesty) | glamour | 스크립트 mantle_of_majesty |  |
+| 6 | 추가 공격(칼날) (swords_extra_attack) | swords | 태그 extra_attack; 부여 attacks_per_action |  |
+| 6 | 추가 공격(용맹) (valour_extra_attack) | valour | 태그 extra_attack; 부여 attacks_per_action |  |
+| 6 | 마법의 발견 (magical_discoveries) | lore | 고르기(spell) |  |
+| 6 | 대항 매혹 (countercharm) |  | 태그 countercharm; 반응 |  |
+| 10 | 마법의 비밀 (magical_secrets) |  | 고르기(spell) |  |
+| 10 | 전문화(10레벨) (expertise_10) |  | 고르기(expertise) |  |
 
 ### 클레릭 (cleric) — 생명 주사위 d8, 역할 healer
 
@@ -170,7 +171,6 @@
 | 1 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
 | 1 | 재기의 숨결 (second_wind) |  | 스크립트 second_wind |  |
 | 2 | 행동 연쇄 (action_surge) |  | 스크립트 action_surge |  |
-| 2 | 전술적 판단 (tactical_mind) |  | 스크립트 tactical_mind; 태그 check_boost_d10 |  |
 | 3 | 무기 결속 (weapon_bond) | eldritch_knight | 부여 condition_immunities |  |
 | 3 | 주문 시전(비전 기사) (ek_spellcasting) | eldritch_knight | 처리: 생성기 — 하위 클래스 spellcasting(1/3 시전자, 위저드 목록, 지능, 명세 subclass_spells) |  |
 | 3 | 비전 사격 (arcane_shot) | arcane_archer | 고르기(special_attack) |  |
@@ -178,15 +178,14 @@
 | 3 | 기법 (manoeuvres) | battle_master | 고르기(special_attack) |  |
 | 3 | 전투 우위 (combat_superiority) | battle_master | 처리: 무기 액션 group maneuver(actions._special_attack) |  |
 | 3 | 향상된 치명타 (improved_critical) | champion | 부여 crit_threshold |  |
-| 5 | 전술적 이동 (tactical_shift) |  | 처리: second_wind 스크립트 안 |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
-| 7 | 전쟁 마법 (war_magic) | eldritch_knight | 태그 war_magic |  |
 | 7 | 뛰어난 운동선수 (remarkable_athlete) | champion | 태그 jump_plus_1, jump_plus_1, half_proficiency_physical |  |
 | 7 | 휘는 화살 (curving_shot) | arcane_archer | 태그 curving_shot; 설정 |  |
 | 7 | 마법 화살 (magic_arrow) | arcane_archer | 태그 magic_ranged |  |
+| 7 | 전쟁 마법 (war_magic) | eldritch_knight | 태그 war_magic |  |
 | 9 | 불굴 (indomitable) |  | 스크립트 indomitable |  |
-| 10 | 비전 일격 (eldritch_strike) | eldritch_knight | 태그 eldritch_strike |  |
 | 10 | 추가 전투 방식 (additional_fighting_style) | champion | 고르기(feat) |  |
+| 10 | 비전 일격 (eldritch_strike) | eldritch_knight | 태그 eldritch_strike |  |
 | 11 | 추가 공격 2회 (two_extra_attacks) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 
 ### 몽크 (monk) — 생명 주사위 d8, 역할 melee
@@ -509,7 +508,7 @@
 | cantrip_half_on_save | 강력한 소마법(BG3) | wizard |
 | carry_quarter_more | 운반 +25% | barbarian, 종족 human |
 | charger | 돌격병 | (몬스터 특성 또는 아직 없음) |
-| check_boost_d10 | 전술적 판단 | fighter |
+| check_boost_d10 | 전술적 판단 | (몬스터 특성 또는 아직 없음) |
 | climber | 등반 | monk, ranger, rogue |
 | combat_inspiration | 전투 영감 | bard |
 | concentration_advantage | 집중 유리 | (몬스터 특성 또는 아직 없음) |

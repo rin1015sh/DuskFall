@@ -66,9 +66,7 @@ func test_cutting_words_and_font() -> void:
 	assert_eq(b.resource("bardic_inspiration"), left - 1)
 	assert_false(b.can_react(), "반응을 썼다")
 	var slots: int = b.resource("spell_slot_1")
-	assert_true(Features.use(w, b, "font_of_inspiration")["ok"])
-	assert_eq(b.resource("bardic_inspiration"), left)
-	assert_eq(b.resource("spell_slot_1"), slots - 1)
+	assert_false(b.feature_data.get("font_of_inspiration", {}).has("script"), "영감의 샘은 짧은 휴식 회복만(BG3)")
 
 
 func test_vicious_mockery() -> void:

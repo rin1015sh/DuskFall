@@ -39,10 +39,8 @@ func test_barbarian_6_10() -> void:
 func test_bard_6_10() -> void:
 	var bd := _pc("bard", 10)
 	assert_true(bd.spells.has("spirit_guardians") and bd.spells.has("counterspell"), "마법의 발견 항상 준비")
-	assert_true("fireball" in SpellPrep.pool(bd), "마법의 비밀: 위저드 주문도 준비")
-	assert_false("fireball" in SpellPrep.pool(_pc("bard", 9)), "9레벨엔 없다")
-	assert_eq(Builder.validate_spells(RulesDB.get_entry("class", "bard"), {"spells": ["fireball"]}, 10).size(), 0)
-	assert_eq(int(bd.skill_bonuses["insight"]), bd.proficiency_bonus * 2, "9레벨 전문화")
+	assert_true(bd.spells.has("fireball") and bd.spells.has("haste"), "마법의 비밀: 고른 2개 항상 준비(BG3)")
+	assert_eq(int(bd.skill_bonuses["insight"]), bd.proficiency_bonus * 2, "10레벨 전문화")
 	# 대항 매혹
 	var w := make_world(["......"])
 	var ally := make_creature({"team": "party", "hp_max": 30})

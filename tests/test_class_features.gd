@@ -37,7 +37,6 @@ func test_second_wind_and_tactical_shift() -> void:
 	assert_eq(f.hp, 21, "1d10 + 전사 레벨 5")
 	assert_eq(f.turn["bonus"], 0, "보너스 행동")
 	assert_eq(f.resource("second_wind"), 0)
-	assert_eq(f.turn["free_move_no_oa"], 3, "전술적 이동: 속도 절반")
 
 
 func test_action_surge_not_for_magic() -> void:
@@ -48,19 +47,6 @@ func test_action_surge_not_for_magic() -> void:
 	assert_true(Features.use(w, f, "action_surge")["ok"])
 	assert_eq(f.turn["action"], 1, "추가 행동")
 	assert_eq(f.resource("action_surge"), 0)
-
-
-func test_tactical_mind() -> void:
-	var f := _pc("fighter", 2)
-	Dice.force([5, 8])  # 판정 5 + 근력 3 = 8 < 12 → +1d10(8) = 16 성공
-	var r := Resolver.ability_check(f, "str", 12)
-	assert_true(r["success"], "전술적 판단으로 성공")
-	assert_eq(f.resource("second_wind"), 0, "성공했으니 1회 소모")
-	f.resources["second_wind"]["current"] = 1
-	Dice.force([2, 1])  # 2 + 3 = 5 < 12, +1 = 6 → 여전히 실패
-	r = Resolver.ability_check(f, "str", 12)
-	assert_false(r["success"])
-	assert_eq(f.resource("second_wind"), 1, "그래도 실패면 소모하지 않는다")
 
 
 func test_improved_critical_19() -> void:
