@@ -15,7 +15,7 @@
 | species | 15 |
 | background | 4 |
 | monster | 43 |
-| capability | 122 |
+| capability | 130 |
 | terrain_preset | 11 |
 | map | 5 |
 
@@ -268,12 +268,44 @@
 | --- | --- | --- | --- | --- |
 | 1 | 의식 숙련 (ritual_adept) |  | 태그 ritual_from_spellbook |  |
 | 1 | 비전 회복 (arcane_recovery) |  | 스크립트 arcane_recovery |  |
+| 2 | 칼날노래 (bladesong) | bladesinger | 스크립트 bladesong |  |
+| 2 | 전쟁과 노래의 수련 (training_in_war_and_song) | bladesinger | 부여 armor_training, skills, weapon_training |  |
+| 2 | 실험 연금술 (experimental_alchemy) | transmuter |  | 보류(deferred) |
+| 2 | 변환학파 학자 (transmuter_savant) | transmuter | 부여 scribe_discount |  |
+| 2 | 섬뜩한 수확 (grim_harvest) | necromancer | 태그 grim_harvest |  |
+| 2 | 사령학파 학자 (necromancer_savant) | necromancer | 부여 scribe_discount |  |
+| 2 | 향상된 하급 환영 (improved_minor_illusion) | illusionist | 부여 bonus_action_spells |  |
+| 2 | 환영학파 학자 (illusionist_savant) | illusionist | 부여 scribe_discount |  |
+| 2 | 주문 조각 (sculpt_spells) | evoker | 태그 sculpt_spells |  |
+| 2 | 방출학파 학자 (evoker_savant) | evoker | 부여 scribe_discount |  |
+| 2 | 최면 응시 (hypnotic_gaze) | enchanter | 스크립트 hypnotic_gaze |  |
+| 2 | 환혹학파 학자 (enchanter_savant) | enchanter | 부여 scribe_discount |  |
+| 2 | 비전 결계 (arcane_ward) | abjurer | 태그 arcane_ward |  |
+| 2 | 방호학파 학자 (abjurer_savant) | abjurer | 부여 scribe_discount |  |
+| 2 | 예지 (portent) | diviner | 태그 portent; 반응 |  |
+| 2 | 예언학파 학자 (diviner_savant) | diviner | 부여 scribe_discount |  |
+| 2 | 소환학파 학자 (conjurer_savant) | conjurer | 부여 scribe_discount |  |
+| 2 | 하급 소환: 물 (minor_conjuration) | conjurer | 스크립트 minor_conjuration |  |
 | 2 | 학자 (scholar) |  | 고르기(expertise) |  |
-| 3 | 방출 학자 (evocation_savant) | evoker | 부여 spellbook_school |  |
-| 3 | 강력한 소마법 (potent_cantrip) | evoker | 태그 cantrip_half_on_miss |  |
 | 5 | 주문 암기 (memorize_spell) |  | 태그 prepare_swap_short_rest |  |
-| 6 | 주문 조각 (sculpt_spells) | evoker | 태그 sculpt_spells |  |
+| 6 | 강력한 소마법 (potent_cantrip) | evoker | 태그 cantrip_half_on_save |  |
+| 6 | 선한 자리바꿈 (benign_transposition) | conjurer | 스크립트 benign_transposition |  |
+| 6 | 추가 공격(검무가) (bladesinger_extra_attack) | bladesinger | 태그 extra_attack; 부여 attacks_per_action |  |
+| 6 | 본능적 매혹 (instinctive_charm) | enchanter | 반응 |  |
+| 6 | 투명 간파 (reveal_invisible) | illusionist | 스크립트 reveal_invisible |  |
+| 6 | 변환자의 돌 (transmuters_stone) | transmuter | 스크립트 transmuters_stone; 설정 |  |
+| 6 | 투사 결계 (projected_ward) | abjurer | 반응 |  |
+| 6 | 언데드 노예 (undead_thralls) | necromancer |  | 보류(deferred) |
+| 6 | 숙련된 예언 (expert_divination) | diviner | 태그 expert_divination |  |
+| 10 | 변신술사 (shapechanger) | transmuter |  | 보류(deferred) |
+| 10 | 방어의 노래 (song_of_defence) | bladesinger | 반응 |  |
+| 10 | 죽음에 익숙함 (inured_to_undeath) | necromancer | 부여 resistances |  |
+| 10 | 향상된 방호 (improved_abjuration) | abjurer | 태그 improved_abjuration |  |
+| 10 | 환영 분신 (illusory_self) | illusionist | 반응 |  |
 | 10 | 강화된 방출 (empowered_evocation) | evoker | 태그 evocation_add_mod |  |
+| 10 | 집중된 소환 (focused_conjuration) | conjurer | 태그 focused_conjuration |  |
+| 10 | 갈라진 환혹 (split_enchantment) | enchanter | 태그 split_enchantment |  |
+| 10 | 셋째 눈 (third_eye) | diviner | 스크립트 third_eye; 설정 |  |
 
 ## 주문
 
@@ -293,6 +325,7 @@
 | 태그 | 이름 | 쓰는 곳 |
 | --- | --- | --- |
 | agonizing_blast | 고통의 화살 | (몬스터 특성 또는 아직 없음) |
+| arcane_ward | 비전 결계 | wizard |
 | armor_ac_plus_1 | 방어 | 재주 defense |
 | assassinate | 암살 | rogue |
 | blessed_healer | 축복받은 치유자 | cleric |
@@ -301,7 +334,8 @@
 | brawler | 주먹다짐 | (몬스터 특성 또는 아직 없음) |
 | brutal_strike | 잔혹한 일격 | barbarian |
 | cantrip_add_mod | 강력한 주문 시전 | (몬스터 특성 또는 아직 없음) |
-| cantrip_half_on_miss | 강력한 소마법 | wizard |
+| cantrip_half_on_miss | 강력한 소마법 | (몬스터 특성 또는 아직 없음) |
+| cantrip_half_on_save | 강력한 소마법(BG3) | wizard |
 | charger | 돌격병 | (몬스터 특성 또는 아직 없음) |
 | check_boost_d10 | 전술적 판단 | fighter |
 | climber | 등반 | monk, ranger, rogue |
@@ -324,13 +358,16 @@
 | escape_the_horde | 무리 탈출 | (몬스터 특성 또는 아직 없음) |
 | evasion | 회피 | monk, rogue |
 | evocation_add_mod | 강화된 방출 | wizard |
-| extra_attack | 추가 공격 | barbarian, fighter, fighter, monk, paladin, ranger |
+| expert_divination | 숙련된 예언 | wizard |
+| extra_attack | 추가 공격 | barbarian, fighter, fighter, monk, paladin, ranger, wizard |
 | extra_bonus_action | 추가 보너스 행동 | rogue |
 | extra_damage_wounded | 거상 학살자 | (몬스터 특성 또는 아직 없음) |
 | fall_resistance | 낙하 저항 | rogue |
 | fast_movement | 빠른 이동 | barbarian, ranger |
+| focused_conjuration | 집중된 소환 | wizard |
 | free_cast_class_spell | 신성 개입 | cleric, druid |
 | frenzy | 광란 | barbarian |
+| grim_harvest | 섬뜩한 수확 | wizard |
 | guided_strike | 인도된 일격 | cleric |
 | gwm_all_in | 강타 | (몬스터 특성 또는 아직 없음) |
 | half_proficiency_physical | 절반 숙련(신체) | fighter |
@@ -340,6 +377,7 @@
 | horde_breaker | 무리 파괴자 | (몬스터 특성 또는 아직 없음) |
 | hunters_lore | 사냥꾼의 지식 | ranger |
 | immune_magic_sleep | 마법 수면 면역 | 종족 elf |
+| improved_abjuration | 향상된 방호 | wizard |
 | improved_cunning_strike | 향상된 교활한 일격 | rogue |
 | instinctive_pounce | 본능적 도약 | barbarian |
 | jack_of_all_trades | 만물박사 | bard |
@@ -371,6 +409,7 @@
 | pact_blade | 계약의 칼날 | (몬스터 특성 또는 아직 없음) |
 | polearm_enter_oa | 장병기 경계 | (몬스터 특성 또는 아직 없음) |
 | polearm_haft | 자루 공격 | (몬스터 특성 또는 아직 없음) |
+| portent | 예지 | wizard |
 | precision_attack | 정밀 공격 | (몬스터 특성 또는 아직 없음) |
 | prepare_swap_short_rest | 주문 암기 | wizard |
 | rakish_sneak | 대담한 급소 | rogue |
@@ -395,6 +434,7 @@
 | sorcery_incarnate | 마법의 화신 | sorcerer |
 | spell_crit_minus_1 | 주문 치명타 범위 | (몬스터 특성 또는 아직 없음) |
 | spell_heal_bonus | 생명의 제자 | cleric |
+| split_enchantment | 갈라진 환혹 | wizard |
 | ss_all_in | 조준 | (몬스터 특성 또는 아직 없음) |
 | ss_low_ground | 낮은 곳 사격 | (몬스터 특성 또는 아직 없음) |
 | stand_up_one_tile | 빠르게 일어서기 | (몬스터 특성 또는 아직 없음) |

@@ -560,6 +560,9 @@
         },
         "move_damage": {
           "type": "object"
+        },
+        "save_bonus": {
+          "type": "object"
         }
       }
     }

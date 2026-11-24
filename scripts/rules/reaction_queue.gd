@@ -146,6 +146,22 @@ func _on_before_attack_roll(res: Dictionary) -> void:
 				res["disadvantage"].append("섬광")
 				Dice.log_text("%s 경고의 섬광: %s의 공격이 불리" % [o.label(), attacker.label()])):
 				break
+	# 본능적 매혹(환혹학파 6레벨, trigger attacked_charm + 자원): 나를 공격하는 적이 지혜 내성(유리)에 실패하면 1턴 매혹, 그 공격은 빗나간다
+	var cf := _trigger_feature(target, "attacked_charm")
+	if cf != "" and target.can_react() and target.is_hostile_to(attacker):
+		var crid := str(target.feature_data[cf].get("resource", ""))
+		if crid == "" or target.resource(crid) > 0:
+			offer(target, cf, {"attack": res}, func() -> void:
+				target.turn["reaction"] = int(target.turn.get("reaction", 1)) - 1
+				if crid != "":
+					target.spend_resource(crid)
+				var Spellcasting: Variant = load("res://scripts/rules/spellcasting.gd")
+				var sv: Dictionary = load("res://scripts/rules/resolver.gd").saving_throw(attacker, "wis", Spellcasting.spell_dc(target),
+					{"source": target, "magic": true, "advantage": ["전투 중 매혹"]})
+				if not sv["success"]:
+					attacker.apply_condition("charmed", 1, target)
+					res["forced_miss"] = true
+				Dice.log_text("%s 본능적 매혹: %s" % [target.label(), "매혹 — 공격이 빗나간다" if not sv["success"] else "버텼다"]))
 	for o: Node in grid.creatures():
 		if o == target or o.dead or not o.is_hostile_to(attacker) or o.is_hostile_to(target) or not o.can_react():
 			continue
@@ -293,12 +309,56 @@ func miss_bonus(res: Dictionary) -> void:
 			return
 
 
+## 환영 분신(환영학파 10레벨, trigger self_hit_any + 자원): 나를 맞힌 공격을 반응으로 빗나가게 한다.
+func _illusory_self(res: Dictionary) -> void:
+	var t: Node = res["target"]
+	var fid := _trigger_feature(t, "self_hit_any")
+	if fid == "" or not t.can_react():
+		return
+	var rid := str(t.feature_data[fid].get("resource", ""))
+	if rid != "" and t.resource(rid) <= 0:
+		return
+	offer(t, fid, {"attack": res, "would_miss": true}, func() -> void:
+		t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
+		if rid != "":
+			t.spend_resource(rid)
+		res["forced_miss"] = true
+		res["hit"] = false
+		Dice.log_text("%s 환영 분신: 공격이 빗나갔다" % t.label()))
+
+
+## 방어의 노래(칼날노래 10레벨, trigger song_of_defence): 칼날노래 중 공격에 맞으면 반응 + 가장 낮은 주문 슬롯 — 피해 5 × 슬롯 레벨 줄이기.
+func _song_of_defence(res: Dictionary) -> void:
+	var t: Node = res["target"]
+	var fid := _trigger_feature(t, "song_of_defence")
+	if fid == "" or not t.can_react():
+		return
+	var rc: Variant = t.feature_data[fid].get("requires_condition", [])
+	if not (rc is Array and rc.any(func(x: String) -> bool: return t.has_condition(x))) and not (rc is String and t.has_condition(rc)):
+		return
+	var slot := lowest_slot(t, 1)
+	if slot == "":
+		return
+	offer(t, fid, {"attack": res}, func() -> void:
+		t.turn["reaction"] = int(t.turn.get("reaction", 1)) - 1
+		t.spend_resource(slot)
+		var lv := int(slot.get_slice("_", 2))
+		res["damage_reduction"] = int(res.get("damage_reduction", 0)) + 5 * lv
+		Dice.log_text("%s 방어의 노래: 피해 −%d" % [t.label(), 5 * lv]))
+
+
 func _on_after_attack_roll(res: Dictionary) -> void:
+	if not res.get("preview", false) and res.get("hit", false) and res.get("crit", false):
+		_illusory_self(res)  # 환영 분신은 치명타도 빗나가게 한다
 	if res.get("preview", false) or not res.get("hit", false) or res.get("crit", false):
 		return
 	_enemy_hit_reactions(res)
 	if res.get("hit", false) and res["total"] >= res["ac"] + res["ac_bonus"]:
 		_self_hit_reactions(res)
+	if res.get("hit", false) and not res.get("forced_miss", false):
+		_illusory_self(res)
+	if res.get("hit", false) and not res.get("forced_miss", false):
+		_song_of_defence(res)
 	if not res.get("hit", false) or res["total"] < res["ac"] + res["ac_bonus"]:
 		return  # 이미 빗나감으로 바뀌었다
 	var t: Node = res["target"]

@@ -154,6 +154,149 @@
         "1": 1
       },
       "recharge": "long"
+    },
+    {
+      "id": "arcane_ward",
+      "name": {
+        "ko": "비전 결계",
+        "en": "Arcane Ward"
+      },
+      "max": {
+        "2": 4,
+        "3": 6,
+        "4": 8,
+        "5": 10,
+        "6": 12,
+        "7": 14,
+        "8": 16,
+        "9": 18,
+        "10": 20,
+        "11": 22,
+        "12": 24
+      },
+      "recharge": "long",
+      "subclass": "abjurer"
+    },
+    {
+      "id": "minor_conjuration",
+      "name": {
+        "ko": "하급 소환",
+        "en": "Minor Conjuration"
+      },
+      "max": {
+        "2": 1
+      },
+      "recharge": "short",
+      "subclass": "conjurer"
+    },
+    {
+      "id": "benign_transposition",
+      "name": {
+        "ko": "선한 자리바꿈",
+        "en": "Benign Transposition"
+      },
+      "max": {
+        "6": 1
+      },
+      "recharge": "long",
+      "subclass": "conjurer"
+    },
+    {
+      "id": "portent_dice",
+      "name": {
+        "ko": "예지 주사위",
+        "en": "Portent Dice"
+      },
+      "max": {
+        "2": 2,
+        "6": 3
+      },
+      "recharge": "long",
+      "subclass": "diviner"
+    },
+    {
+      "id": "third_eye",
+      "name": {
+        "ko": "셋째 눈",
+        "en": "Third Eye"
+      },
+      "max": {
+        "10": 1
+      },
+      "recharge": "long",
+      "subclass": "diviner"
+    },
+    {
+      "id": "hypnotic_gaze",
+      "name": {
+        "ko": "최면 응시",
+        "en": "Hypnotic Gaze"
+      },
+      "max": {
+        "2": 1
+      },
+      "recharge": "long",
+      "subclass": "enchanter"
+    },
+    {
+      "id": "instinctive_charm",
+      "name": {
+        "ko": "본능적 매혹",
+        "en": "Instinctive Charm"
+      },
+      "max": {
+        "6": 1
+      },
+      "recharge": "long",
+      "subclass": "enchanter"
+    },
+    {
+      "id": "reveal_invisible",
+      "name": {
+        "ko": "투명 간파",
+        "en": "See Invisibility"
+      },
+      "max": {
+        "6": 1
+      },
+      "recharge": "short",
+      "subclass": "illusionist"
+    },
+    {
+      "id": "illusory_self",
+      "name": {
+        "ko": "환영 분신",
+        "en": "Illusory Self"
+      },
+      "max": {
+        "10": 1
+      },
+      "recharge": "short",
+      "subclass": "illusionist"
+    },
+    {
+      "id": "transmuters_stone",
+      "name": {
+        "ko": "변환자의 돌",
+        "en": "Transmuter's Stone"
+      },
+      "max": {
+        "6": 1
+      },
+      "recharge": "long",
+      "subclass": "transmuter"
+    },
+    {
+      "id": "bladesong",
+      "name": {
+        "ko": "칼날노래",
+        "en": "Bladesong"
+      },
+      "max": {
+        "2": 2
+      },
+      "recharge": "short",
+      "subclass": "bladesinger"
     }
   ],
   "features": [
@@ -220,43 +363,318 @@
   ],
   "subclasses": [
     {
+      "id": "abjurer",
+      "name": {
+        "ko": "방호학파",
+        "en": "Abjurer"
+      },
+      "level": 2,
+      "source": "original",
+      "features": [
+        {
+          "id": "abjurer_savant",
+          "name": {
+            "ko": "방호학파 학자",
+            "en": "Abjurer Savant"
+          },
+          "level": 2,
+          "grants": {
+            "scribe_discount": "abjuration"
+          },
+          "notes_ko": "BG3: 방호학파 학파 주문을 두루마리에서 옮겨 적는 비용 절반(25gp/레벨).",
+          "source": "original"
+        },
+        {
+          "id": "arcane_ward",
+          "name": {
+            "ko": "비전 결계",
+            "en": "Arcane Ward"
+          },
+          "level": 2,
+          "caps": [
+            "arcane_ward"
+          ],
+          "resource": "arcane_ward",
+          "notes_ko": "BG3: 결계 충전 = 위저드 레벨 × 2(긴 휴식), 방호학파 주문을 쓰면 주문 레벨만큼 더. 받는 피해를 충전만큼(최대 20) 막고 충전 1을 잃는다.",
+          "source": "original"
+        },
+        {
+          "id": "projected_ward",
+          "name": {
+            "ko": "투사 결계",
+            "en": "Projected Ward"
+          },
+          "level": 6,
+          "kind": "reaction",
+          "trigger": "projected_ward",
+          "notes_ko": "BG3: 반응 — 6칸 안 아군이 피해를 받으면 내 결계가 대신 막는다(충전 1 잃음).",
+          "source": "original"
+        },
+        {
+          "id": "improved_abjuration",
+          "name": {
+            "ko": "향상된 방호",
+            "en": "Improved Abjuration"
+          },
+          "level": 10,
+          "caps": [
+            "improved_abjuration"
+          ],
+          "notes_ko": "BG3: 짧은 휴식마다 결계 충전 + 위저드 레벨.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "conjurer",
+      "name": {
+        "ko": "소환학파",
+        "en": "Conjurer"
+      },
+      "level": 2,
+      "source": "original",
+      "features": [
+        {
+          "id": "conjurer_savant",
+          "name": {
+            "ko": "소환학파 학자",
+            "en": "Conjurer Savant"
+          },
+          "level": 2,
+          "grants": {
+            "scribe_discount": "conjuration"
+          },
+          "notes_ko": "BG3: 소환학파 학파 주문을 두루마리에서 옮겨 적는 비용 절반(25gp/레벨).",
+          "source": "original"
+        },
+        {
+          "id": "minor_conjuration",
+          "name": {
+            "ko": "하급 소환: 물",
+            "en": "Minor Conjuration: Water"
+          },
+          "level": 2,
+          "kind": "action",
+          "script": "minor_conjuration",
+          "resource": "minor_conjuration",
+          "target": "cell",
+          "icon": "statuses/soaked.webp",
+          "glyph": "waves",
+          "explore": true,
+          "notes_ko": "BG3: 행동, 6칸 안 둘레 3칸에 비(불 끄기·물·젖음), 짧은 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "benign_transposition",
+          "name": {
+            "ko": "선한 자리바꿈",
+            "en": "Benign Transposition"
+          },
+          "level": 6,
+          "kind": "action",
+          "script": "benign_transposition",
+          "resource": "benign_transposition",
+          "target": "cell",
+          "icon": "statuses/haste.webp",
+          "glyph": "swap",
+          "explore": true,
+          "notes_ko": "BG3: 행동, 6칸 안 빈 칸으로 순간 이동하거나 아군과 자리 바꾸기. 긴 휴식 1회, 소환학파 주문을 쓰면 되찾는다.",
+          "source": "original"
+        },
+        {
+          "id": "focused_conjuration",
+          "name": {
+            "ko": "집중된 소환",
+            "en": "Focused Conjuration"
+          },
+          "level": 10,
+          "caps": [
+            "focused_conjuration"
+          ],
+          "notes_ko": "BG3: 피해로 소환학파 주문 집중이 깨지지 않는다.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "diviner",
+      "name": {
+        "ko": "예언학파",
+        "en": "Diviner"
+      },
+      "level": 2,
+      "source": "original",
+      "features": [
+        {
+          "id": "diviner_savant",
+          "name": {
+            "ko": "예언학파 학자",
+            "en": "Diviner Savant"
+          },
+          "level": 2,
+          "grants": {
+            "scribe_discount": "divination"
+          },
+          "notes_ko": "BG3: 예언학파 학파 주문을 두루마리에서 옮겨 적는 비용 절반(25gp/레벨).",
+          "source": "original"
+        },
+        {
+          "id": "portent",
+          "name": {
+            "ko": "예지",
+            "en": "Portent"
+          },
+          "level": 2,
+          "caps": [
+            "portent"
+          ],
+          "kind": "reaction",
+          "trigger": "portent",
+          "resource": "portent_dice",
+          "notes_ko": "BG3: 긴 휴식에 d20 2개(6레벨 3개)를 굴려 둔다. 12칸 안 생물의 공격·내성 d20을 그 값으로 바꾼다(자동: 적 명중을 빗나감으로, 아군 실패를 성공으로). 반응을 쓰지 않는다.",
+          "source": "original"
+        },
+        {
+          "id": "expert_divination",
+          "name": {
+            "ko": "숙련된 예언",
+            "en": "Expert Divination"
+          },
+          "level": 6,
+          "caps": [
+            "expert_divination"
+          ],
+          "notes_ko": "BG3: 예지 주사위 +1(3개). 짧은 휴식에 쓴 주사위를 새로 굴린다(BG3 예언 과제는 단순화).",
+          "source": "original"
+        },
+        {
+          "id": "third_eye",
+          "name": {
+            "ko": "셋째 눈",
+            "en": "Third Eye"
+          },
+          "level": 10,
+          "kind": "action",
+          "script": "third_eye",
+          "resource": "third_eye",
+          "target": "self",
+          "icon": "statuses/f3_witch_eye.webp",
+          "glyph": "eye",
+          "explore": true,
+          "toggle": {
+            "values": [
+              {
+                "id": "darkvision",
+                "name": {
+                  "ko": "암시야",
+                  "en": "Darkvision"
+                }
+              },
+              {
+                "id": "see_invisible",
+                "name": {
+                  "ko": "투명 보기",
+                  "en": "See Invisibility"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "셋째 눈으로 얻을 감각",
+              "en": "Third Eye sense"
+            }
+          },
+          "notes_ko": "BG3: 행동, 긴 휴식까지 암시야 24칸 또는 투명 보기(상시 설정), 긴 휴식 1회.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "enchanter",
+      "name": {
+        "ko": "환혹학파",
+        "en": "Enchanter"
+      },
+      "level": 2,
+      "source": "original",
+      "features": [
+        {
+          "id": "enchanter_savant",
+          "name": {
+            "ko": "환혹학파 학자",
+            "en": "Enchanter Savant"
+          },
+          "level": 2,
+          "grants": {
+            "scribe_discount": "enchantment"
+          },
+          "notes_ko": "BG3: 환혹학파 학파 주문을 두루마리에서 옮겨 적는 비용 절반(25gp/레벨).",
+          "source": "original"
+        },
+        {
+          "id": "hypnotic_gaze",
+          "name": {
+            "ko": "최면 응시",
+            "en": "Hypnotic Gaze"
+          },
+          "level": 2,
+          "kind": "action",
+          "script": "hypnotic_gaze",
+          "resource": "hypnotic_gaze",
+          "target": "creature",
+          "icon": "statuses/charm.webp",
+          "glyph": "spiral",
+          "notes_ko": "BG3: 행동, 곁의 생물 지혜 내성 → 2턴 최면(매혹 + 무력화, 피해로 풀림), 긴 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "instinctive_charm",
+          "name": {
+            "ko": "본능적 매혹",
+            "en": "Instinctive Charm"
+          },
+          "level": 6,
+          "kind": "reaction",
+          "trigger": "attacked_charm",
+          "resource": "instinctive_charm",
+          "notes_ko": "BG3: 반응 — 나를 공격하는 적이 지혜 내성(유리)에 실패하면 1턴 매혹, 그 공격은 빗나간다(다른 대상으로 돌리기는 단순화). 긴 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "split_enchantment",
+          "name": {
+            "ko": "갈라진 환혹",
+            "en": "Split Enchantment"
+          },
+          "level": 10,
+          "caps": [
+            "split_enchantment"
+          ],
+          "notes_ko": "BG3: 한 생물만 노리는 환혹학파 주문이 가장 가까운 다른 적에게도.",
+          "source": "original"
+        }
+      ]
+    },
+    {
       "id": "evoker",
       "name": {
         "ko": "방출학파",
         "en": "Evoker"
       },
-      "level": 3,
+      "level": 2,
       "source": "SRD 5.2.1",
       "features": [
         {
-          "id": "evocation_savant",
+          "id": "evoker_savant",
           "name": {
-            "ko": "방출 학자",
-            "en": "Evocation Savant"
+            "ko": "방출학파 학자",
+            "en": "Evoker Savant"
           },
-          "level": 3,
-          "notes_ko": "방출학파 주문 2개(2레벨 이하) 무료 + 새 슬롯 레벨마다 1개 — 주문서 크기에 더하고 명세 주문 중 방출학파로 채운다.",
-          "source": "SRD 5.2.1",
+          "level": 2,
           "grants": {
-            "spellbook_school": {
-              "school": "evocation",
-              "count": 2,
-              "per_new_slot_level": 1
-            }
-          }
-        },
-        {
-          "id": "potent_cantrip",
-          "name": {
-            "ko": "강력한 소마법",
-            "en": "Potent Cantrip"
+            "scribe_discount": "evocation"
           },
-          "level": 3,
-          "notes_ko": "피해 소마법이 빗나가거나 내성에 성공해도 절반 피해(추가 효과 없음).",
-          "source": "SRD 5.2.1",
-          "caps": [
-            "cantrip_half_on_miss"
-          ]
+          "notes_ko": "BG3: 방출학파 학파 주문을 두루마리에서 옮겨 적는 비용 절반(25gp/레벨).",
+          "source": "original"
         },
         {
           "id": "sculpt_spells",
@@ -264,12 +682,25 @@
             "ko": "주문 조각",
             "en": "Sculpt Spells"
           },
-          "level": 6,
+          "level": 2,
           "caps": [
             "sculpt_spells"
           ],
-          "notes_ko": "방출학파 내성 주문의 범위 안 아군(자신 포함) 1 + 주문 레벨명은 자동 성공, 성공 시 절반인 피해도 받지 않는다(자동 — 가까운 순이 아니라 범위 목록 순).",
-          "source": "SRD 5.2.1"
+          "notes_ko": "BG3: 방출학파 주문의 아군 모두 자동 성공·피해 없음.",
+          "source": "original"
+        },
+        {
+          "id": "potent_cantrip",
+          "name": {
+            "ko": "강력한 소마법",
+            "en": "Potent Cantrip"
+          },
+          "level": 6,
+          "caps": [
+            "cantrip_half_on_save"
+          ],
+          "notes_ko": "BG3: 내성 소마법은 성공해도 절반 피해.",
+          "source": "original"
         },
         {
           "id": "empowered_evocation",
@@ -281,8 +712,346 @@
           "caps": [
             "evocation_add_mod"
           ],
-          "notes_ko": "방출학파 주문 피해 굴림 + 지능 수정치(효과 모델 주문 — 대상마다 굴리는 주문은 굴림마다).",
-          "source": "SRD 5.2.1"
+          "notes_ko": "방출학파 주문 피해 + 지능 수정치.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "illusionist",
+      "name": {
+        "ko": "환영학파",
+        "en": "Illusionist"
+      },
+      "level": 2,
+      "source": "original",
+      "features": [
+        {
+          "id": "illusionist_savant",
+          "name": {
+            "ko": "환영학파 학자",
+            "en": "Illusionist Savant"
+          },
+          "level": 2,
+          "grants": {
+            "scribe_discount": "illusion"
+          },
+          "notes_ko": "BG3: 환영학파 학파 주문을 두루마리에서 옮겨 적는 비용 절반(25gp/레벨).",
+          "source": "original"
+        },
+        {
+          "id": "improved_minor_illusion",
+          "name": {
+            "ko": "향상된 하급 환영",
+            "en": "Improved Minor Illusion"
+          },
+          "level": 2,
+          "grants": {
+            "bonus_action_spells": [
+              "minor_illusion"
+            ]
+          },
+          "notes_ko": "BG3: 하급 환영을 보너스 행동으로(항상 준비).",
+          "source": "original"
+        },
+        {
+          "id": "reveal_invisible",
+          "name": {
+            "ko": "투명 간파",
+            "en": "See Invisibility"
+          },
+          "level": 6,
+          "kind": "action",
+          "script": "reveal_invisible",
+          "resource": "reveal_invisible",
+          "target": "self",
+          "icon": "statuses/f3_witch_eye.webp",
+          "glyph": "eye",
+          "notes_ko": "BG3: 행동, 12칸 안 투명한 적 민첩 내성 → 투명이 풀리고 2턴 윤곽. 짧은 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "illusory_self",
+          "name": {
+            "ko": "환영 분신",
+            "en": "Illusory Self"
+          },
+          "level": 10,
+          "kind": "reaction",
+          "trigger": "self_hit_any",
+          "resource": "illusory_self",
+          "notes_ko": "BG3: 반응 — 나를 맞힌 공격을 빗나가게 한다. 짧은 휴식 1회.",
+          "source": "original"
+        }
+      ],
+      "always_prepared": {
+        "2": [
+          "minor_illusion"
+        ]
+      }
+    },
+    {
+      "id": "necromancer",
+      "name": {
+        "ko": "사령학파",
+        "en": "Necromancer"
+      },
+      "level": 2,
+      "source": "original",
+      "features": [
+        {
+          "id": "necromancer_savant",
+          "name": {
+            "ko": "사령학파 학자",
+            "en": "Necromancer Savant"
+          },
+          "level": 2,
+          "grants": {
+            "scribe_discount": "necromancy"
+          },
+          "notes_ko": "BG3: 사령학파 학파 주문을 두루마리에서 옮겨 적는 비용 절반(25gp/레벨).",
+          "source": "original"
+        },
+        {
+          "id": "grim_harvest",
+          "name": {
+            "ko": "섬뜩한 수확",
+            "en": "Grim Harvest"
+          },
+          "level": 2,
+          "caps": [
+            "grim_harvest"
+          ],
+          "notes_ko": "BG3: 턴마다 한 번, 주문으로 생물을 쓰러뜨리면 슬롯 레벨 × 2(사령학파 × 3) 회복(언데드·구조물 제외).",
+          "source": "original"
+        },
+        {
+          "id": "undead_thralls",
+          "name": {
+            "ko": "언데드 노예",
+            "en": "Undead Thralls"
+          },
+          "level": 6,
+          "status": "deferred",
+          "notes_ko": "BG3: 시체 되살리기 항상 준비. 추가 언데드·강화는 소환 장치가 생기면.",
+          "source": "original"
+        },
+        {
+          "id": "inured_to_undeath",
+          "name": {
+            "ko": "죽음에 익숙함",
+            "en": "Inured to Undeath"
+          },
+          "level": 10,
+          "grants": {
+            "resistances": [
+              "necrotic"
+            ]
+          },
+          "notes_ko": "BG3: 사령 저항(최대 HP 감소 면역은 그런 효과가 없어 생략).",
+          "source": "original"
+        }
+      ],
+      "always_prepared": {
+        "6": [
+          "animate_dead"
+        ]
+      }
+    },
+    {
+      "id": "transmuter",
+      "name": {
+        "ko": "변환학파",
+        "en": "Transmuter"
+      },
+      "level": 2,
+      "source": "original",
+      "features": [
+        {
+          "id": "transmuter_savant",
+          "name": {
+            "ko": "변환학파 학자",
+            "en": "Transmuter Savant"
+          },
+          "level": 2,
+          "grants": {
+            "scribe_discount": "transmutation"
+          },
+          "notes_ko": "BG3: 변환학파 학파 주문을 두루마리에서 옮겨 적는 비용 절반(25gp/레벨).",
+          "source": "original"
+        },
+        {
+          "id": "experimental_alchemy",
+          "name": {
+            "ko": "실험 연금술",
+            "en": "Experimental Alchemy"
+          },
+          "level": 2,
+          "status": "deferred",
+          "notes_ko": "BG3: 연금술로 두 개 — 연금술 장치가 없어 보류.",
+          "source": "original"
+        },
+        {
+          "id": "transmuters_stone",
+          "name": {
+            "ko": "변환자의 돌",
+            "en": "Transmuter's Stone"
+          },
+          "level": 6,
+          "kind": "action",
+          "script": "transmuters_stone",
+          "resource": "transmuters_stone",
+          "target": "ally",
+          "icon": "statuses/buff.webp",
+          "glyph": "rune",
+          "explore": true,
+          "toggle": {
+            "values": [
+              {
+                "id": "speed",
+                "name": {
+                  "ko": "속도",
+                  "en": "Speed"
+                }
+              },
+              {
+                "id": "acid",
+                "name": {
+                  "ko": "산 저항",
+                  "en": "Acid"
+                }
+              },
+              {
+                "id": "cold",
+                "name": {
+                  "ko": "냉기 저항",
+                  "en": "Cold"
+                }
+              },
+              {
+                "id": "fire",
+                "name": {
+                  "ko": "화염 저항",
+                  "en": "Fire"
+                }
+              },
+              {
+                "id": "lightning",
+                "name": {
+                  "ko": "번개 저항",
+                  "en": "Lightning"
+                }
+              },
+              {
+                "id": "thunder",
+                "name": {
+                  "ko": "천둥 저항",
+                  "en": "Thunder"
+                }
+              }
+            ],
+            "desc": {
+              "ko": "변환자의 돌 이득",
+              "en": "Transmuter's Stone benefit"
+            }
+          },
+          "notes_ko": "BG3: 행동, 곁의 아군(또는 나)에게 긴 휴식까지 속도 +2칸 또는 원소 저항 하나(상시 설정). 건강 내성 숙련·암시야 선택지는 단순화로 뺐다. 긴 휴식 1회.",
+          "source": "original"
+        },
+        {
+          "id": "shapechanger",
+          "name": {
+            "ko": "변신술사",
+            "en": "Shapechanger"
+          },
+          "level": 10,
+          "status": "deferred",
+          "notes_ko": "BG3: 날 수 있는 새로 변신 — 비행 장치가 없어 보류.",
+          "source": "original"
+        }
+      ]
+    },
+    {
+      "id": "bladesinger",
+      "name": {
+        "ko": "검무가",
+        "en": "Blade Dancer"
+      },
+      "level": 2,
+      "source": "original",
+      "features": [
+        {
+          "id": "training_in_war_and_song",
+          "name": {
+            "ko": "전쟁과 노래의 수련",
+            "en": "Training in War and Song"
+          },
+          "level": 2,
+          "grants": {
+            "armor_training": [
+              "light"
+            ],
+            "skills": [
+              "performance"
+            ],
+            "weapon_training": [
+              "dagger",
+              "longsword",
+              "rapier",
+              "scimitar",
+              "shortsword"
+            ]
+          },
+          "notes_ko": "BG3: 경갑, 공연 숙련, 단검·롱소드·레이피어·시미터·숏소드 숙련.",
+          "source": "original"
+        },
+        {
+          "id": "bladesong",
+          "name": {
+            "ko": "칼날노래",
+            "en": "Bladesong"
+          },
+          "level": 2,
+          "kind": "bonus_action",
+          "script": "bladesong",
+          "resource": "bladesong",
+          "target": "self",
+          "icon": "statuses/haste.webp",
+          "glyph": "sword",
+          "notes_ko": "BG3: 보너스 행동, 10턴 — AC·건강 내성 +2(9레벨 +4), 속도 +2칸, 곡예 유리. 중형·중갑·방패면 못 쓴다. 짧은 휴식마다 2회.",
+          "source": "original"
+        },
+        {
+          "id": "bladesinger_extra_attack",
+          "name": {
+            "ko": "추가 공격(검무가)",
+            "en": "Extra Attack (Blade Dancer)"
+          },
+          "level": 6,
+          "grants": {
+            "attacks_per_action": 2
+          },
+          "caps": [
+            "extra_attack"
+          ],
+          "notes_ko": "BG3: 공격 행동에 2회.",
+          "source": "original"
+        },
+        {
+          "id": "song_of_defence",
+          "name": {
+            "ko": "방어의 노래",
+            "en": "Song of Defence"
+          },
+          "level": 10,
+          "kind": "reaction",
+          "trigger": "song_of_defence",
+          "requires_condition": [
+            "bladesong",
+            "bladesong_greater"
+          ],
+          "notes_ko": "BG3: 칼날노래 중 공격에 맞으면 반응 + 가장 낮은 주문 슬롯 — 피해 5 × 슬롯 레벨 줄이기.",
+          "source": "original"
         }
       ]
     }

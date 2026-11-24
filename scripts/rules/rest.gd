@@ -34,6 +34,16 @@ static func blocked_reason(world: Dictionary, party: Array) -> String:
 # ---------- 짧은 휴식 ----------
 
 ## 짧은 휴식: 긴 휴식 사이 2회, 활성 파티원 HP를 최대치 절반만큼 회복, 짧은 휴식 자원 회복, 1시간 경과.
+## 예지 주사위 굴리기(예언학파)
+static func roll_portent(c: Node, n: int) -> Array:
+	var out: Array = []
+	for i in maxi(0, n):
+		out.append(Dice.die(20))
+	if n > 0:
+		Dice.log_text("%s 예지: %s" % [c.label(), str(out)])
+	return out
+
+
 static func short_rest(world: Dictionary, party: Array) -> Dictionary:
 	var why := blocked_reason(world, party)
 	if why == "" and int(world.get("short_rests_left", SHORT_RESTS)) <= 0:
@@ -54,6 +64,14 @@ static func short_rest(world: Dictionary, party: Array) -> Dictionary:
 					r["current"] = r["max"]
 				"short_one":
 					r["current"] = mini(r["max"], r["current"] + 1)
+		if c.has_cap("improved_abjuration") and c.resources.has("arcane_ward"):
+			c.resources["arcane_ward"]["current"] = int(c.resources["arcane_ward"]["current"]) + c.feature_level("improved_abjuration")  # 향상된 방호
+		if c.has_cap("expert_divination") and c.resources.has("portent_dice"):
+			var pv: Array = c.get_meta("portent_values", []).duplicate()
+			var miss: int = int(c.resources["portent_dice"]["max"]) - pv.size()
+			pv.append_array(roll_portent(c, miss))  # 숙련된 예언(BG3 예언 과제 단순화): 짧은 휴식에 쓴 주사위를 새로
+			c.set_meta("portent_values", pv)
+			c.resources["portent_dice"]["current"] = pv.size()
 		# 능력 태그 sorcerous_restoration(소서러 마법 회복): 짧은 휴식 뒤 마법 점수를 레벨 절반까지, 긴 휴식마다 1회(자동)
 		if c.has_cap("sorcerous_restoration") and c.resource("sorcerous_restoration") > 0 and c.resources.has("sorcery_points"):
 			var sp: Dictionary = c.resources["sorcery_points"]
@@ -148,6 +166,14 @@ static func long_rest(world: Dictionary, party: Array, opts: Dictionary = {}) ->
 		for sk: String in c.get_meta("temp_skills", []):
 			c.skill_bonuses.erase(sk)  # 시대의 지식(지식 영역): 긴 휴식까지
 		c.set_meta("temp_skills", [])
+		for sn: String in c.get_meta("temp_senses", []):
+			c.senses.erase(sn)  # 셋째 눈: 긴 휴식까지
+		c.set_meta("temp_senses", [])
+		if c.has_meta("base_darkvision"):
+			c.darkvision_tiles = int(c.get_meta("base_darkvision"))
+			c.remove_meta("base_darkvision")
+		if c.has_cap("portent"):
+			c.set_meta("portent_values", roll_portent(c, c.resources.get("portent_dice", {}).get("max", 2)))  # 예지: 긴 휴식에 새로 굴린다
 		if c.has_meta("beast_form"):
 			load("res://scripts/rules/effects/wild_shape.gd").revert(c)  # 야생 변신은 긴 휴식까지(레벨 절반 시간)
 		if full:

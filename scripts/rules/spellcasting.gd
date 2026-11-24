@@ -112,7 +112,7 @@ static func _protected_targets(caster: Node, spell: Dictionary, targets: Array, 
 	var out: Array = _careful_targets(caster, targets) if opts.get("metamagic", "") == "careful" else []
 	if caster.has_cap("sculpt_spells") and str(spell.get("school", "")) == "evocation":
 		var allies: Array = targets.filter(func(t: Node) -> bool: return not t in out and (t == caster or not t.is_hostile_to(caster)))
-		out.append_array(allies.slice(0, 1 + level_of(spell)))
+		out.append_array(allies)  # 주문 조각(BG3): 방출학파 주문의 아군 모두 자동 성공·피해 없음
 	return out
 
 
@@ -120,6 +120,8 @@ static func _protected_targets(caster: Node, spell: Dictionary, targets: Array, 
 static func _mm_cost(caster: Node, spell: Dictionary) -> String:
 	if metamagic_for(caster, spell) == "quickened":
 		return "bonus"
+	if str(spell.get("id", "")) in caster.get_meta("bonus_action_spells", []):
+		return "bonus"  # 향상된 하급 환영(환영학파): 보너스 행동
 	return _cost(spell)
 
 
@@ -439,11 +441,22 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 	var had := caster.has_meta("casting_ability")
 	var prev: Variant = caster.get_meta("casting_ability", "")
 	caster.set_meta("casting_ability", ability_for(caster, spell_id))
+	caster.set_meta("casting_spell", spell_id)  # 섬뜩한 수확: 이 주문으로 쓰러뜨렸나
+	caster.set_meta("casting_slot", int(opts.get("slot", RulesDB.get_entry("spell", spell_id).get("level", 0))))
 	var r := _cast(world, caster, spell_id, aim, opts)
+	if is_instance_valid(caster):
+		caster.remove_meta("casting_spell")
+		caster.remove_meta("casting_slot")
 	if r.get("ok", false) and int(RulesDB.get_entry("spell", spell_id).get("level", 0)) == 0 and caster.has_cap("war_magic") and not opts.get("granted", false):
 		caster.turn["war_magic_ready"] = true  # 전쟁 마법(엘드리치 나이트형): 소마법을 쓴 턴에 보너스 행동 무기 공격
-	if r.get("ok", false) and caster.has_cap("reaper") and not opts.get("reaper", false) and world.has("grid"):
+	if r.get("ok", false) and (caster.has_cap("reaper") or caster.has_cap("split_enchantment")) and not opts.get("reaper", false) and world.has("grid"):
 		_reaper(world, caster, spell_id, aim)
+	if r.get("ok", false) and int(RulesDB.get_entry("spell", spell_id).get("level", 0)) > 0:
+		var sch := str(RulesDB.get_entry("spell", spell_id).get("school", ""))
+		if sch == "abjuration" and caster.has_cap("arcane_ward") and caster.resources.has("arcane_ward"):
+			caster.resources["arcane_ward"]["current"] = int(caster.resources["arcane_ward"]["current"]) + int(opts.get("slot", RulesDB.get_entry("spell", spell_id)["level"]))  # 비전 결계: 방호학파 주문 레벨만큼
+		if sch == "conjuration" and caster.resources.has("benign_transposition"):
+			caster.resources["benign_transposition"]["current"] = caster.resources["benign_transposition"]["max"]  # 선한 자리바꿈: 소환학파 주문으로 되찾음
 	if had:
 		caster.set_meta("casting_ability", prev)
 	elif is_instance_valid(caster):
@@ -454,7 +467,11 @@ static func cast(world: Dictionary, caster: Node, spell_id: String, aim: Vector2
 ## 수확자(죽음 영역, 능력 태그 reaper): 한 생물만 노리는 사령술 소마법은 한 생물을 더 — 원래 대상에 가장 가까운 다른 적에게 한 번 더(무료).
 static func _reaper(world: Dictionary, caster: Node, spell_id: String, aim: Vector2i) -> void:
 	var sp := RulesDB.get_entry("spell", spell_id)
-	if int(sp.get("level", 1)) != 0 or str(sp.get("school", "")) != "necromancy" or sp.get("area") != null:
+	if sp.get("area") != null or sp.get("range", {}).get("type", "") == "self":
+		return
+	var reap: bool = caster.has_cap("reaper") and int(sp.get("level", 1)) == 0 and str(sp.get("school", "")) == "necromancy"
+	var split: bool = caster.has_cap("split_enchantment") and str(sp.get("school", "")) == "enchantment"  # 갈라진 환혹(환혹학파 10레벨): 한 생물 주문을 둘에게
+	if not reap and not split:
 		return
 	var grid: Node = world["grid"]
 	var best: Node = null
@@ -580,7 +597,7 @@ static func resolve_effects(ctx: Dictionary) -> Dictionary:
 		var rolled := {}
 		var fail := _scaled(caster, spell, eff.get("fail", []), slot, opts)
 		var success := _scaled(caster, spell, eff.get("success", []), slot, opts)
-		if level_of(spell) == 0 and caster.has_cap("cantrip_half_on_miss") and success.is_empty():
+		if level_of(spell) == 0 and (caster.has_cap("cantrip_half_on_miss") or caster.has_cap("cantrip_half_on_save")) and success.is_empty():
 			for e: Dictionary in fail:
 				if e["type"] == "damage":
 					var h := e.duplicate()

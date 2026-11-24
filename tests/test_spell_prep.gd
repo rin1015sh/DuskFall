@@ -135,13 +135,6 @@ func test_save_restore_keeps_prepared_and_spellbook() -> void:
 
 ## 방출 학자(grants.spellbook_school): 주문서 크기 + 방출학파 2개 + 3레벨 뒤 새 슬롯 레벨마다 1개(5레벨 = +3).
 func test_evocation_savant_spellbook_bonus() -> void:
-	var many := ["animate_dead", "arcane_lock", "augury", "bestow_curse", "blindness_deafness", "blink", "blur", "charm_person",
-		"color_spray", "comprehend_languages", "counterspell", "darkvision", "detect_magic", "detect_thoughts",
-		"magic_missile", "burning_hands", "shatter", "fireball", "lightning_bolt", "thunderwave", "disguise_self", "expeditious_retreat"]
-	var wz := _pc("wizard", 5, {"spells": many})
-	assert_eq(SpellPrep.spellbook_size(wz), 14)
-	assert_eq(wz.spellbook.size(), 17, "기본 14 + 방출 학자 3")
-	var evo: Array = wz.spellbook.filter(func(s: String) -> bool: return RulesDB.get_entry("spell", s)["school"] == "evocation")
-	assert_true(evo.size() >= 3, "방출학파로 채웠다 %s" % str(evo))
-	var lv2 := _pc("wizard", 2, {"spells": many})
-	assert_eq(lv2.spellbook.size(), 8, "하위 클래스 전에는 기본 크기(6 + 2)")
+	var wz := _pc("wizard", 5)
+	assert_eq(SpellPrep.learn_cost("fireball", wz), 75, "BG3 방출학파: 방출학파 주문 옮겨 적기 절반(25gp × 3)")
+	assert_eq(SpellPrep.learn_cost("counterspell", wz), 150, "다른 학파는 50gp × 3")

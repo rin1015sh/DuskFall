@@ -216,15 +216,16 @@ func test_disciple_of_life() -> void:
 	assert_eq(f.hp, 1 + 4 + 3 + 3, "2d4 + 지혜 3 + (2 + 슬롯 1)")
 
 
-func test_potent_cantrip_on_miss() -> void:
+func test_potent_cantrip_on_save() -> void:
 	var w := _world()
-	var wiz := _pc("wizard", 3)
-	var g := _foe({"ac_base": 30})
+	var wiz := _pc("wizard", 6)
+	var g := _foe({"ac_base": 30, "abilities": {"dex": 30, "con": 30}})
 	w["grid"].place(wiz, Vector2i(0, 0))
-	w["grid"].place(g, Vector2i(4, 0))
+	w["grid"].place(g, Vector2i(2, 0))
 	Dice.force([5, 8])
-	Spellcasting.cast(w, wiz, "fire_bolt", Vector2i(4, 0))
-	assert_eq(g.hp, 56, "빗나가도 1d10 절반(8 → 4)")
+	Spellcasting.cast(w, wiz, "fire_bolt", Vector2i(2, 0))
+	assert_eq(g.hp, 60, "BG3 강력한 소마법: 공격 소마법이 빗나가면 피해 없음")
+	assert_true(wiz.has_cap("cantrip_half_on_save"), "6레벨: 내성 소마법은 성공해도 절반")
 
 
 func test_arcane_recovery() -> void:

@@ -172,6 +172,8 @@ func save_bonus(ability: String) -> int:
 		var e: Dictionary = m["effect"]
 		if e["type"] == "modify" and e["stat"] == "saving_throw_flat":
 			flat += int(e.get("add", 0))  # 보호의 반지·망토 +1
+	for a in active_conditions():
+		flat += int(a["def"].get("save_bonus", {}).get(ability, 0))  # 상태 save_bonus(칼날노래: 건강 내성)
 	if save_overrides.has(ability):
 		return int(save_overrides[ability]) + flat
 	return ability_mod(ability) + (proficiency_bonus if save_proficiencies.has(ability) else 0) + flat

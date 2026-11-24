@@ -125,6 +125,7 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	var keep_hide: bool = hidden and attacker.has_cap("stealth_attack") and str(attacker.options.get("supreme_sneak", "on")) == "on"
 	if hidden and not keep_hide:
 		attacker.remove_condition("invisible")
+	_portent_attack(res)
 	# 5. 명중 직후 반응(Shield 등)
 	EventBus.on_after_attack_roll.emit(res)
 	_decide_hit(res)
@@ -381,6 +382,10 @@ static func mode_of(advantage: Array, disadvantage: Array) -> int:
 
 
 static func _decide_hit(res: Dictionary) -> void:
+	if res.get("forced_miss", false):
+		res["hit"] = false  # 환영 분신·본능적 매혹: 이 공격은 빗나간다
+		res["crit"] = false
+		return
 	var n: int = res["natural"]
 	if n >= int(res.get("crit_threshold", 20)):
 		res["hit"] = true
@@ -802,6 +807,117 @@ static func _roll_damage(attacker: Node, atk: Dictionary, parts: Array, res: Dic
 	return best
 
 
+## 예지(예언학파, 능력 태그 portent — 반응 기능 portent, 반응은 쓰지 않음): 긴 휴식에 굴려 둔 d20(meta portent_values)으로
+## 12칸 안 생물의 d20을 바꾼다. 자동: 적의 명중을 빗나감으로, 아군의 빗나감을 명중으로 바꿀 수 있는 가장 알맞은 눈을 쓴다.
+static func _diviners(a: Node, b: Variant) -> Array:
+	var rq: Node = EventBus.reaction_queue
+	if rq == null or not is_instance_valid(rq) or not rq.world.has("grid") or EventBus.realtime:
+		return []
+	var grid: Node = rq.world["grid"]
+	return grid.creatures().filter(func(o: Node) -> bool:
+		return not o.dead and o.has_cap("portent") and o.resource("portent_dice") > 0 and not (o.get_meta("portent_values", []) as Array).is_empty() \
+			and ((grid.creatures().has(a) and grid.distance_between(o, a) <= 12) or (b is Node and grid.creatures().has(b) and grid.distance_between(o, b) <= 12)))
+
+
+static func _use_portent(o: Node, v: int, what: String) -> void:
+	var vals: Array = o.get_meta("portent_values", []).duplicate()
+	vals.erase(v)
+	o.set_meta("portent_values", vals)
+	o.spend_resource("portent_dice")
+	Dice.log_text("%s 예지(%d): %s" % [o.label(), v, what])
+
+
+static func _portent_attack(res: Dictionary) -> void:
+	var attacker: Node = res["attacker"]
+	var target: Node = res["target"]
+	for o: Node in _diviners(attacker, target):
+		var vals: Array = (o.get_meta("portent_values", []) as Array).duplicate()
+		vals.sort()
+		var need: int = int(res["ac"]) + int(res["ac_bonus"]) - (int(res["total"]) - int(res["natural"]))
+		var pick := -1
+		if o.is_hostile_to(attacker) and res["hit"] and not res["crit"]:
+			for v: int in vals:
+				if v < need and v != 20:
+					pick = v  # 가장 큰 '빗나가는' 눈은 아끼지 않고 가장 작은 것을 쓴다
+					break
+		elif not o.is_hostile_to(attacker) and not res["hit"]:
+			for v: int in vals:
+				if v >= need and v != 1:
+					pick = v
+					break
+		if pick < 0:
+			continue
+		var rq: Node = EventBus.reaction_queue
+		if not rq.offer(o, "portent", {"attack": res}, func() -> void: pass):
+			continue
+		_use_portent(o, pick, "공격 굴림 → %d" % pick)
+		res["total"] = int(res["total"]) - int(res["natural"]) + pick
+		res["natural"] = pick
+		_decide_hit(res)
+		return
+
+
+static func _portent_save(res: Dictionary, creature: Node, dc: int, src: Variant) -> void:
+	if res.get("auto", false):
+		return
+	for o: Node in _diviners(creature, src):
+		var vals: Array = (o.get_meta("portent_values", []) as Array).duplicate()
+		vals.sort()
+		var mod: int = int(res["total"]) - int(res["natural"])
+		var pick := -1
+		if not o.is_hostile_to(creature) and not res["success"]:
+			for v: int in vals:
+				if v + mod >= dc:
+					pick = v
+					break
+		elif o.is_hostile_to(creature) and res["success"] and src is Node and not o.is_hostile_to(src):
+			for v: int in vals:
+				if v + mod < dc:
+					pick = v
+					break
+		if pick < 0:
+			continue
+		var rq: Node = EventBus.reaction_queue
+		if not rq.offer(o, "portent", {"save": res}, func() -> void: pass):
+			continue
+		_use_portent(o, pick, "내성 → %d" % pick)
+		res["natural"] = pick
+		res["total"] = pick + mod
+		res["success"] = res["total"] >= dc
+		return
+
+
+## 비전 결계(방호학파, 능력 태그 arcane_ward — 자원 arcane_ward = 충전): 받는 피해를 충전만큼(최대 20) 막고 충전 1을 잃는다.
+## 투사 결계(반응 trigger projected_ward): 6칸 안 아군이 피해를 받으면 반응으로 내 결계가 대신 막는다.
+static func _arcane_ward(target: Node, total: int, out: Dictionary) -> int:
+	if target.has_cap("arcane_ward") and target.resource("arcane_ward") > 0:
+		var block := mini(total, mini(target.resource("arcane_ward"), 20))
+		target.resources["arcane_ward"]["current"] = target.resource("arcane_ward") - 1
+		out["ward_blocked"] = block
+		Dice.log_text("%s 비전 결계: %d 막음" % [target.label(), block])
+		return total - block
+	var rq: Node = EventBus.reaction_queue
+	if rq == null or not is_instance_valid(rq) or not rq.world.has("grid") or EventBus.realtime:
+		return total
+	var grid: Node = rq.world["grid"]
+	if not grid.creatures().has(target):
+		return total
+	for o: Node in grid.creatures():
+		if o == target or o.dead or o.is_hostile_to(target) or not o.can_react() or o.resource("arcane_ward") <= 0 or grid.distance_between(o, target) > 6:
+			continue
+		var fid: String = rq._trigger_feature(o, "projected_ward")
+		if fid == "":
+			continue
+		var block2 := mini(total, mini(o.resource("arcane_ward"), 20))
+		if rq.offer(o, fid, {"target": target}, func() -> void:
+			o.turn["reaction"] = int(o.turn.get("reaction", 1)) - 1
+			o.resources["arcane_ward"]["current"] = o.resource("arcane_ward") - 1
+			Dice.log_text("%s 투사 결계: %s의 피해 %d 막음" % [o.label(), target.label(), block2])):
+			out["ward_blocked"] = block2
+			return total - block2
+	return total
+
+
 ## 원소 누그러뜨리기(자연 영역, 반응 trigger ally_elemental_damage): 나 또는 6칸 안 아군이 산·냉기·화염·번개·천둥 피해를 받으면
 ## 반응으로 그 피해를 절반(저항). 자동 설정이면 그 종류 피해가 있을 때 쓴다.
 static func _dampen_elements(target: Node, raw: Dictionary, opts: Dictionary) -> void:
@@ -959,6 +1075,9 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 	for t: String in out["by_type"].keys():
 		if t in ["acid", "fire"] and out["by_type"][t] > 0:
 			target.set_meta("regen_blocked", true)  # 트롤 재생 막힘(다음 턴)
+	if total > 0:
+		total = _arcane_ward(target, total, out)
+		out["total"] = total
 	if total <= 0:
 		return out
 	# 9. 적용: 임시 HP 먼저
@@ -976,6 +1095,14 @@ static func apply_damage(target: Node, parts: Array, opts: Dictionary = {}) -> D
 		var before: int = target.hp
 		target.hp = maxi(before - rest, 0)
 		out["hp_lost"] = before - target.hp
+		var gsrc: Variant = opts.get("attacker")
+		if target.hp == 0 and gsrc is Node and gsrc != target and gsrc.has_cap("grim_harvest") and gsrc.has_meta("casting_spell") \
+				and not str(target.creature_type) in ["undead", "construct"] and not gsrc.turn.get("grim_harvest_used", false):
+			var gsp := RulesDB.get_entry("spell", str(gsrc.get_meta("casting_spell")))
+			var gslot := int(gsrc.get_meta("casting_slot", gsp.get("level", 0)))
+			if gslot > 0:
+				gsrc.turn["grim_harvest_used"] = true
+				heal(gsrc, gslot * (3 if str(gsp.get("school", "")) == "necromancy" else 2), "grim_harvest")  # 섬뜩한 수확(사령학파)
 	var parts_text: PackedStringArray = []
 	for t: String in out["by_type"].keys():
 		parts_text.append("%s %d" % [t, out["by_type"][t]])
@@ -1132,6 +1259,7 @@ static func saving_throw(creature: Node, ability: String, dc: int, opts: Diction
 		res["natural"] = d["natural"]
 		res["total"] = d["natural"] + res["bonus"] + roll_bonus_dice(creature, "saving_throw")
 		res["success"] = res["total"] >= dc
+	_portent_save(res, creature, dc, src)
 	if not res["success"] and lucky(creature, "내성"):
 		var nat := Dice.die(20)
 		if nat > int(res["natural"]):
@@ -1190,6 +1318,8 @@ static func _save_setup(creature: Node, ability: String, dc: int, opts: Dictiona
 ## 집중 유지 내성: 건강, DC = max(10, 피해 절반 내림), 최대 30. 자연 20·1 적용(2단계 결정 1).
 static func concentration_check(creature: Node, damage: int, attacker: Variant = null) -> Dictionary:
 	var held := str(creature.concentration.get("spell", ""))
+	if held != "" and creature.has_cap("focused_conjuration") and str(RulesDB.get_entry("spell", held).get("school", "")) == "conjuration":
+		return {"success": true, "auto": true}  # 집중된 소환(소환학파 10레벨): 피해로 소환학파 집중이 깨지지 않는다
 	for f: Dictionary in creature.feature_data.values():
 		if held != "" and held in f.get("protects_concentration", []):
 			return {"success": true, "auto": true}  # 끈질긴 사냥꾼(레인저 13레벨): 피해로 사냥꾼의 표식 집중이 깨지지 않는다

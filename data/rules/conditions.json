@@ -1960,6 +1960,214 @@
       ],
       "notes_ko": "사기꾼의 축복: 긴 휴식까지 은신 판정 유리.",
       "source": "original"
+    },
+    {
+      "id": "hypnotized",
+      "name": {
+        "ko": "최면",
+        "en": "Hypnotized"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "also_applies": [
+        "charmed"
+      ],
+      "flags": {
+        "incapacitated": true
+      },
+      "default_duration_turns": 2,
+      "notes_ko": "최면 응시(환혹학파): 매혹 + 무력화. 피해를 받으면 풀린다.",
+      "source": "original"
+    },
+    {
+      "id": "transmuters_stone_speed",
+      "name": {
+        "ko": "변환자의 돌: 속도",
+        "en": "Transmuter's Stone: Speed"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "add": 2
+        }
+      ],
+      "notes_ko": "변환자의 돌(변환학파): 긴 휴식까지.",
+      "source": "original"
+    },
+    {
+      "id": "transmuters_stone_acid",
+      "name": {
+        "ko": "변환자의 돌: 산",
+        "en": "Transmuter's Stone: Acid"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "acid"
+          ]
+        }
+      ],
+      "notes_ko": "변환자의 돌(변환학파): 긴 휴식까지.",
+      "source": "original"
+    },
+    {
+      "id": "transmuters_stone_cold",
+      "name": {
+        "ko": "변환자의 돌: 냉기",
+        "en": "Transmuter's Stone: Cold"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "cold"
+          ]
+        }
+      ],
+      "notes_ko": "변환자의 돌(변환학파): 긴 휴식까지.",
+      "source": "original"
+    },
+    {
+      "id": "transmuters_stone_fire",
+      "name": {
+        "ko": "변환자의 돌: 화염",
+        "en": "Transmuter's Stone: Fire"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "fire"
+          ]
+        }
+      ],
+      "notes_ko": "변환자의 돌(변환학파): 긴 휴식까지.",
+      "source": "original"
+    },
+    {
+      "id": "transmuters_stone_lightning",
+      "name": {
+        "ko": "변환자의 돌: 번개",
+        "en": "Transmuter's Stone: Lightning"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "lightning"
+          ]
+        }
+      ],
+      "notes_ko": "변환자의 돌(변환학파): 긴 휴식까지.",
+      "source": "original"
+    },
+    {
+      "id": "transmuters_stone_thunder",
+      "name": {
+        "ko": "변환자의 돌: 천둥",
+        "en": "Transmuter's Stone: Thunder"
+      },
+      "category": "spell",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "damage_resistance",
+          "damage_types": [
+            "thunder"
+          ]
+        }
+      ],
+      "notes_ko": "변환자의 돌(변환학파): 긴 휴식까지.",
+      "source": "original"
+    },
+    {
+      "id": "bladesong",
+      "name": {
+        "ko": "칼날노래",
+        "en": "Bladesong"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "ac",
+          "add": 2
+        },
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "add": 2
+        },
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "advantage",
+          "skill": [
+            "acrobatics"
+          ]
+        }
+      ],
+      "save_bonus": {
+        "con": 2
+      },
+      "default_duration_turns": 10,
+      "notes_ko": "칼날노래: AC·건강 내성 +2, 속도 +2칸, 곡예 유리.",
+      "source": "original"
+    },
+    {
+      "id": "bladesong_greater",
+      "name": {
+        "ko": "칼날노래(9레벨)",
+        "en": "Bladesong (9th)"
+      },
+      "category": "combat",
+      "stack": "keep_longest",
+      "modifiers": [
+        {
+          "type": "modify",
+          "stat": "ac",
+          "add": 4
+        },
+        {
+          "type": "modify",
+          "stat": "speed_tiles",
+          "add": 2
+        },
+        {
+          "type": "advantage",
+          "roll": "ability_check",
+          "side": "self",
+          "value": "advantage",
+          "skill": [
+            "acrobatics"
+          ]
+        }
+      ],
+      "save_bonus": {
+        "con": 4
+      },
+      "default_duration_turns": 10,
+      "notes_ko": "칼날노래: AC·건강 내성 +4, 속도 +2칸, 곡예 유리.",
+      "source": "original"
     }
   ]
 }

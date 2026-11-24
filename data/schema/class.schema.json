@@ -314,6 +314,15 @@
               "items": {
                 "type": "string"
               }
+            },
+            "scribe_discount": {
+              "type": "string"
+            },
+            "bonus_action_spells": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
@@ -469,6 +478,15 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "scribe_discount": {
+                "type": "string"
+              },
+              "bonus_action_spells": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -589,7 +607,12 @@
             "enemy_attacks_ally",
             "enemy_casts_adjacent",
             "enemy_enters_reach",
-            "dex_save_spell"
+            "dex_save_spell",
+            "projected_ward",
+            "portent",
+            "attacked_charm",
+            "self_hit_any",
+            "song_of_defence"
           ]
         },
         "range_tiles": {
@@ -693,6 +716,12 @@
         },
         "attack_bonus": {
           "type": "integer"
+        },
+        "requires_condition": {
+          "type": [
+            "array",
+            "string"
+          ]
         }
       }
     }

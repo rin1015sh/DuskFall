@@ -240,8 +240,12 @@ static func close_window(c: Node) -> void:
 
 # ---------- 주문서 학습(두루마리) ----------
 
-static func learn_cost(sid: String) -> int:
-	return GP_PER_LEVEL * int(RulesDB.get_entry("spell", sid).get("level", 0))
+static func learn_cost(sid: String, c: Node = null) -> int:
+	var sp := RulesDB.get_entry("spell", sid)
+	var per := GP_PER_LEVEL
+	if c != null and str(sp.get("school", "")) in c.get_meta("scribe_discount", []):
+		per = GP_PER_LEVEL / 2  # 학파 위저드(BG3): 자기 학파 주문은 절반(25gp)
+	return per * int(sp.get("level", 0))
 
 
 ## 두루마리에서 배울 수 없는 이유("" = 가능).
@@ -266,8 +270,8 @@ static func learn_blocked(world: Dictionary, c: Node, item_id: String) -> String
 		return "이미 주문서에 있다"
 	if in_combat(world):
 		return "전투 중에는 적을 수 없다"
-	if int(c.inventory.get("gold", 0)) < learn_cost(sid):
-		return "금화가 모자라다(%dgp)" % learn_cost(sid)
+	if int(c.inventory.get("gold", 0)) < learn_cost(sid, c):
+		return "금화가 모자라다(%dgp)" % learn_cost(sid, c)
 	return ""
 
 
@@ -277,7 +281,7 @@ static func learn_from_scroll(world: Dictionary, c: Node, item_id: String) -> Di
 		return {"ok": false, "reason": why}
 	var sid := str(RulesDB.get_entry("item", item_id)["spell"])
 	var inv: Dictionary = c.inventory  # 배우는 캐릭터의 두루마리·금화(BG3식 캐릭터별)
-	inv["gold"] = int(inv["gold"]) - learn_cost(sid)
+	inv["gold"] = int(inv["gold"]) - learn_cost(sid, c)
 	if int(inv["gold"]) <= 0:
 		inv.erase("gold")
 	inv[item_id] = int(inv[item_id]) - 1
@@ -288,7 +292,7 @@ static func learn_from_scroll(world: Dictionary, c: Node, item_id: String) -> Di
 		var spec: Dictionary = c.get_meta("spec")
 		spec["spellbook_learned"] = int(spec.get("spellbook_learned", 0)) + 1  # 주문서 크기에 더한다(생성기)
 	_save_spec(c)
-	Dice.log_text("%s: 주문서에 %s를 적었다(%dgp)" % [c.label(), RulesDB.get_entry("spell", sid)["name"]["en"], learn_cost(sid)])
+	Dice.log_text("%s: 주문서에 %s를 적었다(%dgp)" % [c.label(), RulesDB.get_entry("spell", sid)["name"]["en"], learn_cost(sid, c)])
 	return {"ok": true, "spell": sid}
 
 

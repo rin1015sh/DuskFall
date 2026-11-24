@@ -439,6 +439,8 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	var init_bonus := 0
 	c.remove_meta("elemental_adept")
 	c.remove_meta("ignore_resistance")
+	c.remove_meta("scribe_discount")
+	c.remove_meta("bonus_action_spells")
 	wt.append_array(feat_weapons)  # 무기 수련: 고른 무기 4종
 	for g: Array in grants:
 		var gr: Dictionary = g[1]
@@ -485,6 +487,14 @@ static func apply(c: Node, spec: Dictionary) -> void:
 					sl.append(sa)  # 정해진 특수 공격(지저분한 수법)
 			c.set_meta("special_attacks", sl)
 		c.speed_tiles += int(gr.get("speed_tiles", 0))  # 날랜 발 +2칸
+		if gr.has("bonus_action_spells"):
+			var ba: Array = c.get_meta("bonus_action_spells", []).duplicate()
+			ba.append_array(gr["bonus_action_spells"])
+			c.set_meta("bonus_action_spells", ba)
+		if gr.has("scribe_discount"):
+			var sd: Array = c.get_meta("scribe_discount", []).duplicate()
+			sd.append(str(gr["scribe_discount"]))
+			c.set_meta("scribe_discount", sd)  # 학파 주문 옮겨 적기 절반
 		if gr.has("ignore_resistance"):
 			var ir: Array = c.get_meta("ignore_resistance", []).duplicate()
 			ir.append_array(gr["ignore_resistance"])
@@ -630,6 +640,11 @@ static func apply(c: Node, spec: Dictionary) -> void:
 	for fid: String in c.feature_data:
 		if str(c.feature_data[fid].get("kind", "")) == "reaction":
 			c.known_reactions.append(fid)  # 반응 기능(교묘한 회피 등)
+	if c.has_cap("portent") and c.resources.has("portent_dice"):
+		var pv: Array = []
+		for i in int(c.resources["portent_dice"]["max"]):
+			pv.append(Dice.die(20))
+		c.set_meta("portent_values", pv)  # 예지: 새로 만든 캐릭터는 막 쉰 것처럼 굴려 둔다
 	c.set_meta("spec", spec.duplicate(true))
 	# 새로 만든 캐릭터는 막 쉰 것처럼 준비 교체 창이 열려 있다(spell_prep.gd)
 	SpellPrep.open_window(c, "long")

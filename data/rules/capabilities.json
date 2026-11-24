@@ -1099,6 +1099,78 @@
       },
       "note_ko": "근접 명중 신성 변환 사령 5 + 레벨 × 2(resolver._hit_riders)",
       "source": "original"
+    },
+    {
+      "id": "arcane_ward",
+      "name": {
+        "ko": "비전 결계",
+        "en": "Arcane Ward"
+      },
+      "note_ko": "받는 피해를 결계 충전만큼 막음(resolver._arcane_ward)",
+      "source": "original"
+    },
+    {
+      "id": "improved_abjuration",
+      "name": {
+        "ko": "향상된 방호",
+        "en": "Improved Abjuration"
+      },
+      "note_ko": "짧은 휴식에 결계 충전 + 레벨",
+      "source": "original"
+    },
+    {
+      "id": "focused_conjuration",
+      "name": {
+        "ko": "집중된 소환",
+        "en": "Focused Conjuration"
+      },
+      "note_ko": "피해로 소환학파 집중이 깨지지 않음",
+      "source": "original"
+    },
+    {
+      "id": "portent",
+      "name": {
+        "ko": "예지",
+        "en": "Portent"
+      },
+      "note_ko": "예지 주사위로 d20 바꾸기(resolver._portent_*)",
+      "source": "original"
+    },
+    {
+      "id": "expert_divination",
+      "name": {
+        "ko": "숙련된 예언",
+        "en": "Expert Divination"
+      },
+      "note_ko": "짧은 휴식에 예지 주사위 새로",
+      "source": "original"
+    },
+    {
+      "id": "split_enchantment",
+      "name": {
+        "ko": "갈라진 환혹",
+        "en": "Split Enchantment"
+      },
+      "note_ko": "단일 대상 환혹학파 주문을 한 생물 더",
+      "source": "original"
+    },
+    {
+      "id": "cantrip_half_on_save",
+      "name": {
+        "ko": "강력한 소마법(BG3)",
+        "en": "Potent Cantrip"
+      },
+      "note_ko": "내성 소마법 성공 시 절반",
+      "source": "original"
+    },
+    {
+      "id": "grim_harvest",
+      "name": {
+        "ko": "섬뜩한 수확",
+        "en": "Grim Harvest"
+      },
+      "note_ko": "주문으로 쓰러뜨리면 회복(resolver.apply_damage)",
+      "source": "original"
     }
   ]
 }

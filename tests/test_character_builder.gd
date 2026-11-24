@@ -86,7 +86,7 @@ func test_wizard_1_to_5() -> void:
 	assert_eq(l5.hp_max, 27, "7 + 4 × (4 + 1) — 룰북 예시 전투 3의 HP 27")
 	assert_true(l5.spells.has("fireball") and l5.spells.has("misty_step"), "준비 주문 + 혈통 5레벨 주문")
 	assert_eq(l5.skill_bonuses["arcana"], 6, "학자 전문화")
-	assert_true(l5.has_feature("potent_cantrip"))
+	assert_true(l5.has_feature("sculpt_spells"), "BG3 방출학파 2레벨 주문 조각")
 	assert_eq(l5.abilities["int"], 19)
 
 
