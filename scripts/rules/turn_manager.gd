@@ -277,6 +277,7 @@ func _begin_group() -> void:
 
 ## 턴 시작(3단계 턴 순서 2): 반응 회복 → 턴 시작 효과(표면·연소) → 사망 내성 → 재충전 쿨다운 −1.
 func begin_turn(c: Node) -> void:
+	c.set_meta("acting", true)  # 자기 턴(넘어지면 턴이 끝나는 판정 — BG3)
 	if c.has_meta("not_acted_yet"):
 		c.remove_meta("not_acted_yet")
 	c.refresh_reaction()
@@ -294,6 +295,8 @@ func begin_turn(c: Node) -> void:
 	if not c.has_flag("cannot_act"):
 		c.reset_turn()  # 턴 시작 효과로 바뀐 상태(넘어짐·연소 등)를 반영
 		c.turn["movement"] = c.speed()
+		if c.has_condition("prone") and c.speed() > 0 and not c.is_incapacitated():
+			load("res://scripts/rules/combat.gd").stand_up(c)  # BG3: 턴 시작에 남은 이동력 절반으로 일어선다
 		load("res://scripts/rules/primal.gd").turn_start(world, c)
 		if c.has_cap("dread_ambusher") and round_number == 1:
 			c.turn["movement"] = int(c.turn.get("movement", 0)) + 2  # 공포의 매복자(어둠 추적자, BG3): 첫 턴 이동 +2칸·추가 공격 1회(+1d8)
@@ -323,7 +326,8 @@ func end_turn(c: Node) -> void:
 				Dice.log_text("%s 자기 회복: %s 해제" % [c.label(), cid])
 				break
 	c.tick_conditions()
-	c.remove_condition("surprised")
+	if c.has_meta("acting"):
+		c.remove_meta("acting")
 	for m in c.extra_modifiers.duplicate():
 		if m.has("turn_ends_left"):
 			m["turn_ends_left"] -= 1
@@ -348,6 +352,9 @@ func end_turn(c: Node) -> void:
 
 func _end_round() -> void:
 	EventBus.on_round_end.emit()
+	if round_number == 1:
+		for c: Node in world["grid"].creatures():
+			c.remove_condition("surprised")  # BG3: 기습당함은 첫 라운드 끝까지(그 라운드 반응도 없다)
 	if world.get("surfaces") != null:
 		world["surfaces"].end_round()
 	round_number += 1

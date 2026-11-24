@@ -99,7 +99,8 @@
             "range": {
               "enum": [
                 "adjacent",
-                "far"
+                "far",
+                "within_2"
               ]
             },
             "ability": {
@@ -495,6 +496,15 @@
             },
             "extra_bonus_action": {
               "type": "boolean"
+            },
+            "ends_concentration": {
+              "type": "boolean"
+            },
+            "ends_own_turn": {
+              "type": "boolean"
+            },
+            "auto_crit_melee_only": {
+              "type": "boolean"
             }
           }
         },
@@ -507,7 +517,8 @@
             },
             "stand_up_cost": {
               "enum": [
-                "half_speed"
+                "half_speed",
+                "half_available"
               ]
             }
           }

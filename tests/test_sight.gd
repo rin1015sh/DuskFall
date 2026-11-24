@@ -84,7 +84,7 @@ func test_high_ground_context_and_range() -> void:
 	assert_eq(Resolver.preview_attack(archer, target, atk, ctx)["attack_bonus"], 6, "고지 +2")
 
 
-func test_frightened_only_when_source_visible() -> void:
+func test_frightened_regardless_of_sight_bg3() -> void:
 	var g := make_grid([".#."])
 	var scared := make_creature()
 	var ghost := make_creature()
@@ -96,5 +96,6 @@ func test_frightened_only_when_source_visible() -> void:
 	var ctx: Dictionary = g.attack_context(scared, foe)
 	assert_false(ctx["source_in_sight"], "벽 뒤의 원인은 보이지 않는다")
 	var atk := {"bonus": 0, "damage": []}
-	assert_eq(Resolver.preview_attack(scared, foe, atk, ctx)["mode"], 0, "원인이 안 보이면 불리 없음")
+	assert_eq(Resolver.preview_attack(scared, foe, atk, ctx)["mode"], -1, "BG3: 원인이 안 보여도 불리")
+	assert_eq(scared.speed(), 0, "BG3: 공포 — 움직일 수 없다")
 	assert_eq(Resolver.preview_attack(scared, foe, atk, {})["mode"], -1)

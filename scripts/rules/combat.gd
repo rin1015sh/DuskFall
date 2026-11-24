@@ -167,15 +167,14 @@ static func build_weapon_attack(c: Node, weapon_id: String, opts: Dictionary = {
 	# 대형 무기 강타·저격수(BG3 재주, 설정 켬): 숙련 무기 명중 −5, 피해 +10(따로 더하는 고정 피해 — 휩쓸기 절반에도 그대로)
 	var flat := 0
 	var two_hand_grip: bool = "two_handed" in props or ("versatile" in props and dice == str(w.get("versatile_damage", "")))
-	if proficient and w["id"] != "unarmed" and not ranged and two_hand_grip and c.has_cap("gwm_all_in") and str(c.options.get("great_weapon_master", "off")) == "on":
+	if proficient and w["id"] != "unarmed" and not ranged and "heavy" in props and c.has_cap("gwm_all_in") and str(c.options.get("great_weapon_master", "off")) == "on":
 		hit_bonus -= 5
 		flat = 10
 	if proficient and ranged and is_ranged_weapon(w) and c.has_cap("ss_all_in") and str(c.options.get("sharpshooter", "off")) == "on":
 		hit_bonus -= 5
 		flat = 10
 	var dis: Array = []
-	if "heavy" in props and ((not ranged and c.abilities["str"] < 13) or (ranged and c.abilities["dex"] < 13)):
-		dis.append("무거운 무기")
+	# 무거운 무기 능력치 13 미만 불리(SRD 2024)는 BG3에 없다(2026-11-24 삭제)
 	var extra_adv: Array = []
 	for r: Dictionary in c.attack_riders:
 		if r.get("when", "") == "always" and r.has("expr_add"):
@@ -444,8 +443,6 @@ static func offhand_attack(world: Dictionary, attacker: Node, target: Node) -> D
 		and not "two_handed" in weapon_data(attacker.weapon("main")).get("properties", [])  # 양손 무기술: 가볍지 않은 한 손 무기도
 	if off == "" or not heavy_ok and (not "light" in w.get("properties", []) or not "light" in weapon_data(attacker.weapon("main")).get("properties", [])):
 		return _fail("양손에 가벼운 무기가 필요하다")
-	if not attacker.turn.get("light_attack_done", false):
-		return _fail("이번 턴 공격 행동에서 가벼운 무기로 공격해야 한다")
 	if not spend(attacker, "bonus"):
 		return _fail("보너스 행동이 없다")
 	var atk := build_weapon_attack(attacker, off, {"hand": "off"})
@@ -718,9 +715,10 @@ static func _opportunity_attacks(world: Dictionary, mover: Node, cur: Vector2i, 
 static func stand_up(c: Node) -> Dictionary:
 	if not c.has_condition("prone"):
 		return _fail("넘어지지 않았다")
-	var cost: int = mini(1, c.speed() / 2) if c.has_cap("stand_up_one_tile") else c.speed() / 2  # 단련된 몸: 1칸
-	if c.speed() == 0 or int(c.turn.get("movement", 0)) < cost:
-		return _fail("이동력이 모자란다")
+	var avail := int(c.turn.get("movement", 0))
+	var cost: int = mini(1, avail / 2) if c.has_cap("stand_up_one_tile") else avail / 2  # BG3: 남은 이동력의 절반(운동선수: 1칸)
+	if c.speed() == 0:
+		return _fail("움직일 수 없다")
 	c.turn["movement"] = int(c.turn["movement"]) - cost
 	c.remove_condition("prone")
 	return {"ok": true, "cost": cost}

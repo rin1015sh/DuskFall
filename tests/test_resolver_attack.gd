@@ -51,7 +51,8 @@ func test_prone_target_by_distance() -> void:
 	var p := _pair()
 	p[1].apply_condition("prone", -1)
 	assert_eq(Resolver.preview_attack(p[0], p[1], SWORD, {"distance_tiles": 1})["mode"], 1, "인접 → 유리")
-	assert_eq(Resolver.preview_attack(p[0], p[1], SWORD, {"distance_tiles": 2})["mode"], -1, "그 밖 → 불리")
+	assert_eq(Resolver.preview_attack(p[0], p[1], SWORD, {"distance_tiles": 2})["mode"], 1, "BG3: 2칸(3m) 안 → 유리")
+	assert_eq(Resolver.preview_attack(p[0], p[1], SWORD, {"distance_tiles": 5})["mode"], 0, "그 밖 → 보정 없음(원거리 불리 없음)")
 
 
 func test_high_ground() -> void:

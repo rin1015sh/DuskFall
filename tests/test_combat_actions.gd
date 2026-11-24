@@ -30,7 +30,7 @@ func test_weapon_attack_building() -> void:
 	var rogue := make_creature({"abilities": {"str": 10, "dex": 16}, "weapon_proficiencies": ["simple", "martial"]})
 	assert_eq(Combat.build_weapon_attack(rogue, "rapier")["ability"], "dex", "교묘: 큰 쪽")
 	var weak := make_creature({"abilities": {"str": 10}, "weapon_proficiencies": ["martial"]})
-	assert_eq(Combat.build_weapon_attack(weak, "greatsword")["extra_disadvantage"].size(), 1, "근력 13 미만 무거운 무기 불리")
+	assert_eq(Combat.build_weapon_attack(weak, "greatsword")["extra_disadvantage"].size(), 0, "BG3: 무거운 무기 능력치 불리 없음")
 	var untrained := make_creature({"abilities": {"str": 16}, "weapon_proficiencies": ["simple"]})
 	assert_eq(Combat.build_weapon_attack(untrained, "longsword")["bonus"], 3, "숙련이 없으면 숙련 보너스 없음")
 

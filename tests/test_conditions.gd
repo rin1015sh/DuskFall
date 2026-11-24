@@ -90,7 +90,7 @@ func test_incapacitated_breaks_concentration() -> void:
 	var c := make_creature()
 	c.start_concentration("bless")
 	c.apply_condition("prone", -1)
-	assert_eq(c.concentration.get("id"), "bless", "넘어짐은 집중을 깨지 않는다")
+	assert_true(c.concentration.is_empty(), "BG3: 넘어지면 집중이 끊긴다")
 	c.apply_condition("stunned", 1)
 	assert_true(c.concentration.is_empty(), "무력화 → 집중 깨짐")
 

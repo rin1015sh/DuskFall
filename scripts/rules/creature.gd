@@ -364,11 +364,12 @@ func auto_fails_save(ability: String) -> bool:
 
 
 ## 이 거리(칸) 안에서 맞으면 치명타가 되는가(마비·무의식).
-func auto_crit_against_within(distance_tiles: int) -> bool:
+func auto_crit_against_within(distance_tiles: int, melee: bool = true) -> bool:
 	for a in active_conditions():
-		var r: Variant = a["def"].get("flags", {}).get("auto_crit_within_tiles")
-		if r != null and distance_tiles <= int(r):
-			return true
+		var fl: Dictionary = a["def"].get("flags", {})
+		var r: Variant = fl.get("auto_crit_within_tiles")
+		if r != null and distance_tiles <= int(r) and (melee or not fl.get("auto_crit_melee_only", false)):
+			return true  # BG3: 마비 3m 안 모든 공격, 쓰러짐은 근접 공격만, 잠듦 1.5m 안
 	return false
 
 
@@ -424,6 +425,14 @@ func apply_condition(id: String, turns: int = 0, source: Variant = null, params:
 	EventBus.on_condition_applied.emit(self, id)
 	if is_incapacitated() and not concentration.is_empty():
 		break_concentration("무력화")
+	var fl: Dictionary = def.get("flags", {})
+	if fl.get("ends_concentration", false) and not concentration.is_empty():
+		break_concentration(str(def["name"]["ko"]))  # BG3 넘어짐: 집중이 끊긴다
+	if fl.get("ends_own_turn", false) and has_meta("acting") and turn.has("action"):
+		turn["action"] = 0  # BG3 넘어짐: 자기 턴에 넘어지면 턴이 끝난다
+		turn["bonus"] = 0
+		turn["movement"] = 0
+		turn["attacks_left"] = 0
 	return true
 
 

@@ -67,21 +67,19 @@
           "type": "advantage",
           "roll": "attack",
           "side": "self",
-          "value": "disadvantage",
-          "requires": "source_in_sight"
+          "value": "disadvantage"
         },
         {
           "type": "advantage",
           "roll": "ability_check",
           "side": "self",
-          "value": "disadvantage",
-          "requires": "source_in_sight"
+          "value": "disadvantage"
         }
       ],
       "flags": {
-        "cannot_approach_source": true
+        "speed_zero": true
       },
-      "notes_ko": "원인이 시야 안일 때만 불리. 시야 판정이 생기기 전(2단계)까지는 원인이 늘 보인다고 본다.",
+      "notes_ko": "BG3: 움직일 수 없고, 공격·능력 판정 불리(원인이 보이든 말든).",
       "source": "SRD 5.2.1"
     },
     {
@@ -92,19 +90,13 @@
       },
       "category": "srd",
       "stack": "keep_longest",
-      "modifiers": [
-        {
-          "type": "advantage",
-          "roll": "initiative",
-          "side": "self",
-          "value": "disadvantage"
-        }
-      ],
+      "modifiers": [],
       "flags": {
         "incapacitated": true,
-        "cannot_speak": true
+        "cannot_speak": true,
+        "speed_zero": true
       },
-      "notes_ko": "행동·보너스 행동·반응 불가, 집중 깨짐.",
+      "notes_ko": "BG3: 행동·보너스 행동·반응·이동 불가, 집중 깨짐.",
       "source": "SRD 5.2.1"
     },
     {
@@ -168,9 +160,10 @@
           "str",
           "dex"
         ],
-        "auto_crit_within_tiles": 1
+        "auto_crit_within_tiles": 2
       },
-      "source": "SRD 5.2.1"
+      "source": "SRD 5.2.1",
+      "notes_ko": "BG3: 이동·행동·반응 불가, 받는 공격 유리, 3m(2칸) 안 공격은 치명타, 근력·민첩 내성 자동 실패."
     },
     {
       "id": "petrified",
@@ -247,30 +240,34 @@
         {
           "type": "advantage",
           "roll": "attack",
-          "side": "self",
-          "value": "disadvantage"
-        },
-        {
-          "type": "advantage",
-          "roll": "attack",
           "side": "against",
           "value": "advantage",
-          "range": "adjacent"
+          "range": "within_2"
         },
         {
           "type": "advantage",
-          "roll": "attack",
-          "side": "against",
+          "roll": "save",
+          "side": "self",
           "value": "disadvantage",
-          "range": "far"
+          "ability": [
+            "str",
+            "dex"
+          ]
+        },
+        {
+          "type": "modify",
+          "stat": "no_reactions"
         }
       ],
       "movement": {
-        "crawl": true,
-        "stand_up_cost": "half_speed"
+        "stand_up_cost": "half_available"
       },
-      "notes_ko": "일어서기는 3단계. '인접' = 1칸(5피트) 안.",
-      "source": "SRD 5.2.1"
+      "notes_ko": "BG3: 넘어진 동안 행동·보너스 행동·반응 불가(일어나면 이어서), 근력·민첩 내성 불리, 2칸(3m) 안 공격은 유리(원거리 불리 없음). 일어서기 = 남은 이동력 절반(턴 시작에 자동). 넘어지면 집중이 끊기고, 자기 턴이면 턴이 끝난다.",
+      "source": "original",
+      "flags": {
+        "ends_concentration": true,
+        "ends_own_turn": true
+      }
     },
     {
       "id": "restrained",
@@ -365,9 +362,10 @@
           "dex"
         ],
         "auto_crit_within_tiles": 1,
-        "drops_held": true
+        "drops_held": true,
+        "auto_crit_melee_only": true
       },
-      "notes_ko": "걸릴 때 넘어짐도 따로 걸린다. 무의식이 풀려도 넘어짐은 남는다(원문).",
+      "notes_ko": "BG3 쓰러짐: 근접 공격은 늘 치명타. 회복하면 일어선다(넘어짐도 풀림).",
       "source": "SRD 5.2.1"
     },
     {
@@ -3709,7 +3707,11 @@
       "helpable": true,
       "ends_on_damage": true,
       "notes_ko": "수면(BG3 잠듦): 무의식(무력화·넘어짐, 근접 자동 치명타). 피해를 받거나 돕기로 깬다.",
-      "source": "original"
+      "source": "original",
+      "flags": {
+        "auto_crit_within_tiles": 1,
+        "speed_zero": true
+      }
     }
   ]
 }

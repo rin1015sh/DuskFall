@@ -145,7 +145,7 @@ func test_death_save_natural_rolls() -> void:
 	_dmg(pc, 10, "slashing")
 	Dice.force([1])
 	Resolver.death_save(pc)
-	assert_eq(pc.death_saves["failures"], 2, "자연 1 → 실패 2")
+	assert_eq(pc.death_saves["failures"], 1, "BG3: 자연 1 → 실패 하나")
 	Dice.force([20])
 	Resolver.death_save(pc)
 	assert_eq(pc.hp, 1, "자연 20 → HP 1")
@@ -158,12 +158,12 @@ func test_death_save_natural_rolls() -> void:
 	assert_true(pc.dead, "실패 3회 → 사망")
 
 
-func test_heal_wakes_but_stays_prone() -> void:
+func test_heal_wakes_and_stands_up_bg3() -> void:
 	var pc := make_creature({"hp_max": 10, "is_player_character": true})
 	_dmg(pc, 10, "slashing")
 	assert_eq(Resolver.heal(pc, 30), 10, "최대 HP를 넘는 회복은 버린다")
 	assert_false(pc.has_condition("unconscious"))
-	assert_true(pc.has_condition("prone"), "무의식이 풀려도 넘어짐은 남는다(원문)")
+	assert_false(pc.has_condition("prone"), "BG3: 회복하면 일어선다")
 
 
 func test_dead_cannot_be_healed() -> void:

@@ -340,7 +340,7 @@ static func targets_for(world: Dictionary, caster: Node, spell: Dictionary, aim:
 		var allies_only: bool = str(spell.get("area_targets", "")) == "allies"  # 아군만(생명의 오라·집단 상처 치료)
 		var enemies_only: bool = str(spell.get("area_targets", "")) == "enemies"  # 적만(분쇄의 파동 — BG3)
 		var found: Array = Area.creatures_in(grid, cells).filter(func(c: Node) -> bool:
-			return not c.dead and (c != caster or not hostile_only) and (not allies_only or not c.is_hostile_to(caster)) \
+			return not c.dead and (c != caster or not hostile_only or str(spell["area"]["shape"]) != "emanation") and (not allies_only or not c.is_hostile_to(caster)) \
 				and (not enemies_only or c.is_hostile_to(caster)))
 		return found.slice(0, max_targets(spell, slot)) if spell.has("targets_max") and allies_only else found
 	if spell["range"]["type"] == "self":

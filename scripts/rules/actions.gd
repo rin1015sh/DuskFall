@@ -197,9 +197,6 @@ static func unavailable(world: Dictionary, c: Node, key: String, explore: bool =
 				return "이번 턴에 이미 급소 공격을 했다"
 			if key == "sneak_ranged" and c.weapon_sets.get("ranged", {}).get("main", "") == "":
 				return "원거리 무기가 없다"
-		"offhand_attack":
-			if not c.turn.get("light_attack_done", false) and not explore:
-				return "먼저 가벼운 무기로 공격해야 한다"
 	if key.begins_with("wa_") and not explore:
 		var wa := RulesDB.get_entry("weapon_action", key)
 		if str(wa["cost"]) == "movement" and int(c.turn.get("movement", 0)) < int(wa.get("move_tiles", 0)):

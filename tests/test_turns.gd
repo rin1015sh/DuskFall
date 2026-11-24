@@ -87,7 +87,10 @@ func test_surprise_first_turn() -> void:
 	assert_eq(p.turn["movement"], 0, "이동 불가")
 	assert_false(p.can_react(), "반응 불가")
 	w["turns"].end_turn(p)
-	assert_false(p.has_condition("surprised"), "첫 턴이 끝나면 풀린다")
+	assert_true(p.has_condition("surprised"), "BG3: 첫 라운드 끝까지 남는다")
+	w["turns"]._end_round()
+	assert_false(p.has_condition("surprised"), "첫 라운드가 끝나면 풀린다")
+	p.refresh_reaction()
 	assert_true(p.can_react())
 
 

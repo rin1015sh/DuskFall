@@ -894,8 +894,8 @@
         "en": "Heavy Swing"
       },
       "desc": {
-        "ko": "강타(켜고 끔): 숙련한 근접 무기를 두 손으로 쥐고(양손 무기·두 손 잡은 다용도 무기) 공격하면 명중 −5, 피해 +10. 근접 무기로 치명타를 내거나 적을 쓰러뜨리면 이번 턴 보너스 행동으로 근접 무기 공격 1회.",
-        "en": "Heavy Swing (toggle): attacks with a proficient melee weapon held in both hands take −5 to hit and deal +10 damage. When a melee weapon attack crits or drops a creature, you may make a melee weapon attack as a bonus action this turn."
+        "ko": "강타(켜고 끔): 숙련한 무거운 근접 무기로 공격하면(BG3) 명중 −5, 피해 +10. 근접 무기로 치명타를 내거나 적을 쓰러뜨리면 이번 턴 보너스 행동으로 근접 무기 공격 1회.",
+        "en": "Heavy Swing (toggle): attacks with a proficient Heavy melee weapon take −5 to hit and deal +10 damage. When a melee weapon attack crits or drops a creature, you may make a melee weapon attack as a bonus action this turn."
       },
       "category": "general",
       "grants": {

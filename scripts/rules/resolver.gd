@@ -129,7 +129,7 @@ static func attack(attacker: Node, target: Node, atk: Dictionary, ctx: Dictionar
 	_decide_hit(res)
 	_mirror_image(attacker, target, res)
 	# 6. 명중 결과
-	if res["hit"] and not res["crit"] and target.auto_crit_against_within(res["distance"]):
+	if res["hit"] and not res["crit"] and target.auto_crit_against_within(res["distance"], str(atk.get("kind", "melee")) == "melee"):
 		res["crit"] = true
 		res["auto_crit"] = true
 	if res["hit"] and not res["crit"] and attacker.has_cap("assassinate") and target.has_condition("surprised"):
@@ -217,9 +217,9 @@ static func preview_attack(attacker: Node, target: Node, atk: Dictionary, ctx: D
 
 ## 치명타 눈: 무기 공격은 생물의 crit_threshold(챔피언 등), 주문 공격은 20 − 주문 저격, 주술검사의 저주 −1.
 static func crit_threshold_for(attacker: Node, target: Node, atk: Dictionary) -> int:
-	var thr: int = attacker.crit_threshold if atk.get("weapon", false) else 20
+	var thr: int = attacker.crit_threshold  # BG3 향상된 치명타: 모든 공격 굴림(주문 공격 포함)
 	if atk.has("spell"):
-		thr = 20 - attacker.cap_count("spell_crit_minus_1")  # 주문 저격: 주문 공격 치명타 눈 −1(겹친다)
+		thr -= attacker.cap_count("spell_crit_minus_1")  # 주문 저격: 주문 공격 치명타 눈 −1(겹친다)
 	if target.condition_instance("hexblades_curse").get("source") == attacker:
 		thr -= 1  # 주술검사의 저주: 치명타 범위 −1
 	return thr
@@ -367,6 +367,9 @@ static func _add_adv(m: Dictionary, roll: String, side: String, owner: Node, oth
 		"far":
 			if dist <= 1:
 				return
+		"within_2":
+			if dist > 2:
+				return  # BG3 넘어짐: 3m(2칸) 안 공격 유리
 	var only: Variant = m["instance"].get("target_only")
 	if only != null and only != other:
 		return
@@ -1286,6 +1289,7 @@ static func heal(target: Node, amount: int, source: Variant = null) -> int:
 	var gained: int = target.hp - before
 	if before == 0 and target.hp > 0:
 		target.remove_condition("unconscious")
+		target.remove_condition("prone")  # BG3: 쓰러진 캐릭터는 회복하면 일어선다
 		target.death_saves = {"successes": 0, "failures": 0}
 		target.stable = false
 	Dice.log_text("%s 회복 %d → HP %d/%d" % [target.label(), gained, target.hp, target.hp_max])
@@ -1650,19 +1654,20 @@ static func death_save(creature: Node, bonus: int = 0) -> Dictionary:
 		_add_adv(m, "death_save", "self", creature, null, dres)
 	var d := luck(creature, Dice.d20(mode_of(dres["advantage"], dres["disadvantage"]), "%s 사망 내성" % creature.label()))
 	var n: int = d["natural"]
+	bonus += roll_bonus_dice(creature, "saving_throw")  # BG3: 축복 같은 내성 보너스도 더한다
 	var res := {"natural": n, "total": n + bonus, "result": ""}
 	if n == 20:
 		heal(creature, 1, "death_save")
 		res["result"] = "회복"
 	elif n == 1:
-		_add_death_failures(creature, 2)
-		res["result"] = "실패 2"
+		_add_death_failures(creature, 1)  # BG3: 1은 실패 하나(보정과 상관없이)
+		res["result"] = "실패"
 	elif n + bonus >= DEATH_SAVE_DC:
 		creature.death_saves["successes"] += 1
 		res["result"] = "성공"
 		if creature.death_saves["successes"] >= 3:
 			creature.stable = true
-			creature.death_saves = {"successes": 0, "failures": 0}
+			creature.death_saves["successes"] = 0  # BG3: 안정돼도 실패 수는 남는다(회복·돕기로 초기화)
 			res["result"] = "안정"
 	else:
 		_add_death_failures(creature, 1)
