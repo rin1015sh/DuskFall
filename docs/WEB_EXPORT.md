@@ -14,7 +14,15 @@
 2. 프로젝트 → 내보내기 → Web → 프로젝트 내보내기 → `build/web/index.html`.
    명령줄: `godot --headless --path . --export-release "Web" build/web/index.html`
 
-## 아이패드에서 보기
+## GitHub Pages(자동 배포)
+
+`.github/workflows/web.yml`이 push마다 Godot 4.7.2로 웹 빌드를 만들고, `main`이면 Pages에 올린다.
+
+- 주소: https://rin1015sh.github.io/DuskFall/ — 아이패드 사파리로 연다(홈 화면에 추가하면 전체 화면).
+- 처음 한 번: 저장소 Settings → Pages → Source를 **GitHub Actions**로.
+- 다른 브랜치는 빌드만 한다(Actions 실행의 `github-pages` 산출물을 받아 로컬에서 볼 수 있다).
+
+## 아이패드에서 보기(로컬)
 
 PC와 아이패드를 같은 와이파이에 두고 PC에서:
 
