@@ -177,8 +177,7 @@ func test_rules_check_fixes() -> void:
 	# 2. 실시간에는 반응이 없고, 낙하로 쓰러지면 안정 상태
 	assert_true(EventBus.realtime)
 	p.hp = 1
-	Dice.force([6])
-	preload("res://scripts/rules/physics.gd").fall(p, 2)
+	preload("res://scripts/rules/physics.gd").fall(p, 4)  # BG3: 6m 낙하
 	assert_true(p.is_down() and p.stable, "탐험 중 낙하로 쓰러지면 안정 상태")
 	# 3. 은신 동점이면 발견(수동 지각 10, 은신 합계 10)
 	var q := make_creature({"team": "party", "abilities": {"dex": 10}})
@@ -240,7 +239,7 @@ func test_explore_jumps_down_from_ledge() -> void:
 	var ex: Node = own(ExplorationScript.new().setup(w, [c]))
 	assert_true(ex.move_to(c, Vector2i(4, 1)) > 0, "바위 턱에서 점프로 내려가 목적지까지 간다")
 	assert_eq(w["grid"].cell_of(c), Vector2i(4, 1))
-	assert_true(c.hp < 30, "2단계 낙하 피해")
+	assert_eq(c.hp, 30, "BG3: 2단계(3m) 낙하는 피해 없음(4m부터)")
 
 
 func test_decisions_awareness_decay_feather_fall_disarmer() -> void:

@@ -155,7 +155,7 @@ func test_surface_save_dc() -> void:
 	Dice.force([11])
 	g.move_creature(cr, Vector2i(1, 0))
 	assert_true(cr.has_condition("prone"), "11 < DC 12 → 넘어짐")
-	s.place_surface([Vector2i(2, 0)], "oil", {"dc": 15})
+	s.place_surface([Vector2i(2, 0)], "grease", {"dc": 15})
 	var cr2 := make_creature({"abilities": {"dex": 10}})
 	g.place(cr2, Vector2i(2, 0))
 	Dice.force([13])

@@ -66,19 +66,10 @@
         "en": "Oil"
       },
       "duration_turns": 10,
-      "difficult": true,
+      "difficult": false,
       "flammable": true,
-      "save": {
-        "ability": "dex",
-        "on_fail": [
-          {
-            "type": "apply_condition",
-            "id": "prone"
-          }
-        ]
-      },
       "source": "original",
-      "notes_ko": "미끄러운 기름과 합침, SRD Grease와 같은 효과."
+      "notes_ko": "BG3 기름: 불이 붙는 것 말고는 효과 없음(넘어뜨리는 것은 미끄러운 기름 — 2026-11-24 분리)."
     },
     {
       "id": "fire",
@@ -249,7 +240,16 @@
       "duration_turns": -1,
       "obscurity": "heavy",
       "blocks_sight": true,
-      "source": "original"
+      "source": "original",
+      "on_enter_or_turn_start": [
+        {
+          "type": "apply_condition",
+          "id": "blinded",
+          "turns": 1
+        }
+      ],
+      "blocks_ranged": true,
+      "notes_ko": "BG3 안개: 안에 있으면 실명, 안팎으로 원거리 공격 불가."
     },
     {
       "id": "magical_darkness",
@@ -263,7 +263,15 @@
       "blocks_sight": true,
       "ignores_darkvision": true,
       "source": "SRD 5.2.1",
-      "notes_ko": "암시야로 볼 수 없다(SRD Darkness)."
+      "notes_ko": "BG3 어둠: 안에 있으면 실명, 안팎으로 원거리 공격 불가. 암시야로 볼 수 없다.",
+      "on_enter_or_turn_start": [
+        {
+          "type": "apply_condition",
+          "id": "blinded",
+          "turns": 1
+        }
+      ],
+      "blocks_ranged": true
     },
     {
       "id": "steam",
@@ -403,6 +411,28 @@
       "flammable": true,
       "source": "SRD 5.2.1",
       "notes_ko": "식물 성장: 1칸에 이동 4(BG3 속도 1/4). 지속은 주문을 따른다."
+    },
+    {
+      "id": "grease",
+      "layer": "ground",
+      "name": {
+        "ko": "미끄러운 기름",
+        "en": "Grease"
+      },
+      "duration_turns": 10,
+      "difficult": true,
+      "flammable": true,
+      "save": {
+        "ability": "dex",
+        "on_fail": [
+          {
+            "type": "apply_condition",
+            "id": "prone"
+          }
+        ]
+      },
+      "source": "original",
+      "notes_ko": "BG3 미끄러운 기름(주문 Grease): 험지, 민첩 내성 실패 → 넘어짐, 불이 붙는다."
     }
   ]
 }

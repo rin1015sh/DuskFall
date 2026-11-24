@@ -7,17 +7,21 @@ const Resolver := preload("res://scripts/rules/resolver.gd")
 const SHOVE_KG_PER_STR := 12
 ## 무게 비율 → 밀리는 칸: 25% 이하 4, 50% 이하 3, 75% 이하 2, 그 이상 1.
 const SHOVE_BANDS := [[0.25, 4], [0.5, 3], [0.75, 2]]
-## 낙하: 높이 2단계(10피트)마다 1d6, 최대 20d6(2단계 결정 3, SRD Falling).
-const FALL_STEPS_PER_DIE := 2
-const FALL_MAX_DICE := 20
+## 낙하(BG3 — bg3.wiki Falling damage): 높이 1단계 = 1.5m. 4m 미만은 피해 없음,
+## 그 이상은 (최대 HP + 임시 HP) × (높이 − 4) / 17 + 1, 최대 HP의 25%를 넘는 피해면 넘어진다.
+const FALL_STEP_M := 1.5
+const FALL_SAFE_M := 4.0
+const FALL_PRONE_RATIO := 0.25
 
 
 # ---------- 밀치기 ----------
 
 ## 밀치기 계획(굴림 없음). 결과: {"valid", "reason", "distance", "path", "landing", "fall_levels", "dc"}
 static func plan_shove(grid: Node, shover: Node, target: Node, limit_mult: float = 1.0) -> Dictionary:
+	# BG3 판정: 미는 쪽 운동 판정 vs 대상 수동 운동·곡예 중 높은 쪽(10 + 기능, 유리 +5·불리 −5)
+	var dc := maxi(Resolver.passive_skill(target, "str", "athletics"), Resolver.passive_skill(target, "dex", "acrobatics"))
 	var out := {"valid": false, "reason": "", "distance": 0, "path": [], "landing": grid.cell_of(target),
-		"fall_levels": 0, "dc": 8 + shover.ability_mod("str") + shover.proficiency_bonus}
+		"fall_levels": 0, "dc": dc}
 	var limit: float = shover.abilities["str"] * SHOVE_KG_PER_STR * limit_mult  # limit_mult: 거인의 발길질 두 배
 	if target.weight_kg > limit:
 		out["reason"] = "너무 무겁다(%.0fkg > %.0fkg)" % [target.weight_kg, limit]
@@ -73,8 +77,19 @@ static func preview_shove(grid: Node, shover: Node, target: Node, ally: bool = f
 	if not plan["valid"]:
 		plan["chance"] = 0.0
 		return plan
-	plan["chance"] = 1.0 if ally else Resolver.preview_save_fail(target, _best_save(target), plan["dc"])
+	if ally:
+		plan["chance"] = 1.0
+		return plan
+	var bonus: float = shover.ability_mod("str") + Resolver._skill_bonus(shover, "athletics") + Resolver.avg_bonus_dice(shover, "ability_check")
+	var p := clampf((21.0 - (plan["dc"] - bonus)) / 20.0, 0.05, 1.0)  # 밀치기는 치명적 실패가 없다
+	var mode := 1 if _hidden(shover) else Resolver.check_mode(shover, "str")
+	plan["chance"] = Resolver.apply_mode(p, mode)
 	return plan
+
+
+## 숨었거나 투명하면 밀치기 판정 유리(BG3).
+static func _hidden(c: Node) -> bool:
+	return c.has_condition("invisible")
 
 
 ## 밀치기: 대상이 근력·민첩 중 나은 쪽으로 내성(2단계, 엔진이 자동으로 고른다). 실패하면 밀린다.
@@ -85,9 +100,11 @@ static func shove(grid: Node, shover: Node, target: Node, ally: bool = false, li
 		Dice.log_text("%s → %s 밀치기 불가: %s" % [shover.label(), target.label(), plan["reason"]])
 		return plan
 	if not ally:
-		var s := Resolver.saving_throw(target, _best_save(target), plan["dc"], {"source": shover})
-		if s["success"]:
-			return plan
+		var r := Resolver.ability_check(shover, "str", int(plan["dc"]), {"skill": "athletics", "other": target,
+			"advantage": ["숨음·투명"] if _hidden(shover) else []})
+		plan["check"] = r
+		if not r["success"] and int(r["total"]) < int(plan["dc"]):
+			return plan  # 자연 1이어도 합이 DC 이상이면 성공(밀치기는 치명적 실패가 없다)
 	plan["success"] = true
 	grid.move_creature(target, plan["landing"])
 	if plan["fall_levels"] > 0:
@@ -104,19 +121,19 @@ static func _best_save(target: Node) -> String:
 ## 낙하. on_fall 훅을 먼저 보내고(리스너가 ctx["prevented"] = true로 막는다), 높이 2단계마다 1d6 타격.
 ## 피해를 받으면 넘어진다(SRD Falling).
 static func fall(creature: Node, levels: int) -> Dictionary:
-	var dice := mini(levels / FALL_STEPS_PER_DIE, FALL_MAX_DICE)
-	var ctx := {"creature": creature, "levels": levels, "dice": dice, "prevented": false}
+	var meters := levels * FALL_STEP_M
+	var ctx := {"creature": creature, "levels": levels, "meters": meters, "prevented": false}
 	for m in creature.modifier_entries():  # 깃털 낙하(BG3 보너스 행동 강화): 낙하 피해 면역
 		var e: Dictionary = m["effect"]
 		if e.get("type") == "modify" and e.get("stat") == "fall_damage" and int(e.get("set", 1)) == 0:
 			ctx["prevented"] = true
-	if not ctx["prevented"]:
+	if not ctx["prevented"] and meters >= FALL_SAFE_M:
 		EventBus.on_fall.emit(ctx)
-	var out := {"levels": levels, "dice": dice, "damage": 0, "prevented": ctx["prevented"]}
-	if ctx["prevented"] or dice <= 0:
+	var out := {"levels": levels, "meters": meters, "damage": 0, "prevented": ctx["prevented"]}
+	if ctx["prevented"] or meters < FALL_SAFE_M:
 		return out
-	var r := Dice.roll("%dd6" % dice, "%s 낙하" % creature.label())
-	var amount: int = r["total"]
+	var amount := fall_damage(creature, levels)
+	Dice.log_text("%s 낙하 %.1fm: %d" % [creature.label(), meters, amount])
 	if creature.has_cap("slow_fall") and creature.can_react() and creature.reaction_setting("slow_fall") != "off":
 		creature.turn["reaction"] = int(creature.turn.get("reaction", 1)) - 1  # 몽크 느린 낙하: 반응, 몽크 레벨 × 5 줄이기
 		amount = maxi(0, amount - 5 * creature.feature_level("slow_fall"))
@@ -125,9 +142,17 @@ static func fall(creature: Node, levels: int) -> Dictionary:
 		amount = amount / 2  # 2층 작업(BG3): 낙하 피해 저항
 	var dmg := Resolver.apply_damage(creature, [{"amount": amount, "damage_type": "bludgeoning"}], {"in_combat": not EventBus.realtime})
 	out["damage"] = dmg["total"]
-	if dmg["total"] > 0 and not creature.dead:
-		creature.apply_condition("prone", -1)
+	if float(dmg["total"]) > FALL_PRONE_RATIO * creature.hp_max and not creature.dead:
+		creature.apply_condition("prone", -1)  # BG3: 최대 HP 25%를 넘는 낙하 피해면 넘어진다
 	return out
+
+
+## 낙하 피해(굴림 없음, BG3 공식). 미리보기에도 쓴다.
+static func fall_damage(creature: Node, levels: int) -> int:
+	var meters := levels * FALL_STEP_M
+	if meters < FALL_SAFE_M:
+		return 0
+	return int(floor(float(creature.hp_max + creature.temp_hp) * (meters - FALL_SAFE_M) / 17.0)) + 1
 
 
 # ---------- 던지기 ----------

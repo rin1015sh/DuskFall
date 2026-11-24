@@ -26,9 +26,8 @@ func _foe(v: Dictionary = {}) -> Node:
 
 func test_thief_fall_resistance() -> void:
 	var r := _pc(3, {})
-	Dice.force([6, 6])
 	var out := Physics.fall(r, 4)
-	assert_eq(int(out["damage"]), 6, "2d6 = 12 → 저항 6")
+	assert_eq(int(out["damage"]), Physics.fall_damage(r, 4) / 2, "BG3 낙하 피해 절반")
 
 
 func test_assassin() -> void:

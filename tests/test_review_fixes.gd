@@ -165,3 +165,33 @@ func test_ai_skips_charmer_and_avoids_fire() -> void:
 	foe.apply_condition("charmed", 5, charmer)
 	assert_eq(Tactics.pick_target(w, foe), other, "매혹한 상대는 고르지 않는다")
 	assert_true(Tactics.surface_danger("fire") > 0, "불은 위험(연소)")
+
+
+func test_bg3_environment_rules() -> void:
+	# 기름은 넘어뜨리지 않고(미끄러운 기름만), 얼린 얼음은 2턴, 어둠 안 실명·원거리 막힘
+	assert_false(RulesDB.get_entry("surface", "oil").has("save"), "BG3 기름: 불만 붙는다")
+	assert_true(RulesDB.get_entry("surface", "grease").has("save"), "미끄러운 기름: 넘어짐")
+	var w := make_world(["......"])
+	var s: Node = w["surfaces"]
+	var g: Node = w["grid"]
+	s.place_surface([Vector2i(0, 0)], "water")
+	s.tile_damage([Vector2i(0, 0)], "cold")
+	assert_eq(int(g.surface(Vector2i(0, 0))["turns_left"]), 2, "얼린 얼음 2턴")
+	var a := make_creature({"team": "party", "hp_max": 20})
+	var e := make_creature({"team": "enemy", "hp_max": 20})
+	g.place(a, Vector2i(1, 0))
+	g.place(e, Vector2i(5, 0))
+	s._set_cloud(Vector2i(5, 0), "magical_darkness", {})
+	var ctx := Combat.attack_context(w, a, e, Combat.build_weapon_attack(a, "shortbow"))
+	assert_true(ctx.has("invalid"), "어둠 안으로 원거리 공격 불가")
+	s.creature_turn_start(e)
+	assert_true(e.has_condition("blinded"), "어둠 안이면 실명")
+
+
+func test_bg3_jump_shove_fall_numbers() -> void:
+	var c := make_creature({"abilities": {"str": 16}, "hp_max": 34})
+	assert_eq(Combat.jump_distance(c), 5, "4.5m + 3m = 7.5m → 5칸")
+	assert_eq(preload("res://scripts/rules/physics.gd").fall_damage(c, 2), 0, "3m 피해 없음")
+	assert_eq(preload("res://scripts/rules/physics.gd").fall_damage(c, 4), 34 * 2 / 17 + 1, "6m")
+	var t := make_creature({"abilities": {"str": 14, "dex": 10}, "skill_bonuses": {"athletics": 2}})
+	assert_eq(Resolver.passive_skill(t, "str", "athletics"), 10 + 2 + 2, "수동 운동 10 + 근력 + 숙련")

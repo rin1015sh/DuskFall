@@ -149,13 +149,12 @@ func test_jump() -> void:
 	var g := _goblin()
 	w["grid"].place(f, Vector2i(0, 0))
 	w["grid"].place(g, Vector2i(1, 0))
-	assert_eq(Combat.jump_distance(f), 4, "3칸 + 근력 +3 → +1")
-	Dice.force([3])
+	assert_eq(Combat.jump_distance(f), 5, "BG3: 4.5m + 근력 +3 → 3m = 7.5m → 5칸")
 	var r := Combat.jump(w, f, Vector2i(4, 0))
 	assert_true(r["ok"])
 	assert_eq(f.turn["bonus"], 0)
 	assert_eq(f.turn["movement"], 4, "이동 2칸 소모")
-	assert_eq(r["fall"]["dice"], 1, "3단계 아래로 착지 → 1d6")
+	assert_true(int(r["fall"]["damage"]) > 0, "BG3: 3단계(4.5m) 아래로 착지 → 피해")
 	assert_eq(g.turn["reaction"], 1, "점프는 기회 공격을 유발하지 않는다")
 
 

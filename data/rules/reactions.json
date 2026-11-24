@@ -17,9 +17,10 @@
       "cause": "damage:cold",
       "target": "surface:water",
       "result": {
-        "replace_surface": "ice"
+        "replace_surface": "ice",
+        "turns": 2
       },
-      "basis": "BG3"
+      "basis": "BG3 — 얼린 얼음은 2턴(BG3)"
     },
     {
       "id": "water_lightning",
@@ -68,9 +69,10 @@
       "cause": "damage:cold",
       "target": "surface:blood",
       "result": {
-        "replace_surface": "ice"
+        "replace_surface": "ice",
+        "turns": 2
       },
-      "basis": "BG3"
+      "basis": "BG3 — 얼린 얼음은 2턴(BG3)"
     },
     {
       "id": "ewater_fire",
@@ -87,9 +89,10 @@
       "cause": "damage:cold",
       "target": "surface:electrified_water",
       "result": {
-        "replace_surface": "ice"
+        "replace_surface": "ice",
+        "turns": 2
       },
-      "basis": "BG3·자체"
+      "basis": "BG3·자체 — 얼린 얼음은 2턴(BG3)"
     },
     {
       "id": "fire_cold",
@@ -235,6 +238,51 @@
         "block": true
       },
       "basis": "BG3: 피는 불을 끈다"
+    },
+    {
+      "id": "grease_fire",
+      "cause": "damage:fire",
+      "target": "surface:grease",
+      "result": {
+        "replace_surface": "fire",
+        "creatures": [
+          {
+            "type": "apply_condition",
+            "id": "burning"
+          }
+        ]
+      },
+      "basis": "BG3: 미끄러운 기름에 불이 붙는다"
+    },
+    {
+      "id": "grease_onto_fire",
+      "cause": "surface:grease",
+      "target": "surface:fire",
+      "result": {
+        "replace_surface": "fire",
+        "creatures": [
+          {
+            "type": "apply_condition",
+            "id": "burning"
+          }
+        ]
+      },
+      "basis": "BG3: 미끄러운 기름에 불이 붙는다"
+    },
+    {
+      "id": "fire_onto_grease",
+      "cause": "surface:fire",
+      "target": "surface:grease",
+      "result": {
+        "replace_surface": "fire",
+        "creatures": [
+          {
+            "type": "apply_condition",
+            "id": "burning"
+          }
+        ]
+      },
+      "basis": "BG3: 미끄러운 기름에 불이 붙는다"
     }
   ]
 }

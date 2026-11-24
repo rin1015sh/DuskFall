@@ -226,7 +226,15 @@ static func attack_context(world: Dictionary, attacker: Node, target: Node, atk:
 			ctx["disadvantage"].append("먼 사거리")
 		if is_threatened(world, attacker) and not (attacker.has_cap("crossbow_point_blank") and "crossbow" in str(atk.get("weapon_id", ""))):
 			ctx["disadvantage"].append("근접 위협")  # 석궁 명수: 석궁은 근접 위협 불리 없음
+		if blocks_ranged(grid, grid.cell_of(attacker)) or blocks_ranged(grid, grid.cell_of(target)):
+			ctx["invalid"] = "어둠·안개 안팎으로는 원거리 공격을 할 수 없다"  # BG3
 	return ctx
+
+
+## 원거리 공격을 막는 구름(BG3 어둠·안개 — 표면 데이터 blocks_ranged) 칸인가.
+static func blocks_ranged(grid: Node, cell: Vector2i) -> bool:
+	var cl: Variant = grid.cloud(cell)
+	return cl is Dictionary and bool(RulesDB.get_entry("surface", str(cl.get("id", ""))).get("blocks_ranged", false))
 
 
 ## 근접 위협: 인접 8칸에 나를 볼 수 있고 무력화되지 않은 적이 있다(3단계).
@@ -838,7 +846,7 @@ static func jump_distance(c: Node) -> int:
 	var mod: int = c.ability_mod("str")
 	if c.has_cap("jump_dex"):
 		mod = maxi(mod, c.ability_mod("dex"))  # 2층 작업 등: 민첩으로 도약(원문)
-	var base := 3 + maxi(mod, 0) / 2
+	var base := int(floor((4.5 + maxi(mod, 0)) / 1.5 + 0.001))  # BG3: 4.5m + 근력 10 넘는 2점(= 수정치)당 1m → 칸
 	base += c.cap_count("jump_plus_1")  # BG3식 도약 보너스(2층 작업·뛰어난 운동선수 — 겹친다)
 	for m in c.modifier_entries():
 		var e: Dictionary = m["effect"]
@@ -905,7 +913,9 @@ static func dip(world: Dictionary, c: Node) -> Dictionary:
 	var grid: Node = world["grid"]
 	var kind := ""
 	var center: Vector2i = grid.cell_of(c)
-	for cell in Area.circle(null, center, 1):
+	for cell in Area.circle(null, center, 2):  # BG3: 3m(2칸) 안 표면
+		if not grid.in_bounds(cell):
+			continue
 		var sid: String = grid.surface_id(cell)
 		var coats: String = RulesDB.get_entry("surface", sid).get("coats", "") if sid != "" else ""
 		if sid == "fire":

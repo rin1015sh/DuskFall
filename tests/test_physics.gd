@@ -36,10 +36,13 @@ func test_shove_save_and_ally() -> void:
 	g.place(f, Vector2i(0, 0))
 	g.place(t, Vector2i(1, 0))
 	var p := Physics.preview_shove(g, f, t)
-	assert_eq(p["dc"], 13, "DC 8 + 근력 3 + 숙련 2")
-	assert_near(p["chance"], 0.5, 0.0001, "나은 쪽(민첩 +2)으로 내성: 11 이상 성공 → 실패 50%")
-	Dice.force([15])
-	assert_false(Physics.shove(g, f, t)["success"], "내성 성공이면 안 밀린다")
+	assert_eq(p["dc"], 12, "BG3: 대상 수동 곡예 10 + 민첩 2")
+	var bonus: int = f.ability_mod("str") + int(f.skill_bonuses.get("athletics", 0))
+	assert_near(p["chance"], clampf((21.0 - (12 - bonus)) / 20.0, 0.05, 1.0), 0.0001, "미는 쪽 운동 판정 확률")
+	Dice.force([1])
+	var miss: bool = 1 + bonus < 12
+	assert_eq(Physics.shove(g, f, t)["success"], not miss, "운동 판정이 DC 미만이면 안 밀린다")
+	g.move_creature(t, Vector2i(1, 0)) if g.cell_of(t) != Vector2i(1, 0) else null
 	assert_eq(g.cell_of(t), Vector2i(1, 0))
 	var r := Physics.shove(g, f, t, true)
 	assert_true(r["success"], "아군은 판정 없이")
@@ -70,11 +73,11 @@ func test_shove_off_ledge_falls() -> void:
 	assert_eq(p["distance"], 3, "70 / 204 = 34% → 50% 이하 3칸")
 	assert_eq(p["landing"], Vector2i(4, 0))
 	assert_eq(p["fall_levels"], 4, "낮은 칸으로 밀리면 낙하")
-	Dice.force([2, 3, 4])  # 내성 2 실패, 낙하 4단계 = 2d6 → 3 + 4
+	Dice.force([20])  # 운동 판정 성공, 낙하 4단계 = 6m → BG3 공식 30 × 2 / 17 + 1 = 4
 	var r := Physics.shove(g, f, t)
 	assert_true(r["success"])
-	assert_eq(r["fall"]["damage"], 7)
-	assert_true(t.has_condition("prone"), "낙하 피해를 받으면 넘어짐")
+	assert_eq(r["fall"]["damage"], 4)
+	assert_false(t.has_condition("prone"), "BG3: 최대 HP 25% 이하 낙하 피해는 넘어지지 않는다")
 
 
 func test_shove_landing_surface_applies() -> void:
@@ -93,11 +96,14 @@ func test_shove_landing_surface_applies() -> void:
 
 func test_fall_damage() -> void:
 	var c := make_creature({"hp_max": 200})
-	assert_eq(Physics.fall(c, 1)["damage"], 0, "1단계(5피트)는 피해 없음")
+	assert_eq(Physics.fall(c, 2)["damage"], 0, "BG3: 4m 미만(2단계 3m)은 피해 없음")
 	assert_false(c.has_condition("prone"), "피해가 없으면 넘어지지 않는다")
-	Dice.force([6, 6])
-	assert_eq(Physics.fall(c, 5)["dice"], 2, "2단계마다 1d6 → 5단계는 2d6")
-	assert_eq(Physics.fall(c, 100)["dice"], 20, "최대 20d6")
+	assert_eq(Physics.fall_damage(c, 4), 200 * 2 / 17 + 1, "6m: (최대 HP) × (6 − 4) / 17 + 1")
+	assert_eq(Physics.fall_damage(c, 14), int(200 * 17.0 / 17.0) + 1, "21m면 치명")
+	var hp: int = c.hp
+	Physics.fall(c, 8)
+	assert_true(c.hp < hp)
+	assert_true(c.has_condition("prone"), "12m: 최대 HP 25%를 넘으면 넘어진다")
 
 
 func test_on_fall_can_prevent() -> void:

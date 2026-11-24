@@ -89,6 +89,9 @@
                     }
                   }
                 }
+              },
+              "turns": {
+                "type": "integer"
               }
             }
           },

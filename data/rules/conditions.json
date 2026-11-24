@@ -110,12 +110,6 @@
       "modifiers": [
         {
           "type": "advantage",
-          "roll": "initiative",
-          "side": "self",
-          "value": "advantage"
-        },
-        {
-          "type": "advantage",
           "roll": "attack",
           "side": "self",
           "value": "advantage",
@@ -454,7 +448,7 @@
       },
       "category": "environment",
       "stack": "keep_longest",
-      "default_duration_turns": 2,
+      "default_duration_turns": 3,
       "hooks": {
         "on_hit": [
           {

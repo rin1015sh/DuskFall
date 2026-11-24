@@ -45,7 +45,7 @@ func test_fly_altitude_high_ground_and_fall() -> void:
 	Dice.force([3])
 	wz.break_concentration("시험")
 	assert_eq(wz.altitude, 0)
-	assert_true(wz.hp < hp, "끝나면 떨어진다")
+	assert_eq(wz.hp, hp, "끝나면 떨어진다 — BG3: 2단계(3m)는 피해 없음")
 
 
 func test_levitate_and_spider_climb() -> void:

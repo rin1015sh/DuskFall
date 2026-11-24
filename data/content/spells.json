@@ -3406,7 +3406,7 @@
         "apply": [
           {
             "type": "create_surface",
-            "id": "oil"
+            "id": "grease"
           }
         ]
       },

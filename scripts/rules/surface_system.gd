@@ -152,7 +152,7 @@ func _apply_result(c: Vector2i, r: Dictionary, depth: int, queue: Array) -> void
 	if res.get("remove_surface", false):
 		_clear_surface(c)
 	if res.has("replace_surface"):
-		_set_surface(c, res["replace_surface"], {}, depth, queue)
+		_set_surface(c, res["replace_surface"], {"turns": int(res["turns"])} if res.has("turns") else {}, depth, queue)
 	if res.has("create_surface"):
 		_set_surface(c, res["create_surface"], {}, depth, queue)
 	if res.has("create_cloud"):

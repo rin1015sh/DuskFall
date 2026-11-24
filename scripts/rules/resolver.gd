@@ -652,6 +652,19 @@ static func lore_lines(c: Node, t: Node) -> Array:
 
 
 ## 기능 판정 보너스: 숙련이면 그 값, 아니면 능력 태그 jack_of_all_trades(바드 만물박사)로 숙련 보너스 절반(내림).
+## 능력 판정 유리·불리(굴림 없이): 1 유리, −1 불리, 0.
+static func check_mode(c: Node, ability: String) -> int:
+	var res := {"advantage": [], "disadvantage": [], "distance": 1}
+	for m in c.modifier_entries():
+		_add_adv(m, "ability_check", "self", c, null, res, ability)
+	return mode_of(res["advantage"], res["disadvantage"])
+
+
+## 수동 기능 값(BG3): 10 + 능력 수정치 + 기능 보너스, 그 판정에 유리면 +5·불리면 −5.
+static func passive_skill(c: Node, ability: String, skill: String) -> int:
+	return 10 + c.ability_mod(ability) + _skill_bonus(c, skill) + 5 * check_mode(c, ability)
+
+
 static func _skill_bonus(c: Node, skill: String) -> int:
 	if skill == "":
 		return 0
