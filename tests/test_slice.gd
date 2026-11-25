@@ -41,7 +41,7 @@ func test_level_up_to_5_gets_extra_attack() -> void:
 	assert_eq(c.known_reactions.count("opportunity_attack"), 1)
 
 
-func test_recruit_matches_party_level_and_cap() -> void:
+func test_recruit_keeps_level_and_cap() -> void:
 	var w := make_world(["......"])
 	var party: Array = []
 	for cls: String in ["fighter", "rogue", "cleric"]:
@@ -51,7 +51,10 @@ func test_recruit_matches_party_level_and_cap() -> void:
 	var wiz := _pc("wizard", 1)
 	wiz.team = "neutral"
 	assert_eq(Progression.recruit(w, wiz), "party")
-	assert_eq(wiz.level, 3, "영입하면 파티 경험치에 맞춰 레벨이 오른다")
+	assert_eq(wiz.level, 1, "영입해도 레벨은 자동으로 오르지 않는다(파티원처럼 직접 레벨 업)")
+	assert_true(Progression.can_level_up(w, wiz), "파티 경험치만큼 레벨 업 버튼이 뜬다")
+	assert_true(Progression.level_up(w, wiz))
+	assert_eq(wiz.level, 2)
 	assert_eq(wiz.team, "party")
 	var extra := _pc("cleric", 1)
 	assert_eq(Progression.recruit(w, extra), "camp", "활성 파티 4명이면 캠프에서 쉰다")

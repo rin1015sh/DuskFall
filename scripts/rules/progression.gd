@@ -216,9 +216,7 @@ static func recruit(world: Dictionary, c: Node) -> String:
 		return ""
 	c.team = "party"
 	c.awareness.clear()
-	# 경험치는 모두 같다: 영입한 동료를 파티 레벨로 맞춘다
-	while can_level_up(world, c):
-		level_up(world, c)
+	# 경험치는 모두 같지만 레벨은 자동으로 올리지 않는다: 파티원처럼 '레벨 업' 버튼으로 직접(클래스·주문·재주 고르기 — BG3식)
 	var party: Array = world.get("party", [])
 	if party.size() < PARTY_MAX:
 		party.append(c)
