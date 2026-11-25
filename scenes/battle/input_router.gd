@@ -3,6 +3,7 @@ extends RefCounted
 ##  마우스: 올리기 = 미리보기, 왼쪽 클릭 = 실행, 휠 = 확대, 오른쪽·가운데 끌기 = 화면 이동.
 ##  터치: 첫 탭 = 미리보기, 같은 칸 두 번째 탭 = 실행, 길게 누르기 = 정보, 한 손가락 끌기 = 화면 이동,
 ##        두 손가락 = 확대(핀치).
+##  터치에서 흉내 낸 마우스 이벤트(device = DEVICE_ID_EMULATION)는 무시한다 — 창·버튼용.
 ## 이 파일은 칸 좌표를 cell_at(화면 점) 콜백으로만 안다.
 
 signal preview(pos: Vector2)
@@ -32,6 +33,9 @@ var _pinch_dist := 0.0
 
 
 func handle(event: InputEvent, now_ms: int) -> void:
+	# 터치에서 흉내 낸 마우스(창·버튼이 터치를 받게 켠 것)는 터치로 이미 받았으니 버린다
+	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
 	if event is InputEventMouseMotion:
 		_mouse_motion(event)
 	elif event is InputEventMouseButton:

@@ -563,35 +563,37 @@ func _on_zoom(factor: float, _at: Vector2) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
+		# 자리 키로 판정: 아이패드 키보드가 한글 입력 상태면 keycode가 'ㅑ' 등으로 와서 I·K가 안 먹는다
+		var key: Key = event.physical_keycode if event.physical_keycode != KEY_NONE else event.keycode
 		var pan := {KEY_LEFT: Vector2(-40, 0), KEY_RIGHT: Vector2(40, 0), KEY_UP: Vector2(0, -40), KEY_DOWN: Vector2(0, 40)}
-		if pan.has(event.keycode):
+		if pan.has(key):
 			follow = false
-			cam_target += V.pan_delta(pan[event.keycode], cam_zoom)
-		elif event.keycode == KEY_I or event.keycode == KEY_C:
+			cam_target += V.pan_delta(pan[key], cam_zoom)
+		elif key == KEY_I or key == KEY_C:
 			_toggle_sheet()
-		elif event.keycode == KEY_K:
+		elif key == KEY_K:
 			_toggle_spellbook()
-		elif event.keycode == KEY_L:
+		elif key == KEY_L:
 			log_forced = not log_forced
 			_refresh()
-		elif (event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER) and not _picked.is_empty():
+		elif (key == KEY_ENTER or key == KEY_KP_ENTER) and not _picked.is_empty():
 			_cast_picked()
-		elif event.keycode >= KEY_0 and event.keycode <= KEY_9 and not event.echo:
+		elif key >= KEY_0 and key <= KEY_9 and not event.echo:
 			# BG3: 숫자키 = 단축 막대 칸(1~9, 0 = 10번째)
-			var idx := 9 if event.keycode == KEY_0 else int(event.keycode - KEY_1)
+			var idx := 9 if key == KEY_0 else int(key - KEY_1)
 			if idx < hotbar.slot_keys.size():
 				_on_action(str(hotbar.slot_keys[idx]))
-		elif event.keycode == KEY_SPACE and not event.echo and not exploring:
+		elif key == KEY_SPACE and not event.echo and not exploring:
 			_end_turn()  # BG3: Space = 턴 끝내기
-		elif event.keycode == KEY_H and not event.echo:
+		elif key == KEY_H and not event.echo:
 			_toggle_reveal_hp()  # 모든 HP 보기 켜고 끄기(iPad 키보드 — 누르고 있는 Shift 대신)
-		elif event.keycode == KEY_G and not event.echo:
+		elif key == KEY_G and not event.echo:
 			_toggle_highlight()  # 상호작용 물체 강조 켜고 끄기(누르고 있는 Alt 대신)
-		elif event.keycode == KEY_Z and not event.echo:
+		elif key == KEY_Z and not event.echo:
 			_on_action("jump")  # BG3: Z 점프
-		elif event.keycode == KEY_V and not event.echo:
+		elif key == KEY_V and not event.echo:
 			_on_action("shove")  # BG3: V 밀치기
-		elif event.keycode == KEY_ESCAPE:
+		elif key == KEY_ESCAPE:
 			if sheet.visible or spellbook.visible:
 				sheet.visible = false
 				spellbook.visible = false

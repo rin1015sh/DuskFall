@@ -6,7 +6,11 @@
 - 모바일 텍스처 압축 켬(ETC2/ASTC, `project.godot`의 `import_etc2_astc`).
 - `data/` JSON을 함께 넣는다(`include_filter`). 문서·테스트·도구는 뺀다.
 - `assets/audio/`는 뺀다: 받은 곳 라이선스를 확인하기 전에는 공개 배포 금지(README).
-- 터치는 입력 상태기계가 직접 받는다: 마우스 흉내 끔(`project.godot` `input_devices/pointing`).
+- 터치 → 마우스 흉내 켬(`project.godot` `input_devices/pointing`): 창·버튼(Control)은 마우스만 받아서 끄면 소지품 창 등이 터치에 안 먹는다.
+  맵 입력 상태기계(input_router.gd)는 터치를 직접 받고, 흉내 낸 마우스(device = DEVICE_ID_EMULATION)는 버린다.
+- 아이패드 키보드: 사파리는 tabindex 없는 캔버스에 포커스를 주지 않아 키가 body로 간다. 프리셋 `html/head_include` 스크립트가
+  캔버스에 tabindex를 달고, 터치하면 포커스를 주고, 캔버스 밖으로 간 키를 캔버스로 넘긴다.
+  게임은 자리 키(`physical_keycode`)로 판정한다 — 한글 입력 상태에서도 I·K·숫자키가 먹는다.
 
 ## 내보내기
 

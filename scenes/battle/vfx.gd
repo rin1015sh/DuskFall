@@ -174,6 +174,8 @@ func _draw() -> void:
 			"text":
 				var size := 26 if f.get("big", false) else 20
 				draw_set_transform(sp["at"], 0, Vector2(z, z))
-				var at := Vector2(-20, -30 * k)
-				draw_string_outline(font, at, f["text"], HORIZONTAL_ALIGNMENT_CENTER, 40, size, 5, Color(0, 0, 0, 1.0 - k))
-				draw_string(font, at, f["text"], HORIZONTAL_ALIGNMENT_CENTER, 40, size, Color(col, 1.0 - k * 0.8))
+				# 너비를 글자에 맞춘다(고정 너비면 '빗나감'이 '빗나'로 잘렸다)
+				var w := font.get_string_size(f["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+				var at := Vector2(-w / 2.0, -30 * k)
+				draw_string_outline(font, at, f["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, size, 5, Color(0, 0, 0, 1.0 - k))
+				draw_string(font, at, f["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(col, 1.0 - k * 0.8))

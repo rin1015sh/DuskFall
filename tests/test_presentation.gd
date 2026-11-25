@@ -239,6 +239,31 @@ func test_touch_first_tap_previews_second_confirms() -> void:
 	assert_eq(got.back()[0], "preview", "다른 칸 탭은 다시 미리보기")
 
 
+func test_touch_ignores_emulated_mouse() -> void:
+	# 창·버튼이 터치를 받도록 마우스 흉내를 켰다: 흉내 낸 마우스는 상태기계가 버려야 두 번 실행되지 않는다
+	assert_true(ProjectSettings.get_setting("input_devices/pointing/emulate_mouse_from_touch"), "터치 → 마우스 흉내 켬(GUI 터치)")
+	var rg := _router()
+	var r: RefCounted = rg[0]
+	var got: Array = rg[1]
+	var mv := InputEventMouseMotion.new()
+	mv.position = Vector2(150, 150)
+	mv.device = InputEvent.DEVICE_ID_EMULATION
+	r.handle(mv, 0)
+	var down := InputEventMouseButton.new()
+	down.button_index = MOUSE_BUTTON_LEFT
+	down.pressed = true
+	down.position = Vector2(150, 150)
+	down.device = InputEvent.DEVICE_ID_EMULATION
+	r.handle(down, 10)
+	var up := down.duplicate()
+	up.pressed = false
+	r.handle(up, 20)
+	assert_eq(got.size(), 0, "흉내 낸 마우스는 무시")
+	r.handle(_touch(0, Vector2(150, 150), true), 30)
+	r.handle(_touch(0, Vector2(150, 150), false), 40)
+	assert_eq(got.map(func(x: Array) -> String: return x[0]), ["preview"], "터치는 그대로 받는다")
+
+
 func test_touch_long_press_drag_and_pinch() -> void:
 	var rg := _router()
 	var r: RefCounted = rg[0]
