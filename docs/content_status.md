@@ -257,34 +257,34 @@
 | 1 | 신성한 손길 (lay_on_hands) |  | 스크립트 lay_on_hands |  |
 | 1 | 맹세 변환 (channel_oath) |  | 처리: 자원 channel_divinity |  |
 | 1 | 신성 감지 (divine_sense) |  | 스크립트 divine_sense |  |
+| 1 | 심문관의 힘 (inquisitors_might) | vengeance | 스크립트 oath_ally_condition |  |
+| 1 | 앙심 어린 고통 (spiteful_suffering) | oathbreaker | 스크립트 oath_save_condition |  |
+| 1 | 치유의 광휘 (healing_radiance) | ancients | 스크립트 healing_radiance |  |
+| 1 | 신성한 질책 (holy_rebuke) | devotion | 스크립트 holy_rebuke |  |
+| 1 | 올바른 명료함 (righteous_clarity) | crown | 스크립트 oath_ally_condition |  |
 | 2 | 전투 방식 (fighting_style) |  | 고르기(feat) |  |
 | 2 | 팔라딘의 강타 (paladins_smite) |  | 처리: 클래스 always_prepared(신성한 강타 — 슬롯으로, BG3 무료 횟수 없음) |  |
-| 3 | 신앙 없는 자 퇴치 (turn_the_faithless) | ancients | 스크립트 oath_turn |  |
 | 3 | 맹세 주문(복수) (oath_spells_vengeance) | vengeance | 처리: 하위 클래스 always_prepared |  |
-| 3 | 심문관의 힘 (inquisitors_might) | vengeance | 스크립트 oath_ally_condition |  |
 | 3 | 적 물리치기 (abjure_enemy) | vengeance | 스크립트 oath_save_condition |  |
 | 3 | 적대의 맹세 (vow_of_enmity) | vengeance | 스크립트 vow_of_enmity |  |
 | 3 | 맹세 주문(왕관) (oath_spells_crown) | crown | 처리: 하위 클래스 always_prepared |  |
-| 3 | 올바른 명료함 (righteous_clarity) | crown | 스크립트 oath_ally_condition |  |
 | 3 | 투사의 도전 (champion_challenge) | crown | 스크립트 champion_challenge |  |
 | 3 | 전세 역전 (turn_the_tide) | crown | 스크립트 turn_the_tide |  |
 | 3 | 파기자 주문 (oath_spells_oathbreaker) | oathbreaker | 처리: 하위 클래스 always_prepared |  |
-| 3 | 앙심 어린 고통 (spiteful_suffering) | oathbreaker | 스크립트 oath_save_condition |  |
 | 3 | 언데드 조종 (control_undead) | oathbreaker | 스크립트 control_undead |  |
 | 3 | 무시무시한 모습 (dreadful_aspect) | oathbreaker | 스크립트 dreadful_aspect |  |
-| 3 | 신성한 건강 (divine_health) |  | 처리: 질병 없음 |  |
-| 3 | 맹세 주문(헌신) (oath_spells_devotion) | devotion | 처리: 하위 클래스 always_prepared |  |
-| 3 | 신성한 질책 (holy_rebuke) | devotion | 스크립트 holy_rebuke |  |
-| 3 | 신성한 무기 (sacred_weapon) | devotion | 스크립트 sacred_weapon |  |
-| 3 | 부정한 것 퇴치 (turn_the_unholy) | devotion | 스크립트 oath_turn |  |
-| 3 | 맹세 주문(고대인) (oath_spells_ancients) | ancients | 처리: 하위 클래스 always_prepared |  |
-| 3 | 치유의 광휘 (healing_radiance) | ancients | 스크립트 healing_radiance |  |
+| 3 | 신앙 없는 자 퇴치 (turn_the_faithless) | ancients | 스크립트 oath_turn |  |
 | 3 | 자연의 분노 (natures_wrath) | ancients | 스크립트 oath_save_condition |  |
+| 3 | 맹세 주문(고대인) (oath_spells_ancients) | ancients | 처리: 하위 클래스 always_prepared |  |
+| 3 | 부정한 것 퇴치 (turn_the_unholy) | devotion | 스크립트 oath_turn |  |
+| 3 | 신성한 무기 (sacred_weapon) | devotion | 스크립트 sacred_weapon |  |
+| 3 | 맹세 주문(헌신) (oath_spells_devotion) | devotion | 처리: 하위 클래스 always_prepared |  |
+| 3 | 신성한 건강 (divine_health) |  | 처리: 질병 없음 |  |
 | 5 | 추가 공격 (extra_attack) |  | 태그 extra_attack; 부여 attacks_per_action |  |
 | 6 | 보호의 오라 (aura_of_protection) |  | 오라(auras.gd) |  |
+| 7 | 수호의 오라 (aura_of_warding) | ancients | 오라(auras.gd) |  |
 | 7 | 헌신의 오라 (aura_of_devotion) | devotion | 오라(auras.gd) |  |
 | 7 | 끈질긴 복수자 (relentless_avenger) | vengeance | 태그 relentless_avenger |  |
-| 7 | 수호의 오라 (aura_of_warding) | ancients | 오라(auras.gd) |  |
 | 7 | 신성한 충성 (divine_allegiance) | crown | 반응 |  |
 | 7 | 증오의 오라 (aura_of_hate) | oathbreaker | 오라(auras.gd) |  |
 | 10 | 용기의 오라 (aura_of_courage) |  | 오라(auras.gd) |  |
