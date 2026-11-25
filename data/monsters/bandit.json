@@ -9,6 +9,8 @@
   "creature_type": "humanoid",
   "cr": 0.125,
   "xp": 25,
+  "level": 1,
+  "xp_category": "combatant",
   "proficiency_bonus": 2,
   "ac": 12,
   "hp": 11,

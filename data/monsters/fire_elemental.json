@@ -9,6 +9,8 @@
   "creature_type": "elemental",
   "cr": 5,
   "xp": 1800,
+  "level": 7,
+  "xp_category": "combatant",
   "proficiency_bonus": 3,
   "ac": 13,
   "hp": 93,

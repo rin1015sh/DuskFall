@@ -9,6 +9,8 @@
   "creature_type": "dragon",
   "cr": 17,
   "xp": 18000,
+  "level": 12,
+  "xp_category": "boss",
   "proficiency_bonus": 6,
   "ac": 19,
   "hp": 256,

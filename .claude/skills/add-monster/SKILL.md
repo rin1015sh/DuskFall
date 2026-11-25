@@ -23,6 +23,9 @@ description: 몬스터·NPC 전투 데이터를 추가한다. SRD 몬스터 변�
 - 행동은 효과 모델로. 다중 공격은 `multiattack` 목록.
 - AI 힌트: 선호 거리, 고지 사용, 표면 회피, 도망 HP 비율.
 - 자체 몬스터는 비슷한 CR의 SRD 몬스터를 기준으로 수치를 잡고 근거를 적는다.
+- 경험치(BG3, 룰북 7단계): `cr`·`xp`는 SRD 참고값(밸런스용)으로 두고, 처치 경험치는 `level`(1~12)·`xp_category`로 정한다.
+  `level` 기본값은 `progression.json` `cr_to_level` 표(CR 1/4 이하 1, 1/2 → 2, 1 → 3, 2 → 4 …). 종류는 보통 `combatant`,
+  떼 짐승·졸개 `pack`, 우두머리 `elite`, 중간 보스 `miniboss`, 최종 보스 `boss`, 민간인 `civilian`, 소환수·동료 `zero`.
 
 ## 순서
 

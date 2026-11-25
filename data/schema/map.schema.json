@@ -655,16 +655,28 @@
         "type": "object",
         "required": [
           "zone",
-          "xp"
+          "step"
         ],
         "additionalProperties": false,
         "properties": {
           "zone": {
             "type": "string"
           },
-          "xp": {
-            "type": "integer",
-            "minimum": 0
+          "step": {
+            "enum": [
+              "combat_close_booster",
+              "combat_close_major",
+              "progress_booster",
+              "progress_major",
+              "close_booster_easy",
+              "combat_close_main",
+              "close_booster_hard",
+              "progress_main",
+              "close_major",
+              "bypassed_combat_medium",
+              "close_main"
+            ],
+            "$comment": "구역을 정리하면 BG3 퀘스트 단계 경험치(구역 레벨 × 종류, progression.json quest_step_xp)"
           }
         }
       }
@@ -756,6 +768,52 @@
           },
           "note_ko": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "area_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "$comment": "BG3 구역 레벨: 처치 경험치는 max(적 레벨, 구역 레벨), 퀘스트 단계 경험치의 행. 없으면 1"
+    },
+    "discoveries": {
+      "type": "array",
+      "$comment": "장소 발견 경험치: 파티원이 구역(zones)에 처음 들어가면 크기 × 파티 평균 레벨(progression.json discovery_xp)",
+      "items": {
+        "type": "object",
+        "required": [
+          "zone",
+          "size",
+          "name"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "zone": {
+            "type": "string"
+          },
+          "size": {
+            "enum": [
+              "small",
+              "medium",
+              "big"
+            ]
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "ko",
+              "en"
+            ],
+            "properties": {
+              "ko": {
+                "type": "string"
+              },
+              "en": {
+                "type": "string"
+              }
+            }
           }
         }
       }

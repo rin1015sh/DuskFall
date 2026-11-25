@@ -71,8 +71,9 @@ static func load_into(grid: Node, surfaces: Node, map: Dictionary) -> Dictionary
 		traps.append(tt)
 	var rewards := {}
 	for r: Dictionary in map.get("zone_rewards", []):
-		rewards[r["zone"]] = int(r["xp"])
-	return {"spawns": spawns, "spawn_info": info, "zone_rewards": rewards, "traps": traps, "examines": map.get("examines", []).duplicate(true)}
+		rewards[r["zone"]] = str(r["step"])  # BG3 퀘스트 단계 종류(경험치는 구역 레벨로 — Levels.quest_step_xp)
+	return {"spawns": spawns, "spawn_info": info, "zone_rewards": rewards, "traps": traps, "examines": map.get("examines", []).duplicate(true),
+		"area_level": int(map.get("area_level", 1)), "discoveries": map.get("discoveries", []).duplicate(true)}
 
 
 static func _rect(r: Array) -> Array[Vector2i]:

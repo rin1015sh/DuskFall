@@ -123,10 +123,21 @@
       ]
     }
   ],
+  "area_level": 1,
   "zone_rewards": [
     {
       "zone": "hill",
-      "xp": 200
+      "step": "combat_close_major"
+    }
+  ],
+  "discoveries": [
+    {
+      "zone": "hill",
+      "size": "small",
+      "name": {
+        "ko": "바위 언덕",
+        "en": "Rocky Hill"
+      }
     }
   ],
   "objects": [

@@ -61,6 +61,132 @@
     "multiclass_slots": {
       "$comment": "SRD 멀티클래스 시전자 슬롯표",
       "type": "object"
+    },
+    "creature_xp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "categories",
+        "rows"
+      ],
+      "properties": {
+        "note_ko": {
+          "type": "string"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "quest_step_xp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kinds",
+        "rows"
+      ],
+      "properties": {
+        "note_ko": {
+          "type": "string"
+        },
+        "kinds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "discovery_xp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sizes",
+        "rows"
+      ],
+      "properties": {
+        "note_ko": {
+          "type": "string"
+        },
+        "sizes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "cr_to_level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rows"
+      ],
+      "properties": {
+        "note_ko": {
+          "type": "string"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "cr_max",
+              "level"
+            ],
+            "properties": {
+              "cr_max": {
+                "type": "number"
+              },
+              "level": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 12
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

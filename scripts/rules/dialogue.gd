@@ -179,12 +179,19 @@ func _apply(effects: Array) -> void:
 					if c.dead:
 						Rest.camp_revive(world, c)
 			"pacify":
-				# 평화 해결: 상대 세력 전원이 중립이 된다(구역 보상은 적이 남지 않으면 받는다)
+				# 평화 해결: 상대 세력 전원이 중립이 된다(구역 보상은 적이 남지 않으면 받는다).
+				# BG3: 말로 피한 전투도 그 적들의 처치 경험치를 준다(나중에 죽여도 다시 주지 않는다 — xp_given)
 				if npc != null:
+					var xp := 0
 					for o: Node in world["grid"].creatures():
 						if o == npc or (npc.faction != "" and o.faction == npc.faction):
+							if o.team == "enemy" and not o.get_meta("xp_given", false):
+								o.set_meta("xp_given", true)
+								xp += Progression.defeat_xp(world, o)
 							o.team = "neutral"
 							o.awareness.clear()
+					if xp > 0:
+						Progression.award(world, xp, "평화 해결")
 			"recruit":
 				if npc != null:
 					Progression.recruit(world, npc)

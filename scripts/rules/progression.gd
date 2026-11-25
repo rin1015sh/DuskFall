@@ -1,6 +1,6 @@
 extends RefCounted
 ## 경험치·레벨 업·동료 영입(룰북 7단계 '캠프와 동료': 영입한 동료 전원이 같은 경험치, 레벨업은 전투 밖 언제나,
-## SRD 경험치 표·상한은 data/rules/progression.json). 경험치는 파티 공용 world["xp"].
+## BG3 경험치 표·상한·보상 표는 data/rules/progression.json). 경험치는 파티 공용 world["xp"].
 
 const SpellPrep := preload("res://scripts/rules/spell_prep.gd")
 const Builder := preload("res://scripts/rules/character_builder.gd")
@@ -23,13 +23,34 @@ static func award(world: Dictionary, xp: int, why: String = "") -> void:
 	Dice.log_text("경험치 +%d%s (합계 %d)" % [xp, " — " + why if why != "" else "", world["xp"]])
 
 
-## 쓰러뜨린 적의 경험치(몬스터 데이터 xp)를 모은다. 전투가 끝날 때 부른다.
+## 활성 파티 평균 레벨(올림) — 장소 발견 경험치의 행(BG3 싱글 플레이)
+static func party_level(world: Dictionary) -> int:
+	var ps: Array = world.get("party", [])
+	if ps.is_empty():
+		return 1
+	var sum := 0
+	for p: Node in ps:
+		sum += int(p.level)
+	return ceili(float(sum) / ps.size())
+
+
+## 한 적의 처치 경험치(BG3): 몬스터 level × xp_category, 구역 레벨이 더 높으면 구역 레벨(progression.json creature_xp).
+## level이 없으면 도전지수로 바꾼 레벨, 종류가 없으면 combatant. 몬스터가 아닌 생물(캐릭터)은 0.
+static func defeat_xp(world: Dictionary, f: Node) -> int:
+	var m: Dictionary = f.get_meta("monster", {})
+	if m.is_empty():
+		return 0
+	var lv := int(m.get("level", Levels.level_from_cr(float(m.get("cr", 0)))))
+	return Levels.creature_xp(mini(lv, 12), str(m.get("xp_category", "combatant")), int(world.get("area_level", 1)))
+
+
+## 쓰러뜨린 적의 경험치를 모은다(defeat_xp). 전투가 끝날 때·구역을 정리했을 때 부른다.
 static func award_defeated(world: Dictionary, foes: Array) -> int:
 	var total := 0
 	for f: Node in foes:
 		if f.dead and not f.get_meta("xp_given", false):
 			f.set_meta("xp_given", true)
-			total += int(f.get_meta("monster", {}).get("xp", 0))
+			total += defeat_xp(world, f)
 	if total > 0:
 		award(world, total, "전투")
 	return total

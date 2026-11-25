@@ -9,6 +9,8 @@
   "creature_type": "beast",
   "cr": 2,
   "xp": 450,
+  "level": 4,
+  "xp_category": "combatant",
   "proficiency_bonus": 2,
   "ac": 13,
   "hp": 52,

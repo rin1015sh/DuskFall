@@ -9,6 +9,8 @@
   "creature_type": "fiend",
   "cr": 11,
   "xp": 7200,
+  "level": 11,
+  "xp_category": "combatant",
   "proficiency_bonus": 4,
   "ac": 18,
   "hp": 199,

@@ -9,6 +9,8 @@
   "creature_type": "monstrosity",
   "cr": 3,
   "xp": 700,
+  "level": 5,
+  "xp_category": "combatant",
   "proficiency_bonus": 2,
   "ac": 13,
   "hp": 59,

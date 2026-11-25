@@ -9,6 +9,8 @@
   "creature_type": "undead",
   "cr": 0.25,
   "xp": 50,
+  "level": 1,
+  "xp_category": "combatant",
   "proficiency_bonus": 2,
   "ac": 8,
   "hp": 15,

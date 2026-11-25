@@ -9,6 +9,8 @@
   "creature_type": "humanoid",
   "cr": 2,
   "xp": 450,
+  "level": 4,
+  "xp_category": "elite",
   "proficiency_bonus": 2,
   "ac": 15,
   "hp": 52,

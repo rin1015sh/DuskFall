@@ -9,6 +9,8 @@
   "creature_type": "fey",
   "cr": 1,
   "xp": 200,
+  "level": 3,
+  "xp_category": "elite",
   "proficiency_bonus": 2,
   "ac": 17,
   "hp": 21,

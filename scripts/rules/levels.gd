@@ -44,3 +44,39 @@ static func level_for(xp: int) -> int:
 static func multiclass_slots(caster_level: int) -> Array:
 	var t: Dictionary = _table().get("multiclass_slots", {})
 	return t.get(str(clampi(caster_level, 1, 20)), [])
+
+
+# ---------- 경험치 보상 표(BG3 — progression.json, bg3.wiki Experience) ----------
+
+static func _cell(table_key: String, col_key: String, col: String, row_level: int) -> int:
+	var t: Dictionary = _table().get(table_key, {})
+	var cols: Array = t.get(col_key, [])
+	var rows: Array = t.get("rows", [])
+	var ci := cols.find(col)
+	if ci < 0 or rows.is_empty():
+		return 0
+	var r: Array = rows[clampi(row_level, 1, rows.size()) - 1]
+	return int(r[ci]) if ci < r.size() else 0
+
+
+## 적 처치 경험치: 보상 레벨(적 레벨과 구역 레벨 중 큰 값, 13 이상은 12) × 보상 종류(zero·civilian·pack·combatant·elite·miniboss·boss)
+static func creature_xp(level: int, category: String, area_level: int = 1) -> int:
+	return _cell("creature_xp", "categories", category, maxi(level, area_level))
+
+
+## 퀘스트 단계 경험치(구역 레벨 × 종류 — 예: combat_close_major)
+static func quest_step_xp(kind: String, area_level: int) -> int:
+	return _cell("quest_step_xp", "kinds", kind, area_level)
+
+
+## 장소 발견 경험치(활성 파티 평균 레벨 올림 × 크기 small·medium·big)
+static func discovery_xp(size: String, party_level: int) -> int:
+	return _cell("discovery_xp", "sizes", size, party_level)
+
+
+## SRD 도전지수 → BG3식 몬스터 레벨(몬스터 데이터 level이 없을 때의 기본값)
+static func level_from_cr(cr: float) -> int:
+	for r: Dictionary in _table().get("cr_to_level", {}).get("rows", []):
+		if cr <= float(r["cr_max"]) + 0.0001:
+			return int(r["level"])
+	return 12

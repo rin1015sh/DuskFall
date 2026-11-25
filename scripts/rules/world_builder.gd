@@ -66,6 +66,8 @@ static func build(map_id: String, opts: Dictionary = {}) -> Dictionary:
 	world["traps"] = loaded["traps"]
 	world["examines"] = loaded["examines"]
 	world["zone_rewards"] = loaded.get("zone_rewards", {})
+	world["area_level"] = int(loaded.get("area_level", 1))
+	world["discoveries"] = loaded.get("discoveries", [])
 	world["map_id"] = map_id
 	# 시작 소지품(BG3식 캐릭터마다): 금화는 나눠 갖고, 도구·식량은 앞 캐릭터, 치유 물약은 앞 두 명에게 1개씩
 	world["stash"] = {}

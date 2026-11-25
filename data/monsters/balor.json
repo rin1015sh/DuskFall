@@ -9,6 +9,8 @@
   "creature_type": "fiend",
   "cr": 19,
   "xp": 22000,
+  "level": 12,
+  "xp_category": "boss",
   "proficiency_bonus": 6,
   "ac": 19,
   "hp": 287,

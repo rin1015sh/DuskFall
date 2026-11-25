@@ -9,6 +9,8 @@
   "creature_type": "giant",
   "cr": 13,
   "xp": 10000,
+  "level": 12,
+  "xp_category": "combatant",
   "proficiency_bonus": 5,
   "ac": 16,
   "hp": 230,

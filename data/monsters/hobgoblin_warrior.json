@@ -9,6 +9,8 @@
   "creature_type": "fey",
   "cr": 0.5,
   "xp": 100,
+  "level": 2,
+  "xp_category": "combatant",
   "proficiency_bonus": 2,
   "ac": 18,
   "hp": 11,

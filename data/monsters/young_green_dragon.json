@@ -9,6 +9,8 @@
   "creature_type": "dragon",
   "cr": 8,
   "xp": 3900,
+  "level": 9,
+  "xp_category": "miniboss",
   "proficiency_bonus": 3,
   "ac": 18,
   "hp": 136,

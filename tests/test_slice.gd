@@ -85,7 +85,7 @@ func test_detected_by_talker_opens_dialogue_not_combat() -> void:
 	assert_eq(w["pending_dialogue"]["npc"], boss)
 	# 평화 해결 → 세력 전원 중립, 구역 보상
 	w.erase("pending_dialogue")
-	w["zone_rewards"] = {"road": 100}
+	w["zone_rewards"] = {"road": "combat_close_major"}
 	p.inventory["gold"] = 0
 	Dice.force([20, 20])  # 통찰 성공, 위협 성공
 	var d: RefCounted = Dialogue.start(w, "goblin_toll", p, boss)
@@ -93,9 +93,9 @@ func test_detected_by_talker_opens_dialogue_not_combat() -> void:
 	d.choose(idx)
 	assert_eq(mook.team, "neutral", "물러난 세력은 중립")
 	ex.check_zone_rewards()
-	assert_eq(w["xp"], 100, "적이 남지 않으면 구역 보상")
+	assert_eq(w["xp"], 5, "적이 남지 않으면 구역 보상(BG3 퀘스트 단계 combat_close_major, 구역 레벨 1 = 5)")
 	ex.check_zone_rewards()
-	assert_eq(w["xp"], 100, "한 번만")
+	assert_eq(w["xp"], 5, "한 번만")
 
 
 func test_zone_reward_includes_defeated_monster_xp() -> void:
@@ -106,10 +106,10 @@ func test_zone_reward_includes_defeated_monster_xp() -> void:
 	var gob: Node = own(load("res://scripts/rules/monster_factory.gd").spawn("goblin_warrior"))
 	g.place(gob, Vector2i(3, 0))
 	gob.dead = true
-	w["zone_rewards"] = {"pit": 0}
+	w["zone_rewards"] = {"pit": "combat_close_booster"}
 	var ex: Node = own(ExplorationScript.new().setup(w, []))
 	ex.check_zone_rewards()
-	assert_eq(w["xp"], 50, "고블린 전사 XP 50(SRD)")
+	assert_eq(w["xp"], 10 + 5, "고블린 전사 1레벨 전투원 10(BG3) + 구역 보상 5")
 
 
 func test_fallen_watch_map_is_sound() -> void:
@@ -143,7 +143,9 @@ func test_fallen_watch_map_is_sound() -> void:
 	var ogre: Node = b["foes"].filter(func(c: Node) -> bool: return c.name == "cliff_ogre_a")[0]
 	for cell in g.occupied_cells(ogre):
 		assert_eq(g.height(cell), 3)
-	assert_eq(w["zone_rewards"]["cave"], 700)
+	assert_eq(w["zone_rewards"]["cave"], "combat_close_major")
+	assert_eq(w["area_level"], 1)
+	assert_eq(w["discoveries"].size(), 2)
 	load("res://scripts/rules/spellcasting.gd").instances.clear()
 
 

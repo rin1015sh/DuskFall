@@ -15,7 +15,7 @@ description: 새 맵(구역)을 설계하고 만든다. 지형·높이·빛·표
 
 - 맵 한 장 = `data/maps/<id>.json`(스키마 `data/schema/map.schema.json`). 씬 파일은 없다 — 표현 계층(scenes/battle/map_view.gd, 3D)이 데이터를 읽어 그린다.
 - 규칙 데이터: 글자 지도 `rows` + 범례 `legend`(글자 → material·height·surface·flags), `light`·`light_rects`·`light_sources`, `flags`·`flag_rects`
-  (difficult·impassable·climb·no_camp), `zones`(전투 구역)·`zone_rewards`, `objects`(물체·상자·자물쇠), `traps`, `examines`, `spawns`(파티·몬스터·동료·대화), `transitions`.
+  (difficult·impassable·climb·no_camp), `zones`(전투 구역)·`zone_rewards`(구역 정리 = BG3 퀘스트 단계 종류 `step`)·`area_level`(BG3 구역 레벨 — 처치·퀘스트 경험치)·`discoveries`(장소 발견 경험치 — 구역·크기 small/medium/big·이름), `objects`(물체·상자·자물쇠), `traps`, `examines`, `spawns`(파티·몬스터·동료·대화), `transitions`.
 - 그림: `art` — wall·wall_top·cliff·floors(범례 글자 → 키트 바닥)·props(키트 물건 at/id/v). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`.
 - 언덕·절벽 지형: `art.terrain: "natural"`이면 높이 차 1단계 = 부드러운 비탈, 2단계 이상 = 바위 절벽(`art.cliff_rock`, 자동 장식 `art.cliff_decor`, 사다리 `art.climb_art`).
 - 지형 프리셋 도장: `stamps: [{"preset", "at": [x, y], "rot": 0|90|180|270, "flip", "base"}]` — `data/content/terrain_presets.json`의 프리셋

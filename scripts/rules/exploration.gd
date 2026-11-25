@@ -251,11 +251,33 @@ func _on_enter_tile(c: Object, cell: Vector2i) -> void:
 				world["pending_travel"] = {"to": tr["to"], "spawn": tr["spawn"]}  # 화면이 맵을 바꾼다
 	if c in party:
 		Interact.on_party_enter(world, c)
+		_check_discovery(cell)
 		_check_cones_for(c)
 	else:
 		# 적이 움직이면 그 적의 원뿔도 다시 본다
 		for p: Node in party:
 			_observe(c, p)
+
+
+## 장소 발견(BG3): 파티원이 발견 구역에 처음 들어가면 크기 × 파티 평균 레벨 경험치. 맵마다 한 번(world["discovered"]).
+func _check_discovery(cell: Vector2i) -> void:
+	var ds: Array = world.get("discoveries", [])
+	if ds.is_empty():
+		return
+	var zs: PackedStringArray = world["grid"].zones(cell)
+	if zs.is_empty():
+		return
+	if not world.has("discovered"):
+		world["discovered"] = {}
+	for d: Dictionary in ds:
+		var key := "%s:%s" % [world.get("map_id", ""), d["zone"]]
+		if not d["zone"] in zs or world["discovered"].has(key):
+			continue
+		world["discovered"][key] = true
+		var P: Variant = load("res://scripts/rules/progression.gd")
+		var xp: int = P.Levels.discovery_xp(str(d["size"]), P.party_level(world))
+		var nm: Dictionary = d.get("name", {})
+		P.award(world, xp, "장소 발견: " + str(nm.get("ko", d["zone"])))
 
 
 func _check_cones_for(target: Node) -> void:
@@ -464,8 +486,9 @@ func check_zone_rewards() -> void:
 			world["zones_cleared"][z] = true
 			var P: Variant = load("res://scripts/rules/progression.gd")
 			P.award_defeated(world, grid.creatures())
-			if int(rewards[z]) > 0:
-				P.award(world, int(rewards[z]), "구역 정리: " + z)
+			var xp: int = P.Levels.quest_step_xp(str(rewards[z]), int(world.get("area_level", 1)))
+			if xp > 0:
+				P.award(world, xp, "구역 정리: " + z)
 
 
 # ---------- 전투 시작 ----------

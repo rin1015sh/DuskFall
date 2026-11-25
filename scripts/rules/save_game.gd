@@ -8,7 +8,7 @@ const VERSION := 1
 const SAVE_DIR := "user://saves"
 ## 세계에서 그대로 저장하는 값
 const WORLD_KEYS := ["stash", "inspiration", "short_rests_left", "party_resources", "dialogue_tags", "flags",
-	"goals_done", "xp", "options", "map_id", "traps", "examines", "zones_cleared"]
+	"goals_done", "xp", "options", "map_id", "traps", "examines", "zones_cleared", "discovered"]
 const CREATURE_KEYS := ["hp", "hp_max", "temp_hp", "dead", "stable", "death_saves", "team", "sneaking", "level", "faction",
 	"spells", "spellbook", "prepared", "prep_swaps", "prep_base", "known_reactions", "inventory", "equipment"]
 ## 생물 메타 중 저장하는 것(대화를 이미 했는지, 경험치를 이미 줬는지, 레벨 업 명세)
@@ -88,7 +88,7 @@ static func restore(world: Dictionary, snap: Dictionary, opts: Dictionary = {}) 
 	if int(snap.get("version", 0)) != VERSION:
 		return false
 	for k: String in snap["world"]:
-		if opts.get("skip", []).is_empty() or k in ["traps", "examines", "zones_cleared", "map_id"]:
+		if opts.get("skip", []).is_empty() or k in ["traps", "examines", "zones_cleared", "discovered", "map_id"]:
 			world[k] = snap["world"][k]  # 맵 이동이면 맵 고유 값만(소지품 등은 들고 온 값)
 	var grid: Node = world["grid"]
 	var by_name := {}
