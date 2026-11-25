@@ -236,3 +236,28 @@ func test_cone_edge_counts_as_in_sight() -> void:
 	assert_true(edge.x >= 0, "원뿔 가장자리에 걸친 칸이 있다")
 	g.place(p, edge)
 	assert_eq(Stealth.sight_of(g, o, p), "bright", "걸친 칸도 시야 안: 밝으면 발견(완전히 벗어나야 안전)")
+
+
+func test_wasd_step_dir() -> void:
+	# WASD 직접 걷기: 한 칸씩, 대각선이 막히면 가로·세로로, 벽이면 안 걷고 돌아가는 길도 찾지 않는다
+	var w := make_world([
+		".....",
+		"..#..",
+		".....",
+	])
+	var g: Node = w["grid"]
+	var a := make_creature({"team": "party"})
+	var b := make_creature({"team": "party"})
+	g.place(a, Vector2i(1, 2))
+	g.place(b, Vector2i(0, 2))
+	var ex: Node = own(ExplorationScript.new().setup(w, [a, b]))
+	assert_true(ex.step_dir(a, Vector2i(1, 0)), "D = 동쪽 한 칸")
+	assert_eq(g.cell_of(a), Vector2i(2, 2))
+	assert_eq(g.cell_of(b), Vector2i(1, 2), "묶인 파티원이 따라온다")
+	assert_false(ex.step_dir(a, Vector2i(0, -1)), "벽이면 걷지 않는다(돌아가지 않음)")
+	assert_eq(g.cell_of(a), Vector2i(2, 2))
+	assert_true(ex.step_dir(a, Vector2i(1, -1)), "벽 모서리 대각선은 못 지나 되는 쪽(동)으로")
+	assert_eq(g.cell_of(a), Vector2i(3, 2))
+	assert_true(ex.step_dir(a, Vector2i(1, -1)), "대각선(W+D)")
+	assert_eq(g.cell_of(a), Vector2i(4, 1))
+	assert_false(ex.step_dir(a, Vector2i.ZERO))

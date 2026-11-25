@@ -12,6 +12,7 @@ const Actions := preload("res://scripts/rules/actions.gd")
 const UiText := preload("res://scenes/ui/ui_text.gd")
 const S := preload("res://scenes/ui/ui_style.gd")
 const ActionIcons := preload("res://scenes/ui/action_icons.gd")
+const ActionInfo := preload("res://scenes/ui/action_info.gd")
 const SLOT := Vector2(46, 46)
 const SCHOOL_COLOR := {"evocation": Color("8a4a33"), "abjuration": Color("3f5f80"), "conjuration": Color("7d6a3a"),
 	"divination": Color("4f6f7f"), "enchantment": Color("7a4a6a"), "illusion": Color("5d4f82"),
@@ -353,13 +354,7 @@ func _slot(world: Dictionary, c: Node, key: String, explore: bool) -> Control:
 		cl.position = Vector2(SLOT.x - 13, SLOT.y - 19)
 		cl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(cl)
-	var tip := "%s\n%s · %s" % [UiText.name_of(d.get("name", {})), UiText.t("cost_" + str(d.get("cost", "action"))),
-		UiText.t("target_" + str(d.get("target", "self")))]
-	var desc := UiText.name_of(d.get("desc", {}))
-	if desc != "":
-		tip += "\n" + desc
-	if why != "":
-		tip += "\n— " + why
+	var tip := ActionInfo.tooltip(world, c, key, explore)
 	b.tooltip_text = tip
 	b.pressed.connect(func() -> void: action_chosen.emit(key))
 	return b

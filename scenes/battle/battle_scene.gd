@@ -13,6 +13,7 @@ const MapLoader := preload("res://scripts/rules/map_loader.gd")
 const MapView := preload("res://scenes/battle/map_view.gd")
 const ActorView := preload("res://scenes/battle/actor_view.gd")
 const InputRouter := preload("res://scenes/battle/input_router.gd")
+const ActionInfo := preload("res://scenes/ui/action_info.gd")
 const UiText := preload("res://scenes/ui/ui_text.gd")
 const Combat := preload("res://scripts/rules/combat.gd")
 const Physics := preload("res://scripts/rules/physics.gd")
@@ -69,6 +70,15 @@ var hp_btn: Button
 var hl_btn: Button
 var _picked_mode := ""
 var cast_now_btn: Button
+## 고른 행동 설명 카드(아이패드 — 마우스 올리기 툴팁 대신, BG3 콘솔식): 단축 막대 위에 고르는 동안 떠 있다
+var info_card: PanelContainer
+var info_title: Label
+var info_body: Label
+var info_hint: Label
+## 마지막 입력이 터치인가(터치면 자신 대상 행동도 '고르기 → 같은 칸 다시 누르기 = 실행')
+var touch_ui := false
+## 터치로 골라 둔 자신 대상 행동(다시 누르면 실행)
+var armed_self := ""
 var preview_cell := Vector2i(-1, -1)
 var preview_data := {}
 var busy := false
@@ -561,11 +571,78 @@ func _on_zoom(factor: float, _at: Vector2) -> void:
 	cam_zoom = clampf(cam_zoom * factor, 0.4, 2.2)
 
 
+func _input(event: InputEvent) -> void:
+	# 마지막 입력 장치(터치·진짜 마우스)만 기록한다 — 이벤트는 소비하지 않는다
+	if event is InputEventScreenTouch:
+		touch_ui = true
+	elif event is InputEventMouseMotion and event.device != InputEvent.DEVICE_ID_EMULATION and event.relative.length() > 0.5:
+		touch_ui = false
+
+
+func _build_info_card(parent: Control) -> void:
+	info_card = PanelContainer.new()
+	info_card.add_theme_stylebox_override("panel", S.panel(12, S.BRONZE, S.BG, 2))
+	info_card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	info_card.custom_minimum_size = Vector2(380, 0)
+	info_card.visible = false
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	info_card.add_child(row)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 2)
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(col)
+	info_title = S.title("", 18)
+	col.add_child(info_title)
+	info_body = Label.new()
+	info_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info_body.custom_minimum_size = Vector2(360, 0)
+	info_body.add_theme_font_size_override("font_size", 13)
+	info_body.add_theme_color_override("font_color", S.TEXT)
+	col.add_child(info_body)
+	info_hint = Label.new()
+	info_hint.add_theme_font_size_override("font_size", 12)
+	info_hint.add_theme_color_override("font_color", S.GOLD_SOFT)
+	col.add_child(info_hint)
+	var x := Button.new()
+	x.text = "×"
+	x.focus_mode = Control.FOCUS_NONE
+	x.custom_minimum_size = Vector2(40, 40)
+	x.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	x.pressed.connect(_cancel_mode)
+	row.add_child(x)
+	parent.add_child(info_card)
+
+
+## 고른 행동이 있으면 설명 카드를 채워 보인다(대상 고르는 동안 계속).
+func _update_info_card() -> void:
+	if info_card == null:
+		return
+	var key: String = hotbar.selected_key if hotbar != null else ""
+	if key == "" or selected == null:
+		info_card.visible = false
+		return
+	var i := ActionInfo.describe(world, selected, key, exploring)
+	info_title.text = i["title"]
+	var lines: PackedStringArray = [i["meta"]]
+	for k: String in ["dice", "desc"]:
+		if i[k] != "":
+			lines.append(i[k])
+	if i["why"] != "":
+		lines.append("— " + i["why"])
+	info_body.text = "\n".join(lines)
+	info_hint.text = UiText.t("info_tap_again") if armed_self == key else UiText.t("info_pick_target")
+	info_card.visible = true
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		# 자리 키로 판정: 아이패드 키보드가 한글 입력 상태면 keycode가 'ㅑ' 등으로 와서 I·K가 안 먹는다
 		var key: Key = event.physical_keycode if event.physical_keycode != KEY_NONE else event.keycode
 		var pan := {KEY_LEFT: Vector2(-40, 0), KEY_RIGHT: Vector2(40, 0), KEY_UP: Vector2(0, -40), KEY_DOWN: Vector2(0, 40)}
+		if not exploring:
+			# 전투 중 WASD = 화면 이동(탐험 중에는 _wasd_walk가 캐릭터를 걷게 한다)
+			pan.merge({KEY_A: Vector2(-40, 0), KEY_D: Vector2(40, 0), KEY_W: Vector2(0, -40), KEY_S: Vector2(0, 40)})
 		if pan.has(key):
 			follow = false
 			cam_target += V.pan_delta(pan[key], cam_zoom)
@@ -612,6 +689,7 @@ func _process(delta: float) -> void:
 			explore.tick()
 			_refresh()
 			_check_combat()
+	_wasd_walk()
 	if follow and selected != null and views.has(selected):
 		cam_target = cam_target.lerp(views[selected].position + FOLLOW_UP, minf(1.0, delta * 4.0))
 	_apply_camera()
@@ -627,9 +705,41 @@ func _process(delta: float) -> void:
 			mode = args["mode"]
 		var hv: PackedStringArray = args["hover"].split(",")
 		_show_preview(Vector2i(int(hv[0]), int(hv[1])))
+	if args.has("action") and _frames == int(args.get("frames", "30")) - 5:
+		# 캡처용: --action=<행동 키> 단축 막대에서 고른 것처럼(설명 카드), --touch면 터치로
+		touch_ui = args.has("touch")
+		_on_action(args["action"])
 	if args.has("shot") and _frames == int(args.get("frames", "30")):
 		get_viewport().get_texture().get_image().save_png(args["shot"])
 		get_tree().quit()
+
+
+## 탐험 중 WASD = 고른 캐릭터 직접 걷기(컨트롤러식, 화면 기준 — 카메라 회전 없음: W 북·S 남·A 서·D 동, 둘 누르면 대각선).
+## 누르고 있는 동안 걸음이 끝나 갈 때마다 한 칸씩. 묶인 파티원은 따라온다(Exploration.step_dir).
+func _wasd_walk() -> void:
+	if not exploring or dlg != null or selected == null or selected.team != "party" or not views.has(selected):
+		return
+	if (sheet != null and sheet.visible) or (spellbook != null and spellbook.visible):
+		return
+	var fo := get_viewport().gui_get_focus_owner()
+	if fo is LineEdit or fo is TextEdit:
+		return
+	var d := Vector2i.ZERO
+	if Input.is_physical_key_pressed(KEY_W):
+		d.y -= 1
+	if Input.is_physical_key_pressed(KEY_S):
+		d.y += 1
+	if Input.is_physical_key_pressed(KEY_A):
+		d.x -= 1
+	if Input.is_physical_key_pressed(KEY_D):
+		d.x += 1
+	if d == Vector2i.ZERO or views[selected].steps_left() > 1:
+		return
+	if explore.step_dir(selected, d):
+		follow = true
+		_clear_preview()
+		_refresh()
+		_check_combat()
 
 
 # ======================================================================
@@ -731,6 +841,7 @@ func _toggle_highlight() -> void:
 
 ## 고르던 행동·대상 취소(Esc·우클릭 — BG3).
 func _cancel_mode() -> void:
+	armed_self = ""
 	_picked = []
 	_picked_mode = ""
 	mode = "move"
@@ -1662,6 +1773,7 @@ func _build_ui() -> void:
 	bottom.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	bottom.offset_bottom = -6
 	root.add_child(bottom)
+	_build_info_card(bottom)
 	status_label = Label.new()
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.add_theme_font_size_override("font_size", 13)
@@ -1808,6 +1920,7 @@ func _refresh() -> void:
 	var tm: Node = world["turns"]
 	party = world.get("party", party)
 	world["active"] = selected  # 받는 사람을 안 정한 소지품(대화 보상 등)은 고른 캐릭터에게
+	_update_info_card()
 	for v in views.values():
 		v.current = v.creature in tm.current_group()
 		v.selected = v.creature == selected
@@ -2069,10 +2182,22 @@ func _on_action(key: String) -> void:
 		return
 	if not exploring and not world["turns"].is_current(selected):
 		return
+	if mode == "act:" + key:
+		_cancel_mode()  # 고른 칸을 다시 누르면 취소(터치에 Esc가 없다)
+		return
 	var d := Actions.def_of(key)
 	if d.get("target", "self") == "self":
+		if touch_ui and armed_self != key:
+			# 터치: 첫 누르기 = 고르고 설명 카드, 같은 칸 다시 누르기 = 실행
+			_cancel_mode()
+			armed_self = key
+			hotbar.selected_key = key
+			_refresh()
+			return
+		armed_self = ""
 		_act_execute(key, world["grid"].cell_of(selected))
 		return
+	armed_self = ""
 	mode = "act:" + key
 	hotbar.selected_key = key
 	_clear_preview()
@@ -2085,6 +2210,7 @@ func _act_execute(key: String, cell: Vector2i) -> void:
 	if r.get("ok", false) and world["grid"].creature_at(cell) != null and cell != world["grid"].cell_of(selected):
 		views[selected].face_toward(cell)
 	mode = "move"
+	armed_self = ""
 	hotbar.selected_key = ""
 	map_view.refresh()
 	_clear_preview()

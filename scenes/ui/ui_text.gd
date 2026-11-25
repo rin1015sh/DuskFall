@@ -120,6 +120,17 @@ const TEXT := {
 	"target_ally": {"ko": "아군", "en": "Ally"},
 	"target_ally_down": {"ko": "쓰러진 아군", "en": "Downed ally"},
 	"target_creature": {"ko": "생물", "en": "Creature"},
+	"info_cantrip": {"ko": "소마법", "en": "Cantrip"},
+	"info_spell_level": {"ko": "%d레벨 주문", "en": "Level %d spell"},
+	"info_range": {"ko": "사거리 %sm", "en": "Range %sm"},
+	"info_touch": {"ko": "접촉", "en": "Touch"},
+	"info_concentration": {"ko": "집중", "en": "Concentration"},
+	"info_ritual": {"ko": "의식", "en": "Ritual"},
+	"info_damage": {"ko": "피해 %s", "en": "Damage %s"},
+	"info_heal": {"ko": "회복 %s", "en": "Heals %s"},
+	"info_save": {"ko": "%s 내성", "en": "%s save"},
+	"info_tap_again": {"ko": "같은 칸을 한 번 더 누르면 실행", "en": "Tap the slot again to use"},
+	"info_pick_target": {"ko": "맵에서 대상을 고르세요 · 같은 칸을 다시 누르거나 × = 취소", "en": "Pick a target on the map · tap the slot again or × to cancel"},
 	"regroup": {"ko": "모이기", "en": "Regroup"},
 	"level_up": {"ko": "레벨 업 → %d", "en": "Level Up → %d"},
 	"pick_feat": {"ko": "재주 고르기", "en": "Choose a Feat"},
@@ -206,6 +217,27 @@ static func reason(text: String) -> String:
 
 static func t(key: String) -> String:
 	return TEXT.get(key, {}).get(lang, key)
+
+
+const DAMAGE_NAMES := {
+	"acid": {"ko": "산", "en": "acid"}, "bludgeoning": {"ko": "타격", "en": "bludgeoning"}, "cold": {"ko": "냉기", "en": "cold"},
+	"fire": {"ko": "화염", "en": "fire"}, "force": {"ko": "역장", "en": "force"}, "lightning": {"ko": "번개", "en": "lightning"},
+	"necrotic": {"ko": "사령", "en": "necrotic"}, "piercing": {"ko": "관통", "en": "piercing"}, "poison": {"ko": "독", "en": "poison"},
+	"psychic": {"ko": "정신", "en": "psychic"}, "radiant": {"ko": "광휘", "en": "radiant"}, "slashing": {"ko": "참격", "en": "slashing"},
+	"thunder": {"ko": "천둥", "en": "thunder"},
+}
+const ABILITY_NAMES := {
+	"str": {"ko": "근력", "en": "STR"}, "dex": {"ko": "민첩", "en": "DEX"}, "con": {"ko": "건강", "en": "CON"},
+	"int": {"ko": "지능", "en": "INT"}, "wis": {"ko": "지혜", "en": "WIS"}, "cha": {"ko": "매력", "en": "CHA"},
+}
+
+
+static func damage_name(t: String) -> String:
+	return name_of(DAMAGE_NAMES[t]) if DAMAGE_NAMES.has(t) else t
+
+
+static func ability_name(a: String) -> String:
+	return name_of(ABILITY_NAMES[a]) if ABILITY_NAMES.has(a) else a
 
 
 ## 데이터의 {"ko", "en"} 이름. 한국어가 비어 있으면 영어.

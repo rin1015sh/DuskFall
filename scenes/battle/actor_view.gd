@@ -372,6 +372,11 @@ func is_moving() -> bool:
 	return not _path.is_empty()
 
 
+## 아직 걸어야 할 칸 수(WASD 걸음 간격 맞추기)
+func steps_left() -> int:
+	return _path.size()
+
+
 ## 가림 판정용: 발 위치와 크기 배율(셰이더가 이 둘레를 비춘다)
 func occlusion_info() -> Array:
 	return [global_position + Vector3(0, float(int(creature.altitude)), 0), maxf(1.0, sprite_px_height() / BODY_PX) * grid.size_of(creature)]

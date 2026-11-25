@@ -103,6 +103,32 @@ func move_to(c: Node, to: Vector2i) -> int:
 	return steps
 
 
+## 방향 걸음(WASD — 컨트롤러식 직접 이동): dir 쪽 이웃 칸으로 한 칸. 대각선이 막히면(벽 모서리 등) 가로·세로 중 되는 쪽으로.
+## 돌아가는 길을 찾지 않는다(한 걸음에 바로 닿는 칸만). 결과: 걸었으면 true.
+func step_dir(c: Node, dir: Vector2i) -> bool:
+	if in_combat() or c == null or c.dead or dir == Vector2i.ZERO:
+		return false
+	var grid: Node = world["grid"]
+	var from: Vector2i = grid.cell_of(c)
+	var tries: Array[Vector2i] = [dir]
+	if dir.x != 0 and dir.y != 0:
+		tries.append(Vector2i(dir.x, 0))
+		tries.append(Vector2i(0, dir.y))
+	var allies: Array = grid.creatures().filter(func(o: Node) -> bool: return o != c and not o.is_hostile_to(c))
+	for d: Vector2i in tries:
+		var to: Vector2i = from + d
+		if not grid.in_bounds(to) or grid.blocks_movement(to):
+			continue
+		var other: Node = grid.creature_at(to)
+		if other != null and not other in party:
+			continue
+		var p: Dictionary = grid.find_path(c, to, -1, allies)
+		if p.is_empty() or (p["path"] as Array).size() != 1:
+			continue
+		return move_to(c, to) > 0
+	return false
+
+
 ## 탐험 중 점프(실시간이라 행동·이동력 비용 없음). 거리·착지·높이 제한은 전투 점프와 같다(3단계).
 func jump(c: Node, to: Vector2i) -> bool:
 	var grid: Node = world["grid"]
