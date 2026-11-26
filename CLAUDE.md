@@ -90,6 +90,9 @@ res://
   깊이 차이 1도트 외곽선(pixel_outline.gdshader). 키트 그림은 도트 변환본 assets/pixel_kit(tools/pixelize_kit.py — 조각마다 쿠와하라 → 반 크기 → 시트 팔레트 → 외톨이 점 지우기 → 2배 확대, 원본과 같은 크기라
   좌표 그대로, DungeonKit.art_dir로 바꿔 낌). 그림 원본을 고치면 변환을 다시 돌린다. 화면 단계 팔레트+Bayer 디더(pixel_post.gdshader, assets/pixel/palette.png)는 기본 꺼짐.
   원래 카메라는 광선 고르기·화면 투영용으로 남고 본 화면 3D 그리기만 끈다. UI는 원래 해상도. 끄기·조절 `--pixel=<1도트 px, 0 = 끔> --pixel_ss --pixel_art=0(원본 그림) --pixel_palette=1 --pixel_outline=0`.
+  어우러짐(도트 화면): 바닥 경계는 덩어리 방식(floor.gdshader — 둘레 3×3 칸의 둥근 영향 + 바닥별 잡음 중 큰 바닥, 1도트 격자에 맞춰 딱 끊고 어두운 쪽 경계에 그늘).
+  흩뿌림 장식(map_view._build_scatter — 새 도트 그림 assets/pixel_decor, tools/make_decor.py가 바닥 색에서 뽑아 그림): 키트 바닥 id별 기본표 SCATTER,
+  3칸 얼룩 밀도·덤불 무리, 다른 바닥과 맞닿은 풀 칸은 경계 쪽에 큰 덤불. 맵 `art.scatter`(false = 끔, {바닥 id: [개수, [[id, 무게]...]]})·`art.scatter_density`.
   그림체 방향(2026-11-26): 첨부 참고 화풍처럼 격자가 드러나지 않게 어우러진 깔끔한 도트. 새 그림 추가 허용, 시간대·분위기는 지금 그대로.
   캡처: `--shot=<png> --frames=<n>`, 카메라 고정 `--cam=x,y --zoom=<배율>`. 맵 그림은 던전 에셋 키트로 그린다:
   맵 데이터 `art`(wall·wall_top·cliff·floors[범례 글자 → 키트 바닥]·props[키트 물건 at/id/v]). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`·`asset_library/`.

@@ -57,3 +57,27 @@ func test_kit_art_dir_swap() -> void:
 	if t != null and t2 != null:
 		assert_eq(t.get_size(), t2.get_size(), "같은 크기")
 	DungeonKit.art_dir = before
+
+
+## 흩뿌림 장식 키트(assets/pixel_decor — tools/make_decor.py): 기본표가 쓰는 장식이 다 있고 조각이 시트 안에 있다.
+func test_decor_kit() -> void:
+	var DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
+	var MapView := preload("res://scenes/battle/map_view.gd")
+	var dk: RefCounted = DungeonKit.open(MapView.DECOR_KIT)
+	assert_false(dk.data.is_empty(), "장식 키트")
+	var size: Array = dk.data["sheets"]["decor"]["size"]
+	for fid: String in MapView.SCATTER:
+		for e: Array in MapView.SCATTER[fid][1]:
+			assert_true(dk.has(String(e[0])), "%s의 장식 %s" % [fid, e[0]])
+	for id: String in dk.data["assets"]:
+		for vn: String in dk.variants(id):
+			for f: Array in dk._frames(id, vn):
+				assert_true(f[0] + f[2] <= size[0] and f[1] + f[3] <= size[1], "%s.%s 조각이 시트 안" % [id, vn])
+
+
+func test_scatter_pick_weighted() -> void:
+	var MapView := preload("res://scenes/battle/map_view.gd")
+	var rows := [["a", 1.0], ["b", 3.0]]
+	assert_eq(MapView._pick_weighted(rows, 0.1), "a")
+	assert_eq(MapView._pick_weighted(rows, 0.5), "b")
+	assert_eq(MapView._pick_weighted(rows, 0.999), "b")

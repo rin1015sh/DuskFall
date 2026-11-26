@@ -27,6 +27,22 @@ const MapStamps := preload("res://scripts/rules/map_stamps.gd")
 const CLIFF_TOP_DECOR := [["grass_tall", "a", 0.22], ["grass_tall", "c", 0.14], ["bush", "a", 0.06], ["rock", "small_a", 0.08]]
 const CLIFF_FOOT_DECOR := [["rock", "medium_a", 0.12], ["rock", "small_b", 0.12], ["boulder_mossy", "a", 0.04], ["grass_tall", "b", 0.1]]
 
+## 흩뿌림 장식(도트 화면 — assets/pixel_decor, tools/make_decor.py): 키트 바닥 id → [칸당 개수, [[장식 id, 무게], ...]].
+## 다른 바닥과 맞닿은 칸은 SCATTER_EDGE개를 더해 경계 쪽으로 붙인다(풀이 길 위로 넘어온 느낌). 맵 art.scatter = false면 끔,
+## art.scatter_density = 배율, art.scatter = {바닥 id: [개수, [[id, 무게]...]]}로 바닥별 덮어쓰기.
+const SCATTER := {
+	"ground_meadow": [1.3, [["tuft", 6], ["flowers", 2], ["pebble", 0.4], ["leaf", 0.6]]],
+	"ground_grass": [1.0, [["tuft", 6], ["flowers", 0.8], ["pebble", 0.5], ["leaf", 0.6]]],
+	"ground_thicket": [1.4, [["tuft", 7], ["leaf", 1.5]]],
+	"floor_dirt": [0.25, [["pebble", 3], ["leaf", 1], ["tuft", 0.6]]],
+	"ground_hardpan": [0.2, [["pebble", 3], ["tuft", 1]]],
+	"ground_rock": [0.25, [["pebble", 3], ["tuft", 1]]],
+	"ground_mud": [0.1, [["pebble", 1], ["leaf", 1]]],
+	"floor_cobble": [0.15, [["tuft", 2], ["pebble", 1]]],
+}
+const SCATTER_EDGE := 1.2
+const DECOR_KIT := "res://assets/pixel_decor/kit.json"
+
 const MATERIAL_FLOORS := {"stone": "floor_flag", "earth": "floor_dirt", "grass": "ground_grass", "brush": "ground_thicket",
 	"wood": "room_wood", "burnt_ground": "ground_ash", "metal": "floor_brick", "glass": "floor_flag", "cloth": "floor_old"}
 ## 표면 → 그림: ["tile", 키트 바닥] 또는 ["prop", 키트 id, 변형]
@@ -48,6 +64,10 @@ const FOOT_SHADE := 0.65
 ## 높은 칸 턱 띠 너비(유닛)·가장자리 진하기
 const RIM_W := 0.12
 const RIM_ALPHA := 0.7
+
+## 그림 도트 밀도(칸당 도트, 0 = 도트 아님). 도트 화면이 켜지면 battle_scene이 정한다(assets/pixel_kit = 32).
+## 바닥 경계를 이 격자에 맞추고, 흩뿌림 장식 크기도 도트에 맞춘다.
+static var art_dots := 0.0
 
 var grid: Node
 var map: Dictionary = {}
@@ -213,6 +233,8 @@ func _build_props() -> void:
 		_prop_cells[node] = cell
 		if String(node.get_meta("kit_layer", "stand")) == "stand" and (String(p["id"]).begins_with("tree") or p["id"] in ["tent", "pillar", "gibbet", "statue"]):
 			_tall_props.append(node)
+	if art_dots > 0.0 and not (art().get("scatter", true) is bool and not bool(art().get("scatter", true))):
+		_build_scatter()
 	if natural != null:
 		if bool(art().get("cliff_decor", true)):
 			_build_cliff_decor()
@@ -348,6 +370,98 @@ func _build_climb_art() -> void:
 			# 그림 176px(원점 위) → 높이 차 + 반 단계
 			var k := (dh + 0.5) * V.STEP_PX / 176.0
 			node.scale = Vector3(1.0, V.UPRIGHT * k, 1.0)
+
+
+## 흩뿌림: 칸마다 정한 난수(매번 같은 배치)로 칸 안 아무 데나. 벽·물체·맵 이동·오르기 칸·가파른 곳·소품 칸은 비운다.
+func _build_scatter() -> void:
+	var dk: RefCounted = DungeonKit.open(DECOR_KIT)
+	if dk.data.is_empty():
+		return
+	var table: Dictionary = SCATTER.duplicate()
+	var over: Variant = art().get("scatter", true)
+	if over is Dictionary:
+		table.merge(over, true)
+	var mul := float(art().get("scatter_density", 1.0))
+	var busy := {}
+	for o: Variant in map.get("objects", []) + map.get("transitions", []) + map.get("spawns", []):
+		if o is Dictionary and (o as Dictionary).has("cell"):
+			busy[Vector2i(int(o["cell"][0]), int(o["cell"][1]))] = true
+	for n: Node3D in _prop_cells:
+		busy[_prop_cells[n]] = true
+	for c: Vector2i in grid.all_cells():
+		if busy.has(c) or grid.has_flag(c, "wall") or grid.has_flag(c, "climb") or grid.object_at(c).size() > 0:
+			continue
+		var fid := _floor_id(c)
+		var row: Variant = table.get(fid, null)
+		if not (row is Array) or (row as Array).size() < 2:
+			continue
+		# 맞닿은 다른 바닥 쪽(경계 덤불)
+		var edge := Vector2.ZERO
+		for d: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var nb := c + d
+			if grid.in_bounds(nb) and not grid.has_flag(nb, "wall") and _floor_id(nb) != fid and grid.height(nb) == grid.height(c):
+				edge += Vector2(d)
+		var want := float(row[0]) * mul
+		var grassy := fid.contains("grass") or fid.contains("meadow") or fid.contains("thicket")
+		if grassy and edge != Vector2.ZERO:
+			want += SCATTER_EDGE * mul
+		# 덤불 무리: 3칸 크기 얼룩으로 밀도를 0.15~2배(빈 땅과 우거진 곳이 갈리게)
+		want *= _patch(Vector2(c)) if grassy else 1.0
+		var count := int(want) + (1 if _rand(c, Vector2i.ZERO, 91) < want - floorf(want) else 0)
+		var tint := V.light_tint(grid, c)
+		for i in count:
+			var pt := Vector2(c) + Vector2(_rand(c, Vector2i(i, 1), 13), _rand(c, Vector2i(i, 2), 17)) * 0.9 + Vector2(0.05, 0.05)
+			var id := _pick_weighted(row[1], _rand(c, Vector2i(i, 3), 23))
+			if grassy and edge != Vector2.ZERO and i >= int(float(row[0]) * mul):
+				# 경계 덤불: 맞닿은 쪽 변으로 붙이고 조금 넘어가게
+				id = "tuft"
+				var e := edge.normalized()
+				var along := Vector2(-e.y, e.x) * (_rand(c, Vector2i(i, 4), 29) - 0.5) * 0.9
+				pt = Vector2(c) + Vector2(0.5, 0.5) + e * (0.38 + _rand(c, Vector2i(i, 5), 31) * 0.2) + along
+			if natural != null and ground_normal(pt).y < 0.8:
+				continue
+			var vs: PackedStringArray = dk.variants(id)
+			if vs.is_empty():
+				continue
+			var v := vs[int(_rand(c, Vector2i(i, 6), 37) * vs.size()) % vs.size()]
+			# 덤불은 1~3개를 붙여 한 무리로
+			var clump := 1 + int(_rand(c, Vector2i(i, 8), 43) * 2.6) if id == "tuft" else 1
+			for j in clump:
+				var q := pt + (Vector2(_rand(c, Vector2i(i, 10 + j), 47), _rand(c, Vector2i(i, 20 + j), 53)) - Vector2(0.5, 0.5)) * (0.3 if j > 0 else 0.0)
+				var vj := v if j == 0 else vs[int(_rand(c, Vector2i(i, 30 + j), 59) * vs.size()) % vs.size()]
+				var node: Node3D = Kit3D.make(dk, id, vj, {"flip": _rand(c, Vector2i(i, 7 + j), 41) < 0.5})
+				node.position = Vector3(q.x, ground_at(q) if natural != null else float(grid.height(c)), q.y)
+				if String(node.get_meta("kit_layer", "")) == "decal":
+					node.position.y += V.LIFT
+				Kit3D.tint(node, tint)
+				sorted.add_child(node)
+				_lay_on_ground(node)
+
+
+## 흩뿌림 밀도 얼룩(칸 평면 점 → 0.15~2.0): 3칸 격자 값 잡음
+func _patch(p: Vector2) -> float:
+	var q := p / 3.0
+	var i := Vector2i(floori(q.x), floori(q.y))
+	var f := q - Vector2(i)
+	f = f * f * (Vector2(3, 3) - 2.0 * f)
+	var a := _rand(i, Vector2i(7, 7), 101)
+	var b := _rand(i + Vector2i(1, 0), Vector2i(7, 7), 101)
+	var c := _rand(i + Vector2i(0, 1), Vector2i(7, 7), 101)
+	var d := _rand(i + Vector2i(1, 1), Vector2i(7, 7), 101)
+	var n := lerpf(lerpf(a, b, f.x), lerpf(c, d, f.x), f.y)
+	return lerpf(0.15, 2.0, smoothstep(0.25, 0.75, n))
+
+
+static func _pick_weighted(rows: Array, r: float) -> String:
+	var total := 0.0
+	for e: Array in rows:
+		total += float(e[1])
+	var acc := 0.0
+	for e: Array in rows:
+		acc += float(e[1]) / total
+		if r < acc:
+			return String(e[0])
+	return String(rows[-1][0])
 
 
 func _rand(c: Vector2i, d: Vector2i, salt: int) -> float:
@@ -531,6 +645,7 @@ func _build_cell_textures() -> void:
 	# 자연 지형은 언덕(높이 차 1)을 넘어서도 바닥 종류를 섞는다
 	fm.set_shader_parameter("blend_dh", 1.0 if natural != null else 0.0)
 	fm.set_shader_parameter("shade_gain", 1.0 / TerrainNatural.FLOOR_BASE if natural != null else 1.0)
+	fm.set_shader_parameter("dot_px", art_dots)
 	var om: ShaderMaterial = _mats["floors_overlay"]
 	om.set_shader_parameter("info", _info_tex)
 	om.set_shader_parameter("map_size", Vector2i(w, h))

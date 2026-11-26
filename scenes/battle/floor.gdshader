@@ -1,7 +1,8 @@
 // 바닥 그림(칸 데이터 텍스처로 칸마다 바닥을 찾아 그린다).
-// - 종류가 다른 바닥 경계: 위치를 잡음으로 흔들어(warp) 이웃 칸의 바닥을 가져온다 — 직선 경계 대신 들쭉날쭉 맞물림.
-//   경계는 좁은 띠에서 그림 밝기를 따라 섞고(풀잎이 돌 위로 삐져나옴) 맞닿은 자리에 옅은 그늘.
-//   높이가 다른 칸·벽 칸에서는 가져오지 않는다(절벽 가장자리는 그대로).
+// - 종류가 다른 바닥 경계(덩어리 방식): 둘레 3×3 칸이 저마다 칸 가운데에서 둥글게 퍼지는 영향(반경 blob_radius)을 주고,
+//   같은 바닥끼리 더한 값 + 바닥마다 다른 잡음이 가장 큰 바닥을 그린다 — 칸 모양 네모가 아니라 둥글고 들쭉날쭉한 덩어리.
+//   경계는 섞지 않고 딱 끊되(도트 그림), 어두운 쪽 바닥의 경계 띠에 그늘(밝은 바닥이 덮고 올라온 느낌).
+//   dot_px > 0이면 경계를 1도트 격자에 맞춘다(도트 화면). 높이가 다른 칸·벽 칸은 끼지 않는다(절벽 가장자리는 그대로).
 // - 같은 바닥의 두 변형(a·b): 세계 좌표 잡음 얼룩으로 섞는다(경계는 그림 밝기로 비틀어 또렷하게). 변형 b는 2칸 밀어 깐다.
 // 그림 조각은 세계 좌표로 고르므로(4칸 묶음 그림의 나머지 조각) 칸 경계를 넘어도 무늬가 이어진다.
 // - 자연 지형(rock_on): 가파른 곳(법선이 누운 곳)은 바위 그림(키트 바위 벽면)을 세계 좌표로 입혀 섞는다 — 절벽이 바닥과 한 그물.
@@ -21,11 +22,14 @@ uniform float tile_px = 64.0;
 // 변형 얼룩 크기(칸)·경계 너비
 uniform float patch_cells = 3.2;
 uniform float edge_soft = 0.05;
-// 종류 경계 흔들림(칸): 0이면 직선
-uniform float warp = 0.36;
-// 종류 경계 혼합 띠 너비(칸)·맞닿은 자리 그늘
-uniform float blend_soft = 0.06;
-uniform float edge_shade = 0.18;
+// 덩어리: 칸 영향 반경(칸)·잡음 세기(큰 물결·잔 들쭉날쭉)·경계 그늘 띠(영향 차이)·그늘 세기
+uniform float blob_radius = 1.3;
+uniform float blob_noise = 0.22;
+uniform float blob_jag = 0.16;
+uniform float rim = 0.07;
+uniform float edge_shade = 0.22;
+// 경계를 맞출 도트 격자(칸당 도트 수, 0 = 맞추지 않음)
+uniform float dot_px = 0.0;
 // 섞을 수 있는 높이 차(블록 지형 0 = 같은 높이만, 자연 지형 1 = 언덕을 넘어서도)
 uniform float blend_dh = 0.0;
 // 정점 색 되돌림 배율(자연 지형: 평지 밝기를 1로, 빛 받는 비탈은 더 밝게)
@@ -101,40 +105,71 @@ bool can_blend(ivec2 c, ivec2 c0) {
 	return ic.g > 0.5 && abs(ic.r - cell_info(c0).r) <= blend_dh + 0.5;
 }
 
+// 칸 가운데에서의 거리 → 영향(반경 밖 0)
+float blob_k(vec2 d) {
+	float t = max(0.0, 1.0 - length(d) / blob_radius);
+	return t * t;
+}
+
+// 바닥 종류마다 다른 잡음(경계를 들쭉날쭉하게)
+float blob_n(ivec4 t, vec2 p) {
+	vec2 o = vec2(float(t.r * 7 + t.b * 3), float(t.g * 5 + t.a * 11)) * 1.37;
+	return (vnoise(p * 1.1 + o) - 0.5) * blob_noise + (vnoise(p * 5.3 + o * 2.1) - 0.5) * blob_jag * 0.6 + (vnoise(p * 11.0 + o * 3.3) - 0.5) * blob_jag * 0.4;
+}
+
 void fragment() {
 	vec2 p = wpos.xz;
 	ivec2 c0 = clamp(ivec2(floor(p)), ivec2(0), map_size - 1);
-	vec3 own = floor_color(c0, p);
-	// 흔들린 위치(큰 물결 + 잔물결)
-	vec2 w = vec2(vnoise(p * 1.3 + 11.0), vnoise(p * 1.3 + 47.0)) * 0.7
-		+ vec2(vnoise(p * 4.1 + 3.0), vnoise(p * 4.1 + 29.0)) * 0.3 - 0.5;
-	vec2 wp = p + w * 2.0 * warp;
-	// 흔들린 점이 자기 칸 안쪽으로 얼마나 들어와 있나(+ 안, − 밖)와 맞은편 칸
-	vec2 dlo = wp - vec2(c0);
-	vec2 dhi = vec2(c0) + 1.0 - wp;
-	float inside = min(min(dlo.x, dlo.y), min(dhi.x, dhi.y));
-	ivec2 cn;
-	if (inside < 0.0) {
-		cn = ivec2(floor(wp));
-	} else if (inside == dlo.x) {
-		cn = c0 + ivec2(-1, 0);
-	} else if (inside == dhi.x) {
-		cn = c0 + ivec2(1, 0);
-	} else if (inside == dlo.y) {
-		cn = c0 + ivec2(0, -1);
-	} else {
-		cn = c0 + ivec2(0, 1);
+	vec2 ps = dot_px > 0.0 ? (floor(p * dot_px) + 0.5) / dot_px : p;
+	ivec4 tl[9];
+	float wt[9];
+	bool ok[9];
+	for (int j = 0; j < 9; j++) {
+		ivec2 c = c0 + ivec2(j % 3 - 1, j / 3 - 1);
+		ok[j] = j == 4 || can_blend(c, c0);
+		tl[j] = ok[j] ? cell_tiles(c) : ivec4(-1);
+		wt[j] = 0.0;
 	}
-	vec3 col = own;
-	if (cn != c0 && can_blend(cn, c0) && cell_tiles(cn) != cell_tiles(c0)) {
-		vec3 other = floor_color(cn, p);
-		float lo = dot(own, vec3(0.299, 0.587, 0.114));
-		float ln = dot(other, vec3(0.299, 0.587, 0.114));
-		// 경계 띠: 밝은 쪽(풀잎·돌 윗면)이 먼저 넘어온다
-		float t = smoothstep(-blend_soft, blend_soft, -inside + (ln - lo) * 0.25);
-		col = mix(own, other, t);
-		// 맞닿은 자리에 옅은 그늘
-		col *= 1.0 - edge_shade * (1.0 - abs(2.0 * t - 1.0));
+	// 같은 바닥끼리 영향을 더한다(처음 나온 자리에 모은다)
+	for (int j = 0; j < 9; j++) {
+		if (!ok[j]) {
+			continue;
+		}
+		float k = blob_k(ps - (vec2(c0 + ivec2(j % 3 - 1, j / 3 - 1)) + 0.5));
+		for (int i = 0; i <= j; i++) {
+			if (ok[i] && tl[i] == tl[j]) {
+				wt[i] += k;
+				break;
+			}
+		}
+	}
+	int best = 4;
+	int second = -1;
+	float bw = -1e9;
+	float sw = -1e9;
+	for (int i = 0; i < 9; i++) {
+		if (!ok[i] || wt[i] <= 0.0) {
+			continue;
+		}
+		float v = wt[i] + blob_n(tl[i], ps);
+		if (v > bw) {
+			sw = bw;
+			second = best;
+			bw = v;
+			best = i;
+		} else if (v > sw) {
+			sw = v;
+			second = i;
+		}
+	}
+	ivec2 cb = c0 + ivec2(best % 3 - 1, best / 3 - 1);
+	vec3 col = floor_color(cb, p);
+	if (second >= 0 && second != best && tl[second] != tl[best] && bw - sw < rim) {
+		vec3 other = floor_color(c0 + ivec2(second % 3 - 1, second / 3 - 1), p);
+		// 어두운 쪽 바닥의 경계 띠에 그늘
+		if (dot(col, vec3(0.299, 0.587, 0.114)) < dot(other, vec3(0.299, 0.587, 0.114))) {
+			col *= 1.0 - edge_shade;
+		}
 	}
 	if (rock_on) {
 		vec3 n = normalize(wnormal);
