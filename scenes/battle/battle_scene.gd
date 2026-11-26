@@ -54,6 +54,8 @@ var map_view: Node3D
 var sorted: Node3D
 var views := {}  # creature → ActorView
 var camera: Camera3D
+## 도트 화면(저해상도 렌더링·외곽선·디더링)
+var pixel: PixelView
 ## 카메라가 바라보는 점(세계)·확대(1 = 1칸 64px). 직교 투영, 회전 없음(view3d.gd).
 var cam_target := Vector3.ZERO
 var cam_zoom := 0.92
@@ -338,6 +340,7 @@ func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color("0c0b0e"))
 	add_child(camera)
 	camera.make_current()
+	_setup_pixel()
 	router = InputRouter.new()
 	router.cell_at = func(pos: Vector2) -> Vector2i: return _pick(pos)
 	router.preview.connect(_on_preview)
@@ -555,6 +558,18 @@ func _apply_cam_arg() -> void:
 		_apply_camera()
 
 
+## 도트 화면(pixel_view.gd): --pixel=<1도트 px>(0 = 끔), --pixel_ss=<초표본>, --pixel_palette=0이면 색 줄이기 끔,
+## --pixel_outline=0이면 외곽선 끔
+func _setup_pixel() -> void:
+	pixel = PixelView.new()
+	pixel.scale_px = int(args.get("pixel", str(pixel.scale_px)))
+	pixel.ss = maxi(1, int(args.get("pixel_ss", str(pixel.ss))))
+	pixel.palette = args.get("pixel_palette", "1") != "0"
+	pixel.outline = args.get("pixel_outline", "1") != "0"
+	add_child(pixel)
+	pixel.setup(camera)
+
+
 ## 화면 점 → 칸(카메라 광선이 처음 닿는 칸 기둥)
 func _pick(screen: Vector2) -> Vector2i:
 	_apply_camera()
@@ -693,6 +708,8 @@ func _process(delta: float) -> void:
 	if follow and selected != null and views.has(selected):
 		cam_target = cam_target.lerp(views[selected].position + FOLLOW_UP, minf(1.0, delta * 4.0))
 	_apply_camera()
+	if pixel != null:
+		pixel.sync()
 	var occ: Array = []
 	for c: Node in views.keys():
 		if not c.dead:

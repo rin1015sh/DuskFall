@@ -86,6 +86,9 @@ res://
   절벽 위·아래 풀·바위 자동 장식(`art.cliff_decor`), 오르기 지점 절벽 면에 사다리(`art.climb_art`). 비탈은 이어진 칸 높이를 넓게 평균해 곧고 완만하게 그리고,
   캐릭터·소품·하이라이트는 그려진 바닥(map_view.ground_at)에 선다. 규칙 높이는 칸 정수 그대로. 그림자는 북서쪽 햇빛 하나로(드리운 그림자·면 음영).
   지형 프리셋 도장: 맵 `stamps`(`data/content/terrain_presets.json`, scripts/rules/map_stamps.gd — 높이·재질·오르기 지점·빛·바닥·소품을 한꺼번에, 돌리기·뒤집기·base). 모음 맵 terrain_presets_demo, 시범 맵 hill_path.
+  도트 화면(scenes/battle/pixel_view.gd): 3D 세계를 화면 1/3 크기 SubViewport(2배 초표본 평균)에 그려 가장 가까운 점으로 확대, 도트 카메라는 1도트 격자에 맞추고 끝수만큼 그림을 밀어 떨림 없음,
+  깊이 차이 1도트 외곽선(pixel_outline.gdshader), 팔레트 assets/pixel/palette.png(tools/pixel_palette.py — 게임 색 k-평균 + 강조색) + 세계에 붙은 Bayer 디더(pixel_post.gdshader).
+  원래 카메라는 광선 고르기·화면 투영용으로 남고 본 화면 3D 그리기만 끈다. UI는 원래 해상도. 끄기·조절 `--pixel=<1도트 px, 0 = 끔> --pixel_ss --pixel_palette=0 --pixel_outline=0`.
   캡처: `--shot=<png> --frames=<n>`, 카메라 고정 `--cam=x,y --zoom=<배율>`. 맵 그림은 던전 에셋 키트로 그린다:
   맵 데이터 `art`(wall·wall_top·cliff·floors[범례 글자 → 키트 바닥]·props[키트 물건 at/id/v]). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`·`asset_library/`.
 - 캐릭터 그림: 종족이 있는 사람(파티·동료·NPC)은 2D 일러스트 컷아웃 — Skeleton2D 뼈대(scenes/battle/cutout_rig.gd)를 SubViewport로 그려 세운 판에 입힘(actor_view.gd),
