@@ -17,6 +17,10 @@ const SRC_DROP := 4  ## 낭떠러지 벽(64 × 160 — 칸 윗변에서 아래�
 const Z := {"floor": -10, "wall": -8, "decal": -5, "wall_decal": 0, "stand": 0, "over": 20}
 const NORTH := 3  ## 세트 방의 북쪽 벽 두께(칸) — tools/dungeon_kit/compose.py와 같다
 
+## 도트 그림 폴더(tools/pixelize_kit.py가 만든 같은 크기 시트). 비어 있지 않고 그 폴더에 같은 이름 그림이 있으면 그것을 쓴다.
+## 도트 화면(scenes/battle/pixel_view.gd)이 켜질 때 정한다.
+static var art_dir := ""
+
 var data: Dictionary = {}
 var px: int = 64
 var depth_k: float = 0.72
@@ -383,7 +387,12 @@ func _frames(id: String, variant: String) -> Array:
 func _sheet(sheet: String) -> Texture2D:
 	if not _sheets.has(sheet):
 		var s: Dictionary = (data.get("sheets", {}) as Dictionary).get(sheet, {})
-		_sheets[sheet] = load(String(s.get("path", ""))) as Texture2D if not s.is_empty() else null
+		var path := String(s.get("path", ""))
+		if art_dir != "" and path != "":
+			var alt := art_dir.path_join(path.get_file())
+			if ResourceLoader.exists(alt):
+				path = alt
+		_sheets[sheet] = load(path) as Texture2D if not s.is_empty() else null
 	return _sheets[sheet]
 
 

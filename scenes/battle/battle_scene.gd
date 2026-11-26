@@ -11,6 +11,8 @@ const Roster := preload("res://scenes/battle/test_roster.gd")
 const V := preload("res://scenes/battle/view3d.gd")
 const MapLoader := preload("res://scripts/rules/map_loader.gd")
 const MapView := preload("res://scenes/battle/map_view.gd")
+const DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
+const PIXEL_KIT_DIR := "res://assets/pixel_kit"
 const ActorView := preload("res://scenes/battle/actor_view.gd")
 const InputRouter := preload("res://scenes/battle/input_router.gd")
 const ActionInfo := preload("res://scenes/ui/action_info.gd")
@@ -564,10 +566,12 @@ func _setup_pixel() -> void:
 	pixel = PixelView.new()
 	pixel.scale_px = int(args.get("pixel", str(pixel.scale_px)))
 	pixel.ss = maxi(1, int(args.get("pixel_ss", str(pixel.ss))))
-	pixel.palette = args.get("pixel_palette", "1") != "0"
+	pixel.palette = args.get("pixel_palette", "0") != "0"
 	pixel.outline = args.get("pixel_outline", "1") != "0"
 	add_child(pixel)
 	pixel.setup(camera)
+	# 도트 화면이면 키트 그림도 도트 변환본(assets/pixel_kit — tools/pixelize_kit.py), --pixel_art=0이면 원본 그대로
+	DungeonKit.art_dir = PIXEL_KIT_DIR if pixel.scale_px > 0 and args.get("pixel_art", "1") != "0" else ""
 
 
 ## 화면 점 → 칸(카메라 광선이 처음 닿는 칸 기둥)

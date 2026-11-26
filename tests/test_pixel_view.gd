@@ -40,3 +40,20 @@ func test_palette_fits() -> void:
 	assert_true(tex != null, "팔레트 그림")
 	if tex != null:
 		assert_true(tex.get_width() >= 16 and tex.get_width() <= PixelView.PAL_MAX, "16~128색: %d" % tex.get_width())
+
+
+## 도트 그림 폴더: 같은 이름 시트가 있으면 그것을, 없으면 원본을 쓴다(크기는 같아 그림 좌표 그대로).
+func test_kit_art_dir_swap() -> void:
+	var DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
+	var before := DungeonKit.art_dir
+	DungeonKit.art_dir = "res://assets/pixel_kit"
+	var kit: RefCounted = DungeonKit.open()
+	var t: Texture2D = kit._sheet("floors")
+	assert_true(t != null and t.resource_path.begins_with("res://assets/pixel_kit"), "도트 시트")
+	DungeonKit.art_dir = "res://no_such_dir"
+	var kit2: RefCounted = DungeonKit.open()
+	var t2: Texture2D = kit2._sheet("floors")
+	assert_true(t2 != null and t2.resource_path.begins_with("res://assets/dungeon_kit"), "없으면 원본")
+	if t != null and t2 != null:
+		assert_eq(t.get_size(), t2.get_size(), "같은 크기")
+	DungeonKit.art_dir = before

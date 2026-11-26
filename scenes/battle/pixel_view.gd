@@ -14,11 +14,11 @@ extends Node
 const OUTLINE_LAYER := 1 << 19  # 외곽선 판의 그림 층(도트 카메라만 본다)
 
 ## 화면 1도트 = 캔버스 몇 px(0이면 끔)
-var scale_px := 3
+var scale_px := 2
 ## 초표본 배수(1 = 저해상도에 바로 그림)
-var ss := 2
+var ss := 1
 ## 팔레트로 색 줄이기
-var palette := true
+var palette := false
 ## 디더 세기(밝기 흔들림 폭, Oklab L)
 var dither := 0.06
 const PALETTE_PATH := "res://assets/pixel/palette.png"
