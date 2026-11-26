@@ -5,9 +5,20 @@ extends RefCounted
 ## 노드 안 좌표: 그림 1px = 1/px 유닛(가로·화면 세로 모두).
 
 const V := preload("res://scenes/battle/view3d.gd")
+const SWAY_SHADER := preload("res://scenes/kit/sway.gdshader")
+## 바람에 흔들리는 그림(키트 id → 판 위 끝 흔들림 도트, 1도트 = 그림 2px). 나무는 살짝, 풀은 크게.
+const SWAY := {"tree_broadleaf": 1.6, "tree_pine": 1.2, "tree_thorn": 1.4, "tree_giant": 1.8, "bush": 1.2,
+	"grass_tall": 1.6, "flowers": 1.4, "reed_thorn": 1.6, "cattail": 1.8, "weeds": 1.4,
+	"tuft": 1.3, }
+## 잎 반짝임(sway.gdshader leaf)을 켤 그림
+const LEAFY := {"tree_broadleaf": true, "tree_thorn": true, "tree_giant": true, "bush": true}
+## 바람 켜기(도트 화면이 켜질 때 battle_scene이 정한다)
+static var wind := false
+static var _sway_mats: Dictionary = {}
 
 
 ## opts: flip(false) · up(벽을 따라 올릴 칸 — 옛 make와 같다) · flat(층과 상관없이 눕힘) · playing(true) · scale(1.0)
+##       sway(흔들림 도트 — 없으면 SWAY 표, wind가 꺼져 있으면 흔들지 않음)
 static func make(kit: RefCounted, id: String, variant: String = "", opts: Dictionary = {}) -> Node3D:
 	var holder := Node3D.new()
 	holder.name = id
@@ -66,6 +77,9 @@ static func make(kit: RefCounted, id: String, variant: String = "", opts: Dictio
 		return holder
 	setup_sprite(sprite, ps, flat)
 	sprite.flip_h = flip
+	var sway := float(opts.get("sway", SWAY.get(id, 0.0)))
+	if wind and sway > 0.0 and not flat and sprite is Sprite3D:
+		_add_sway(sprite as Sprite3D, sway * 2.0 * ps, 1.0 if LEAFY.has(id) else 0.0)
 	# 가운데 정렬한 판을 옮겨 원점(발) 픽셀이 노드 위치에 오게 한다
 	var cx := (o.x - w * 0.5) if flip else (w * 0.5 - o.x)
 	sprite.position = Vector3(cx, o.y - h * 0.5 + float(opts.get("up", 0.0)) * kit.px, 0.0) * ps
@@ -102,6 +116,24 @@ static func setup_sprite(s: SpriteBase3D, pixel_size: float, flat: bool = false)
 	s.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	if flat:
 		s.render_priority = 1
+
+
+## 흔들림 재질(그림 시트·세기마다 하나씩 나눠 쓴다). 판의 그림은 시트 좌표 UV 그대로 쓴다.
+static func _add_sway(sp: Sprite3D, amp: float, leaf: float = 0.0) -> void:
+	var tex: Texture2D = sp.texture
+	if tex is AtlasTexture:
+		tex = (tex as AtlasTexture).atlas
+	if tex == null:
+		return
+	var key := "%d:%.4f:%.1f" % [tex.get_rid().get_id(), amp, leaf]
+	if not _sway_mats.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = SWAY_SHADER
+		m.set_shader_parameter("texture_albedo", tex)
+		m.set_shader_parameter("amp", amp)
+		m.set_shader_parameter("leaf", leaf)
+		_sway_mats[key] = m
+	sp.material_override = _sway_mats[key]
 
 
 ## 빛 단계 어둠·색 입히기(그림 판에)

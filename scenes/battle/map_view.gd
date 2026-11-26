@@ -41,6 +41,12 @@ const SCATTER := {
 	"floor_cobble": [0.15, [["tuft", 2], ["pebble", 1]]],
 }
 const SCATTER_EDGE := 1.2
+## 맵 둘레(도트 화면, 규칙 밖 그림만): 맵 밖 SURROUND_W칸에 바닥을 잇고 나무·덤불을 빽빽하게, 바깥으로 갈수록 어둡게.
+## 맵 art.surround: false = 끔, {floor: 키트 바닥, width: 칸, trees: [[id, 무게, [변형...]]...], density: 배율}. 없으면 풀밭 맵(풀 바닥 40%↑)만 자동.
+## 남쪽(화면 앞)은 맵을 가리지 않게 나무 대신 덤불만.
+const SURROUND_W := 7
+## [id, 무게, 쓸 변형(없으면 전부)] — 계절이 다른 변형(눈·단풍·마른 것)은 뺀다
+const SURROUND_TREES := [["tree_broadleaf", 5, ["a", "b", "c", "young"]], ["tree_pine", 2, ["a", "b", "young"]], ["bush", 4, ["a", "b", "wide"]]]
 const DECOR_KIT := "res://assets/pixel_decor/kit.json"
 
 const MATERIAL_FLOORS := {"stone": "floor_flag", "earth": "floor_dirt", "grass": "ground_grass", "brush": "ground_thicket",
@@ -53,6 +59,8 @@ const SURFACE_ART := {
 	"fire": ["prop", "flame", "medium"], "burning_web": ["prop", "flame", "small"], "web": ["prop", "cobweb", "floor"],
 	"thorns": ["prop", "weeds", "dead_bush"]}
 const SURFACE_TINT := {"electrified_water": Color(0.6, 0.85, 1.4), "acid": Color(0.8, 1.2, 0.6)}
+## 표면 반짝임 세기(overlay.gdshader 물결 빛 점)
+const SURFACE_SHIMMER := {"water": 1.0, "deep_water": 1.0, "electrified_water": 1.6, "ice": 0.4}
 const CLOUD_ART := {"steam": "grey", "fog": "grey", "magical_darkness": "black", "sleet": "blue", "stinking_cloud": "violet"}
 ## 벽 윗면·벽면·절벽 면 밝기(옛 2D와 같다)
 const TOP_SHADE := 0.32
@@ -91,6 +99,10 @@ var _surf_tex: ImageTexture
 var _mats := {}  # 이름 → ShaderMaterial
 ## 서 있는 큰 소품(나무·천막 등): 캐릭터를 가리면 반투명
 var _tall_props: Array[Node3D] = []
+## 둘레가 켜진 자연 지형 맵: 맵 가장자리 벽 칸(규칙상 경계)은 벽으로 그리지 않고 둘레 바닥·숲으로 덮는다
+var _veil := {}
+## 둘레 거리를 재는 놀이 영역(가장자리 벽을 덮으면 그 안쪽)
+var _play := Rect2()
 ## 소품 → 칸(빛 단계 색)
 var _prop_cells := {}
 var _surface_nodes: Array[Node] = []
@@ -235,6 +247,8 @@ func _build_props() -> void:
 			_tall_props.append(node)
 	if art_dots > 0.0 and not (art().get("scatter", true) is bool and not bool(art().get("scatter", true))):
 		_build_scatter()
+	if art_dots > 0.0:
+		_build_surround()
 	if natural != null:
 		if bool(art().get("cliff_decor", true)):
 			_build_cliff_decor()
@@ -438,6 +452,143 @@ func _build_scatter() -> void:
 				_lay_on_ground(node)
 
 
+## 맵 둘레: 바닥 그물(바닥 셰이더 — 칸 1개짜리 칸 데이터로 한 가지 바닥) + 나무·덤불·풀 덤불
+func _build_surround() -> void:
+	var cfg: Variant = art().get("surround", null)
+	if cfg is bool and not bool(cfg):
+		return
+	var opt: Dictionary = cfg if cfg is Dictionary else {}
+	var floor_id := String(opt.get("floor", ""))
+	if floor_id == "":
+		if cfg != null and not (cfg is Dictionary):
+			return
+		# 자동: 풀 바닥이 40% 넘는 맵만, 가장 많은 풀 바닥으로
+		var count := {}
+		var open := 0
+		for c: Vector2i in grid.all_cells():
+			if grid.has_flag(c, "wall"):
+				continue
+			open += 1
+			var f := _floor_id(c)
+			if f.contains("grass") or f.contains("meadow") or f.contains("thicket"):
+				count[f] = int(count.get(f, 0)) + 1
+		var best := 0
+		var total := 0
+		for f: String in count:
+			total += int(count[f])
+			if int(count[f]) > best:
+				best = int(count[f])
+				floor_id = f
+		if open == 0 or float(total) / open < 0.4:
+			return
+	var tl_a: Dictionary = kit.tile_of("%s.%s" % [floor_id, kit._variant_name(floor_id, "a")])
+	if tl_a.is_empty():
+		return
+	var tl_b: Dictionary = kit.tile_of("%s.%s" % [floor_id, kit._variant_name(floor_id, "b")])
+	var a: Vector2i = tl_a["base"]
+	var b: Vector2i = tl_b.get("base", a)
+	var cimg := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+	cimg.set_pixel(0, 0, Color8(a.x, a.y, b.x, b.y))
+	var iimg := Image.create(1, 1, false, Image.FORMAT_RG8)
+	iimg.set_pixel(0, 0, Color8(0, 1, 0))
+	var mat: ShaderMaterial = (_mats["floors"] as ShaderMaterial).duplicate()
+	mat.set_shader_parameter("cells", ImageTexture.create_from_image(cimg))
+	mat.set_shader_parameter("info", ImageTexture.create_from_image(iimg))
+	mat.set_shader_parameter("map_size", Vector2i(1, 1))
+	mat.set_shader_parameter("rock_on", false)
+	mat.set_shader_parameter("dot_px", art_dots)
+	var w := int(opt.get("width", SURROUND_W))
+	_play = Rect2(Vector2.ZERO, Vector2(grid.size))
+	if natural != null:
+		for c: Vector2i in grid.all_cells():
+			if grid.has_flag(c, "wall") and (c.x == 0 or c.y == 0 or c.x == grid.size.x - 1 or c.y == grid.size.y - 1):
+				_veil[c] = true
+		if not _veil.is_empty():
+			_play = Rect2(Vector2.ONE, Vector2(grid.size) - Vector2(2, 2))
+	var mb := MeshBuilder.new()
+	var fsize := _sheet_size("floors")
+	for y in range(-w, grid.size.y + w):
+		for x in range(-w, grid.size.x + w):
+			if grid.in_bounds(Vector2i(x, y)) and not _veil.has(Vector2i(x, y)):
+				continue
+			var ps := []
+			var cs := []
+			for o: Vector2 in [Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)]:
+				var pt := Vector2(x, y) + o
+				ps.append(Vector3(pt.x, _edge_height(pt), pt.y))
+				var k := _surround_fade(pt, _play, w)
+				cs.append(Color(k, k, k))
+			mb.quad(ps, Rect2(0, 0, 1, 1), fsize, cs)
+	var mi := MeshInstance3D.new()
+	mi.mesh = mb.mesh()
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mi)
+	# 나무·덤불·풀 덤불
+	var trees: Array = opt.get("trees", SURROUND_TREES)
+	var dens := float(opt.get("density", 1.0))
+	var dk: RefCounted = DungeonKit.open(DECOR_KIT)
+	for y in range(-w, grid.size.y + w):
+		for x in range(-w, grid.size.x + w):
+			var c := Vector2i(x, y)
+			if grid.in_bounds(c) and not _veil.has(c):
+				continue
+			var pt := Vector2(c) + Vector2(_rand(c, Vector2i(1, 1), 61), _rand(c, Vector2i(2, 2), 67)) * 0.8 + Vector2(0.1, 0.1)
+			var d := _out_dist(pt, _play)
+			var south := pt.y > _play.end.y
+			var k := _surround_fade(pt, _play, w)
+			if k < 0.08:
+				continue
+			var r := _rand(c, Vector2i(3, 3), 71)
+			var tint := Color(k * 0.9, k * 0.9, k * 0.9)
+			if d > 0.6 and r < 0.42 * dens:
+				var row := _pick_row(trees, _rand(c, Vector2i(4, 4), 73))
+				var id := String(row[0])
+				var vs: PackedStringArray = kit.variants(id)
+				if row.size() > 2:
+					vs = PackedStringArray(row[2])
+				if south and id.begins_with("tree"):
+					id = "bush"
+					vs = PackedStringArray(["a", "b", "wide"])
+				if vs.is_empty():
+					continue
+				var v := vs[int(_rand(c, Vector2i(5, 5), 79) * vs.size()) % vs.size()]
+				var node: Node3D = Kit3D.make(kit, id, v, {"flip": _rand(c, Vector2i(6, 6), 83) < 0.5})
+				node.position = Vector3(pt.x, _edge_height(pt), pt.y)
+				Kit3D.tint(node, tint)
+				sorted.add_child(node)
+				_tall_props.append(node)
+			elif r < 0.42 * dens + 0.45 and not dk.data.is_empty():
+				for j in 1 + int(_rand(c, Vector2i(7, 7), 89) * 3.0):
+					var q := pt + (Vector2(_rand(c, Vector2i(8, j), 97), _rand(c, Vector2i(9, j), 101)) - Vector2(0.5, 0.5)) * 0.6
+					var vs2: PackedStringArray = dk.variants("tuft")
+					var n2: Node3D = Kit3D.make(dk, "tuft", vs2[int(_rand(c, Vector2i(10, j), 103) * vs2.size()) % vs2.size()], {"flip": _rand(c, Vector2i(11, j), 107) < 0.5})
+					n2.position = Vector3(q.x, _edge_height(q), q.y)
+					Kit3D.tint(n2, tint)
+					sorted.add_child(n2)
+
+
+## 맵 밖 점의 바닥 높이: 가장 가까운 놀이 영역 점(자연 지형은 그려진 바닥, 벽 칸은 벽이 서는 바닥)
+func _edge_height(pt: Vector2) -> float:
+	var q := Vector2(clampf(pt.x, _play.position.x + 0.02, _play.end.x - 0.02), clampf(pt.y, _play.position.y + 0.02, _play.end.y - 0.02))
+	if natural != null:
+		return ground_at(q)
+	var c := Vector2i(floori(q.x), floori(q.y))
+	return V.wall_base(grid, c) if grid.has_flag(c, "wall") else float(grid.height(c))
+
+
+## 놀이 영역 경계에서 바깥으로의 거리(칸)
+static func _out_dist(pt: Vector2, play: Rect2) -> float:
+	var dx := maxf(maxf(play.position.x - pt.x, pt.x - play.end.x), 0.0)
+	var dy := maxf(maxf(play.position.y - pt.y, pt.y - play.end.y), 0.0)
+	return sqrt(dx * dx + dy * dy)
+
+
+## 둘레 밝기: 경계 1칸은 그대로, 바깥 끝으로 갈수록 바탕색까지 어둡게
+static func _surround_fade(pt: Vector2, play: Rect2, w: int) -> float:
+	return 1.0 - smoothstep(0.8, float(w) - 0.5, _out_dist(pt, play))
+
+
 ## 흩뿌림 밀도 얼룩(칸 평면 점 → 0.15~2.0): 3칸 격자 값 잡음
 func _patch(p: Vector2) -> float:
 	var q := p / 3.0
@@ -450,6 +601,18 @@ func _patch(p: Vector2) -> float:
 	var d := _rand(i + Vector2i(1, 1), Vector2i(7, 7), 101)
 	var n := lerpf(lerpf(a, b, f.x), lerpf(c, d, f.x), f.y)
 	return lerpf(0.15, 2.0, smoothstep(0.25, 0.75, n))
+
+
+static func _pick_row(rows: Array, r: float) -> Array:
+	var total := 0.0
+	for e: Array in rows:
+		total += float(e[1])
+	var acc := 0.0
+	for e: Array in rows:
+		acc += float(e[1]) / total
+		if r < acc:
+			return e
+	return rows[-1]
 
 
 static func _pick_weighted(rows: Array, r: float) -> String:
@@ -566,6 +729,8 @@ func _build_terrain() -> void:
 		var top_s: float = V.cell_top(grid, south) if has_south else top_c
 		# 남쪽 면 밝기: 남쪽이 열린 바닥이면 그 칸(면이 보는 쪽), 아니면 자기 칸
 		var k := 1.0 - float(dark.get(south, dark[c]) if has_south and not grid.has_flag(south, "wall") else dark[c])
+		if _veil.has(c):
+			continue
 		if grid.has_flag(c, "wall"):
 			var mask := 0
 			for bit: Array in [[1, Vector2i.UP], [2, Vector2i.RIGHT], [4, Vector2i.DOWN], [8, Vector2i.LEFT]]:
@@ -820,6 +985,11 @@ func _refresh_surfaces() -> void:
 	var om: ShaderMaterial = _mats["floors_overlay"]
 	om.set_shader_parameter("surf", _surf_tex)
 	om.set_shader_parameter("tints", tints)
+	var shim := PackedFloat32Array()
+	for i in 8:
+		shim.append(float(SURFACE_SHIMMER.get(palette[i], 0.0)) if i < palette.size() else 0.0)
+	om.set_shader_parameter("shimmer", shim)
+	om.set_shader_parameter("dot_px", art_dots)
 
 
 ## 캐릭터를 가리는 앞쪽 벽·절벽은 셰이더가 비춘다(발 위치·크기 배율 목록). 큰 소품은 반투명.

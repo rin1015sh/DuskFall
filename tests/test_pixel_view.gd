@@ -81,3 +81,41 @@ func test_scatter_pick_weighted() -> void:
 	assert_eq(MapView._pick_weighted(rows, 0.1), "a")
 	assert_eq(MapView._pick_weighted(rows, 0.5), "b")
 	assert_eq(MapView._pick_weighted(rows, 0.999), "b")
+
+
+## 맵 둘레: 놀이 영역 안은 거리 0·밝기 1, 바깥 끝으로 갈수록 어두워진다.
+func test_surround_fade() -> void:
+	var MapView := preload("res://scenes/battle/map_view.gd")
+	var play := Rect2(1, 1, 10, 8)
+	assert_eq(MapView._out_dist(Vector2(5, 5), play), 0.0, "안쪽")
+	assert_true(absf(MapView._out_dist(Vector2(-2, 5), play) - 3.0) < 1e-5, "서쪽 3칸")
+	assert_eq(MapView._surround_fade(Vector2(5, 5), play, 7), 1.0)
+	assert_true(MapView._surround_fade(Vector2(-5, 5), play, 7) < 0.1, "바깥 끝은 거의 바탕색")
+	assert_true(MapView._surround_fade(Vector2(-1, 5), play, 7) > MapView._surround_fade(Vector2(-3, 5), play, 7), "멀수록 어둡다")
+	for row: Array in MapView.SURROUND_TREES:
+		var kit: RefCounted = preload("res://scenes/kit/dungeon_kit.gd").open()
+		assert_true(kit.has(String(row[0])), "둘레 나무 %s" % row[0])
+		for v: String in row[2]:
+			assert_true(kit.variants(String(row[0])).has(v), "%s.%s" % [row[0], v])
+
+
+## 바람: 흔들 그림이 키트에 있고, 켜면 흔들림 재질이 붙고 꺼져 있으면 안 붙는다.
+func test_wind_sway() -> void:
+	var Kit3D := preload("res://scenes/kit/kit3d.gd")
+	var DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
+	var kit: RefCounted = DungeonKit.open()
+	var dk: RefCounted = DungeonKit.open(preload("res://scenes/battle/map_view.gd").DECOR_KIT)
+	for id: String in Kit3D.SWAY:
+		assert_true(kit.has(id) or dk.has(id), "흔들 그림 %s" % id)
+	var before := Kit3D.wind
+	Kit3D.wind = true
+	var n: Node3D = Kit3D.make(kit, "bush", "a")
+	var sp: Variant = n.get_meta("sprite", null)
+	assert_true(sp is Sprite3D and (sp as Sprite3D).material_override is ShaderMaterial, "흔들림 재질")
+	n.free()
+	Kit3D.wind = false
+	var n2: Node3D = Kit3D.make(kit, "bush", "a")
+	var sp2: Variant = n2.get_meta("sprite", null)
+	assert_true(sp2 is Sprite3D and (sp2 as Sprite3D).material_override == null, "바람 끄면 없음")
+	n2.free()
+	Kit3D.wind = before

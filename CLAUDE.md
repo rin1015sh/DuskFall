@@ -93,6 +93,10 @@ res://
   어우러짐(도트 화면): 바닥 경계는 덩어리 방식(floor.gdshader — 둘레 3×3 칸의 둥근 영향 + 바닥별 잡음 중 큰 바닥, 1도트 격자에 맞춰 딱 끊고 어두운 쪽 경계에 그늘).
   흩뿌림 장식(map_view._build_scatter — 새 도트 그림 assets/pixel_decor, tools/make_decor.py가 바닥 색에서 뽑아 그림): 키트 바닥 id별 기본표 SCATTER,
   3칸 얼룩 밀도·덤불 무리, 다른 바닥과 맞닿은 풀 칸은 경계 쪽에 큰 덤불. 맵 `art.scatter`(false = 끔, {바닥 id: [개수, [[id, 무게]...]]})·`art.scatter_density`.
+  물·얼음·진흙 표면도 덩어리 방식(overlay.gdshader — 둥근 웅덩이, 물가 밝은 젖은 테·안쪽 깊이 띠, 물결 빛 점 반짝임 SURFACE_SHIMMER).
+  맵 둘레(map_view._build_surround, 규칙 밖 그림만): 맵 밖 7칸에 바닥을 잇고 나무·덤불·풀 덤불을 빽빽하게, 바깥으로 갈수록 바탕색까지 어둡게. 남쪽(화면 앞)은 덤불만.
+  풀밭 맵(풀 바닥 40%↑) 자동, 맵 `art.surround`(false = 끔, {floor, width, trees: [[id, 무게, [변형]]], density}). 자연 지형이면 가장자리 벽 칸(경계)은 벽 대신 둘레로 덮는다(규칙상 막힘 그대로).
+  바람(scenes/kit/sway.gdshader — Kit3D.SWAY 표의 풀·꽃·덤불·나무 판 위쪽이 흔들림, 자리마다 잔물결 + 지나가는 돌풍, 나무·덤불은 잎 반짝임 LEAFY). 도트 화면 기본, `--wind=0`이면 끔.
   그림체 방향(2026-11-26): 첨부 참고 화풍처럼 격자가 드러나지 않게 어우러진 깔끔한 도트. 새 그림 추가 허용, 시간대·분위기는 지금 그대로.
   캡처: `--shot=<png> --frames=<n>`, 카메라 고정 `--cam=x,y --zoom=<배율>`. 맵 그림은 던전 에셋 키트로 그린다:
   맵 데이터 `art`(wall·wall_top·cliff·floors[범례 글자 → 키트 바닥]·props[키트 물건 at/id/v]). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`·`asset_library/`.

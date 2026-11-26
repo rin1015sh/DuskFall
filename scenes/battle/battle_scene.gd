@@ -573,6 +573,8 @@ func _setup_pixel() -> void:
 	# 도트 화면이면 키트 그림도 도트 변환본(assets/pixel_kit — tools/pixelize_kit.py), --pixel_art=0이면 원본 그대로
 	DungeonKit.art_dir = PIXEL_KIT_DIR if pixel.scale_px > 0 and args.get("pixel_art", "1") != "0" else ""
 	MapView.art_dots = 32.0 if DungeonKit.art_dir != "" else 0.0
+	# 바람(풀·나무 흔들림): 도트 화면 기본, --wind=0이면 끔
+	MapView.Kit3D.wind = pixel.scale_px > 0 and args.get("wind", "1") != "0"
 
 
 ## 화면 점 → 칸(카메라 광선이 처음 닿는 칸 기둥)
