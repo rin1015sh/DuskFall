@@ -73,9 +73,8 @@ const SURFACE_TINT := {"electrified_water": Color(0.6, 0.85, 1.4), "acid": Color
 ## 표면 반짝임 세기(overlay.gdshader 물결 빛 점)
 const SURFACE_SHIMMER := {"water": 1.0, "deep_water": 1.0, "electrified_water": 1.6, "ice": 0.4}
 const CLOUD_ART := {"steam": "grey", "fog": "grey", "magical_darkness": "black", "sleet": "blue", "stinking_cloud": "violet"}
-## 벽 윗면·벽면·절벽 면 밝기(옛 2D와 같다). 폐허 벽 윗면은 밝은 돌(RUIN_TOP_SHADE).
+## 벽 윗면·벽면·절벽 면 밝기(옛 2D와 같다). 폐허 벽 윗면은 윗돌 블록(CAP_SHADE).
 const TOP_SHADE := 0.32
-const RUIN_TOP_SHADE := 0.72
 ## 폐허 벽: 높이 배율 범위(벽 높이 × 0.42~1), 무너진 홈 확률·배율, 장식 확률(벽면 덩굴·이끼, 밑동 잔해, 밑동·윗면 풀)
 const RUIN_H := Vector2(0.42, 1.0)
 const RUIN_NOTCH := [0.14, 0.6]
@@ -101,9 +100,14 @@ var sorted: Node3D
 ## 지형 그물(바닥·벽윗면·벽면) 하나씩
 var _floor_mi: MeshInstance3D
 var _top_mi: MeshInstance3D
-## 폐허 벽 윗면(새 그림 assets/pixel_decor/ruin_top.png — 2×2칸 이어 깔기)
+## 폐허 벽 윗면: 칸마다 크기·높이가 다른 윗돌 블록 그물(map_view._ruin_cap — 앞면이 보여 입체), 재질 assets/pixel_decor/ruin_stone.png(돌·이끼)
 var _ruin_top_mi: MeshInstance3D
-const RUIN_TOP_TEX := "res://assets/pixel_decor/ruin_top.png"
+const RUIN_TOP_TEX := "res://assets/pixel_decor/ruin_stone.png"
+## 윗돌: 높이(벽 윗면 위 유닛 범위), 빠진 돌 확률, 이끼 확률(얼룩 밖), 밝기(윗면·앞면·줄눈)
+const CAP_H := Vector2(0.05, 0.3)
+const CAP_MISSING := 0.08
+const CAP_MOSS := 0.05
+const CAP_SHADE := [0.78, 0.5, 0.22]
 var _face_mi: MeshInstance3D
 var _water_mi: MeshInstance3D
 var _rim_mi: MeshInstance3D
@@ -271,6 +275,7 @@ func _build_props() -> void:
 		_build_scatter()
 	if art_dots > 0.0:
 		_build_surround()
+		_build_canopy()
 		_ruin = natural == null and bool(art().get("ruin", art().get("surround", null) != false)) and String(art().get("wall", "cave")) == "stone"
 		if _ruin:
 			_build_ruin_decor()
@@ -533,6 +538,7 @@ func _build_surround() -> void:
 	mat.set_shader_parameter("blend_dh", 1.0)
 	mat.set_shader_parameter("rock_on", false)
 	mat.set_shader_parameter("dot_px", art_dots)
+	_surround_mat = mat
 	var mb := MeshBuilder.new()
 	var fsize := _sheet_size("floors")
 	for y in range(-w, grid.size.y + w):
@@ -642,6 +648,97 @@ func _floor_ab(id: String) -> Vector4i:
 	return Vector4i(a.x, a.y, b.x, b.y)
 
 
+## 수관 그늘: 나무(키트 id tree_*)마다 수관 크기 둥근 그늘을 칸당 CANOPY_RES 화소 그림에 모아 바닥 셰이더(맵·둘레)에 준다.
+## 그늘 가운데 = 줄기에서 햇빛 반대쪽(남동)으로 조금. 크기 = 그림 폭.
+const CANOPY_RES := 4
+const CANOPY_SHIFT := Vector2(0.25, 0.2)
+var _surround_mat: ShaderMaterial
+
+
+func _build_canopy() -> void:
+	var trees: Array[Node3D] = []
+	for n: Node3D in _prop_cells:
+		if String(n.get_meta("kit_id", "")).begins_with("tree"):
+			trees.append(n)
+	for n: Node3D in _tall_props:
+		if is_instance_valid(n) and String(n.get_meta("kit_id", "")).begins_with("tree") and not trees.has(n):
+			trees.append(n)
+	if trees.is_empty():
+		return
+	var w := SURROUND_W
+	var org := Vector2(-w, -w)
+	var cells := Vector2i(grid.size.x + 2 * w, grid.size.y + 2 * w)
+	var img := Image.create(cells.x * CANOPY_RES, cells.y * CANOPY_RES, false, Image.FORMAT_R8)
+	var acc := PackedFloat32Array()
+	acc.resize(img.get_width() * img.get_height())
+	for n in trees:
+		var sp: Variant = n.get_meta("sprite", null)
+		var wpx := 160.0
+		if sp is Sprite3D and (sp as Sprite3D).texture != null:
+			wpx = (sp as Sprite3D).texture.get_size().x
+		var r := clampf(wpx / V.T * 0.5 * n.scale.x, 0.8, 2.4)
+		var cen := Vector2(n.position.x, n.position.z) + CANOPY_SHIFT
+		var lo := ((cen - Vector2(r, r) - org) * CANOPY_RES).floor()
+		var hi := ((cen + Vector2(r, r) - org) * CANOPY_RES).ceil()
+		for py in range(maxi(0, int(lo.y)), mini(img.get_height(), int(hi.y))):
+			for px in range(maxi(0, int(lo.x)), mini(img.get_width(), int(hi.x))):
+				var pt := org + (Vector2(px, py) + Vector2(0.5, 0.5)) / CANOPY_RES
+				var d := pt.distance_to(cen) / r
+				if d < 1.0:
+					var i := py * img.get_width() + px
+					acc[i] = maxf(acc[i], 1.0 - smoothstep(0.55, 1.0, d))
+	for py in img.get_height():
+		for px in img.get_width():
+			var v := acc[py * img.get_width() + px]
+			if v > 0.0:
+				img.set_pixel(px, py, Color(v, 0, 0))
+	var tex := ImageTexture.create_from_image(img)
+	for m: Variant in [_mats.get("floors"), _surround_mat]:
+		if m is ShaderMaterial:
+			(m as ShaderMaterial).set_shader_parameter("canopy_on", true)
+			(m as ShaderMaterial).set_shader_parameter("canopy", tex)
+			(m as ShaderMaterial).set_shader_parameter("canopy_origin", org)
+			(m as ShaderMaterial).set_shader_parameter("canopy_size", Vector2(cells))
+
+
+## 폐허 벽 윗면 블록: 칸을 앞뒤 2줄로 나누고 줄마다 2~3개 돌(나눔 자리·높이 칸마다 다르게). 돌마다 윗면 + 남쪽 앞면(카메라에 보이는 면),
+## 돌 사이·빠진 자리는 어두운 줄눈 바닥. 이끼는 칸을 넘는 얼룩 + 가끔. 재질은 세계 좌표로 입혀(돌·이끼 잔무늬) 반복이 드러나지 않는다.
+func _ruin_cap(mb: MeshBuilder, c: Vector2i, top: float, k: float) -> void:
+	var t := float(V.T)
+	var size := Vector2(2.0 * t, t)
+	var x0 := float(c.x)
+	var z0 := float(c.y)
+	var mortar := Color(CAP_SHADE[2] * k, CAP_SHADE[2] * k, CAP_SHADE[2] * k)
+	mb.quad(_flat_quad(x0, z0, top), Rect2(0, 0, t, t), size, [mortar, mortar, mortar, mortar])
+	var g := 1.0 / 32.0  # 줄눈 1도트
+	var zs := [0.0, 0.4 + _rand(c, Vector2i(0, 1), 401) * 0.2, 1.0]
+	for row in 2:
+		var cols := 2 + int(_rand(c, Vector2i(row, 2), 409) * 1.99)
+		var xs := [0.0]
+		for i in range(1, cols):
+			xs.append((float(i) + (_rand(c, Vector2i(row, 10 + i), 419) - 0.5) * 0.5) / cols)
+		xs.append(1.0)
+		for i in cols:
+			var key := Vector2i(row, 20 + i)
+			if _rand(c, key, 421) < CAP_MISSING:
+				continue
+			var bx0: float = x0 + float(xs[i]) + (g * 0.5 if i > 0 else 0.0)
+			var bx1: float = x0 + float(xs[i + 1]) - (g * 0.5 if i < cols - 1 else g)
+			var bz0: float = z0 + float(zs[row]) + (g * 0.5 if row > 0 else 0.0)
+			var bz1: float = z0 + float(zs[row + 1]) - (g * 0.5 if row == 0 else g)
+			var h := top + lerpf(CAP_H.x, CAP_H.y, _rand(c, key, 431))
+			var moss := _patch(Vector2(bx0, bz0) * 0.9 + Vector2(31, 17)) > 1.85 or _rand(c, key, 433) < CAP_MOSS
+			var u0 := t if moss else 0.0
+			var lit := float(CAP_SHADE[0]) * k * (0.92 + 0.16 * _rand(c, key, 439))
+			var tc := Color(lit, lit, lit)
+			var src := Rect2(u0 + fposmod(bx0, 1.0) * t, fposmod(bz0, 1.0) * t, (bx1 - bx0) * t, (bz1 - bz0) * t)
+			mb.quad([Vector3(bx0, h, bz0), Vector3(bx1, h, bz0), Vector3(bx1, h, bz1), Vector3(bx0, h, bz1)], src, size, [tc, tc, tc, tc])
+			var fk := float(CAP_SHADE[1]) * k * (1.1 if moss else 1.0)
+			var fc := Color(fk, fk, fk)
+			var fsrc := Rect2(u0 + fposmod(bx0, 1.0) * t, 0.0, (bx1 - bx0) * t, (h - top) * V.STEP_PX)
+			mb.quad([Vector3(bx0, h, bz1), Vector3(bx1, h, bz1), Vector3(bx1, top, bz1), Vector3(bx0, top, bz1)], fsrc, size, [tc.lerp(fc, 0.3), tc.lerp(fc, 0.3), fc, fc])
+
+
 ## 폐허 벽 높이(그림만 — 규칙은 벽 칸 그대로). 방 남쪽 낮은 벽·벽 아닌 칸은 원래 높이.
 func _vis_top(c: Vector2i) -> float:
 	if not _ruin or not grid.in_bounds(c) or not grid.has_flag(c, "wall") or V.is_low_wall(grid, c):
@@ -695,7 +792,7 @@ func _build_ruin_decor() -> void:
 		if _rand(c, Vector2i(16, 0), 307) < float(RUIN_DECOR["top_tuft"]):
 			var q2 := Vector2(c.x + 0.15 + _rand(c, Vector2i(17, 0), 311) * 0.7, c.y + 0.2 + _rand(c, Vector2i(18, 0), 313) * 0.6)
 			var tn2: Node3D = Kit3D.make(dk, "tuft", tv[int(_rand(c, Vector2i(19, 0), 317) * tv.size()) % tv.size()], {"flip": _rand(c, Vector2i(20, 0), 331) < 0.5})
-			tn2.position = Vector3(q2.x, top, q2.y)
+			tn2.position = Vector3(q2.x, top + CAP_H.y * 0.5, q2.y)
 			Kit3D.tint(tn2, V.light_tint(grid, c) if not open_south else tint)
 			sorted.add_child(tn2)
 
@@ -872,8 +969,7 @@ func _build_terrain() -> void:
 					mask |= int(bit[0])
 			var tsrc := Rect2(float(top_frame[0]) + (mask % 4) * t, float(top_frame[1]) + (mask / 4) * t, t, t)
 			if _ruin and not _veil.has(c):
-				var rsrc := Rect2(posmod(c.x, 2) * t, posmod(c.y, 2) * t, t, t)
-				rtops.quad(_flat_quad(x0, z0, top_c), rsrc, Vector2(2.0 * t, 2.0 * t), _corner_cols(dark, c, Color(RUIN_TOP_SHADE, RUIN_TOP_SHADE, RUIN_TOP_SHADE)))
+				_ruin_cap(rtops, c, top_c, 1.0 - float(dark[c]))
 			else:
 				tops.quad(_flat_quad(x0, z0, top_c), tsrc, tsize, _corner_cols(dark, c, Color(TOP_SHADE, TOP_SHADE, TOP_SHADE)))
 			if has_south and top_s < top_c:

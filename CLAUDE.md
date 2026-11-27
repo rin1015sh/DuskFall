@@ -98,8 +98,10 @@ res://
   floor.gdshader cell_origin), 경계 바로 바깥 2.6칸은 지형에 맞는 큰 나무·바위로 빽빽하게 막고(남쪽 = 화면 앞은 1칸 띄우고 낮은 바위·덤불), 그 너머는 드문 나무·바위·풀,
   먼 끝만 살짝 어둡게. 지형 SURROUND_BIOMES: 풀 바닥 40%↑ forest, 아니면 rocky. 맵 `art.surround`(false = 끔, {biome, floor, patch, wall/low/far, width, density}).
   자연 지형이면 가장자리 벽 칸(경계)은 벽 대신 둘레로 덮는다(규칙상 막힘 그대로). 카메라가 보는 점은 맵 안으로 묶는다(battle_scene._apply_camera).
-  폐허 벽(블록 지형 + 둘레 + 돌벽, 맵 `art.ruin`): 벽 높이를 칸마다 들쭉날쭉(그림만 — map_view._vis_top, 무너진 홈), 윗면은 새 그림 assets/pixel_decor/ruin_top.png(이끼 낀 돌, 2×2칸),
+  폐허 벽(블록 지형 + 둘레 + 돌벽, 맵 `art.ruin`): 벽 높이를 칸마다 들쭉날쭉(그림만 — map_view._vis_top, 무너진 홈), 윗면은 칸마다 크기·높이가 다른 윗돌 블록 그물(map_view._ruin_cap — 돌마다 윗면 + 카메라에 보이는 앞면, 사이 줄눈, 재질 새 그림 assets/pixel_decor/ruin_stone.png 돌·이끼),
   벽면 덩굴·이끼·뿌리, 밑동 잔해·풀, 윗면 풀(RUIN_DECOR).
+  수관 그늘(map_view._build_canopy): 나무(tree_*)마다 수관 크기 그늘을 칸당 4화소 그림으로 모아 바닥 셰이더(맵·둘레)에 — 그늘 두 단계, 잎 사이 빛 점이 바람에 흐름.
+  맵 안 숲: 맵 안 나무 소품 칸은 통행 막힘(flags impassable — 그림과 규칙을 맞춘다. hill_path 나무 무리).
   바람(scenes/kit/sway.gdshader — Kit3D.SWAY 표의 풀·꽃·덤불·나무 판 위쪽이 흔들림, 자리마다 잔물결 + 지나가는 돌풍, 나무·덤불은 잎 반짝임 LEAFY). 도트 화면 기본, `--wind=0`이면 끔.
   그림체 방향(2026-11-26): 첨부 참고 화풍처럼 격자가 드러나지 않게 어우러진 깔끔한 도트. 새 그림 추가 허용, 시간대·분위기는 지금 그대로.
   캡처: `--shot=<png> --frames=<n>`, 카메라 고정 `--cam=x,y --zoom=<배율>`. 맵 그림은 던전 에셋 키트로 그린다:

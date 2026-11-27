@@ -145,4 +145,22 @@ func test_ruin_wall_heights() -> void:
 	assert_true(hi - lo > 0.3, "들쭉날쭉")
 	mv.free()
 	var tex: Texture2D = load(MapView.RUIN_TOP_TEX)
-	assert_true(tex != null and tex.get_width() == 2 * 64, "윗면 그림 2×2칸")
+	assert_true(tex != null and tex.get_width() == 2 * 64, "윗돌 재질(돌·이끼 2칸)")
+
+
+## 맵 안 숲(hill_path): 맵 안 나무 소품 칸은 통행 막힘(impassable) — 그림과 규칙이 맞는다.
+func test_hill_path_trees_block() -> void:
+	var m: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/maps/hill_path.json"))
+	var blocked := {}
+	for f: Dictionary in m.get("flags", []):
+		if "impassable" in f["flags"] or "wall" in f["flags"]:
+			blocked[Vector2i(int(f["cell"][0]), int(f["cell"][1]))] = true
+	var rows: Array = m["rows"]
+	var n := 0
+	for p: Dictionary in m["art"]["props"]:
+		var c := Vector2i(int(p["at"][0]), int(p["at"][1]))
+		var inner: bool = c.x > 0 and c.y > 0 and c.x < String(rows[0]).length() - 1 and c.y < rows.size() - 1
+		if String(p["id"]).begins_with("tree") and inner and String(rows[c.y])[c.x] != "#" and not (c in [Vector2i(13, 12)]):
+			n += 1
+			assert_true(blocked.has(c), "나무 칸 %s 막힘" % str(c))
+	assert_true(n >= 6, "맵 안 나무 무리 %d" % n)

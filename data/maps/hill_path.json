@@ -110,6 +110,96 @@
       "flags": [
         "climb"
       ]
+    },
+    {
+      "cell": [
+        6,
+        8
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        5,
+        10
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        20,
+        8
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        21,
+        10
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        19,
+        12
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        15,
+        13
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        1,
+        13
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        22,
+        14
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        2,
+        1
+      ],
+      "flags": [
+        "impassable"
+      ]
+    },
+    {
+      "cell": [
+        20,
+        1
+      ],
+      "flags": [
+        "impassable"
+      ]
     }
   ],
   "zones": [
@@ -376,6 +466,54 @@
         "at": [
           14,
           10
+        ]
+      },
+      {
+        "id": "tree_broadleaf",
+        "v": "a",
+        "at": [
+          6,
+          8
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "b",
+        "at": [
+          5,
+          10
+        ]
+      },
+      {
+        "id": "tree_broadleaf",
+        "v": "c",
+        "at": [
+          20,
+          8
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "a",
+        "at": [
+          21,
+          10
+        ]
+      },
+      {
+        "id": "tree_broadleaf",
+        "v": "b",
+        "at": [
+          19,
+          12
+        ]
+      },
+      {
+        "id": "tree_pine",
+        "v": "young",
+        "at": [
+          15,
+          13
         ]
       }
     ]

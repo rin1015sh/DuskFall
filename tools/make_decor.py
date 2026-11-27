@@ -2,7 +2,7 @@
 # 1칸 32도트 규격: 도트 단위로 그린 뒤 2배 확대(2×2 화소 = 1도트, 키트 px_per_tile 64와 같은 좌표).
 # 색은 도트 변환한 바닥(assets/pixel_kit/floors.webp)의 풀·돌 색에서 뽑아 바닥과 어울리게 한다.
 # 장식: tuft(풀 덤불 a~f), flowers(꽃 덤불 a~d), pebble(돌멩이 a~c), leaf(잎 부스러기 a~b — 눕힌 무늬).
-# ruin_top.png: 폐허 벽 윗면(2×2칸 = 64×64도트 이어 깔기 — 엇갈린 돌 + 이끼, 칸 좌표 나머지로 조각을 고른다).
+# ruin_stone.png: 폐허 벽 윗돌 블록 재질(돌·이끼 — map_view._ruin_cap).
 # 사용: python3 tools/make_decor.py   필요: numpy, Pillow
 import json, os, random
 import numpy as np
@@ -158,51 +158,32 @@ def leaves(n):
     return img
 
 
-def ruin_top():
-    # 폐허 벽 윗면(2×2칸 = 64×64도트, 이어 깔아도 이음매 없음): 엇갈려 쌓은 돌 + 이끼 얼룩
-    N = 64
-    img = np.zeros((N, N, 4), dtype=np.uint8)
+def ruin_stone():
+    # 폐허 벽 윗돌 재질(64×32도트 = 가로 2칸): 왼쪽 칸 = 돌(결 무늬만 — 줄눈 없이, 블록 그물이 돌 모양을 만든다), 오른쪽 칸 = 이끼.
+    # 둘 다 이어 깔아도 이음매 없는 잔무늬라 세계 좌표로 입혀도 반복이 드러나지 않는다.
+    N = 32
+    img = np.zeros((N, 2 * N, 4), dtype=np.uint8)
     img[..., 3] = 255
-    rows = list(range(0, N, 8))
-    for ri, y0 in enumerate(rows):
-        x0 = R.randint(0, 6) + (5 if ri % 2 else 0)
-        x = x0
-        edges = [x]
-        while edges[-1] < x0 + N:
-            x += R.randint(9, 14)
-            edges.append(min(x, x0 + N))
-        for bi in range(len(edges) - 1):
-            bx0, bx1 = edges[bi], edges[bi + 1]
-            tone = R.choice([1, 2, 2, 3])
-            for yy in range(8):
-                for xx in range(bx0, bx1):
-                    X, Y = xx % N, (y0 + yy) % N
-                    if yy == 7 or xx == bx1 - 1:
-                        c = S_OUT  # 줄눈
-                    elif yy == 0 or xx == bx0:
-                        c = S[min(3, tone + 1)]  # 빛 받는 위·왼쪽 모서리
-                    elif yy == 6 or xx == bx1 - 2:
-                        c = S[max(0, tone - 1)]
-                    else:
-                        c = S[tone]
-                    img[Y, X, :3] = c
-    # 이끼: 주기 잡음(이어지게) 문턱 넘는 곳
     yy, xx = np.mgrid[0:N, 0:N] / N * 2 * np.pi
-    ph = [R.uniform(0, 6.28) for _ in range(6)]
-    n = (np.sin(xx + ph[0]) * np.cos(yy + ph[1]) + 0.6 * np.sin(2 * xx + yy + ph[2]) + 0.4 * np.cos(3 * yy - xx + ph[3])
-         + 0.25 * np.sin(5 * xx + ph[4]) * np.sin(4 * yy + ph[5]))
-    moss = n > 0.8
-    for Y in range(N):
-        for X in range(N):
-            if moss[Y, X]:
-                up = moss[(Y - 1) % N, X]
-                dn = moss[(Y + 1) % N, X]
-                c = G[3] if not up else (G[1] if not dn else G[2])
-                if n[Y, X] > 1.2:
-                    c = G[3]
-                img[Y, X, :3] = c
-            elif moss[(Y - 1) % N, X]:
-                img[Y, X, :3] = shade(tuple(int(v) for v in img[Y, X, :3]), 0.7)  # 이끼 아래 그늘
+    def pn(seed, f):
+        r = random.Random(seed)
+        v = np.zeros((N, N))
+        for k in range(f):
+            a, b = r.randint(1, 4), r.randint(1, 4)
+            v += np.sin(a * xx + b * yy * r.choice([1, -1]) + r.uniform(0, 6.28)) / (k + 1)
+        return v
+    # 얼룩 덩어리(2~4도트)를 둘러 감아 찍는다 — 줄무늬 없는 돌결·이끼결
+    def blobs(x0, base, cols, count):
+        img[:, x0:x0 + N, :3] = base
+        for _ in range(count):
+            cx, cy, r = R.randrange(N), R.randrange(N), R.choice([1, 1, 2, 2, 3])
+            c = R.choice(cols)
+            for dy in range(-r, r + 1):
+                for dx in range(-r, r + 1):
+                    if dx * dx + dy * dy <= r * r + R.choice([0, 1]):
+                        img[(cy + dy) % N, x0 + (cx + dx) % N, :3] = c
+    blobs(0, S[2], [S[1], S[1], S[3], mix(S[2], S[1], 0.5)], 70)
+    blobs(N, G[2], [G[1], G[1], G[3], G[3], G[4]], 80)
     return img
 
 
@@ -243,8 +224,8 @@ def main():
         x += w + 1
     big = sheet.repeat(2, 0).repeat(2, 1)
     Image.fromarray(big, "RGBA").save(os.path.join(OUT, "decor.png"))
-    top = ruin_top().repeat(2, 0).repeat(2, 1)
-    Image.fromarray(top, "RGBA").save(os.path.join(OUT, "ruin_top.png"))
+    stone = ruin_stone().repeat(2, 0).repeat(2, 1)
+    Image.fromarray(stone, "RGBA").save(os.path.join(OUT, "ruin_stone.png"))
     kit = {
         "_comment": "바닥 장식 도트 그림(tools/make_decor.py가 만든다 — 손으로 고치지 않는다). 던전 키트와 같은 형식.",
         "version": 1, "px_per_tile": 64, "depth_k": 0.72,
@@ -253,7 +234,7 @@ def main():
     }
     with open(os.path.join(OUT, "kit.json"), "w") as f:
         json.dump(kit, f, ensure_ascii=False, indent=1)
-    for name in ("decor.png", "ruin_top.png"):
+    for name in ("decor.png", "ruin_stone.png"):
         imp = os.path.join(OUT, name + ".import")
         if not os.path.exists(imp):
             with open(imp, "w") as f:

@@ -32,6 +32,13 @@ uniform float rim = 0.07;
 uniform float edge_shade = 0.22;
 // 경계를 맞출 도트 격자(칸당 도트 수, 0 = 맞추지 않음)
 uniform float dot_px = 0.0;
+// 수관 그늘(map_view._build_canopy): 나무 수관 아래 그늘 세기(R, 세계 좌표 → canopy_origin·canopy_px로 찾음).
+// 그늘 안에 잎 사이로 드는 빛 점이 천천히 흐르고(바람), 세기는 두 단계로 끊는다(도트 그림).
+uniform bool canopy_on = false;
+uniform sampler2D canopy : filter_linear;
+uniform vec2 canopy_origin = vec2(0.0);
+uniform vec2 canopy_size = vec2(1.0);
+uniform float canopy_dark = 0.36;
 // 섞을 수 있는 높이 차(블록 지형 0 = 같은 높이만, 자연 지형 1 = 언덕을 넘어서도)
 uniform float blend_dh = 0.0;
 // 정점 색 되돌림 배율(자연 지형: 평지 밝기를 1로, 빛 받는 비탈은 더 밝게)
@@ -200,6 +207,16 @@ void fragment() {
 					}
 				}
 			}
+		}
+	}
+	if (canopy_on) {
+		float sh = texture(canopy, (ps - canopy_origin) / canopy_size).r;
+		if (sh > 0.2) {
+			vec2 q = ps + vec2(TIME * 0.12, TIME * 0.05);
+			float leaf = vnoise(q * 2.6) * 0.6 + vnoise(q * 6.5 + 9.1) * 0.4;
+			float hole = smoothstep(0.66, 0.7, leaf);  // 잎 사이 빛 점
+			float band = sh > 0.55 ? 1.0 : 0.55;
+			col *= 1.0 - canopy_dark * band * (1.0 - hole * 0.85);
 		}
 	}
 	ALBEDO = col * COLOR.rgb * shade_gain;

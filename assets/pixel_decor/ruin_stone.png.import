@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://00g1ngq4c4gt"
-path="res://.godot/imported/ruin_top.png-68a4d1b6812cc3497a6d153e84b8bd9e.ctex"
+uid="uid://dm7kwp7llo1q1"
+path="res://.godot/imported/ruin_stone.png-ff3f5b40ec4864f64e020d6aca19299b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/pixel_decor/ruin_top.png"
-dest_files=["res://.godot/imported/ruin_top.png-68a4d1b6812cc3497a6d153e84b8bd9e.ctex"]
+source_file="res://assets/pixel_decor/ruin_stone.png"
+dest_files=["res://.godot/imported/ruin_stone.png-ff3f5b40ec4864f64e020d6aca19299b.ctex"]
 
 [params]
 
