@@ -203,30 +203,3 @@ func test_pixel_actor_art() -> void:
 			var t: Texture2D = load(alt)
 			assert_eq(t.get_height(), roundi(42.0 * float(want[img])), "%s 도트 키" % alt)
 
-
-## 직접 그린 몬스터 도트 그림(tools/draw_monsters.py): 원본 그림 이름과 같고, 키 = 42 × 그 그림을 쓰는 몬스터의 크기 배율, 발 아래 4도트는 비운다.
-func test_hand_drawn_monsters() -> void:
-	var size_k := {"tiny": 0.5, "small": 0.8, "medium": 1.0, "large": 1.7, "huge": 2.4}
-	var want := {}
-	for f: String in DirAccess.get_files_at("res://data/monsters"):
-		if f.ends_with(".json"):
-			var m: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/monsters/" + f))
-			var img := String(m.get("art", {}).get("image", ""))
-			if img != "":
-				want[img.get_file().get_basename()] = maxf(float(want.get(img.get_file().get_basename(), 0.0)), float(size_k.get(m.get("size", "medium"), 1.0)))
-	var n := 0
-	for f: String in DirAccess.get_files_at("res://assets/pixel_monsters"):
-		if not f.ends_with(".webp"):
-			continue
-		n += 1
-		var base := f.get_basename()
-		assert_true(want.has(base), "%s를 쓰는 몬스터가 있다" % base)
-		var img: Image = (load("res://assets/pixel_monsters/" + f) as Texture2D).get_image()
-		assert_eq(img.get_height(), roundi(42.0 * float(want.get(base, 1.0))), "%s 키" % base)
-		var empty := true
-		for y in range(img.get_height() - 4, img.get_height()):
-			for x in img.get_width():
-				if img.get_pixel(x, y).a > 0.5:
-					empty = false
-		assert_true(empty, "%s 발 아래 4도트 비움" % base)
-	assert_true(n >= 3, "고블린 3종")

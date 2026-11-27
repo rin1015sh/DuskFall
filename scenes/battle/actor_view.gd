@@ -51,7 +51,6 @@ var _cut_vp: SubViewport
 var _rig: Node2D
 const CUT_K := 0.56  # 컷아웃 그림 1px → 화면 px(걷기 시트 키에 맞춤)
 const PIXEL_ACTORS := "res://assets/pixel_actors"
-const PIXEL_MONSTERS := "res://assets/pixel_monsters"
 const PIXEL_DOT_PX := 2.0  # 도트 그림 모드: 캐릭터 그림 1화소 = 화면 2px(도트 화면 1도트, pixel_view.scale_px)
 var _hk := 1.0  # 컷아웃 그림 px → 화면 px(키·HP 막대 높이)
 
@@ -113,13 +112,10 @@ func setup(c: Node, g: Node) -> void:
 	elif art.has("image") and ResourceLoader.exists(art["image"]):
 		var img_path := String(art["image"])
 		# 도트 그림 모드: 도트 변환본(assets/pixel_actors — tools/pixelize_actors.py, 그림 1화소 = 화면 1도트)
-		# 직접 그린 도트 그림(assets/pixel_monsters — tools/draw_monsters.py)이 있으면 그것을 먼저
 		if preload("res://scenes/battle/cutout_rig.gd").pixel:
-			for dir: String in [PIXEL_MONSTERS, PIXEL_ACTORS]:
-				var alt := dir.path_join(img_path.get_file().get_basename() + ".webp")
-				if ResourceLoader.exists(alt):
-					img_path = alt
-					break
+			var alt := PIXEL_ACTORS.path_join(img_path.get_file().get_basename() + ".webp")
+			if ResourceLoader.exists(alt):
+				img_path = alt
 		sprite.texture = load(img_path)
 		var tex_h: float = sprite.texture.get_size().y
 		_k = BODY_PX * float(SIZE_K.get(c.size, 1.0)) / maxf(tex_h, 1.0)
