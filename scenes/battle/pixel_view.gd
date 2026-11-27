@@ -12,8 +12,22 @@ extends Node
 ## UI(CanvasLayer)는 원래 해상도 그대로.
 
 const OUTLINE_LAYER := 1 << 19  # 외곽선 판의 그림 층(도트 카메라만 본다)
+const V_T := 64.0  # 확대 1에서 세계 1유닛 = 64px(view3d.T)
+const ART_DOT := 1.0 / 32.0  # 그림 1도트 = 세계 1/32유닛(키트 64px 그림의 2×2화소)
+const DOTS_PX := 2.0  # 확대 1에서 그림 1도트 = 캔버스 2px
+## 도트 화면 확대 단계: 그림 1도트가 화면 정수 칸(1·2·3·4px)이 되게 끊는다(굵고 얇은 도트가 섞이지 않게)
+const ZOOM_STEPS := [0.5, 1.0, 1.5, 2.0]
 
-## 화면 1도트 = 캔버스 몇 px(0이면 끔)
+
+## 연속 확대 → 가장 가까운 단계(로그 거리)
+static func snap_zoom(z: float) -> float:
+	var best: float = ZOOM_STEPS[0]
+	for s: float in ZOOM_STEPS:
+		if absf(log(z / s)) < absf(log(z / best)):
+			best = s
+	return best
+
+## 도트 화면 켜기(0이면 끔). 확대 1에서 그림 1도트 = 캔버스 scale_px(=2)px — 실제 크기는 확대 단계를 따른다(sync).
 var scale_px := 2
 ## 초표본 배수(1 = 저해상도에 바로 그림)
 var ss := 1
@@ -153,29 +167,34 @@ func sync() -> void:
 	if vp == null or source == null:
 		return
 	var screen := get_viewport().get_visible_rect().size
-	var lo := Vector2i(int(ceil(screen.x / scale_px)) + 2, int(ceil(screen.y / scale_px)) + 2)
-	lo += Vector2i(lo.x % 2, lo.y % 2)  # 짝수: 가운데가 도트 경계에
+	var u := source.size / screen.y  # 캔버스 1px = 세계 몇 유닛
+	# 그림 1도트(지형 그림 2×2화소 = 세계 1/32유닛) = 화면 2 × 확대 px. 화면 버퍼 1화소 = 그 절반(몬스터 촘촘한 도트용, 최소 캔버스 1px).
+	var zoom := 1.0 / (V_T * u)
+	var bpx := maxf(zoom, 1.0)  # 버퍼 1화소 = 캔버스 몇 px
+	var blk := int(round(DOTS_PX * zoom / bpx))  # 그림 1도트 = 버퍼 몇 화소(1 또는 2)
+	blk = maxi(blk, 1)
+	var lo := Vector2i(int(ceil(screen.x / bpx)) + 2 * blk, int(ceil(screen.y / bpx)) + 2 * blk)
+	lo += Vector2i(posmod(-lo.x, 2 * blk), posmod(-lo.y, 2 * blk))  # 그림 도트 2개 배수: 가운데가 도트 경계에
 	if lo != _lo:
 		_lo = lo
 		vp.size = lo * ss
-	var u := source.size / screen.y  # 캔버스 1px = 세계 몇 유닛
-	var step := u * scale_px  # 1도트 = 세계 몇 유닛
+	var step := ART_DOT  # 카메라는 그림 도트(세계 1/32유닛) 격자에 맞춘다 — 확대와 상관없이 지형 도트가 늘 같은 자리
 	var sn := snap(source.transform, step)
 	var da: float = sn["da"]
 	var db: float = sn["db"]
 	var ia: int = sn["ia"]
 	var ib: int = sn["ib"]
 	cam.transform = sn["xform"]
-	cam.size = lo.y * step
+	cam.size = lo.y * step / blk
 	cam.near = source.near
 	cam.far = source.far
-	var full := Vector2(lo) * scale_px
+	var full := Vector2(lo) * bpx
 	rect.size = full
 	rect.position = screen / 2.0 - full / 2.0 + Vector2(da, -db) / u
 	_post.set_shader_parameter("lo_size", Vector2(lo))
 	_post.set_shader_parameter("ss", ss)
-	# 디더 무늬를 세계에 붙인다: 화면 왼쪽 위 도트의 세계 도트 번호(아래가 +y)
-	_post.set_shader_parameter("origin_px", Vector2i(ia - lo.x / 2, -ib - lo.y / 2))
+	# 디더 무늬를 세계에 붙인다: 화면 왼쪽 위 화소의 세계 화소 번호(아래가 +y)
+	_post.set_shader_parameter("origin_px", Vector2i(ia * blk - lo.x / 2, -ib * blk - lo.y / 2))
 	if _line != null:
-		_line.set_shader_parameter("ss", float(ss))
+		_line.set_shader_parameter("ss", float(ss * blk))  # 외곽선 두께 = 그림 1도트
 		_line.set_shader_parameter("depth_range", cam.far - cam.near)

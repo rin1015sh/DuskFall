@@ -85,11 +85,26 @@ ivec2 wrap4(ivec2 v) {
 	return ((v % 4) + 4) % 4;
 }
 
+// 카메라가 내려다보는 각(sin) — 바닥 세로 1유닛이 화면에서 이만큼 눌린다
+const float SIN_P = 0.7806247498;
+
+// 그림을 입히는 좌표: 도트 화면이면 세로를 원근만큼 늘려(z × sin) 그림 1줄 = 화면 1도트 줄(바닥 도트가 빠지거나 얇아지지 않게).
+// 그림 묶음이 칸보다 세로로 조금 길어지지만 이어 까는 바닥이라 드러나지 않는다.
+vec2 tex_p(vec2 p) {
+	return dot_px > 0.0 ? vec2(p.x, p.y * SIN_P) : p;
+}
+
+// 도트 격자에 맞춘 점: 가로는 세계 1/dot_px, 세로는 화면 도트 줄(z × sin 기준)
+vec2 dot_snap(vec2 p) {
+	return vec2((floor(p.x * dot_px) + 0.5) / dot_px, (floor(p.y * SIN_P * dot_px) + 0.5) / (dot_px * SIN_P));
+}
+
 // 칸 c의 바닥을 세계 점 p에 그린다(변형 a·b 얼룩 섞기)
 vec3 floor_color(ivec2 c, vec2 p) {
 	ivec4 t = cell_tiles(c);
-	ivec2 pc = ivec2(floor(p));
-	vec2 f = fract(p);
+	vec2 tp = tex_p(p);
+	ivec2 pc = ivec2(floor(tp));
+	vec2 f = fract(tp);
 	vec4 a = tile_tex(t.rg + wrap4(pc), f);
 	vec4 b = tile_tex(t.ba + wrap4(pc + ivec2(2, 2)), f);
 	vec2 q = p / patch_cells;
@@ -129,7 +144,7 @@ float blob_n(ivec4 t, vec2 p) {
 void fragment() {
 	vec2 p = wpos.xz;
 	ivec2 c0 = clamp(ivec2(floor(p)) - cell_origin, ivec2(0), map_size - 1);
-	vec2 ps = dot_px > 0.0 ? (floor(p * dot_px) + 0.5) / dot_px : p;
+	vec2 ps = dot_px > 0.0 ? dot_snap(p) : p;
 	ivec4 tl[9];
 	float wt[9];
 	bool ok[9];
@@ -189,6 +204,12 @@ void fragment() {
 			float band = floor(wpos.y * 40.0 / (rock_frame.w - 1.0));
 			float u = rock_frame.x + mod(along * 64.0 + band * 97.0, rock_frame.z);
 			float v = rock_frame.y + rock_frame.w - 0.5 - mod(wpos.y * 40.0, rock_frame.w - 1.0);
+			if (dot_px > 0.0) {
+				// 도트 화면: 화면 방향에서 비추듯 입힌다(가로 = 세계 x, 세로 = 화면 줄) — 비탈 기울기로 그림이 늘어나 뭉개지지 않게
+				float sy = (wpos.y * 0.625 - wpos.z * SIN_P) * 64.0;
+				u = rock_frame.x + mod(floor(wpos.x * 64.0), rock_frame.z);
+				v = rock_frame.y + mod(floor(-sy), rock_frame.w);
+			}
 			vec3 rock = texture(rock_tex, vec2(u, v) / rock_atlas).rgb;
 			vec2 q = vec2(along, wpos.y);
 			rock *= mix(0.74, 1.08, vnoise(q * 0.8 + 5.0) * 0.7 + vnoise(q * 2.9) * 0.3);

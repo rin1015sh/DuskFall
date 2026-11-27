@@ -593,11 +593,13 @@ func _apply_camera() -> void:
 		cam_target.x = clampf(cam_target.x, 0.0, float(gs.x))
 		cam_target.z = clampf(cam_target.z, 0.0, float(gs.y))
 	camera.transform = V.camera_transform(cam_target)
-	camera.size = V.ortho_size(get_viewport().get_visible_rect().size.y, cam_zoom)
+	# 도트 화면은 확대를 단계로 끊는다(그림 1도트 = 화면 정수 칸 — pixel_view.ZOOM_STEPS)
+	var z := PixelView.snap_zoom(cam_zoom) if pixel != null and pixel.scale_px > 0 else cam_zoom
+	camera.size = V.ortho_size(get_viewport().get_visible_rect().size.y, z)
 
 
 func _on_zoom(factor: float, _at: Vector2) -> void:
-	cam_zoom = clampf(cam_zoom * factor, 0.4, 2.2)
+	cam_zoom = clampf(cam_zoom * factor, 0.45, 2.2)
 
 
 func _input(event: InputEvent) -> void:

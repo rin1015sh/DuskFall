@@ -51,7 +51,9 @@ float blob_k(vec2 d) {
 void fragment() {
 	vec2 p = wpos.xz;
 	ivec2 c0 = clamp(ivec2(floor(p)), ivec2(0), map_size - 1);
-	vec2 ps = dot_px > 0.0 ? (floor(p * dot_px) + 0.5) / dot_px : p;
+	const float SIN_P = 0.7806247498;
+	vec2 ps = dot_px > 0.0 ? vec2((floor(p.x * dot_px) + 0.5) / dot_px, (floor(p.y * SIN_P * dot_px) + 0.5) / (dot_px * SIN_P)) : p;
+	vec2 tp = dot_px > 0.0 ? vec2(p.x, p.y * SIN_P) : p;  // 그림 1줄 = 화면 1도트 줄(floor.gdshader tex_p)
 	vec2 i0 = round(texelFetch(info, c0, 0).rg * 255.0);
 	// 표면 번호(0 = 없음)별 영향 합
 	float wt[9];
@@ -93,9 +95,9 @@ void fragment() {
 		discard;
 	}
 	ivec4 s = sv[best];
-	ivec2 pc = ivec2(floor(p));
+	ivec2 pc = ivec2(floor(tp));
 	ivec2 tile = s.rg + ((pc % 4) + 4) % 4;
-	vec4 col = texture(tex, (vec2(tile) + clamp(fract(p), 0.004, 0.996)) * tile_px / atlas_px) * tints[s.b - 1];
+	vec4 col = texture(tex, (vec2(tile) + clamp(fract(tp), 0.004, 0.996)) * tile_px / atlas_px) * tints[s.b - 1];
 	float margin = bw - sw;
 	if (margin < rim * 0.5) {
 		col.rgb = mix(col.rgb, vec3(0.78, 0.88, 0.86), 0.5);  // 물가 젖은 테

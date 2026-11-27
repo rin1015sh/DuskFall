@@ -184,7 +184,7 @@ func test_cutout_pixel_rig() -> void:
 	rig.free()
 
 
-## 몬스터 도트 그림: 그림 쓰는 몬스터마다 변환본이 있고 도트 키 = 42 × 크기 배율.
+## 몬스터 도트 그림: 그림 쓰는 몬스터마다 변환본이 있고 키 = 84 × 크기 배율(지형 도트보다 2배 촘촘).
 func test_pixel_actor_art() -> void:
 	var size_k := {"tiny": 0.5, "small": 0.8, "medium": 1.0, "large": 1.7, "huge": 2.4}
 	var want := {}
@@ -201,5 +201,17 @@ func test_pixel_actor_art() -> void:
 		assert_true(ResourceLoader.exists(alt), "변환본 %s" % alt)
 		if ResourceLoader.exists(alt):
 			var t: Texture2D = load(alt)
-			assert_eq(t.get_height(), roundi(42.0 * float(want[img])), "%s 도트 키" % alt)
+			assert_eq(t.get_height(), roundi(84.0 * float(want[img])), "%s 키" % alt)
 
+
+
+## 도트 화면 확대 단계: 그림 1도트가 화면 정수 칸(1·2·3·4px)이 되는 단계로 끊는다.
+func test_zoom_steps() -> void:
+	var PixelView := preload("res://scenes/battle/pixel_view.gd")
+	for z: float in PixelView.ZOOM_STEPS:
+		var px := PixelView.DOTS_PX * z
+		assert_true(absf(px - roundf(px)) < 1e-6 and px >= 1.0, "단계 %.2f → 그림 1도트 %.1fpx(정수)" % [z, px])
+	assert_eq(PixelView.snap_zoom(0.92), 1.0, "기본 확대 0.92 → 1")
+	assert_eq(PixelView.snap_zoom(1.3), 1.5)
+	assert_eq(PixelView.snap_zoom(0.45), 0.5)
+	assert_eq(PixelView.snap_zoom(2.2), 2.0)
