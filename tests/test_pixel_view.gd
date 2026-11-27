@@ -164,3 +164,41 @@ func test_hill_path_trees_block() -> void:
 			n += 1
 			assert_true(blocked.has(c), "나무 칸 %s 막힘" % str(c))
 	assert_true(n >= 6, "맵 안 나무 무리 %d" % n)
+
+
+## 캐릭터 도트 그림: 뼈대를 도트 배율로 줄여 그린다(캔버스·크기), 장비 부위는 그대로 붙는다.
+func test_cutout_pixel_rig() -> void:
+	var Rig := preload("res://scenes/battle/cutout_rig.gd")
+	var rig: Node2D = Rig.new()
+	rig.dot = 0.28
+	rig.apply_look({"template": "medium", "key": "t1", "armor": {"shape": "chain", "color": "#8a8f96"}, "weapon": {"shape": "sword", "length": 40}, "helmet": true, "cloak": true})
+	assert_eq(rig.canvas_px(), Vector2i(ceili(160 * 0.28), ceili(240 * 0.28)), "도트 캔버스")
+	assert_true(absf(rig.scale.y - 0.28) < 1e-6, "뼈대 배율 = 도트 배율")
+	var ids := []
+	for p: Node in rig._parts:
+		ids.append(String(p.get_meta("part_id")))
+	for want: String in ["torso", "head", "weapon", "helmet", "cloak"]:
+		assert_true(want in ids, "장비·부위 %s" % want)
+	rig.set_facing(1)
+	assert_true(rig.scale.x < 0.0 and absf(absf(rig.scale.x) - 0.28) < 1e-6, "왼쪽은 좌우 반전(배율 유지)")
+	rig.free()
+
+
+## 몬스터 도트 그림: 그림 쓰는 몬스터마다 변환본이 있고 도트 키 = 42 × 크기 배율.
+func test_pixel_actor_art() -> void:
+	var size_k := {"tiny": 0.5, "small": 0.8, "medium": 1.0, "large": 1.7, "huge": 2.4}
+	var want := {}
+	for f: String in DirAccess.get_files_at("res://data/monsters"):
+		if not f.ends_with(".json"):
+			continue
+		var m: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/monsters/" + f))
+		var img := String(m.get("art", {}).get("image", ""))
+		if img != "":
+			want[img] = maxf(float(want.get(img, 0.0)), float(size_k.get(m.get("size", "medium"), 1.0)))
+	assert_true(want.size() > 0)
+	for img: String in want:
+		var alt := "res://assets/pixel_actors/" + img.get_file().get_basename() + ".webp"
+		assert_true(ResourceLoader.exists(alt), "변환본 %s" % alt)
+		if ResourceLoader.exists(alt):
+			var t: Texture2D = load(alt)
+			assert_eq(t.get_height(), roundi(42.0 * float(want[img])), "%s 도트 키" % alt)

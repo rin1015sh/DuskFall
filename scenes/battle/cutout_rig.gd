@@ -8,6 +8,12 @@ extends Node2D
 const Cutout := preload("res://scripts/rules/cutout.gd")
 const ART_DIR := "res://assets/cutout"
 const OUTLINE := Color(0.09, 0.07, 0.06, 0.95)
+## 도트 그림 모드(도트 화면이 켜질 때 battle_scene이 정한다): 켜면 그림 px → 도트 배율 dot으로 줄여 도트 해상도 캔버스에 그린다.
+## 부위마다 북서쪽 빛 3단 음영(왼쪽 위 밝은 테·가운데 본색·오른쪽 아래 그늘 테 — 밝은 쪽 따뜻하게, 그늘 차갑게), 부위 테두리 1도트 어두운 선,
+## 무늬·눈은 도트 점. 장비 구조(부위 갈아 끼우기·재질 색·갑옷/무기 모양·등급 빛)는 그대로. 끄면 옛 매끈한 그림.
+static var pixel := false
+## 이 뼈대의 도트 배율(그림 px당 도트, 0 = 매끈한 그림). 맵 캐릭터 = 화면 도트(actor_view), 초상 = PORTRAIT_DOT.
+var dot := 0.0
 
 var look: Dictionary = {}
 var tpl: Dictionary = {}
@@ -37,7 +43,7 @@ func set_facing(facing: int) -> void:
 	if v != view or m != mirror:
 		view = v
 		mirror = m
-		scale.x = -1.0 if mirror else 1.0
+		scale.x = (-1.0 if mirror else 1.0) * _s()
 		_order_parts()
 		for p: Node in _parts:
 			p.queue_redraw()
@@ -105,7 +111,8 @@ func _build() -> void:
 	_parts.clear()
 	_rest.clear()
 	var canvas: Array = tpl.get("canvas", [160, 240])
-	position = Vector2(float(canvas[0]) * 0.5, float(canvas[1]) - 12.0)  # 원점 = 발 사이 바닥(그림 아래에서 12px 위)
+	position = Vector2(float(canvas[0]) * 0.5, float(canvas[1]) - 12.0) * _s()  # 원점 = 발 사이 바닥(그림 아래에서 12px 위)
+	scale = Vector2((-1.0 if mirror else 1.0) * _s(), _s())
 	skeleton = Skeleton2D.new()
 	add_child(skeleton)
 	for b: Dictionary in tpl.get("bones", []):
@@ -123,6 +130,17 @@ func _build() -> void:
 	_add_parts()
 	_order_parts()
 	pose(anim, anim_t)
+
+
+## 그림 px → 캔버스 배율(도트 그림이면 dot, 아니면 1)
+func _s() -> float:
+	return dot if dot > 0.0 else 1.0
+
+
+## 도트 그림 캔버스 크기(도트) — 그림 캔버스 × dot, 올림
+func canvas_px() -> Vector2i:
+	var canvas: Array = tpl.get("canvas", [160, 240])
+	return Vector2i(ceili(float(canvas[0]) * _s()), ceili(float(canvas[1]) * _s()))
 
 
 ## 발에서 머리 꼭대기까지(그림 px) — 머리 위 HP 막대 높이.
@@ -264,7 +282,7 @@ class Part extends Node2D:
 				pts.append(Vector2(r4 * 1.15, -r4 * 0.6))
 				pts.append(Vector2(-r4 * 1.15, -r4 * 0.6))
 				_poly(pts, col)
-				draw_line(Vector2(-r4 * 1.1, -r4 * 0.62), Vector2(r4 * 1.1, -r4 * 0.62), col.darkened(0.35), 2.0)
+				_line(Vector2(-r4 * 1.1, -r4 * 0.62), Vector2(r4 * 1.1, -r4 * 0.62), col.darkened(0.35), 2.0)
 			"cloak":
 				var L := float(rig._bone_len("torso"))
 				var w := float(rig._prop("shoulder_w", 34.0))
@@ -274,13 +292,56 @@ class Part extends Node2D:
 				for i in 10:
 					var t := i / 9.0
 					tp.append(Vector2(-t * 34.0, 6 + sin(t * 3.0) * 10.0 + t * 18.0))
-				draw_polyline(tp, OUTLINE, 6.0)
-				draw_polyline(tp, col, 4.0)
+				var tpx := _px()
+				draw_polyline(tp, OUTLINE, tpx * 3.0 if tpx > 0.0 else 6.0)
+				draw_polyline(tp, col, tpx * 1.5 if tpx > 0.0 else 4.0)
 			"weapon":
 				_weapon()
 
+	## 도트 그림 모드면 1도트(부위 좌표 단위), 아니면 0
+	func _px() -> float:
+		return 1.0 / rig.dot if rig.dot > 0.0 else 0.0
+
+	## 선(도트 모드면 1도트 굵기·계단 선)
+	func _line(a: Vector2, b: Vector2, c: Color, w: float) -> void:
+		var px := _px()
+		draw_line(a, b, c, px if px > 0.0 else w, px <= 0.0)
+
+	## 점(눈·무늬): 도트 모드면 1도트 네모, 아니면 원
+	func _dot(p: Vector2, r: float, c: Color) -> void:
+		var px := _px()
+		if px > 0.0:
+			draw_rect(Rect2(p - Vector2(px, px) * 0.5, Vector2(px, px)), c)
+		else:
+			draw_circle(p, r, c)
+
+	## 도트 3단 음영: 본색 면, 왼쪽 위 테(1도트) 밝게·따뜻하게, 오른쪽 아래 테(1~2도트) 어둡게·차갑게, 테두리 1도트 어두운 선
+	func _poly_px(pts: PackedVector2Array, c: Color) -> void:
+		var px := _px()
+		var hi := c.lightened(0.24).lerp(Color(1.0, 0.92, 0.7), 0.08)
+		var lo := c.darkened(0.24).lerp(Color(0.2, 0.22, 0.38), 0.1)
+		draw_colored_polygon(pts, c)
+		var sh := PackedVector2Array()
+		for p in pts:
+			sh.append(p + Vector2(px, px))
+		for piece: PackedVector2Array in Geometry2D.clip_polygons(pts, sh):
+			if piece.size() >= 3:  # 볼록에 가까운 부위 − 밀린 자기 = 초승달(구멍 없음)
+				draw_colored_polygon(piece, hi)
+		var sl := PackedVector2Array()
+		for p in pts:
+			sl.append(p - Vector2(px, px))
+		for piece2: PackedVector2Array in Geometry2D.clip_polygons(pts, sl):
+			if piece2.size() >= 3:
+				draw_colored_polygon(piece2, lo)
+		var closed := pts.duplicate()
+		closed.append(pts[0])
+		draw_polyline(closed, c.darkened(0.55).lerp(OUTLINE, 0.35), px, false)
+
 	## 면 + 북서쪽 빛(왼쪽 위 밝게, 오른쪽 아래 어둡게) + 외곽선
 	func _poly(pts: PackedVector2Array, c: Color) -> void:
+		if _px() > 0.0:
+			_poly_px(pts, c)
+			return
 		var cols := PackedColorArray()
 		var lo := pts[0]
 		var hi := pts[0]
@@ -328,27 +389,29 @@ class Part extends Node2D:
 		match shape:
 			"chain", "scale", "studded":
 				var step := 5.0 if shape != "studded" else 7.0
+				if _px() > 0.0:
+					step = _px() * (3.0 if shape != "studded" else 4.0)  # 도트 무늬: 3~4도트 간격
 				var y := -L + 8.0
 				while y < 4.0:
 					var x := -bot
 					while x < bot:
-						draw_circle(Vector2(x + (2.5 if int(y) % 2 == 0 else 0.0), y), 1.0 if shape != "studded" else 1.3, col.lightened(0.35) if shape != "scale" else col.darkened(0.25))
+						_dot(Vector2(x + (2.5 if int(y) % 2 == 0 else 0.0), y), 1.0 if shape != "studded" else 1.3, col.lightened(0.35) if shape != "scale" else col.darkened(0.25))
 						x += step
 					y += step * 0.8
 			"plate", "breastplate":
-				draw_line(Vector2(0, -L + 4), Vector2(0, 2), col.lightened(0.4), 1.5)
+				_line(Vector2(0, -L + 4), Vector2(0, 2), col.lightened(0.4), 1.5)
 				if shape == "plate":
 					for sx: float in [-1.0, 1.0]:
 						_pauldron(Vector2(sx * top * 0.95, -L + 6))
 		if not front:
-			draw_line(Vector2(0, -L + 2), Vector2(0, 6), col.darkened(0.3), 1.2)  # 등 솔기
+			_line(Vector2(0, -L + 2), Vector2(0, 6), col.darkened(0.3), 1.2)  # 등 솔기
 		draw_rect(Rect2(-bot - 1, 1, bot * 2 + 2, 4), Color("#3a2a1c"))  # 허리띠
 		var rar := str(params.get("rarity", "common"))
 		if rar != "common":
 			var glow: Color = {"uncommon": Color(0.4, 0.9, 0.4, 0.7), "rare": Color(0.4, 0.6, 1.0, 0.8), "very_rare": Color(0.75, 0.45, 1.0, 0.85), "legendary": Color(1.0, 0.75, 0.3, 0.9)}.get(rar, Color.WHITE)
 			var closed := pts.duplicate()
 			closed.append(pts[0])
-			draw_polyline(closed, glow, 1.2, true)  # 등급 — 색 바꾸기(테두리 빛)
+			draw_polyline(closed, glow, _px() if _px() > 0.0 else 1.2, _px() <= 0.0)  # 등급 — 색 바꾸기(테두리 빛)
 
 	func _pauldron(c: Vector2) -> void:
 		var pts := PackedVector2Array()
@@ -369,9 +432,10 @@ class Part extends Node2D:
 		_poly(pts, col)
 		if front:
 			for ex: float in [0.15, 0.62]:
-				draw_circle(c + Vector2(r * ex, -r * 0.05), 1.4, Color(0.12, 0.09, 0.08))
-			draw_line(c + Vector2(r * 0.85, r * 0.05), c + Vector2(r * 0.95, r * 0.25), col.darkened(0.3), 1.0)
-			draw_line(c + Vector2(r * 0.3, r * 0.5), c + Vector2(r * 0.65, r * 0.48), col.darkened(0.4), 1.0)
+				_dot(c + Vector2(r * ex, -r * 0.05), 1.4, Color(0.12, 0.09, 0.08))
+			if _px() <= 0.0:
+				draw_line(c + Vector2(r * 0.85, r * 0.05), c + Vector2(r * 0.95, r * 0.25), col.darkened(0.3), 1.0)
+				draw_line(c + Vector2(r * 0.3, r * 0.5), c + Vector2(r * 0.65, r * 0.48), col.darkened(0.4), 1.0)
 
 	func _hair(front: bool) -> void:
 		var r := float(params.get("r", 12.0))
@@ -412,7 +476,8 @@ class Part extends Node2D:
 		var wood := Color("#6e4c2c")
 		var glow_s := str(params.get("glow", ""))
 		if glow_s != "":
-			draw_circle(Vector2(0, -L * 0.55), L * 0.45, Color(Color(glow_s), 0.18))
+			if _px() <= 0.0:
+				draw_circle(Vector2(0, -L * 0.55), L * 0.45, Color(Color(glow_s), 0.18))
 		match shape:
 			"sword", "dagger":
 				_poly(PackedVector2Array([Vector2(-2.2, -6), Vector2(2.2, -6), Vector2(1.6, -L), Vector2(0, -L - 5), Vector2(-1.6, -L)]), Color(glow_s) if glow_s != "" else c)
@@ -435,22 +500,27 @@ class Part extends Node2D:
 				for i in 13:
 					var a := -PI * 0.5 + PI * i / 12.0
 					pts.append(Vector2(-cos(a) * L * 0.2 - 2, sin(a) * L * 0.5))
-				draw_polyline(pts, OUTLINE, 4.5)
-				draw_polyline(pts, c, 3.0)
-				draw_line(pts[0], pts[pts.size() - 1], Color(0.85, 0.82, 0.75), 1.0)
+				var bpx := _px()
+				draw_polyline(pts, OUTLINE, bpx * 2.0 if bpx > 0.0 else 4.5)
+				draw_polyline(pts, c, bpx if bpx > 0.0 else 3.0)
+				_line(pts[0], pts[pts.size() - 1], Color(0.85, 0.82, 0.75), 1.0)
 			"crossbow":
 				_poly(PackedVector2Array([Vector2(-2, 4), Vector2(2, 4), Vector2(2, -L * 0.7), Vector2(-2, -L * 0.7)]), c)
-				draw_line(Vector2(-L * 0.35, -L * 0.6), Vector2(L * 0.35, -L * 0.6), OUTLINE, 4.0)
-				draw_line(Vector2(-L * 0.35, -L * 0.6), Vector2(L * 0.35, -L * 0.6), c.darkened(0.2), 2.5)
+				var cpx := _px()
+				draw_line(Vector2(-L * 0.35, -L * 0.6), Vector2(L * 0.35, -L * 0.6), OUTLINE, cpx * 2.0 if cpx > 0.0 else 4.0)
+				draw_line(Vector2(-L * 0.35, -L * 0.6), Vector2(L * 0.35, -L * 0.6), c.darkened(0.2), cpx if cpx > 0.0 else 2.5)
 			"shield":
 				_blob_at(Vector2(-2, -2), 13, 15, c)
-				draw_circle(Vector2(-2, -2), 3.0, Color(Cutout.material_color("mat_steel")))
+				_dot(Vector2(-2, -2), 3.0, Color(Cutout.material_color("mat_steel")))
 			_:
 				_poly(PackedVector2Array([Vector2(-1.5, 4), Vector2(1.5, 4), Vector2(1.5, -L * 0.6), Vector2(-1.5, -L * 0.6)]), c)
 		var rar := str(params.get("rarity", "common"))
 		if rar != "common":
 			var glow: Color = {"uncommon": Color(0.4, 0.9, 0.4, 0.35), "rare": Color(0.4, 0.6, 1.0, 0.4), "very_rare": Color(0.75, 0.45, 1.0, 0.45), "legendary": Color(1.0, 0.75, 0.3, 0.5)}.get(rar, Color.WHITE)
-			draw_circle(Vector2(0, -L * 0.6), 5.0, glow)
+			if _px() > 0.0:
+				_dot(Vector2(0, -L * 0.6), 5.0, Color(glow, 1.0))
+			else:
+				draw_circle(Vector2(0, -L * 0.6), 5.0, glow)
 
 	func _blob_at(c: Vector2, rx: float, ry: float, colr: Color) -> void:
 		var pts := PackedVector2Array()

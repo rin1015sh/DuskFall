@@ -575,6 +575,8 @@ func _setup_pixel() -> void:
 	MapView.art_dots = 32.0 if DungeonKit.art_dir != "" else 0.0
 	# 바람(풀·나무 흔들림): 도트 화면 기본, --wind=0이면 끔
 	MapView.Kit3D.wind = pixel.scale_px > 0 and args.get("wind", "1") != "0"
+	# 캐릭터 도트 그림(컷아웃 뼈대를 도트 해상도로, 3단 음영): 도트 화면 기본, --pixel_chars=0이면 매끈한 그림
+	preload("res://scenes/battle/cutout_rig.gd").pixel = pixel.scale_px > 0 and args.get("pixel_chars", "1") != "0"
 
 
 ## 화면 점 → 칸(카메라 광선이 처음 닿는 칸 기둥)

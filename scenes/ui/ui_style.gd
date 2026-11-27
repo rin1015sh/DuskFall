@@ -165,7 +165,9 @@ static func portrait_tex(c: Node, region: Rect2 = Rect2(144 + 14, 6, 44, 44)) ->
 			at2.atlas = tex
 			var Cut: Variant = load("res://scripts/rules/cutout.gd")
 			var regs: Dictionary = Cut.portrait_regions(str(Cut.look(c)["template"]))
-			at2.region = regs["body"] if region.size.y >= 100 else regs["face"]
+			var reg: Rect2 = regs["body"] if region.size.y >= 100 else regs["face"]
+			var k: float = load("res://scenes/battle/cutout_portraits.gd").dot_scale()
+			at2.region = Rect2(reg.position * k, reg.size * k)  # 도트 그림 초상은 줄여 그렸다
 			return at2
 	var art: Dictionary = c.get_meta("art", {})
 	if art.has("sheet") and ResourceLoader.exists(art["sheet"]):

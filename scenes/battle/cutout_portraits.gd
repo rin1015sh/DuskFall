@@ -5,7 +5,14 @@ extends RefCounted
 const Cutout := preload("res://scripts/rules/cutout.gd")
 const Rig := preload("res://scenes/battle/cutout_rig.gd")
 const HOLDER := "CutoutPortraits"
+## 도트 그림 모드의 초상 배율(그림 px당 도트 — 맵 캐릭터보다 촘촘하게). UI가 가장 가까운 점으로 키운다.
+const PORTRAIT_DOT := 0.5
 static var _holder: Node
+
+
+## 초상 그림 배율(얼굴·전신 잘라 쓰는 영역에 곱한다): 도트 그림이면 PORTRAIT_DOT, 아니면 1
+static func dot_scale() -> float:
+	return PORTRAIT_DOT if Rig.pixel else 1.0
 
 
 static func texture_for(c: Node) -> Texture2D:
@@ -34,10 +41,13 @@ static func texture_for(c: Node) -> Texture2D:
 		vp.size = Vector2i(int(canvas[0]), int(canvas[1]))
 		var rig := Rig.new()
 		rig.name = "rig"
+		rig.dot = dot_scale() if Rig.pixel else 0.0
+		vp.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
 		vp.add_child(rig)
 		holder.add_child(vp)
 	var r: Node = vp.get_node("rig")
 	r.apply_look(Cutout.look(c))
+	vp.size = r.canvas_px()
 	r.set_facing(0)
 	r.play("idle")
 	return vp.get_texture()
