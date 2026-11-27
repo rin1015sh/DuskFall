@@ -648,6 +648,129 @@ func _floor_ab(id: String) -> Vector4i:
 	return Vector4i(a.x, a.y, b.x, b.y)
 
 
+## 화면에 씌우는 빛과 그림자의 빛 지도(pixel_light.gdshader가 화면 깊이로 세계 위치를 되짚어 찾는다). 그림만 — 규칙 빛 단계는 그대로.
+## glow(RGBA8): 광원 빛 = 색 × 세기(가장자리로 갈수록 약하게, 광원에서 시야선이 닿는 칸만), info(RGB8): 빛 단계·드리운 그림자·광원 뺀 기본 빛.
+## 드리운 그림자: 북서쪽 해(높이각 tan = SUN_TAN) — 북서쪽으로 거슬러 올라가며 더 높은 칸(벽 윗면·높은 땅)이 해를 가리면 그늘.
+## 맵 밖(둘레)은 맵 기본 빛 단계, 그림자 없음. 갱신은 칸 빛·높이가 바뀔 때(refresh의 지형 키).
+const LIGHT_RES := 4
+const SUN_TAN := 0.9
+const LIGHT_COLORS := [["fire", Color(1.0, 0.6, 0.26)], ["torch", Color(1.0, 0.62, 0.28)], ["brazier", Color(1.0, 0.58, 0.24)],
+	["ember", Color(1.0, 0.5, 0.22)], ["camp", Color(1.0, 0.62, 0.3)], ["glow", Color(0.55, 0.78, 1.0)], ["moon", Color(0.7, 0.8, 1.0)],
+	["light", Color(1.0, 0.92, 0.7)], ["carried", Color(1.0, 0.82, 0.5)]]
+var lighting: Dictionary = {}
+var lighting_version := 0
+
+
+func _light_color(id: String) -> Color:
+	for row: Array in LIGHT_COLORS:
+		if id.contains(String(row[0])):
+			return row[1]
+	return Color(1.0, 0.78, 0.48)
+
+
+func _build_lighting() -> void:
+	var w := SURROUND_W if not _play.size.is_zero_approx() else 2
+	var org := Vector2(-w, -w)
+	var cells := Vector2i(grid.size.x + 2 * w, grid.size.y + 2 * w)
+	var iw := cells.x * LIGHT_RES
+	var ih := cells.y * LIGHT_RES
+	var base := 1.0
+	match String(map.get("light", "bright")):
+		"dark":
+			base = 0.0
+		"dim":
+			base = 0.5
+	# 빛 단계·광원 뺀 기본 빛: 칸 단위로 통째로 칠한다
+	var info := Image.create(iw, ih, false, Image.FORMAT_RGB8)
+	info.fill(Color(base, 0, base))
+	for c: Vector2i in grid.all_cells():
+		var o := (c - Vector2i(org)) * LIGHT_RES
+		info.fill_rect(Rect2i(o, Vector2i(LIGHT_RES, LIGHT_RES)), Color(float(grid.light_at(c)) * 0.5, 0, float(grid.base_light(c)) * 0.5))
+	# 광원 빛: 광원 반지름 안 화소만, 광원에서 시야선이 닿는 칸만
+	var glow := Image.create(iw, ih, false, Image.FORMAT_RGB8)
+	var acc := PackedColorArray()
+	acc.resize(iw * ih)
+	for src: Dictionary in grid.light_sources:
+		var sc: Vector2i = grid.cell_of(src["creature"]) if src.get("creature") != null and is_instance_valid(src["creature"]) else src.get("cell", Vector2i(-99, -99))
+		if not grid.in_bounds(sc):
+			continue
+		var r := float(int(src.get("bright", 0))) + float(int(src.get("dim", 0))) * 0.7 + 0.5
+		var boost := 1.0 + float(int(src.get("bright", 0))) / maxf(r, 0.5) * 0.3
+		var col := _light_color(String(src.get("id", "")))
+		var cen := Vector2(sc) + Vector2(0.5, 0.5)
+		var seen := {}
+		var lo := ((cen - Vector2(r, r) - org) * LIGHT_RES).floor()
+		var hi := ((cen + Vector2(r, r) - org) * LIGHT_RES).ceil()
+		for py in range(maxi(0, int(lo.y)), mini(ih, int(hi.y))):
+			for px in range(maxi(0, int(lo.x)), mini(iw, int(hi.x))):
+				var pt := org + (Vector2(px, py) + Vector2(0.5, 0.5)) / LIGHT_RES
+				var d := pt.distance_to(cen) / r
+				if d >= 1.0:
+					continue
+				var c := Vector2i(floori(pt.x), floori(pt.y))
+				if grid.in_bounds(c):
+					if not seen.has(c):
+						seen[c] = grid.has_line_of_sight(sc, c, true)
+					if not seen[c]:
+						continue
+				var k := pow(1.0 - d, 1.6) * boost
+				var i := py * iw + px
+				var g := acc[i]
+				acc[i] = Color(minf(1.0, g.r + col.r * k), minf(1.0, g.g + col.g * k), minf(1.0, g.b + col.b * k))
+	for i in acc.size():
+		if acc[i].r + acc[i].g + acc[i].b > 0.0:
+			glow.set_pixel(i % iw, i / iw, acc[i])
+	# 드리운 그림자: 높이(벽 포함)가 바뀔 때만
+	var hkey := _make_height_key() + str(_ruin)
+	if hkey != _shadow_key or _shadow_tex == null:
+		_shadow_key = hkey
+		_shadow_tex = ImageTexture.create_from_image(_build_shadows(org, iw, ih))
+	lighting = {"glow": ImageTexture.create_from_image(glow), "info": ImageTexture.create_from_image(info), "shadow": _shadow_tex, "origin": org, "size": Vector2(cells)}
+	lighting_version += 1
+
+
+var _shadow_key := ""
+var _shadow_tex: Texture2D
+
+
+## 드리운 그림자 그림(L8, 1 없음 → 0 짙음): 맵 안 바닥 화소마다 북서쪽으로 거슬러 가며 해를 가리는 더 높은 칸(벽 윗면·높은 땅)
+func _build_shadows(org: Vector2, iw: int, ih: int) -> Image:
+	var img := Image.create(iw, ih, false, Image.FORMAT_L8)
+	img.fill(Color(1, 1, 1))
+	var dir := Vector2(-0.7071, -0.7071)
+	for c: Vector2i in grid.all_cells():
+		if grid.has_flag(c, "wall"):
+			continue
+		var h := float(grid.height(c))
+		# 북서쪽 4칸 안에 더 높은 칸이 없으면 건너뛴다
+		var any := false
+		for dy in range(-4, 1):
+			for dx in range(-4, 1):
+				var q := c + Vector2i(dx, dy)
+				if grid.in_bounds(q) and not _veil.has(q) and (_vis_top(q) if grid.has_flag(q, "wall") else float(grid.height(q))) > h + 0.2:
+					any = true
+		if not any:
+			continue
+		for sy in LIGHT_RES:
+			for sx in LIGHT_RES:
+				var pt := Vector2(c) + (Vector2(sx, sy) + Vector2(0.5, 0.5)) / LIGHT_RES
+				var sh := 1.0
+				var s2 := 0.25
+				while s2 <= 4.0:
+					var q := pt + dir * s2
+					var qc := Vector2i(floori(q.x), floori(q.y))
+					if grid.in_bounds(qc) and not _veil.has(qc):
+						var top := _vis_top(qc) if grid.has_flag(qc, "wall") else float(grid.height(qc))
+						if top - h > s2 * SUN_TAN:
+							sh = 0.0 if top - h > s2 * SUN_TAN + 0.35 else 0.5
+							break
+					s2 += 0.25
+				if sh < 1.0:
+					var p := (c - Vector2i(org)) * LIGHT_RES + Vector2i(sx, sy)
+					img.set_pixel(p.x, p.y, Color(sh, sh, sh))
+	return img
+
+
 ## 수관 그늘: 나무(키트 id tree_*)마다 수관 크기 둥근 그늘을 칸당 CANOPY_RES 화소 그림에 모아 바닥 셰이더(맵·둘레)에 준다.
 ## 그늘 가운데 = 줄기에서 햇빛 반대쪽(남동)으로 조금. 크기 = 그림 폭.
 const CANOPY_RES := 4
@@ -887,6 +1010,8 @@ func refresh() -> void:
 	if key != _terrain_key:
 		_terrain_key = key
 		_build_terrain()
+		if art_dots > 0.0:
+			_build_lighting()
 	_refresh_surfaces()
 	for n: Node3D in _prop_cells:
 		if is_instance_valid(n):

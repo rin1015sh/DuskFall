@@ -58,6 +58,7 @@ var views := {}  # creature → ActorView
 var camera: Camera3D
 ## 도트 화면(저해상도 렌더링·외곽선·디더링)
 var pixel: PixelView
+var _light_ver := -1  # 빛 지도 판(map_view.lighting_version)
 ## 카메라가 바라보는 점(세계)·확대(1 = 1칸 64px). 직교 투영, 회전 없음(view3d.gd).
 var cam_target := Vector3.ZERO
 var cam_zoom := 0.92
@@ -568,6 +569,7 @@ func _setup_pixel() -> void:
 	pixel.ss = maxi(1, int(args.get("pixel_ss", str(pixel.ss))))
 	pixel.palette = args.get("pixel_palette", "0") != "0"
 	pixel.outline = args.get("pixel_outline", "1") != "0"
+	pixel.lighting = args.get("pixel_light", "1") != "0"  # 화면에 씌우는 빛과 그림자(--pixel_light=0이면 끔)
 	add_child(pixel)
 	pixel.setup(camera)
 	# 도트 화면이면 키트 그림도 도트 변환본(assets/pixel_kit — tools/pixelize_kit.py), --pixel_art=0이면 원본 그대로
@@ -726,6 +728,9 @@ func _process(delta: float) -> void:
 	_apply_camera()
 	if pixel != null:
 		pixel.sync()
+		if map_view != null and map_view.lighting_version != _light_ver:
+			_light_ver = map_view.lighting_version
+			pixel.set_lighting(map_view.lighting)
 	var occ: Array = []
 	for c: Node in views.keys():
 		if not c.dead:

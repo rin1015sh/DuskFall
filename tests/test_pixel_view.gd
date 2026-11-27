@@ -215,3 +215,15 @@ func test_zoom_steps() -> void:
 	assert_eq(PixelView.snap_zoom(1.3), 1.5)
 	assert_eq(PixelView.snap_zoom(0.45), 0.5)
 	assert_eq(PixelView.snap_zoom(2.2), 2.0)
+
+
+## 빛과 그림자 층: 광원 이름으로 빛 색(불 = 주황, 빛남·달 = 청백), 빛 판 셰이더가 있다.
+func test_light_colors() -> void:
+	var MapView := preload("res://scenes/battle/map_view.gd")
+	var mv: Node = MapView.new()
+	var fire: Color = mv._light_color("camp_fire")
+	var glow: Color = mv._light_color("cave_glow")
+	assert_true(fire.r > fire.b + 0.4, "불빛은 따뜻하게")
+	assert_true(glow.b > glow.r + 0.2, "동굴 빛은 차갑게")
+	mv.free()
+	assert_true(ResourceLoader.exists("res://scenes/battle/pixel_light.gdshader"))

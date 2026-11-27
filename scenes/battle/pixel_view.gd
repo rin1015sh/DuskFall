@@ -39,6 +39,9 @@ const PALETTE_PATH := "res://assets/pixel/palette.png"
 const PAL_MAX := 128
 ## 외곽선 켜기
 var outline := true
+## 화면에 씌우는 빛과 그림자(pixel_light.gdshader — 곱하기 판 + 더하기 판, 빛 지도는 map_view._build_lighting)
+var lighting := true
+var _light_mats: Array[ShaderMaterial] = []
 
 var source: Camera3D
 var vp: SubViewport
@@ -70,6 +73,8 @@ func setup(main_camera: Camera3D) -> void:
 	cam.make_current()
 	if outline:
 		_add_outline()
+	if lighting:
+		_add_lighting()
 	layer = CanvasLayer.new()
 	layer.layer = -1  # 세계 그림은 맨 뒤(HP 막대 0층, UI 위층)
 	add_child(layer)
@@ -160,6 +165,42 @@ func _add_outline() -> void:
 	mi.position = Vector3(0, 0, -2)
 	cam.add_child(mi)
 	cam.cull_mask = 0xFFFFF
+
+
+## 빛 판 두 장: 곱하기(색 틀기·그림자·가장자리) → 더하기(광원 빛 웅덩이). 외곽선(127)보다 먼저.
+func _add_lighting() -> void:
+	var sh: Shader = preload("res://scenes/battle/pixel_light.gdshader")
+	var add_sh := Shader.new()
+	add_sh.code = sh.code.replace("blend_mul", "blend_add")
+	for i in 2:
+		var mi := MeshInstance3D.new()
+		var q := QuadMesh.new()
+		q.size = Vector2(2, 2)
+		mi.mesh = q
+		var m := ShaderMaterial.new()
+		m.shader = sh if i == 0 else add_sh
+		m.set_shader_parameter("mode", i)
+		m.render_priority = 125 + i
+		mi.material_override = m
+		mi.layers = OUTLINE_LAYER
+		mi.extra_cull_margin = 16384.0
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.position = Vector3(0, 0, -2.1 - i * 0.01)
+		cam.add_child(mi)
+		_light_mats.append(m)
+	cam.cull_mask = 0xFFFFF
+
+
+## 빛 지도를 넣는다(map_view.lighting — {glow, info, shadow, origin, size}). 빈 사전이면 끈다.
+func set_lighting(d: Dictionary) -> void:
+	for m in _light_mats:
+		m.set_shader_parameter("on", not d.is_empty())
+		if not d.is_empty():
+			m.set_shader_parameter("glow_tex", d["glow"])
+			m.set_shader_parameter("info_tex", d["info"])
+			m.set_shader_parameter("shadow_tex", d["shadow"])
+			m.set_shader_parameter("l_origin", d["origin"])
+			m.set_shader_parameter("l_size", d["size"])
 
 
 ## 원래 카메라를 따라 도트 카메라를 맞춘다(매 프레임).
