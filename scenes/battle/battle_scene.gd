@@ -585,6 +585,11 @@ func _pick(screen: Vector2) -> Vector2i:
 
 ## 카메라 자세·직교 크기를 cam_target·cam_zoom에 맞춘다.
 func _apply_camera() -> void:
+	# 카메라가 보는 점은 맵 안으로(맵 밖 둘레 지형 너머의 빈 곳이 보이지 않게)
+	if world.has("grid") and world["grid"] != null:
+		var gs: Vector2i = world["grid"].size
+		cam_target.x = clampf(cam_target.x, 0.0, float(gs.x))
+		cam_target.z = clampf(cam_target.z, 0.0, float(gs.y))
 	camera.transform = V.camera_transform(cam_target)
 	camera.size = V.ortho_size(get_viewport().get_visible_rect().size.y, cam_zoom)
 

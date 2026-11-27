@@ -89,14 +89,22 @@ func test_surround_fade() -> void:
 	var play := Rect2(1, 1, 10, 8)
 	assert_eq(MapView._out_dist(Vector2(5, 5), play), 0.0, "안쪽")
 	assert_true(absf(MapView._out_dist(Vector2(-2, 5), play) - 3.0) < 1e-5, "서쪽 3칸")
-	assert_eq(MapView._surround_fade(Vector2(5, 5), play, 7), 1.0)
-	assert_true(MapView._surround_fade(Vector2(-5, 5), play, 7) < 0.1, "바깥 끝은 거의 바탕색")
-	assert_true(MapView._surround_fade(Vector2(-1, 5), play, 7) > MapView._surround_fade(Vector2(-3, 5), play, 7), "멀수록 어둡다")
-	for row: Array in MapView.SURROUND_TREES:
-		var kit: RefCounted = preload("res://scenes/kit/dungeon_kit.gd").open()
-		assert_true(kit.has(String(row[0])), "둘레 나무 %s" % row[0])
-		for v: String in row[2]:
-			assert_true(kit.variants(String(row[0])).has(v), "%s.%s" % [row[0], v])
+	assert_eq(MapView._surround_fade(Vector2(5, 5), play, 16), 1.0)
+	assert_eq(MapView._surround_fade(Vector2(-5, 5), play, 16), 1.0, "가까운 둘레는 밝기 그대로")
+	var far := MapView._surround_fade(Vector2(-14, 5), play, 16)
+	assert_true(far < 1.0 and far >= 0.55, "먼 둘레만 살짝 어둡게(검게 사라지지 않음): %f" % far)
+	var kit: RefCounted = preload("res://scenes/kit/dungeon_kit.gd").open()
+	for b: String in MapView.SURROUND_BIOMES:
+		var bio: Dictionary = MapView.SURROUND_BIOMES[b]
+		for f: String in ["floor", "patch"]:
+			if String(bio[f]) != "":
+				assert_true(kit.has(String(bio[f])), "%s %s 바닥 %s" % [b, f, bio[f]])
+		for list: String in ["wall", "low", "far"]:
+			for row: Array in bio[list]:
+				assert_true(kit.has(String(row[0])), "%s.%s 그림 %s" % [b, list, row[0]])
+				if row[2] is Array:
+					for v: String in row[2]:
+						assert_true(kit.variants(String(row[0])).has(v), "%s.%s" % [row[0], v])
 
 
 ## 바람: 흔들 그림이 키트에 있고, 켜면 흔들림 재질이 붙고 꺼져 있으면 안 붙는다.
@@ -119,3 +127,22 @@ func test_wind_sway() -> void:
 	assert_true(sp2 is Sprite3D and (sp2 as Sprite3D).material_override == null, "바람 끄면 없음")
 	n2.free()
 	Kit3D.wind = before
+
+
+## 폐허 벽: 높이 배율은 0.3~1(무너진 홈 포함), 칸마다 같은 값(매번 같은 모양), 윗면 그림이 있다.
+func test_ruin_wall_heights() -> void:
+	var MapView := preload("res://scenes/battle/map_view.gd")
+	var mv: Node = MapView.new()
+	var lo := 9.0
+	var hi := 0.0
+	for y in 20:
+		for x in 30:
+			var f: float = mv._ruin_f(Vector2i(x, y))
+			lo = minf(lo, f)
+			hi = maxf(hi, f)
+			assert_eq(f, mv._ruin_f(Vector2i(x, y)), "같은 칸은 같은 높이")
+	assert_true(lo >= 0.3 and hi <= 1.0, "범위 %f~%f" % [lo, hi])
+	assert_true(hi - lo > 0.3, "들쭉날쭉")
+	mv.free()
+	var tex: Texture2D = load(MapView.RUIN_TOP_TEX)
+	assert_true(tex != null and tex.get_width() == 2 * 64, "윗면 그림 2×2칸")

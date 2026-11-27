@@ -17,6 +17,8 @@ uniform sampler2D cells : filter_nearest;
 // 칸마다 RG8: r = 높이, g = 바닥 있음(1)
 uniform sampler2D info : filter_nearest;
 uniform ivec2 map_size = ivec2(1, 1);
+// 칸 데이터 (0,0)이 놓인 세계 칸(맵 둘레 그물은 맵 밖까지 덮는 칸 데이터를 쓴다)
+uniform ivec2 cell_origin = ivec2(0, 0);
 uniform vec2 atlas_px = vec2(2048.0, 3328.0);
 uniform float tile_px = 64.0;
 // 변형 얼룩 크기(칸)·경계 너비
@@ -119,7 +121,7 @@ float blob_n(ivec4 t, vec2 p) {
 
 void fragment() {
 	vec2 p = wpos.xz;
-	ivec2 c0 = clamp(ivec2(floor(p)), ivec2(0), map_size - 1);
+	ivec2 c0 = clamp(ivec2(floor(p)) - cell_origin, ivec2(0), map_size - 1);
 	vec2 ps = dot_px > 0.0 ? (floor(p * dot_px) + 0.5) / dot_px : p;
 	ivec4 tl[9];
 	float wt[9];
@@ -135,7 +137,7 @@ void fragment() {
 		if (!ok[j]) {
 			continue;
 		}
-		float k = blob_k(ps - (vec2(c0 + ivec2(j % 3 - 1, j / 3 - 1)) + 0.5));
+		float k = blob_k(ps - (vec2(c0 + cell_origin + ivec2(j % 3 - 1, j / 3 - 1)) + 0.5));
 		for (int i = 0; i <= j; i++) {
 			if (ok[i] && tl[i] == tl[j]) {
 				wt[i] += k;
