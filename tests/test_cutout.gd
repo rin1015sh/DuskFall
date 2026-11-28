@@ -83,7 +83,7 @@ func test_doll_rig_joints_facing_walk_and_size() -> void:
 	d.apply_look(Cutout.look(f))
 	for id: String in ["hips", "chest", "neck", "head", "shoulder_r", "elbow_r", "hand_r", "shoulder_l", "hip_r", "knee_r", "foot_r", "hip_l", "knee_l", "foot_l"]:
 		assert_true(d.j.has(id), "관절 %s" % id)
-	assert_true(d.j.has("weapon_r"), "무기는 오른손에")
+	assert_false(d.j.has("weapon_r"), "맨몸 인형 — 무기는 착용 아이템 단계에서")
 	assert_true(d.cam.projection == Camera3D.PROJECTION_ORTHOGONAL, "직교 카메라")
 	assert_near(rad_to_deg(-d.cam.rotation.x), Doll.PITCH, 0.01, "위에서 내려다보는 각")
 	d.set_facing(0)

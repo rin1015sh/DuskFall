@@ -719,14 +719,14 @@
         ]
       },
       "doll": {
-        "head_r": 8.5,
-        "leg": 22,
-        "torso": 16,
+        "head_r": 6.0,
+        "leg": 24,
+        "torso": 17,
         "neck": 2,
         "shoulder": 7.5,
         "waist": 5.5,
         "depth": 4.2,
-        "arm": 16,
+        "arm": 17,
         "arm_r": 2.1,
         "leg_r": 2.6,
         "walk_swing": 32
@@ -1449,14 +1449,14 @@
         ]
       },
       "doll": {
-        "head_r": 8.0,
-        "leg": 15,
-        "torso": 12,
+        "head_r": 5.6,
+        "leg": 16,
+        "torso": 13,
         "neck": 1.5,
         "shoulder": 6.2,
         "waist": 5.0,
         "depth": 3.8,
-        "arm": 12,
+        "arm": 13,
         "arm_r": 1.9,
         "leg_r": 2.3,
         "walk_swing": 34
@@ -2179,14 +2179,14 @@
         ]
       },
       "doll": {
-        "head_r": 8.5,
-        "leg": 15,
-        "torso": 15,
+        "head_r": 6.2,
+        "leg": 16,
+        "torso": 16,
         "neck": 1.0,
         "shoulder": 8.6,
         "waist": 7.4,
         "depth": 5.2,
-        "arm": 14,
+        "arm": 15,
         "arm_r": 2.5,
         "leg_r": 3.0,
         "walk_swing": 28

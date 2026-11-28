@@ -1,7 +1,6 @@
 extends Node
 ## 간이 3D 인형 확인 시트(그림만): 4방향 × 동작 장면을 한 장 PNG로(창 화소 그대로 × 배율).
 ##   xvfb-run godot --path . --rendering-driver opengl3 res://tools/doll_sheet.tscn -- --out=<png> [--species=human] [--anim=idle,walk] [--frames=6] [--scale=4]
-##   --armor=<아이템 id> --weapon=<아이템 id> --off=<아이템 id> --helmet=1 --cloak=1
 
 const Doll := preload("res://scenes/battle/doll_rig.gd")
 const Cutout := preload("res://scripts/rules/cutout.gd")
@@ -22,9 +21,7 @@ func _run() -> void:
 	await get_tree().process_frame
 	var sp := Cutout.species_look(_arg("species", "human"))
 	var lk := {"template": str(sp.get("template", "medium")), "skin": str(sp.get("skin")), "hair": str(sp.get("hair")),
-		"extras": Array(sp.get("extras", [])), "tunic": "#2f4a6b", "armor": Cutout.item_look(_arg("armor", "chain_mail")),
-		"helmet": _arg("helmet", "0") == "1", "cloak": _arg("cloak", "0") == "1", "gloves": false, "boots": true,
-		"weapon": Cutout.item_look(_arg("weapon", "longsword")), "offhand": Cutout.item_look(_arg("off", "")), "set": "melee"}
+		"extras": Array(sp.get("extras", []))}
 	lk["key"] = JSON.stringify(lk)
 	var anims := _arg("anim", "idle,walk").split(",")
 	var nf := int(_arg("frames", "6"))
