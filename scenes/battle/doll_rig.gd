@@ -155,13 +155,24 @@ func _build() -> void:
 	pose(anim, anim_t)
 
 
-func _mat(c: Color, pattern: int = 0) -> ShaderMaterial:
-	var key := "%s:%d" % [c.to_html(), pattern]
+## 재질 종류(doll.gdshader kind — 색 계단·얼룩 결이 다르다)
+enum K { SKIN, CLOTH, LEATHER, METAL, HAIR, WOOD }
+const MAT_KIND := {"mat_cloth": K.CLOTH, "mat_leather": K.LEATHER, "mat_hide": K.LEATHER, "mat_wood": K.WOOD,
+	"mat_chain": K.METAL, "mat_scale": K.METAL, "mat_plate": K.METAL, "mat_steel": K.METAL, "mat_gold": K.METAL}
+
+
+func _kind_of(look_entry: Dictionary, def: int) -> int:
+	return int(MAT_KIND.get(str(look_entry.get("material", "")), def))
+
+
+func _mat(c: Color, pattern: int = 0, kind: int = K.SKIN) -> ShaderMaterial:
+	var key := "%s:%d:%d" % [c.to_html(), pattern, kind]
 	if not _mats.has(key):
 		var m := ShaderMaterial.new()
 		m.shader = SHADER
 		m.set_shader_parameter("col", c)
 		m.set_shader_parameter("pattern", pattern)
+		m.set_shader_parameter("kind", kind)
 		_mats[key] = m
 	return _mats[key]
 
@@ -230,7 +241,7 @@ func _build_body() -> void:
 	var hair := Color(str(lk.get("hair", "#4a3222")))
 	var m_skin := _mat(skin)
 	var m_skin2 := _mat(skin.darkened(0.06))  # 몸통·골반은 팔다리보다 살짝 짙게(겹친 부위가 읽히게)
-	var m_hair := _mat(hair)
+	var m_hair := _mat(hair, 0, K.HAIR)
 	var m_dark := _mat(Color(0.1, 0.08, 0.08), 4)
 	var leg := _d("leg", 24)
 	var thigh := leg * 0.52
@@ -303,7 +314,7 @@ func _build_head(head: Node3D, hr: float, hair: Color, m_skin: Material, m_hair:
 		for sx: float in [-1.0, 1.0]:
 			_cone(head, hr * 0.28, hr * 0.9, m_skin, c + Vector3(sx * hr * 1.05, hr * 0.1, -hr * 0.1), Vector3(0, 0, -sx * 70.0))
 	if "horns" in extras:
-		var hc := _mat(Color("#3a2e2a"))
+		var hc := _mat(Color("#3a2e2a"), 0, K.WOOD)
 		for sx: float in [-1.0, 1.0]:
 			_cone(head, hr * 0.3, hr * 1.1, hc, c + Vector3(sx * hr * 0.55, hr * 1.25, hr * 0.05), Vector3(-25, 0, -sx * 28.0))
 	if "beard" in extras:
@@ -360,9 +371,10 @@ func _build_gear() -> void:
 		var cover: Array = armor.get("cover", ["torso"])
 		var col := Color(str(armor.get("color", "#808080")))
 		var pat: int = PATTERN.get(str(armor.get("pattern", "")), 0)
-		var m := _mat(col, pat)
-		var m_plain := _mat(col.darkened(0.08))
-		var m_under := _mat(UNDER)
+		var ak := _kind_of(armor, K.CLOTH)
+		var m := _mat(col, pat, ak)
+		var m_plain := _mat(col.darkened(0.08), 0, ak)
+		var m_under := _mat(UNDER, 0, K.CLOTH)
 		if "torso" in cover:
 			var tm := CylinderMesh.new()
 			tm.top_radius = sh + t
@@ -372,7 +384,7 @@ func _build_gear() -> void:
 			tm.rings = 2
 			_mesh(j["chest"], tm, m, Vector3(0, torso * 0.5 - 0.2, 0), Vector3.ZERO, Vector3(1, 1, (depth + t) / (sh + t)))
 			_ball(j["chest"], sh + t, m, Vector3(0, torso - 0.6, 0), Vector3(1, 0.42, (depth + t) / (sh + t)))
-			_box(j["chest"], Vector3((waist + t) * 2.0 + 0.4, 1.4, (depth + t) * 2.0 * waist / sh + 0.6), _mat(Color("#3a2a1c")), Vector3(0, 1.0, 0))  # 허리띠
+			_box(j["chest"], Vector3((waist + t) * 2.0 + 0.4, 1.4, (depth + t) * 2.0 * waist / sh + 0.6), _mat(Color("#3a2a1c"), 0, K.LEATHER), Vector3(0, 1.0, 0))  # 허리띠
 		# 골반·다리: 바지(갑옷이 넓적다리를 덮으면 그 위에 갑옷)
 		_ball(j["hips"], waist + t * 0.6, m_under, Vector3(0, -0.5, 0), Vector3(1.0, 0.72, (depth + t) / (waist + t)))
 		for sd: String in ["r", "l"]:
@@ -387,7 +399,7 @@ func _build_gear() -> void:
 			if "shin" in cover:
 				_shell("knee_" + sd, lr * 0.85 + t, shin * 0.8, m_plain)
 			if "pauldron" in cover:
-				_ball(j["shoulder_" + sd], ar * 1.7, _mat(col.lightened(0.06)), Vector3(0, 0.2, 0), Vector3(1.1, 0.8, 1.1))
+				_ball(j["shoulder_" + sd], ar * 1.7, _mat(col.lightened(0.06), 0, ak), Vector3(0, 0.2, 0), Vector3(1.1, 0.8, 1.1))
 		if "skirt" in cover:
 			var skm := CylinderMesh.new()  # 허리에서 넓적다리 중간까지 퍼지는 자락
 			skm.top_radius = waist + t
@@ -408,20 +420,20 @@ func _build_gear() -> void:
 		hm.radial_segments = 14
 		hm.rings = 5
 		# 앞을 들어 올려 이마까지만(얼굴이 보이게), 쇠는 살짝 어둡게(밝은 단이 하얗게 날지 않게)
-		_mesh(j["head"], hm, _mat(hcol.darkened(0.18)), hc + Vector3(0, hr * 0.2, -hr * 0.08), Vector3(-24, 0, 0))
+		_mesh(j["head"], hm, _mat(hcol.darkened(0.18), 0, K.METAL), hc + Vector3(0, hr * 0.2, -hr * 0.08), Vector3(-24, 0, 0))
 		var rim := CylinderMesh.new()
 		rim.top_radius = hr * 1.1
 		rim.bottom_radius = hr * 1.12
 		rim.height = 1.0
 		rim.radial_segments = 14
-		_mesh(j["head"], rim, _mat(hcol.darkened(0.4)), hc + Vector3(0, hr * 0.2, -hr * 0.08), Vector3(-24, 0, 0))
+		_mesh(j["head"], rim, _mat(hcol.darkened(0.4), 0, K.METAL), hc + Vector3(0, hr * 0.2, -hr * 0.08), Vector3(-24, 0, 0))
 	elif hshape == "headband":
 		var tm2 := TorusMesh.new()
 		tm2.inner_radius = hr * 0.98
 		tm2.outer_radius = hr * 1.12
 		tm2.rings = 16
 		tm2.ring_segments = 4
-		_mesh(j["head"], tm2, _mat(hcol), hc + Vector3(0, hr * 0.32, 0), Vector3(-8, 0, 0))
+		_mesh(j["head"], tm2, _mat(hcol, 0, _kind_of(hl, K.METAL)), hc + Vector3(0, hr * 0.32, 0), Vector3(-8, 0, 0))
 	# 망토: 어깨에서 등 뒤로 퍼져 무릎 위까지
 	var cl: Dictionary = look.get("cloak_look", {})
 	if not cl.is_empty() or look.get("cloak", false):
@@ -431,28 +443,29 @@ func _build_gear() -> void:
 		cm.bottom_radius = sh * 1.35
 		cm.height = torso + leg * 0.5
 		cm.radial_segments = 12
-		var cmi := _mesh(j["chest"], cm, _mat(ccol), Vector3(0, torso - cm.height * 0.5, -depth - 0.6), Vector3(-7, 0, 0), Vector3(1, 1, 0.3))
+		var cmi := _mesh(j["chest"], cm, _mat(ccol, 0, K.CLOTH), Vector3(0, torso - cm.height * 0.5, -depth - 0.6), Vector3(-7, 0, 0), Vector3(1, 1, 0.3))
 		cmi.name = "cloak"
-		_box(j["chest"], Vector3(sh * 2.0, 1.2, depth * 2.0 + 1.0), _mat(ccol.darkened(0.12)), Vector3(0, torso - 0.4, 0))  # 어깨 덮개 깃
+		_box(j["chest"], Vector3(sh * 2.0, 1.2, depth * 2.0 + 1.0), _mat(ccol.darkened(0.12), 0, K.CLOTH), Vector3(0, torso - 0.4, 0))  # 어깨 덮개 깃
 	# 손: 장갑(손 덮개) · 건틀릿(크고 쇠, 팔뚝 끝까지) · 팔찌(팔뚝 띠)
 	var hd: Dictionary = look.get("hands_look", {})
 	var hshape2 := str(hd.get("shape", "gloves" if look.get("gloves", false) else ""))
 	if hshape2 != "":
 		var gcol := Color(str(hd.get("color", "#4a3424")))
+		var gk := _kind_of(hd, K.LEATHER)
 		for sd: String in ["r", "l"]:
 			if hshape2 == "bracers":
-				_shell("elbow_" + sd, ar * 0.88 + 0.6, arm * 0.2, _mat(gcol), arm * 0.18)
+				_shell("elbow_" + sd, ar * 0.88 + 0.6, arm * 0.2, _mat(gcol, 0, gk), arm * 0.18)
 			else:
-				_ball(j["hand_" + sd], ar * (1.3 if hshape2 == "gauntlets" else 1.15), _mat(gcol), Vector3(0, -0.6, 0.2))
+				_ball(j["hand_" + sd], ar * (1.3 if hshape2 == "gauntlets" else 1.15), _mat(gcol, 0, gk), Vector3(0, -0.6, 0.2))
 				if hshape2 == "gauntlets":
-					_shell("elbow_" + sd, ar * 0.88 + 0.8, arm * 0.16, _mat(gcol.darkened(0.08)), arm * 0.28)
+					_shell("elbow_" + sd, ar * 0.88 + 0.8, arm * 0.16, _mat(gcol.darkened(0.08), 0, gk), arm * 0.28)
 	# 발: 장화(정강이 아래 반 + 발)
 	var ft: Dictionary = look.get("feet_look", {})
 	if not ft.is_empty() or look.get("boots", false):
 		var bcol := Color(str(ft.get("color", "#3a2a1e")))
 		for sd: String in ["r", "l"]:
-			_shell("knee_" + sd, lr * 0.85 + 0.8, shin * 0.45, _mat(bcol), shin * 0.5)
-			_box(j["foot_" + sd], Vector3(lr * 1.6 + 1.0, lr * 0.9 + 0.8, lr * 2.6 + 1.0), _mat(bcol.darkened(0.1)), Vector3(0, -lr * 0.45, lr * 0.6))
+			_shell("knee_" + sd, lr * 0.85 + 0.8, shin * 0.45, _mat(bcol, 0, K.LEATHER), shin * 0.5)
+			_box(j["foot_" + sd], Vector3(lr * 1.6 + 1.0, lr * 0.9 + 0.8, lr * 2.6 + 1.0), _mat(bcol.darkened(0.1), 0, K.LEATHER), Vector3(0, -lr * 0.45, lr * 0.6))
 	# 무기: 오른손(활은 왼손 — 활 동작이 왼팔로 겨눈다), 보조 손·방패는 왼손
 	var w: Dictionary = look.get("weapon", {})
 	var o: Dictionary = look.get("offhand", {})
@@ -462,65 +475,70 @@ func _build_gear() -> void:
 		_build_weapon(o, j["hand_l"], true)
 
 
-## 무기 하나: 손 관절에 붙인다. 축(+y)이 칼끝 — 손에서 앞쪽 위로 들고 있다(휘두르면 손을 따라간다).
+## 쥔 각(손 관절 x 회전 도 — 손의 +y는 팔꿈치 쪽, +z는 손등 앞): 120 = 칼끝이 앞으로 살짝 아래(편하게 든 칼),
+## 180 = 팔을 곧게 이은 방향(휘두를 때 동작 키 weapon_r·weapon_l로), 0~12 = 팔 따라 곧추선 활·지팡이·창.
+const GRIP := {"default": 120.0, "bow": 0.0, "staff": 10.0, "spear": 10.0, "sling": 170.0}
+
+
+## 무기 하나: 손 관절에 붙인다. 축(+y)이 칼끝, 쥔 각은 GRIP(동작이 weapon_r·weapon_l 키로 손목을 꺾는다).
 func _build_weapon(w: Dictionary, hand: Node3D, left: bool) -> void:
 	var shape := str(w.get("shape", ""))
 	var c := Color(str(w.get("color", "#c8ccd2")))
 	var glow := str(w.get("glow", ""))
 	var L := float(w.get("length", 40)) * 0.32
-	var steel := _mat(Color(Cutout.material_color("mat_steel")))
-	var wood := _mat(Color("#6e4c2c"))
+	var steel := _mat(Color(Cutout.material_color("mat_steel")), 0, K.METAL)
+	var wood := _mat(Color("#6e4c2c"), 0, K.WOOD)
+	var wk := _kind_of(w, K.METAL)
 	var g := _joint("weapon_l" if left else "weapon_r", hand, Vector3((1.0 if left else -1.0) * 0.6, -0.8, 0.8))
+	if shape != "shield":
+		g.rotation_degrees = Vector3(float(GRIP.get(shape, GRIP["default"])), 0, 0)
+	g.set_meta("rest", g.rotation)
 	if shape == "shield":
 		var sm := CylinderMesh.new()  # 둥근 방패: 팔뚝 바깥에 세워 앞을 막는다
 		sm.top_radius = 5.2
 		sm.bottom_radius = 5.2
 		sm.height = 0.9
 		sm.radial_segments = 14
-		_mesh(g, sm, _mat(c), Vector3(1.4, 2.6, 0.6), Vector3(90, 0, 75))
+		_mesh(g, sm, _mat(c, 0, wk), Vector3(1.4, 2.6, 0.6), Vector3(90, 0, 75))
 		_ball(g, 1.2, steel, Vector3(2.0, 2.6, 0.8))
 		var rim := TorusMesh.new()
 		rim.inner_radius = 4.9
 		rim.outer_radius = 5.6
 		rim.rings = 16
 		rim.ring_segments = 4
-		_mesh(g, rim, _mat(c.darkened(0.3)), Vector3(1.4, 2.6, 0.6), Vector3(90, 0, 75))
+		_mesh(g, rim, _mat(c.darkened(0.3), 0, K.METAL), Vector3(1.4, 2.6, 0.6), Vector3(90, 0, 75))
 		return
-	g.rotation_degrees = Vector3(28, 0, 0)  # 축을 위로, 살짝 앞(앞모습에서도 무기가 세워져 보이게)
-	var blade := _mat(Color(glow) if glow != "" else c)
+	var blade := _mat(Color(glow) if glow != "" else c, 0, K.METAL if glow == "" else K.SKIN)
 	match shape:
 		"sword", "dagger":
 			_box(g, Vector3(1.0, 2.6, 1.0), wood, Vector3(0, 0, 0))
-			_box(g, Vector3(3.6, 0.9, 1.2), _mat(Color("#8a6a3a")), Vector3(0, 1.6, 0))
+			_box(g, Vector3(3.6, 0.9, 1.2), _mat(Color("#8a6a3a"), 0, K.METAL), Vector3(0, 1.6, 0))
 			_box(g, Vector3(1.3, L, 0.6), blade, Vector3(0, 2.0 + L * 0.5, 0))
 		"axe":
 			_box(g, Vector3(0.9, L, 0.9), wood, Vector3(0, L * 0.4, 0))
-			_box(g, Vector3(L * 0.32 + 1.5, L * 0.3 + 1.2, 0.7), _mat(Color(Cutout.material_color("mat_steel")).darkened(0.15)), Vector3((L * 0.32 + 1.5) * 0.5 * (1.0 if left else -1.0), L * 0.85, 0))  # 도끼날은 몸 바깥쪽
+			_box(g, Vector3(L * 0.32 + 1.5, L * 0.3 + 1.2, 0.7), _mat(Color(Cutout.material_color("mat_steel")).darkened(0.15), 0, K.METAL), Vector3((L * 0.32 + 1.5) * 0.5 * (1.0 if left else -1.0), L * 0.85, 0))  # 도끼날은 몸 바깥쪽
 		"mace":
-			_box(g, Vector3(0.9, L, 0.9), wood if c.is_equal_approx(Color(Cutout.material_color("mat_wood"))) else _mat(c.darkened(0.35)), Vector3(0, L * 0.4, 0))
+			_box(g, Vector3(0.9, L, 0.9), wood if c.is_equal_approx(Color(Cutout.material_color("mat_wood"))) else _mat(c.darkened(0.35), 0, K.METAL), Vector3(0, L * 0.4, 0))
 			_ball(g, 1.4 + L * 0.06, blade, Vector3(0, L * 0.9, 0))
 		"spear":
 			_box(g, Vector3(0.8, L * 1.2, 0.8), wood, Vector3(0, L * 0.45, 0))
 			_cone(g, 1.2, 3.2, steel, Vector3(0, L * 1.05 + 1.6, 0))
 		"staff":
-			g.rotation_degrees = Vector3(12, 0, 0)
-			_box(g, Vector3(1.0, L * 1.3, 1.0), _mat(c.darkened(0.15)), Vector3(0, L * 0.4, 0))
+			_box(g, Vector3(1.0, L * 1.3, 1.0), _mat(c.darkened(0.15), 0, K.WOOD), Vector3(0, L * 0.4, 0))
 			_ball(g, 1.4, _mat(Color("#7fb0d8")), Vector3(0, L * 1.05 + 0.8, 0))
 		"bow":
-			g.rotation_degrees = Vector3(8, 0, 0)
-			var bm := _mat(c.darkened(0.1))
+			var bm := _mat(c.darkened(0.1), 0, K.WOOD)
 			for i in 5:
 				var u := (float(i) - 2.0) / 2.0
 				_box(g, Vector3(0.9, L * 0.28, 0.9), bm, Vector3(0, u * L * 0.42, (1.0 - u * u) * 2.4), Vector3(-u * 35.0, 0, 0))
 			_box(g, Vector3(0.3, L * 1.0, 0.3), _mat(Color(0.85, 0.82, 0.75), 4), Vector3(0, 0, 0))
 		"crossbow":
-			_box(g, Vector3(1.2, L * 0.7, 1.2), _mat(c), Vector3(0, L * 0.3, 0))
-			_box(g, Vector3(L * 0.6, 0.8, 0.8), _mat(c.darkened(0.25)), Vector3(0, L * 0.55, 0))
+			_box(g, Vector3(1.2, L * 0.7, 1.2), _mat(c, 0, K.WOOD), Vector3(0, L * 0.3, 0))
+			_box(g, Vector3(L * 0.6, 0.8, 0.8), _mat(c.darkened(0.25), 0, K.WOOD), Vector3(0, L * 0.55, 0))
 		"gun":
 			_box(g, Vector3(1.0, L * 0.75, 1.0), steel, Vector3(0, L * 0.4, 0))
 			_box(g, Vector3(1.4, 3.0, 1.6), wood, Vector3(0, 0.2, -0.4))
 		"sling":
-			g.rotation_degrees = Vector3(-10, 0, 0)
 			_box(g, Vector3(0.3, L * 0.3, 0.3), _mat(Color("#6e4c2c"), 4), Vector3(0, -L * 0.15, 0))
 		_:
 			_box(g, Vector3(1.0, L * 0.6, 1.0), _mat(c), Vector3(0, L * 0.3, 0))
@@ -541,7 +559,9 @@ func has_anim(name: String) -> bool:
 ## 관절 자세를 정한다: 키 사이를 부드럽게 잇되 fps 박자로 끊어(도트 장면처럼 또박또박), interp step이면 다음 키까지 그대로.
 func pose(name: String, t: float) -> void:
 	for n: Node3D in j.values():
-		if n.name != "tail" and not str(n.name).begins_with("weapon"):  # 꼬리·무기 쥔 각은 고정
+		if n.has_meta("rest"):
+			n.rotation = n.get_meta("rest")  # 무기 쥔 각(키가 있으면 아래에서 덮어씀)
+		elif n.name != "tail":
 			n.rotation = Vector3.ZERO
 	j["hips"].position = Vector3(0, _d("leg", 24), 0)
 	root.rotation.y = _yaw(name, t)
