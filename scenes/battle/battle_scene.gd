@@ -1669,6 +1669,8 @@ func _execute(cell: Vector2i) -> void:
 		views[c].face_toward(cell)
 		Combat.attack(world, c, target)
 	elif mode == "shove" and target != null:
+		if views.has(c):
+			views[c].play_motion("shove")
 		Combat.shove(world, c, target)
 	elif mode == "jump":
 		Combat.jump(world, c, cell)

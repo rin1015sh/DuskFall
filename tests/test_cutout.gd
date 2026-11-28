@@ -111,20 +111,20 @@ func test_doll_anims_keys_hold_and_fallback() -> void:
 	tree.root.add_child(d)
 	own(d)
 	d.apply_look(Cutout.look(_pc("fighter")))
-	for a: String in ["idle", "walk", "attack_melee", "attack_ranged", "cast", "hit", "down"]:
+	for a: String in ["idle", "walk", "attack_slash", "attack_thrust", "attack_blunt", "attack_ranged", "cast", "cast_point", "hit", "dodge", "jump", "shove", "rise", "down"]:
 		assert_true(d.has_anim(a), "동작 %s" % a)
 		for id: String in d.anims()[a]["keys"]:
 			assert_true(id == "hips_pos" or d.j.has(id), "%s: 없는 관절 %s" % [a, id])
 	# 근접: 0.14초 준비 자세에서 팔을 머리 위 뒤로, 맞는 순간(vfx SWING_HIT 0.26)엔 앞으로 내려침
-	d.pose("attack_melee", 0.14)
+	d.pose("attack_blunt", 0.16)
 	assert_true(d.j["hand_r"].global_position.y > d.j["head"].global_position.y, "준비: 손을 머리 위로")
-	d.pose("attack_melee", preload("res://scenes/battle/vfx.gd").SWING_HIT)
+	d.pose("attack_blunt", preload("res://scenes/battle/vfx.gd").SWING_HIT)
 	assert_true(rad_to_deg(d.j["shoulder_r"].rotation.x) > -60.0, "맞는 순간: 앞으로 내려침")
 	assert_true(d.j["hips"].position.z > 1.0, "내딛음")
 	# 박자 끊기(fps 12): 같은 장면 안에서는 자세가 같다
-	d.pose("attack_melee", 0.17)
+	d.pose("attack_blunt", 0.17)
 	var r1: float = d.j["shoulder_r"].rotation.x
-	d.pose("attack_melee", 0.18)
+	d.pose("attack_blunt", 0.18)
 	assert_near(d.j["shoulder_r"].rotation.x, r1, 0.0001, "한 장면 안은 같은 자세")
 	# 쓰러짐: 끝나도 누운 채, 화면 가로로
 	d.set_facing(0)
@@ -141,4 +141,15 @@ func test_doll_anims_keys_hold_and_fallback() -> void:
 	tree.root.add_child(dw)
 	own(dw)
 	dw.apply_look(Cutout.look(_pc("cleric", "dwarf")))
-	assert_true(dw.has_anim("attack_melee"), "드워프도 보통 체형 동작")
+	assert_true(dw.has_anim("attack_melee"), "드워프도 보통 체형 동작(attack_melee = attack_slash 옛 이름)")
+	# 근접 세 모양 모두 맞는 순간(SWING_HIT)에 앞으로 내딛어 있다
+	for st: String in ["attack_slash", "attack_thrust", "attack_blunt", "shove"]:
+		d.pose(st, preload("res://scenes/battle/vfx.gd").SWING_HIT)
+		assert_true(d.j["hips"].position.z > 1.0, "%s: 맞는 순간 내딛음" % st)
+	# 일어나기: 누운 자세에서 시작해 끝엔 선다
+	d.set_facing(0)
+	d.pose("rise", 0.0)
+	assert_true(d.j["hips"].position.y < 5.0, "일어나기 시작 = 누운 자세")
+	d.pose("rise", 0.65)
+	assert_near(d.j["hips"].position.y, 24.0, 0.01, "일어나기 끝 = 선 자세")
+	assert_near(d.root.rotation_degrees.y, 0.0, 0.5, "일어나며 바라보던 쪽으로")

@@ -46,7 +46,7 @@ const AREA_PROPS := {"fire": ["ground_fire", 1.0], "cold": ["ice_shard", 1.0], "
 	"necrotic": ["motes_necrotic", 0.6], "poison": ["motes_poison", 0.6], "acid": ["motes_acid", 0.6], "arcane": ["motes_arcane", 0.35],
 	"thunder": ["motes_thunder", 0.4]}
 const FLOOR_SHADER := preload("res://scenes/battle/fx_floor.gdshader")
-## 연출 박자(초): 컷아웃 근접 공격 동작에서 휘두른 팔이 내려오는 순간(body_templates attack_melee 0.18~0.32),
+## 연출 박자(초): 근접 공격 동작에서 휘두른 팔이 내려오는 순간(body_templates attack_melee 0.18~0.32, 인형 doll_anims attack_slash·thrust·blunt·shove 0.26),
 ## 활 놓는 순간(attack_ranged 0.55), 주문 손을 든 순간(cast 0.3). 몬스터(한 장 그림)는 내딛기만 하고 바로.
 const SWING_HIT := 0.26
 const SHOT_RELEASE := 0.5
@@ -224,14 +224,7 @@ func _on_attack(res: Dictionary) -> void:
 		if hit:
 			_play("hit", _foot(t), {"delay": fly, "light": "holy", "power": 0.5})
 	else:
-		var dt := str((atk.get("damage", [{}]) as Array)[0].get("damage_type", "slashing")) if not (atk.get("damage", []) as Array).is_empty() else "slashing"
-		var name := "slash"
-		if dt == "piercing":
-			name = "thrust"
-		elif dt == "bludgeoning":
-			name = "blunt"
-		elif str(a.get("species_id")) == "":
-			name = "claw"  # 몬스터(종족 없음) 베기 = 발톱
+		var name := melee_style(atk, a)
 		_play(name, _foot(t), {"flip": _faces_left(a, t), "tint": Color(1, 1, 1, 1.0 if hit else 0.45), "delay": fly})
 	if hit:
 		# 맞는 순간: 대상이 뒤로 밀렸다 돌아오고, 치명타는 짧게 멈칫(히트스톱) + 화면 흔들림
@@ -331,6 +324,19 @@ func _spell_fx(ctx: Dictionary, sp: Dictionary, d: Dictionary, _from: Vector3, t
 
 
 ## 주문 → 효과 모양·종류: {kind: bolt/area/cone/line/hit/heal/heal_area/shield/buff/hex/charm, family: 피해 꼬리}
+## 근접 공격 모양(무기 자국·캐릭터 동작이 같이 쓴다): 피해 종류로 베기 slash·찌르기 thrust·둔기 blunt, 몬스터(종족 없음) 베기 = 발톱 claw
+static func melee_style(atk: Dictionary, attacker: Object) -> String:
+	var dmg: Array = atk.get("damage", [])
+	var dt := str((dmg[0] as Dictionary).get("damage_type", "slashing")) if not dmg.is_empty() and dmg[0] is Dictionary else "slashing"
+	if dt == "piercing":
+		return "thrust"
+	if dt == "bludgeoning":
+		return "blunt"
+	if attacker != null and str(attacker.get("species_id")) == "":
+		return "claw"
+	return "slash"
+
+
 static func spell_look(sp: Dictionary) -> Dictionary:
 	var dtype := ""
 	var heal := false

@@ -175,9 +175,36 @@ func _exit_tree() -> void:
 
 
 ## 판정 결과에 맞춰 동작(공격·시전·피격)을 한 번 재생한다.
+## 근접은 무기 자국과 같은 모양(vfx.melee_style — 베기·찌르기·둔기), 주문 공격 굴림은 시전 동작이 이미 맡았다.
+## 빗나간 대상은 맞는 순간 몸을 피한다(dodge).
 func _on_attack_anim(res: Dictionary) -> void:
-	if _rig != null and res.get("attacker") == creature and not res.get("preview", false):
-		_rig.play("attack_ranged" if str(res.get("attack", {}).get("kind", "melee")) == "ranged" else "attack_melee")
+	if _rig == null or res.get("preview", false):
+		return
+	var atk: Dictionary = res.get("attack", {})
+	if res.get("attacker") == creature:
+		if atk.has("spell") and not atk.get("weapon", false):
+			return
+		if str(atk.get("kind", "melee")) == "ranged":
+			_rig.play("attack_ranged")
+			return
+		var style := "attack_" + preload("res://scenes/battle/vfx.gd").melee_style(atk, creature).replace("claw", "slash")
+		_rig.play(style if _has_anim(style) else "attack_melee")
+	elif res.get("target") == creature and not res.get("hit", false) and _has_anim("dodge") and _rig.anim in ["idle", "walk"]:
+		var V2 := preload("res://scenes/battle/vfx.gd")
+		var at: float = V2.SHOT_RELEASE if str(atk.get("kind", "melee")) == "ranged" else V2.SWING_HIT
+		get_tree().create_timer(maxf(at - 0.1, 0.0)).timeout.connect(func() -> void:
+			if _rig != null and _rig.anim in ["idle", "walk"]:
+				_rig.play("dodge"))
+
+
+func _has_anim(name: String) -> bool:
+	return _rig != null and _rig.has_method("has_anim") and _rig.has_anim(name)
+
+
+## 판정 신호가 없는 행동(밀치기 등)의 동작을 화면 쪽에서 한 번 재생한다
+func play_motion(name: String) -> void:
+	if _has_anim(name) and _rig.anim != "down":
+		_rig.play(name)
 
 
 ## 잠깐 몸을 밀었다 되돌린다(공격 = 대상 쪽으로 내딛기, 피격 = 뒤로 밀림). 그림만 — 칸 위치는 그대로. dir: 세계 xz 방향.
@@ -197,9 +224,13 @@ func has_rig() -> bool:
 	return _rig != null
 
 
+## 시전: 한 대상·한 방향으로 쏘는 주문(탄·맞히기·원뿔·선)은 한 손을 뻗고(cast_point), 범위·회복·강화는 두 팔을 펼친다(cast)
 func _on_cast_anim(ctx: Dictionary) -> void:
-	if _rig != null and ctx.get("caster") == creature:
-		_rig.play("cast")
+	if _rig == null or ctx.get("caster") != creature:
+		return
+	var sp := RulesDB.get_entry("spell", str(ctx.get("spell", "")))
+	var kind := str(preload("res://scenes/battle/vfx.gd").spell_look(sp).get("kind", "")) if not sp.is_empty() else ""
+	_rig.play("cast_point" if kind in ["bolt", "hit", "cone", "line"] and _has_anim("cast_point") else "cast")
 
 
 func _on_hit_anim(info: Dictionary) -> void:
@@ -270,6 +301,9 @@ func sync() -> void:
 	var cell: Vector2i = grid.cell_of(creature)
 	if cell != _cell:
 		var d := cell - _cell
+		# 한 번에 두 칸 넘게 옮겼으면 점프(걷기는 한 칸씩) — 인형은 도약 동작
+		if _cell.x >= 0 and maxi(absi(d.x), absi(d.y)) >= 2 and maxi(absi(d.x), absi(d.y)) <= 6 and _rig != null and _rig.anim in ["idle", "walk"]:
+			play_motion("jump")
 		_face(d)
 		_path.append(_foot(cell))
 		_cell = cell
@@ -295,7 +329,7 @@ func sync() -> void:
 		if lying and _rig.anim != "down":
 			_rig.play("down")
 		elif not lying and _rig.anim == "down":
-			_rig.play("idle")
+			_rig.play("rise")
 	else:
 		_pivot.rotation.z = deg_to_rad(80) if lying else 0.0
 	_shadow.visible = not creature.dead
@@ -354,7 +388,7 @@ func _place_sprite() -> void:
 	_body.position.y = float(int(creature.altitude))
 	if _cutout:
 		_rig.set_facing(facing)
-		if _rig.anim == "down":
+		if _rig.anim in ["down", "rise", "jump"]:
 			pass
 		elif not _path.is_empty():
 			_rig.play("walk")

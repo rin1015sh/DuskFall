@@ -16,7 +16,7 @@ const PITCH := 40.0
 ## 보통 크기 캐릭터의 dot(actor_view CUT_K / PIXEL_DOT_PX) — 체형 치수가 이 크기 기준 도트
 const BASE_DOT := 0.28
 ## 창 크기(보통 크기 도트)와 발 자리(창 아래에서 위로)
-const CANVAS := Vector2(64, 76)
+const CANVAS := Vector2(78, 76)  # 가로는 누운 몸(머리 ~ 발)이 들어가게
 const FOOT := 10.0
 ## 켜기: 도트 캐릭터일 때 컷아웃 대신 인형(battle_scene — --doll=0이면 옛 컷아웃)
 static var enabled := true
@@ -62,17 +62,22 @@ func set_facing(f: int) -> void:
 const FACING_YAW := [0.0, -90.0, 90.0, 180.0]
 
 
-## 몸 방향(라디안): 바라보는 쪽. 쓰러질 때만 화면 가로로 눕게(앞·뒷모습에서 뒤로 넘어지면 세로로 짧게 눌려 보인다) 넘어지며 돈다.
+## 몸 방향(라디안): 바라보는 쪽. 쓰러질 때만 화면 가로로 눕게(앞·뒷모습에서 뒤로 넘어지면 세로로 짧게 눌려 보인다) 넘어지며 돌고, 일어나며 되돈다.
 func _yaw(name: String, t: float) -> float:
 	var base := deg_to_rad(FACING_YAW[clampi(facing, 0, 3)])
-	if name != "down":
-		return base
 	var target := deg_to_rad(90.0 if facing in [0, 2] else -90.0)
-	return lerp_angle(base, target, clampf(t / 0.3, 0.0, 1.0))
+	if name == "down":
+		return lerp_angle(base, target, clampf(t / 0.3, 0.0, 1.0))
+	if name == "rise":  # 누운 방향에서 일어나며 바라보던 쪽으로
+		return lerp_angle(target, base, clampf(t / 0.42, 0.0, 1.0))
+	return base
 
 
-## 동작: idle · walk(반복) / attack_melee · attack_ranged · cast · hit(한 번 — 끝나면 idle) / down(쓰러져 누운 채 — hold).
+## 동작: idle · walk(반복) / attack_slash · attack_thrust · attack_blunt · attack_ranged · cast · cast_point · hit · dodge · jump · shove · rise
+## (한 번 — 끝나면 idle) / down(쓰러져 누운 채 — hold). attack_melee는 attack_slash와 같은 옛 이름.
 func play(name: String) -> void:
+	if name == "attack_melee":
+		name = "attack_slash"
 	if name == anim and bool(anims().get(name, {}).get("loop", true) or anims().get(name, {}).get("hold", false)):
 		return
 	anim = name
@@ -318,7 +323,7 @@ func anims() -> Dictionary:
 
 
 func has_anim(name: String) -> bool:
-	return anims().has(name)
+	return anims().has("attack_slash" if name == "attack_melee" else name)
 
 
 ## 관절 자세를 정한다: 키 사이를 부드럽게 잇되 fps 박자로 끊어(도트 장면처럼 또박또박), interp step이면 다음 키까지 그대로.
@@ -332,7 +337,7 @@ func pose(name: String, t: float) -> void:
 	var length := float(a.get("length", 1.0))
 	var tt := fmod(t, length) if bool(a.get("loop", true)) else minf(t, length)
 	var fps := float(a.get("fps", 0.0))
-	if fps > 0.0:
+	if fps > 0.0 and tt < length:  # 끝 장면은 끝 자세 그대로
 		tt = floorf(tt * fps + 0.0001) / fps
 	var step := str(a.get("interp", "")) == "step"
 	var keys: Dictionary = a.get("keys", {})
