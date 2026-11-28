@@ -584,6 +584,8 @@ func _setup_pixel() -> void:
 	MapView.Kit3D.wind = pixel.scale_px > 0 and args.get("wind", "1") != "0"
 	# 캐릭터 도트 그림(컷아웃 뼈대를 도트 해상도로, 3단 음영): 도트 화면 기본, --pixel_chars=0이면 매끈한 그림
 	preload("res://scenes/battle/cutout_rig.gd").pixel = pixel.scale_px > 0 and args.get("pixel_chars", "1") != "0"
+	# 간이 3D 인형(위에서 본 입체 캐릭터, doll_rig.gd): 도트 캐릭터 기본, --doll=0이면 옛 컷아웃 평면 그림
+	preload("res://scenes/battle/doll_rig.gd").enabled = args.get("doll", "1") != "0"
 
 
 ## 화면 점 → 칸(카메라 광선이 처음 닿는 칸 기둥)

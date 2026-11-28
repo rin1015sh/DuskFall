@@ -161,6 +161,10 @@ res://
   부위 그림 assets/cutout/<체형>/<부위>.png(없으면 코드로 그린 임시 그림, 규격 docs/art/cutout_spec.md), 초상·소지품 전신은 cutout_portraits.gd(앞모습). 몬스터는 그림(art.image), art.cutout = false면 걷기 시트.
   도트 그림 모드(도트 화면 기본, `--pixel_chars=0`이면 매끈한 그림): 뼈대를 도트 배율(맵 = 그림 1화소가 화면 1도트, 초상 = PORTRAIT_DOT 0.5)로 줄여 그리고(CutoutRig.dot·canvas_px),
   부위마다 3단 음영(왼쪽 위 밝은 테·본색·오른쪽 아래 그늘 테, 밝은 쪽 따뜻하게·그늘 차갑게, 부위 테두리 없음 — 몸 윤곽은 화면 외곽선), 갑옷 무늬·눈은 도트 점. 장비 구조(부위 갈아 끼우기·재질 색·모양·등급 빛)는 그대로.
+  간이 3D 인형(2026-11-28, 도트 캐릭터 기본 — `--doll=0`이면 옛 컷아웃): scenes/battle/doll_rig.gd — 단순 도형(머리 공·납작 원기둥 몸통·캡슐 팔다리·손발) + 관절(hips·chest·neck·head·shoulder/elbow/hand·hip/knee/foot _r·_l)을
+  캐릭터 전용 창(SubViewport, 자기 세계)에서 위에서 내려다보는 직교 카메라(PITCH 40°)로 창 1화소 = 그림 1도트로 찍어 세운 판에 입힘 — 정수리·어깨 윗면이 보이는 입체, 4방향은 인형을 돌려(반전 없음, 8방향도 그림 추가 없이).
+  음영 doll.gdshader(왼쪽 위·살짝 앞 빛 3단, 사슬·비늘·징 무늬), 겹친 부위 안쪽 선 doll_line.gdshader(깊이 차 sel-out, 바깥 윤곽은 화면 외곽선). 치수는 체형 틀 doll(body_templates.json, 단위 = 보통 크기 화면 도트, 약 3.5등신),
+  걷기·서 있기(6박 숨쉬기)는 계산, 공격·시전·맞음은 임시 키(다음 단계에서 준비 → 휘두름 → 따라감 → 복귀로). 모습은 Cutout.look 그대로. 확인 시트: `xvfb-run godot --path . --rendering-driver opengl3 res://tools/doll_sheet.tscn -- --out=<png> --species= --armor= --weapon= --off= --helmet=1 --cloak=1 --anim=idle,walk`.
   몬스터 그림은 도트 변환본 assets/pixel_actors(tools/pixelize_actors.py — 같은 이름의 큰 원화 assets/monsters(에셋팩 반실사)에서, 키 84 × 크기 배율 화소로 축소(몬스터만 지형 도트보다 2배 촘촘 — 2026-11-27 결정; 2배 → 쿠와하라 → 평균), 대비 키우기(평균 밝기 유지), 명암 테(왼쪽 위 밝게·오른쪽 아래 어둡게), 그림별 팔레트, 테두리는 굽지 않음(화면 외곽선이 1도트로) — 그림 1화소 = 지형 도트 절반).
 - 체형 틀: 보통(인간·엘프·드로우·하프엘프·하프오크·티플링·아스트란), 작은(하플링·노움), 드워프는 작은 체형 변형. 드래곤본은 보통 체형 임시(전용 틀은 나중), 골리앗은 없다.
 - 장비는 `sprite_parts`로 부위를 바꿔 끼우고, 재질·등급은 색 바꾸기 셰이더로 표현한다.

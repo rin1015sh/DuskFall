@@ -1,6 +1,6 @@
 {
   "schema": "body_template_v1",
-  "note_ko": "2D 일러스트 컷아웃 체형 틀(룰북 1단계 '스프라이트 방향'): 뼈 위치·길이(그림 px, 원점 = 발 사이 바닥, 아래가 +, 팔다리 0도 = 아래), 그리기 순서(앞·뒤 대각선 — 좌우 반전으로 4방향), 뼈 회전 키 애니메이션(도), 부위 그림 assets/cutout/<체형>/<부위>.png가 있으면 그 그림, 없으면 코드로 그린 임시 그림(scenes/battle/cutout_rig.gd). 그림 규격은 docs/art/cutout_spec.md. 종족별 모습·재질 색은 cutout_looks.json.",
+  "note_ko": "2D 일러스트 컷아웃 체형 틀(룰북 1단계 '스프라이트 방향'): 뼈 위치·길이(그림 px, 원점 = 발 사이 바닥, 아래가 +, 팔다리 0도 = 아래), 그리기 순서(앞·뒤 대각선 — 좌우 반전으로 4방향), 뼈 회전 키 애니메이션(도), 부위 그림 assets/cutout/<체형>/<부위>.png가 있으면 그 그림, 없으면 코드로 그린 임시 그림(scenes/battle/cutout_rig.gd). 그림 규격은 docs/art/cutout_spec.md. 종족별 모습·재질 색은 cutout_looks.json. doll = 간이 3D 인형 치수(scenes/battle/doll_rig.gd, 단위 = 보통 크기 화면 도트: 머리 반지름·다리·몸통·목·어깨/허리 반폭·몸 두께·팔 길이·팔다리 굵기·걷기 흔들기 각).",
   "templates": [
     {
       "id": "medium",
@@ -717,6 +717,19 @@
           "offhand",
           "cloak"
         ]
+      },
+      "doll": {
+        "head_r": 8.5,
+        "leg": 22,
+        "torso": 16,
+        "neck": 2,
+        "shoulder": 7.5,
+        "waist": 5.5,
+        "depth": 4.2,
+        "arm": 16,
+        "arm_r": 2.1,
+        "leg_r": 2.6,
+        "walk_swing": 32
       }
     },
     {
@@ -1434,6 +1447,19 @@
           "offhand",
           "cloak"
         ]
+      },
+      "doll": {
+        "head_r": 8.0,
+        "leg": 15,
+        "torso": 12,
+        "neck": 1.5,
+        "shoulder": 6.2,
+        "waist": 5.0,
+        "depth": 3.8,
+        "arm": 12,
+        "arm_r": 1.9,
+        "leg_r": 2.3,
+        "walk_swing": 34
       }
     },
     {
@@ -2151,6 +2177,19 @@
           "offhand",
           "cloak"
         ]
+      },
+      "doll": {
+        "head_r": 8.5,
+        "leg": 15,
+        "torso": 15,
+        "neck": 1.0,
+        "shoulder": 8.6,
+        "waist": 7.4,
+        "depth": 5.2,
+        "arm": 14,
+        "arm_r": 2.5,
+        "leg_r": 3.0,
+        "walk_swing": 28
       }
     }
   ]

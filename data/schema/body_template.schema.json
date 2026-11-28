@@ -79,6 +79,12 @@
           },
           "draw_order": {
             "type": "object"
+          },
+          "doll": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
           }
         }
       }

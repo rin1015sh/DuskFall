@@ -143,6 +143,11 @@ func canvas_px() -> Vector2i:
 	return Vector2i(ceili(float(canvas[0]) * _s()), ceili(float(canvas[1]) * _s()))
 
 
+## 발 자리(캔버스 아래에서 위로, 캔버스 px): 원점(발)은 그림 아래에서 12px 위
+func foot_px() -> float:
+	return 12.0 * _s()
+
+
 ## 발에서 머리 꼭대기까지(그림 px) — 머리 위 HP 막대 높이.
 func height_px() -> float:
 	var y := 0.0

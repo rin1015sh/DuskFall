@@ -71,3 +71,34 @@ func test_rig_builds_bones_parts_facing_and_animation() -> void:
 	rig._process(5.0)
 	assert_eq(rig.anim, "idle", "한 번짜리 동작이 끝나면 서 있기")
 	assert_true(rig.height_px() > 150.0 and rig.height_px() < 200.0, "보통 체형 키")
+
+
+## 간이 3D 인형(2026-11-28): 관절·4방향 돌리기·걷기·장비·키·창 크기
+func test_doll_rig_joints_facing_walk_and_size() -> void:
+	const Doll := preload("res://scenes/battle/doll_rig.gd")
+	var f := _pc("fighter")
+	var d: Node3D = Doll.new()
+	tree.root.add_child(d)
+	own(d)
+	d.apply_look(Cutout.look(f))
+	for id: String in ["hips", "chest", "neck", "head", "shoulder_r", "elbow_r", "hand_r", "shoulder_l", "hip_r", "knee_r", "foot_r", "hip_l", "knee_l", "foot_l"]:
+		assert_true(d.j.has(id), "관절 %s" % id)
+	assert_true(d.j.has("weapon_r"), "무기는 오른손에")
+	assert_true(d.cam.projection == Camera3D.PROJECTION_ORTHOGONAL, "직교 카메라")
+	assert_near(rad_to_deg(-d.cam.rotation.x), Doll.PITCH, 0.01, "위에서 내려다보는 각")
+	d.set_facing(0)
+	assert_near(d.root.rotation_degrees.y, 0.0, 0.01, "아래 = 카메라 쪽 앞모습")
+	d.set_facing(2)
+	assert_near(d.root.rotation_degrees.y, 90.0, 0.01, "오른쪽 = 돌림(반전 없음)")
+	d.set_facing(3)
+	assert_near(absf(d.root.rotation_degrees.y), 180.0, 0.01, "위 = 뒷모습")
+	d.pose("walk", 0.2)
+	assert_true(absf(d.j["hip_r"].rotation.x) > 0.3 and signf(d.j["hip_r"].rotation.x) != signf(d.j["hip_l"].rotation.x), "걷기: 다리가 엇갈려 흔들림")
+	d.play("attack_melee")
+	d._process(5.0)
+	assert_eq(d.anim, "idle", "한 번짜리 동작이 끝나면 서 있기")
+	assert_true(d.height_px() > 150.0 and d.height_px() < 200.0, "보통 체형 키(컷아웃과 비슷)")
+	var c: Vector2i = d.canvas_px()
+	assert_true(c.x % 2 == 0 and c.y > 60, "창 크기")
+	d.dot = Doll.BASE_DOT * 0.8
+	assert_true(d.canvas_px().y < c.y, "작은 생물은 창도 작게")

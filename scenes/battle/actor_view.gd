@@ -49,7 +49,7 @@ var _state_col := Color.WHITE
 ## 컷아웃 캐릭터(룰북 1단계): 뼈대 그림을 SubViewport로 그려 세운 판에 입힌다. 종족이 있는 사람만(몬스터는 그림).
 var _cutout := false
 var _cut_vp: SubViewport
-var _rig: Node2D
+var _rig: Node  # 컷아웃 뼈대(Node2D) 또는 간이 3D 인형(doll_rig.gd, Node3D)
 const CUT_K := 0.56  # 컷아웃 그림 1px → 화면 px(걷기 시트 키에 맞춤)
 const PIXEL_ACTORS := "res://assets/pixel_actors"
 const PIXEL_DOT_PX := 2.0  # 도트 그림 모드: 캐릭터 그림 1화소 = 화면 2px(도트 화면 1도트, pixel_view.scale_px)
@@ -144,8 +144,16 @@ func _setup_cutout(c: Node) -> void:
 	_cut_vp.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
 	add_child(_cut_vp)
 	var Rig := preload("res://scenes/battle/cutout_rig.gd")
-	_rig = Rig.new()
+	var Doll := preload("res://scenes/battle/doll_rig.gd")
 	_hk = CUT_K * float(SIZE_K.get(c.size, 1.0))
+	if Rig.pixel and Doll.enabled:
+		# 간이 3D 인형: 자기 세계의 3D를 도트 해상도 창에 찍는다(위에서 본 입체·4방향)
+		_rig = Doll.new()
+		_cut_vp.disable_3d = false
+		_cut_vp.own_world_3d = true
+		_cut_vp.msaa_3d = Viewport.MSAA_DISABLED
+	else:
+		_rig = Rig.new()
 	if Rig.pixel:
 		# 도트 그림: 화면 1도트(PIXEL_DOT_PX) = 그림 1화소가 되게 뼈대를 줄여 도트 해상도 캔버스에 그린다
 		_rig.dot = _hk / PIXEL_DOT_PX
@@ -330,7 +338,7 @@ func _place_sprite() -> void:
 	if sprite.texture == null:
 		return
 	var size: Vector2 = Vector2(FRAME) if _sheet else (Vector2(_cut_vp.size) if _cutout else sprite.texture.get_size())
-	var foot_px: float = (12.0 * (_rig.dot if _rig.dot > 0.0 else 1.0)) if _cutout else 4.0  # 컷아웃은 원점(발)이 그림 아래에서 12px 위(도트 그림이면 도트로)
+	var foot_px: float = _rig.foot_px() if _cutout else 4.0  # 컷아웃·인형은 원점(발)이 그림 아래에서 foot_px 위
 	# 판 가운데 정렬 → 발(그림 아래 가운데에서 foot_px 위)이 _pivot에 오게
 	sprite.position = (Vector3(0, size.y * 0.5 - foot_px, 0) + preload("res://scenes/kit/kit3d.gd").footprint_shift(4.0)) * _k / V.T
 	# 비행·부양: 고도만큼 그림을 띄운다(그림자는 바닥에 남는다)
