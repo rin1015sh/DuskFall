@@ -2,15 +2,14 @@
 // 가장자리(덩어리 방식, floor.gdshader와 같다): 둘레 3×3 칸이 칸 가운데에서 둥글게 퍼지는 영향을 주고, 표면 종류별 합과
 // '표면 없음' 합 + 잡음 중 큰 쪽을 그린다 — 네모가 아니라 둥근 웅덩이. 높이가 다른 칸으로는 번지지 않는다.
 // 물가 띠는 밝게(젖은 테), 그 안쪽 띠는 어둡게(깊이). dot_px > 0이면 1도트 격자에 맞춰 딱 끊는다.
-// 반짝임(shimmer): 표면별 세기만큼 물결 빛 점이 천천히 생겼다 사라진다(물 1, 얼음 0.4).
 // 정점 색 = 어둠, 색조·불투명도는 표면별 팔레트(tints).
 // 물은 층을 나눠 그린다(반사 세기 reflect > 0인 표면 — 물·깊은 물·전기 물·얼음):
 //   1) 물속: 표면 그림 × 색조, 물가에서 멀수록(깊을수록) 어둡고 진하게.
 //   2) 반사: 도트 화면 거울 카메라(pixel_view — 물 높이 거울 아래에서 올려다본 세계, 빛과 그림자 층까지 입힌 그림)를
-//      거울 위치(refl_mat)로 찾는다. 줄마다 1~2도트씩 가로로 흔들려(물결) 끊긴 띠로 비치고, 아무것도 없으면 하늘 색(기본 빛 따라 낮 ↔ 밤).
+//      거울 위치(refl_mat)로 찾는다(흔들림 줄무늬 없이 비친 모습 그대로), 아무것도 없으면 하늘 색(기본 빛 따라 낮 ↔ 밤).
 //      물가 쪽은 둑 그늘로 반사가 옅다.
 //   3) 그림자: 드리운 그림자(shadow_tex)·수관 그늘(canopy) 아래에선 하늘 반사가 줄어 물이 어둡고 맑게(속이 비친다).
-//   4) 빛 반짝임: 해 반짝임(물결 빛 점)은 그늘이 아니고 밝은 곳에서만, 광원 빛(glow_tex) 안에서는 그 빛 색의 가로 대시가 일렁인다.
+//   4) 빛 웅덩이 안 물은 퍼지는 빛을 덜 받게 미리 어둡게(반짝임 점·대시는 넣지 않는다 — 2026-11-28 사용자 결정).
 //   5) 물가: 밝은 젖은 테 + 안쪽 깊이 띠.
 // 그 위에 화면 빛과 그림자 층(pixel_light)이 한 번 더 씌워진다.
 shader_type spatial;
@@ -25,7 +24,6 @@ uniform ivec2 map_size = ivec2(1, 1);
 uniform vec2 atlas_px = vec2(2048.0, 3328.0);
 uniform float tile_px = 64.0;
 uniform vec4 tints[8];
-uniform float shimmer[8];
 uniform float blob_radius = 1.3;
 uniform float blob_noise = 0.5;
 uniform float blob_jag = 0.14;
@@ -128,7 +126,6 @@ void fragment() {
 	vec4 col = texture(tex, (vec2(tile) + clamp(fract(tp), 0.004, 0.996)) * tile_px / atlas_px) * tints[s.b - 1];
 	float margin = bw - sw;
 	float R = reflect[s.b - 1];
-	float sh = shimmer[s.b - 1];
 	// 빛 지도: 빛 단계·기본 빛·드리운 그림자·광원 빛
 	vec3 linf = vec3(1.0, 0.0, 1.0);
 	float shade = 1.0;
@@ -149,17 +146,13 @@ void fragment() {
 		float deep = smoothstep(rim * 1.4, rim * 6.0, margin);
 		col.rgb *= mix(0.9, 0.62, deep);
 		col.a = mix(col.a, 0.97, deep * 0.6);
-		// 2) 반사: 화면 줄(도트) 단위로 가로 흔들림
-		float row = floor(ps.y * SIN_P * max(dot_px, 32.0));
-		float tq = floor(TIME * 6.0) / 6.0;
-		float wob = sin(row * 0.83 + tq * 2.6) * sin(row * 0.29 - tq * 1.3);
-		float off = round(wob * 1.6) / max(dot_px, 32.0);
+		// 2) 반사: 거울 그림을 그대로(줄무늬 흔들림·반짝임 없이 — 나뭇잎 등 비친 모습만)
 		vec3 sky = mix(sky_night, sky_day, clamp(linf.b, 0.0, 1.0));
 		sky *= mix(0.35, 1.0, shade);  // 3) 그늘 아래는 하늘이 덜 비친다
 		vec3 refl = sky;
 		float bright = 0.0;  // 밝게 비친 것(불·빛나는 것)은 물에 또렷하게
 		if (refl_on) {
-			vec4 cp = refl_mat * vec4(ps.x + off, 2.0 * refl_h - wpos.y, ps.y, 1.0);
+			vec4 cp = refl_mat * vec4(ps.x, 2.0 * refl_h - wpos.y, ps.y, 1.0);
 			vec2 ruv = vec2(cp.x / cp.w * 0.5 + 0.5, 0.5 - cp.y / cp.w * 0.5);  // 그림 줄은 위에서부터
 			if (all(greaterThan(ruv, vec2(0.0))) && all(lessThan(ruv, vec2(1.0)))) {
 				vec4 rc = texture(refl_tex, ruv);
@@ -179,26 +172,6 @@ void fragment() {
 		col.a = max(col.a, 0.95);
 	} else if (margin < rim * 1.4) {
 		col.rgb *= 0.8;  // 안쪽 깊이 띠
-	}
-	if (sh > 0.0 && margin > rim * 1.4) {
-		// 4) 해 반짝임: 도트 2×1 크기, 자리마다 다른 주기로 잠깐 — 그늘·어두운 곳은 없음
-		float sun = (shade > 0.9 ? 1.0 : 0.0) * smoothstep(0.35, 0.8, linf.r);
-		vec2 cell = floor(ps * vec2(16.0, 32.0));
-		float ph = hash(cell);
-		float t = fract(TIME * 0.35 + hash(cell + 7.3) * 3.0);  // 위상은 따로 뽑는다(같은 ph로 뽑으면 반짝임이 한꺼번에 꺼진다)
-		if (ph > 1.0 - 0.06 * sh * sun && t < 0.18) {
-			col.rgb = mix(col.rgb, vec3(0.9, 0.97, 1.0), 0.55);
-		}
-		// 광원 빛 반짝임: 빛 색의 가로 대시(3도트)가 물결 따라 일렁인다
-		float gi = max(max(glow.r, glow.g), glow.b);
-		if (gi > 0.3) {
-			vec2 dc = floor(vec2(ps.x * 32.0 / 3.0 + floor(TIME * 2.0) * 0.5, ps.y * SIN_P * 32.0));
-			float hp = hash(dc + 17.0);
-			float tt = fract(TIME * 0.6 + hash(dc + 3.1) * 3.0);
-			if (hp > 1.0 - min(0.07, (gi - 0.3) * 0.12) && tt < 0.4) {
-				col.rgb = mix(col.rgb, glow / gi * vec3(1.0, 0.95, 0.85), 0.6);
-			}
-		}
 	}
 	ALBEDO = col.rgb * COLOR.rgb;
 	ALPHA = col.a;

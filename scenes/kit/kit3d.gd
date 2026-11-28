@@ -10,7 +10,7 @@ const SWAY_SHADER := preload("res://scenes/kit/sway.gdshader")
 const SWAY := {"tree_broadleaf": 1.6, "tree_pine": 1.2, "tree_thorn": 1.4, "tree_giant": 1.8, "bush": 1.2,
 	"grass_tall": 1.6, "flowers": 1.4, "reed_thorn": 1.6, "cattail": 1.8, "weeds": 1.4,
 	"tuft": 1.3, }
-## 잎 반짝임(sway.gdshader leaf)을 켤 그림
+## 잎 덩어리(sway.gdshader leaf — 수관을 큰 덩어리로 나눠 덩어리마다 음영·바람)를 켤 그림
 const LEAFY := {"tree_broadleaf": true, "tree_thorn": true, "tree_giant": true, "bush": true}
 ## 깊이 외곽선을 붙이지 않을 잔장식(깊이를 쓰지 않는 판 — 작은 풀·꽃·돌이 검은 가시처럼 보이지 않게)
 const NO_OUTLINE := {"tuft": true, "flowers": true, "pebble": true}
@@ -133,11 +133,14 @@ static func setup_sprite(s: SpriteBase3D, pixel_size: float, flat: bool = false)
 ## 흔들림 재질(그림 시트·세기마다 하나씩 나눠 쓴다). 판의 그림은 시트 좌표 UV 그대로 쓴다.
 static func _add_sway(sp: Sprite3D, amp: float, leaf: float = 0.0, no_line: bool = false) -> void:
 	var tex: Texture2D = sp.texture
+	var region := Rect2()
 	if tex is AtlasTexture:
+		region = (tex as AtlasTexture).region
 		tex = (tex as AtlasTexture).atlas
 	if tex == null:
 		return
-	var key := "%d:%.4f:%.1f:%s" % [tex.get_rid().get_id(), amp, leaf, no_line]
+	# 잎 덩어리(leaf > 0)는 조각 안 좌표가 필요해 조각마다 재질을 나눈다
+	var key := "%d:%.4f:%.1f:%s:%s" % [tex.get_rid().get_id(), amp, leaf, no_line, str(region) if leaf > 0.0 else ""]
 	if not _sway_mats.has(key):
 		var m := ShaderMaterial.new()
 		m.shader = SWAY_SHADER
@@ -149,6 +152,10 @@ static func _add_sway(sp: Sprite3D, amp: float, leaf: float = 0.0, no_line: bool
 		m.set_shader_parameter("texture_albedo", tex)
 		m.set_shader_parameter("amp", amp)
 		m.set_shader_parameter("leaf", leaf)
+		if leaf > 0.0:
+			m.set_shader_parameter("sheet_px", tex.get_size())
+			m.set_shader_parameter("frame_rect", Vector4(region.position.x, region.position.y, region.size.x, region.size.y))
+			m.set_shader_parameter("clump_px", clamp(region.size.x * 0.25, 18.0, 46.0))
 		_sway_mats[key] = m
 	sp.material_override = _sway_mats[key]
 

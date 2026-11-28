@@ -120,6 +120,12 @@ func test_wind_sway() -> void:
 	var n: Node3D = Kit3D.make(kit, "bush", "a")
 	var sp: Variant = n.get_meta("sprite", null)
 	assert_true(sp is Sprite3D and (sp as Sprite3D).material_override is ShaderMaterial, "흔들림 재질")
+	# 잎 덩어리: 덤불·나무는 조각 자리·덩어리 크기를 받는다
+	var mat := (sp as Sprite3D).material_override as ShaderMaterial
+	assert_true(float(mat.get_shader_parameter("leaf")) > 0.0, "잎 덩어리 켜짐")
+	var fr: Vector4 = mat.get_shader_parameter("frame_rect")
+	assert_true(fr.z > 1.0 and fr.w > 1.0, "조각 크기")
+	assert_true(float(mat.get_shader_parameter("clump_px")) >= 18.0, "큰 덩어리")
 	n.free()
 	Kit3D.wind = false
 	var n2: Node3D = Kit3D.make(kit, "bush", "a")

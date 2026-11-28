@@ -70,8 +70,6 @@ const SURFACE_ART := {
 	"fire": ["prop", "flame", "medium"], "burning_web": ["prop", "flame", "small"], "web": ["prop", "cobweb", "floor"],
 	"thorns": ["prop", "weeds", "dead_bush"]}
 const SURFACE_TINT := {"electrified_water": Color(0.6, 0.85, 1.4), "acid": Color(0.8, 1.2, 0.6)}
-## 표면 반짝임 세기(overlay.gdshader 물결 빛 점)
-const SURFACE_SHIMMER := {"water": 1.0, "deep_water": 1.0, "electrified_water": 1.6, "ice": 0.4}
 ## 표면 반사 세기(overlay.gdshader 반사 층 — 도트 화면 거울 카메라 pixel_view가 비친 세계를 그린다). 진흙은 비치지 않는다.
 const SURFACE_REFLECT := {"water": 0.5, "deep_water": 0.6, "electrified_water": 0.45, "ice": 0.3}
 ## 물을 나눈 표면 그림 층 소식: 반사 표면이 있는지·거울 높이(가장 많은 반사 칸의 바닥 높이) — battle_scene이 pixel_view로 넘긴다
@@ -1380,10 +1378,6 @@ func _refresh_surfaces() -> void:
 	var om: ShaderMaterial = _mats["floors_overlay"]
 	om.set_shader_parameter("surf", _surf_tex)
 	om.set_shader_parameter("tints", tints)
-	var shim := PackedFloat32Array()
-	for i in 8:
-		shim.append(float(SURFACE_SHIMMER.get(palette[i], 0.0)) if i < palette.size() else 0.0)
-	om.set_shader_parameter("shimmer", shim)
 	var refl := PackedFloat32Array()
 	for i in 8:
 		refl.append(float(SURFACE_REFLECT.get(palette[i], 0.0)) if i < palette.size() else 0.0)
