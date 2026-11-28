@@ -290,3 +290,15 @@ func test_water_reflection() -> void:
 	assert_true(MapView.SURFACE_REFLECT.has("water") and not MapView.SURFACE_REFLECT.has("mud"), "물은 비치고 진흙은 안 비친다")
 	var sh: Shader = load("res://scenes/battle/overlay.gdshader")
 	assert_true(sh.code.contains("refl_mat") and sh.code.contains("shadow_tex") and sh.code.contains("glow_tex"), "물 셰이더 층: 반사·그림자·빛")
+
+
+## 잎 방식: 넓은 잎·바늘잎·단풍(+0.5)·눈 덮임·죽은 나무는 원래 그림
+func test_leaf_modes() -> void:
+	var Kit3D := preload("res://scenes/kit/kit3d.gd")
+	assert_eq(Kit3D.leaf_mode("tree_broadleaf", "a"), 1.0)
+	assert_eq(Kit3D.leaf_mode("tree_broadleaf", "autumn"), 1.5)
+	assert_eq(Kit3D.leaf_mode("tree_pine", "a"), 2.0)
+	assert_eq(Kit3D.leaf_mode("tree_pine", "snowy"), 0.0)
+	assert_eq(Kit3D.leaf_mode("tree_pine", "dead"), 0.0)
+	assert_eq(Kit3D.leaf_mode("bush", "dry"), 0.0)
+	assert_eq(Kit3D.leaf_mode("grass_tall", "a"), 0.0)

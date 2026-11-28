@@ -12,6 +12,27 @@ const SWAY := {"tree_broadleaf": 1.6, "tree_pine": 1.2, "tree_thorn": 1.4, "tree
 	"tuft": 1.3, }
 ## 잎 덩어리(sway.gdshader leaf — 수관을 큰 덩어리로 나눠 덩어리마다 음영·바람)를 켤 그림
 const LEAFY := {"tree_broadleaf": true, "tree_thorn": true, "tree_giant": true, "bush": true}
+## 바늘잎(sway.gdshader leaf 2 — 가늘고 긴 잎이 가지처럼 바깥·아래로)
+const NEEDLE := {"tree_pine": true}
+## 잎 덩어리를 넣지 않는 변형(눈 덮임·마른·죽은 나무 — 잎이 아니다)과 초록이 아닌 잎 변형(단풍)
+const LEAF_SKIP := ["snowy", "dead", "dry"]
+const LEAF_ANY := ["autumn"]
+
+
+## 잎 덩어리 방식: 0 없음, 1 넓은 잎, 2 바늘잎, +0.5 초록 아닌 잎도
+static func leaf_mode(id: String, variant: String) -> float:
+	if not LEAFY.has(id) and not NEEDLE.has(id):
+		return 0.0
+	for k: String in LEAF_SKIP:
+		if variant.contains(k):
+			return 0.0
+	var m := 2.0 if NEEDLE.has(id) else 1.0
+	for k: String in LEAF_ANY:
+		if variant.contains(k):
+			m += 0.5
+	return m
+
+
 ## 깊이 외곽선을 붙이지 않을 잔장식(깊이를 쓰지 않는 판 — 작은 풀·꽃·돌이 검은 가시처럼 보이지 않게)
 const NO_OUTLINE := {"tuft": true, "flowers": true, "pebble": true}
 ## 빛을 내는 물건(불·초·등·빛 룬·수정): 외곽선을 두르지 않는다 — 빛은 어두운 테 없이 번져 보여야 한다
@@ -90,7 +111,7 @@ static func make(kit: RefCounted, id: String, variant: String = "", opts: Dictio
 		sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD  # 깊이 미리 쓰기 없이(외곽선이 붙지 않게)
 	var sway := float(opts.get("sway", SWAY.get(id, 0.0)))
 	if wind and sway > 0.0 and not flat and sprite is Sprite3D:
-		_add_sway(sprite as Sprite3D, sway * 2.0 * ps, 1.0 if LEAFY.has(id) else 0.0, no_line)
+		_add_sway(sprite as Sprite3D, sway * 2.0 * ps, leaf_mode(id, vname), no_line)
 	# 가운데 정렬한 판을 옮겨 원점(발) 픽셀이 노드 위치에 오게 한다
 	var cx := (o.x - w * 0.5) if flip else (w * 0.5 - o.x)
 	sprite.position = Vector3(cx, o.y - h * 0.5 + float(opts.get("up", 0.0)) * kit.px, 0.0) * ps
@@ -155,7 +176,7 @@ static func _add_sway(sp: Sprite3D, amp: float, leaf: float = 0.0, no_line: bool
 		if leaf > 0.0:
 			m.set_shader_parameter("sheet_px", tex.get_size())
 			m.set_shader_parameter("frame_rect", Vector4(region.position.x, region.position.y, region.size.x, region.size.y))
-			m.set_shader_parameter("clump_px", clamp(region.size.x * 0.25, 18.0, 46.0))
+			m.set_shader_parameter("clump_px", clamp(region.size.x * 0.15, 14.0, 30.0) if leaf >= 2.0 else clamp(region.size.x * 0.25, 18.0, 46.0))  # 바늘잎은 좁은 꼭대기까지 덮게 작게
 		_sway_mats[key] = m
 	sp.material_override = _sway_mats[key]
 
