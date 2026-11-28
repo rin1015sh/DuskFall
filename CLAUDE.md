@@ -129,7 +129,7 @@ res://
   도트 효과(2026-11-28, scenes/battle/vfx.gd·pixel_fx.gd): pixelfx(patch-gg, MIT — 사본 tools/pixelfx, 스킬 .claude/skills/pixelfx)로 구운 시트 assets/pixel_fx
   (목록·색 묶음 tools/pixelfx_bake.json, 굽기 `python3 tools/bake_pixelfx.py`, 효과 1화소 = 그림 1도트, 15fps). 3D 세계 그 자리에 카메라를 정면으로 보는 판(깊이 시험 없이 맨 위,
   render_priority 127 — 빛 판 124·125, 외곽선 126 뒤라 제 밝기). 판정 신호로 고른다: 무기 근접 = 피해 종류(베기 slash·찌르기 thrust·둔기 blunt, 몬스터 베기 claw), 원거리 = 화살 arrow
-  날아가 맞으면 hit, 치명타 crit; 주문 = spell_look(공격 굴림 = 탄 bolt_ → 맞았을 때만 hit_, 구·정육면체·원기둥·자기 둘레 = area_(4칸↑은 2배), 원뿔 = cone_, 선 = line_, 그 밖 = hit_)
+  날아가 맞으면 hit, 치명타 crit; 주문 = spell_look(공격 굴림 = 탄 bolt_ → 맞았을 때만 hit_, 구·정육면체·원기둥·자기 둘레 = area_(4칸↑은 2배), 원뿔·선 = 바닥 판 원뿔·선 모양, 그 밖 = hit_)
   × 피해 꼬리 FAMILY(역장·정신 = arcane), 피해 없는 주문: 회복 heal(on_heal)·heal_area, 보호(방호 학파) shield, 강화 buff, 약화(사령·환혹) hex·그 밖 charm.
   상태 이상 STATUS_FX(머리 위·발밑 고리), 몬스터 쓰러짐 death, 불 표면 ground_fire(이 게임용 새 효과). 빗나감·피해 숫자는 탄이 닿을 때.
   효과는 잠깐 광원(pixel_view.set_dyn_lights → 더하기 판, 최대 8개, 3단계 끊음, 밝은 맵은 은은하게). 몸에 그리는 pixelfx 효과(기본 인형이 같이 그려짐)는 쓰지 않는다.
@@ -137,6 +137,8 @@ res://
   빛무리 없이 단계) — 불 = 찢긴 불 고리가 퍼지고 지나간 자리 얼룩 그을음·불씨 + 고리가 닿는 자리마다 낮은 불꽃, 냉기 = 서리 고리 → 얼룩 서리·군데군데 얼음 금 + 둘레·안쪽에 솟았다 부서지는 얼음 조각,
   회복 = 번지는 빛 고리·안쪽 점선 원·옅은 풀빛 얼룩 + 빛 점, 번개 = 마디마다 꺾이는 1도트 갈래 번개가 번쩍이고 그을린 금 + 가운데 낙뢰, 광휘 = 가는 빛 고리·안쪽 도는 빛살·가운데 빛 웅덩이,
   사령 = 검보라 웅덩이·군데군데 핏줄 금, 독·산성 = 얼룩 웅덩이·부글거리는 거품, 비전·역장 = 그려지며 도는 룬 고리 두 겹 → 충격파, 천둥 = 동심 충격파 세 겹·흙먼지.
+  원뿔·선도 같은 바닥 판(shape 1·2 — 규칙 Area.cov_cone·cov_line 그대로: 시전자 칸 가운데에서 조준 칸 쪽으로 길이 N + 0.5칸, 원뿔 반각 atan(1/2)·선 너비 width_tiles, 시작 칸은 빠짐) —
+  고리가 시전자에게서 앞으로 퍼지는 물결, 작은 효과도 그 모양 안에, 선 번개·빛줄기는 앞으로 뻗는 한 줄기 심. 피해 없는 원뿔·선(색 분사·공포)은 학파 색.
   선 굵기는 도트 단위(px1 — 범위가 커도 1~2도트). 원 안에 세우는 작은 효과 AREA_PROPS(빛 점 계열 = heal-motes를 원소 색 계단으로 구운 motes_<꼬리>). 바닥에 선 효과는 깊이 시험(앞 벽·나무·캐릭터에 가린다).
   이 게임용 새 효과는 tools/pixelfx/src/fx/duskfall/(캐릭터 키 약 50도트에 맞춤): hit-burst(맞는 자리 원소 터짐 — 꼬리별 모양 spark·shard·bolt·drop·wisp·ray·ring·rune, 치명타 = 금빛 ray 크게),
   swing(무기 자국 slash·thrust·blunt·claw, 강철 색), status-loop(중독 거품·저주 연기·느려짐 서리), heal-motes(회복 — 강화·매혹·원소 빛 점도 색만 바꿔), ice-shard, fire/ground-flames.

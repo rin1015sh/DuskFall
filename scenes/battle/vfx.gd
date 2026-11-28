@@ -11,6 +11,7 @@ extends Node2D
 const V := preload("res://scenes/battle/view3d.gd")
 const S := preload("res://scenes/ui/ui_style.gd")
 const PFX := preload("res://scenes/battle/pixel_fx.gd")
+const Area := preload("res://scripts/rules/area.gd")
 const DMG_COL := {"fire": Color(1.0, 0.55, 0.2), "cold": Color(0.6, 0.85, 1.0), "lightning": Color(0.85, 0.85, 1.0),
 	"acid": Color(0.6, 0.9, 0.3), "poison": Color(0.55, 0.8, 0.35), "necrotic": Color(0.6, 0.5, 0.7), "radiant": Color(1.0, 0.9, 0.55),
 	"force": Color(0.75, 0.7, 1.0), "psychic": Color(0.9, 0.55, 0.9), "thunder": Color(0.8, 0.75, 0.95)}
@@ -307,9 +308,16 @@ func _spell_fx(ctx: Dictionary, sp: Dictionary, d: Dictionary, _from: Vector3, t
 			else:
 				_play(name, center, {"scale": big, "light": fam, "power": 1.2, "radius": maxf(r + 1.0, 2.0)})
 		"cone", "line":
-			var name2 := ("cone_" if d["kind"] == "cone" else "line_") + fam
-			if PFX.has(name2) and scene.views.has(caster):
-				_play(name2, _pos(caster), {"aim_to": to, "light": fam, "power": 1.0, "radius": r})
+			# 규칙 범위 그대로(Area.cov_cone·cov_line): 시작 칸 가운데에서 조준 칸 쪽으로 길이 N + 0.5칸
+			if scene.views.has(caster) and aim is Vector2i:
+				var o := V.pos(g.cell_of(caster), 0.0)
+				o.y = _foot(caster).y
+				var tgt := V.pos(aim, 0.0)
+				var dv := Vector2(tgt.x - o.x, tgt.z - o.z)
+				if dv.length() < 0.01:
+					dv = Vector2.RIGHT
+				var fam2: String = fam if FLOOR_STYLE.has(fam) else "arcane"
+				area_burst(fam2, o, float(area.get("length_tiles", r)) + 0.5, 1 if d["kind"] == "cone" else 2, dv.normalized(), float(area.get("width_tiles", 1)) * 0.5)
 			else:
 				_play("hit_" + fam, foot, {"light": fam, "power": 0.9})
 		"hit":
@@ -354,6 +362,9 @@ static func spell_look(sp: Dictionary) -> Dictionary:
 		return {"kind": "hit", "family": fam}
 	if heal:
 		return {"kind": "heal_area" if shape != "" else "heal", "family": "heal"}
+	if shape == "cone" or shape == "line":
+		# 피해 없는 원뿔·선(색 분사·공포): 학파로 색
+		return {"kind": shape, "family": "necrotic" if str(sp.get("school", "")) == "necromancy" else "arcane"}
 	if check == "save":
 		return {"kind": "hex" if str(sp.get("school", "")) in ["necromancy", "enchantment"] else "charm", "family": "arcane"}
 	return {"kind": "shield" if str(sp.get("school", "")) == "abjuration" else "buff", "family": "holy"}
@@ -520,21 +531,28 @@ func _draw() -> void:
 ##   불 = 퍼지는 불 고리 → 그을린 바닥 + 고리가 닿는 자리마다 낮은 불꽃(ground_fire), 가운데 작은 폭발
 ##   냉기 = 퍼지는 서리 고리 → 얼음 금 서리 + 둘레·안쪽에 솟았다 부서지는 얼음 조각(ice_shard)
 ##   회복 = 천천히 번지는 빛 고리 + 안쪽 점선 원 + 군데군데 꽃(heal)
-func area_burst(fam: String, center: Vector3, rad: float) -> void:
+func area_burst(fam: String, center: Vector3, rad: float, shape: int = 0, dir := Vector2.RIGHT, half_w := 0.5) -> void:
 	var st: Array = FLOOR_STYLE[fam]
 	var life: float = st[1]
-	_floor(center, rad, int(st[0]), life, st[2])
-	var n := clampi(int(rad * rad * 1.1), 3, 26)
+	_floor(center, rad, int(st[0]), life, st[2], shape, dir, half_w)
+	var area_k := rad * rad if shape == 0 else (rad * rad * tan(Area.CONE_HALF) if shape == 1 else rad * half_w * 2.0)
+	var n := clampi(int(area_k * 1.1), 3, 26)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(center.x * 73.0 + center.z * 151.0)
 	var spread: float = {"fire": 0.32, "cold": 0.4, "lightning": 0.1, "thunder": 0.3}.get(fam, 0.55)
 	for i in n:
 		# 원 안에 고르게(가운데는 덜) — 고리가 그 자리에 닿을 때 솟는다
 		var u := sqrt(rng.randf_range(0.08, 1.0)) * 0.88
-		if fam == "cold" and i % 2 == 0:
+		if fam == "cold" and i % 2 == 0 and shape == 0:
 			u = rng.randf_range(0.82, 0.95)  # 냉기는 반은 둘레에 줄지어
 		var ang := rng.randf() * TAU
 		var p := center + Vector3(cos(ang) * u * rad, 0, sin(ang) * u * rad)
+		if shape != 0:
+			# 원뿔·선 안: 앞쪽 거리(시작 칸 다음부터) × 옆 거리
+			u = rng.randf_range(0.6 / rad, 0.95)
+			var side := rng.randf_range(-0.85, 0.85) * (tan(Area.CONE_HALF) * u * rad if shape == 1 else half_w)
+			var fw := Vector3(dir.x, 0, dir.y)
+			p = center + fw * (u * rad) + Vector3(-dir.y, 0, dir.x) * side
 		p.y = scene.map_view.ground_at(Vector2(p.x, p.z)) if scene.get("map_view") != null else center.y
 		var delay := u * spread * life * (0.9 + rng.randf() * 0.2)
 		var prop: Array = AREA_PROPS.get(fam, [])
@@ -544,6 +562,11 @@ func area_burst(fam: String, center: Vector3, rad: float) -> void:
 		if fam == "fire":
 			o["max_life"] = life * 0.7 - delay
 		_play(String(prop[0]), p, o)
+	if shape != 0:
+		# 원뿔·선: 가운데 터짐 대신 앞으로 번지는 광원 하나(범위 가운데쯤)
+		var mid := center + Vector3(dir.x, 0, dir.y) * rad * 0.5
+		_dyn_only(mid, fam, 1.0, rad * 0.6, life * 0.6)
+		return
 	match fam:
 		"fire":
 			_play("hit_fire", center, {"light": "fire", "power": 1.3, "radius": rad + 1.0})
@@ -556,10 +579,10 @@ func area_burst(fam: String, center: Vector3, rad: float) -> void:
 
 
 ## 바닥 판 하나(fx_floor.gdshader). 진행 t는 _step_sprites가 넘긴다.
-func _floor(center: Vector3, rad: float, style: int, life: float, ramp: Array) -> void:
+func _floor(center: Vector3, rad: float, style: int, life: float, ramp: Array, shape: int = 0, dir := Vector2.RIGHT, half_w := 0.5) -> void:
 	var mi := MeshInstance3D.new()
 	var pm := PlaneMesh.new()
-	pm.size = Vector2(rad * 2.0 + 0.4, rad * 2.0 + 0.4)
+	pm.size = Vector2(rad * 2.0 + 0.4, rad * 2.0 + 0.4)  # 원뿔·선도 시작점 둘레 정사각(밖은 셰이더가 버린다)
 	mi.mesh = pm
 	var m := ShaderMaterial.new()
 	m.shader = FLOOR_SHADER
@@ -571,6 +594,10 @@ func _floor(center: Vector3, rad: float, style: int, life: float, ramp: Array) -
 	m.set_shader_parameter("center", center)
 	m.set_shader_parameter("radius", rad)
 	m.set_shader_parameter("style", style)
+	m.set_shader_parameter("shape", shape)
+	m.set_shader_parameter("dir", dir)
+	m.set_shader_parameter("half_ang", Area.CONE_HALF)
+	m.set_shader_parameter("half_w", half_w)
 	m.set_shader_parameter("seed", fmod(center.x * 3.7 + center.z * 1.3, 97.0))
 	m.render_priority = 127
 	mi.material_override = m
@@ -596,7 +623,12 @@ func demo(names: Array, who: Node) -> void:
 	for i in names.size():
 		var n := String(names[i])
 		var at := base + Vector3(2.0 * float(i + 1), 0, 0)
-		if n.begins_with("area:"):
+		if n.begins_with("cone:") or n.begins_with("line:"):
+			var o := V.pos(scene.world["grid"].cell_of(who), 0.0)
+			o.y = base.y
+			var dz := float(n.get_slice(":", 3)) if n.get_slice_count(":") >= 4 else 0.0
+			area_burst(n.get_slice(":", 1), o, float(n.get_slice(":", 2)) + 0.5, 1 if n.begins_with("cone:") else 2, Vector2(1.0, dz).normalized())
+		elif n.begins_with("area:"):
 			var off := Vector3(float(n.get_slice(":", 3)), 0, float(n.get_slice(":", 4))) if n.get_slice_count(":") >= 5 else Vector3(float(n.get_slice(":", 2)), 0, 0)
 			area_burst(n.get_slice(":", 1), base + off, float(n.get_slice(":", 2)) + 0.5)
 		elif n.begins_with("bolt_") or n == "arrow":

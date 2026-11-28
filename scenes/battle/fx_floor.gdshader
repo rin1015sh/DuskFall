@@ -5,6 +5,8 @@ shader_type spatial;
 // style: 0 불(퍼지는 불 고리 → 그을린 바닥에 불씨) · 1 냉기(퍼지는 서리 고리 → 얼음 금 무늬 서리) · 2 회복(천천히 번지는 고리 + 안쪽 점선 원 + 떠오르는 빛 점)
 //        3 번개(갈래 금 번쩍임 → 그을린 자국) · 4 광휘(밝은 원·도는 빛살) · 5 사령(검보라 웅덩이·핏줄 금) · 6 독·산성(얼룩 웅덩이·거품)
 //        7 비전·역장(그려지며 도는 룬 고리 두 겹 → 충격파) · 8 천둥(동심 충격파 세 겹·흙먼지)
+// shape: 0 원(center 둘레 반지름 radius) · 1 원뿔(center = 시작 칸 가운데, dir 쪽으로 길이 radius, 반각 half_ang — 규칙 Area.cov_cone)
+//        · 2 선(dir 쪽으로 길이 radius, 너비 2·half_w — Area.cov_line). 원뿔·선은 r = 앞쪽 거리 / 길이라 고리가 시전자에게서 앞으로 퍼지는 물결이 된다.
 // t = 0..1(효과 진행), seed = 자리마다 다른 무늬.
 render_mode unshaded, cull_disabled, depth_draw_never, blend_mix, shadows_disabled, fog_disabled;
 
@@ -15,6 +17,10 @@ uniform int style = 0;
 uniform float seed = 0.0;
 uniform vec3 ramp[5];
 uniform float dot_px = 32.0;
+uniform int shape = 0;
+uniform vec2 dir = vec2(1.0, 0.0);
+uniform float half_ang = 0.4636476;
+uniform float half_w = 0.5;
 
 varying vec3 wpos;
 
@@ -62,7 +68,22 @@ void fragment() {
 	float r = length(d) / radius;
 	// 둘레를 도트 단위로 살짝 흔들어 컴퍼스 원처럼 보이지 않게
 	float ang = atan(d.y, d.x);
-	r += (vnoise(vec2(ang * 3.0 + seed, seed)) - 0.5) * 0.06;
+	float mask = 1.0;
+	float along = dot(d, dir);
+	float perp = dot(d, vec2(-dir.y, dir.x));
+	if (shape == 1) {
+		ang = atan(perp, max(along, 0.001));
+		r = along / radius;
+		float side = (vnoise(vec2(along * 4.0 + seed, seed)) - 0.5) * 0.06;  // 옆선도 살짝 들쭉날쭉
+		mask = (along > 0.5 && abs(ang) < half_ang + side) ? 1.0 : 0.0;  // 시작 칸은 빠진다(규칙과 같다)
+		ang *= 4.0;  // 무늬 잡음이 원뿔 폭 안에서 충분히 바뀌게
+	} else if (shape == 2) {
+		r = along / radius;
+		float side = (vnoise(vec2(along * 5.0 + seed, seed)) - 0.5) * 0.12;
+		mask = (along > 0.5 && abs(perp) < half_w + side) ? 1.0 : 0.0;
+		ang = perp * 6.0 + along * 0.5;
+	}
+	r += (vnoise(vec2(ang * 3.0 + seed, seed)) - 0.5) * (shape == 0 ? 0.06 : 0.03);
 	vec3 col = vec3(0.0);
 	float a = 0.0;
 	float px1 = 1.0 / (radius * dot_px);  // 그림 1도트를 r 단위로 — 선 굵기는 범위 크기와 상관없이 도트로
@@ -298,6 +319,27 @@ void fragment() {
 			a = 0.4 * fade;
 		}
 	}
+	if (shape == 2 && (style == 3 || style == 4) && r > 0.0 && r < 1.0) {
+		// 선 번개·빛줄기: 시전자에서 앞으로 뻗는 한 줄기(번개는 마디마다 꺾이는 1~2도트, 빛줄기는 곧은 3도트 심)
+		float reach = smoothstep(0.0, 0.18, t);
+		float off = 0.0;
+		if (style == 3) {
+			float sg = floor(along / 0.4);
+			float beat = floor(t * 7.0);
+			off = mix(hash(vec2(sg, beat)) - 0.5, hash(vec2(sg + 1.0, beat)) - 0.5, fract(along / 0.4)) * 0.5;
+		}
+		float dd = abs(perp - off) * dot_px;
+		float on = (style == 3 ? step(0.45, fract(t * 7.0)) : 1.0) * (1.0 - step(0.7, t));
+		if (r < reach && on > 0.5) {
+			if (dd < (style == 3 ? 0.6 : 1.6)) {
+				col = ramp[4];
+				a = 1.0;
+			} else if (dd < (style == 3 ? 1.6 : 3.2)) {
+				col = ramp[3];
+				a = 1.0;
+			}
+		}
+	}
 	ALBEDO = col;
-	ALPHA = a;
+	ALPHA = a * mask;
 }

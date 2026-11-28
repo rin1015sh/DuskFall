@@ -299,36 +299,6 @@
   ],
   "src": "duskfall/swing"
  },
- "cone_cold": {
-  "columns": 4,
-  "fps": 15,
-  "frames": 18,
-  "loop": true,
-  "pivot": [
-   12,
-   50
-  ],
-  "size": [
-   184,
-   104
-  ],
-  "src": "ice/frost-breath"
- },
- "cone_fire": {
-  "columns": 5,
-  "fps": 15,
-  "frames": 23,
-  "loop": true,
-  "pivot": [
-   12,
-   72
-  ],
-  "size": [
-   160,
-   116
-  ],
-  "src": "fire/fire-breath"
- },
  "crit": {
   "columns": 4,
   "fps": 15,
@@ -583,21 +553,6 @@
    44
   ],
   "src": "duskfall/ice-shard"
- },
- "line_lightning": {
-  "columns": 3,
-  "fps": 15,
-  "frames": 18,
-  "loop": true,
-  "pivot": [
-   26,
-   84
-  ],
-  "size": [
-   264,
-   100
-  ],
-  "src": "arcane/arcane-beam"
  },
  "motes_acid": {
   "columns": 7,

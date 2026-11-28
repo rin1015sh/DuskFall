@@ -385,3 +385,13 @@ func test_fx_fit_game() -> void:
 			assert_true((cfg["ramps"] as Dictionary).has(rp), "%s 색 계단 %s" % [n, rp])
 	assert_true(Vfx.SWING_HIT > 0.15 and Vfx.SWING_HIT < 0.35, "휘두른 팔이 내려오는 순간")
 	assert_true(Vfx.CAST_RELEASE > 0.0)
+
+
+## 원뿔·선 효과는 규칙 범위 모양으로: 피해 없는 원뿔·선도 원뿔·선, 바닥 셰이더가 모양을 받는다.
+func test_cone_line_fx() -> void:
+	var Vfx := preload("res://scenes/battle/vfx.gd")
+	assert_eq(Vfx.spell_look(RulesDB.get_entry("spell", "cone_of_cold")), {"kind": "cone", "family": "cold"})
+	assert_eq(Vfx.spell_look(RulesDB.get_entry("spell", "lightning_bolt")), {"kind": "line", "family": "lightning"})
+	assert_eq(String(Vfx.spell_look(RulesDB.get_entry("spell", "color_spray"))["kind"]), "cone", "피해 없는 원뿔도 원뿔")
+	var sh: Shader = load("res://scenes/battle/fx_floor.gdshader")
+	assert_true(sh.code.contains("half_ang") and sh.code.contains("half_w"), "원뿔 반각·선 너비")

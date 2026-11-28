@@ -293,21 +293,6 @@
       },
       "ramp": "arcane"
     },
-    "cone_fire": {
-      "src": "fire/fire-breath",
-      "ramp": "fire"
-    },
-    "cone_cold": {
-      "src": "ice/frost-breath",
-      "ramp": "cold"
-    },
-    "line_lightning": {
-      "src": "arcane/arcane-beam",
-      "opts": {
-        "palette": "electric"
-      },
-      "ramp": "lightning"
-    },
     "heal": {
       "src": "duskfall/heal-motes"
     },
