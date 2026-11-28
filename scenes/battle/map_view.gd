@@ -80,6 +80,7 @@ var reflect_version := 0
 static var reflect_doubles := true
 const REFL_REACH := 7  # 반사 표면에서 북쪽·옆으로 몇 칸 안의 소품까지 짝을 만드나(큰 나무 높이까지 비친다)
 var _refl_key := ""
+var _sky_leafy := -1.0
 var _refl_nodes: Array[Node3D] = []
 const CLOUD_ART := {"steam": "grey", "fog": "grey", "magical_darkness": "black", "sleet": "blue", "stinking_cloud": "violet"}
 ## 벽 윗면·벽면·절벽 면 밝기(옛 2D와 같다). 폐허 벽 윗면은 윗돌 블록(CAP_SHADE).
@@ -1382,6 +1383,10 @@ func _refresh_surfaces() -> void:
 	for i in 8:
 		refl.append(float(SURFACE_REFLECT.get(palette[i], 0.0)) if i < palette.size() else 0.0)
 	om.set_shader_parameter("reflect", refl)
+	# 숲 맵: 아무것도 안 비친 자리도 둘레 숲이 비친 짙은 청록 얼룩(하늘 대신)
+	if not refl_cells.is_empty() and _sky_leafy < 0.0:
+		_sky_leafy = 1.0 if String(art().get("surround", {}).get("biome", _surround_biome()) if art().get("surround") is Dictionary else _surround_biome()) == "forest" else 0.0
+	om.set_shader_parameter("sky_leafy", maxf(_sky_leafy, 0.0))
 	om.set_shader_parameter("dot_px", art_dots)
 	var best_h := 0.0
 	var best_n := 0

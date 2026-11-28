@@ -6,7 +6,7 @@
 // 물은 층을 나눠 그린다(반사 세기 reflect > 0인 표면 — 물·깊은 물·전기 물·얼음):
 //   1) 물속: 표면 그림 × 색조, 물가에서 멀수록(깊을수록) 어둡고 진하게.
 //   2) 반사: 도트 화면 거울 카메라(pixel_view — 물 높이 거울 아래에서 올려다본 세계, 빛과 그림자 층까지 입힌 그림)를
-//      거울 위치(refl_mat)로 찾는다(흔들림 줄무늬 없이 비친 모습 그대로), 아무것도 없으면 하늘 색(기본 빛 따라 낮 ↔ 밤).
+//      거울 위치(refl_mat)로 찾는다. 줄마다 1~2도트씩 가로로 흔들려(물결) 끊긴 띠로 비치고, 아무것도 없으면 하늘 색(기본 빛 따라 낮 ↔ 밤).
 //      물가 쪽은 둑 그늘로 반사가 옅다.
 //   3) 그림자: 드리운 그림자(shadow_tex)·수관 그늘(canopy) 아래에선 하늘 반사가 줄어 물이 어둡고 맑게(속이 비친다).
 //   4) 빛 웅덩이 안 물은 퍼지는 빛을 덜 받게 미리 어둡게(반짝임 점·대시는 넣지 않는다 — 2026-11-28 사용자 결정).
@@ -37,6 +37,10 @@ uniform mat4 refl_mat;
 uniform float refl_h = 0.0;
 uniform vec3 sky_day = vec3(0.56, 0.66, 0.74);
 uniform vec3 sky_night = vec3(0.05, 0.07, 0.11);
+// 숲 맵(map_view — 둘레 지형 forest): 빈 반사 자리에 둘레 숲이 비친 짙은 청록 얼룩
+uniform float sky_leafy = 0.0;
+uniform vec3 leafy_dark = vec3(0.07, 0.15, 0.13);
+uniform vec3 leafy_light = vec3(0.27, 0.42, 0.28);
 // 빛 지도(map_view._build_lighting — pixel_light와 같다)
 uniform bool light_on = false;
 uniform sampler2D glow_tex : filter_linear;
@@ -146,13 +150,24 @@ void fragment() {
 		float deep = smoothstep(rim * 1.4, rim * 6.0, margin);
 		col.rgb *= mix(0.9, 0.62, deep);
 		col.a = mix(col.a, 0.97, deep * 0.6);
-		// 2) 반사: 거울 그림을 그대로(줄무늬 흔들림·반짝임 없이 — 나뭇잎 등 비친 모습만)
+		// 2) 반사: 화면 줄(도트) 단위로 가로 흔들림(물결 줄무늬). 반짝임 점은 넣지 않는다(2026-11-28 사용자 결정)
+		float row = floor(ps.y * SIN_P * max(dot_px, 32.0));
+		float tq = floor(TIME * 6.0) / 6.0;
+		float wob = sin(row * 0.83 + tq * 2.6) * sin(row * 0.29 - tq * 1.3);
+		float off = round(wob * 1.6) / max(dot_px, 32.0);
 		vec3 sky = mix(sky_night, sky_day, clamp(linf.b, 0.0, 1.0));
+		if (sky_leafy > 0.0) {
+			// 멀리 비친 숲: 잎 덩어리 얼룩(물결 흔들림을 같이 받아 줄무늬로 끊긴다), 기본 빛 따라 어둡게
+			vec2 fp = vec2(ps.x + off, ps.y * 1.6);
+			float fn = vnoise(fp * 1.3) * 0.65 + vnoise(fp * 3.7 + 4.1) * 0.35;
+			vec3 fol = fn > 0.62 ? leafy_light : (fn > 0.45 ? mix(leafy_dark, leafy_light, 0.5) : leafy_dark);
+			sky = mix(sky, fol * mix(0.35, 1.0, clamp(linf.b, 0.0, 1.0)), sky_leafy * 0.85);
+		}
 		sky *= mix(0.35, 1.0, shade);  // 3) 그늘 아래는 하늘이 덜 비친다
 		vec3 refl = sky;
 		float bright = 0.0;  // 밝게 비친 것(불·빛나는 것)은 물에 또렷하게
 		if (refl_on) {
-			vec4 cp = refl_mat * vec4(ps.x, 2.0 * refl_h - wpos.y, ps.y, 1.0);
+			vec4 cp = refl_mat * vec4(ps.x + off, 2.0 * refl_h - wpos.y, ps.y, 1.0);
 			vec2 ruv = vec2(cp.x / cp.w * 0.5 + 0.5, 0.5 - cp.y / cp.w * 0.5);  // 그림 줄은 위에서부터
 			if (all(greaterThan(ruv, vec2(0.0))) && all(lessThan(ruv, vec2(1.0)))) {
 				vec4 rc = texture(refl_tex, ruv);

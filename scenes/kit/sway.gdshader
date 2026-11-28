@@ -53,8 +53,60 @@ bool is_leaf(vec4 c) {
 	return c.a > 0.5 && c.g > c.b * 1.05 && c.g > c.r * 0.97;
 }
 
-float lum(vec3 c) {
-	return dot(c, vec3(0.3, 0.55, 0.15));
+// 덩어리 안 잎 하나: 잎 격자(엇갈린 줄) 칸마다 잎 하나 — 덩어리 가운데에서 바깥·아래로 처진 뾰족한 잎
+// u: 덩어리 가운데 기준 도트 좌표, rd: 덩어리 반지름(도트). 돌려줌: x = 맞음(1/0), y = 잎 가운데 y(앞뒤), z·w = 잎 가운데
+vec4 leaf_at(vec2 u, float rd, vec2 gid, vec2 cpx, float t, float gust, out float tone_k, out float edge) {
+	const vec2 LS = vec2(5.0, 3.5);  // 잎 격자(도트)
+	float best = -1e9;
+	vec4 res = vec4(0.0);
+	tone_k = 0.0;
+	edge = 0.0;
+	float r0 = floor(u.y / LS.y);
+	for (int j = 0; j < 9; j++) {
+		float r = r0 + float(j / 3 - 1);
+		float sh = mod(r, 2.0) * 0.5 * LS.x;
+		float cx = floor((u.x - sh) / LS.x) + float(j % 3 - 1);
+		vec2 id = vec2(cx, r);
+		float h = hash(id + gid * 3.1);
+		vec2 lc = (id + 0.5 + (vec2(h, hash(id + gid + 7.7)) - 0.5) * 0.8) * LS + vec2(sh, 0.0);
+		// 잎 떨림: 잎마다 다른 박자로 가끔 1도트(돌풍 때 더 자주)
+		float fl = sin(t * (2.6 + h * 2.0) + h * 40.0);
+		lc.x += round(fl * (0.35 + 0.5 * gust));
+		float lr = length(lc) / rd;
+		if (lr > 1.0 + (h - 0.5) * 0.25) {
+			continue;
+		}
+		// 판 가장자리에서 잘리지 않게: 잎이 통째로 조각 안에 들어가는 자리만(바람 흔들림 여유 포함)
+		vec2 lpx = cpx + lc * 2.0;
+		float mg = 12.0 + hash(id + gid + 9.1) * 16.0;  // 잎마다 다른 여유 — 가장자리가 곧은 줄로 늘어서지 않게
+		if (lpx.x < mg || lpx.y < mg || lpx.x > frame_rect.z - mg || lpx.y > frame_rect.w - 12.0) {
+			continue;
+		}
+		vec2 dir = normalize(lc / max(length(lc), 0.5) * 0.8 + vec2((hash(id + 3.3) - 0.5) * 0.9, 1.0));
+		vec2 v = u - lc;
+		float a = dot(v, dir);
+		float b = dot(v, vec2(-dir.y, dir.x));
+		float len = 3.4 + h * 1.4;
+		float wid = 2.1 * (1.0 - 0.5 * clamp(a / len, -1.0, 1.0));
+		float e = (a / len) * (a / len) + (b / wid) * (b / wid);
+		if (e < 1.0 && lc.y > best) {
+			best = lc.y;
+			res = vec4(1.0, lc.y, lc);
+			tone_k = h;
+			// 잎 아래·오른쪽 끝 도트는 그늘(잎이 겹쳐 보이게), 위·왼쪽 끝은 밝은 테
+			vec2 v2 = v + vec2(0.8, 0.8);
+			float a2 = dot(v2, dir);
+			float b2 = dot(v2, vec2(-dir.y, dir.x));
+			float wid2 = 2.1 * (1.0 - 0.5 * clamp(a2 / len, -1.0, 1.0));
+			vec2 v3 = v - vec2(0.8, 0.8);
+			float a3 = dot(v3, dir);
+			float b3 = dot(v3, vec2(-dir.y, dir.x));
+			float wid3 = 2.1 * (1.0 - 0.5 * clamp(a3 / len, -1.0, 1.0));
+			edge = (a2 / len) * (a2 / len) + (b2 / wid2) * (b2 / wid2) > 1.0 ? -1.0
+					: ((a3 / len) * (a3 / len) + (b3 / wid3) * (b3 / wid3) > 1.0 ? 1.0 : 0.0);
+		}
+	}
+	return res;
 }
 
 void fragment() {
@@ -64,19 +116,20 @@ void fragment() {
 		p = floor(p * 0.5) * 2.0 + 1.0;  // 그림 1도트 = 2px 격자
 		float S = clump_px;
 		vec2 g0 = floor(p / S);
-		float best_y = -1e9;
-		vec4 best = vec4(0.0);
-		vec3 base = vec3(0.0);
-		float lit_b = 0.0;
-		bool near = false;  // 수관 안(가까운 덩어리가 있다) — 이끼 낀 줄기는 속 그늘을 넣지 않는다
 		float t = TIME * speed;
+		// 1) 이 화소를 덮는 덩어리 넷까지 모은다
+		vec4 cand[4];  // xy = 덩어리 안 좌표(도트, 바람 옮김 뺀), z = 덩어리 y, w = 반지름 비율
+		vec2 cg[4];
+		vec3 cb[4];
+		vec2 cc[4];  // 덩어리 가운데(조각 px, 바람 옮김 포함)
+		int nc = 0;
+		bool near = false;
 		for (int j = 0; j < 16; j++) {
 			vec2 g = g0 + vec2(float(j % 4 - 1), float(j / 4 - 1));
 			vec2 ctr = (g + 0.25 + 0.5 * vec2(hash(g), hash(g + 5.7))) * S;
 			if (!is_leaf(tex_at(ctr))) {
 				continue;
 			}
-			// 덩어리 본색: 가운데 둘레 다섯 점 평균(잎 화소만). 잎이 적으면(이끼 낀 줄기 등) 덩어리가 아니다
 			vec3 acc = vec3(0.0);
 			float n = 0.0;
 			for (int k = 0; k < 5; k++) {
@@ -88,55 +141,107 @@ void fragment() {
 				}
 			}
 			if (n < 4.0) {
-				continue;
+				continue;  // 잎이 적은 자리(이끼 낀 줄기)는 덩어리 아님
 			}
-			// 바람: 덩어리마다 위상이 다르고 위쪽일수록 크게, 도트 단위
 			float hgt = clamp(1.0 - ctr.y / frame_rect.w, 0.0, 1.0);
 			float ph = hash(g + 2.3) * 6.2831;
 			float sway = sin(t * 1.6 + ph + org_v.x) * (0.6 + 0.6 * gust_v) + gust_v * 0.8;
 			vec2 off = vec2(round(sway * (1.0 + 2.2 * hgt)) * 2.0, round(sin(t * 1.1 + ph * 1.7) * 0.6 * hgt) * 2.0);
-			vec2 q = p - off;
-			vec2 dv = (q - ctr) / (S * 0.8);
-			float ang = atan(dv.y, dv.x);
-			// 잎 모양 가장자리: 둥근 잎 뭉치 혹(각도 물결) + 도트 들쭉날쭉
-			float d = length(dv) * (1.0 + 0.1 * sin(ang * 7.0 + ph) + 0.06 * sin(ang * 13.0 + ph * 2.0))
-					+ (hash(floor(q / 2.0) + g) - 0.5) * 0.08;
+			vec2 u = (p - off - ctr) * 0.5;  // 도트
+			float rd = S * 0.5 * 0.82;
+			float d = length(u) / rd;
 			near = near || d < 1.5;
-			if (d < 1.0 && ctr.y > best_y) {
-				vec4 tc = tex_at(q);
-				if (tc.a > 0.5 && (is_leaf(tc) || d < 0.7)) {
-					best_y = ctr.y;
-					best = tc;
-					base = acc / n;
-					// 공 음영: 북서쪽 위 빛
-					float dd = min(d, 1.0);
-					float nz = sqrt(max(0.0, 1.0 - dd * dd));
-					lit_b = dot(normalize(vec3(dv, nz)), normalize(vec3(-0.55, -0.7, 0.55)));
-					if (d > 0.84 && dv.x + dv.y > 0.15) {
-						lit_b = -1.0;  // 오른쪽 아래 그늘 테(덩어리가 겹쳐 보이게)
+			if (d < 1.25) {
+				int slot = nc;
+				if (nc == 4) {  // 가득 차면 가장 뒤(위쪽) 덩어리와 바꾼다
+					slot = 0;
+					for (int m = 1; m < 4; m++) {
+						if (cand[m].z < cand[slot].z) {
+							slot = m;
+						}
 					}
+					if (cand[slot].z >= ctr.y) {
+						slot = -1;
+					}
+				} else {
+					nc++;
+				}
+				if (slot >= 0) {
+					cand[slot] = vec4(u, ctr.y, d);
+					cg[slot] = g;
+					cb[slot] = acc / n;
+					cc[slot] = ctr + off;
 				}
 			}
 		}
-		if (best_y > -1e8) {
-			// 4단 음영 + 잎 점(원래 그림이 본색보다 확 밝거나 어두운 도트만 한 단 올리고 내림)
-			float b = lit_b > 0.6 ? 3.0 : (lit_b > 0.15 ? 2.0 : (lit_b > -0.3 ? 1.0 : 0.0));
-			float rel = lum(best.rgb) / max(lum(base), 0.02);
-			if (rel > 1.3 && b < 3.0 && lit_b > -0.6) {
-				b += 1.0;
-			} else if (rel < 0.68 && b > 0.0) {
-				b -= 1.0;
+		// 2) 앞 덩어리부터 잎을 찾는다 — 잎에 맞으면 잎 색, 잎 사이 틈이면 그 덩어리 속 그늘, 덩어리 밖이면 뒤 덩어리로
+		bool done = false;
+		float used = 0.0;  // 처리한 덩어리 비트
+		for (int it = 0; it < 4; it++) {
+			if (it >= nc || done) {
+				break;
 			}
-			float f = b > 2.5 ? 1.2 : (b > 1.5 ? 0.98 : (b > 0.5 ? 0.74 : 0.52));
-			vec3 col = base * f;
-			if (b > 2.5) {
-				col *= vec3(1.08, 1.06, 0.84);  // 밝은 쪽 따뜻하게
-			} else if (b < 0.5) {
-				col *= vec3(0.78, 0.9, 1.15);  // 그늘 쪽 차갑게
+			int m = -1;
+			for (int q = 0; q < 4; q++) {
+				if (q < nc && mod(floor(used / pow(2.0, float(q))), 2.0) < 0.5 && (m < 0 || cand[q].z > cand[m].z)) {
+					m = q;
+				}
 			}
-			c = vec4(col, 1.0);
-		} else if (near && is_leaf(c)) {
-			c.rgb = c.rgb * 0.36 * vec3(0.8, 0.92, 1.15);  // 덩어리 사이 속 그늘
+			used += pow(2.0, float(m));
+			vec2 u = cand[m].xy;
+			float rd = S * 0.5 * 0.82;
+			float tk;
+			float ed;
+			vec4 lf = leaf_at(u, rd, cg[m], cc[m], t, gust_v, tk, ed);
+			vec3 base = cb[m];
+			if (lf.x > 0.5) {
+				// 덩어리 공 음영을 잎 가운데에서 재서 잎 하나가 한 단(경계가 잎 모양으로 끊긴다)
+				vec2 dv = lf.zw / rd;
+				float dd = min(length(dv), 1.0);
+				float nz = sqrt(max(0.0, 1.0 - dd * dd));
+				float lit = dot(normalize(vec3(dv, nz)), normalize(vec3(-0.55, -0.75, 0.5)));
+				float b = lit > 0.62 ? 4.0 : (lit > 0.3 ? 3.0 : (lit > 0.0 ? 2.0 : (lit > -0.35 ? 1.0 : 0.0)));
+				b += tk > 0.93 ? 1.0 : (tk < 0.05 ? -1.0 : 0.0);  // 잎마다 조금씩 다르게
+				// 돌풍이 지나가면 잎이 뒤집혀 밝은 뒷면이 보인다
+				float flip = sin(t * 1.3 + lf.z * 0.35 - org_v.x * 2.0 + tk * 3.0);
+				if (gust_v > 0.4 && flip > 0.8 && tk > 0.5) {
+					b += 1.0;
+				}
+				b = clamp(b + ed, 0.0, 4.0);
+				float f = b > 3.5 ? 1.2 : (b > 2.5 ? 1.0 : (b > 1.5 ? 0.8 : (b > 0.5 ? 0.6 : 0.42)));
+				vec3 col = base * f;
+				if (b > 3.5) {
+					col *= vec3(1.1, 1.07, 0.82);  // 밝은 잎은 따뜻하게
+				} else if (b < 1.5) {
+					col *= vec3(0.8, 0.92, 1.14);  // 그늘 잎은 차갑게
+				}
+				c = vec4(col, 1.0);
+				done = true;
+			} else if (cand[m].w < 0.8 && all(greaterThan(p, vec2(6.0))) && all(lessThan(p, frame_rect.zw - 6.0))) {
+				c = vec4(base * 0.46 * vec3(0.8, 0.92, 1.15), 1.0);  // 잎 사이 속 그늘
+				done = true;
+			}
+		}
+		if (!done && near && is_leaf(c)) {
+			if (any(lessThan(p, vec2(12.0))) || any(greaterThan(p, frame_rect.zw - 12.0))) {
+				c.a = 0.0;  // 판 가장자리에 남은 원래 잎 — 곧은 선으로 잘려 보이지 않게 지운다
+			} else {
+				c.rgb = c.rgb * 0.38 * vec3(0.8, 0.92, 1.15);  // 덩어리 사이 속 그늘
+			}
+		}
+		// 3) 흩날리는 잎: 판마다 셋, 수관에서 떨어져 바람 따라 흔들리며 내려간다
+		for (int k = 0; k < 3; k++) {
+			float hk = hash(org_v * 3.7 + float(k) * 11.3);
+			float T = 5.0 + hk * 3.0;
+			float ph = fract(t / T + hk);
+			vec2 st = vec2(frame_rect.z * (0.25 + 0.5 * hash(vec2(hk, floor(t / T + hk)))), frame_rect.w * 0.35);
+			vec2 lp = st + vec2(sin(ph * 9.0 + hk * 6.0) * 7.0 + ph * 14.0, ph * frame_rect.w * 0.5);
+			vec2 dd = floor(p * 0.5) - floor(lp * 0.5);
+			bool tilt = sin(ph * 9.0 + hk * 6.0) > 0.0;
+			if (ph < 0.92 && (dd == vec2(0.0) || dd == (tilt ? vec2(1.0, 0.0) : vec2(0.0, 1.0)))) {
+				vec3 lc = nc > 0 ? cb[0] : vec3(0.35, 0.48, 0.18);
+				c = vec4(lc * (tilt ? 1.15 : 0.8), 1.0);
+			}
 		}
 	}
 	ALBEDO = c.rgb * COLOR.rgb;
