@@ -175,7 +175,7 @@ func _exit_tree() -> void:
 
 
 ## 판정 결과에 맞춰 동작(공격·시전·피격)을 한 번 재생한다.
-## 근접은 무기 자국과 같은 모양(vfx.melee_style — 베기·찌르기·둔기), 주문 공격 굴림은 시전 동작이 이미 맡았다.
+## 근접은 무기 종류의 동작(cutout_looks motion — 없으면 피해 종류 vfx.melee_style), 주문 공격 굴림은 시전 동작이 이미 맡았다.
 ## 빗나간 대상은 맞는 순간 몸을 피한다(dodge).
 func _on_attack_anim(res: Dictionary) -> void:
 	if _rig == null or res.get("preview", false):
@@ -187,7 +187,11 @@ func _on_attack_anim(res: Dictionary) -> void:
 		if str(atk.get("kind", "melee")) == "ranged":
 			_rig.play("attack_ranged")
 			return
-		var style := "attack_" + preload("res://scenes/battle/vfx.gd").melee_style(atk, creature).replace("claw", "slash")
+		# 동작은 무기 종류가 정한다(cutout_looks motion — 장검 베기·레이피어 찌르기·도끼 내려찍기…), 없으면 피해 종류로
+		var motion := str(_rig.look.get("weapon", {}).get("motion", "")) if _rig.get("look") is Dictionary else ""
+		if motion == "":
+			motion = preload("res://scenes/battle/vfx.gd").melee_style(atk, creature).replace("claw", "slash")
+		var style := "attack_" + motion
 		_rig.play(style if _has_anim(style) else "attack_melee")
 	elif res.get("target") == creature and not res.get("hit", false) and _has_anim("dodge") and _rig.anim in ["idle", "walk"]:
 		var V2 := preload("res://scenes/battle/vfx.gd")

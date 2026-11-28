@@ -225,30 +225,40 @@ func test_doll_two_handed_and_clothes() -> void:
 	assert_false(d.j["weapon_r"].has_meta("grip2"), "방패를 들면 양손 겸용도 한 손")
 
 
-## 인형 무기 외형: 같은 칼 종류라도 무기마다 모양이 다르고(variant), 마법 무기는 바탕 외형 + 등급 보석
-func test_doll_weapon_variants_and_magic() -> void:
+## 무기: 동작은 무기 종류가, 외형은 아이템이(장검 → 장검 +1 → 장검 +2: 같은 동작, 다른 모습)
+func test_item_looks_override_type_but_keep_motion() -> void:
+	var base := Cutout.item_look("longsword")
+	var p1 := Cutout.item_look("longsword_plus_1")
+	var p2 := Cutout.item_look("longsword_plus_2")
+	assert_eq(str(base["motion"]), "slash", "장검 종류 동작 = 베기")
+	assert_eq(str(p1["motion"]), "slash", "아이템이 달라도 종류 동작 그대로")
+	assert_eq(str(p1["shape"]), "sword", "부품 틀도 종류 그대로")
+	assert_true(str(p1.get("blade", "")) != str(base.get("blade", "")) and str(p1.get("rune", "")) != "", "장검 +1은 제 외형(날 색·날 빛)")
+	assert_true(str(p2.get("trim", "")) != str(p1.get("trim", "")), "장검 +2는 또 다른 외형")
+	assert_eq(str(Cutout.item_look("rapier")["motion"]), "thrust", "레이피어 종류 = 찌르기")
+	assert_eq(str(Cutout.item_look("greataxe_plus_2")["motion"]), "blunt", "대도끼 +2도 대도끼 동작")
+	# 아이템 외형 항목은 종류의 틀·동작을 바꾸지 못한다
+	for k: String in Cutout.LOOK_LOCKED:
+		if k != "id":
+			assert_eq(str(Cutout.item_look("mace_plus_2").get(k, "")), str(Cutout.item_look("mace").get(k, "")), "잠긴 값 %s" % k)
+	# 인형: 같은 종류라도 아이템마다 다른 색으로 그린다
 	const Doll := preload("res://scenes/battle/doll_rig.gd")
-	for id: String in ["longsword", "scimitar", "rapier", "greatsword", "battleaxe", "greataxe", "morningstar", "flail", "halberd", "pike", "trident"]:
-		assert_true(str(Cutout.item_look(id).get("variant", "")) != "", "외형 variant %s" % id)
 	var sp := Cutout.species_look("human")
-	var sig := {}
-	var d: Node3D = Doll.new()
-	tree.root.add_child(d)
-	own(d)
-	for id: String in ["longsword", "scimitar", "rapier", "greatsword"]:
-		var lk := {"template": "medium", "skin": str(sp["skin"]), "hair": str(sp["hair"]), "extras": [], "tunic": "#2f4a6b",
-			"armor": {}, "weapon": Cutout.item_look(id), "offhand": Cutout.item_look("shield"), "key": id}
-		d.apply_look(lk)
-		var meshes: Array = d.j["weapon_r"].find_children("*", "MeshInstance3D", false, false)
+	var cols := []
+	for id: String in ["longsword", "longsword_plus_1", "longsword_plus_2"]:
+		var d: Node3D = Doll.new()
+		tree.root.add_child(d)
+		own(d)
+		d.apply_look({"template": "medium", "skin": str(sp["skin"]), "hair": str(sp["hair"]), "extras": [], "tunic": "#2f4a6b",
+			"armor": {}, "weapon": Cutout.item_look(id), "offhand": Cutout.item_look("shield"), "key": id})
 		var s := ""
-		for mi: MeshInstance3D in meshes:
-			s += "%s:%.1f;" % [mi.mesh.get_class(), mi.mesh.get_aabb().size.length()]
-		sig[id] = s
-	assert_eq(sig.values().size(), 4)
-	var uniq := {}
-	for v: String in sig.values():
-		uniq[v] = true
-	assert_eq(uniq.size(), 4, "장검·시미터·레이피어·대검은 서로 다른 모양")
-	var magic := Cutout.item_look("longsword_plus_1")
-	assert_eq(str(magic.get("variant", "")), "long", "마법 무기는 바탕 무기 외형")
-	assert_true(str(magic.get("rarity", "common")) != "common", "마법 무기 등급")
+		for mi: MeshInstance3D in d.j["weapon_r"].find_children("*", "MeshInstance3D", false, false):
+			s += Color((mi.material_override as ShaderMaterial).get_shader_parameter("col")).to_html() + ";"
+		cols.append(s)
+	assert_true(cols[0] != cols[1] and cols[1] != cols[2] and cols[0] != cols[2], "장검·장검 +1·장검 +2는 다른 모습")
+	# 아이템 외형 항목은 실제 아이템을 가리킨다
+	var f := FileAccess.open("res://data/rules/cutout_looks.json", FileAccess.READ)
+	var data: Dictionary = JSON.parse_string(f.get_as_text())
+	for o: Dictionary in data.get("item_looks", []):
+		var item_id := str(o["id"]).trim_prefix("look_")
+		assert_false(preload("res://scripts/rules/equipment.gd").entry(item_id).is_empty(), "아이템 외형 %s의 아이템이 있다" % item_id)

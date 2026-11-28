@@ -483,34 +483,33 @@ func _build_gear() -> void:
 
 ## 쥔 각(손 관절 x 회전 도 — 손의 +y는 팔꿈치 쪽, +z는 손등 앞): 120 = 칼끝이 앞으로 살짝 아래(편하게 든 칼),
 ## 180 = 팔을 곧게 이은 방향(휘두를 때 동작 키 weapon_r·weapon_l로), 0~12 = 팔 따라 곧추선 활·지팡이·창.
-const GRIP := {"default": 120.0, "bow": 0.0, "staff": 10.0, "spear": 10.0, "sling": 170.0, "whip": 150.0}
+const GRIP := {"default": 120.0, "bow": 0.0, "staff": 10.0, "spear": 10.0, "sling": 170.0}
 
 
 ## 무기 하나: 손 관절에 붙인다. 축(+y)이 칼끝, 쥔 각은 GRIP(동작이 weapon_r·weapon_l 키로 손목을 꺾는다).
+## 부품 틀은 무기 종류의 shape(칼·도끼·둔기·망치·곤봉·창·지팡이·활·석궁·총·투석구·방패), 모습은 아이템 외형 값(Cutout.item_look —
+## blade 날·머리 색, trim 코등이·쇠붙이, grip 손잡이·자루, rune 날 빛줄, glow, width 굵기, guard, curve, head)으로 — 같은 종류라도 아이템마다 다르게 보인다.
 func _build_weapon(w: Dictionary, hand: Node3D, left: bool) -> void:
 	var shape := str(w.get("shape", ""))
-	var v := str(w.get("variant", ""))
 	var c := Color(str(w.get("color", "#c8ccd2")))
-	var glow := str(w.get("glow", ""))
 	var L := float(w.get("length", 40)) * WEAPON_K
+	var wd := float(w.get("width", 1.0))
 	var g := _joint("weapon_l" if left else "weapon_r", hand, Vector3((1.0 if left else -1.0) * 0.6, -0.8, 0.8))
 	# 두손 쥐기: 두손 무기, 또는 양손 겸용인데 보조 손이 비었을 때(활·석궁·총은 제 동작). 왼손이 쥘 자리 = grip2(무기 좌표)
-	var two: bool = not left and shape not in ["bow", "crossbow", "gun", "sling", "whip"] and (bool(w.get("two_handed", false)) or (bool(w.get("versatile", false)) and look.get("offhand", {}).is_empty()))
+	var two: bool = not left and shape not in ["bow", "crossbow", "gun", "sling"] and (bool(w.get("two_handed", false)) or (bool(w.get("versatile", false)) and look.get("offhand", {}).is_empty()))
 	if shape != "shield":
 		g.rotation_degrees = Vector3(float(GRIP.get(shape, GRIP["default"])), 0, 0)
 	g.set_meta("rest", g.rotation)
 	var out := 1.0 if left else -1.0  # 몸 바깥쪽(x)
 	var steel_c := Color(Cutout.material_color("mat_steel")).darkened(0.12)
-	var steel := _mat(steel_c, 0, K.METAL)
-	var dark := _mat(steel_c.darkened(0.35), 0, K.METAL)
-	var wood := _mat(Color("#5e4028"), 0, K.WOOD)
-	var wrap := _mat(Color("#3a2618"), 0, K.LEATHER)
-	var brass := _mat(Color("#9a7a3e"), 0, K.METAL)
-	var blade := _mat(Color(glow) if glow != "" else steel_c, 0, K.METAL if glow == "" else K.SKIN)
-	var gem := Color()
-	var rar := str(w.get("rarity", "common"))
-	if RARITY_GEM.has(rar):
-		gem = RARITY_GEM[rar]
+	var glow := str(w.get("glow", ""))
+	var blade_c := Color(glow) if glow != "" else Color(str(w.get("blade", steel_c.to_html())))
+	var blade := _mat(blade_c, 0, K.METAL if glow == "" else K.SKIN)
+	var trim := _mat(Color(str(w.get("trim", "#8a6a3a"))), 0, K.METAL)
+	var dark := _mat(blade_c.darkened(0.4), 0, K.METAL)
+	var grip_c := Color(str(w.get("grip", "#5e4028" if shape in ["axe", "hammer", "spear", "staff", "mace"] else "#3a2618")))
+	var grip := _mat(grip_c, 0, K.WOOD if shape in ["axe", "hammer", "spear", "staff", "club"] else K.LEATHER)
+	var rune := str(w.get("rune", ""))
 	match shape:
 		"shield":
 			var sm := CylinderMesh.new()  # 둥근 방패: 팔뚝 바깥에 세워 앞을 막는다
@@ -519,110 +518,173 @@ func _build_weapon(w: Dictionary, hand: Node3D, left: bool) -> void:
 			sm.height = 1.0
 			sm.radial_segments = 16
 			_mesh(g, sm, _mat(c, 0, _kind_of(w, K.WOOD)), Vector3(1.4, 2.6, 0.6), Vector3(90, 0, 75))
-			_ball(g, 1.4, steel, Vector3(2.0, 2.6, 0.8))
+			_ball(g, 1.4, trim if w.has("trim") else _mat(steel_c, 0, K.METAL), Vector3(2.0, 2.6, 0.8))
 			var rim := TorusMesh.new()
 			rim.inner_radius = 5.2
 			rim.outer_radius = 6.0
 			rim.rings = 16
 			rim.ring_segments = 4
-			_mesh(g, rim, dark, Vector3(1.4, 2.6, 0.6), Vector3(90, 0, 75))
+			_mesh(g, rim, trim if w.has("trim") else _mat(steel_c.darkened(0.35), 0, K.METAL), Vector3(1.4, 2.6, 0.6), Vector3(90, 0, 75))
 		"sword", "dagger":
-			_sword(g, v, L, blade, steel, brass, wrap, two, out)
-		"axe":
-			_haft(g, L, wood, two, 1.0)
-			match v:
-				"pick":  # 곡괭이: 앞으로 길게 휜 뾰족 머리 + 뒤 망치
-					_box(g, Vector3(L * 0.5, 1.2, 1.2), steel, Vector3(out * L * 0.22, L * 0.92, 0), Vector3(0, 0, out * 12.0))
-					_box(g, Vector3(1.6, 1.6, 1.6), dark, Vector3(-out * 1.0, L * 0.92, 0))
+			var bw := 3.0 * wd
+			var bl := L * (0.75 if shape == "dagger" else 1.0)
+			var hilt := 5.6 if two else 3.0
+			_rod(g, -hilt + 1.2, 1.2, 1.0, grip)  # 손잡이
+			_ball(g, 0.95, trim, Vector3(0, -hilt + 1.0, 0))  # 칼자루 끝
+			if two:
+				g.set_meta("grip2", Vector3(0, -hilt + 2.2, 0))
+			match str(w.get("guard", "cross")):
+				"cup":
+					var cup := SphereMesh.new()
+					cup.radius = 1.9
+					cup.height = 1.9
+					cup.is_hemisphere = true
+					_mesh(g, cup, trim, Vector3(0, 1.4, 0), Vector3(180, 0, 0))
+				"bar":
+					_box(g, Vector3(2.6, 1.0, 1.5), trim, Vector3(0, 1.4, 0))
+				"wide":
+					_box(g, Vector3(bw * 2.6, 1.3, 1.8), trim, Vector3(0, 1.4, 0))
+					_ball(g, 0.8, trim, Vector3(bw * 1.3, 1.4, 0))
+					_ball(g, 0.8, trim, Vector3(-bw * 1.3, 1.4, 0))
+				"none":
+					pass
 				_:
-					var bw := L * (0.42 if v == "great" else (0.3 if v == "hand" else 0.36)) + 1.6
-					var bh := L * (0.42 if v == "great" else 0.32) + 1.4
-					_axe_head(g, bw, bh, L * 0.86, out, steel, dark)
-					if v == "great":
-						_axe_head(g, bw, bh, L * 0.86, -out, steel, dark)  # 양날
-					_box(g, Vector3(1.8, 1.6, 1.6), dark, Vector3(0, L * 0.86, 0))
-		"mace":
-			_haft(g, L, _mat(steel_c.darkened(0.45), 0, K.METAL) if v != "flail" else wood, two, 0.9)
-			var mr := 2.8 + L * 0.09
-			var head := _mat(steel_c.darkened(0.08), 0, K.METAL)
-			match v:
-				"flail":  # 도리깨: 사슬 끝에 매달린 가시 공
-					for i in 3:
-						_ball(g, 0.6, dark, Vector3(out * (0.6 + i * 0.9), L * 0.95 - i * 1.2, 0))
-					_ball(g, mr * 0.9, head, Vector3(out * 3.2, L * 0.95 - 4.4, 0))
-					for k2: Vector3 in [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]:
-						_cone(g, 0.5, 1.4, dark, Vector3(out * 3.2, L * 0.95 - 4.4, 0) + k2 * mr * 0.95, _cone_rot(k2))
-				"spiked":  # 모닝스타: 가시 공
-					_ball(g, mr, head, Vector3(0, L * 0.9, 0))
-					for k3: Vector3 in [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.BACK, Vector3.FORWARD]:
-						_cone(g, 0.6, 1.8, dark, Vector3(0, L * 0.9, 0) + k3 * mr * 0.95, _cone_rot(k3))
-				_:  # 철퇴: 쇠뭉치 + 날개 네 장
-					_ball(g, mr, head, Vector3(0, L * 0.9, 0))
+					_box(g, Vector3(bw * 2.0, 1.3, 1.8), trim, Vector3(0, 1.4, 0))
+			var curve := float(w.get("curve", 0.0))
+			var segs := 5 if curve > 0.0 else 1
+			var p := Vector3(0, 1.9, 0)
+			var ang := 0.0
+			for i in segs:
+				var seg := bl / float(segs)
+				ang += curve * (6.0 + i * 8.0) * out
+				var dir := Vector3(-sin(deg_to_rad(ang)), cos(deg_to_rad(ang)), 0)
+				_box(g, Vector3(bw * (1.0 - i * 0.06 * curve), seg + (0.4 if segs > 1 else 0.0), 1.3), blade, p + dir * seg * 0.5, Vector3(0, 0, ang))
+				if rune != "" or segs == 1:
+					_box(g, Vector3(0.6, seg * 0.85, 1.45), _mat(Color(rune), 4) if rune != "" else _mat(blade_c.darkened(0.25), 0, K.METAL), p + dir * seg * 0.45, Vector3(0, 0, ang))  # 피홈·날 빛줄
+				p += dir * seg
+			_cone(g, bw * 0.55, bw * 1.1, blade, p + Vector3(0, bw * 0.5, 0) if segs == 1 else p, Vector3(0, 0, ang))  # 칼끝
+		"axe", "hammer", "mace":
+			_rod(g, -(L * 0.32 if two else L * 0.12), L * 0.95, 1.2 * clampf(wd, 0.8, 1.3), grip)  # 자루
+			_ball(g, 0.95, dark, Vector3(0, -(L * 0.32 if two else L * 0.12), 0))
+			var head := str(w.get("head", "single" if shape == "axe" else ("hammer" if shape == "hammer" else "flanged")))
+			var y := L * 0.88
+			match head:
+				"single", "double":
+					var bw2 := (L * 0.36 + 1.6) * wd
+					var bh := (L * 0.32 + 1.4) * wd
+					_axe_head(g, bw2, bh, y, out, blade, dark, rune)
+					if head == "double":
+						_axe_head(g, bw2, bh, y, -out, blade, dark, rune)
+					_box(g, Vector3(1.9, 1.7, 1.7), trim if w.has("trim") else dark, Vector3(0, y, 0))
+				"pick":
+					_box(g, Vector3(L * 0.5, 1.3, 1.3), blade, Vector3(out * L * 0.22, y, 0), Vector3(0, 0, out * 12.0))
+					_box(g, Vector3(1.8, 1.8, 1.8), dark, Vector3(-out * 1.0, y, 0))
+				"hammer", "maul":
+					var hw := (2.8 + L * 0.06) * wd
+					_box(g, Vector3(hw * (1.6 if head == "maul" else 1.2), hw, hw), blade, Vector3(out * hw * 0.3, y, 0))
+					if head != "maul":
+						_cone(g, hw * 0.4, hw * 1.1, dark, Vector3(-out * hw * 0.85, y, 0), Vector3(0, 0, -out * 90.0))
+					_box(g, Vector3(hw * 1.3, 0.5, hw * 1.1), trim if w.has("trim") else dark, Vector3(out * hw * 0.3, y + hw * 0.5, 0))
+				"spiked", "flail":
+					var mr := (2.8 + L * 0.09) * wd
+					var hc := Vector3(0, y, 0)
+					if head == "flail":
+						for i in 3:
+							_ball(g, 0.6, dark, Vector3(out * (0.6 + i * 0.9), L * 0.95 - i * 1.2, 0))
+						hc = Vector3(out * 3.2, L * 0.95 - 4.4, 0)
+					_ball(g, mr, blade, hc)
+					for k3: Vector3 in [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]:
+						_cone(g, 0.6, 1.8, dark, hc + k3 * mr * 0.95, _cone_rot(k3))
+				_:  # 철퇴: 쇠뭉치 + 날개
+					var mr2 := (2.8 + L * 0.09) * wd
+					_ball(g, mr2, blade, Vector3(0, y, 0))
 					for a2: float in [0.0, 45.0, 90.0, 135.0]:
-						_box(g, Vector3(mr * 2.6, mr * 1.5, 0.9), head, Vector3(0, L * 0.9, 0), Vector3(0, a2, 0))
-			_ball(g, 0.9, dark, Vector3(0, -0.2, 0))  # 손잡이 끝
-		"hammer":
-			_haft(g, L, wood, two, 1.0)
-			var hw := (2.2 if v == "light" else (3.6 if v == "maul" else 2.8)) + L * 0.06
-			_box(g, Vector3(hw * (1.6 if v == "maul" else 1.2), hw, hw), _mat(steel_c.darkened(0.08), 0, K.METAL), Vector3(out * hw * 0.3, L * 0.9, 0))
-			if v != "maul":
-				_cone(g, hw * 0.4, hw * 1.1, dark, Vector3(-out * hw * 0.85, L * 0.9, 0), Vector3(0, 0, -out * 90.0))  # 뒤 뾰족
-			_box(g, Vector3(hw * 1.3, 0.5, hw * 1.1), dark, Vector3(out * hw * 0.3, L * 0.9 + hw * 0.5, 0))
+						_box(g, Vector3(mr2 * 2.6, mr2 * 1.5, 0.9), blade, Vector3(0, y, 0), Vector3(0, a2, 0))
+					if rune != "":
+						_box(g, Vector3(mr2 * 2.1, 0.6, mr2 * 2.1), _mat(Color(rune), 4), Vector3(0, y, 0))
+			if two:
+				g.set_meta("grip2", Vector3(0, -L * 0.26, 0))
 		"club":
 			var cm2 := CylinderMesh.new()  # 곤봉: 끝으로 갈수록 굵은 나무 + 옹이
-			cm2.top_radius = (2.6 if v == "great" else 1.9) + L * 0.04
+			cm2.top_radius = (1.9 + L * 0.04) * wd
 			cm2.bottom_radius = 0.8
 			cm2.height = L * 1.05
 			cm2.radial_segments = 8
-			_mesh(g, cm2, _mat(Color("#6a4a2e"), 0, K.WOOD), Vector3(0, L * 0.42 - (L * 0.3 if two else 0.0), 0))
+			_mesh(g, cm2, _mat(Color(str(w.get("grip", "#6a4a2e"))), 0, K.WOOD), Vector3(0, L * 0.42 - (L * 0.3 if two else 0.0), 0))
 			_ball(g, cm2.top_radius * 0.5, _mat(Color("#4e3420"), 0, K.WOOD), Vector3(out * cm2.top_radius * 0.8, L * 0.7, 0.4))
 			if two:
 				g.set_meta("grip2", Vector3(0, -L * 0.28, 0))
 		"spear":
-			_spear(g, v, L, wood, steel, dark, two, out)
+			var head2 := str(w.get("head", "leaf"))
+			var len := L * {"spike": 1.5, "cone": 1.4}.get(head2, 1.25 if two else 1.1) as float
+			var butt := -len * 0.42  # 손은 자루 중간쯤
+			var top := len * 0.58
+			_rod(g, butt, top, 1.0 if head2 != "cone" else 1.4, grip)
+			_ball(g, 0.8, dark, Vector3(0, butt, 0))
+			if two:
+				g.set_meta("grip2", Vector3(0, butt * 0.6, 0))
+			match head2:
+				"glaive":
+					_box(g, Vector3(2.6 * wd, 6.0, 1.0), blade, Vector3(out * 0.6, top + 3.0, 0), Vector3(0, 0, out * 10.0))
+					_cone(g, 1.3, 2.4, blade, Vector3(out * 1.0, top + 6.8, 0), Vector3(0, 0, out * 10.0))
+				"halberd":
+					_cone(g, 0.9, 4.0, blade, Vector3(0, top + 2.0, 0))
+					_axe_head(g, 3.6 * wd, 4.0 * wd, top - 0.5, out, blade, dark, rune)
+					_cone(g, 0.6, 2.2, dark, Vector3(-out * 1.4, top - 0.5, 0), Vector3(0, 0, out * 90.0))
+				"cone":
+					_cone(g, 1.9, 7.0, blade, Vector3(0, top + 3.5, 0))
+					var gd := CylinderMesh.new()
+					gd.top_radius = 0.9
+					gd.bottom_radius = 2.4
+					gd.height = 2.4
+					_mesh(g, gd, trim, Vector3(0, 1.6, 0))
+				"spike":
+					_cone(g, 0.9, 4.0, blade, Vector3(0, top + 2.0, 0))
+				"trident":
+					for x: float in [-1.6, 0.0, 1.6]:
+						_cone(g, 0.55, 3.4 if x == 0.0 else 2.8, blade, Vector3(x, top + 2.0, 0))
+					_box(g, Vector3(4.0, 0.9, 0.9), blade, Vector3(0, top + 0.4, 0))
+				_:  # 나뭇잎 날
+					var lw := 2.4 * wd
+					_box(g, Vector3(lw, 5.0, 1.1), blade, Vector3(0, top + 2.5, 0))
+					_cone(g, lw * 0.55, 2.4, blade, Vector3(0, top + 6.2, 0))
+					if rune != "":
+						_box(g, Vector3(0.5, 4.2, 1.25), _mat(Color(rune), 4), Vector3(0, top + 2.5, 0))
+			_box(g, Vector3(1.0, 1.2, 1.0), trim if w.has("trim") else dark, Vector3(0, top + 0.1, 0))
 		"staff":
-			var sr := 1.2 if v != "blowgun" else 0.8
-			_rod(g, -L * 0.45, L * 1.0, sr, _mat(Color("#6a4a2e"), 0, K.WOOD))
-			if v == "blowgun":
-				_rod(g, L * 0.95, L * 1.05, 0.9, brass)
-			else:
-				for y: float in [-L * 0.45, L * 0.98]:
-					_rod(g, y - 0.6, y + 0.6, sr + 0.35, brass)  # 쇠 테
+			_rod(g, -L * 0.45, L * 1.0, 1.2, _mat(Color(str(w.get("grip", "#6a4a2e"))), 0, K.WOOD))
+			for y2: float in [-L * 0.45, L * 0.98]:
+				_rod(g, y2 - 0.6, y2 + 0.6, 1.55, trim if w.has("trim") else _mat(Color("#7a6a50"), 0, K.METAL))  # 쇠 테
+			if rune != "":
+				_ball(g, 1.2, _mat(Color(rune), 4), Vector3(0, L * 1.05, 0))
 			if two:
 				g.set_meta("grip2", Vector3(0, L * 0.35, 0))
 		"bow":
-			var bl := L * (1.15 if v == "long" else 0.85)
-			var bm := _mat(c.darkened(0.1), 0, K.WOOD)
+			var bm := _mat(Color(str(w.get("grip", c.darkened(0.1).to_html()))), 0, K.WOOD)
 			for i in 7:
 				var u := (float(i) - 3.0) / 3.0
-				_box(g, Vector3(1.3, bl * 0.18, 1.3), bm, Vector3(0, u * bl * 0.45, (1.0 - u * u) * 3.0), Vector3(-u * 38.0, 0, 0))
-			_box(g, Vector3(1.6, 2.0, 1.6), wrap, Vector3(0, 0, 3.0))  # 손잡이
-			_box(g, Vector3(0.35, bl * 0.92, 0.35), _mat(Color(0.82, 0.78, 0.7), 4), Vector3(0, 0, 0))
+				_box(g, Vector3(1.3, L * 0.18, 1.3), bm, Vector3(0, u * L * 0.45, (1.0 - u * u) * 3.0), Vector3(-u * 38.0, 0, 0))
+			_box(g, Vector3(1.6, 2.0, 1.6), trim if w.has("trim") else _mat(Color("#3a2618"), 0, K.LEATHER), Vector3(0, 0, 3.0))
+			_box(g, Vector3(0.35, L * 0.92, 0.35), _mat(Color(0.82, 0.78, 0.7), 4), Vector3(0, 0, 0))
 		"crossbow":
-			var ck := 0.7 if v == "hand" else (1.2 if v == "heavy" else 1.0)
-			_box(g, Vector3(1.6, L * 0.75 * ck, 1.8), _mat(c, 0, K.WOOD), Vector3(0, L * 0.3 * ck, 0))
-			_box(g, Vector3(L * 0.75 * ck, 1.2, 1.2), dark, Vector3(0, L * 0.6 * ck, 0))
-			_box(g, Vector3(L * 0.75 * ck, 0.3, 0.3), _mat(Color(0.82, 0.78, 0.7), 4), Vector3(0, L * 0.5 * ck, -0.6))
+			_box(g, Vector3(1.6, L * 0.75, 1.8), _mat(Color(str(w.get("grip", c.to_html()))), 0, K.WOOD), Vector3(0, L * 0.3, 0))
+			_box(g, Vector3(L * 0.75, 1.2, 1.2), trim if w.has("trim") else dark, Vector3(0, L * 0.6, 0))
+			_box(g, Vector3(L * 0.75, 0.3, 0.3), _mat(Color(0.82, 0.78, 0.7), 4), Vector3(0, L * 0.5, -0.6))
 		"gun":
-			var gk := 0.55 if v == "pistol" else 1.0
-			_rod(g, 0.0, L * 0.95 * gk, 0.75, dark)
-			_box(g, Vector3(1.8, 4.0 * gk + 1.0, 2.2), wood, Vector3(0, 0.0, -0.6))
-			_box(g, Vector3(1.0, 1.2, 1.0), brass, Vector3(0, 1.4, 0.4))
-		"whip":
-			for i in 6:  # 늘어진 채찍 고리
-				_ball(g, 0.6, wrap, Vector3(out * sin(i * 0.9) * 1.6, -0.8 - i * 1.2, cos(i * 0.9) * 1.0))
-			_rod(g, -0.6, 2.6, 0.8, wrap)
+			_rod(g, 0.0, L * 0.95, 0.8, dark)
+			_box(g, Vector3(1.8, 5.0, 2.2), _mat(Color("#5e4028"), 0, K.WOOD), Vector3(0, 0.0, -0.6))
 		"sling":
-			_rod(g, -L * 0.35, 0.0, 0.3, wrap)
-			_ball(g, 1.0, wrap, Vector3(0, -L * 0.35, 0))
+			_rod(g, -L * 0.35, 0.0, 0.3, grip)
+			_ball(g, 1.0, grip, Vector3(0, -L * 0.35, 0))
 		_:
-			_rod(g, 0.0, L * 0.6, 0.8, _mat(c))
+			_rod(g, 0.0, L * 0.6, 0.9, _mat(c))
 	if two and shape in ["spear", "staff"]:
 		g.set_meta("pole", true)  # 두손 장대 무기: 서 있기·걷기에서 곧추세워 든다
 	if two and not g.has_meta("grip2"):
-		g.set_meta("grip2", Vector3(0, -L * 0.28, 0))  # 자루 무기: 오른손 아래(자루 끝 쪽)
-	if gem.a > 0.0 and shape not in ["shield", "bow", "crossbow", "gun", "sling", "whip"]:
-		_ball(g, 0.9, _mat(gem, 4), Vector3(0, 0.0, 1.0))  # 마법 무기: 등급 색 보석
+		g.set_meta("grip2", Vector3(0, -L * 0.26, 0))
+	var rar := str(w.get("rarity", "common"))
+	if RARITY_GEM.has(rar) and shape not in ["shield", "bow", "crossbow", "gun", "sling"]:
+		_ball(g, 0.9, _mat(RARITY_GEM[rar], 4), Vector3(0, 0.0, 1.0))  # 마법 무기: 등급 색 보석(손잡이 앞)
 
 
 ## 무기 크기(무기 길이 px → 인형 단위) — 몸에 비해 작대기처럼 보이지 않게
@@ -641,11 +703,6 @@ func _rod(g: Node3D, y0: float, y1: float, r: float, m: Material) -> void:
 	_mesh(g, cm, m, Vector3(0, (y0 + y1) * 0.5, 0))
 
 
-## 자루: 한손이면 손 아래로 조금, 두손이면 왼손이 쥘 만큼 길게
-func _haft(g: Node3D, L: float, m: Material, two: bool, r: float) -> void:
-	_rod(g, -(L * 0.32 if two else L * 0.12), L * 0.95, r * 1.3, m)
-
-
 func _cone_rot(dir: Vector3) -> Vector3:
 	if dir == Vector3.UP:
 		return Vector3.ZERO
@@ -658,92 +715,12 @@ func _cone_rot(dir: Vector3) -> Vector3:
 	return Vector3(90 if dir == Vector3.BACK else -90, 0, 0)
 
 
-## 도끼날: 자루에서 바깥쪽으로 넓어지는 날(앞뒤로 두꺼운 쐐기)
-func _axe_head(g: Node3D, bw: float, bh: float, y: float, side: float, steel: Material, dark: Material) -> void:
-	_box(g, Vector3(bw, bh * 0.7, 1.5), steel, Vector3(side * bw * 0.5, y, 0))
-	_box(g, Vector3(bw * 0.4, bh, 1.4), steel, Vector3(side * bw * 0.85, y, 0))  # 넓은 날 끝
-	_box(g, Vector3(0.7, bh * 1.02, 1.55), _mat(Color(0.88, 0.88, 0.86), 0, K.METAL), Vector3(side * (bw + 0.1), y, 0))  # 벼린 날
-	_box(g, Vector3(bw * 0.5, 0.5, 1.2), dark, Vector3(side * bw * 0.3, y - bh * 0.32, 0))
-
-
-## 칼: 외형(variant)마다 날 너비·휨·코등이·손잡이가 다르다
-func _sword(g: Node3D, v: String, L: float, blade: Material, steel: Material, brass: Material, wrap: Material, two: bool, out: float) -> void:
-	var bw := {"short": 3.2, "curved": 3.2, "rapier": 1.6, "great": 4.0, "sickle": 2.2, "dagger": 2.6, "dart": 1.4}.get(v, 3.0) as float
-	var bl := L * ({"great": 1.05, "dagger": 0.75, "dart": 0.5}.get(v, 1.0) as float)
-	var hilt := 5.6 if two else 3.0
-	_rod(g, -hilt + 1.2, 1.2, 1.0, wrap)  # 손잡이(가죽 감김)
-	_ball(g, 0.9, brass, Vector3(0, -hilt + 1.0, 0))  # 칼자루 끝
-	if two:
-		g.set_meta("grip2", Vector3(0, -hilt + 2.2, 0))
-	match v:
-		"rapier":  # 컵 코등이 + 고리
-			var cup := SphereMesh.new()
-			cup.radius = 1.8
-			cup.height = 1.8
-			cup.is_hemisphere = true
-			_mesh(g, cup, brass, Vector3(0, 1.4, 0), Vector3(180, 0, 0))
-			var ring := TorusMesh.new()
-			ring.inner_radius = 1.2
-			ring.outer_radius = 1.6
-			_mesh(g, ring, brass, Vector3(out * 0.2, 0.4, 0.6), Vector3(0, 0, 90))
-		"curved", "sickle":
-			_box(g, Vector3(2.4, 0.9, 1.4), brass, Vector3(0, 1.4, 0))
-		_:
-			_box(g, Vector3(bw * (2.4 if v == "great" else 2.0), 1.3, 1.8), brass, Vector3(0, 1.4, 0))  # 십자 코등이
-	if v == "curved" or v == "sickle":
-		# 휜 날: 마디마다 조금씩 기울여 바깥쪽으로 휨(낫은 끝에서 크게 꺾임)
-		var segs := 5
-		var p := Vector3(0, 1.9, 0)
-		var ang := 0.0
-		for i in segs:
-			var seg := bl / float(segs)
-			ang += (8.0 if v == "curved" else (6.0 + i * 10.0)) * out
-			var dir := Vector3(-sin(deg_to_rad(ang)), cos(deg_to_rad(ang)), 0)
-			_box(g, Vector3(bw * (1.0 - i * 0.08), seg + 0.4, 1.3), blade, p + dir * seg * 0.5, Vector3(0, 0, ang))
-			p += dir * seg
-	else:
-		var y0 := 1.9
-		_box(g, Vector3(bw, bl, 1.3), blade, Vector3(0, y0 + bl * 0.5, 0))
-		if v != "rapier" and v != "dart":
-			_box(g, Vector3(0.6, bl * 0.85, 1.45), _mat(Color(0.5, 0.52, 0.56), 0, K.METAL), Vector3(0, y0 + bl * 0.45, 0))  # 피홈
-		_cone(g, bw * 0.55, bw * 1.1, blade, Vector3(0, y0 + bl + bw * 0.5, 0))  # 칼끝
-
-
-## 창: 외형마다 날이 다르다(나뭇잎 날·투창·글레이브 휜 날·할버드 도끼+갈고리·랜스 긴 원뿔·장창 가는 촉·삼지창)
-func _spear(g: Node3D, v: String, L: float, wood: Material, steel: Material, dark: Material, two: bool, out: float) -> void:
-	var len := L * ({"pike": 1.5, "lance": 1.4, "javelin": 0.85}.get(v, 1.25) as float)
-	var butt := -len * 0.42  # 손은 자루 중간쯤
-	var top := len * 0.58
-	_rod(g, butt, top, 1.0 if v != "lance" else 1.4, wood)
-	_ball(g, 0.8, dark, Vector3(0, butt, 0))
-	if two:
-		g.set_meta("grip2", Vector3(0, butt * 0.6, 0))
-	match v:
-		"glaive":
-			_box(g, Vector3(2.4, 6.0, 0.8), steel, Vector3(out * 0.6, top + 3.0, 0), Vector3(0, 0, out * 10.0))
-			_cone(g, 1.2, 2.4, steel, Vector3(out * 1.0, top + 6.8, 0), Vector3(0, 0, out * 10.0))
-		"halberd":
-			_cone(g, 0.9, 4.0, steel, Vector3(0, top + 2.0, 0))
-			_axe_head(g, 3.6, 4.0, top - 0.5, out, steel, dark)
-			_cone(g, 0.6, 2.2, dark, Vector3(-out * 1.4, top - 0.5, 0), Vector3(0, 0, out * 90.0))  # 갈고리
-		"lance":
-			_cone(g, 1.8, 7.0, steel, Vector3(0, top + 3.5, 0))
-			var gd := CylinderMesh.new()  # 손 가리개
-			gd.top_radius = 0.9
-			gd.bottom_radius = 2.4
-			gd.height = 2.4
-			_mesh(g, gd, dark, Vector3(0, 1.6, 0))
-		"pike":
-			_cone(g, 0.8, 4.0, steel, Vector3(0, top + 2.0, 0))
-		"trident":
-			for x: float in [-1.6, 0.0, 1.6]:
-				_cone(g, 0.5, 3.4 if x == 0.0 else 2.8, steel, Vector3(x, top + 2.0, 0))
-			_box(g, Vector3(4.0, 0.8, 0.8), steel, Vector3(0, top + 0.4, 0))
-		_:  # 창·투창: 나뭇잎 날
-			var lw := 1.6 if v == "javelin" else 2.2
-			_box(g, Vector3(lw + 0.8, 5.0, 1.1), steel, Vector3(0, top + 2.5, 0))
-			_cone(g, (lw + 0.8) * 0.55, 2.4, steel, Vector3(0, top + 6.2, 0))
-			_box(g, Vector3(0.9, 1.2, 0.9), dark, Vector3(0, top + 0.1, 0))
+## 도끼날: 자루에서 바깥쪽으로 넓어지는 쐐기 + 벼린 날 끝(rune이면 날 끝이 빛 색)
+func _axe_head(g: Node3D, bw: float, bh: float, y: float, side: float, blade: Material, dark: Material, rune: String) -> void:
+	_box(g, Vector3(bw, bh * 0.7, 1.5), blade, Vector3(side * bw * 0.5, y, 0))
+	_box(g, Vector3(bw * 0.4, bh, 1.4), blade, Vector3(side * bw * 0.85, y, 0))
+	_box(g, Vector3(0.7, bh * 1.02, 1.55), _mat(Color(rune), 4) if rune != "" else _mat(Color(0.86, 0.86, 0.84), 0, K.METAL), Vector3(side * (bw + 0.1), y, 0))
+	_box(g, Vector3(bw * 0.5, 0.5, 1.6), dark, Vector3(side * bw * 0.3, y - bh * 0.32, 0))
 
 
 # ---------- 동작 ----------

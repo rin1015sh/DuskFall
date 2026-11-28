@@ -125,8 +125,129 @@
           "color": {
             "type": "string"
           },
-          "variant": {
+          "blade": {
             "type": "string"
+          },
+          "trim": {
+            "type": "string"
+          },
+          "grip": {
+            "type": "string"
+          },
+          "rune": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number"
+          },
+          "curve": {
+            "type": "number"
+          },
+          "guard": {
+            "type": "string",
+            "enum": [
+              "cross",
+              "wide",
+              "bar",
+              "cup",
+              "none"
+            ]
+          },
+          "head": {
+            "type": "string",
+            "enum": [
+              "single",
+              "double",
+              "pick",
+              "hammer",
+              "maul",
+              "flanged",
+              "spiked",
+              "flail",
+              "leaf",
+              "glaive",
+              "halberd",
+              "cone",
+              "spike",
+              "trident"
+            ]
+          },
+          "motion": {
+            "type": "string",
+            "enum": [
+              "slash",
+              "thrust",
+              "blunt"
+            ]
+          }
+        }
+      }
+    },
+    "item_looks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^look_"
+          },
+          "blade": {
+            "type": "string"
+          },
+          "trim": {
+            "type": "string"
+          },
+          "grip": {
+            "type": "string"
+          },
+          "rune": {
+            "type": "string"
+          },
+          "glow": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number"
+          },
+          "curve": {
+            "type": "number"
+          },
+          "guard": {
+            "type": "string",
+            "enum": [
+              "cross",
+              "wide",
+              "bar",
+              "cup",
+              "none"
+            ]
+          },
+          "head": {
+            "type": "string",
+            "enum": [
+              "single",
+              "double",
+              "pick",
+              "hammer",
+              "maul",
+              "flanged",
+              "spiked",
+              "flail",
+              "leaf",
+              "glaive",
+              "halberd",
+              "cone",
+              "spike",
+              "trident"
+            ]
           }
         }
       }

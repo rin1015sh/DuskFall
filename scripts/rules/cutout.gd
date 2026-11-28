@@ -50,7 +50,11 @@ static func species_look(species_id: String) -> Dictionary:
 	return e if not e.is_empty() else RulesDB.get_entry("cutout_look", "human")
 
 
-## 아이템 → 모양(마법 변형은 바탕 id). 없으면 {}.
+## 아이템 → 모양. 무기 종류(바탕 아이템 look_<바탕>)가 부품 틀(shape)·동작(motion)·기본 외형을 정하고,
+## 아이템 외형(item_looks의 look_<아이템 id>)이 있으면 그 위에 덮어쓴다(색·날 빛·코등이 등 — 동작·틀은 종류 그대로). 없으면 {}.
+const LOOK_LOCKED := ["id", "shape", "motion", "material"]
+
+
 static func item_look(item_id: String) -> Dictionary:
 	if item_id == "":
 		return {}
@@ -58,7 +62,12 @@ static func item_look(item_id: String) -> Dictionary:
 	if e.is_empty():
 		return {}
 	var out := e.duplicate()
-	out["color"] = str(e["color"]) if e.has("color") else material_color(str(e["material"]))  # 아이템 색이 따로 있으면 그것
+	var own := RulesDB.get_entry("cutout_look", "look_" + item_id) if item_id != Equipment.base_of(item_id) else {}
+	for k: String in own:
+		if k not in LOOK_LOCKED:
+			out[k] = own[k]
+	out["item"] = item_id
+	out["color"] = str(out["color"]) if out.has("color") else material_color(str(e["material"]))  # 아이템 색이 따로 있으면 그것
 	var rar := str(Equipment.entry(item_id).get("rarity", "common"))
 	out["rarity"] = rar  # 등급 — 색 바꾸기(테두리 빛)
 	var props: Array = Equipment.entry(Equipment.base_of(item_id)).get("properties", [])

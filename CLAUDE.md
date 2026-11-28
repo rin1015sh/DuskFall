@@ -168,16 +168,16 @@ res://
   갑옷이 없으면 기본 옷(클래스 색 윗옷 — 몸통·반소매·짧은 자락 + 바지, 장화가 없으면 가죽 신). 갑옷 = cutout_looks 아이템 cover 부위(torso·upper_arm·forearm·thigh·shin·pauldron·skirt) 껍데기 + pattern 무늬(chain·scale·studs·quilt·bands, 부위 자기 좌표라 움직여도 붙어 있음) + 허리띠, 갑옷을 입으면 다리는 바지;
   머리 head_look(helmet = 이마까지 반구 + 테 — 머리카락 숨김, headband = 이마 고리), 망토 cloak_look(어깨 깃 + 등 뒤로 퍼짐), 손 hands_look(gloves·gauntlets — 팔뚝 끝까지 쇠·bracers 팔뚝 띠), 발 feet_look(boots — 정강이 아래 + 발),
   아이템 color가 있으면 재질 색 대신(엘프 망토 초록 등). 무기는 오른손(활은 왼손 — 활 동작이 왼팔로 겨눔)에 쥔 각 GRIP(칼끝이 앞으로 살짝 아래 120°, 활·지팡이·창은 팔 따라 곧추섬)으로 쥐고, 휘두를 땐 동작 키 weapon_r·weapon_l이 손목을 꺾어 칼이 팔을 곧게 잇는다(칼·도끼(날은 몸 바깥)·둔기·창·지팡이·활·석궁·총·투석구), 보조 손·방패는 왼손(팔뚝 바깥 둥근 방패).
-  무기 외형(2026-11-28): cutout_looks 아이템 variant마다 다른 모양(_build_weapon·_sword·_spear — 크기 WEAPON_K 0.42, 날 너비 2~4·두께 1.3으로 굵게): 칼 = 장검 long(십자 코등이·피홈)·소검 short·시미터 curved(휜 날)·레이피어 rapier(가는 날·컵 코등이)·대검 great·낫 sickle·단검,
-  도끼 = 손도끼·전투도끼(넓은 날·벼린 날 끝)·대도끼(양날)·곡괭이 pick, 둔기 = 철퇴 flanged·모닝스타 spiked(가시)·도리깨 flail(사슬 + 가시 공)·망치 light/war/maul·곤봉, 창 = 창·투창(나뭇잎 날)·글레이브(휜 날)·할버드(도끼 + 촉 + 갈고리)·랜스(긴 원뿔·손 가리개)·장창 pike·삼지창,
-  지팡이(쇠 테)·취관, 활 short/long(가죽 손잡이), 석궁 hand/light/heavy, 총 pistol/musket, 채찍. 마법 무기(+1 등)는 바탕 무기 외형 그대로 + 등급 색 보석(RARITY_GEM).
+  무기는 종류 동작 + 아이템 외형(2026-11-28 결정): 무기 종류(cutout_looks items의 look_<바탕 무기>)가 부품 틀 shape·공격 동작 motion(slash·thrust·blunt — actor_view가 이것으로 동작을 고름, 없으면 피해 종류)·기본 외형을 정하고,
+  아이템마다 외형(item_looks의 look_<아이템 id> — blade 날·머리 색, trim 코등이·쇠붙이, grip 손잡이·자루, rune 날 빛줄, glow, width, guard cross·wide·bar·cup·none, curve, head)을 바탕 위에 덮어쓴다(Cutout.item_look — shape·motion·material은 잠김).
+  장검 → 장검 +1(푸른 날 빛) → 장검 +2(금 코등이)처럼 같은 동작에 아이템만 다른 모습, 새 아이템(미스릴 장검 등)은 item_looks 한 줄로. 크기 WEAPON_K 0.42, 날 너비 3·두께 1.3으로 굵게, 마법 등급 보석(RARITY_GEM). 갑옷·방패 +1·+2도 item_looks color·trim으로.
   두손 쥐기(무기 데이터 two_handed, 또는 versatile인데 보조 손이 빔 — Cutout.item_look two_handed·versatile; 활·석궁·총은 제외): 왼손이 무기 자루 grip2를 쥐게 왼팔을 두 마디 IK(_ik_arm — 팔꿈치는 바깥·아래·뒤로)로 맞추고,
-  서 있기·걷기는 idle_2h·walk_2h(오른손을 배 앞으로, 칼을 위로 비스듬히 바깥쪽 — 앞·옆·뒤 모두 무기가 보이게, 장대 무기는 곧추세움), 두손 칼은 손잡이가 길다.
+  서 있기·걷기는 idle_2h·walk_2h(오른손을 배 앞으로, 칼을 위로 비스듬히 바깥쪽 — 앞·옆·뒤 모두 무기가 보이게, 두손 장대 무기는 곧추세움), 두손 칼은 손잡이가 길다.
   두손 공격은 동작 이름 + _2h(attack_slash_2h = 두 손으로 오른 어깨 위 → 대각선 내려벰, attack_blunt_2h = 머리 위에서 내려찍기, attack_thrust_2h = 장대를 허리 높이로 겨눠 당겼다가 크게 내딛으며 찌름 — 창끝이 늘 앞). 둔기 머리: mace = 쇠뭉치 + 날개 네 장(크게), hammer = 가로 쇠 머리 + 뾰족한 뒤(전쟁망치·대형망치·가벼운 망치), club = 끝이 굵은 나무(곤봉·대곤봉).
   베기는 대각선(오른쪽 위 뒤로 치켜듦 → 왼쪽 아래 앞으로 — 옆모습에서도 칼이 몸 앞을 지나감).
   동작은 키(체형 틀 doll_anims — 보통 체형에만, 다른 체형은 그것을 씀; 관절 → [[초, [x, y, z 회전 도]]], hips_pos = 엉덩이 이동, fps 박자로 끊어 도트 장면처럼, interp step, hold = 끝 자세 유지):
   서 있기(6박 숨쉬기 — 200·200·400ms, 끝 박자에 고개를 살짝 돌림), 걷기(오른발 앞 → 내려앉음 → 지나감 → 올라섬, 좌우 바꿔 반복, 팔은 다리와 엇갈림),
-  근접 셋(무기 자국과 같은 vfx.melee_style로 고름 — 모두 준비 → 맞는 순간 vfx SWING_HIT 0.26에 내딛음 → 따라감 → 복귀): 베기 attack_slash(오른쪽 위 뒤로 치켜듦 → 몸을 틀며 왼쪽 아래 앞으로 비스듬히 내려벰),
+  근접 셋(무기 종류 motion으로 고름, 없으면 피해 종류 vfx.melee_style — 모두 준비 → 맞는 순간 vfx SWING_HIT 0.26에 내딛음 → 따라감 → 복귀): 베기 attack_slash(오른쪽 위 뒤로 치켜듦 → 몸을 틀며 왼쪽 아래 앞으로 비스듬히 내려벰),
   찌르기 attack_thrust(주먹을 허리로 당김 → 크게 내딛으며 곧게 뻗음), 둔기 attack_blunt(두 팔을 머리 위 뒤로 → 웅크리며 내려찍기, 무겁게 오래 멈춤), attack_melee = attack_slash 옛 이름. 활(몸을 비틀고 왼팔 겨눔 → 시위 당김 → 놓는 순간 SHOT_RELEASE 0.5 손이 뒤로 튐), 시전 둘(손을 가슴에 모아 웅크림 → CAST_RELEASE 0.3에 — 범위·회복·강화 cast는 두 팔을 위로 펼치며 발끝으로 솟음, 탄·맞히기·원뿔·선 cast_point는 한 손을 대상 쪽으로 뻗으며 내딛음),
   맞음(뒤로 젖혀 밀림·팔 벌어짐), 피하기 dodge(빗나간 대상이 맞는 순간 옆으로 몸을 빼며 팔을 들어 막음), 점프 jump(웅크림 → 팔을 휘두르며 솟아 다리를 접음 → 웅크려 착지 — 한 번에 2~6칸 옮기면),
   밀치기 shove(두 손을 가슴에 모음 → 내딛으며 밀어냄 — 플레이어 밀치기만, AI 밀치기는 아직), 일어나기 rise(쓰러진 뒤 다시 서면 — 앉음 → 웅크림 → 섬, 누운 방향에서 바라보던 쪽으로 되돎),

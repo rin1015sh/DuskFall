@@ -1,6 +1,6 @@
 {
   "schema": "cutout_look_v1",
-  "note_ko": "컷아웃 모습(룰북 1단계 체형 틀): 종족 → 체형·피부·머리 색·부가 부위(귀·뿔·꼬리·수염·엄니·주둥이), 장비 재질 색(색 바꾸기). 종족 id는 species.json 기본 종족, 혈통은 부모를 따른다. items: 무기·갑옷 id → 컷아웃 모양(sword·axe·mace·spear·staff·dagger·bow·crossbow·sling·gun / padded·leather·studded·hide·chain·scale·breastplate·plate·shield)·재질·길이(px)·빛(불러낸 무기). 마법 변형(+1 등)은 바탕 id를 따른다. 갑옷 cover = 인형(doll_rig)에서 덮는 부위(torso·upper_arm·forearm·thigh·shin·pauldron·skirt), pattern = 무늬(chain·scale·studs·quilt·bands), 머리·망토·손·발 아이템 모양 helmet·headband·cloak·gloves·gauntlets·bracers·boots, color = 재질 색 대신 쓸 색. 무기 shape hammer(망치)·club(곤봉) 추가. 두손 쥐기는 무기 데이터 properties(two_handed, versatile + 빈 보조 손)에서 Cutout.item_look이 two_handed·versatile로 붙인다. variant = 같은 shape 안의 외형(장검 long·시미터 curved·레이피어 rapier·대검 great·낫 sickle, 손도끼 hand·전투도끼 battle·대도끼 great(양날)·곡괭이 pick, 철퇴 flanged·모닝스타 spiked·도리깨 flail, 창 spear·투창 javelin·글레이브 glaive·할버드 halberd·랜스 lance·장창 pike·삼지창 trident 등) — 인형이 무기마다 다른 모양으로 그린다. 마법 무기(+1 등)는 바탕 무기 외형 + 등급 색 보석·날 빛.",
+  "note_ko": "컷아웃 모습(룰북 1단계 체형 틀): 종족 → 체형·피부·머리 색·부가 부위(귀·뿔·꼬리·수염·엄니·주둥이), 장비 재질 색(색 바꾸기). 종족 id는 species.json 기본 종족, 혈통은 부모를 따른다. items: 무기·갑옷 id → 컷아웃 모양(sword·axe·mace·spear·staff·dagger·bow·crossbow·sling·gun / padded·leather·studded·hide·chain·scale·breastplate·plate·shield)·재질·길이(px)·빛(불러낸 무기). 마법 변형(+1 등)은 바탕 id를 따른다. 갑옷 cover = 인형(doll_rig)에서 덮는 부위(torso·upper_arm·forearm·thigh·shin·pauldron·skirt), pattern = 무늬(chain·scale·studs·quilt·bands), 머리·망토·손·발 아이템 모양 helmet·headband·cloak·gloves·gauntlets·bracers·boots, color = 재질 색 대신 쓸 색. 무기 shape hammer(망치)·club(곤봉) 추가. 두손 쥐기는 무기 데이터 properties(two_handed, versatile + 빈 보조 손)에서 Cutout.item_look이 two_handed·versatile로 붙인다. 무기 종류 = items의 look_<바탕 무기>: shape(인형 부품 틀)·motion(공격 동작 slash·thrust·blunt — 종류가 정함)·length·기본 외형. 아이템 외형 = item_looks의 look_<아이템 id>: 같은 종류 안에서 아이템마다 다른 모습(blade 날·머리 색, trim 코등이·쇠붙이 색, grip 손잡이·자루 색, rune 날 빛줄, glow, width, guard cross·wide·bar·cup·none, curve, head, color) — 바탕 외형 위에 덮어쓰고 동작은 바뀌지 않는다(장검 → 장검 +1 → 미스릴 장검처럼 아이템만 더하면 됨).",
   "species": [
     {
       "id": "human",
@@ -142,35 +142,45 @@
       "shape": "sword",
       "material": "mat_steel",
       "length": 40,
-      "variant": "long"
+      "motion": "slash",
+      "guard": "cross"
     },
     {
       "id": "look_shortsword",
       "shape": "sword",
       "material": "mat_steel",
       "length": 26,
-      "variant": "short"
+      "motion": "thrust",
+      "guard": "cross",
+      "width": 1.1
     },
     {
       "id": "look_scimitar",
       "shape": "sword",
       "material": "mat_steel",
       "length": 40,
-      "variant": "curved"
+      "motion": "slash",
+      "guard": "bar",
+      "curve": 0.5,
+      "width": 1.1
     },
     {
       "id": "look_rapier",
       "shape": "sword",
       "material": "mat_steel",
       "length": 40,
-      "variant": "rapier"
+      "motion": "thrust",
+      "guard": "cup",
+      "width": 0.5
     },
     {
       "id": "look_greatsword",
       "shape": "sword",
       "material": "mat_steel",
       "length": 58,
-      "variant": "great"
+      "motion": "slash",
+      "guard": "wide",
+      "width": 1.35
     },
     {
       "id": "look_conjured_flame_blade",
@@ -178,7 +188,8 @@
       "material": "mat_steel",
       "length": 40,
       "glow": "#ff8a30",
-      "variant": "long"
+      "motion": "slash",
+      "guard": "none"
     },
     {
       "id": "look_conjured_gloom_blade",
@@ -186,238 +197,260 @@
       "material": "mat_steel",
       "length": 40,
       "glow": "#8a5ad0",
-      "variant": "long"
+      "motion": "slash",
+      "guard": "none"
     },
     {
       "id": "look_sickle",
       "shape": "sword",
       "material": "mat_steel",
       "length": 26,
-      "variant": "sickle"
+      "motion": "slash",
+      "guard": "none",
+      "curve": 1.0,
+      "width": 0.75
     },
     {
       "id": "look_handaxe",
       "shape": "axe",
       "material": "mat_steel",
       "length": 26,
-      "variant": "hand"
+      "motion": "slash",
+      "head": "single",
+      "width": 0.8
     },
     {
       "id": "look_battleaxe",
       "shape": "axe",
       "material": "mat_steel",
       "length": 40,
-      "variant": "battle"
+      "motion": "slash",
+      "head": "single"
     },
     {
       "id": "look_greataxe",
       "shape": "axe",
       "material": "mat_steel",
       "length": 58,
-      "variant": "great"
+      "motion": "blunt",
+      "head": "double",
+      "width": 1.2
     },
     {
       "id": "look_war_pick",
       "shape": "axe",
       "material": "mat_steel",
       "length": 40,
-      "variant": "pick"
+      "motion": "blunt",
+      "head": "pick"
     },
     {
       "id": "look_club",
       "shape": "club",
       "material": "mat_wood",
       "length": 26,
-      "variant": "club"
+      "motion": "blunt"
     },
     {
       "id": "look_greatclub",
       "shape": "club",
       "material": "mat_wood",
       "length": 58,
-      "variant": "great"
+      "motion": "blunt",
+      "width": 1.35
     },
     {
       "id": "look_light_hammer",
       "shape": "hammer",
       "material": "mat_steel",
       "length": 26,
-      "variant": "light"
+      "motion": "blunt",
+      "head": "hammer",
+      "width": 0.8
     },
     {
       "id": "look_mace",
       "shape": "mace",
       "material": "mat_steel",
       "length": 40,
-      "variant": "flanged"
+      "motion": "blunt",
+      "head": "flanged"
     },
     {
       "id": "look_flail",
       "shape": "mace",
       "material": "mat_steel",
       "length": 40,
-      "variant": "flail"
+      "motion": "blunt",
+      "head": "flail"
     },
     {
       "id": "look_maul",
       "shape": "hammer",
       "material": "mat_steel",
       "length": 58,
-      "variant": "maul"
+      "motion": "blunt",
+      "head": "maul",
+      "width": 1.3
     },
     {
       "id": "look_morningstar",
       "shape": "mace",
       "material": "mat_steel",
       "length": 40,
-      "variant": "spiked"
+      "motion": "blunt",
+      "head": "spiked"
     },
     {
       "id": "look_warhammer",
       "shape": "hammer",
       "material": "mat_steel",
       "length": 40,
-      "variant": "war"
+      "motion": "blunt",
+      "head": "hammer"
     },
     {
       "id": "look_javelin",
       "shape": "spear",
       "material": "mat_wood",
       "length": 40,
-      "variant": "javelin"
+      "motion": "thrust",
+      "head": "leaf",
+      "width": 0.8
     },
     {
       "id": "look_spear",
       "shape": "spear",
       "material": "mat_wood",
       "length": 40,
-      "variant": "spear"
+      "motion": "thrust",
+      "head": "leaf"
     },
     {
       "id": "look_glaive",
       "shape": "spear",
       "material": "mat_steel",
       "length": 58,
-      "variant": "glaive"
+      "motion": "slash",
+      "head": "glaive"
     },
     {
       "id": "look_halberd",
       "shape": "spear",
       "material": "mat_steel",
       "length": 58,
-      "variant": "halberd"
+      "motion": "slash",
+      "head": "halberd"
     },
     {
       "id": "look_lance",
       "shape": "spear",
       "material": "mat_steel",
       "length": 58,
-      "variant": "lance"
+      "motion": "thrust",
+      "head": "cone"
     },
     {
       "id": "look_pike",
       "shape": "spear",
       "material": "mat_steel",
       "length": 58,
-      "variant": "pike"
+      "motion": "thrust",
+      "head": "spike"
     },
     {
       "id": "look_trident",
       "shape": "spear",
       "material": "mat_steel",
       "length": 40,
-      "variant": "trident"
+      "motion": "thrust",
+      "head": "trident"
     },
     {
       "id": "look_quarterstaff",
       "shape": "staff",
       "material": "mat_wood",
       "length": 58,
-      "variant": "quarter"
+      "motion": "blunt"
     },
     {
       "id": "look_blowgun",
       "shape": "staff",
       "material": "mat_wood",
       "length": 40,
-      "variant": "blowgun"
+      "motion": "thrust"
     },
     {
       "id": "look_dagger",
       "shape": "dagger",
       "material": "mat_steel",
       "length": 26,
-      "variant": "dagger"
+      "motion": "thrust",
+      "guard": "cross",
+      "width": 0.85
     },
     {
       "id": "look_dart",
       "shape": "dagger",
       "material": "mat_steel",
       "length": 26,
-      "variant": "dart"
+      "motion": "thrust",
+      "guard": "none",
+      "width": 0.5
     },
     {
       "id": "look_shortbow",
       "shape": "bow",
       "material": "mat_wood",
-      "length": 40,
-      "variant": "short"
+      "length": 40
     },
     {
       "id": "look_longbow",
       "shape": "bow",
       "material": "mat_wood",
-      "length": 58,
-      "variant": "long"
+      "length": 58
     },
     {
       "id": "look_light_crossbow",
       "shape": "crossbow",
       "material": "mat_wood",
-      "length": 40,
-      "variant": "light"
+      "length": 40
     },
     {
       "id": "look_hand_crossbow",
       "shape": "crossbow",
       "material": "mat_wood",
-      "length": 26,
-      "variant": "hand"
+      "length": 26
     },
     {
       "id": "look_heavy_crossbow",
       "shape": "crossbow",
       "material": "mat_wood",
-      "length": 58,
-      "variant": "heavy"
+      "length": 58
     },
     {
       "id": "look_sling",
       "shape": "sling",
       "material": "mat_steel",
-      "length": 40,
-      "variant": "sling"
+      "length": 40
     },
     {
       "id": "look_whip",
-      "shape": "whip",
+      "shape": "sling",
       "material": "mat_steel",
-      "length": 40,
-      "variant": "whip"
+      "length": 40
     },
     {
       "id": "look_musket",
       "shape": "gun",
       "material": "mat_steel",
-      "length": 58,
-      "variant": "musket"
+      "length": 58
     },
     {
       "id": "look_pistol",
       "shape": "gun",
       "material": "mat_steel",
-      "length": 26,
-      "variant": "pistol"
+      "length": 26
     },
     {
       "id": "look_padded_armor",
@@ -615,6 +648,201 @@
       "shape": "headband",
       "material": "mat_gold",
       "length": 0
+    }
+  ],
+  "item_looks": [
+    {
+      "id": "look_longsword_plus_1",
+      "blade": "#b9c6d6",
+      "trim": "#aab2bc",
+      "grip": "#2c3a58",
+      "rune": "#7fb2ff"
+    },
+    {
+      "id": "look_longsword_plus_2",
+      "blade": "#d2d8ea",
+      "trim": "#c9a24a",
+      "grip": "#4a1e22",
+      "rune": "#a8c8ff",
+      "guard": "wide"
+    },
+    {
+      "id": "look_shortsword_plus_1",
+      "blade": "#b9c6d6",
+      "trim": "#aab2bc",
+      "grip": "#2c3a58",
+      "rune": "#7fb2ff"
+    },
+    {
+      "id": "look_shortsword_plus_2",
+      "blade": "#d2d8ea",
+      "trim": "#c9a24a",
+      "grip": "#4a1e22",
+      "rune": "#a8c8ff"
+    },
+    {
+      "id": "look_scimitar_plus_1",
+      "blade": "#c2c8cc",
+      "trim": "#b08a3a",
+      "grip": "#3a2e1a",
+      "rune": "#8adfb0"
+    },
+    {
+      "id": "look_scimitar_plus_2",
+      "blade": "#d8dcde",
+      "trim": "#d4b05a",
+      "grip": "#5a1e1a",
+      "rune": "#b0ffd0",
+      "curve": 0.65
+    },
+    {
+      "id": "look_dagger_plus_1",
+      "blade": "#b9c6d6",
+      "trim": "#aab2bc",
+      "grip": "#2c3a58",
+      "rune": "#7fb2ff"
+    },
+    {
+      "id": "look_dagger_plus_2",
+      "blade": "#2e2a36",
+      "trim": "#8a6ab0",
+      "grip": "#1e1a24",
+      "rune": "#c08aff"
+    },
+    {
+      "id": "look_mace_plus_1",
+      "blade": "#9aa4b0",
+      "trim": "#aab2bc",
+      "grip": "#3a3a44",
+      "rune": "#7fb2ff"
+    },
+    {
+      "id": "look_mace_plus_2",
+      "blade": "#c9a24a",
+      "trim": "#e0c070",
+      "grip": "#4a1e22",
+      "rune": "#ffd890"
+    },
+    {
+      "id": "look_handaxe_plus_1",
+      "blade": "#b9c6d6",
+      "grip": "#3a2a1a",
+      "rune": "#7fb2ff"
+    },
+    {
+      "id": "look_handaxe_plus_2",
+      "blade": "#d2d8ea",
+      "trim": "#c9a24a",
+      "grip": "#2a1a12",
+      "rune": "#ffb070"
+    },
+    {
+      "id": "look_greataxe_plus_1",
+      "blade": "#a8b2bc",
+      "trim": "#7a8088",
+      "grip": "#2a2018",
+      "rune": "#ff9a60"
+    },
+    {
+      "id": "look_greataxe_plus_2",
+      "blade": "#3a3438",
+      "trim": "#9a3a2a",
+      "grip": "#1e1612",
+      "rune": "#ff5a3a"
+    },
+    {
+      "id": "look_javelin_plus_1",
+      "blade": "#b9c6d6",
+      "grip": "#5a4428",
+      "rune": "#7fb2ff"
+    },
+    {
+      "id": "look_javelin_plus_2",
+      "blade": "#d2d8ea",
+      "trim": "#c9a24a",
+      "grip": "#3a2a1a",
+      "rune": "#ffe090"
+    },
+    {
+      "id": "look_quarterstaff_plus_1",
+      "grip": "#4a3a2a",
+      "trim": "#aab2bc",
+      "rune": "#7fb2ff"
+    },
+    {
+      "id": "look_quarterstaff_plus_2",
+      "grip": "#2e2a24",
+      "trim": "#c9a24a",
+      "rune": "#c0a0ff"
+    },
+    {
+      "id": "look_longbow_plus_1",
+      "grip": "#5a3a22",
+      "trim": "#aab2bc"
+    },
+    {
+      "id": "look_longbow_plus_2",
+      "grip": "#2e2a24",
+      "trim": "#c9a24a"
+    },
+    {
+      "id": "look_shortbow_plus_1",
+      "grip": "#5a3a22",
+      "trim": "#aab2bc"
+    },
+    {
+      "id": "look_shortbow_plus_2",
+      "grip": "#2e2a24",
+      "trim": "#c9a24a"
+    },
+    {
+      "id": "look_light_crossbow_plus_1",
+      "grip": "#4a3020",
+      "trim": "#aab2bc"
+    },
+    {
+      "id": "look_light_crossbow_plus_2",
+      "grip": "#2a2018",
+      "trim": "#c9a24a"
+    },
+    {
+      "id": "look_shield_plus_1",
+      "color": "#5a4630",
+      "trim": "#aab2bc"
+    },
+    {
+      "id": "look_shield_plus_2",
+      "color": "#2e3a52",
+      "trim": "#c9a24a"
+    },
+    {
+      "id": "look_sentinel_shield",
+      "color": "#3a4a3a",
+      "trim": "#c9a24a"
+    },
+    {
+      "id": "look_chain_mail_plus_1",
+      "color": "#9aa6b4"
+    },
+    {
+      "id": "look_chain_mail_plus_2",
+      "color": "#b8c2d0"
+    },
+    {
+      "id": "look_leather_armor_plus_1",
+      "color": "#5e3e28"
+    },
+    {
+      "id": "look_leather_armor_plus_2",
+      "color": "#3e2a24"
+    },
+    {
+      "id": "look_studded_leather_armor_plus_1",
+      "color": "#5e3e28"
+    },
+    {
+      "id": "look_studded_leather_armor_plus_2",
+      "color": "#3a2a2a"
     }
   ]
 }
