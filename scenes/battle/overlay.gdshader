@@ -30,6 +30,10 @@ uniform float blob_jag = 0.14;
 uniform float rim = 0.08;
 uniform float dot_px = 0.0;
 uniform float reflect[8];
+// 표면 그림 방식(map_view.SURFACE_LOOK): 0 키트 그림 그대로 · 1 액체 웅덩이(기름·피·산·독·윤활유 — 본색 + 어두운 테 + 고정 윤기 줄, 기름은 무지갯빛 얼룩, 산·독은 거품)
+//   · 2 진흙(젖은 짙은 웅덩이 + 마른 껍질 얼룩) · 3 얼음(키트 그림 + 갈라진 금 + 흰 서리 테). 색은 look_col(rgb 본색, a = 거품 0/1)
+uniform float look[8];
+uniform vec4 look_col[8];
 // 반사(pixel_view.set_reflection·sync): 거울 카메라 그림, 그 투영×보기 행렬, 거울 높이
 uniform bool refl_on = false;
 uniform sampler2D refl_tex : filter_nearest;
@@ -128,6 +132,56 @@ void fragment() {
 	ivec2 pc = ivec2(floor(tp));
 	ivec2 tile = s.rg + ((pc % 4) + 4) % 4;
 	vec4 col = texture(tex, (vec2(tile) + clamp(fract(tp), 0.004, 0.996)) * tile_px / atlas_px) * tints[s.b - 1];
+	float lk = look[s.b - 1];
+	float mg0 = bw - sw;  // 웅덩이 가장자리에서 안쪽까지(덩어리 여유)
+	if (lk > 0.5) {
+		vec4 lc = look_col[s.b - 1];
+		float n1 = vnoise(ps * 2.2 + float(s.b) * 5.0);
+		float n2 = vnoise(ps * 6.5 + float(s.b) * 9.0);
+		if (lk < 1.5) {
+			// 액체: 가운데 짙게, 테 한 단 밝게(젖은 둘레) — 단계로 끊는다
+			vec3 base = lc.rgb * (mg0 > rim * 3.0 ? 0.78 : 1.0);
+			if (mg0 < rim * 0.9) base = lc.rgb * 1.18 + 0.02;
+			// 고정 윤기: 왼쪽 위로 비스듬한 짧은 밝은 줄(해 쪽)
+			float st = fract((ps.x - ps.y * 0.6) * 3.0 + n1 * 0.8);
+			if (st < 0.06 && n2 > 0.55 && mg0 > rim) base = mix(base, vec3(0.9), 0.35);
+			if (lc.a > 0.5 && lc.a < 1.5) {
+				// 거품: 칸마다 하나 커졌다 터진다
+				vec2 bc = floor(ps * 5.0);
+				float bh = hash(bc + float(s.b));
+				float ph = fract(TIME * 0.7 + bh * 4.0);
+				vec2 bp = (bc + 0.5 + (vec2(bh, hash(bc + 3.0)) - 0.5) * 0.5) / 5.0;
+				if (bh > 0.7 && ph < 0.8 && abs(distance(ps, bp) * 32.0 - ph * 2.2) < 0.6 && mg0 > rim) base = lc.rgb * 1.6 + 0.08;
+			} else if (lc.a >= 1.5) {
+				// 기름: 천천히 도는 무지갯빛 얼룩(옅게)
+				float h = vnoise(ps * 1.5 + vec2(TIME * 0.05, 0.0));
+				vec3 sheen = 0.5 + 0.5 * cos(6.2831 * (h + vec3(0.0, 0.33, 0.67)));
+				if (n1 > 0.6) base = mix(base, sheen * 0.45, 0.35);
+			}
+			col = vec4(base, 0.93);
+		} else if (lk < 2.5) {
+			// 진흙: 짙은 젖은 웅덩이 + 마른 껍질 얼룩, 가장자리는 옅게
+			vec3 base = lc.rgb;
+			if (n1 > 0.58) base *= 0.7;  // 고인 물
+			else if (n2 > 0.66) base = base * 1.25 + 0.03;  // 마른 껍질
+			if (n1 > 0.7 && n2 > 0.6) base = mix(base, vec3(0.75, 0.8, 0.82), 0.25);  // 고인 물 윤기
+			col = vec4(base, mg0 < rim * 0.9 ? 0.75 : 0.9);
+		} else {
+			// 얼음: 키트 그림 위 갈라진 금 + 흰 서리 테
+			vec2 g = floor(ps * 2.5);
+			float d1 = 9.0;
+			float d2 = 9.0;
+			for (int j = -1; j <= 1; j++) {
+				for (int i = -1; i <= 1; i++) {
+					vec2 c = g + vec2(float(i), float(j));
+					float dd = distance(ps * 2.5, c + vec2(hash(c), hash(c + 7.1)));
+					if (dd < d1) { d2 = d1; d1 = dd; } else if (dd < d2) { d2 = dd; }
+				}
+			}
+			if (d2 - d1 < 0.07) col.rgb = mix(col.rgb, vec3(0.92, 0.97, 1.0), 0.55);
+			if (mg0 < rim * 0.9) col.rgb = mix(col.rgb, vec3(0.95, 0.98, 1.0), 0.6);
+		}
+	}
 	float margin = bw - sw;
 	float R = reflect[s.b - 1];
 	// 빛 지도: 빛 단계·기본 빛·드리운 그림자·광원 빛

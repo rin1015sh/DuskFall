@@ -419,3 +419,13 @@ func test_cast_shadow() -> void:
 	assert_true(m.get_node_or_null("CastShadow") == null, "끄면 없음")
 	m.free()
 	Kit3D.cast_strength = before
+
+
+## 표면 그림: 액체·진흙·얼음은 웅덩이 무늬(overlay look), 그림 칸 방식으로 그린다.
+func test_surface_looks() -> void:
+	var MapView := preload("res://scenes/battle/map_view.gd")
+	for id: String in ["oil", "blood", "acid", "poison", "mud", "ice", "grease"]:
+		assert_true(MapView.SURFACE_LOOK.has(id), "표면 %s" % id)
+		assert_eq(String(MapView.SURFACE_ART[id][0]), "tile", "%s 웅덩이 칸" % id)
+	var sh: Shader = load("res://scenes/battle/overlay.gdshader")
+	assert_true(sh.code.contains("look_col"))

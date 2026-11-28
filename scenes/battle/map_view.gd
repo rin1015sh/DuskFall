@@ -65,10 +65,13 @@ const MATERIAL_FLOORS := {"stone": "floor_flag", "earth": "floor_dirt", "grass":
 ## 표면 → 그림: ["tile", 키트 바닥] 또는 ["prop", 키트 id, 변형]
 const SURFACE_ART := {
 	"water": ["tile", "ground_water"], "deep_water": ["tile", "ground_water"], "ice": ["tile", "ground_ice"],
-	"mud": ["tile", "ground_mud"], "electrified_water": ["tile", "ground_water"], "blood": ["prop", "blood_pool", "fresh"],
-	"oil": ["prop", "spill_stain", "oil"], "acid": ["prop", "mana_residue", "green"], "poison": ["prop", "black_slime", "a"],
+	"mud": ["tile", "ground_mud"], "electrified_water": ["tile", "ground_water"], "blood": ["tile", "ground_mud"],
+	"oil": ["tile", "ground_mud"], "acid": ["tile", "ground_mud"], "poison": ["tile", "ground_mud"], "grease": ["tile", "ground_mud"],
 	"fire": ["prop", "flame", "medium"], "burning_web": ["prop", "flame", "small"], "web": ["prop", "cobweb", "floor"],
 	"thorns": ["prop", "weeds", "dead_bush"]}
+## 표면 그림 방식(overlay.gdshader look): [방식(1 액체·2 진흙·3 얼음), 본색, 장식(0 없음·1 거품·2 기름 무지개)] — 도트 화면에서만
+const SURFACE_LOOK := {"oil": [1, Color("#1e1a16"), 2], "grease": [1, Color("#4a4030"), 2], "blood": [1, Color("#5a1218"), 0],
+	"acid": [1, Color("#3e5a16"), 1], "poison": [1, Color("#2e4a1e"), 1], "mud": [2, Color("#4a3624"), 0], "ice": [3, Color.WHITE, 0]}
 const SURFACE_TINT := {"electrified_water": Color(0.6, 0.85, 1.4), "acid": Color(0.8, 1.2, 0.6)}
 ## 표면 반사 세기(overlay.gdshader 반사 층 — 도트 화면 거울 카메라 pixel_view가 비친 세계를 그린다). 진흙은 비치지 않는다.
 const SURFACE_REFLECT := {"water": 0.5, "deep_water": 0.6, "electrified_water": 0.45, "ice": 0.3}
@@ -1385,6 +1388,15 @@ func _refresh_surfaces() -> void:
 	for i in 8:
 		refl.append(float(SURFACE_REFLECT.get(palette[i], 0.0)) if i < palette.size() else 0.0)
 	om.set_shader_parameter("reflect", refl)
+	var looks := PackedFloat32Array()
+	var lcols := PackedVector4Array()
+	for i in 8:
+		var lk: Array = SURFACE_LOOK.get(palette[i], [0, Color.WHITE, 0]) if i < palette.size() and art_dots > 0.0 else [0, Color.WHITE, 0]
+		looks.append(float(lk[0]))
+		var lc: Color = lk[1]
+		lcols.append(Vector4(lc.r, lc.g, lc.b, float(lk[2])))
+	om.set_shader_parameter("look", looks)
+	om.set_shader_parameter("look_col", lcols)
 	# 숲 맵: 아무것도 안 비친 자리도 둘레 숲이 비친 짙은 청록 얼룩(하늘 대신)
 	if not refl_cells.is_empty() and _sky_leafy < 0.0:
 		_sky_leafy = 1.0 if String(art().get("surround", {}).get("biome", _surround_biome()) if art().get("surround") is Dictionary else _surround_biome()) == "forest" else 0.0
