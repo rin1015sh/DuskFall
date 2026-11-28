@@ -6,6 +6,7 @@
 #   3) 살짝 색 다듬기(채도 조금 올리고 어두운 쪽은 푸르게·밝은 쪽은 따뜻하게)
 #   4) 시트마다 k-평균(Oklab) 팔레트로 색 줄이기
 #   5) 외톨이 점(같은 색 이웃이 없는 점) 지우기 — 가장 많은 이웃 색으로
+#   5b) 소품(이어 까는 시트 아님): 그림에 구운 검은 테두리를 그 물체 제 색의 어두운 쪽으로(recolor_outline — 그림마다 따로)
 #   6) 2배 가장 가까운 점 확대로 원래 크기(게임 코드의 좌표·크기 그대로, 2×2 화소 = 1도트)
 # 바닥·벽처럼 이어 까는 시트는 조각 가장자리를 둘러 감아(wrap) 처리해 이음매가 생기지 않게 한다.
 # 사용: python3 tools/pixelize_kit.py [시트 이름 ...]   (없으면 전부)   필요: numpy, Pillow
@@ -152,6 +153,56 @@ def cleanup(idx, alpha, wrap, passes=2):
     return idx
 
 
+def recolor_outline(rgb, solid, passes=2):
+    # 그림에 구운 검은 테두리 → 그 물체 제 색의 어두운 쪽(sel-out). 윤곽(투명과 맞닿은 불투명 화소) 중
+    # 아주 어두운 화소를, 안쪽 이웃(테두리 아닌 불투명) 색 평균을 Oklab에서 어둡게·살짝 차갑게 한 색으로 바꾼다.
+    # 두께 2화소 테두리를 위해 바꾼 화소와 맞닿은 어두운 화소까지 한 번 더. 테두리 색은 그림마다 따로 정해진다.
+    h, w = solid.shape
+    lab = oklab(rgb.reshape(-1, 3)).reshape(h, w, 3)
+    out = lab.copy()
+    edge = np.zeros_like(solid)
+    nb = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    def shift(a, dy, dx, fill):
+        r = np.full_like(a, fill)
+        ys, yd = (slice(dy, None), slice(0, h - dy)) if dy >= 0 else (slice(0, h + dy), slice(-dy, None))
+        xs, xd = (slice(dx, None), slice(0, w - dx)) if dx >= 0 else (slice(0, w + dx), slice(-dx, None))
+        r[ys, xs] = a[yd, xd]
+        return r
+    frontier = ~solid
+    for _ in range(passes):
+        touch = np.zeros_like(solid)
+        for dy, dx in nb:
+            touch |= shift(frontier, dy, dx, True)
+        dark = solid & ~edge & touch & (lab[..., 0] < 0.33)
+        if not dark.any():
+            break
+        edge |= dark
+        frontier = frontier | dark
+    if not edge.any():
+        return rgb
+    inner = solid & ~edge
+    acc = np.zeros_like(lab)
+    cnt = np.zeros((h, w))
+    for r in (1, 2):
+        for dy in range(-r, r + 1):
+            for dx in range(-r, r + 1):
+                if max(abs(dy), abs(dx)) != r:
+                    continue
+                m = shift(inner, dy, dx, False)
+                acc += shift(lab, dy, dx, 0.0) * m[..., None]
+                cnt += m
+        if (cnt[edge] > 0).all():
+            break
+    ok = edge & (cnt > 0)
+    mean = acc[ok] / cnt[ok][:, None]
+    col = mean.copy()
+    col[:, 0] = np.maximum(mean[:, 0] * 0.62, 0.12)  # 어둡게(검정까지는 아니게)
+    col[:, 1] *= 0.85
+    col[:, 2] = col[:, 2] * 0.85 - 0.012  # 살짝 차갑게
+    out[ok] = col
+    return np.clip(from_oklab(out.reshape(-1, 3)).reshape(h, w, 3), 0, 1)
+
+
 def frames_of(kit, sheet):
     out = set()
     for a in kit["assets"].values():
@@ -191,6 +242,8 @@ def convert(kit, name):
         solid = (alpha > 0.99).astype(float)
         idx = cleanup(idx, solid, wrap)
         rgb = np.where((alpha > 0.99)[..., None], pal[idx], SHADOW_RGB)
+        if not wrap:
+            rgb = np.where((alpha > 0.99)[..., None], recolor_outline(rgb, alpha > 0.99), SHADOW_RGB)
         rgba = np.concatenate([rgb, alpha[..., None]], -1)
         big = rgba.repeat(2, 0).repeat(2, 1)
         bh, bw = min(big.shape[0], h), min(big.shape[1], w)

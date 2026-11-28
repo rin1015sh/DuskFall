@@ -18,6 +18,7 @@ uniform float leaf = 0.0;
 uniform vec2 sheet_px = vec2(1.0);
 uniform vec4 frame_rect = vec4(0.0, 0.0, 1.0, 1.0);  // 시트 안 조각(px): x, y, w, h
 uniform float clump_px = 22.0;
+uniform bool flip_x = false;  // 뒤집힌 판(그림 좌우가 화면과 반대) — 빛 방향 계산만 되돌린다
 
 varying vec3 wpos;
 varying float gust_v;
@@ -121,11 +122,11 @@ vec4 leaf_at(vec2 u, float rd, vec2 gid, vec2 cpx, float t, float gust, out floa
 			res = vec4(1.0, lc.y, lc);
 			tone_k = h;
 			// 잎 아래·오른쪽 끝 도트는 그늘(잎이 겹쳐 보이게), 위·왼쪽 끝은 밝은 테
-			vec2 v2 = v + vec2(0.8, 0.8);
+			vec2 v2 = v + vec2(flip_x ? -0.8 : 0.8, 0.8);
 			float a2 = dot(v2, dir);
 			float b2 = dot(v2, vec2(-dir.y, dir.x));
 			float wid2 = wk * 2.1 * (1.0 - tp * clamp(a2 / len, -1.0, 1.0));
-			vec2 v3 = v - vec2(0.8, 0.8);
+			vec2 v3 = v - vec2(flip_x ? -0.8 : 0.8, 0.8);
 			float a3 = dot(v3, dir);
 			float b3 = dot(v3, vec2(-dir.y, dir.x));
 			float wid3 = wk * 2.1 * (1.0 - tp * clamp(a3 / len, -1.0, 1.0));
@@ -248,11 +249,12 @@ void fragment() {
 			float ed;
 			vec4 lf = leaf_at(u, rd, cg[m], cc[m], t, gust_v, tk, ed);
 			// 잎마다 제 왼쪽 위 절반은 한 단 밝게(잎 한 장 한 장이 같은 단 면 속에서도 보이게)
-			float hl = (lf.x > 0.5 && dot(u - lf.zw, vec2(-0.7, -0.7)) > 0.4 && ed >= 0.0) ? 1.0 : 0.0;
+			float hl = (lf.x > 0.5 && dot(u - lf.zw, vec2(flip_x ? 0.7 : -0.7, -0.7)) > 0.4 && ed >= 0.0) ? 1.0 : 0.0;
 			vec3 base = cb[m];
 			if (lf.x > 0.5) {
 				// 덩어리 공 음영을 잎 가운데에서 재서 잎 하나가 한 단(경계가 잎 모양으로 끊긴다)
 				vec2 dv = lf.zw / rd;
+				dv.x = flip_x ? -dv.x : dv.x;
 				float dd = min(length(dv), 1.0);
 				float nz = sqrt(max(0.0, 1.0 - dd * dd));
 				float lit = dot(normalize(vec3(dv, nz)), normalize(vec3(-0.55, -0.75, 0.5)));

@@ -6,6 +6,7 @@ extends RefCounted
 
 const V := preload("res://scenes/battle/view3d.gd")
 const SWAY_SHADER := preload("res://scenes/kit/sway.gdshader")
+const GLOW_SHADER := preload("res://scenes/kit/glow_prop.gdshader")
 ## 바람에 흔들리는 그림(키트 id → 판 위 끝 흔들림 도트, 1도트 = 그림 2px). 나무는 살짝, 풀은 크게.
 const SWAY := {"tree_broadleaf": 1.6, "tree_pine": 1.2, "tree_thorn": 1.4, "tree_giant": 1.8, "bush": 1.2,
 	"grass_tall": 1.6, "flowers": 1.4, "reed_thorn": 1.6, "cattail": 1.8, "weeds": 1.4,
@@ -110,7 +111,9 @@ static func make(kit: RefCounted, id: String, variant: String = "", opts: Dictio
 	sprite.flip_h = flip
 	var no_line := NO_OUTLINE.has(id) or GLOWING.has(id)
 	if no_line and not flat:
-		sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD  # 깊이 미리 쓰기 없이(외곽선이 붙지 않게)
+		sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED  # 반투명 패스 — 깊이를 쓰지 않아 화면 외곽선이 붙지 않는다(잘라 내기는 깊이를 쓴다)
+	if GLOWING.has(id) and not flat:
+		_add_glow(sprite)
 	var sway := float(opts.get("sway", SWAY.get(id, 0.0)))
 	if wind and sway > 0.0 and not flat and sprite is Sprite3D:
 		_add_sway(sprite as Sprite3D, sway * 2.0 * ps, leaf_mode(id, vname), no_line)
@@ -163,7 +166,7 @@ static func _add_sway(sp: Sprite3D, amp: float, leaf: float = 0.0, no_line: bool
 	if tex == null:
 		return
 	# 잎 덩어리(leaf > 0)는 조각 안 좌표가 필요해 조각마다 재질을 나눈다
-	var key := "%d:%.4f:%.1f:%s:%s" % [tex.get_rid().get_id(), amp, leaf, no_line, str(region) if leaf > 0.0 else ""]
+	var key := "%d:%.4f:%.1f:%s:%s:%s" % [tex.get_rid().get_id(), amp, leaf, no_line, str(region) if leaf > 0.0 else "", sp.flip_h and leaf > 0.0]
 	if not _sway_mats.has(key):
 		var m := ShaderMaterial.new()
 		m.shader = SWAY_SHADER
@@ -178,12 +181,35 @@ static func _add_sway(sp: Sprite3D, amp: float, leaf: float = 0.0, no_line: bool
 		if leaf > 0.0:
 			m.set_shader_parameter("sheet_px", tex.get_size())
 			m.set_shader_parameter("frame_rect", Vector4(region.position.x, region.position.y, region.size.x, region.size.y))
-			var cpx: float = clampf(region.size.x * 0.25, 18.0, 46.0)
+			m.set_shader_parameter("flip_x", sp.flip_h)  # 뒤집힌 판: 빛 방향(북서쪽)을 화면 기준으로 되돌린다
+			var cpx: float = clampf(region.size.x * (0.25 if region.size.y > region.size.x * 1.2 else 0.19), 18.0, 46.0)  # 낮고 넓은 덤불은 덩어리를 잘게
 			if leaf >= 3.0:
 				cpx = clampf(minf(region.size.x, region.size.y) * 0.5, 8.0, 26.0)  # 풀 무더기 하나 = 덩어리 하나
 			elif leaf >= 2.0:
 				cpx = clampf(region.size.x * 0.15, 14.0, 30.0)  # 바늘잎은 좁은 꼭대기까지 덮게 작게
 			m.set_shader_parameter("clump_px", cpx)
+		_sway_mats[key] = m
+	sp.material_override = _sway_mats[key]
+
+
+## 빛을 내는 물건 재질(glow_prop.gdshader — 불꽃은 그대로, 몸통은 어둡게, 깊이 안 씀). 시트마다 하나.
+static func _add_glow(sp: SpriteBase3D) -> void:
+	var tex: Texture2D = null
+	if sp is Sprite3D:
+		tex = (sp as Sprite3D).texture
+	elif sp is AnimatedSprite3D:
+		var sf := (sp as AnimatedSprite3D).sprite_frames
+		if sf != null and sf.get_frame_count(&"default") > 0:
+			tex = sf.get_frame_texture(&"default", 0)
+	if tex is AtlasTexture:
+		tex = (tex as AtlasTexture).atlas
+	if tex == null:
+		return
+	var key := "glow:%d" % tex.get_rid().get_id()
+	if not _sway_mats.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = GLOW_SHADER
+		m.set_shader_parameter("texture_albedo", tex)
 		_sway_mats[key] = m
 	sp.material_override = _sway_mats[key]
 

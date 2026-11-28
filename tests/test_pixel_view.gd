@@ -304,3 +304,23 @@ func test_leaf_modes() -> void:
 	assert_eq(Kit3D.leaf_mode("grass_tall", "a"), 3.0, "풀은 줄마다 흔들림")
 	assert_eq(Kit3D.leaf_mode("tuft", "a"), 3.0)
 	assert_eq(Kit3D.leaf_mode("boulder_mossy", "a"), 0.0)
+
+
+## 빛을 내는 물건: 불꽃 살리고 몸통 누르는 재질(깊이 안 씀 — 외곽선 없음), 뒤집힌 잎 판은 빛 방향을 되돌린다.
+func test_glow_prop_and_leaf_flip() -> void:
+	var Kit3D := preload("res://scenes/kit/kit3d.gd")
+	var DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
+	var kit: RefCounted = DungeonKit.open()
+	var n: Node3D = Kit3D.make(kit, "firepit", "lit")
+	var sp: Variant = n.get_meta("sprite", null)
+	assert_true(sp is SpriteBase3D and (sp as SpriteBase3D).material_override is ShaderMaterial, "모닥불 재질")
+	var sh: Shader = ((sp as SpriteBase3D).material_override as ShaderMaterial).shader
+	assert_true(sh.code.contains("depth_draw_never"), "깊이 안 씀")
+	n.free()
+	var before := Kit3D.wind
+	Kit3D.wind = true
+	var a: Node3D = Kit3D.make(kit, "bush", "a", {"flip": true})
+	var m: ShaderMaterial = (a.get_meta("sprite") as Sprite3D).material_override
+	assert_true(bool(m.get_shader_parameter("flip_x")), "뒤집힌 덤불은 빛 방향 되돌림")
+	a.free()
+	Kit3D.wind = before
