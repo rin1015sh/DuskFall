@@ -293,8 +293,9 @@ class Part extends Node2D:
 					var t := i / 9.0
 					tp.append(Vector2(-t * 34.0, 6 + sin(t * 3.0) * 10.0 + t * 18.0))
 				var tpx := _px()
-				draw_polyline(tp, OUTLINE, tpx * 3.0 if tpx > 0.0 else 6.0)
-				draw_polyline(tp, col, tpx * 1.5 if tpx > 0.0 else 4.0)
+				if tpx <= 0.0:  # 도트 모드는 화면 외곽선이 두른다
+					draw_polyline(tp, OUTLINE, 6.0)
+				draw_polyline(tp, col, tpx * 2.0 if tpx > 0.0 else 4.0)
 			"weapon":
 				_weapon()
 
@@ -315,7 +316,8 @@ class Part extends Node2D:
 		else:
 			draw_circle(p, r, c)
 
-	## 도트 3단 음영: 본색 면, 왼쪽 위 테(1도트) 밝게·따뜻하게, 오른쪽 아래 테(1~2도트) 어둡게·차갑게, 테두리 1도트 어두운 선
+	## 도트 3단 음영: 본색 면, 왼쪽 위 테(1도트) 밝게·따뜻하게, 오른쪽 아래 테(1~2도트) 어둡게·차갑게.
+	## 부위마다 검은 테두리는 두르지 않는다 — 몸 윤곽은 화면 외곽선(pixel_outline, 제 색의 어두운 쪽)이 1도트로 고르게 두른다
 	func _poly_px(pts: PackedVector2Array, c: Color) -> void:
 		var px := _px()
 		var hi := c.lightened(0.24).lerp(Color(1.0, 0.92, 0.7), 0.08)
@@ -333,9 +335,6 @@ class Part extends Node2D:
 		for piece2: PackedVector2Array in Geometry2D.clip_polygons(pts, sl):
 			if piece2.size() >= 3:
 				draw_colored_polygon(piece2, lo)
-		var closed := pts.duplicate()
-		closed.append(pts[0])
-		draw_polyline(closed, c.darkened(0.55).lerp(OUTLINE, 0.35), px, false)
 
 	## 면 + 북서쪽 빛(왼쪽 위 밝게, 오른쪽 아래 어둡게) + 외곽선
 	func _poly(pts: PackedVector2Array, c: Color) -> void:
@@ -501,13 +500,15 @@ class Part extends Node2D:
 					var a := -PI * 0.5 + PI * i / 12.0
 					pts.append(Vector2(-cos(a) * L * 0.2 - 2, sin(a) * L * 0.5))
 				var bpx := _px()
-				draw_polyline(pts, OUTLINE, bpx * 2.0 if bpx > 0.0 else 4.5)
+				if bpx <= 0.0:
+					draw_polyline(pts, OUTLINE, 4.5)
 				draw_polyline(pts, c, bpx if bpx > 0.0 else 3.0)
 				_line(pts[0], pts[pts.size() - 1], Color(0.85, 0.82, 0.75), 1.0)
 			"crossbow":
 				_poly(PackedVector2Array([Vector2(-2, 4), Vector2(2, 4), Vector2(2, -L * 0.7), Vector2(-2, -L * 0.7)]), c)
 				var cpx := _px()
-				draw_line(Vector2(-L * 0.35, -L * 0.6), Vector2(L * 0.35, -L * 0.6), OUTLINE, cpx * 2.0 if cpx > 0.0 else 4.0)
+				if cpx <= 0.0:
+					draw_line(Vector2(-L * 0.35, -L * 0.6), Vector2(L * 0.35, -L * 0.6), OUTLINE, 4.0)
 				draw_line(Vector2(-L * 0.35, -L * 0.6), Vector2(L * 0.35, -L * 0.6), c.darkened(0.2), cpx if cpx > 0.0 else 2.5)
 			"shield":
 				_blob_at(Vector2(-2, -2), 13, 15, c)

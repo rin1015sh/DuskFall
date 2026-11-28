@@ -2,7 +2,8 @@
 # 화면 키 = actor_view.BODY_PX(84px) × 크기 배율(SIZE_K). 변환본은 키 84 × 배율 화소로 만들어 그림 1화소 = 화면 1px
 # = 지형 도트의 절반(몬스터만 촘촘한 도트 — 2026-11-27 결정, 도트 화면 버퍼가 그 절반 크기로 그린다).
 # 순서: 목표 도트 크기로 축소(큰 원본은 2배 축소 → 쿠와하라 → 2×2 평균, 테두리 1도트 자리 남김) → 대비 키우기(평균 밝기 유지)·채도 조금 올림
-#   (작고 밝은 강조색 — 눈·보석·불빛 — 은 축소해도 살린다) → 명암 테(왼쪽 위 밝게·오른쪽 아래 어둡게, 북서쪽 빛) → 그림마다 k-평균 팔레트(Oklab) → 바깥 1도트 테두리(그 몬스터의 가장 어두운 색)
+#   (작고 밝은 강조색 — 눈·보석·불빛 — 은 축소해도 살린다) → 명암 테(왼쪽 위 밝게·오른쪽 아래 어둡게, 북서쪽 빛) → 그림마다 k-평균 팔레트(Oklab)
+#   (테두리는 굽지 않는다 — 화면 외곽선이 1도트 굵기로 두른다, 1화소 투명 여백만)
 #   → 알파는 반 넘으면 불투명(반투명 가장자리 없음). 외톨이 점 지우기는 하지 않는다(작고 가는 그림의 세부 선이 얼룩이 된다).
 # 같은 그림을 크기가 다른 몬스터가 쓰면 가장 큰 크기 기준.
 # 사용: python3 tools/pixelize_actors.py   필요: numpy, Pillow
@@ -78,10 +79,7 @@ def convert(src_res, k):
     pal = np.clip(pk.from_oklab(C), 0, 1)
     idx = pk.nearest(flat, C).reshape(th, tw)
     out = np.concatenate([pal[idx], solid[..., None].astype(float)], -1)
-    # 3) 바깥 테두리 1도트: 그림의 가장 어두운 색을 더 어둡게(검정 대신 그 몬스터 색)
-    ring = ~solid & (nb(1, 0) | nb(-1, 0) | nb(0, 1) | nb(0, -1))
-    dark = pal[np.argmin(C[:, 0])] * 0.45
-    out[ring] = np.concatenate([dark, [1.0]])
+    # 바깥 테두리는 굽지 않는다: 화면 외곽선(pixel_outline.gdshader)이 윤곽 안쪽 1도트를 제 색의 어두운 쪽으로 — 굽은 반 도트 테와 겹치면 굵기가 들쭉날쭉해진다
     os.makedirs(DST, exist_ok=True)
     name = os.path.splitext(os.path.basename(src))[0]
     dst = os.path.join(DST, name + ".webp")

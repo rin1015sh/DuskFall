@@ -227,3 +227,37 @@ func test_light_colors() -> void:
 	assert_true(glow.b > glow.r + 0.2, "동굴 빛은 차갑게")
 	mv.free()
 	assert_true(ResourceLoader.exists("res://scenes/battle/pixel_light.gdshader"))
+
+
+## 외곽선: 검은 선 대신 제 색을 어둡게(곱하기 sel-out), 빛을 내는 물건은 외곽선 없음, 몬스터 도트 그림은 테두리를 굽지 않는다.
+func test_outline_selout() -> void:
+	var sh: Shader = load("res://scenes/battle/pixel_outline.gdshader")
+	assert_true(sh.code.contains("blend_mul"), "외곽선은 곱하기")
+	var Kit3D := preload("res://scenes/kit/kit3d.gd")
+	for id: String in ["firepit", "brazier", "torch_wall", "candles", "lantern"]:
+		assert_true(Kit3D.GLOWING.has(id), "%s 외곽선 없음" % id)
+	# 몬스터 변환본: 윤곽 바깥 1화소에 어두운 테를 굽지 않았다 — 가장자리 화소 평균이 안쪽보다 아주 어둡지 않다
+	var img: Image = (load("res://assets/pixel_actors/goblin.webp") as Texture2D).get_image()
+	img.decompress()
+	var edge := 0.0
+	var inner := 0.0
+	var ne := 0
+	var ni := 0
+	for y in img.get_height():
+		for x in img.get_width():
+			var c := img.get_pixel(x, y)
+			if c.a < 0.5:
+				continue
+			var border := false
+			for o: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				var q := Vector2i(x, y) + o
+				if q.x < 0 or q.y < 0 or q.x >= img.get_width() or q.y >= img.get_height() or img.get_pixelv(q).a < 0.5:
+					border = true
+			if border:
+				edge += c.get_luminance()
+				ne += 1
+			else:
+				inner += c.get_luminance()
+				ni += 1
+	assert_true(ne > 0 and ni > 0)
+	assert_true(edge / ne > inner / ni * 0.6, "굽은 검은 테 없음(가장자리 %.2f, 안 %.2f)" % [edge / ne, inner / ni])

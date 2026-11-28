@@ -14,6 +14,11 @@ const SWAY := {"tree_broadleaf": 1.6, "tree_pine": 1.2, "tree_thorn": 1.4, "tree
 const LEAFY := {"tree_broadleaf": true, "tree_thorn": true, "tree_giant": true, "bush": true}
 ## 깊이 외곽선을 붙이지 않을 잔장식(깊이를 쓰지 않는 판 — 작은 풀·꽃·돌이 검은 가시처럼 보이지 않게)
 const NO_OUTLINE := {"tuft": true, "flowers": true, "pebble": true}
+## 빛을 내는 물건(불·초·등·빛 룬·수정): 외곽선을 두르지 않는다 — 빛은 어두운 테 없이 번져 보여야 한다
+const GLOWING := {"street_lamp": true, "flame": true, "candle_flame": true, "torch_flame": true, "torch_wall": true,
+	"torch_stand": true, "candlestick": true, "candles": true, "lantern": true, "lantern_hanging": true, "brazier": true,
+	"firepit": true, "magic_lamp": true, "glow_rune": true, "glow_crack": true, "fireplace": true, "torch_bin": true,
+	"crystal": true, "rock_crystal": true, "flame_nozzle": true, "flame_jet": true, "wall_flame": true}
 static var _sway_shader_nodepth: Shader
 ## 바람 켜기(도트 화면이 켜질 때 battle_scene이 정한다)
 static var wind := false
@@ -80,7 +85,7 @@ static func make(kit: RefCounted, id: String, variant: String = "", opts: Dictio
 		return holder
 	setup_sprite(sprite, ps, flat)
 	sprite.flip_h = flip
-	var no_line := NO_OUTLINE.has(id)
+	var no_line := NO_OUTLINE.has(id) or GLOWING.has(id)
 	if no_line and not flat:
 		sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD  # 깊이 미리 쓰기 없이(외곽선이 붙지 않게)
 	var sway := float(opts.get("sway", SWAY.get(id, 0.0)))
