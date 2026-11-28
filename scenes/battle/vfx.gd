@@ -32,7 +32,18 @@ const FLOOR_STYLE := {
 	"fire": [0, 2.2, ["#2a1410", "#5a2414", "#a8401c", "#ec8a34", "#ffd88a"]],
 	"cold": [1, 2.4, ["#10202e", "#24506e", "#4c8cb0", "#9cd0e6", "#e6f6ff"]],
 	"heal": [2, 2.0, ["#0e2a1c", "#1e5a34", "#3e9a54", "#86d48a", "#d8f6c8"]],
+	"lightning": [3, 1.6, ["#101428", "#26306a", "#4a6ac8", "#9cc4ff", "#f0f6ff"]],
+	"radiant": [4, 2.0, ["#2a1e0c", "#6a4e1c", "#b8902e", "#ecd27a", "#fff6d8"]],
+	"necrotic": [5, 2.4, ["#0c0814", "#24142e", "#4a2858", "#8a5aa8", "#d0b0f0"]],
+	"poison": [6, 2.6, ["#0e1a0c", "#22401a", "#4a7a26", "#90c040", "#d8f080"]],
+	"acid": [6, 2.4, ["#141a08", "#34420e", "#6a8a1a", "#b4d23a", "#eef8a0"]],
+	"arcane": [7, 2.0, ["#140c24", "#2e1a52", "#5a34a0", "#a07ae0", "#ecdcff"]],
+	"thunder": [8, 1.6, ["#14120e", "#3a342a", "#6a6050", "#a89a82", "#e6dcc8"]],
 }
+## 범위 안에 세우는 작은 효과(꼬리 → [이름, 개수 배율]) — 빛 점 계열은 duskfall/heal-motes를 원소 색 계단으로 구운 것
+const AREA_PROPS := {"fire": ["ground_fire", 1.0], "cold": ["ice_shard", 1.0], "heal": ["heal", 0.5], "radiant": ["motes_radiant", 0.6],
+	"necrotic": ["motes_necrotic", 0.6], "poison": ["motes_poison", 0.6], "acid": ["motes_acid", 0.6], "arcane": ["motes_arcane", 0.35],
+	"thunder": ["motes_thunder", 0.4]}
 const FLOOR_SHADER := preload("res://scenes/battle/fx_floor.gdshader")
 const BOLT_SPEED := 14.0  # 탄 속도(유닛/초)
 const MAX_LONG := 2.6  # 한 번 효과가 이보다 길면 빨리 감는다(초)
@@ -442,7 +453,7 @@ func area_burst(fam: String, center: Vector3, rad: float) -> void:
 	var n := clampi(int(rad * rad * 1.1), 3, 26)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(center.x * 73.0 + center.z * 151.0)
-	var spread := 0.32 if fam == "fire" else (0.4 if fam == "cold" else 0.55)
+	var spread: float = {"fire": 0.32, "cold": 0.4, "lightning": 0.1, "thunder": 0.3}.get(fam, 0.55)
 	for i in n:
 		# 원 안에 고르게(가운데는 덜) — 고리가 그 자리에 닿을 때 솟는다
 		var u := sqrt(rng.randf_range(0.08, 1.0)) * 0.88
@@ -452,20 +463,22 @@ func area_burst(fam: String, center: Vector3, rad: float) -> void:
 		var p := center + Vector3(cos(ang) * u * rad, 0, sin(ang) * u * rad)
 		p.y = scene.map_view.ground_at(Vector2(p.x, p.z)) if scene.get("map_view") != null else center.y
 		var delay := u * spread * life * (0.9 + rng.randf() * 0.2)
-		match fam:
-			"fire":
-				_play("ground_fire", p, {"delay": delay, "max_life": life * 0.7 - delay, "flip": rng.randf() < 0.5, "depth": true})
-			"cold":
-				_play("ice_shard", p, {"delay": delay, "flip": rng.randf() < 0.5, "depth": true})
-			"heal":
-				if i % 2 == 0:
-					_play("heal", p, {"delay": delay, "depth": true})
-	if fam == "fire":
-		_play("hit_fire", center, {"light": "fire", "power": 1.3, "radius": rad + 1.0})
-	elif fam == "cold":
-		_play("ice_shard", center, {"light": "cold", "power": 1.0, "radius": rad + 0.5})
-	else:
-		_dyn_only(center, "heal", 0.8, rad + 0.5, life)
+		var prop: Array = AREA_PROPS.get(fam, [])
+		if prop.is_empty() or float(i) >= float(n) * float(prop[1]):
+			continue
+		var o := {"delay": delay, "flip": rng.randf() < 0.5, "depth": true}
+		if fam == "fire":
+			o["max_life"] = life * 0.7 - delay
+		_play(String(prop[0]), p, o)
+	match fam:
+		"fire":
+			_play("hit_fire", center, {"light": "fire", "power": 1.3, "radius": rad + 1.0})
+		"cold":
+			_play("ice_shard", center, {"light": "cold", "power": 1.0, "radius": rad + 0.5, "depth": true})
+		"lightning":
+			_play("area_lightning", center, {"light": "lightning", "power": 1.4, "radius": rad + 1.0})
+		_:
+			_dyn_only(center, fam, 0.9, rad + 0.5, life * 0.6)
 
 
 ## 바닥 판 하나(fx_floor.gdshader). 진행 t는 _step_sprites가 넘긴다.

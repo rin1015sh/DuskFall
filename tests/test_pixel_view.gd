@@ -363,7 +363,7 @@ func test_pixel_fx_catalog() -> void:
 func test_floor_fx() -> void:
 	var Vfx := preload("res://scenes/battle/vfx.gd")
 	var PFX := preload("res://scenes/battle/pixel_fx.gd")
-	for fam: String in ["fire", "cold", "heal"]:
+	for fam: String in ["fire", "cold", "heal", "lightning", "radiant", "necrotic", "poison", "acid", "arcane", "thunder"]:
 		assert_true(Vfx.FLOOR_STYLE.has(fam), "바닥 효과 %s" % fam)
 		assert_eq((Vfx.FLOOR_STYLE[fam][2] as Array).size(), 5, "색 계단 5단")
 	assert_true(ResourceLoader.exists("res://scenes/battle/fx_floor.gdshader"))

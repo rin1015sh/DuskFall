@@ -599,6 +599,96 @@
   ],
   "src": "arcane/arcane-beam"
  },
+ "motes_acid": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 21,
+  "loop": false,
+  "pivot": [
+   18,
+   58
+  ],
+  "size": [
+   36,
+   64
+  ],
+  "src": "duskfall/heal-motes"
+ },
+ "motes_arcane": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 21,
+  "loop": false,
+  "pivot": [
+   18,
+   58
+  ],
+  "size": [
+   36,
+   64
+  ],
+  "src": "duskfall/heal-motes"
+ },
+ "motes_necrotic": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 21,
+  "loop": false,
+  "pivot": [
+   18,
+   58
+  ],
+  "size": [
+   36,
+   64
+  ],
+  "src": "duskfall/heal-motes"
+ },
+ "motes_poison": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 21,
+  "loop": false,
+  "pivot": [
+   18,
+   58
+  ],
+  "size": [
+   36,
+   64
+  ],
+  "src": "duskfall/heal-motes"
+ },
+ "motes_radiant": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 21,
+  "loop": false,
+  "pivot": [
+   18,
+   58
+  ],
+  "size": [
+   36,
+   64
+  ],
+  "src": "duskfall/heal-motes"
+ },
+ "motes_thunder": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 21,
+  "loop": false,
+  "pivot": [
+   18,
+   58
+  ],
+  "size": [
+   36,
+   64
+  ],
+  "src": "duskfall/heal-motes"
+ },
  "shield": {
   "columns": 6,
   "fps": 15,
