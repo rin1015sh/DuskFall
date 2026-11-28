@@ -109,6 +109,9 @@ res://
   자연 지형이면 가장자리 벽 칸(경계)은 벽 대신 둘레로 덮는다(규칙상 막힘 그대로). 카메라가 보는 점은 맵 안으로 묶는다(battle_scene._apply_camera).
   폐허 벽(블록 지형 + 둘레 + 돌벽, 맵 `art.ruin`): 벽 높이를 칸마다 들쭉날쭉(그림만 — map_view._vis_top, 무너진 홈), 윗면은 칸마다 크기·높이가 다른 윗돌 블록 그물(map_view._ruin_cap — 돌마다 윗면 + 카메라에 보이는 앞면, 사이 줄눈, 재질 새 그림 assets/pixel_decor/ruin_stone.png 돌·이끼),
   벽면 덩굴·이끼·뿌리, 밑동 잔해·풀, 윗면 풀(RUIN_DECOR).
+  물체 드리운 그림자(2026-11-28, Kit3D.make_cast_shadow·cast_shadow.gdshader): 서 있는 소품·캐릭터·몬스터 그림의 실루엣(알파 반↑)을 바닥에 눕혀 발을 축으로 남동쪽(해 반대)으로 그림 키 × 0.7 늘인 한 색 그늘 판
+  (render_priority 2 — 바닥 위). 세기 Kit3D.cast_strength = 맵 빛 밝음 0.45·어스름 0.26·어둠 0(map_view), 나무는 수관 그늘이 있어 짧고(0.5) 옅게, 빛 내는 물건·잔풀·꽃·돌멩이는 없음.
+  캐릭터는 그림(컷아웃 화면·방향 반전)을 따라 매 프레임 갱신(actor_view._update_cast).
   수관 그늘(map_view._build_canopy): 나무(tree_*)마다 수관 크기 그늘을 칸당 4화소 그림으로 모아 바닥 셰이더(맵·둘레)에 — 그늘 두 단계, 잎 사이 빛 점이 바람에 흐름.
   맵 안 숲: 맵 안 나무 소품 칸은 통행 막힘(flags impassable — 그림과 규칙을 맞춘다. hill_path 나무 무리).
   빛과 그림자 층(pixel_light.gdshader — 도트 카메라 앞 판 두 장, 화면 깊이로 세계 위치를 되짚어 빛 지도 map_view._build_lighting을 찾음, 그림만·규칙 빛 단계 그대로):

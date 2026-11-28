@@ -395,3 +395,27 @@ func test_cone_line_fx() -> void:
 	assert_eq(String(Vfx.spell_look(RulesDB.get_entry("spell", "color_spray"))["kind"]), "cone", "피해 없는 원뿔도 원뿔")
 	var sh: Shader = load("res://scenes/battle/fx_floor.gdshader")
 	assert_true(sh.code.contains("half_ang") and sh.code.contains("half_w"), "원뿔 반각·선 너비")
+
+
+## 드리운 그림자: 세기가 켜져 있으면 서 있는 소품에 남동쪽으로 늘인 실루엣 판, 빛 내는 물건·잔장식은 없음.
+func test_cast_shadow() -> void:
+	var Kit3D := preload("res://scenes/kit/kit3d.gd")
+	var DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
+	var kit: RefCounted = DungeonKit.open()
+	var before := Kit3D.cast_strength
+	Kit3D.cast_strength = 0.4
+	var n: Node3D = Kit3D.make(kit, "barrel", "intact")
+	var sh := n.get_node_or_null("CastShadow") as Sprite3D
+	assert_true(sh != null, "통 그림자")
+	if sh != null:
+		var fwd := sh.transform.basis.y  # 그림 위 방향 = 그림자가 뻗는 쪽
+		assert_true(fwd.x > 0.0 and fwd.z > 0.0, "남동쪽으로")
+	n.free()
+	var f: Node3D = Kit3D.make(kit, "firepit", "lit")
+	assert_true(f.get_node_or_null("CastShadow") == null, "빛 내는 물건은 그림자 없음")
+	f.free()
+	Kit3D.cast_strength = 0.0
+	var m: Node3D = Kit3D.make(kit, "barrel", "intact")
+	assert_true(m.get_node_or_null("CastShadow") == null, "끄면 없음")
+	m.free()
+	Kit3D.cast_strength = before

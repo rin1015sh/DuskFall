@@ -33,6 +33,7 @@ var hud: Node2D
 var _body: Node3D
 var _pivot: Node3D
 var _shadow: Sprite3D
+var _cast: Sprite3D  # 드리운 그림자(해 반대쪽으로 늘인 실루엣 — Kit3D.make_cast_shadow)
 var _ring: MeshInstance3D
 var _ring_mat: StandardMaterial3D
 var _sheet := false
@@ -345,6 +346,22 @@ func _place_sprite() -> void:
 		sprite.region_rect = Rect2(Vector2(FRAME.x * col, FRAME.y * facing), Vector2(FRAME))
 	else:
 		sprite.flip_h = facing == 1
+	_update_cast(size, foot_px)
+
+
+func _update_cast(size: Vector2, foot_px: float) -> void:
+	const K3 := preload("res://scenes/kit/kit3d.gd")
+	if K3.cast_strength <= 0.0 or sprite.texture == null:
+		return
+	if _cast == null:
+		_cast = K3.make_cast_shadow(sprite, Vector2(size.x * 0.5, size.y - foot_px), size, _k / V.T, sprite.flip_h)
+		add_child(_cast)
+	_cast.texture = sprite.texture
+	_cast.region_enabled = sprite.region_enabled
+	_cast.region_rect = sprite.region_rect
+	_cast.flip_h = sprite.flip_h
+	_cast.visible = not creature.get("dead")
+	K3.set_cast_transform(_cast, Vector2(size.x * 0.5, size.y - foot_px), size, _k / V.T, sprite.flip_h)
 
 
 func _apply_color() -> void:

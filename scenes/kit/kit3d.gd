@@ -7,6 +7,11 @@ extends RefCounted
 const V := preload("res://scenes/battle/view3d.gd")
 const SWAY_SHADER := preload("res://scenes/kit/sway.gdshader")
 const GLOW_SHADER := preload("res://scenes/kit/glow_prop.gdshader")
+const CAST_SHADER := preload("res://scenes/kit/cast_shadow.gdshader")
+## 드리운 그림자(도트 화면, 맵 빛이 밝음·어스름일 때 — map_view가 정한다): 세기(0 = 끔). 해는 북서쪽 → 그림자는 남동쪽으로 길이 CAST_LEN × 그림 키.
+static var cast_strength := 0.0
+const CAST_LEN := 0.7
+const CAST_SKIP := {"tuft": true, "flowers": true, "pebble": true, "leaf": true}
 ## 바람에 흔들리는 그림(키트 id → 판 위 끝 흔들림 도트, 1도트 = 그림 2px). 나무는 살짝, 풀은 크게.
 const SWAY := {"tree_broadleaf": 1.6, "tree_pine": 1.2, "tree_thorn": 1.4, "tree_giant": 1.8, "bush": 1.2,
 	"grass_tall": 1.6, "flowers": 1.4, "reed_thorn": 1.6, "cattail": 1.8, "weeds": 1.4,
@@ -123,6 +128,9 @@ static func make(kit: RefCounted, id: String, variant: String = "", opts: Dictio
 	if not flat:
 		sprite.position += footprint_shift(h - o.y) * ps
 		sprite.set_meta("foot_lift", footprint_shift(h - o.y) * ps)  # 물 반사 짝(map_view._build_refl_doubles)이 되돌린다
+		if cast_strength > 0.0 and sprite is Sprite3D and not GLOWING.has(id) and not CAST_SKIP.has(id) and h - o.y < h * 0.6:
+			var tree := id.begins_with("tree_")
+			holder.add_child(make_cast_shadow(sprite as Sprite3D, o, Vector2(w, h), ps, flip, cast_strength * (0.7 if tree else 1.0), 0.5 if tree else CAST_LEN))
 	sprite.name = "Sprite"
 	holder.add_child(sprite)
 	holder.set_meta("sprite", sprite)
@@ -190,6 +198,46 @@ static func _add_sway(sp: Sprite3D, amp: float, leaf: float = 0.0, no_line: bool
 			m.set_shader_parameter("clump_px", cpx)
 		_sway_mats[key] = m
 	sp.material_override = _sway_mats[key]
+
+
+## 드리운 그림자 판: src 그림(같은 조각)을 바닥에 눕혀 발(그림 px foot)을 축으로 남동쪽으로 늘인다. 부모 = 발이 원점인 노드.
+## 나무는 수관 그늘(map_view._build_canopy)이 발밑을 맡아 짧고 옅게(strength·length).
+static func make_cast_shadow(src: Sprite3D, foot: Vector2, size: Vector2, ps: float, flip: bool, strength := -1.0, length := CAST_LEN) -> Sprite3D:
+	var sh := Sprite3D.new()
+	sh.name = "CastShadow"
+	sh.texture = src.texture
+	sh.pixel_size = ps
+	sh.centered = true
+	sh.shaded = false
+	sh.double_sided = true
+	sh.flip_h = flip
+	sh.texture_filter = V.TEX_FILTER
+	sh.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED
+	sh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var tex: Texture2D = src.texture
+	if tex is AtlasTexture:
+		tex = (tex as AtlasTexture).atlas
+	var st := cast_strength if strength < 0.0 else strength
+	var key := "cast:%d:%.2f" % [tex.get_rid().get_id(), st]
+	if not _sway_mats.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = CAST_SHADER
+		m.set_shader_parameter("texture_albedo", tex)
+		m.set_shader_parameter("strength", st)
+		m.render_priority = 2  # 바닥(반투명 패스)·바닥 무늬(1) 위에
+		_sway_mats[key] = m
+	sh.material_override = _sway_mats[key]
+	sh.set_meta("cast_len", length)
+	set_cast_transform(sh, foot, size, ps, flip)
+	return sh
+
+
+## 그림자 판 자세: 눕히고(위 → 북) 남동쪽으로 돌려 CAST_LEN만큼 늘이고, 발 픽셀이 원점에 오게 민다
+static func set_cast_transform(sh: Sprite3D, foot: Vector2, size: Vector2, ps: float, flip: bool) -> void:
+	var b := Basis(Vector3.UP, -3.0 * PI / 4.0) * Basis(Vector3.RIGHT, -PI / 2.0) * Basis.from_scale(Vector3(1.0, float(sh.get_meta("cast_len", CAST_LEN)), 1.0))
+	var fx := (foot.x - size.x * 0.5) * (-1.0 if flip else 1.0)
+	var local := Vector3(-fx, -(size.y * 0.5 - foot.y), 0.0) * ps
+	sh.transform = Transform3D(b, b * local + Vector3(0, 0.012, 0))
 
 
 ## 빛을 내는 물건 재질(glow_prop.gdshader — 불꽃은 그대로, 몸통은 어둡게, 깊이 안 씀). 시트마다 하나.

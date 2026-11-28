@@ -193,6 +193,8 @@ class MeshBuilder:
 func build(g: Node, sorted_layer: Node3D, map_data: Dictionary = {}) -> void:
 	grid = g
 	map = map_data
+	# 드리운 그림자: 해가 있는 맵(밝음·어스름)만, 도트 화면에서
+	Kit3D.cast_strength = 0.0 if art_dots <= 0.0 else {"bright": 0.45, "dim": 0.26}.get(String(map.get("light", "bright")), 0.0)
 	sorted = sorted_layer
 	kit = DungeonKit.open()
 	kit.tileset()
