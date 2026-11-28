@@ -92,7 +92,7 @@ func test_doll_rig_joints_facing_walk_and_size() -> void:
 	assert_near(d.root.rotation_degrees.y, 90.0, 0.01, "오른쪽 = 돌림(반전 없음)")
 	d.set_facing(3)
 	assert_near(absf(d.root.rotation_degrees.y), 180.0, 0.01, "위 = 뒷모습")
-	d.pose("walk", 0.2)
+	d.pose("walk", 0.0)
 	assert_true(absf(d.j["hip_r"].rotation.x) > 0.3 and signf(d.j["hip_r"].rotation.x) != signf(d.j["hip_l"].rotation.x), "걷기: 다리가 엇갈려 흔들림")
 	d.play("attack_melee")
 	d._process(5.0)
@@ -102,3 +102,43 @@ func test_doll_rig_joints_facing_walk_and_size() -> void:
 	assert_true(c.x % 2 == 0 and c.y > 60, "창 크기")
 	d.dot = Doll.BASE_DOT * 0.8
 	assert_true(d.canvas_px().y < c.y, "작은 생물은 창도 작게")
+
+
+## 인형 동작 키(doll_anims): 박자 끊기·한 번 동작·쓰러져 누운 채·다른 체형은 보통 체형 키
+func test_doll_anims_keys_hold_and_fallback() -> void:
+	const Doll := preload("res://scenes/battle/doll_rig.gd")
+	var d: Node3D = Doll.new()
+	tree.root.add_child(d)
+	own(d)
+	d.apply_look(Cutout.look(_pc("fighter")))
+	for a: String in ["idle", "walk", "attack_melee", "attack_ranged", "cast", "hit", "down"]:
+		assert_true(d.has_anim(a), "동작 %s" % a)
+		for id: String in d.anims()[a]["keys"]:
+			assert_true(id == "hips_pos" or d.j.has(id), "%s: 없는 관절 %s" % [a, id])
+	# 근접: 0.14초 준비 자세에서 팔을 머리 위 뒤로, 맞는 순간(vfx SWING_HIT 0.26)엔 앞으로 내려침
+	d.pose("attack_melee", 0.14)
+	assert_true(d.j["hand_r"].global_position.y > d.j["head"].global_position.y, "준비: 손을 머리 위로")
+	d.pose("attack_melee", preload("res://scenes/battle/vfx.gd").SWING_HIT)
+	assert_true(rad_to_deg(d.j["shoulder_r"].rotation.x) > -60.0, "맞는 순간: 앞으로 내려침")
+	assert_true(d.j["hips"].position.z > 1.0, "내딛음")
+	# 박자 끊기(fps 12): 같은 장면 안에서는 자세가 같다
+	d.pose("attack_melee", 0.17)
+	var r1: float = d.j["shoulder_r"].rotation.x
+	d.pose("attack_melee", 0.18)
+	assert_near(d.j["shoulder_r"].rotation.x, r1, 0.0001, "한 장면 안은 같은 자세")
+	# 쓰러짐: 끝나도 누운 채, 화면 가로로
+	d.set_facing(0)
+	d.play("down")
+	d._process(3.0)
+	assert_eq(d.anim, "down", "쓰러짐은 누운 채 유지")
+	assert_true(d.j["hips"].position.y < 5.0, "바닥에 누움")
+	assert_near(absf(d.root.rotation_degrees.y), 90.0, 0.5, "앞모습이어도 화면 가로로 눕는다")
+	d.play("idle")
+	d.pose("idle", 0.0)
+	assert_near(d.root.rotation_degrees.y, 0.0, 0.5, "일어나면 바라보던 쪽")
+	# 다른 체형은 보통 체형 키
+	var dw: Node3D = Doll.new()
+	tree.root.add_child(dw)
+	own(dw)
+	dw.apply_look(Cutout.look(_pc("cleric", "dwarf")))
+	assert_true(dw.has_anim("attack_melee"), "드워프도 보통 체형 동작")

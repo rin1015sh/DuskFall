@@ -85,6 +85,9 @@
             "additionalProperties": {
               "type": "number"
             }
+          },
+          "doll_anims": {
+            "type": "object"
           }
         }
       }

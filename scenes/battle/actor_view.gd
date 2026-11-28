@@ -288,7 +288,16 @@ func sync() -> void:
 		_state_col = Color(1, 1, 1, 0.45)
 	else:
 		_state_col = Color.WHITE
-	_pivot.rotation.z = deg_to_rad(80) if (creature.is_down() or creature.dead) else 0.0
+	var lying: bool = creature.is_down() or creature.dead
+	if _rig != null and _rig.has_method("has_anim") and _rig.has_anim("down"):
+		# 인형은 쓰러지는 동작으로 눕는다(판을 돌리지 않는다)
+		_pivot.rotation.z = 0.0
+		if lying and _rig.anim != "down":
+			_rig.play("down")
+		elif not lying and _rig.anim == "down":
+			_rig.play("idle")
+	else:
+		_pivot.rotation.z = deg_to_rad(80) if lying else 0.0
 	_shadow.visible = not creature.dead
 	_ring.visible = (current or selected) and not creature.dead
 	_ring_mat.albedo_color = Color(1, 0.85, 0.2) if current else Color(0.4, 0.8, 1.0)
@@ -345,7 +354,9 @@ func _place_sprite() -> void:
 	_body.position.y = float(int(creature.altitude))
 	if _cutout:
 		_rig.set_facing(facing)
-		if not _path.is_empty():
+		if _rig.anim == "down":
+			pass
+		elif not _path.is_empty():
 			_rig.play("walk")
 		elif _rig.anim == "walk":
 			_rig.play("idle")

@@ -56,12 +56,24 @@ func apply_look(lk: Dictionary) -> void:
 func set_facing(f: int) -> void:
 	facing = f
 	if root != null:
-		root.rotation.y = deg_to_rad([0.0, -90.0, 90.0, 180.0][clampi(f, 0, 3)])
+		root.rotation.y = _yaw(anim, anim_t)
 
 
-## 동작: idle · walk(반복) / attack_melee · attack_ranged · cast · hit(한 번 — 끝나면 idle). 길이는 체형 틀 animations.
+const FACING_YAW := [0.0, -90.0, 90.0, 180.0]
+
+
+## 몸 방향(라디안): 바라보는 쪽. 쓰러질 때만 화면 가로로 눕게(앞·뒷모습에서 뒤로 넘어지면 세로로 짧게 눌려 보인다) 넘어지며 돈다.
+func _yaw(name: String, t: float) -> float:
+	var base := deg_to_rad(FACING_YAW[clampi(facing, 0, 3)])
+	if name != "down":
+		return base
+	var target := deg_to_rad(90.0 if facing in [0, 2] else -90.0)
+	return lerp_angle(base, target, clampf(t / 0.3, 0.0, 1.0))
+
+
+## 동작: idle · walk(반복) / attack_melee · attack_ranged · cast · hit(한 번 — 끝나면 idle) / down(쓰러져 누운 채 — hold).
 func play(name: String) -> void:
-	if name == anim and name in ["idle", "walk"]:
+	if name == anim and bool(anims().get(name, {}).get("loop", true) or anims().get(name, {}).get("hold", false)):
 		return
 	anim = name
 	anim_t = 0.0
@@ -88,9 +100,8 @@ func _process(delta: float) -> void:
 	if root == null:
 		return
 	anim_t += delta
-	var a: Dictionary = tpl.get("animations", {}).get(anim, {})
-	var length := float(a.get("length", 1.0))
-	if anim not in ["idle", "walk"] and anim_t > length:
+	var a: Dictionary = anims().get(anim, {})
+	if not bool(a.get("loop", true)) and not bool(a.get("hold", false)) and anim_t > float(a.get("length", 1.0)):
 		play("idle")
 	pose(anim, anim_t)
 
@@ -300,93 +311,54 @@ func _build_head(head: Node3D, hr: float, hair: Color, m_skin: Material, m_hair:
 
 # ---------- 동작 ----------
 
-## 관절 회전(도)을 정한다. 걷기·서 있기는 계산(박자 = 체형 틀 길이), 한 번 동작은 짧은 키.
+## 동작 키(체형 틀 doll_anims — 없으면 보통 체형 것). 관절 → [[초, [x, y, z 회전 도]]], hips_pos = 엉덩이 자리 이동.
+func anims() -> Dictionary:
+	var a: Dictionary = tpl.get("doll_anims", {})
+	return a if not a.is_empty() else Cutout.template("medium").get("doll_anims", {})
+
+
+func has_anim(name: String) -> bool:
+	return anims().has(name)
+
+
+## 관절 자세를 정한다: 키 사이를 부드럽게 잇되 fps 박자로 끊어(도트 장면처럼 또박또박), interp step이면 다음 키까지 그대로.
 func pose(name: String, t: float) -> void:
 	for n: Node3D in j.values():
 		if n.name != "tail":
 			n.rotation = Vector3.ZERO
-	j["hips"].position.y = _d("leg", 20)
-	var amp := float(dims.get("walk_swing", 32.0))
-	match name:
-		"walk":
-			var length := float(tpl.get("animations", {}).get("walk", {}).get("length", 0.8))
-			var ph := TAU * t / length
-			var s := sin(ph)
-			_rx("hip_r", -s * amp)
-			_rx("hip_l", s * amp)
-			_rx("knee_r", maxf(0.0, -cos(ph)) * amp * 1.3)
-			_rx("knee_l", maxf(0.0, cos(ph)) * amp * 1.3)
-			_rx("foot_r", -s * amp * 0.3)
-			_rx("foot_l", s * amp * 0.3)
-			_rx("shoulder_r", s * amp * 0.8)
-			_rx("shoulder_l", -s * amp * 0.8)
-			_rx("elbow_r", -18.0)
-			_rx("elbow_l", -18.0)
-			j["chest"].rotation.y = deg_to_rad(s * 6.0)
-			j["hips"].position.y -= absf(cos(ph)) * 1.0  # 내딛을 때 1도트 내려앉음
-			j["chest"].rotation.x = deg_to_rad(5.0)
-		"attack_melee":
-			# 준비(팔 뒤로 높이) → 내려침(0.18~0.32) → 따라감 → 복귀. 다음 단계에서 다듬는다.
-			var up := _key(t, [[0.0, 0.0], [0.18, -150.0], [0.32, -20.0], [0.55, 0.0]])
-			_rx("shoulder_r", up)
-			_rx("elbow_r", _key(t, [[0.0, 0.0], [0.18, -40.0], [0.32, -10.0], [0.55, 0.0]]))
-			j["chest"].rotation.x = deg_to_rad(_key(t, [[0.0, 0.0], [0.18, -6.0], [0.32, 12.0], [0.55, 0.0]]))
-			_rx("hip_r", _key(t, [[0.0, 0.0], [0.32, -18.0], [0.55, 0.0]]))
-			_rx("hip_l", _key(t, [[0.0, 0.0], [0.32, 12.0], [0.55, 0.0]]))
-		"attack_ranged":
-			var aim := _key(t, [[0.0, 0.0], [0.2, -85.0], [0.55, -85.0], [0.7, 0.0]])
-			_rx("shoulder_l", aim)
-			_rx("shoulder_r", aim * 0.9)
-			_rx("elbow_r", _key(t, [[0.0, 0.0], [0.2, -40.0], [0.45, -70.0], [0.5, -10.0], [0.7, 0.0]]))
-		"cast":
-			var lift := _key(t, [[0.0, 0.0], [0.3, -120.0], [0.6, -110.0], [0.8, 0.0]])
-			_rx("shoulder_r", lift)
-			_rx("shoulder_l", lift)
-			_rz("shoulder_r", _key(t, [[0.0, 0.0], [0.3, -20.0], [0.8, 0.0]]))
-			_rz("shoulder_l", _key(t, [[0.0, 0.0], [0.3, 20.0], [0.8, 0.0]]))
-			j["hips"].position.y += _key(t, [[0.0, 0.0], [0.3, 1.0], [0.8, 0.0]])
-		"hit":
-			j["chest"].rotation.x = deg_to_rad(_key(t, [[0.0, 0.0], [0.08, -16.0], [0.4, 0.0]]))
-			j["head"].rotation.x = deg_to_rad(_key(t, [[0.0, 0.0], [0.08, -12.0], [0.4, 0.0]]))
-			_rx("shoulder_r", _key(t, [[0.0, 0.0], [0.08, 25.0], [0.4, 0.0]]))
-			_rx("shoulder_l", _key(t, [[0.0, 0.0], [0.08, 25.0], [0.4, 0.0]]))
-		_:
-			# 서 있기: 6박(참고 — 200·200·400·200·200·400ms)마다 1도트 숨쉬기, 팔 살짝 벌림
-			var length2 := float(tpl.get("animations", {}).get("idle", {}).get("length", 1.6))
-			var u := fmod(t, length2) / length2
-			var down := 1.0 if (u > 0.25 and u < 0.5) or u > 0.75 else 0.0
-			j["hips"].position.y -= down * 0.6
-			j["chest"].position.y = 0.0
-			_rx("shoulder_r", -4.0 - down * 3.0)
-			_rx("shoulder_l", -4.0 - down * 3.0)
-			_rz("shoulder_r", -6.0)
-			_rz("shoulder_l", 6.0)
-			_rx("elbow_r", -14.0)
-			_rx("elbow_l", -10.0)
-			_rx("knee_r", down * 6.0)
-			_rx("knee_l", down * 6.0)
-			_rx("hip_r", -down * 3.0)
-			_rx("hip_l", -down * 3.0)
+	j["hips"].position = Vector3(0, _d("leg", 24), 0)
+	root.rotation.y = _yaw(name, t)
+	var a: Dictionary = anims().get(name, anims().get("idle", {}))
+	var length := float(a.get("length", 1.0))
+	var tt := fmod(t, length) if bool(a.get("loop", true)) else minf(t, length)
+	var fps := float(a.get("fps", 0.0))
+	if fps > 0.0:
+		tt = floorf(tt * fps + 0.0001) / fps
+	var step := str(a.get("interp", "")) == "step"
+	var keys: Dictionary = a.get("keys", {})
+	for id: String in keys:
+		var v := _sample3(keys[id], tt, step)
+		if id == "hips_pos":
+			j["hips"].position += v
+		elif j.has(id):
+			j[id].rotation = Vector3(deg_to_rad(v.x), deg_to_rad(v.y), deg_to_rad(v.z))
 
 
-func _rx(id: String, deg: float) -> void:
-	if j.has(id):
-		j[id].rotation.x = deg_to_rad(deg)
-
-
-func _rz(id: String, deg: float) -> void:
-	if j.has(id):
-		j[id].rotation.z = deg_to_rad(deg)
-
-
-static func _key(t: float, k: Array) -> float:
-	if t <= float(k[0][0]):
-		return float(k[0][1])
+static func _sample3(k: Array, t: float, step: bool) -> Vector3:
+	var v0: Array = k[0][1]
+	if k.size() == 1 or t <= float(k[0][0]):
+		return Vector3(float(v0[0]), float(v0[1]), float(v0[2]))
 	for i in range(1, k.size()):
-		var t0 := float(k[i - 1][0])
 		var t1 := float(k[i][0])
-		if t <= t1:
+		if t < t1:
+			var a: Array = k[i - 1][1]
+			var b: Array = k[i][1]
+			var va := Vector3(float(a[0]), float(a[1]), float(a[2]))
+			if step:
+				return va
+			var t0 := float(k[i - 1][0])
 			var u := (t - t0) / maxf(t1 - t0, 0.0001)
-			u = u * u * (3.0 - 2.0 * u)  # 부드럽게
-			return lerpf(float(k[i - 1][1]), float(k[i][1]), u)
-	return float(k[k.size() - 1][1])
+			u = u * u * (3.0 - 2.0 * u)
+			return va.lerp(Vector3(float(b[0]), float(b[1]), float(b[2])), u)
+	var e: Array = k[k.size() - 1][1]
+	return Vector3(float(e[0]), float(e[1]), float(e[2]))

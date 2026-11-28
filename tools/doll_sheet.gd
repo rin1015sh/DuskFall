@@ -1,6 +1,6 @@
 extends Node
 ## 간이 3D 인형 확인 시트(그림만): 4방향 × 동작 장면을 한 장 PNG로(창 화소 그대로 × 배율).
-##   xvfb-run godot --path . --rendering-driver opengl3 res://tools/doll_sheet.tscn -- --out=<png> [--species=human] [--anim=idle,walk] [--frames=6] [--scale=4]
+##   xvfb-run godot --path . --rendering-driver opengl3 res://tools/doll_sheet.tscn -- --out=<png> [--species=human] [--anim=idle,walk] [--frames=6] [--scale=4] [--dirs=0,2,3,1] [--times=0,0.14,0.26]
 
 const Doll := preload("res://scenes/battle/doll_rig.gd")
 const Cutout := preload("res://scripts/rules/cutout.gd")
@@ -24,12 +24,14 @@ func _run() -> void:
 		"extras": Array(sp.get("extras", []))}
 	lk["key"] = JSON.stringify(lk)
 	var anims := _arg("anim", "idle,walk").split(",")
-	var nf := int(_arg("frames", "6"))
+	var times: Array = Array(_arg("times", "").split(",", false)).map(func(x: String) -> float: return float(x))  # 장면 시각(초) — 주면 frames 대신
+	var nf: int = times.size() if not times.is_empty() else int(_arg("frames", "6"))
+	var dirs: Array = Array(_arg("dirs", "0,2,3,1").split(",")).map(func(x: String) -> int: return int(x))  # 방향 facing 0 아래·1 왼·2 오른·3 위
 	var sc := int(_arg("scale", "4"))
 	var vps: Array = []
 	var dolls: Array = []
 	for ai in anims.size():
-		for f in 4:
+		for f in dirs.size():
 			for i in nf:
 				var vp := SubViewport.new()
 				vp.transparent_bg = true
@@ -42,18 +44,18 @@ func _run() -> void:
 				vp.add_child(d)
 				d.apply_look(lk)
 				vp.size = d.canvas_px()
-				d.set_facing([0, 2, 3, 1][f])
+				d.set_facing(dirs[f])
 				d.set_process(false)
-				var length := float(d.tpl.get("animations", {}).get(anims[ai], {}).get("length", 0.8))
+				var length := float(d.anims().get(anims[ai], {}).get("length", 0.8))
 				d.anim = anims[ai]
-				d.pose(anims[ai], length * float(i) / float(nf))
+				d.pose(anims[ai], float(times[i]) if not times.is_empty() else length * float(i) / float(nf))
 				vps.append([vp, ai, f, i])
 				dolls.append(d)
 	for k in 4:
 		await get_tree().process_frame
 	var cw: int = vps[0][0].size.x
 	var ch: int = vps[0][0].size.y
-	var cols := 4 * nf
+	var cols: int = dirs.size() * nf
 	var img := Image.create(cw * cols, ch * anims.size(), false, Image.FORMAT_RGBA8)
 	img.fill(Color(0.17, 0.17, 0.26))
 	for e: Array in vps:

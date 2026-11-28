@@ -164,7 +164,10 @@ res://
   간이 3D 인형(2026-11-28, 도트 캐릭터 기본 — `--doll=0`이면 옛 컷아웃): scenes/battle/doll_rig.gd — 단순 도형(머리 공·납작 원기둥 몸통·캡슐 팔다리·손발) + 관절(hips·chest·neck·head·shoulder/elbow/hand·hip/knee/foot _r·_l)을
   캐릭터 전용 창(SubViewport, 자기 세계)에서 위에서 내려다보는 직교 카메라(PITCH 40°)로 창 1화소 = 그림 1도트로 찍어 세운 판에 입힘 — 정수리·어깨 윗면이 보이는 입체, 4방향은 인형을 돌려(반전 없음, 8방향도 그림 추가 없이).
   음영 doll.gdshader(왼쪽 위·살짝 앞 빛 3단), 겹친 부위 안쪽 선 doll_line.gdshader(깊이 차 sel-out, 바깥 윤곽은 화면 외곽선). 치수는 체형 틀 doll(body_templates.json, 단위 = 보통 크기 화면 도트, 약 4.5등신). 맨몸 인형(피부·종족 부위만 — 옷·갑옷·무기는 착용 아이템에 따라 관절에 붙이는 다음 단계),
-  걷기·서 있기(6박 숨쉬기)는 계산, 공격·시전·맞음은 임시 키(다음 단계에서 준비 → 휘두름 → 따라감 → 복귀로). 확인 시트: `xvfb-run godot --path . --rendering-driver opengl3 res://tools/doll_sheet.tscn -- --out=<png> --species= --anim=idle,walk`.
+  동작은 키(체형 틀 doll_anims — 보통 체형에만, 다른 체형은 그것을 씀; 관절 → [[초, [x, y, z 회전 도]]], hips_pos = 엉덩이 이동, fps 박자로 끊어 도트 장면처럼, interp step, hold = 끝 자세 유지):
+  서 있기(6박 숨쉬기 — 200·200·400ms), 걷기(오른발 앞 → 내려앉음 → 지나감 → 올라섬, 좌우 바꿔 반복, 팔은 다리와 엇갈림), 근접(준비 — 팔을 머리 위 뒤로·몸 뒤로 비틂 → 내려침·내딛음, 맞는 순간 = vfx SWING_HIT 0.26 →
+  따라감 → 복귀), 활(몸을 비틀고 왼팔 겨눔 → 시위 당김 → 놓는 순간 SHOT_RELEASE 0.5 손이 뒤로 튐), 시전(손을 가슴에 모아 웅크림 → 두 팔을 위로 펼치며 발끝으로 솟음 = CAST_RELEASE 0.3), 맞음(뒤로 젖혀 밀림·팔 벌어짐),
+  쓰러짐(down — 무릎 꺾임 → 뒤로 넘어져 누운 채, 화면 가로로 눕게 넘어지며 돈다; actor_view는 인형이면 판을 돌리지 않고 이 동작). 확인 시트: `xvfb-run godot --path . --rendering-driver opengl3 res://tools/doll_sheet.tscn -- --out=<png> --species= --anim=idle,walk`.
   몬스터 그림은 도트 변환본 assets/pixel_actors(tools/pixelize_actors.py — 같은 이름의 큰 원화 assets/monsters(에셋팩 반실사)에서, 키 84 × 크기 배율 화소로 축소(몬스터만 지형 도트보다 2배 촘촘 — 2026-11-27 결정; 2배 → 쿠와하라 → 평균), 대비 키우기(평균 밝기 유지), 명암 테(왼쪽 위 밝게·오른쪽 아래 어둡게), 그림별 팔레트, 테두리는 굽지 않음(화면 외곽선이 1도트로) — 그림 1화소 = 지형 도트 절반).
 - 체형 틀: 보통(인간·엘프·드로우·하프엘프·하프오크·티플링·아스트란), 작은(하플링·노움), 드워프는 작은 체형 변형. 드래곤본은 보통 체형 임시(전용 틀은 나중), 골리앗은 없다.
 - 장비는 `sprite_parts`로 부위를 바꿔 끼우고, 재질·등급은 색 바꾸기 셰이더로 표현한다.
