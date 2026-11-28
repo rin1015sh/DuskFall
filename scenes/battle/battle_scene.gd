@@ -364,6 +364,8 @@ func _ready() -> void:
 	add_child(highlights)
 	vfx = Vfx.new()
 	vfx.scene = self
+	if args.has("shot"):
+		vfx.fixed_dt = 1.0 / 30.0
 	add_child(vfx)
 	# 반응: 파티 기본은 자동(매번 묻기 팝업은 반응 대기 구조와 함께 다음 단계)
 	for c: Node in party:
@@ -749,6 +751,8 @@ func _process(delta: float) -> void:
 			mode = args["mode"]
 		var hv: PackedStringArray = args["hover"].split(",")
 		_show_preview(Vector2i(int(hv[0]), int(hv[1])))
+	if args.has("fx") and _frames == int(args.get("frames", "30")) - int(args.get("fx_lead", "10")):
+		vfx.demo(str(args["fx"]).split(","), selected)  # 캡처용: --fx=이름,이름 --fx_lead=찍기 몇 프레임 전
 	if args.has("action") and _frames == int(args.get("frames", "30")) - 5:
 		# 캡처용: --action=<행동 키> 단축 막대에서 고른 것처럼(설명 카드), --touch면 터치로
 		touch_ui = args.has("touch")

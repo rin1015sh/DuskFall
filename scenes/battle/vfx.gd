@@ -1,23 +1,45 @@
 extends Node2D
 ## 전투 효과(표현 계층): 판정 결과 신호만 듣고 그린다.
-##   공격: 원거리는 날아가는 빛줄기, 근접은 대상 위 베기 호. 피해·회복: 떠오르는 숫자(피해 종류 색).
-##   주문 시전: 조준 칸에 퍼지는 고리(학파 색). 불 표면: 칸마다 불꽃 입자(CPUParticles3D — GL Compatibility).
+##   도트 효과(pixel_fx.gd — assets/pixel_fx, pixelfx MIT에서 구운 시트)를 3D 세계 그 자리에 띄운다:
+##   무기 공격 = 피해 종류별 베기·찌르기·둔기(몬스터 베기는 발톱), 원거리 = 화살이 날아가 맞으면 불꽃 튐, 치명타 번쩍,
+##   주문 = 모양(공격 굴림 = 날아가는 탄 → 맞는 자리 터짐, 구·정육면체·원기둥 = 범위 폭발, 원뿔 = 숨결, 선 = 빛줄기, 자기 둘레 = 둘레 폭발)
+##        × 피해 종류(불·냉기·번개·광휘·사령·산성·독·천둥·역장/정신 = 비전). 피해 없는 주문: 회복 = 꽃, 보호 = 방패, 강화 = 축복, 약화 = 인장.
+##   상태 이상 = 머리 위·발밑 고리 효과(화상·중독·매혹·혼란·저주·기절·수면·느려짐·출혈·격노), 쓰러짐 = 연기, 불 표면 = 칸마다 불꽃.
+##   효과는 잠깐 광원이 되어(pixel_view.set_dyn_lights) 둘레 바닥·캐릭터를 물들인다. 피해·회복 숫자는 화면 글자(2D).
 ## 효과 위치는 3D 세계 좌표로 들고 있다가 그릴 때마다 화면에 투영한다(카메라가 움직여도 따라간다).
 
 const V := preload("res://scenes/battle/view3d.gd")
 const S := preload("res://scenes/ui/ui_style.gd")
+const PFX := preload("res://scenes/battle/pixel_fx.gd")
 const DMG_COL := {"fire": Color(1.0, 0.55, 0.2), "cold": Color(0.6, 0.85, 1.0), "lightning": Color(0.85, 0.85, 1.0),
 	"acid": Color(0.6, 0.9, 0.3), "poison": Color(0.55, 0.8, 0.35), "necrotic": Color(0.6, 0.5, 0.7), "radiant": Color(1.0, 0.9, 0.55),
 	"force": Color(0.75, 0.7, 1.0), "psychic": Color(0.9, 0.55, 0.9), "thunder": Color(0.8, 0.75, 0.95)}
-const SCHOOL_COL := {"evocation": Color(1.0, 0.5, 0.25), "abjuration": Color(0.45, 0.7, 1.0), "conjuration": Color(0.95, 0.8, 0.4),
-	"divination": Color(0.7, 0.9, 1.0), "enchantment": Color(1.0, 0.6, 0.85), "illusion": Color(0.75, 0.6, 1.0),
-	"necromancy": Color(0.55, 0.85, 0.5), "transmutation": Color(0.9, 0.7, 0.45)}
+## 피해 종류 → 효과 이름 꼬리(bolt_/hit_/area_<꼬리>)
+const FAMILY := {"fire": "fire", "cold": "cold", "lightning": "lightning", "radiant": "radiant", "necrotic": "necrotic",
+	"acid": "acid", "poison": "poison", "thunder": "thunder", "force": "arcane", "psychic": "arcane"}
+## 효과 광원 색(꼬리별)
+const FX_LIGHT := {"fire": Color(1.0, 0.55, 0.2), "cold": Color(0.5, 0.75, 1.0), "lightning": Color(0.6, 0.75, 1.0),
+	"radiant": Color(1.0, 0.85, 0.45), "necrotic": Color(0.55, 0.3, 0.8), "acid": Color(0.5, 0.9, 0.3), "poison": Color(0.5, 0.85, 0.3),
+	"thunder": Color(0.7, 0.7, 0.9), "arcane": Color(0.7, 0.45, 1.0), "heal": Color(0.5, 1.0, 0.6), "holy": Color(1.0, 0.9, 0.6)}
+## 상태 이상 → 고리 효과(머리 위 head = true / 발밑)
+const STATUS_FX := {"burning": ["st_burning", false], "poisoned": ["st_poisoned", false], "charmed": ["st_charmed", true],
+	"hypnotized": ["st_charmed", true], "enthralled": ["st_charmed", true], "dazed": ["st_confused", true], "reeling": ["st_confused", true],
+	"maddened": ["st_confused", true], "cursed": ["st_cursed", true], "hexed": ["st_cursed", true], "hexblades_curse": ["st_cursed", true],
+	"stunned": ["st_stunned", true], "paralyzed": ["st_stunned", true], "asleep": ["st_sleep", true], "slowed": ["st_slowed", true],
+	"bleeding": ["st_bleeding", false], "open_wound": ["st_bleeding", false], "raging": ["st_rage", false], "frenzy": ["st_rage", false]}
+const BOLT_SPEED := 14.0  # 탄 속도(유닛/초)
+const MAX_LONG := 2.6  # 한 번 효과가 이보다 길면 빨리 감는다(초)
 
 var scene: Node
 var _drawn := false
-var _fx: Array = []
-var _fire: Dictionary = {}  # 칸 → CPUParticles3D
-static var _fire_mesh: QuadMesh
+var _fx: Array = []  # 화면 글자
+var _sp: Array = []  # 도트 효과 {node, name, t, speed, life, delay, follow, from, to, light}
+var _status: Dictionary = {}  # 생물 → {조건 id: 효과 항목}
+var _pending_bolt: Dictionary = {}  # 주문 탄: 공격 굴림(on_after_attack_roll)이 맞았을 때만 맞는 자리 효과 {caster, fam, fly}
+var _text_delay := 0.0  # 빗나감 글자를 탄이 닿을 때 띄운다
+var _fire: Dictionary = {}  # 칸 → Sprite3D
+## 캡처용(battle_scene --shot): 0보다 크면 효과 시계를 프레임마다 이만큼만 넘긴다(느린 소프트웨어 그리기에서도 장면을 찍을 수 있게)
+var fixed_dt := 0.0
 
 
 func _ready() -> void:
@@ -26,11 +48,15 @@ func _ready() -> void:
 	EventBus.on_damage_taken.connect(_on_damage)
 	EventBus.on_heal.connect(_on_heal)
 	EventBus.on_spell_cast.connect(_on_spell)
+	EventBus.on_condition_applied.connect(_on_cond_on)
+	EventBus.on_condition_removed.connect(_on_cond_off)
+	EventBus.on_hp_zero.connect(_on_down)
 
 
 func _exit_tree() -> void:
 	for pair: Array in [[EventBus.on_after_attack_roll, _on_attack], [EventBus.on_damage_taken, _on_damage],
-			[EventBus.on_heal, _on_heal], [EventBus.on_spell_cast, _on_spell]]:
+			[EventBus.on_heal, _on_heal], [EventBus.on_spell_cast, _on_spell], [EventBus.on_condition_applied, _on_cond_on],
+			[EventBus.on_condition_removed, _on_cond_off], [EventBus.on_hp_zero, _on_down]]:
 		if pair[0].is_connected(pair[1]):
 			pair[0].disconnect(pair[1])
 
@@ -42,17 +68,109 @@ func _pos(c: Variant) -> Vector3:
 	return Vector3.ZERO
 
 
+## 생물 발(효과 기준점 — pixelfx 효과는 발 자리를 기준으로 그려져 있다)
+func _foot(c: Variant) -> Vector3:
+	if c is Node and scene.views.has(c):
+		return scene.views[c].global_position
+	return Vector3.ZERO
+
+
+## 공격자가 대상의 오른쪽에 있으면(화면 왼쪽으로 휘두름) 뒤집는다
+func _faces_left(a: Node, t: Node) -> bool:
+	return _foot(a).x > _foot(t).x + 0.05
+
+
+func _cam_basis() -> Basis:
+	var cam: Camera3D = scene.pixel.cam if scene.get("pixel") != null and scene.pixel != null and scene.pixel.cam != null else scene.camera
+	return cam.global_transform.basis if cam != null else Basis.IDENTITY
+
+
+## 화면 각도(라디안, 오른쪽 0·위 +): 세계 두 점을 카메라 오른쪽·위 축에 비춰서. 22.5° 단계로 끊는다(도트가 덜 깨지게).
+func _screen_angle(a: Vector3, b: Vector3) -> float:
+	var cb := _cam_basis()
+	var d := b - a
+	var ang := atan2(d.dot(cb.y), d.dot(cb.x))
+	return roundf(ang / (PI / 8.0)) * (PI / 8.0)
+
+
+## 효과 하나 띄우기. opts: scale·flip·delay·light(광원 꼬리)·power·radius(광원 반지름 칸)·aim_to(이 점을 향해 돌림)·tint·max_life
+func _play(name: String, at: Vector3, opts: Dictionary = {}) -> Dictionary:
+	if not PFX.has(name):
+		return {}
+	var o := opts.duplicate()
+	o["cam_basis"] = _cam_basis()
+	var ang := 0.0
+	if opts.has("aim_to"):
+		ang = _screen_angle(at, opts["aim_to"])
+		# 오른쪽을 보는 효과: 왼쪽으로 쏘면 뒤집고 각도를 되돌려 위아래가 뒤집히지 않게
+		if absf(ang) > PI / 2.0:
+			o["flip"] = true
+			ang = ang - PI if ang > 0.0 else ang + PI
+	o["angle"] = ang if not o.get("flip", false) else -ang
+	var node := PFX.make(name, o)
+	if node == null:
+		return {}
+	node.position = at
+	node.visible = false
+	if opts.has("tint"):
+		node.modulate = opts["tint"]
+	scene.add_child(node)
+	var life := PFX.duration(name)
+	var speed := maxf(1.0, life / MAX_LONG)
+	if PFX.info(name).get("loop", false):
+		life = float(opts.get("max_life", 1.4))
+		speed = 1.0
+	life = minf(life / speed, float(opts.get("max_life", 99.0)))
+	var e := {"node": node, "name": name, "t": -float(opts.get("delay", 0.0)), "speed": speed, "life": life,
+		"light": String(opts.get("light", "")), "power": float(opts.get("power", 0.0)), "radius": float(opts.get("radius", 2.5)), "at": at}
+	_sp.append(e)
+	return e
+
+
+## 날아가는 탄: a → b, 걸리는 시간(초)을 돌려준다
+func _bolt(name: String, a: Vector3, b: Vector3) -> float:
+	var dur := clampf(a.distance_to(b) / BOLT_SPEED, 0.15, 0.9)
+	var e := _play(name, a, {"aim_to": b, "max_life": dur, "light": name.trim_prefix("bolt_") if name != "arrow" else "", "power": 0.5, "radius": 1.5})
+	if not e.is_empty():
+		e["from"] = a
+		e["to"] = b
+	return dur
+
+
 func _on_attack(res: Dictionary) -> void:
 	if res.get("preview", false) or not scene.views.has(res.get("attacker")) or not scene.views.has(res.get("target")):
 		return
-	var kind: String = res.get("attack", {}).get("kind", "melee")
-	var col := Color(1, 0.95, 0.8) if res.get("hit", false) else Color(0.6, 0.6, 0.6)
-	if kind == "ranged":
-		_fx.append({"type": "bolt", "a": _pos(res["attacker"]), "b": _pos(res["target"]), "t": 0.0, "life": 0.35, "col": col})
+	var atk: Dictionary = res.get("attack", {})
+	var a: Node = res["attacker"]
+	var t: Node = res["target"]
+	var hit: bool = res.get("hit", false)
+	var fly := 0.0
+	if not atk.get("weapon", false) and atk.has("spell"):
+		# 주문 공격: 탄은 on_spell_cast가 띄웠다 — 맞았을 때만 닿는 순간 터짐
+		if _pending_bolt.get("caster") == a:
+			fly = float(_pending_bolt["fly"])
+			if hit:
+				_play("hit_" + str(_pending_bolt["fam"]), _foot(t), {"delay": fly, "light": _pending_bolt["fam"], "power": 0.8})
+			_pending_bolt = {}
+	elif str(atk.get("kind", "melee")) == "ranged":
+		fly = _bolt("arrow", _pos(a), _pos(t))
+		if hit:
+			_play("hit", _foot(t), {"delay": fly, "light": "holy", "power": 0.5})
 	else:
-		_fx.append({"type": "slash", "at": _pos(res["target"]), "t": 0.0, "life": 0.3, "col": col})
-	if not res.get("hit", false):
-		_fx.append({"type": "text", "at": _pos(res["target"]), "text": "빗나감", "t": 0.0, "life": 0.9, "col": Color(0.7, 0.7, 0.7)})
+		var dt := str((atk.get("damage", [{}]) as Array)[0].get("damage_type", "slashing")) if not (atk.get("damage", []) as Array).is_empty() else "slashing"
+		var name := "slash"
+		if dt == "piercing":
+			name = "thrust"
+		elif dt == "bludgeoning":
+			name = "blunt"
+		elif str(a.get("species_id")) == "":
+			name = "claw"  # 몬스터(종족 없음) 베기 = 발톱
+		_play(name, _foot(t), {"flip": _faces_left(a, t), "tint": Color(1, 1, 1, 1.0 if hit else 0.45)})
+	if res.get("crit", false):
+		_play("crit", _foot(t), {"light": "holy", "power": 1.0, "delay": fly})
+	_text_delay = fly  # 이어지는 피해 숫자도 탄이 닿을 때
+	if not hit:
+		_fx.append({"type": "text", "at": _pos(t), "text": "빗나감", "t": -fly, "life": 0.9, "col": Color(0.7, 0.7, 0.7)})
 
 
 func _on_damage(info: Dictionary) -> void:
@@ -62,26 +180,128 @@ func _on_damage(info: Dictionary) -> void:
 	var dtype := ""
 	for t2: String in info.get("result", {}).get("by_type", {}):
 		dtype = t2
-	_fx.append({"type": "text", "at": _pos(t), "text": str(int(info["amount"])), "t": 0.0, "life": 1.0,
+	_fx.append({"type": "text", "at": _pos(t), "text": str(int(info["amount"])), "t": -_text_delay, "life": 1.0,
 		"col": DMG_COL.get(dtype, Color(1.0, 0.85, 0.75)), "big": info.get("opts", {}).get("crit", false)})
 
 
 func _on_heal(info: Dictionary) -> void:
 	if scene.views.has(info.get("target")) and int(info.get("amount", 0)) > 0:
+		_play("heal", _foot(info["target"]), {"light": "heal", "power": 0.5})
 		_fx.append({"type": "text", "at": _pos(info["target"]), "text": "+%d" % int(info["amount"]), "t": 0.0, "life": 1.0, "col": Color(0.5, 0.95, 0.5)})
 
 
 func _on_spell(ctx: Dictionary) -> void:
 	var aim: Variant = ctx.get("aim")
-	if not (aim is Vector2i):
-		return
-	var g: Node = scene.world["grid"]
 	var sp := RulesDB.get_entry("spell", str(ctx.get("spell", "")))
-	var p := V.top(g, aim)
-	_fx.append({"type": "ring", "at": p, "t": 0.0, "life": 0.6, "col": SCHOOL_COL.get(sp.get("school", ""), Color(0.9, 0.85, 0.7))})
+	if sp.is_empty():
+		return
+	var caster: Node = ctx.get("caster")
+	var g: Node = scene.world["grid"]
+	var from := _pos(caster) if scene.views.has(caster) else Vector3.ZERO
+	var at_c: Variant = g.creature_at(aim) if aim is Vector2i else null
+	var to: Vector3 = (_pos(at_c) if scene.views.has(at_c) else V.top(g, aim) + Vector3(0, 0.6, 0)) if aim is Vector2i else from
+	var foot: Vector3 = (_foot(at_c) if scene.views.has(at_c) else V.top(g, aim)) if aim is Vector2i else (_foot(caster) if scene.views.has(caster) else from)
+	var d := spell_look(sp)
+	var fam: String = d["family"]
+	var area: Dictionary = sp.get("area") if sp.get("area") is Dictionary else {}
+	var shape := str(area.get("shape", ""))
+	var r := float(area.get("radius_tiles", area.get("size_tiles", area.get("length_tiles", 1))))
+	var big := 2.0 if r >= 4.0 else 1.0  # 큰 범위(4칸↑)만 효과 2배(도트 2×2)
+	match str(d["kind"]):
+		"bolt":
+			var fly := _bolt("bolt_" + ("acid" if fam == "poison" else fam), from, to)
+			_pending_bolt = {"caster": caster, "fam": fam, "fly": fly}
+		"area":
+			var name := "area_" + fam
+			if not PFX.has(name):
+				name = "hit_" + fam
+			var center: Vector3 = V.top(g, aim) if aim is Vector2i else foot
+			if shape == "emanation" or str(sp.get("range", {}).get("type", "")) == "self":
+				center = _foot(caster) if scene.views.has(caster) else center
+			_play(name, center, {"scale": big, "light": fam, "power": 1.2, "radius": maxf(r + 1.0, 2.0)})
+		"cone", "line":
+			var name2 := ("cone_" if d["kind"] == "cone" else "line_") + fam
+			if PFX.has(name2) and scene.views.has(caster):
+				_play(name2, _pos(caster), {"aim_to": to, "light": fam, "power": 1.0, "radius": r})
+			else:
+				_play("hit_" + fam, foot, {"light": fam, "power": 0.9})
+		"hit":
+			_play("hit_" + fam, foot, {"light": fam, "power": 0.8})
+		"heal_area":
+			_play("heal_area", _foot(caster) if shape == "emanation" and scene.views.has(caster) else V.top(g, aim) if aim is Vector2i else foot, {"light": "heal", "power": 0.8})
+		"heal":
+			pass  # 한 대상 회복은 on_heal이 꽃을 띄운다(물약·기능 회복과 같이)
+		"shield", "buff", "hex", "charm":
+			_play(str(d["kind"]), foot, {"light": "holy" if d["kind"] in ["shield", "buff"] else "arcane", "power": 0.5, "max_life": 1.6})
 
 
-## 불 표면 칸마다 불꽃 입자(맵이 바뀔 때 부른다)
+## 주문 → 효과 모양·종류: {kind: bolt/area/cone/line/hit/heal/heal_area/shield/buff/hex/charm, family: 피해 꼬리}
+static func spell_look(sp: Dictionary) -> Dictionary:
+	var dtype := ""
+	var heal := false
+	var stack: Array = [sp.get("effects", {})]
+	while not stack.is_empty():
+		var e: Variant = stack.pop_back()
+		if e is Dictionary:
+			if (e as Dictionary).has("damage_type") and dtype == "":
+				dtype = str(e["damage_type"])
+			if str((e as Dictionary).get("type", "")) == "heal":
+				heal = true
+			for v: Variant in (e as Dictionary).values():
+				stack.append(v)
+		elif e is Array:
+			stack.append_array(e)
+	var fam: String = FAMILY.get(dtype, "arcane")
+	var check := str(sp.get("effects", {}).get("check", {}).get("type", "")) if sp.get("effects") is Dictionary else ""
+	var area: Dictionary = sp.get("area") if sp.get("area") is Dictionary else {}
+	var shape := str(area.get("shape", ""))
+	if dtype != "":
+		if check == "attack":
+			return {"kind": "bolt", "family": fam}
+		if shape == "cone":
+			return {"kind": "cone", "family": fam}
+		if shape == "line":
+			return {"kind": "line", "family": fam}
+		if shape != "":
+			return {"kind": "area", "family": fam}
+		return {"kind": "hit", "family": fam}
+	if heal:
+		return {"kind": "heal_area" if shape != "" else "heal", "family": "heal"}
+	if check == "save":
+		return {"kind": "hex" if str(sp.get("school", "")) in ["necromancy", "enchantment"] else "charm", "family": "arcane"}
+	return {"kind": "shield" if str(sp.get("school", "")) == "abjuration" else "buff", "family": "holy"}
+
+
+func _on_cond_on(c: Object, id: String) -> void:
+	if not STATUS_FX.has(id) or not scene.views.has(c):
+		return
+	var st: Dictionary = _status.get(c, {})
+	if st.has(id):
+		return
+	var pair: Array = STATUS_FX[id]
+	var e := _play(pair[0], _foot(c), {"max_life": 1e9, "light": "fire" if id == "burning" else "", "power": 0.35, "radius": 1.2})
+	if e.is_empty():
+		return
+	e["follow"] = c
+	e["head"] = pair[1]
+	st[id] = e
+	_status[c] = st
+
+
+func _on_cond_off(c: Object, id: String) -> void:
+	var st: Dictionary = _status.get(c, {})
+	if st.has(id):
+		st[id]["life"] = 0.0  # 다음 프레임에 지운다
+		st.erase(id)
+
+
+func _on_down(info: Dictionary) -> void:
+	var c: Variant = info.get("creature")
+	if scene.views.has(c) and str(c.get("species_id")) == "":
+		_play("death", _foot(c), {"delay": 0.15})
+
+
+## 불 표면 칸마다 불꽃(도트 효과 ground_fire 고리 — tools/pixelfx/src/fx/fire/ground-flames.js, 이 게임용으로 만든 효과 — 칸마다 자리·박자 다르게). 맵이 바뀔 때 부른다.
 func sync_surfaces() -> void:
 	var g: Node = scene.world["grid"]
 	var want := {}
@@ -94,42 +314,24 @@ func sync_surfaces() -> void:
 				_fire[c].queue_free()
 			_fire.erase(c)
 	for c: Vector2i in want:
-		if _fire.has(c):
+		if _fire.has(c) or not PFX.has("ground_fire"):
 			continue
-		var p := CPUParticles3D.new()
-		if _fire_mesh == null:
-			_fire_mesh = QuadMesh.new()
-			_fire_mesh.size = Vector2(0.06, 0.06)
-			var m := StandardMaterial3D.new()
-			m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-			m.vertex_color_use_as_albedo = true
-			m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-			_fire_mesh.material = m
-		p.mesh = _fire_mesh
-		p.amount = 10
-		p.lifetime = 0.8
-		p.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-		p.emission_box_extents = Vector3(0.4, 0.05, 0.3)
-		p.direction = Vector3(0, 1, 0)
-		p.spread = 15.0
-		p.gravity = Vector3(0, 1.0, 0)
-		p.initial_velocity_min = 0.5
-		p.initial_velocity_max = 1.1
-		p.scale_amount_min = 0.5
-		p.scale_amount_max = 1.0
-		var grad := Gradient.new()
-		grad.set_color(0, Color(1.0, 0.75, 0.3, 0.9))
-		grad.set_color(1, Color(0.8, 0.2, 0.05, 0.0))
-		p.color_ramp = grad
-		p.position = V.pos(c, g.height(c)) + Vector3(0, 0.05, 0)
-		p.position.y = scene.map_view.ground_at(Vector2(p.position.x, p.position.z)) + 0.05  # 자연 지형은 비탈 위에서
-		p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		scene.add_child(p)
-		_fire[c] = p
+		var p := V.pos(c, g.height(c))
+		var h := float(posmod(c.x * 73 + c.y * 151, 100)) / 100.0
+		p.x += (h - 0.5) * 0.4
+		p.y = scene.map_view.ground_at(Vector2(p.x, p.z))
+		var node := PFX.make("ground_fire", {"cam_basis": _cam_basis(), "flip": h > 0.5})
+		node.position = p
+		node.set_meta("phase", h * 3.0)
+		scene.add_child(node)
+		_fire[c] = node
 
 
 func _process(delta: float) -> void:
+	_text_delay = 0.0  # 한 판정 묶음(같은 프레임) 안에서만 쓴다
+	if fixed_dt > 0.0:
+		delta = fixed_dt
+	_step_sprites(delta)
 	if _fx.is_empty():
 		if _drawn:
 			_drawn = false
@@ -142,6 +344,49 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
+func _step_sprites(delta: float) -> void:
+	var lights: Array = []
+	var keep: Array = []
+	for e: Dictionary in _sp:
+		var node: Sprite3D = e["node"]
+		if not is_instance_valid(node):
+			continue
+		e["t"] += delta
+		var t: float = e["t"]
+		if t >= float(e["life"]):
+			node.queue_free()
+			continue
+		keep.append(e)
+		if t < 0.0:
+			continue
+		var f := PFX.frame_at(e["name"], t * float(e["speed"]))
+		if f < 0:
+			node.visible = false
+			continue
+		node.visible = true
+		node.frame = mini(f, node.hframes * node.vframes - 1)
+		if e.has("from"):
+			node.position = (e["from"] as Vector3).lerp(e["to"], clampf(t / maxf(float(e["life"]), 0.01), 0.0, 1.0))
+		if e.has("follow"):
+			var c: Variant = e["follow"]
+			if not is_instance_valid(c) or not scene.views.has(c) or c.get("dead"):
+				e["life"] = 0.0
+			else:
+				node.position = _foot(c) + (Vector3(0, 1.55, 0) if e.get("head", false) else Vector3.ZERO)
+		if e["light"] != "" and float(e["power"]) > 0.0:
+			# 터지는 순간 밝고 빠르게 사그라든다(고리 효과는 일렁이며 약하게 계속)
+			var k: float = float(e["power"]) * (0.7 + 0.3 * sin(t * 9.0) if float(e["life"]) > 100.0 else exp(-t * 2.2))
+			lights.append([node.position, float(e["radius"]), FX_LIGHT.get(e["light"], Color.WHITE), k])
+	_sp = keep
+	for c: Vector2i in _fire:
+		var n: Sprite3D = _fire[c]
+		if is_instance_valid(n):
+			n.frame = PFX.frame_at("ground_fire", Time.get_ticks_msec() / 1000.0 + float(n.get_meta("phase", 0.0)))
+	if scene.get("pixel") != null and scene.pixel != null:
+		lights.sort_custom(func(a: Array, b: Array) -> bool: return float(a[3]) > float(b[3]))
+		scene.pixel.set_dyn_lights(lights.slice(0, 8))
+
+
 func _draw() -> void:
 	var font := S.title_font()
 	var cam := get_viewport().get_camera_3d()
@@ -150,6 +395,8 @@ func _draw() -> void:
 	# 확대에 맞춰 크기도 옛 2D처럼(그림 1px = 화면 z px)
 	var z: float = get_viewport().get_visible_rect().size.y / (cam.size * V.T)
 	for f: Dictionary in _fx:
+		if f["t"] < 0.0:
+			continue  # 아직(탄이 닿기 전)
 		var k: float = f["t"] / f["life"]
 		var col: Color = f["col"]
 		var sp := {}
@@ -158,19 +405,6 @@ func _draw() -> void:
 				sp[key] = cam.unproject_position(f[key])
 		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 		match f["type"]:
-			"bolt":
-				var head: Vector2 = sp["a"].lerp(sp["b"], minf(k * 1.6, 1.0))
-				var tail: Vector2 = sp["a"].lerp(sp["b"], maxf(k * 1.6 - 0.35, 0.0))
-				draw_line(tail, head, Color(col, 1.0 - k * 0.5), 3.0, true)
-				draw_circle(head, 3.5, Color(col, 1.0 - k))
-			"slash":
-				draw_set_transform(sp["at"], 0, Vector2(z, z))
-				draw_arc(Vector2.ZERO, 22.0, -2.4 + k * 1.2, -0.6 + k * 1.2, 16, Color(col, 1.0 - k), 4.0, true)
-			"ring":
-				# 바닥에 퍼지는 고리: 바닥 세로 줄임(sin PITCH)
-				draw_set_transform(sp["at"], 0, Vector2(z, z * V.SIN_P))
-				draw_arc(Vector2.ZERO, 10.0 + k * 50.0, 0, TAU, 40, Color(col, 1.0 - k), 3.0, true)
-				draw_circle(Vector2.ZERO, 8.0 * (1.0 - k), Color(col, 0.6 * (1.0 - k)))
 			"text":
 				var size := 26 if f.get("big", false) else 20
 				draw_set_transform(sp["at"], 0, Vector2(z, z))
@@ -179,3 +413,23 @@ func _draw() -> void:
 				var at := Vector2(-w / 2.0, -30 * k)
 				draw_string_outline(font, at, f["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, size, 5, Color(0, 0, 0, 1.0 - k))
 				draw_string(font, at, f["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(col, 1.0 - k * 0.8))
+
+
+## 캡처용 맛보기: 이름마다 기준 생물 오른쪽으로 2칸씩 늘어놓는다(bolt_·arrow·cone_·line_은 오른쪽 6칸을 향해)
+func demo(names: Array, who: Node) -> void:
+	if not scene.views.has(who):
+		return
+	var base := _foot(who)
+	for i in names.size():
+		var n := String(names[i])
+		var at := base + Vector3(2.0 * float(i + 1), 0, 0)
+		if n.begins_with("bolt_") or n == "arrow":
+			var e := _play(n, at + Vector3(0, 0.8, 0), {"aim_to": at + Vector3(6, 0.8, 0), "max_life": 3.0, "light": n.trim_prefix("bolt_"), "power": 0.6})
+			if not e.is_empty():
+				e["from"] = at + Vector3(0, 0.8, 0)
+				e["to"] = at + Vector3(1.5, 0.8, 0)
+		elif n.begins_with("cone_") or n.begins_with("line_"):
+			_play(n, at + Vector3(0, 0.8, 0), {"aim_to": at + Vector3(6, 0.8, 0), "light": n.get_slice("_", 1), "power": 1.0, "radius": 3.0})
+		else:
+			_play(n, at, {"light": n.get_slice("_", 1) if "_" in n else "holy", "power": 1.0, "radius": 2.5})
+

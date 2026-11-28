@@ -1,0 +1,782 @@
+{
+ "area_arcane": {
+  "columns": 5,
+  "fps": 15,
+  "frames": 26,
+  "loop": false,
+  "pivot": [
+   104,
+   92
+  ],
+  "size": [
+   208,
+   184
+  ],
+  "src": "explosions/implosion"
+ },
+ "area_cold": {
+  "columns": 6,
+  "fps": 15,
+  "frames": 52,
+  "loop": false,
+  "pivot": [
+   144,
+   150
+  ],
+  "size": [
+   288,
+   192
+  ],
+  "src": "ice/frost-nova"
+ },
+ "area_fire": {
+  "columns": 9,
+  "fps": 15,
+  "frames": 82,
+  "loop": false,
+  "pivot": [
+   150,
+   196
+  ],
+  "size": [
+   300,
+   240
+  ],
+  "src": "explosions/small-explosion"
+ },
+ "area_lightning": {
+  "columns": 8,
+  "fps": 15,
+  "frames": 46,
+  "loop": false,
+  "pivot": [
+   120,
+   228
+  ],
+  "size": [
+   240,
+   264
+  ],
+  "src": "lightning/lightning-strike"
+ },
+ "area_necrotic": {
+  "columns": 8,
+  "fps": 15,
+  "frames": 58,
+  "loop": false,
+  "pivot": [
+   140,
+   206
+  ],
+  "size": [
+   280,
+   248
+  ],
+  "src": "shadow/dark-explosion"
+ },
+ "area_poison": {
+  "columns": 5,
+  "fps": 15,
+  "frames": 60,
+  "loop": true,
+  "pivot": [
+   128,
+   86
+  ],
+  "size": [
+   256,
+   100
+  ],
+  "src": "nature/poison-cloud"
+ },
+ "area_radiant": {
+  "columns": 9,
+  "fps": 15,
+  "frames": 54,
+  "loop": false,
+  "pivot": [
+   96,
+   204
+  ],
+  "size": [
+   192,
+   232
+  ],
+  "src": "holy/holy-pillar"
+ },
+ "arrow": {
+  "columns": 2,
+  "fps": 15,
+  "frames": 9,
+  "loop": true,
+  "pivot": [
+   92,
+   16
+  ],
+  "size": [
+   112,
+   32
+  ],
+  "src": "projectiles/arrow"
+ },
+ "blunt": {
+  "columns": 4,
+  "fps": 15,
+  "frames": 15,
+  "loop": false,
+  "pivot": [
+   64,
+   72
+  ],
+  "size": [
+   128,
+   88
+  ],
+  "src": "impacts/blunt-hit"
+ },
+ "bolt_acid": {
+  "columns": 3,
+  "fps": 15,
+  "frames": 12,
+  "loop": true,
+  "pivot": [
+   108,
+   30
+  ],
+  "size": [
+   144,
+   60
+  ],
+  "src": "projectiles/plasma-shot"
+ },
+ "bolt_arcane": {
+  "columns": 3,
+  "fps": 15,
+  "frames": 12,
+  "loop": true,
+  "pivot": [
+   108,
+   30
+  ],
+  "size": [
+   144,
+   60
+  ],
+  "src": "projectiles/plasma-shot"
+ },
+ "bolt_cold": {
+  "columns": 3,
+  "fps": 15,
+  "frames": 12,
+  "loop": true,
+  "pivot": [
+   146,
+   32
+  ],
+  "size": [
+   176,
+   64
+  ],
+  "src": "ice/ice-lance"
+ },
+ "bolt_fire": {
+  "columns": 3,
+  "fps": 15,
+  "frames": 18,
+  "loop": true,
+  "pivot": [
+   112,
+   28
+  ],
+  "size": [
+   136,
+   56
+  ],
+  "src": "fire/fireball"
+ },
+ "bolt_lightning": {
+  "columns": 2,
+  "fps": 15,
+  "frames": 8,
+  "loop": true,
+  "pivot": [
+   108,
+   16
+  ],
+  "size": [
+   128,
+   32
+  ],
+  "src": "projectiles/laser-bolt"
+ },
+ "bolt_necrotic": {
+  "columns": 3,
+  "fps": 15,
+  "frames": 12,
+  "loop": true,
+  "pivot": [
+   108,
+   30
+  ],
+  "size": [
+   144,
+   60
+  ],
+  "src": "projectiles/plasma-shot"
+ },
+ "bolt_radiant": {
+  "columns": 3,
+  "fps": 15,
+  "frames": 12,
+  "loop": true,
+  "pivot": [
+   108,
+   30
+  ],
+  "size": [
+   144,
+   60
+  ],
+  "src": "projectiles/plasma-shot"
+ },
+ "bolt_thunder": {
+  "columns": 2,
+  "fps": 15,
+  "frames": 8,
+  "loop": true,
+  "pivot": [
+   92,
+   26
+  ],
+  "size": [
+   120,
+   52
+  ],
+  "src": "projectiles/energy-disc"
+ },
+ "buff": {
+  "columns": 9,
+  "fps": 15,
+  "frames": 45,
+  "loop": true,
+  "pivot": [
+   40,
+   108
+  ],
+  "size": [
+   80,
+   128
+  ],
+  "src": "holy/blessing"
+ },
+ "charm": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 60,
+  "loop": true,
+  "pivot": [
+   68,
+   80
+  ],
+  "size": [
+   136,
+   100
+  ],
+  "src": "arcane/rune-circle"
+ },
+ "claw": {
+  "columns": 4,
+  "fps": 15,
+  "frames": 15,
+  "loop": false,
+  "pivot": [
+   36,
+   84
+  ],
+  "size": [
+   128,
+   96
+  ],
+  "src": "melee/claw-swipe"
+ },
+ "cone_cold": {
+  "columns": 4,
+  "fps": 15,
+  "frames": 18,
+  "loop": true,
+  "pivot": [
+   12,
+   50
+  ],
+  "size": [
+   184,
+   104
+  ],
+  "src": "ice/frost-breath"
+ },
+ "cone_fire": {
+  "columns": 5,
+  "fps": 15,
+  "frames": 23,
+  "loop": true,
+  "pivot": [
+   12,
+   72
+  ],
+  "size": [
+   160,
+   116
+  ],
+  "src": "fire/fire-breath"
+ },
+ "crit": {
+  "columns": 4,
+  "fps": 15,
+  "frames": 15,
+  "loop": false,
+  "pivot": [
+   84,
+   106
+  ],
+  "size": [
+   216,
+   136
+  ],
+  "src": "impacts/crit-hit"
+ },
+ "death": {
+  "columns": 5,
+  "fps": 15,
+  "frames": 25,
+  "loop": false,
+  "pivot": [
+   56,
+   80
+  ],
+  "size": [
+   112,
+   92
+  ],
+  "src": "spawn/poof"
+ },
+ "ground_fire": {
+  "columns": 6,
+  "fps": 15,
+  "frames": 30,
+  "loop": true,
+  "pivot": [
+   24,
+   37
+  ],
+  "size": [
+   48,
+   44
+  ],
+  "src": "fire/ground-flames"
+ },
+ "heal": {
+  "columns": 8,
+  "fps": 15,
+  "frames": 51,
+  "loop": false,
+  "pivot": [
+   62,
+   108
+  ],
+  "size": [
+   124,
+   120
+  ],
+  "src": "nature/healing-bloom"
+ },
+ "heal_area": {
+  "columns": 5,
+  "fps": 15,
+  "frames": 45,
+  "loop": false,
+  "pivot": [
+   128,
+   104
+  ],
+  "size": [
+   256,
+   136
+  ],
+  "src": "holy/heal-aoe"
+ },
+ "hex": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 64,
+  "loop": false,
+  "pivot": [
+   84,
+   112
+  ],
+  "size": [
+   168,
+   128
+  ],
+  "src": "shadow/hex-sigil"
+ },
+ "hit": {
+  "columns": 3,
+  "fps": 15,
+  "frames": 9,
+  "loop": false,
+  "pivot": [
+   44,
+   64
+  ],
+  "size": [
+   136,
+   80
+  ],
+  "src": "impacts/hit-spark"
+ },
+ "hit_acid": {
+  "columns": 6,
+  "fps": 15,
+  "frames": 43,
+  "loop": false,
+  "pivot": [
+   92,
+   100
+  ],
+  "size": [
+   184,
+   116
+  ],
+  "src": "nature/acid-splash"
+ },
+ "hit_arcane": {
+  "columns": 5,
+  "fps": 15,
+  "frames": 28,
+  "loop": false,
+  "pivot": [
+   104,
+   124
+  ],
+  "size": [
+   208,
+   150
+  ],
+  "src": "arcane/mana-burst"
+ },
+ "hit_cold": {
+  "columns": 5,
+  "fps": 15,
+  "frames": 43,
+  "loop": false,
+  "pivot": [
+   68,
+   90
+  ],
+  "size": [
+   224,
+   112
+  ],
+  "src": "ice/ice-shatter"
+ },
+ "hit_fire": {
+  "columns": 3,
+  "fps": 15,
+  "frames": 9,
+  "loop": false,
+  "pivot": [
+   44,
+   64
+  ],
+  "size": [
+   136,
+   80
+  ],
+  "src": "impacts/hit-spark"
+ },
+ "hit_lightning": {
+  "columns": 4,
+  "fps": 15,
+  "frames": 15,
+  "loop": false,
+  "pivot": [
+   76,
+   56
+  ],
+  "size": [
+   144,
+   112
+  ],
+  "src": "lightning/zap-hit"
+ },
+ "hit_necrotic": {
+  "columns": 6,
+  "fps": 15,
+  "frames": 48,
+  "loop": false,
+  "pivot": [
+   100,
+   100
+  ],
+  "size": [
+   200,
+   116
+  ],
+  "src": "shadow/grasping-hands"
+ },
+ "hit_poison": {
+  "columns": 6,
+  "fps": 15,
+  "frames": 49,
+  "loop": false,
+  "pivot": [
+   106,
+   118
+  ],
+  "size": [
+   212,
+   132
+  ],
+  "src": "nature/spore-burst"
+ },
+ "hit_radiant": {
+  "columns": 6,
+  "fps": 15,
+  "frames": 43,
+  "loop": false,
+  "pivot": [
+   112,
+   148
+  ],
+  "size": [
+   224,
+   176
+  ],
+  "src": "holy/smite"
+ },
+ "hit_thunder": {
+  "columns": 5,
+  "fps": 15,
+  "frames": 30,
+  "loop": false,
+  "pivot": [
+   144,
+   124
+  ],
+  "size": [
+   288,
+   156
+  ],
+  "src": "lightning/thunderclap"
+ },
+ "line_lightning": {
+  "columns": 3,
+  "fps": 15,
+  "frames": 18,
+  "loop": true,
+  "pivot": [
+   26,
+   84
+  ],
+  "size": [
+   264,
+   100
+  ],
+  "src": "arcane/arcane-beam"
+ },
+ "shield": {
+  "columns": 6,
+  "fps": 15,
+  "frames": 36,
+  "loop": true,
+  "pivot": [
+   44,
+   68
+  ],
+  "size": [
+   88,
+   84
+  ],
+  "src": "holy/divine-shield"
+ },
+ "slash": {
+  "columns": 4,
+  "fps": 15,
+  "frames": 12,
+  "loop": false,
+  "pivot": [
+   44,
+   92
+  ],
+  "size": [
+   136,
+   104
+  ],
+  "src": "melee/sword-slash"
+ },
+ "st_bleeding": {
+  "columns": 6,
+  "fps": 15,
+  "frames": 36,
+  "loop": true,
+  "pivot": [
+   30,
+   46
+  ],
+  "size": [
+   60,
+   56
+  ],
+  "src": "status/bleeding"
+ },
+ "st_burning": {
+  "columns": 9,
+  "fps": 15,
+  "frames": 45,
+  "loop": true,
+  "pivot": [
+   40,
+   94
+  ],
+  "size": [
+   80,
+   124
+  ],
+  "src": "fire/spirit-flame"
+ },
+ "st_charmed": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 36,
+  "loop": true,
+  "pivot": [
+   30,
+   68
+  ],
+  "size": [
+   60,
+   76
+  ],
+  "src": "status/charmed"
+ },
+ "st_confused": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 36,
+  "loop": true,
+  "pivot": [
+   30,
+   70
+  ],
+  "size": [
+   60,
+   78
+  ],
+  "src": "status/confused"
+ },
+ "st_cursed": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 45,
+  "loop": true,
+  "pivot": [
+   68,
+   108
+  ],
+  "size": [
+   136,
+   116
+  ],
+  "src": "shadow/necro-skulls"
+ },
+ "st_poisoned": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 36,
+  "loop": true,
+  "pivot": [
+   52,
+   102
+  ],
+  "size": [
+   104,
+   112
+  ],
+  "src": "shadow/shadow-flames"
+ },
+ "st_rage": {
+  "columns": 5,
+  "fps": 15,
+  "frames": 18,
+  "loop": true,
+  "pivot": [
+   40,
+   70
+  ],
+  "size": [
+   80,
+   80
+  ],
+  "src": "status/rage"
+ },
+ "st_sleep": {
+  "columns": 8,
+  "fps": 15,
+  "frames": 36,
+  "loop": true,
+  "pivot": [
+   26,
+   74
+  ],
+  "size": [
+   60,
+   82
+  ],
+  "src": "status/sleep"
+ },
+ "st_slowed": {
+  "columns": 7,
+  "fps": 15,
+  "frames": 36,
+  "loop": true,
+  "pivot": [
+   32,
+   68
+  ],
+  "size": [
+   64,
+   76
+  ],
+  "src": "status/slowed"
+ },
+ "st_stunned": {
+  "columns": 6,
+  "fps": 15,
+  "frames": 30,
+  "loop": true,
+  "pivot": [
+   30,
+   56
+  ],
+  "size": [
+   60,
+   64
+  ],
+  "src": "status/stunned"
+ },
+ "thrust": {
+  "columns": 3,
+  "fps": 15,
+  "frames": 12,
+  "loop": false,
+  "pivot": [
+   34,
+   62
+  ],
+  "size": [
+   196,
+   76
+  ],
+  "src": "melee/thrust"
+ }
+}

@@ -173,7 +173,7 @@ func _add_outline() -> void:
 	mi.mesh = q
 	_line = ShaderMaterial.new()
 	_line.shader = preload("res://scenes/battle/pixel_outline.gdshader")
-	_line.render_priority = 127  # 투명 패스 맨 끝
+	_line.render_priority = 126  # 빛 판 다음(도트 효과 127은 그 뒤 — 빛·외곽선 위에 제 밝기로)
 	mi.material_override = _line
 	mi.layers = OUTLINE_LAYER
 	mi.extra_cull_margin = 16384.0
@@ -248,7 +248,7 @@ func _add_lighting() -> void:
 		var m := ShaderMaterial.new()
 		m.shader = sh if i == 0 else add_sh
 		m.set_shader_parameter("mode", i)
-		m.render_priority = 125 + i
+		m.render_priority = 124 + i
 		mi.material_override = m
 		mi.layers = OUTLINE_LAYER
 		mi.extra_cull_margin = 16384.0
@@ -256,6 +256,25 @@ func _add_lighting() -> void:
 		mi.position = Vector3(0, 0, -2.1 - i * 0.01)
 		cam.add_child(mi)
 		_light_mats.append(m)
+
+
+## 효과 광원(vfx.gd — 터지는 주문·불꽃이 잠깐 둘레를 물들인다): [[세계 위치, 반지름(칸), 색, 세기], ...] 최대 8개. 더하기 판에 더한다.
+func set_dyn_lights(lights: Array) -> void:
+	if _light_mats.size() < 2:
+		return
+	var pos := PackedVector4Array()
+	var col := PackedVector4Array()
+	for l: Array in lights:
+		var p: Vector3 = l[0]
+		var c: Color = l[2]
+		pos.append(Vector4(p.x, p.z, float(l[1]), float(l[3])))
+		col.append(Vector4(c.r, c.g, c.b, 0.0))
+	var n := pos.size()
+	pos.resize(8)
+	col.resize(8)
+	_light_mats[1].set_shader_parameter("dyn_pos", pos)
+	_light_mats[1].set_shader_parameter("dyn_col", col)
+	_light_mats[1].set_shader_parameter("dyn_n", n)
 
 
 ## 빛 지도를 넣는다(map_view.lighting — {glow, info, shadow, origin, size}). 빈 사전이면 끈다.

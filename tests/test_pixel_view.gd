@@ -324,3 +324,36 @@ func test_glow_prop_and_leaf_flip() -> void:
 	assert_true(bool(m.get_shader_parameter("flip_x")), "뒤집힌 덤불은 빛 방향 되돌림")
 	a.free()
 	Kit3D.wind = before
+
+
+## 도트 효과: 굽기 목록의 효과가 다 구워져 있고, 모든 주문이 고르는 효과가 실제로 있다(없으면 화면에 아무것도 안 뜬다).
+func test_pixel_fx_catalog() -> void:
+	var PFX := preload("res://scenes/battle/pixel_fx.gd")
+	var Vfx := preload("res://scenes/battle/vfx.gd")
+	var cfg: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/pixelfx_bake.json"))
+	for n: String in cfg["fx"]:
+		assert_true(PFX.has(n), "구운 효과 %s" % n)
+	assert_eq(Vfx.spell_look(RulesDB.get_entry("spell", "fire_bolt"))["kind"], "bolt", "공격 굴림 주문 = 탄")
+	assert_eq(Vfx.spell_look(RulesDB.get_entry("spell", "fireball")), {"kind": "area", "family": "fire"})
+	assert_eq(Vfx.spell_look(RulesDB.get_entry("spell", "burning_hands"))["kind"], "cone")
+	assert_eq(Vfx.spell_look(RulesDB.get_entry("spell", "cure_wounds"))["kind"], "heal")
+	for sp: Dictionary in RulesDB.entries("spell"):
+		var d: Dictionary = Vfx.spell_look(sp)
+		var fam: String = d["family"]
+		var want := ""
+		match String(d["kind"]):
+			"bolt":
+				want = "bolt_" + ("acid" if fam == "poison" else fam)
+				assert_true(PFX.has("hit_" + fam), "%s 맞는 자리 hit_%s" % [sp["id"], fam])
+			"area":
+				want = "area_" + fam if PFX.has("area_" + fam) else "hit_" + fam
+			"hit":
+				want = "hit_" + fam
+			"heal", "heal_area", "shield", "buff", "hex", "charm":
+				want = "heal" if d["kind"] == "heal" else String(d["kind"])
+		if want != "":
+			assert_true(PFX.has(want), "%s → %s" % [sp["id"], want])
+	for id: String in Vfx.STATUS_FX:
+		assert_true(PFX.has(String(Vfx.STATUS_FX[id][0])), "상태 %s" % id)
+	assert_true(PFX.frame_at("st_burning", 100.0) >= 0, "고리 효과는 돈다")
+	assert_eq(PFX.frame_at("hit", 100.0), -1, "한 번 효과는 끝난다")

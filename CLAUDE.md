@@ -126,6 +126,14 @@ res://
   덩어리 음영 폭은 좁게(대부분 가운데 단) + 잎마다 한 단씩 오르내림(40%) + 잎마다 제 왼쪽 위 절반 한 단 밝게 — 한쪽이 통째로 밝거나 어두운 넓은 면이 생기지 않게.
   풀(BLADE 긴 풀·잡초·갈대·부들·잔풀·꽃, leaf 3): 원래 그림 모양 그대로 2도트 줄(풀잎)마다 흔들림 — 옆 줄과 박자가 조금씩 어긋난 물결 + 줄마다 작은 떨림,
   크기는 밑동에서 잰 높이(도트 × 0.12, 최대 2도트)라 작은 풀은 조금만, 흔들리는 끝 쪽만 살짝 밝게, 반투명 그림자는 제자리. 덤불(bush)은 넓은 잎 방식.
+  도트 효과(2026-11-28, scenes/battle/vfx.gd·pixel_fx.gd): pixelfx(patch-gg, MIT — 사본 tools/pixelfx, 스킬 .claude/skills/pixelfx)로 구운 시트 assets/pixel_fx
+  (목록·색 묶음 tools/pixelfx_bake.json, 굽기 `python3 tools/bake_pixelfx.py`, 효과 1화소 = 그림 1도트, 15fps). 3D 세계 그 자리에 카메라를 정면으로 보는 판(깊이 시험 없이 맨 위,
+  render_priority 127 — 빛 판 124·125, 외곽선 126 뒤라 제 밝기). 판정 신호로 고른다: 무기 근접 = 피해 종류(베기 slash·찌르기 thrust·둔기 blunt, 몬스터 베기 claw), 원거리 = 화살 arrow
+  날아가 맞으면 hit, 치명타 crit; 주문 = spell_look(공격 굴림 = 탄 bolt_ → 맞았을 때만 hit_, 구·정육면체·원기둥·자기 둘레 = area_(4칸↑은 2배), 원뿔 = cone_, 선 = line_, 그 밖 = hit_)
+  × 피해 꼬리 FAMILY(역장·정신 = arcane), 피해 없는 주문: 회복 heal(on_heal)·heal_area, 보호(방호 학파) shield, 강화 buff, 약화(사령·환혹) hex·그 밖 charm.
+  상태 이상 STATUS_FX(머리 위·발밑 고리), 몬스터 쓰러짐 death, 불 표면 ground_fire(이 게임용 새 효과). 빗나감·피해 숫자는 탄이 닿을 때.
+  효과는 잠깐 광원(pixel_view.set_dyn_lights → 더하기 판, 최대 8개, 3단계 끊음, 밝은 맵은 은은하게). 몸에 그리는 pixelfx 효과(기본 인형이 같이 그려짐)는 쓰지 않는다.
+  캡처: `--fx=이름,이름 --fx_lead=<프레임>`(기준 생물 옆에 늘어놓기), 캡처 중엔 효과 시계를 1/30초씩(vfx.fixed_dt).
   그림체 방향(2026-11-26): 첨부 참고 화풍처럼 격자가 드러나지 않게 어우러진 깔끔한 도트. 새 그림 추가 허용, 시간대·분위기는 지금 그대로.
   캡처: `--shot=<png> --frames=<n>`, 카메라 고정 `--cam=x,y --zoom=<배율>`. 맵 그림은 던전 에셋 키트로 그린다:
   맵 데이터 `art`(wall·wall_top·cliff·floors[범례 글자 → 키트 바닥]·props[키트 물건 at/id/v]). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`·`asset_library/`.

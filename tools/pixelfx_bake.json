@@ -1,0 +1,198 @@
+{
+  "_note": "pixelfx 효과 → 스프라이트 시트(assets/pixel_fx/<이름>.png·.json). python3 tools/bake_pixelfx.py [이름...]. palette는 tools/pixelfx/src/core/color.js의 PAL 이름 또는 hex 배열.",
+  "fps": 15,
+  "fx": {
+    "slash": {
+      "src": "melee/sword-slash"
+    },
+    "thrust": {
+      "src": "melee/thrust"
+    },
+    "blunt": {
+      "src": "impacts/blunt-hit"
+    },
+    "claw": {
+      "src": "melee/claw-swipe"
+    },
+    "arrow": {
+      "src": "projectiles/arrow"
+    },
+    "hit": {
+      "src": "impacts/hit-spark"
+    },
+    "crit": {
+      "src": "impacts/crit-hit"
+    },
+    "bolt_fire": {
+      "src": "fire/fireball"
+    },
+    "bolt_cold": {
+      "src": "ice/ice-lance"
+    },
+    "bolt_lightning": {
+      "src": "projectiles/laser-bolt",
+      "opts": {
+        "palette": "electric"
+      }
+    },
+    "bolt_arcane": {
+      "src": "projectiles/plasma-shot",
+      "opts": {
+        "palette": "arcane"
+      }
+    },
+    "bolt_radiant": {
+      "src": "projectiles/plasma-shot",
+      "opts": {
+        "palette": "holy"
+      }
+    },
+    "bolt_necrotic": {
+      "src": "projectiles/plasma-shot",
+      "opts": {
+        "palette": "shadow"
+      }
+    },
+    "bolt_acid": {
+      "src": "projectiles/plasma-shot",
+      "opts": {
+        "palette": "poison"
+      }
+    },
+    "bolt_thunder": {
+      "src": "projectiles/energy-disc",
+      "opts": {
+        "palette": "stone"
+      }
+    },
+    "hit_fire": {
+      "src": "impacts/hit-spark",
+      "opts": {
+        "palette": "fire"
+      }
+    },
+    "hit_cold": {
+      "src": "ice/ice-shatter"
+    },
+    "hit_lightning": {
+      "src": "lightning/zap-hit"
+    },
+    "hit_arcane": {
+      "src": "arcane/mana-burst"
+    },
+    "hit_radiant": {
+      "src": "holy/smite"
+    },
+    "hit_necrotic": {
+      "src": "shadow/grasping-hands"
+    },
+    "hit_acid": {
+      "src": "nature/acid-splash"
+    },
+    "hit_poison": {
+      "src": "nature/spore-burst"
+    },
+    "hit_thunder": {
+      "src": "lightning/thunderclap"
+    },
+    "area_fire": {
+      "src": "explosions/small-explosion"
+    },
+    "area_cold": {
+      "src": "ice/frost-nova"
+    },
+    "area_lightning": {
+      "src": "lightning/lightning-strike"
+    },
+    "area_radiant": {
+      "src": "holy/holy-pillar"
+    },
+    "area_necrotic": {
+      "src": "shadow/dark-explosion"
+    },
+    "area_poison": {
+      "src": "nature/poison-cloud"
+    },
+    "area_arcane": {
+      "src": "explosions/implosion",
+      "opts": {
+        "palette": "arcane"
+      }
+    },
+    "cone_fire": {
+      "src": "fire/fire-breath"
+    },
+    "cone_cold": {
+      "src": "ice/frost-breath"
+    },
+    "line_lightning": {
+      "src": "arcane/arcane-beam",
+      "opts": {
+        "palette": "electric"
+      }
+    },
+    "heal": {
+      "src": "nature/healing-bloom",
+      "opts": {
+        "palette": "heal"
+      }
+    },
+    "heal_area": {
+      "src": "holy/heal-aoe"
+    },
+    "buff": {
+      "src": "holy/blessing"
+    },
+    "shield": {
+      "src": "holy/divine-shield"
+    },
+    "hex": {
+      "src": "shadow/hex-sigil"
+    },
+    "charm": {
+      "src": "arcane/rune-circle"
+    },
+    "st_burning": {
+      "src": "fire/spirit-flame",
+      "opts": {
+        "palette": "fire"
+      }
+    },
+    "st_poisoned": {
+      "src": "shadow/shadow-flames",
+      "opts": {
+        "palette": "poison"
+      }
+    },
+    "st_charmed": {
+      "src": "status/charmed"
+    },
+    "st_confused": {
+      "src": "status/confused"
+    },
+    "st_cursed": {
+      "src": "shadow/necro-skulls"
+    },
+    "st_stunned": {
+      "src": "status/stunned"
+    },
+    "st_sleep": {
+      "src": "status/sleep"
+    },
+    "st_slowed": {
+      "src": "status/slowed"
+    },
+    "st_bleeding": {
+      "src": "status/bleeding"
+    },
+    "st_rage": {
+      "src": "status/rage"
+    },
+    "death": {
+      "src": "spawn/poof"
+    },
+    "ground_fire": {
+      "src": "fire/ground-flames"
+    }
+  }
+}

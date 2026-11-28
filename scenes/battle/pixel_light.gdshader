@@ -24,6 +24,10 @@ uniform vec3 night = vec3(0.8, 0.86, 1.0);
 uniform vec3 shade = vec3(0.66, 0.7, 0.84);
 uniform float vignette = 0.16;
 uniform float glow_gain = 0.42;
+// 효과 광원(pixel_view.set_dyn_lights): xy = 세계 x·z, z = 반지름(칸), w = 세기 / 색
+uniform vec4 dyn_pos[8];
+uniform vec4 dyn_col[8];
+uniform int dyn_n = 0;
 
 void vertex() {
 	POSITION = vec4(VERTEX.xy, 0.0, 1.0);
@@ -47,6 +51,19 @@ void fragment() {
 			float sh = sg > 0.66 ? 1.0 : (sg > 0.33 ? 0.55 : 0.0);  // 그림자 두 단계
 			outc = tint * mix(shade, vec3(1.0), sh);
 		} else {
+			// 효과 광원: 둘레를 3단계로 끊어 더한다(빛 웅덩이와 같은 도트 경계)
+			for (int k = 0; k < 8; k++) {
+				if (k >= dyn_n) {
+					break;
+				}
+				vec4 dp = dyn_pos[k];
+				float dd = distance(p, dp.xy) / max(dp.z, 0.1);
+				if (dd < 1.0) {
+					float e = (1.0 - dd) * (1.0 - dd) * dp.w;
+					float band = e > 0.5 ? 1.0 : (e > 0.25 ? 0.6 : (e > 0.08 ? 0.3 : 0.0));
+					outc += dyn_col[k].rgb * band * 0.4 * (1.0 - 0.8 * inf.b);  // 밝은 맵에선 은은하게(빛 웅덩이와 같다)
+				}
+			}
 			vec3 g = texture(glow_tex, uv).rgb;
 			float i = max(max(g.r, g.g), g.b);
 			if (i > 0.01) {
@@ -54,7 +71,7 @@ void fragment() {
 				float e = i * fl;
 				float band = e > 0.62 ? 1.0 : (e > 0.36 ? 0.62 : (e > 0.14 ? 0.3 : 0.0));
 				// 맵 기본 빛(광원 뺀)이 밝은 곳에서는 약하게, 어두운 곳일수록 빛 웅덩이가 산다
-				outc = g / i * band * glow_gain * (1.0 - 0.75 * inf.b);
+				outc += g / i * band * glow_gain * (1.0 - 0.75 * inf.b);
 			}
 		}
 	}
