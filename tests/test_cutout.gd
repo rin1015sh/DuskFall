@@ -187,3 +187,39 @@ func test_doll_gear_follows_items() -> void:
 	assert_eq(str(archer["cloak_look"].get("color", "")), "#3a5236", "아이템 색이 재질 색보다 먼저")
 	for id: String in ["cloak_of_protection", "cloak_of_elvenkind", "boots_of_elvenkind", "gauntlets_of_ogre_power", "bracers_of_defense", "gloves_of_swimming_and_climbing", "headband_of_intellect"]:
 		assert_false(Cutout.item_look(id).is_empty(), "착용 아이템 모양 %s" % id)
+
+
+## 인형: 두손 무기는 왼손이 자루를 쥐고(IK), 갑옷이 없으면 기본 옷, 망치·곤봉 모양
+func test_doll_two_handed_and_clothes() -> void:
+	const Doll := preload("res://scenes/battle/doll_rig.gd")
+	var gs := Cutout.item_look("greatsword")
+	assert_true(bool(gs.get("two_handed", false)), "대검 = 두손")
+	assert_true(bool(Cutout.item_look("longsword").get("versatile", false)), "장검 = 양손 겸용")
+	assert_eq(str(Cutout.item_look("warhammer")["shape"]), "hammer", "전쟁망치 모양")
+	var sp := Cutout.species_look("human")
+	var lk := {"template": "medium", "skin": str(sp["skin"]), "hair": str(sp["hair"]), "extras": [], "tunic": "#2f4a6b",
+		"armor": {}, "weapon": gs, "offhand": {}, "key": "2h"}
+	var d: Node3D = Doll.new()
+	tree.root.add_child(d)
+	own(d)
+	d.apply_look(lk)
+	assert_true(d.j["weapon_r"].has_meta("grip2"), "두손 쥘 자리")
+	for a: String in ["idle", "walk", "attack_slash"]:
+		d.pose(a, 0.26)
+		var grip: Vector3 = d.j["weapon_r"].global_transform * Vector3(d.j["weapon_r"].get_meta("grip2"))
+		var hand: Vector3 = d.j["hand_l"].global_transform * Vector3(0, -0.6, 0)
+		assert_true(hand.distance_to(grip) < 1.5, "%s: 왼손이 자루에 닿음(%.2f)" % [a, hand.distance_to(grip)])
+	# 기본 옷: 갑옷이 없어도 몸통에 윗옷(클래스 색)이 덮인다
+	var cloth := false
+	for mi: MeshInstance3D in d.j["chest"].find_children("*", "MeshInstance3D", false, false):
+		var m: ShaderMaterial = mi.material_override
+		if m != null and Color(m.get_shader_parameter("col")).is_equal_approx(Color("#2f4a6b")):
+			cloth = true
+	assert_true(cloth, "갑옷이 없으면 기본 윗옷")
+	# 한손 무기 + 방패면 두손 아님
+	var lk2 := lk.duplicate(true)  # apply_look은 같은 key면 다시 만들지 않으니 새 사전으로
+	lk2["weapon"] = Cutout.item_look("longsword")
+	lk2["offhand"] = Cutout.item_look("shield")
+	lk2["key"] = "1h"
+	d.apply_look(lk2)
+	assert_false(d.j["weapon_r"].has_meta("grip2"), "방패를 들면 양손 겸용도 한 손")

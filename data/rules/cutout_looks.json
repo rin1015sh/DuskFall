@@ -1,6 +1,6 @@
 {
   "schema": "cutout_look_v1",
-  "note_ko": "컷아웃 모습(룰북 1단계 체형 틀): 종족 → 체형·피부·머리 색·부가 부위(귀·뿔·꼬리·수염·엄니·주둥이), 장비 재질 색(색 바꾸기). 종족 id는 species.json 기본 종족, 혈통은 부모를 따른다. items: 무기·갑옷 id → 컷아웃 모양(sword·axe·mace·spear·staff·dagger·bow·crossbow·sling·gun / padded·leather·studded·hide·chain·scale·breastplate·plate·shield)·재질·길이(px)·빛(불러낸 무기). 마법 변형(+1 등)은 바탕 id를 따른다. 갑옷 cover = 인형(doll_rig)에서 덮는 부위(torso·upper_arm·forearm·thigh·shin·pauldron·skirt), pattern = 무늬(chain·scale·studs·quilt·bands), 머리·망토·손·발 아이템 모양 helmet·headband·cloak·gloves·gauntlets·bracers·boots, color = 재질 색 대신 쓸 색.",
+  "note_ko": "컷아웃 모습(룰북 1단계 체형 틀): 종족 → 체형·피부·머리 색·부가 부위(귀·뿔·꼬리·수염·엄니·주둥이), 장비 재질 색(색 바꾸기). 종족 id는 species.json 기본 종족, 혈통은 부모를 따른다. items: 무기·갑옷 id → 컷아웃 모양(sword·axe·mace·spear·staff·dagger·bow·crossbow·sling·gun / padded·leather·studded·hide·chain·scale·breastplate·plate·shield)·재질·길이(px)·빛(불러낸 무기). 마법 변형(+1 등)은 바탕 id를 따른다. 갑옷 cover = 인형(doll_rig)에서 덮는 부위(torso·upper_arm·forearm·thigh·shin·pauldron·skirt), pattern = 무늬(chain·scale·studs·quilt·bands), 머리·망토·손·발 아이템 모양 helmet·headband·cloak·gloves·gauntlets·bracers·boots, color = 재질 색 대신 쓸 색. 무기 shape hammer(망치)·club(곤봉) 추가. 두손 쥐기는 무기 데이터 properties(two_handed, versatile + 빈 보조 손)에서 Cutout.item_look이 two_handed·versatile로 붙인다.",
   "species": [
     {
       "id": "human",
@@ -213,19 +213,19 @@
     },
     {
       "id": "look_club",
-      "shape": "mace",
+      "shape": "club",
       "material": "mat_wood",
       "length": 26
     },
     {
       "id": "look_greatclub",
-      "shape": "mace",
+      "shape": "club",
       "material": "mat_wood",
       "length": 58
     },
     {
       "id": "look_light_hammer",
-      "shape": "mace",
+      "shape": "hammer",
       "material": "mat_steel",
       "length": 26
     },
@@ -243,7 +243,7 @@
     },
     {
       "id": "look_maul",
-      "shape": "mace",
+      "shape": "hammer",
       "material": "mat_steel",
       "length": 58
     },
@@ -255,7 +255,7 @@
     },
     {
       "id": "look_warhammer",
-      "shape": "mace",
+      "shape": "hammer",
       "material": "mat_steel",
       "length": 40
     },

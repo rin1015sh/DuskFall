@@ -61,6 +61,9 @@ static func item_look(item_id: String) -> Dictionary:
 	out["color"] = str(e["color"]) if e.has("color") else material_color(str(e["material"]))  # 아이템 색이 따로 있으면 그것
 	var rar := str(Equipment.entry(item_id).get("rarity", "common"))
 	out["rarity"] = rar  # 등급 — 색 바꾸기(테두리 빛)
+	var props: Array = Equipment.entry(Equipment.base_of(item_id)).get("properties", [])
+	out["two_handed"] = "two_handed" in props  # 인형: 두 손으로 쥔다(활·석궁은 제 동작)
+	out["versatile"] = "versatile" in props  # 보조 손이 비면 두 손으로
 	return out
 
 
