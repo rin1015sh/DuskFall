@@ -45,6 +45,12 @@ const AREA_PROPS := {"fire": ["ground_fire", 1.0], "cold": ["ice_shard", 1.0], "
 	"necrotic": ["motes_necrotic", 0.6], "poison": ["motes_poison", 0.6], "acid": ["motes_acid", 0.6], "arcane": ["motes_arcane", 0.35],
 	"thunder": ["motes_thunder", 0.4]}
 const FLOOR_SHADER := preload("res://scenes/battle/fx_floor.gdshader")
+## 연출 박자(초): 컷아웃 근접 공격 동작에서 휘두른 팔이 내려오는 순간(body_templates attack_melee 0.18~0.32),
+## 활 놓는 순간(attack_ranged 0.55), 주문 손을 든 순간(cast 0.3). 몬스터(한 장 그림)는 내딛기만 하고 바로.
+const SWING_HIT := 0.26
+const SHOT_RELEASE := 0.5
+const CAST_RELEASE := 0.3
+const MONSTER_HIT := 0.1
 const BOLT_SPEED := 14.0  # 탄 속도(유닛/초)
 const MAX_LONG := 2.6  # 한 번 효과가 이보다 길면 빨리 감는다(초)
 
@@ -58,6 +64,9 @@ var _text_delay := 0.0  # 빗나감 글자를 탄이 닿을 때 띄운다
 var _fire: Dictionary = {}  # 칸 → Sprite3D
 ## 캡처용(battle_scene --shot): 0보다 크면 효과 시계를 프레임마다 이만큼만 넘긴다(느린 소프트웨어 그리기에서도 장면을 찍을 수 있게)
 var fixed_dt := 0.0
+var _shake := 0.0  # 화면 흔들림 남은 세기(유닛)
+var _shake_t := 0.0
+var _calls: Array = []  # 나중에 부를 것 [남은 초, Callable] — 효과 시계(fixed_dt 포함)로 센다
 
 
 func _ready() -> void:
@@ -147,10 +156,41 @@ func _play(name: String, at: Vector3, opts: Dictionary = {}) -> Dictionary:
 	return e
 
 
+## delay초 뒤에 부른다(효과 시계로)
+func _later(delay: float, f: Callable) -> void:
+	if delay <= 0.0:
+		f.call()
+	else:
+		_calls.append([delay, f])
+
+
+## 짧은 멈칫(히트스톱): 게임 시간을 잠깐 거의 세운다(실제 시간 dur초). 캡처 중엔 하지 않는다.
+func hitstop(dur: float) -> void:
+	if fixed_dt > 0.0:
+		return
+	Engine.time_scale = 0.05
+	get_tree().create_timer(dur, true, false, true).timeout.connect(func() -> void: Engine.time_scale = 1.0)
+
+
+## 화면 흔들림(유닛). battle_scene._apply_camera가 shake_offset()을 더한다(도트 카메라는 그림 도트 격자에 맞춰 끊는다).
+func shake(amount: float) -> void:
+	_shake = maxf(_shake, amount)
+	_shake_t = 0.22
+
+
+func shake_offset() -> Vector3:
+	if _shake_t <= 0.0:
+		return Vector3.ZERO
+	var k := _shake * _shake_t / 0.22
+	return Vector3(randf_range(-1.0, 1.0) * k, 0.0, randf_range(-1.0, 1.0) * k)
+
+
 ## 날아가는 탄: a → b, 걸리는 시간(초)을 돌려준다
-func _bolt(name: String, a: Vector3, b: Vector3) -> float:
+func _bolt(name: String, a: Vector3, b: Vector3, delay: float = 0.0) -> float:
 	var dur := clampf(a.distance_to(b) / BOLT_SPEED, 0.15, 0.9)
-	var e := _play(name, a, {"aim_to": b, "max_life": dur, "light": name.trim_prefix("bolt_") if name != "arrow" else "", "power": 0.5, "radius": 1.5})
+	var e := _play(name, a, {"aim_to": b, "max_life": dur + delay, "delay": delay, "light": name.trim_prefix("bolt_") if name != "arrow" else "", "power": 0.5, "radius": 1.5})
+	if not e.is_empty():
+		e["life"] = dur  # 시계는 delay(음수)에서 시작해 0부터 dur까지 날아간다
 	if not e.is_empty():
 		e["from"] = a
 		e["to"] = b
@@ -165,6 +205,12 @@ func _on_attack(res: Dictionary) -> void:
 	var t: Node = res["target"]
 	var hit: bool = res.get("hit", false)
 	var fly := 0.0
+	var rig: bool = scene.views[a].has_method("has_rig") and scene.views[a].has_rig()
+	var melee := str(atk.get("kind", "melee")) != "ranged"
+	if not atk.has("spell") or atk.get("weapon", false):
+		fly = (SWING_HIT if melee else SHOT_RELEASE) if rig else MONSTER_HIT
+		if not rig and melee:
+			scene.views[a].nudge(_foot(t) - _foot(a), 0.28, 0.08, 0.2)  # 몬스터: 대상 쪽으로 내딛기
 	if not atk.get("weapon", false) and atk.has("spell"):
 		# 주문 공격: 탄은 on_spell_cast가 띄웠다 — 맞았을 때만 닿는 순간 터짐
 		if _pending_bolt.get("caster") == a:
@@ -173,7 +219,7 @@ func _on_attack(res: Dictionary) -> void:
 				_play("hit_" + str(_pending_bolt["fam"]), _foot(t), {"delay": fly, "light": _pending_bolt["fam"], "power": 0.8})
 			_pending_bolt = {}
 	elif str(atk.get("kind", "melee")) == "ranged":
-		fly = _bolt("arrow", _pos(a), _pos(t))
+		fly += _bolt("arrow", _pos(a), _pos(t), fly)
 		if hit:
 			_play("hit", _foot(t), {"delay": fly, "light": "holy", "power": 0.5})
 	else:
@@ -185,7 +231,12 @@ func _on_attack(res: Dictionary) -> void:
 			name = "blunt"
 		elif str(a.get("species_id")) == "":
 			name = "claw"  # 몬스터(종족 없음) 베기 = 발톱
-		_play(name, _foot(t), {"flip": _faces_left(a, t), "tint": Color(1, 1, 1, 1.0 if hit else 0.45)})
+		_play(name, _foot(t), {"flip": _faces_left(a, t), "tint": Color(1, 1, 1, 1.0 if hit else 0.45), "delay": fly})
+	if hit:
+		# 맞는 순간: 대상이 뒤로 밀렸다 돌아오고, 치명타는 짧게 멈칫(히트스톱) + 화면 흔들림
+		scene.views[t].nudge(_foot(t) - _foot(a), 0.12 if not res.get("crit", false) else 0.2, 0.05, 0.2, fly)
+		if res.get("crit", false):
+			_later(fly, func() -> void: hitstop(0.09); shake(0.06))
 	if res.get("crit", false):
 		_play("crit", _foot(t), {"light": "holy", "power": 1.0, "delay": fly})
 	_text_delay = fly  # 이어지는 피해 숫자도 탄이 닿을 때
@@ -223,14 +274,25 @@ func _on_spell(ctx: Dictionary) -> void:
 	var foot: Vector3 = (_foot(at_c) if scene.views.has(at_c) else V.top(g, aim)) if aim is Vector2i else (_foot(caster) if scene.views.has(caster) else from)
 	var d := spell_look(sp)
 	var fam: String = d["family"]
+	var rig: bool = scene.views.has(caster) and scene.views[caster].has_method("has_rig") and scene.views[caster].has_rig()
+	var cd := CAST_RELEASE if rig else 0.1  # 손을 든 순간에 나간다
+	if str(d["kind"]) != "bolt":
+		_later(cd, func() -> void: _spell_fx(ctx, sp, d, from, to, foot))
+		return
+	var fly := _bolt("bolt_" + ("acid" if fam == "poison" else fam), from, to, cd)
+	_pending_bolt = {"caster": caster, "fam": fam, "fly": cd + fly}
+
+
+func _spell_fx(ctx: Dictionary, sp: Dictionary, d: Dictionary, _from: Vector3, to: Vector3, foot: Vector3) -> void:
+	var aim: Variant = ctx.get("aim")
+	var caster: Node = ctx.get("caster")
+	var g: Node = scene.world["grid"]
+	var fam: String = d["family"]
 	var area: Dictionary = sp.get("area") if sp.get("area") is Dictionary else {}
 	var shape := str(area.get("shape", ""))
 	var r := float(area.get("radius_tiles", area.get("size_tiles", area.get("length_tiles", 1))))
 	var big := 2.0 if r >= 4.0 else 1.0  # 큰 범위(4칸↑)만 효과 2배(도트 2×2)
 	match str(d["kind"]):
-		"bolt":
-			var fly := _bolt("bolt_" + ("acid" if fam == "poison" else fam), from, to)
-			_pending_bolt = {"caster": caster, "fam": fam, "fly": fly}
 		"area":
 			var name := "area_" + fam
 			if not PFX.has(name):
@@ -240,6 +302,8 @@ func _on_spell(ctx: Dictionary) -> void:
 				center = _foot(caster) if scene.views.has(caster) else center
 			if FLOOR_STYLE.has(fam):
 				area_burst(fam, center, r + 0.5)
+				if r >= 3.0:
+					shake(0.04 + 0.01 * r)
 			else:
 				_play(name, center, {"scale": big, "light": fam, "power": 1.2, "radius": maxf(r + 1.0, 2.0)})
 		"cone", "line":
@@ -354,6 +418,16 @@ func _process(delta: float) -> void:
 	_text_delay = 0.0  # 한 판정 묶음(같은 프레임) 안에서만 쓴다
 	if fixed_dt > 0.0:
 		delta = fixed_dt
+	if _shake_t > 0.0:
+		_shake_t -= delta
+	var due: Array = []
+	for c: Array in _calls:
+		c[0] -= delta
+		if c[0] <= 0.0:
+			due.append(c)
+	for c: Array in due:
+		_calls.erase(c)
+		(c[1] as Callable).call()
 	_step_sprites(delta)
 	if _fx.is_empty():
 		if _drawn:

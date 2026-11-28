@@ -369,3 +369,19 @@ func test_floor_fx() -> void:
 	assert_true(ResourceLoader.exists("res://scenes/battle/fx_floor.gdshader"))
 	assert_true(PFX.has("ice_shard") and PFX.has("ground_fire") and PFX.has("heal"))
 	assert_true(PFX.info("heal")["size"][1] <= 64, "회복 효과는 캐릭터 키 정도")
+
+
+## 효과 크기·색·박자: 맞는 효과·무기 자국은 캐릭터 몸 크기(그림 64도트 안), 색 계단 이름은 다 있다, 연출 박자 상수.
+func test_fx_fit_game() -> void:
+	var PFX := preload("res://scenes/battle/pixel_fx.gd")
+	var Vfx := preload("res://scenes/battle/vfx.gd")
+	for n: String in ["hit", "hit_fire", "hit_cold", "hit_lightning", "hit_radiant", "hit_necrotic", "hit_thunder", "hit_arcane", "slash", "thrust", "blunt", "claw"]:
+		var sz: Array = PFX.info(n)["size"]
+		assert_true(int(sz[0]) <= 64 and int(sz[1]) <= 64, "%s 크기 %s" % [n, sz])
+	var cfg: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/pixelfx_bake.json"))
+	for n: String in cfg["fx"]:
+		var rp: Variant = cfg["fx"][n].get("ramp")
+		if rp is String:
+			assert_true((cfg["ramps"] as Dictionary).has(rp), "%s 색 계단 %s" % [n, rp])
+	assert_true(Vfx.SWING_HIT > 0.15 and Vfx.SWING_HIT < 0.35, "휘두른 팔이 내려오는 순간")
+	assert_true(Vfx.CAST_RELEASE > 0.0)

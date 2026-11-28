@@ -599,7 +599,7 @@ func _apply_camera() -> void:
 		var gs: Vector2i = world["grid"].size
 		cam_target.x = clampf(cam_target.x, 0.0, float(gs.x))
 		cam_target.z = clampf(cam_target.z, 0.0, float(gs.y))
-	camera.transform = V.camera_transform(cam_target)
+	camera.transform = V.camera_transform(cam_target + (vfx.shake_offset() if vfx != null else Vector3.ZERO))
 	# 도트 화면은 확대를 단계로 끊는다(그림 1도트 = 화면 정수 칸 — pixel_view.ZOOM_STEPS)
 	var z := PixelView.snap_zoom(cam_zoom) if pixel != null and pixel.scale_px > 0 else cam_zoom
 	camera.size = V.ortho_size(get_viewport().get_visible_rect().size.y, z)

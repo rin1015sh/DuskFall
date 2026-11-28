@@ -1,192 +1,434 @@
 {
-  "_note": "pixelfx 효과 → 스프라이트 시트(assets/pixel_fx/<이름>.png·.json). python3 tools/bake_pixelfx.py [이름...]. palette는 tools/pixelfx/src/core/color.js의 PAL 이름 또는 hex 배열.",
+  "_note": "pixelfx 효과 → 스프라이트 시트(assets/pixel_fx/<이름>.png·.json). python3 tools/bake_pixelfx.py [이름...]. palette는 tools/pixelfx/src/core/color.js의 PAL 이름 또는 hex 배열. ramp = 굽고 나서 밝기 순서대로 이 색 계단 5단으로 바꾼다(gradient map), pixelfx 원본 효과는 반투명 빛무리를 뺀다(clean). duskfall/* 는 게임 크기·색으로 직접 그린 효과.",
   "fps": 15,
   "fx": {
     "slash": {
-      "src": "melee/sword-slash"
+      "src": "duskfall/swing",
+      "opts": {
+        "style": "slash",
+        "palette": [
+          "#1a1c22",
+          "#3a404c",
+          "#6c7486",
+          "#b4bccb",
+          "#eef2f6"
+        ]
+      }
     },
     "thrust": {
-      "src": "melee/thrust"
+      "src": "duskfall/swing",
+      "opts": {
+        "style": "thrust",
+        "palette": [
+          "#1a1c22",
+          "#3a404c",
+          "#6c7486",
+          "#b4bccb",
+          "#eef2f6"
+        ]
+      }
     },
     "blunt": {
-      "src": "impacts/blunt-hit"
+      "src": "duskfall/swing",
+      "opts": {
+        "style": "blunt",
+        "palette": [
+          "#1a1c22",
+          "#3a404c",
+          "#6c7486",
+          "#b4bccb",
+          "#eef2f6"
+        ]
+      }
     },
     "claw": {
-      "src": "melee/claw-swipe"
+      "src": "duskfall/swing",
+      "opts": {
+        "style": "claw",
+        "palette": [
+          "#1a0608",
+          "#4a1014",
+          "#8a1e22",
+          "#c8463c",
+          "#f0a08a"
+        ]
+      }
     },
     "arrow": {
-      "src": "projectiles/arrow"
+      "src": "projectiles/arrow",
+      "ramp": "steel"
     },
     "hit": {
-      "src": "impacts/hit-spark"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#2a1c08",
+          "#6a4a14",
+          "#b88a2a",
+          "#ecc860",
+          "#fff4c8"
+        ],
+        "style": "spark",
+        "radius": 12
+      }
     },
     "crit": {
-      "src": "impacts/crit-hit"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#2a1c08",
+          "#6a4a14",
+          "#b88a2a",
+          "#ecc860",
+          "#fff4c8"
+        ],
+        "style": "ray",
+        "radius": 24
+      }
     },
     "bolt_fire": {
-      "src": "fire/fireball"
+      "src": "fire/fireball",
+      "ramp": "fire"
     },
     "bolt_cold": {
-      "src": "ice/ice-lance"
+      "src": "ice/ice-lance",
+      "ramp": "cold"
     },
     "bolt_lightning": {
       "src": "projectiles/laser-bolt",
       "opts": {
         "palette": "electric"
-      }
+      },
+      "ramp": "lightning"
     },
     "bolt_arcane": {
       "src": "projectiles/plasma-shot",
       "opts": {
         "palette": "arcane"
-      }
+      },
+      "ramp": "arcane"
     },
     "bolt_radiant": {
       "src": "projectiles/plasma-shot",
       "opts": {
         "palette": "holy"
-      }
+      },
+      "ramp": "radiant"
     },
     "bolt_necrotic": {
       "src": "projectiles/plasma-shot",
       "opts": {
         "palette": "shadow"
-      }
+      },
+      "ramp": "necrotic"
     },
     "bolt_acid": {
       "src": "projectiles/plasma-shot",
       "opts": {
         "palette": "poison"
-      }
+      },
+      "ramp": "acid"
     },
     "bolt_thunder": {
       "src": "projectiles/energy-disc",
       "opts": {
         "palette": "stone"
-      }
+      },
+      "ramp": "thunder"
     },
     "hit_fire": {
-      "src": "impacts/hit-spark",
+      "src": "duskfall/hit-burst",
       "opts": {
-        "palette": "fire"
+        "palette": [
+          "#2a1410",
+          "#5a2414",
+          "#a8401c",
+          "#ec8a34",
+          "#ffd88a"
+        ],
+        "style": "spark",
+        "radius": 22
       }
     },
     "hit_cold": {
-      "src": "ice/ice-shatter"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#10202e",
+          "#24506e",
+          "#4c8cb0",
+          "#9cd0e6",
+          "#e6f6ff"
+        ],
+        "style": "shard",
+        "radius": 22
+      }
     },
     "hit_lightning": {
-      "src": "lightning/zap-hit"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#101428",
+          "#26306a",
+          "#4a6ac8",
+          "#9cc4ff",
+          "#f0f6ff"
+        ],
+        "style": "bolt",
+        "radius": 22
+      }
     },
     "hit_arcane": {
-      "src": "arcane/mana-burst"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#140c24",
+          "#2e1a52",
+          "#5a34a0",
+          "#a07ae0",
+          "#ecdcff"
+        ],
+        "style": "rune",
+        "radius": 22
+      }
     },
     "hit_radiant": {
-      "src": "holy/smite"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#2a1e0c",
+          "#6a4e1c",
+          "#b8902e",
+          "#ecd27a",
+          "#fff6d8"
+        ],
+        "style": "ray",
+        "radius": 22
+      }
     },
     "hit_necrotic": {
-      "src": "shadow/grasping-hands"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#0c0814",
+          "#24142e",
+          "#4a2858",
+          "#8a5aa8",
+          "#d0b0f0"
+        ],
+        "style": "wisp",
+        "radius": 22
+      }
     },
     "hit_acid": {
-      "src": "nature/acid-splash"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#141a08",
+          "#34420e",
+          "#6a8a1a",
+          "#b4d23a",
+          "#eef8a0"
+        ],
+        "style": "drop",
+        "radius": 22
+      }
     },
     "hit_poison": {
-      "src": "nature/spore-burst"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#0e1a0c",
+          "#22401a",
+          "#4a7a26",
+          "#90c040",
+          "#d8f080"
+        ],
+        "style": "drop",
+        "radius": 22
+      }
     },
     "hit_thunder": {
-      "src": "lightning/thunderclap"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#14120e",
+          "#3a342a",
+          "#6a6050",
+          "#a89a82",
+          "#e6dcc8"
+        ],
+        "style": "ring",
+        "radius": 22
+      }
     },
     "area_fire": {
-      "src": "explosions/small-explosion"
+      "src": "explosions/small-explosion",
+      "ramp": "fire"
     },
     "area_cold": {
-      "src": "ice/frost-nova"
+      "src": "ice/frost-nova",
+      "ramp": "cold"
     },
     "area_lightning": {
-      "src": "lightning/lightning-strike"
+      "src": "lightning/lightning-strike",
+      "ramp": "lightning"
     },
     "area_radiant": {
-      "src": "holy/holy-pillar"
+      "src": "holy/holy-pillar",
+      "ramp": "radiant"
     },
     "area_necrotic": {
-      "src": "shadow/dark-explosion"
+      "src": "shadow/dark-explosion",
+      "ramp": "necrotic"
     },
     "area_poison": {
-      "src": "nature/poison-cloud"
+      "src": "nature/poison-cloud",
+      "ramp": "poison"
     },
     "area_arcane": {
       "src": "explosions/implosion",
       "opts": {
         "palette": "arcane"
-      }
+      },
+      "ramp": "arcane"
     },
     "cone_fire": {
-      "src": "fire/fire-breath"
+      "src": "fire/fire-breath",
+      "ramp": "fire"
     },
     "cone_cold": {
-      "src": "ice/frost-breath"
+      "src": "ice/frost-breath",
+      "ramp": "cold"
     },
     "line_lightning": {
       "src": "arcane/arcane-beam",
       "opts": {
         "palette": "electric"
-      }
+      },
+      "ramp": "lightning"
     },
     "heal": {
       "src": "duskfall/heal-motes"
     },
     "heal_area": {
-      "src": "holy/heal-aoe"
+      "src": "holy/heal-aoe",
+      "ramp": "heal"
     },
     "buff": {
-      "src": "holy/blessing"
+      "src": "duskfall/heal-motes",
+      "opts": {
+        "palette": [
+          "#2a1c08",
+          "#6a4a14",
+          "#b88a2a",
+          "#ecc860",
+          "#fff4c8"
+        ]
+      }
     },
     "shield": {
-      "src": "holy/divine-shield"
+      "src": "holy/divine-shield",
+      "ramp": "radiant"
     },
     "hex": {
-      "src": "shadow/hex-sigil"
+      "src": "duskfall/hit-burst",
+      "opts": {
+        "palette": [
+          "#0c0814",
+          "#24142e",
+          "#4a2858",
+          "#8a5aa8",
+          "#d0b0f0"
+        ],
+        "style": "rune"
+      }
     },
     "charm": {
-      "src": "arcane/rune-circle"
+      "src": "duskfall/heal-motes",
+      "opts": {
+        "palette": [
+          "#2a0c1c",
+          "#5a1a3c",
+          "#a03a6c",
+          "#e07aa8",
+          "#fcd0e4"
+        ]
+      }
     },
     "st_burning": {
       "src": "fire/spirit-flame",
       "opts": {
         "palette": "fire"
-      }
+      },
+      "ramp": "fire"
     },
     "st_poisoned": {
-      "src": "shadow/shadow-flames",
+      "src": "duskfall/status-loop",
       "opts": {
-        "palette": "poison"
+        "style": "bubbles",
+        "palette": [
+          "#0e1a0c",
+          "#22401a",
+          "#4a7a26",
+          "#90c040",
+          "#d8f080"
+        ]
       }
     },
     "st_charmed": {
-      "src": "status/charmed"
+      "src": "status/charmed",
+      "ramp": "charm"
     },
     "st_confused": {
-      "src": "status/confused"
+      "src": "status/confused",
+      "ramp": "gold"
     },
     "st_cursed": {
-      "src": "shadow/necro-skulls"
+      "src": "duskfall/status-loop",
+      "opts": {
+        "style": "wisps",
+        "palette": [
+          "#0c0814",
+          "#24142e",
+          "#4a2858",
+          "#8a5aa8",
+          "#d0b0f0"
+        ]
+      }
     },
     "st_stunned": {
-      "src": "status/stunned"
+      "src": "status/stunned",
+      "ramp": "gold"
     },
     "st_sleep": {
-      "src": "status/sleep"
+      "src": "status/sleep",
+      "ramp": "sleep"
     },
     "st_slowed": {
-      "src": "status/slowed"
+      "src": "duskfall/status-loop",
+      "opts": {
+        "style": "flakes",
+        "palette": [
+          "#10202e",
+          "#24506e",
+          "#4c8cb0",
+          "#9cd0e6",
+          "#e6f6ff"
+        ]
+      }
     },
     "st_bleeding": {
-      "src": "status/bleeding"
+      "src": "status/bleeding",
+      "ramp": "blood"
     },
     "st_rage": {
-      "src": "status/rage"
+      "src": "status/rage",
+      "ramp": "blood"
     },
     "death": {
-      "src": "spawn/poof"
+      "src": "spawn/poof",
+      "ramp": "smoke"
     },
     "ground_fire": {
       "src": "fire/ground-flames"
@@ -266,5 +508,119 @@
         ]
       }
     }
+  },
+  "ramps": {
+    "lightning": [
+      "#101428",
+      "#26306a",
+      "#4a6ac8",
+      "#9cc4ff",
+      "#f0f6ff"
+    ],
+    "radiant": [
+      "#2a1e0c",
+      "#6a4e1c",
+      "#b8902e",
+      "#ecd27a",
+      "#fff6d8"
+    ],
+    "necrotic": [
+      "#0c0814",
+      "#24142e",
+      "#4a2858",
+      "#8a5aa8",
+      "#d0b0f0"
+    ],
+    "poison": [
+      "#0e1a0c",
+      "#22401a",
+      "#4a7a26",
+      "#90c040",
+      "#d8f080"
+    ],
+    "acid": [
+      "#141a08",
+      "#34420e",
+      "#6a8a1a",
+      "#b4d23a",
+      "#eef8a0"
+    ],
+    "arcane": [
+      "#140c24",
+      "#2e1a52",
+      "#5a34a0",
+      "#a07ae0",
+      "#ecdcff"
+    ],
+    "thunder": [
+      "#14120e",
+      "#3a342a",
+      "#6a6050",
+      "#a89a82",
+      "#e6dcc8"
+    ],
+    "fire": [
+      "#2a1410",
+      "#5a2414",
+      "#a8401c",
+      "#ec8a34",
+      "#ffd88a"
+    ],
+    "cold": [
+      "#10202e",
+      "#24506e",
+      "#4c8cb0",
+      "#9cd0e6",
+      "#e6f6ff"
+    ],
+    "heal": [
+      "#0e2a1c",
+      "#1e5a34",
+      "#3e9a54",
+      "#86d48a",
+      "#d8f6c8"
+    ],
+    "steel": [
+      "#1a1c22",
+      "#3a404c",
+      "#6c7486",
+      "#b4bccb",
+      "#eef2f6"
+    ],
+    "gold": [
+      "#2a1c08",
+      "#6a4a14",
+      "#b88a2a",
+      "#ecc860",
+      "#fff4c8"
+    ],
+    "blood": [
+      "#1a0608",
+      "#4a1014",
+      "#8a1e22",
+      "#c8463c",
+      "#f0a08a"
+    ],
+    "charm": [
+      "#2a0c1c",
+      "#5a1a3c",
+      "#a03a6c",
+      "#e07aa8",
+      "#fcd0e4"
+    ],
+    "sleep": [
+      "#0c1028",
+      "#1e2a5a",
+      "#3e5aa0",
+      "#86a8e0",
+      "#dce8fc"
+    ],
+    "smoke": [
+      "#141216",
+      "#2a272e",
+      "#4a4650",
+      "#76717c",
+      "#aaa4ae"
+    ]
   }
 }

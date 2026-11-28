@@ -138,7 +138,11 @@ res://
   회복 = 번지는 빛 고리·안쪽 점선 원·옅은 풀빛 얼룩 + 빛 점, 번개 = 마디마다 꺾이는 1도트 갈래 번개가 번쩍이고 그을린 금 + 가운데 낙뢰, 광휘 = 가는 빛 고리·안쪽 도는 빛살·가운데 빛 웅덩이,
   사령 = 검보라 웅덩이·군데군데 핏줄 금, 독·산성 = 얼룩 웅덩이·부글거리는 거품, 비전·역장 = 그려지며 도는 룬 고리 두 겹 → 충격파, 천둥 = 동심 충격파 세 겹·흙먼지.
   선 굵기는 도트 단위(px1 — 범위가 커도 1~2도트). 원 안에 세우는 작은 효과 AREA_PROPS(빛 점 계열 = heal-motes를 원소 색 계단으로 구운 motes_<꼬리>). 바닥에 선 효과는 깊이 시험(앞 벽·나무·캐릭터에 가린다).
-  이 게임용 새 효과는 tools/pixelfx/src/fx/duskfall/(ice-shard·heal-motes — 캐릭터 키 약 50도트에 맞춤), fire/ground-flames.
+  이 게임용 새 효과는 tools/pixelfx/src/fx/duskfall/(캐릭터 키 약 50도트에 맞춤): hit-burst(맞는 자리 원소 터짐 — 꼬리별 모양 spark·shard·bolt·drop·wisp·ray·ring·rune, 치명타 = 금빛 ray 크게),
+  swing(무기 자국 slash·thrust·blunt·claw, 강철 색), status-loop(중독 거품·저주 연기·느려짐 서리), heal-motes(회복 — 강화·매혹·원소 빛 점도 색만 바꿔), ice-shard, fire/ground-flames.
+  색: tools/pixelfx_bake.json `ramps`(원소·강철·금·피·매혹·수면·연기 5단 색 계단). pixelfx 원본을 쓰는 효과는 굽고 나서 밝기 순서대로 그 색 계단에 끼우고(`ramp` — gradient map) 반투명 빛무리를 뺀다.
+  연출 박자(vfx.gd): 컷아웃 근접은 휘두른 팔이 내려오는 순간(SWING_HIT 0.26초), 활은 놓는 순간(SHOT_RELEASE), 주문은 손을 든 순간(CAST_RELEASE)에 효과가 나가고 피해 숫자도 그때.
+  몬스터(한 장 그림)는 대상 쪽으로 내딛고(actor_view.nudge) 바로. 맞으면 대상이 뒤로 밀렸다 돌아오고, 치명타는 짧은 멈칫(hitstop — Engine.time_scale)·화면 흔들림(shake — 카메라 보는 점), 큰 범위(3칸↑)도 흔들림.
   캡처: `--fx=이름,이름 --fx_lead=<프레임>`(기준 생물 옆에 늘어놓기, `area:<꼬리>:<반지름>[:dx:dz]` = 범위 효과), 캡처 중엔 효과 시계를 1/30초씩(vfx.fixed_dt).
   그림체 방향(2026-11-26): 첨부 참고 화풍처럼 격자가 드러나지 않게 어우러진 깔끔한 도트. 새 그림 추가 허용, 시간대·분위기는 지금 그대로.
   캡처: `--shot=<png> --frames=<n>`, 카메라 고정 `--cam=x,y --zoom=<배율>`. 맵 그림은 던전 에셋 키트로 그린다:

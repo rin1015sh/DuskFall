@@ -171,6 +171,23 @@ func _on_attack_anim(res: Dictionary) -> void:
 		_rig.play("attack_ranged" if str(res.get("attack", {}).get("kind", "melee")) == "ranged" else "attack_melee")
 
 
+## 잠깐 몸을 밀었다 되돌린다(공격 = 대상 쪽으로 내딛기, 피격 = 뒤로 밀림). 그림만 — 칸 위치는 그대로. dir: 세계 xz 방향.
+func nudge(dir: Vector3, dist: float, t_out: float = 0.08, t_back: float = 0.18, delay: float = 0.0) -> void:
+	if _pivot == null:
+		return
+	var d := Vector3(dir.x, 0, dir.z).normalized() * dist
+	var tw := create_tween()
+	if delay > 0.0:
+		tw.tween_interval(delay)
+	tw.tween_property(_pivot, "position", d, t_out).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(_pivot, "position", Vector3.ZERO, t_back).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+
+
+## 뼈대 그림(컷아웃)이 있나 — 효과가 휘두르는 박자를 맞춘다
+func has_rig() -> bool:
+	return _rig != null
+
+
 func _on_cast_anim(ctx: Dictionary) -> void:
 	if _rig != null and ctx.get("caster") == creature:
 		_rig.play("cast")
