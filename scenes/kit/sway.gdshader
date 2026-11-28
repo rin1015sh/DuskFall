@@ -50,9 +50,13 @@ vec4 tex_at(vec2 q) {
 	return texture(texture_albedo, (frame_rect.xy + q) / sheet_px);
 }
 
-// leaf: 1 = 넓은 잎, 2 = 바늘잎(소나무), +0.5 = 초록 아닌 잎도(단풍)
+// leaf: 1 = 넓은 잎, 2 = 바늘잎(소나무), 3 = 풀, +0.5 = 초록 아닌 잎도(단풍·마른 잎), +0.25 = 눈 덮임(밝은 눈 덩이도 잎)
 bool leaf_any() {
-	return fract(leaf) > 0.25;
+	return fract(leaf) > 0.4;
+}
+
+bool leaf_snow() {
+	return fract(leaf) > 0.2 && fract(leaf) < 0.4;
 }
 
 bool is_leaf(vec4 c) {
@@ -63,7 +67,10 @@ bool is_leaf(vec4 c) {
 		return true;
 	}
 	float mx = max(max(c.r, c.g), c.b);
-	return leaf_any() && mx - min(min(c.r, c.g), c.b) > 0.14 && mx > 0.3;
+	if (leaf_snow() && mx > 0.45 && c.b >= c.r * 0.95) {
+		return true;  // 눈 덩이
+	}
+	return leaf_any() && mx - min(min(c.r, c.g), c.b) > 0.1 && mx > 0.25;
 }
 
 // 잎 위에 남길 강조(열매·꽃): 잎이 아닌 채도 높고 밝은 화소
@@ -154,6 +161,13 @@ void fragment() {
 		float off = round(sw * min(up_d * 0.12, 2.0)) * 2.0;
 		vec4 sc = tex_at(p - vec2(off, 0.0));
 		vec4 b0 = tex_at(p);
+		// 외곽선 대신 제 색 테(sel-out): 오른쪽·위가 비면 그 도트를 어둡게 — 깊이를 안 써서 화면 외곽선이 없는 풀이 옅게 뜨지 않게
+		bool edge_r = tex_at(p - vec2(off, 0.0) + vec2(2.0, 0.0)).a < 0.5;
+		bool edge_u = tex_at(p - vec2(off, 0.0) + vec2(0.0, -2.0)).a < 0.5;
+		bool edge_l = tex_at(p - vec2(off, 0.0) + vec2(-2.0, 0.0)).a < 0.5;
+		if (sc.a > 0.9 && (edge_r || edge_l || edge_u)) {
+			sc.rgb *= vec3(0.62, 0.6, 0.68);
+		}
 		if (sc.a > 0.9) {
 			if (is_leaf(sc)) {
 				// 흔들리는 끝 쪽만 살짝 밝고 따뜻하게(원래 그림 음영은 그대로 — 밑동 덩어리를 어둡게 하면 판처럼 보인다)

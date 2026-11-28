@@ -23,8 +23,10 @@ const NEEDLE := {"tree_pine": true}
 ## 풀(leaf 3 — 원래 그림 모양 그대로 2도트 줄마다 따로 흔들림, 끝이 밝고 밑동이 어둡다)
 const BLADE := {"grass_tall": true, "weeds": true, "reed_thorn": true, "cattail": true, "tuft": true, "flowers": true}
 ## 잎 덩어리를 넣지 않는 변형(눈 덮임·마른·죽은 나무 — 잎이 아니다)과 초록이 아닌 잎 변형(단풍)
-const LEAF_SKIP := ["snowy", "dead", "dry"]
-const LEAF_ANY := ["autumn"]
+const LEAF_SKIP := ["dead"]
+const LEAF_ANY := ["autumn", "dry"]
+## 눈 덮인 잎(+0.25): 흰·푸른 회색 눈 덩이도 잎 덩어리로(수관 전체가 눈)
+const LEAF_SNOW := ["snowy"]
 
 
 ## 잎 덩어리 방식: 0 없음, 1 넓은 잎, 2 바늘잎, +0.5 초록 아닌 잎도
@@ -38,6 +40,9 @@ static func leaf_mode(id: String, variant: String) -> float:
 	for k: String in LEAF_ANY:
 		if variant.contains(k):
 			m += 0.5
+	for k: String in LEAF_SNOW:
+		if variant.contains(k):
+			m += 0.25
 	return m
 
 
