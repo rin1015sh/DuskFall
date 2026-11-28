@@ -57,6 +57,21 @@ const SURROUND_BIOMES := {
 		"wall": [["column_natural", 3, ["a", "b"]], ["boulder_mossy", 4, ["a", "b"]], ["tree_pine", 0.8, ["a", "b"]]],
 		"low": [["boulder_mossy", 3, ["a", "b"]], ["rubble", 2, null], ["rock", 2, null]],
 		"far": [["boulder_mossy", 2, ["a", "b"]], ["rock", 3, null], ["rubble", 2, null], ["tree_pine", 0.8, ["a", "b"]]]},
+	# 동굴(어두운 맵, 바위·맨땅 바닥): 돌기둥·석순·수정으로 막고, 너머는 석순·버섯·뼈
+	"cave": {"floor": "ground_rock", "patch": "ground_hardpan",
+		"wall": [["column_natural", 3, ["a", "b"]], ["stalagmite", 4, ["tall", "cluster", "cluster_b"]], ["rock_basalt", 1.5, ["columns_a", "columns_b", "spire"]], ["rock_crystal", 0.6, ["a", "b", "dim"]]],
+		"low": [["stalagmite", 3, ["small", "broken"]], ["rock", 3, null], ["rubble", 2, ["small", "scatter"]], ["mushroom", 1, ["cluster_a", "cluster_b", "pale"]]],
+		"far": [["stalagmite", 3, null], ["rock", 2, null], ["crystal", 0.5, ["blue_small", "violet_small"]], ["mushroom", 1, null], ["bones", 0.5, ["scatter_a", "scatter_b"]]]},
+	# 던전(판석·벽돌 바닥): 무너진 기둥·석상·잔해로 막고, 너머는 쓰러진 기둥·잔해·뼈·부서진 통
+	"dungeon": {"floor": "floor_flag", "patch": "floor_cracked",
+		"wall": [["pillar", 3, ["intact", "cracked", "mossy"]], ["statue", 1, ["headless", "broken", "ruined"]], ["rubble", 3, ["large_b", "brick_large"]], ["column_natural", 1, ["a"]]],
+		"low": [["rubble", 4, ["small", "small_b", "brick", "scatter"]], ["bones", 1.5, ["scatter_a", "pile", "ribcage"]], ["barrel", 1, ["broken", "toppled"]], ["crate", 1, ["broken"]]],
+		"far": [["pillar", 2, ["broken", "stump", "fallen"]], ["rubble", 3, null], ["bones", 1, null], ["statue", 0.4, ["ruined"]]]},
+	# 마을(포장 길): 집 벽·울타리·가로수로 막고, 너머는 통·상자·수레·우물·가로등
+	"town": {"floor": "street_setts", "patch": "street_gravel",
+		"wall": [["house_wall_stone", 2, ["plain", "plain_b", "window", "worn"]], ["wood_fence", 3, ["rail", "picket"]], ["street_tree", 2, ["ring", "trimmed"]]],
+		"low": [["barrel", 3, ["intact", "stack"]], ["crate", 3, ["intact", "stack"]], ["wood_fence", 2, ["rail", "broken"]], ["cart", 1, ["sacks", "hay", "empty"]]],
+		"far": [["street_tree", 2, ["ring", "trimmed"]], ["well", 0.3, ["plain"]], ["barrel", 1, null], ["crate", 1, null]], "density": 0.5},
 }
 const DECOR_KIT := "res://assets/pixel_decor/kit.json"
 
@@ -295,6 +310,8 @@ func _build_props() -> void:
 		_ruin = natural == null and bool(art().get("ruin", art().get("surround", null) != false)) and String(art().get("wall", "cave")) == "stone"
 		if _ruin:
 			_build_ruin_decor()
+		elif natural == null and bool(art().get("wall_decor", true)):
+			_build_ruin_decor(0.55, false)  # 실내·동굴 벽도 벽면 이끼·뿌리·밑동 잔해(풀은 없이, 조금 덜)
 	if natural != null:
 		if bool(art().get("cliff_decor", true)):
 			_build_cliff_decor()
@@ -566,7 +583,7 @@ func _build_surround() -> void:
 			for o: Vector2 in [Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)]:
 				var pt := Vector2(x, y) + o
 				ps.append(Vector3(pt.x, _edge_height(pt), pt.y))
-				var k := _surround_fade(pt, _play, w)
+				var k := _surround_fade(pt, _play, w) * _amb_k()
 				cs.append(Color(k, k, k))
 			mb.quad(ps, Rect2(0, 0, 1, 1), fsize, cs)
 	var mi := MeshInstance3D.new()
@@ -575,7 +592,7 @@ func _build_surround() -> void:
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(mi)
 	# 막는 띠(경계에서 SURROUND_BAND칸) → 그 너머 드문 나무·바위
-	var dens := float(opt.get("density", 1.0))
+	var dens := float(biome.get("density", 1.0))
 	var dk: RefCounted = DungeonKit.open(DECOR_KIT)
 	for y in range(-w, grid.size.y + w):
 		for x in range(-w, grid.size.x + w):
@@ -585,7 +602,7 @@ func _build_surround() -> void:
 			var pt := Vector2(c) + Vector2(_rand(c, Vector2i(1, 1), 61), _rand(c, Vector2i(2, 2), 67)) * 0.8 + Vector2(0.1, 0.1)
 			var d := _out_dist(pt, _play)
 			var south := pt.y > _play.end.y - 0.2 and absf(pt.x - _play.get_center().x) < _play.size.x * 0.5 + d
-			var k := _surround_fade(pt, _play, w)
+			var k := _surround_fade(pt, _play, w) * _amb_k()
 			var tint := Color(k, k, k)
 			var r := _rand(c, Vector2i(3, 3), 71)
 			var list := ""
@@ -623,9 +640,12 @@ func _build_surround() -> void:
 
 
 ## 둘레 지형: 풀 바닥이 40% 넘으면 숲, 아니면 바위 땅
+## 둘레 지형 고르기: 풀 40%↑ 숲, 어두운 맵 = 동굴(판석·실내 바닥 40%↑면 던전), 포장 길 40%↑ 마을, 실내 바닥 40%↑ 던전, 나머지 바위 땅
 func _surround_biome() -> String:
 	var open := 0
 	var green := 0
+	var street := 0
+	var inner := 0
 	for c: Vector2i in grid.all_cells():
 		if grid.has_flag(c, "wall"):
 			continue
@@ -633,7 +653,22 @@ func _surround_biome() -> String:
 		var f := _floor_id(c)
 		if f.contains("grass") or f.contains("meadow") or f.contains("thicket"):
 			green += 1
-	return "forest" if open > 0 and float(green) / open >= 0.4 else "rocky"
+		elif f.begins_with("street_") or f == "floor_cobble":
+			street += 1
+		elif f.begins_with("floor_") and f != "floor_dirt" and f != "floor_sand" or f.begins_with("room_"):
+			inner += 1
+	if open == 0:
+		return "rocky"
+	var k := 1.0 / float(open)
+	if green * k >= 0.4:
+		return "forest"
+	if String(map.get("light", "bright")) == "dark":
+		return "cave" if inner * k < 0.4 else "dungeon"
+	if street * k >= 0.4:
+		return "town"
+	if inner * k >= 0.4:
+		return "dungeon"
+	return "rocky"
 
 
 ## 맵에서 가장 많이 쓴 바닥(이름에 keys 중 하나가 든 것), 없으면 fallback
@@ -904,8 +939,9 @@ func _ruin_f(c: Vector2i) -> float:
 
 
 ## 폐허 벽 장식: 남쪽이 열린 벽면에 덩굴·이끼·뿌리, 밑동에 잔해·풀 덤불, 윗면에 풀 덤불
-func _build_ruin_decor() -> void:
-	var dk: RefCounted = DungeonKit.open(DECOR_KIT)
+## mul: 밀도 배율, wild: 밑동·윗면 풀(폐허는 켬, 실내·동굴은 끔)
+func _build_ruin_decor(mul: float = 1.0, wild: bool = true) -> void:
+	var dk: RefCounted = DungeonKit.open(DECOR_KIT) if wild else RefCounted.new()
 	for c: Vector2i in grid.all_cells():
 		if not grid.has_flag(c, "wall") or _veil.has(c):
 			continue
@@ -916,18 +952,18 @@ func _build_ruin_decor() -> void:
 		var base := V.wall_base(grid, c)
 		var tint := V.light_tint(grid, south if open_south else c)
 		if open_south and not low:
-			if _rand(c, Vector2i(1, 0), 223) < float(RUIN_DECOR["face"]) and top - base > 1.6:
+			if _rand(c, Vector2i(1, 0), 223) < float(RUIN_DECOR["face"]) * mul and top - base > 1.6:
 				var id := _pick_weighted(RUIN_FACE_ART, _rand(c, Vector2i(2, 0), 227))
 				var vs: PackedStringArray = kit.variants(id)
 				if not vs.is_empty():
 					var n := _add_prop(id, vs[int(_rand(c, Vector2i(3, 0), 229) * vs.size()) % vs.size()], _prop_pos(c, (_rand(c, Vector2i(4, 0), 233) - 0.5) * 30.0, 0.0), c, {"flip": _rand(c, Vector2i(5, 0), 239) < 0.5})
 					Kit3D.tint(n, tint)
-			if _rand(c, Vector2i(6, 0), 241) < float(RUIN_DECOR["rubble"]):
+			if _rand(c, Vector2i(6, 0), 241) < float(RUIN_DECOR["rubble"]) * mul:
 				var rv: PackedStringArray = kit.variants("rubble")
 				var pt := Vector2(c.x + 0.2 + _rand(c, Vector2i(7, 0), 251) * 0.6, c.y + 1.12)
 				var rn := _add_prop("rubble", rv[int(_rand(c, Vector2i(8, 0), 257) * rv.size()) % rv.size()], Vector3(pt.x, float(grid.height(south)), pt.y), c, {"flip": _rand(c, Vector2i(9, 0), 263) < 0.5})
 				Kit3D.tint(rn, tint)
-		if dk.data.is_empty():
+		if not wild or dk.data.is_empty():
 			continue
 		var tv: PackedStringArray = dk.variants("tuft")
 		if open_south and _rand(c, Vector2i(10, 0), 269) < float(RUIN_DECOR["foot_tuft"]):
@@ -962,6 +998,12 @@ static func _out_dist(pt: Vector2, play: Rect2) -> float:
 
 
 ## 둘레 밝기: 가까운 곳은 그대로, 둘레 끝 쪽(마지막 6칸)만 0.55까지 살짝 어둡게(먼 숲·바위의 깊이감)
+## 맵 기본 빛(밝음·어스름·어둠)의 밝기 — 맵 밖 둘레도 맵 안과 같이 어둡게
+func _amb_k() -> float:
+	var lv: int = {"dark": 0, "dim": 1}.get(String(map.get("light", "bright")), 2)
+	return 1.0 - float(V.DARK_ALPHA[lv]) * 0.72  # 맵 안 어둠보다 조금 밝게(돌기둥 윤곽이 보이게)
+
+
 static func _surround_fade(pt: Vector2, play: Rect2, w: int) -> float:
 	return 1.0 - 0.45 * smoothstep(float(w) - 6.0, float(w), _out_dist(pt, play))
 

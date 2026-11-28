@@ -429,3 +429,15 @@ func test_surface_looks() -> void:
 		assert_eq(String(MapView.SURFACE_ART[id][0]), "tile", "%s 웅덩이 칸" % id)
 	var sh: Shader = load("res://scenes/battle/overlay.gdshader")
 	assert_true(sh.code.contains("look_col"))
+
+
+## 둘레 지형: 동굴·던전·마을도 있고, 목록의 키트 물건이 다 있다.
+func test_surround_biomes_more() -> void:
+	var MapView := preload("res://scenes/battle/map_view.gd")
+	var DungeonKit := preload("res://scenes/kit/dungeon_kit.gd")
+	var kit: RefCounted = DungeonKit.open()
+	for b: String in ["cave", "dungeon", "town"]:
+		assert_true(MapView.SURROUND_BIOMES.has(b), "둘레 %s" % b)
+		for key: String in ["wall", "low", "far"]:
+			for row: Array in MapView.SURROUND_BIOMES[b][key]:
+				assert_true(kit.has(String(row[0])), "%s %s %s" % [b, key, row[0]])

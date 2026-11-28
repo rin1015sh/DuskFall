@@ -107,7 +107,9 @@ res://
   층: OUTLINE 19·REFL 18(거울 전용)·WATER 17·MAIN_ONLY 16. 반사 표면이 없는 맵은 거울을 그리지 않는다. `--pixel_reflect=0`이면 끔.
   맵 둘레(map_view._build_surround, 규칙 밖 그림만): 검은 바탕 대신 갈 수 없지만 이어져 보이는 지형 — 맵 밖 16칸에 맵 바닥과 이어 섞이는 바닥(둘레 바닥 + 얼룩,
   floor.gdshader cell_origin), 경계 바로 바깥 2.6칸은 지형에 맞는 큰 나무·바위로 빽빽하게 막고(남쪽 = 화면 앞은 1칸 띄우고 낮은 바위·덤불), 그 너머는 드문 나무·바위·풀,
-  먼 끝만 살짝 어둡게. 지형 SURROUND_BIOMES: 풀 바닥 40%↑ forest, 아니면 rocky. 맵 `art.surround`(false = 끔, {biome, floor, patch, wall/low/far, width, density}).
+  먼 끝만 살짝 어둡게. 지형 SURROUND_BIOMES(_surround_biome): 풀 바닥 40%↑ forest, 어두운 맵 = cave(돌기둥·석순·현무암·수정, 너머 석순·버섯·뼈 — 판석·실내 바닥 40%↑면 dungeon),
+  포장 길 40%↑ town(집 벽·울타리·가로수, 너머 통·상자·우물, 밀도 반), 판석·벽돌·실내 바닥 40%↑ dungeon(기둥·석상·잔해, 너머 쓰러진 기둥·뼈), 아니면 rocky.
+  둘레 밝기는 맵 기본 빛을 따른다(_amb_k — 어둠은 맵 안보다 조금 밝게). 실내·동굴 블록 벽도 벽면 이끼·뿌리·밑동 잔해(폐허 장식 0.55배, 풀 없이 — 맵 art.wall_decor = false면 끔). 맵 `art.surround`(false = 끔, {biome, floor, patch, wall/low/far, width, density}).
   자연 지형이면 가장자리 벽 칸(경계)은 벽 대신 둘레로 덮는다(규칙상 막힘 그대로). 카메라가 보는 점은 맵 안으로 묶는다(battle_scene._apply_camera).
   폐허 벽(블록 지형 + 둘레 + 돌벽, 맵 `art.ruin`): 벽 높이를 칸마다 들쭉날쭉(그림만 — map_view._vis_top, 무너진 홈), 윗면은 칸마다 크기·높이가 다른 윗돌 블록 그물(map_view._ruin_cap — 돌마다 윗면 + 카메라에 보이는 앞면, 사이 줄눈, 재질 새 그림 assets/pixel_decor/ruin_stone.png 돌·이끼),
   벽면 덩굴·이끼·뿌리, 밑동 잔해·풀, 윗면 풀(RUIN_DECOR).
