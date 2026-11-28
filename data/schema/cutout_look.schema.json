@@ -96,6 +96,34 @@
           },
           "glow": {
             "type": "string"
+          },
+          "cover": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "torso",
+                "upper_arm",
+                "forearm",
+                "thigh",
+                "shin",
+                "pauldron",
+                "skirt"
+              ]
+            }
+          },
+          "pattern": {
+            "type": "string",
+            "enum": [
+              "chain",
+              "scale",
+              "studs",
+              "quilt",
+              "bands"
+            ]
+          },
+          "color": {
+            "type": "string"
           }
         }
       }

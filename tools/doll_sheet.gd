@@ -1,6 +1,7 @@
 extends Node
 ## 간이 3D 인형 확인 시트(그림만): 4방향 × 동작 장면을 한 장 PNG로(창 화소 그대로 × 배율).
 ##   xvfb-run godot --path . --rendering-driver opengl3 res://tools/doll_sheet.tscn -- --out=<png> [--species=human] [--anim=idle,walk] [--frames=6] [--scale=4] [--dirs=0,2,3,1] [--times=0,0.14,0.26]
+##   착용: --armor=<아이템 id> --head= --cloak= --hands= --feet= --weapon= --off= (--helmet=1 --boots=1 = 모양 없는 투구·장화)
 
 const Doll := preload("res://scenes/battle/doll_rig.gd")
 const Cutout := preload("res://scripts/rules/cutout.gd")
@@ -21,7 +22,11 @@ func _run() -> void:
 	await get_tree().process_frame
 	var sp := Cutout.species_look(_arg("species", "human"))
 	var lk := {"template": str(sp.get("template", "medium")), "skin": str(sp.get("skin")), "hair": str(sp.get("hair")),
-		"extras": Array(sp.get("extras", []))}
+		"extras": Array(sp.get("extras", [])), "armor": Cutout.item_look(_arg("armor", "")),
+		"head_look": Cutout.item_look(_arg("head", "")), "cloak_look": Cutout.item_look(_arg("cloak", "")),
+		"hands_look": Cutout.item_look(_arg("hands", "")), "feet_look": Cutout.item_look(_arg("feet", "")),
+		"helmet": _arg("helmet", "0") == "1", "boots": _arg("boots", "0") == "1",
+		"weapon": Cutout.item_look(_arg("weapon", "")), "offhand": Cutout.item_look(_arg("off", ""))}
 	lk["key"] = JSON.stringify(lk)
 	var anims := _arg("anim", "idle,walk").split(",")
 	var times: Array = Array(_arg("times", "").split(",", false)).map(func(x: String) -> float: return float(x))  # 장면 시각(초) — 주면 frames 대신

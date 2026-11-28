@@ -83,7 +83,7 @@ func test_doll_rig_joints_facing_walk_and_size() -> void:
 	d.apply_look(Cutout.look(f))
 	for id: String in ["hips", "chest", "neck", "head", "shoulder_r", "elbow_r", "hand_r", "shoulder_l", "hip_r", "knee_r", "foot_r", "hip_l", "knee_l", "foot_l"]:
 		assert_true(d.j.has(id), "관절 %s" % id)
-	assert_false(d.j.has("weapon_r"), "맨몸 인형 — 무기는 착용 아이템 단계에서")
+	assert_true(d.j.has("weapon_r"), "착용 무기는 오른손에")
 	assert_true(d.cam.projection == Camera3D.PROJECTION_ORTHOGONAL, "직교 카메라")
 	assert_near(rad_to_deg(-d.cam.rotation.x), Doll.PITCH, 0.01, "위에서 내려다보는 각")
 	d.set_facing(0)
@@ -153,3 +153,37 @@ func test_doll_anims_keys_hold_and_fallback() -> void:
 	d.pose("rise", 0.65)
 	assert_near(d.j["hips"].position.y, 24.0, 0.01, "일어나기 끝 = 선 자세")
 	assert_near(d.root.rotation_degrees.y, 0.0, 0.5, "일어나며 바라보던 쪽으로")
+
+
+## 인형 장비(착용 아이템): 안 입으면 맨몸, 갑옷 cover 부위·투구·망토·장갑·장화·무기(활은 왼손)·방패
+func test_doll_gear_follows_items() -> void:
+	const Doll := preload("res://scenes/battle/doll_rig.gd")
+	var f := _pc("fighter")
+	var lk := Cutout.look(f)
+	assert_false(lk["armor"].get("cover", []).is_empty(), "갑옷 모양에 덮는 부위")
+	var d: Node3D = Doll.new()
+	tree.root.add_child(d)
+	own(d)
+	d.apply_look(lk)
+	assert_true(d.j.has("weapon_r"), "무기는 오른손")
+	var bare := lk.duplicate(true)
+	for k: String in ["armor", "weapon", "offhand", "head_look", "cloak_look", "hands_look", "feet_look"]:
+		bare[k] = {}
+	for k: String in ["helmet", "cloak", "gloves", "boots"]:
+		bare[k] = false
+	bare["key"] = "bare"
+	var n_armed: int = d.root.find_children("*", "MeshInstance3D", true, false).size()
+	d.apply_look(bare)
+	await tree.process_frame
+	var n_bare: int = d.root.find_children("*", "MeshInstance3D", true, false).size()
+	assert_true(n_armed > n_bare + 8, "갑옷·무기를 벗으면 껍데기가 빠진다(%d → %d)" % [n_armed, n_bare])
+	assert_false(d.j.has("weapon_r"), "맨손")
+	var archer := bare.duplicate(true)
+	archer["weapon"] = Cutout.item_look("longbow")
+	archer["cloak_look"] = Cutout.item_look("cloak_of_elvenkind")
+	archer["key"] = "archer"
+	d.apply_look(archer)
+	assert_true(d.j.has("weapon_l") and not d.j.has("weapon_r"), "활은 왼손(활 동작이 왼팔로 겨눔)")
+	assert_eq(str(archer["cloak_look"].get("color", "")), "#3a5236", "아이템 색이 재질 색보다 먼저")
+	for id: String in ["cloak_of_protection", "cloak_of_elvenkind", "boots_of_elvenkind", "gauntlets_of_ogre_power", "bracers_of_defense", "gloves_of_swimming_and_climbing", "headband_of_intellect"]:
+		assert_false(Cutout.item_look(id).is_empty(), "착용 아이템 모양 %s" % id)

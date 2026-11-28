@@ -58,7 +58,7 @@ static func item_look(item_id: String) -> Dictionary:
 	if e.is_empty():
 		return {}
 	var out := e.duplicate()
-	out["color"] = material_color(str(e["material"]))
+	out["color"] = str(e["color"]) if e.has("color") else material_color(str(e["material"]))  # 아이템 색이 따로 있으면 그것
 	var rar := str(Equipment.entry(item_id).get("rarity", "common"))
 	out["rarity"] = rar  # 등급 — 색 바꾸기(테두리 빛)
 	return out
@@ -91,6 +91,11 @@ static func look(c: Node) -> Dictionary:
 		"cloak": str(eq.get("cloak", "")) != "",
 		"gloves": str(eq.get("hands", "")) != "",
 		"boots": str(eq.get("feet", "")) != "",
+		# 착용 아이템 모양(간이 3D 인형이 관절에 붙인다 — 머리·망토·손·발)
+		"head_look": item_look(str(eq.get("head", ""))),
+		"cloak_look": item_look(str(eq.get("cloak", ""))),
+		"hands_look": item_look(str(eq.get("hands", ""))),
+		"feet_look": item_look(str(eq.get("feet", ""))),
 		"weapon": item_look(main),
 		"offhand": item_look(off),
 		"set": set_name,

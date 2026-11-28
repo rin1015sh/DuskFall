@@ -1,6 +1,6 @@
 {
   "schema": "cutout_look_v1",
-  "note_ko": "컷아웃 모습(룰북 1단계 체형 틀): 종족 → 체형·피부·머리 색·부가 부위(귀·뿔·꼬리·수염·엄니·주둥이), 장비 재질 색(색 바꾸기). 종족 id는 species.json 기본 종족, 혈통은 부모를 따른다. items: 무기·갑옷 id → 컷아웃 모양(sword·axe·mace·spear·staff·dagger·bow·crossbow·sling·gun / padded·leather·studded·hide·chain·scale·breastplate·plate·shield)·재질·길이(px)·빛(불러낸 무기). 마법 변형(+1 등)은 바탕 id를 따른다.",
+  "note_ko": "컷아웃 모습(룰북 1단계 체형 틀): 종족 → 체형·피부·머리 색·부가 부위(귀·뿔·꼬리·수염·엄니·주둥이), 장비 재질 색(색 바꾸기). 종족 id는 species.json 기본 종족, 혈통은 부모를 따른다. items: 무기·갑옷 id → 컷아웃 모양(sword·axe·mace·spear·staff·dagger·bow·crossbow·sling·gun / padded·leather·studded·hide·chain·scale·breastplate·plate·shield)·재질·길이(px)·빛(불러낸 무기). 마법 변형(+1 등)은 바탕 id를 따른다. 갑옷 cover = 인형(doll_rig)에서 덮는 부위(torso·upper_arm·forearm·thigh·shin·pauldron·skirt), pattern = 무늬(chain·scale·studs·quilt·bands), 머리·망토·손·발 아이템 모양 helmet·headband·cloak·gloves·gauntlets·bracers·boots, color = 재질 색 대신 쓸 색.",
   "species": [
     {
       "id": "human",
@@ -383,78 +383,197 @@
       "id": "look_padded_armor",
       "shape": "padded",
       "material": "mat_cloth",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm",
+        "thigh"
+      ],
+      "pattern": "quilt"
     },
     {
       "id": "look_leather_armor",
       "shape": "leather",
       "material": "mat_leather",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm",
+        "thigh"
+      ]
     },
     {
       "id": "look_studded_leather_armor",
       "shape": "studded",
       "material": "mat_leather",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm",
+        "thigh"
+      ],
+      "pattern": "studs"
     },
     {
       "id": "look_hide_armor",
       "shape": "hide",
       "material": "mat_hide",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm",
+        "thigh",
+        "pauldron"
+      ]
     },
     {
       "id": "look_chain_shirt",
       "shape": "chain",
       "material": "mat_chain",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm"
+      ],
+      "pattern": "chain"
     },
     {
       "id": "look_scale_mail",
       "shape": "scale",
       "material": "mat_scale",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm",
+        "skirt"
+      ],
+      "pattern": "scale"
     },
     {
       "id": "look_breastplate",
       "shape": "breastplate",
       "material": "mat_plate",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso"
+      ]
     },
     {
       "id": "look_half_plate_armor",
       "shape": "plate",
       "material": "mat_plate",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm",
+        "shin",
+        "pauldron"
+      ]
     },
     {
       "id": "look_ring_mail",
       "shape": "chain",
       "material": "mat_chain",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm",
+        "skirt"
+      ],
+      "pattern": "chain"
     },
     {
       "id": "look_chain_mail",
       "shape": "chain",
       "material": "mat_chain",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm",
+        "forearm",
+        "skirt"
+      ],
+      "pattern": "chain"
     },
     {
       "id": "look_splint_armor",
       "shape": "scale",
       "material": "mat_scale",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm",
+        "forearm",
+        "skirt",
+        "shin",
+        "pauldron"
+      ],
+      "pattern": "bands"
     },
     {
       "id": "look_plate_armor",
       "shape": "plate",
       "material": "mat_plate",
-      "length": 0
+      "length": 0,
+      "cover": [
+        "torso",
+        "upper_arm",
+        "forearm",
+        "thigh",
+        "shin",
+        "pauldron"
+      ]
     },
     {
       "id": "look_shield",
       "shape": "shield",
       "material": "mat_wood",
+      "length": 0
+    },
+    {
+      "id": "look_cloak_of_protection",
+      "shape": "cloak",
+      "material": "mat_cloth",
+      "length": 0,
+      "color": "#4e3a5e"
+    },
+    {
+      "id": "look_cloak_of_elvenkind",
+      "shape": "cloak",
+      "material": "mat_cloth",
+      "length": 0,
+      "color": "#3a5236"
+    },
+    {
+      "id": "look_boots_of_elvenkind",
+      "shape": "boots",
+      "material": "mat_leather",
+      "length": 0,
+      "color": "#4a5a3a"
+    },
+    {
+      "id": "look_gauntlets_of_ogre_power",
+      "shape": "gauntlets",
+      "material": "mat_steel",
+      "length": 0
+    },
+    {
+      "id": "look_bracers_of_defense",
+      "shape": "bracers",
+      "material": "mat_gold",
+      "length": 0
+    },
+    {
+      "id": "look_gloves_of_swimming_and_climbing",
+      "shape": "gloves",
+      "material": "mat_leather",
+      "length": 0,
+      "color": "#3e5a6a"
+    },
+    {
+      "id": "look_headband_of_intellect",
+      "shape": "headband",
+      "material": "mat_gold",
       "length": 0
     }
   ]
