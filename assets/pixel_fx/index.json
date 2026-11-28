@@ -375,19 +375,19 @@
   "src": "fire/ground-flames"
  },
  "heal": {
-  "columns": 8,
+  "columns": 7,
   "fps": 15,
-  "frames": 51,
+  "frames": 21,
   "loop": false,
   "pivot": [
-   62,
-   108
+   18,
+   58
   ],
   "size": [
-   124,
-   120
+   36,
+   64
   ],
-  "src": "nature/healing-bloom"
+  "src": "duskfall/heal-motes"
  },
  "heal_area": {
   "columns": 5,
@@ -568,6 +568,21 @@
    156
   ],
   "src": "lightning/thunderclap"
+ },
+ "ice_shard": {
+  "columns": 5,
+  "fps": 15,
+  "frames": 22,
+  "loop": false,
+  "pivot": [
+   20,
+   38
+  ],
+  "size": [
+   40,
+   44
+  ],
+  "src": "duskfall/ice-shard"
  },
  "line_lightning": {
   "columns": 3,

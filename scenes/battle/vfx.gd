@@ -27,6 +27,13 @@ const STATUS_FX := {"burning": ["st_burning", false], "poisoned": ["st_poisoned"
 	"maddened": ["st_confused", true], "cursed": ["st_cursed", true], "hexed": ["st_cursed", true], "hexblades_curse": ["st_cursed", true],
 	"stunned": ["st_stunned", true], "paralyzed": ["st_stunned", true], "asleep": ["st_sleep", true], "slowed": ["st_slowed", true],
 	"bleeding": ["st_bleeding", false], "open_wound": ["st_bleeding", false], "raging": ["st_rage", false], "frenzy": ["st_rage", false]}
+## 바닥 효과(fx_floor.gdshader — 바닥에 눕힌 판, 카메라 각도·실제 범위 크기): 꼬리 → [셰이더 style, 길이(초), 색 계단 5단(어두움 → 밝음, 게임 그림 색에서)]
+const FLOOR_STYLE := {
+	"fire": [0, 2.2, ["#2a1410", "#5a2414", "#a8401c", "#ec8a34", "#ffd88a"]],
+	"cold": [1, 2.4, ["#10202e", "#24506e", "#4c8cb0", "#9cd0e6", "#e6f6ff"]],
+	"heal": [2, 2.0, ["#0e2a1c", "#1e5a34", "#3e9a54", "#86d48a", "#d8f6c8"]],
+}
+const FLOOR_SHADER := preload("res://scenes/battle/fx_floor.gdshader")
 const BOLT_SPEED := 14.0  # 탄 속도(유닛/초)
 const MAX_LONG := 2.6  # 한 번 효과가 이보다 길면 빨리 감는다(초)
 
@@ -110,6 +117,8 @@ func _play(name: String, at: Vector3, opts: Dictionary = {}) -> Dictionary:
 	var node := PFX.make(name, o)
 	if node == null:
 		return {}
+	if opts.get("depth", false):
+		node.no_depth_test = false  # 바닥에 선 효과는 앞의 벽·나무·캐릭터에 가린다
 	node.position = at
 	node.visible = false
 	if opts.has("tint"):
@@ -218,7 +227,10 @@ func _on_spell(ctx: Dictionary) -> void:
 			var center: Vector3 = V.top(g, aim) if aim is Vector2i else foot
 			if shape == "emanation" or str(sp.get("range", {}).get("type", "")) == "self":
 				center = _foot(caster) if scene.views.has(caster) else center
-			_play(name, center, {"scale": big, "light": fam, "power": 1.2, "radius": maxf(r + 1.0, 2.0)})
+			if FLOOR_STYLE.has(fam):
+				area_burst(fam, center, r + 0.5)
+			else:
+				_play(name, center, {"scale": big, "light": fam, "power": 1.2, "radius": maxf(r + 1.0, 2.0)})
 		"cone", "line":
 			var name2 := ("cone_" if d["kind"] == "cone" else "line_") + fam
 			if PFX.has(name2) and scene.views.has(caster):
@@ -228,7 +240,7 @@ func _on_spell(ctx: Dictionary) -> void:
 		"hit":
 			_play("hit_" + fam, foot, {"light": fam, "power": 0.8})
 		"heal_area":
-			_play("heal_area", _foot(caster) if shape == "emanation" and scene.views.has(caster) else V.top(g, aim) if aim is Vector2i else foot, {"light": "heal", "power": 0.8})
+			area_burst("heal", _foot(caster) if shape == "emanation" and scene.views.has(caster) else V.top(g, aim) if aim is Vector2i else foot, r + 0.5)
 		"heal":
 			pass  # 한 대상 회복은 on_heal이 꽃을 띄운다(물약·기능 회복과 같이)
 		"shield", "buff", "hex", "charm":
@@ -348,7 +360,7 @@ func _step_sprites(delta: float) -> void:
 	var lights: Array = []
 	var keep: Array = []
 	for e: Dictionary in _sp:
-		var node: Sprite3D = e["node"]
+		var node: Node3D = e["node"]
 		if not is_instance_valid(node):
 			continue
 		e["t"] += delta
@@ -359,12 +371,16 @@ func _step_sprites(delta: float) -> void:
 		keep.append(e)
 		if t < 0.0:
 			continue
-		var f := PFX.frame_at(e["name"], t * float(e["speed"]))
-		if f < 0:
-			node.visible = false
-			continue
-		node.visible = true
-		node.frame = mini(f, node.hframes * node.vframes - 1)
+		if e.has("floor"):
+			(e["floor"] as ShaderMaterial).set_shader_parameter("t", t / float(e["life"]))
+		elif node is Sprite3D:
+			var spr := node as Sprite3D
+			var f := PFX.frame_at(e["name"], t * float(e["speed"]))
+			if f < 0:
+				spr.visible = false
+				continue
+			spr.visible = true
+			spr.frame = mini(f, spr.hframes * spr.vframes - 1)
 		if e.has("from"):
 			node.position = (e["from"] as Vector3).lerp(e["to"], clampf(t / maxf(float(e["life"]), 0.01), 0.0, 1.0))
 		if e.has("follow"):
@@ -415,6 +431,76 @@ func _draw() -> void:
 				draw_string(font, at, f["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(col, 1.0 - k * 0.8))
 
 
+## 범위 효과(우리 구도): 바닥 판(카메라 각도 타원, 반지름 rad 유닛 = 규칙 범위 N + 0.5칸) + 원 안·둘레에 세운 효과.
+##   불 = 퍼지는 불 고리 → 그을린 바닥 + 고리가 닿는 자리마다 낮은 불꽃(ground_fire), 가운데 작은 폭발
+##   냉기 = 퍼지는 서리 고리 → 얼음 금 서리 + 둘레·안쪽에 솟았다 부서지는 얼음 조각(ice_shard)
+##   회복 = 천천히 번지는 빛 고리 + 안쪽 점선 원 + 군데군데 꽃(heal)
+func area_burst(fam: String, center: Vector3, rad: float) -> void:
+	var st: Array = FLOOR_STYLE[fam]
+	var life: float = st[1]
+	_floor(center, rad, int(st[0]), life, st[2])
+	var n := clampi(int(rad * rad * 1.1), 3, 26)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(center.x * 73.0 + center.z * 151.0)
+	var spread := 0.32 if fam == "fire" else (0.4 if fam == "cold" else 0.55)
+	for i in n:
+		# 원 안에 고르게(가운데는 덜) — 고리가 그 자리에 닿을 때 솟는다
+		var u := sqrt(rng.randf_range(0.08, 1.0)) * 0.88
+		if fam == "cold" and i % 2 == 0:
+			u = rng.randf_range(0.82, 0.95)  # 냉기는 반은 둘레에 줄지어
+		var ang := rng.randf() * TAU
+		var p := center + Vector3(cos(ang) * u * rad, 0, sin(ang) * u * rad)
+		p.y = scene.map_view.ground_at(Vector2(p.x, p.z)) if scene.get("map_view") != null else center.y
+		var delay := u * spread * life * (0.9 + rng.randf() * 0.2)
+		match fam:
+			"fire":
+				_play("ground_fire", p, {"delay": delay, "max_life": life * 0.7 - delay, "flip": rng.randf() < 0.5, "depth": true})
+			"cold":
+				_play("ice_shard", p, {"delay": delay, "flip": rng.randf() < 0.5, "depth": true})
+			"heal":
+				if i % 2 == 0:
+					_play("heal", p, {"delay": delay, "depth": true})
+	if fam == "fire":
+		_play("hit_fire", center, {"light": "fire", "power": 1.3, "radius": rad + 1.0})
+	elif fam == "cold":
+		_play("ice_shard", center, {"light": "cold", "power": 1.0, "radius": rad + 0.5})
+	else:
+		_dyn_only(center, "heal", 0.8, rad + 0.5, life)
+
+
+## 바닥 판 하나(fx_floor.gdshader). 진행 t는 _step_sprites가 넘긴다.
+func _floor(center: Vector3, rad: float, style: int, life: float, ramp: Array) -> void:
+	var mi := MeshInstance3D.new()
+	var pm := PlaneMesh.new()
+	pm.size = Vector2(rad * 2.0 + 0.4, rad * 2.0 + 0.4)
+	mi.mesh = pm
+	var m := ShaderMaterial.new()
+	m.shader = FLOOR_SHADER
+	var cols := PackedVector3Array()
+	for h: String in ramp:
+		var c := Color(h)
+		cols.append(Vector3(c.r, c.g, c.b))
+	m.set_shader_parameter("ramp", cols)
+	m.set_shader_parameter("center", center)
+	m.set_shader_parameter("radius", rad)
+	m.set_shader_parameter("style", style)
+	m.set_shader_parameter("seed", fmod(center.x * 3.7 + center.z * 1.3, 97.0))
+	m.render_priority = 127
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.position = center + Vector3(0, 0.03, 0)
+	scene.add_child(mi)
+	_sp.append({"node": mi, "name": "", "floor": m, "t": 0.0, "speed": 1.0, "life": life, "light": "", "power": 0.0, "radius": rad, "at": center})
+
+
+## 그림 없이 광원만(회복 범위 등)
+func _dyn_only(at: Vector3, light: String, power: float, rad: float, life: float) -> void:
+	var holder := Node3D.new()
+	holder.position = at
+	scene.add_child(holder)
+	_sp.append({"node": holder, "name": "", "t": 0.0, "speed": 1.0, "life": life, "light": light, "power": power, "radius": rad, "at": at})
+
+
 ## 캡처용 맛보기: 이름마다 기준 생물 오른쪽으로 2칸씩 늘어놓는다(bolt_·arrow·cone_·line_은 오른쪽 6칸을 향해)
 func demo(names: Array, who: Node) -> void:
 	if not scene.views.has(who):
@@ -423,7 +509,10 @@ func demo(names: Array, who: Node) -> void:
 	for i in names.size():
 		var n := String(names[i])
 		var at := base + Vector3(2.0 * float(i + 1), 0, 0)
-		if n.begins_with("bolt_") or n == "arrow":
+		if n.begins_with("area:"):
+			var off := Vector3(float(n.get_slice(":", 3)), 0, float(n.get_slice(":", 4))) if n.get_slice_count(":") >= 5 else Vector3(float(n.get_slice(":", 2)), 0, 0)
+			area_burst(n.get_slice(":", 1), base + off, float(n.get_slice(":", 2)) + 0.5)
+		elif n.begins_with("bolt_") or n == "arrow":
 			var e := _play(n, at + Vector3(0, 0.8, 0), {"aim_to": at + Vector3(6, 0.8, 0), "max_life": 3.0, "light": n.trim_prefix("bolt_"), "power": 0.6})
 			if not e.is_empty():
 				e["from"] = at + Vector3(0, 0.8, 0)

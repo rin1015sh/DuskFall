@@ -133,7 +133,11 @@ res://
   × 피해 꼬리 FAMILY(역장·정신 = arcane), 피해 없는 주문: 회복 heal(on_heal)·heal_area, 보호(방호 학파) shield, 강화 buff, 약화(사령·환혹) hex·그 밖 charm.
   상태 이상 STATUS_FX(머리 위·발밑 고리), 몬스터 쓰러짐 death, 불 표면 ground_fire(이 게임용 새 효과). 빗나감·피해 숫자는 탄이 닿을 때.
   효과는 잠깐 광원(pixel_view.set_dyn_lights → 더하기 판, 최대 8개, 3단계 끊음, 밝은 맵은 은은하게). 몸에 그리는 pixelfx 효과(기본 인형이 같이 그려짐)는 쓰지 않는다.
-  캡처: `--fx=이름,이름 --fx_lead=<프레임>`(기준 생물 옆에 늘어놓기), 캡처 중엔 효과 시계를 1/30초씩(vfx.fixed_dt).
+  범위 효과는 우리 구도로(vfx.area_burst, 2026-11-28): 바닥에 눕힌 판(fx_floor.gdshader — 카메라 각도 타원이 저절로, 반지름 = 규칙 범위 N + 0.5칸, 그림 도트 격자, 원소별 5단 색 계단 FLOOR_STYLE,
+  빛무리 없이 단계) — 불 = 찢긴 불 고리가 퍼지고 지나간 자리 얼룩 그을음·불씨 + 고리가 닿는 자리마다 낮은 불꽃, 냉기 = 서리 고리 → 얼룩 서리·군데군데 얼음 금 + 둘레·안쪽에 솟았다 부서지는 얼음 조각,
+  회복 = 번지는 빛 고리·안쪽 점선 원·옅은 풀빛 얼룩 + 빛 점. 바닥에 선 효과는 깊이 시험(앞 벽·나무·캐릭터에 가린다). 다른 원소 범위는 아직 pixelfx 원본.
+  이 게임용 새 효과는 tools/pixelfx/src/fx/duskfall/(ice-shard·heal-motes — 캐릭터 키 약 50도트에 맞춤), fire/ground-flames.
+  캡처: `--fx=이름,이름 --fx_lead=<프레임>`(기준 생물 옆에 늘어놓기, `area:<꼬리>:<반지름>[:dx:dz]` = 범위 효과), 캡처 중엔 효과 시계를 1/30초씩(vfx.fixed_dt).
   그림체 방향(2026-11-26): 첨부 참고 화풍처럼 격자가 드러나지 않게 어우러진 깔끔한 도트. 새 그림 추가 허용, 시간대·분위기는 지금 그대로.
   캡처: `--shot=<png> --frames=<n>`, 카메라 고정 `--cam=x,y --zoom=<배율>`. 맵 그림은 던전 에셋 키트로 그린다:
   맵 데이터 `art`(wall·wall_top·cliff·floors[범례 글자 → 키트 바닥]·props[키트 물건 at/id/v]). 키트 목록은 `docs/from_dungeon_and_stone/DUNGEON_KIT.md`·`asset_library/`.

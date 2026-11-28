@@ -132,10 +132,7 @@
       }
     },
     "heal": {
-      "src": "nature/healing-bloom",
-      "opts": {
-        "palette": "heal"
-      }
+      "src": "duskfall/heal-motes"
     },
     "heal_area": {
       "src": "holy/heal-aoe"
@@ -193,6 +190,9 @@
     },
     "ground_fire": {
       "src": "fire/ground-flames"
+    },
+    "ice_shard": {
+      "src": "duskfall/ice-shard"
     }
   }
 }

@@ -357,3 +357,15 @@ func test_pixel_fx_catalog() -> void:
 		assert_true(PFX.has(String(Vfx.STATUS_FX[id][0])), "상태 %s" % id)
 	assert_true(PFX.frame_at("st_burning", 100.0) >= 0, "고리 효과는 돈다")
 	assert_eq(PFX.frame_at("hit", 100.0), -1, "한 번 효과는 끝난다")
+
+
+## 바닥 효과(우리 구도): 불·냉기·회복 바닥 판 셰이더와 이 게임용 새 효과(얼음 조각·회복 빛 점)가 있다.
+func test_floor_fx() -> void:
+	var Vfx := preload("res://scenes/battle/vfx.gd")
+	var PFX := preload("res://scenes/battle/pixel_fx.gd")
+	for fam: String in ["fire", "cold", "heal"]:
+		assert_true(Vfx.FLOOR_STYLE.has(fam), "바닥 효과 %s" % fam)
+		assert_eq((Vfx.FLOOR_STYLE[fam][2] as Array).size(), 5, "색 계단 5단")
+	assert_true(ResourceLoader.exists("res://scenes/battle/fx_floor.gdshader"))
+	assert_true(PFX.has("ice_shard") and PFX.has("ground_fire") and PFX.has("heal"))
+	assert_true(PFX.info("heal")["size"][1] <= 64, "회복 효과는 캐릭터 키 정도")
