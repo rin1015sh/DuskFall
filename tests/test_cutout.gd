@@ -223,3 +223,32 @@ func test_doll_two_handed_and_clothes() -> void:
 	lk2["key"] = "1h"
 	d.apply_look(lk2)
 	assert_false(d.j["weapon_r"].has_meta("grip2"), "방패를 들면 양손 겸용도 한 손")
+
+
+## 인형 무기 외형: 같은 칼 종류라도 무기마다 모양이 다르고(variant), 마법 무기는 바탕 외형 + 등급 보석
+func test_doll_weapon_variants_and_magic() -> void:
+	const Doll := preload("res://scenes/battle/doll_rig.gd")
+	for id: String in ["longsword", "scimitar", "rapier", "greatsword", "battleaxe", "greataxe", "morningstar", "flail", "halberd", "pike", "trident"]:
+		assert_true(str(Cutout.item_look(id).get("variant", "")) != "", "외형 variant %s" % id)
+	var sp := Cutout.species_look("human")
+	var sig := {}
+	var d: Node3D = Doll.new()
+	tree.root.add_child(d)
+	own(d)
+	for id: String in ["longsword", "scimitar", "rapier", "greatsword"]:
+		var lk := {"template": "medium", "skin": str(sp["skin"]), "hair": str(sp["hair"]), "extras": [], "tunic": "#2f4a6b",
+			"armor": {}, "weapon": Cutout.item_look(id), "offhand": Cutout.item_look("shield"), "key": id}
+		d.apply_look(lk)
+		var meshes: Array = d.j["weapon_r"].find_children("*", "MeshInstance3D", false, false)
+		var s := ""
+		for mi: MeshInstance3D in meshes:
+			s += "%s:%.1f;" % [mi.mesh.get_class(), mi.mesh.get_aabb().size.length()]
+		sig[id] = s
+	assert_eq(sig.values().size(), 4)
+	var uniq := {}
+	for v: String in sig.values():
+		uniq[v] = true
+	assert_eq(uniq.size(), 4, "장검·시미터·레이피어·대검은 서로 다른 모양")
+	var magic := Cutout.item_look("longsword_plus_1")
+	assert_eq(str(magic.get("variant", "")), "long", "마법 무기는 바탕 무기 외형")
+	assert_true(str(magic.get("rarity", "common")) != "common", "마법 무기 등급")

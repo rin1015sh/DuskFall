@@ -1,6 +1,6 @@
 {
   "schema": "cutout_look_v1",
-  "note_ko": "컷아웃 모습(룰북 1단계 체형 틀): 종족 → 체형·피부·머리 색·부가 부위(귀·뿔·꼬리·수염·엄니·주둥이), 장비 재질 색(색 바꾸기). 종족 id는 species.json 기본 종족, 혈통은 부모를 따른다. items: 무기·갑옷 id → 컷아웃 모양(sword·axe·mace·spear·staff·dagger·bow·crossbow·sling·gun / padded·leather·studded·hide·chain·scale·breastplate·plate·shield)·재질·길이(px)·빛(불러낸 무기). 마법 변형(+1 등)은 바탕 id를 따른다. 갑옷 cover = 인형(doll_rig)에서 덮는 부위(torso·upper_arm·forearm·thigh·shin·pauldron·skirt), pattern = 무늬(chain·scale·studs·quilt·bands), 머리·망토·손·발 아이템 모양 helmet·headband·cloak·gloves·gauntlets·bracers·boots, color = 재질 색 대신 쓸 색. 무기 shape hammer(망치)·club(곤봉) 추가. 두손 쥐기는 무기 데이터 properties(two_handed, versatile + 빈 보조 손)에서 Cutout.item_look이 two_handed·versatile로 붙인다.",
+  "note_ko": "컷아웃 모습(룰북 1단계 체형 틀): 종족 → 체형·피부·머리 색·부가 부위(귀·뿔·꼬리·수염·엄니·주둥이), 장비 재질 색(색 바꾸기). 종족 id는 species.json 기본 종족, 혈통은 부모를 따른다. items: 무기·갑옷 id → 컷아웃 모양(sword·axe·mace·spear·staff·dagger·bow·crossbow·sling·gun / padded·leather·studded·hide·chain·scale·breastplate·plate·shield)·재질·길이(px)·빛(불러낸 무기). 마법 변형(+1 등)은 바탕 id를 따른다. 갑옷 cover = 인형(doll_rig)에서 덮는 부위(torso·upper_arm·forearm·thigh·shin·pauldron·skirt), pattern = 무늬(chain·scale·studs·quilt·bands), 머리·망토·손·발 아이템 모양 helmet·headband·cloak·gloves·gauntlets·bracers·boots, color = 재질 색 대신 쓸 색. 무기 shape hammer(망치)·club(곤봉) 추가. 두손 쥐기는 무기 데이터 properties(two_handed, versatile + 빈 보조 손)에서 Cutout.item_look이 two_handed·versatile로 붙인다. variant = 같은 shape 안의 외형(장검 long·시미터 curved·레이피어 rapier·대검 great·낫 sickle, 손도끼 hand·전투도끼 battle·대도끼 great(양날)·곡괭이 pick, 철퇴 flanged·모닝스타 spiked·도리깨 flail, 창 spear·투창 javelin·글레이브 glaive·할버드 halberd·랜스 lance·장창 pike·삼지창 trident 등) — 인형이 무기마다 다른 모양으로 그린다. 마법 무기(+1 등)는 바탕 무기 외형 + 등급 색 보석·날 빛.",
   "species": [
     {
       "id": "human",
@@ -141,243 +141,283 @@
       "id": "look_longsword",
       "shape": "sword",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "long"
     },
     {
       "id": "look_shortsword",
       "shape": "sword",
       "material": "mat_steel",
-      "length": 26
+      "length": 26,
+      "variant": "short"
     },
     {
       "id": "look_scimitar",
       "shape": "sword",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "curved"
     },
     {
       "id": "look_rapier",
       "shape": "sword",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "rapier"
     },
     {
       "id": "look_greatsword",
       "shape": "sword",
       "material": "mat_steel",
-      "length": 58
+      "length": 58,
+      "variant": "great"
     },
     {
       "id": "look_conjured_flame_blade",
       "shape": "sword",
       "material": "mat_steel",
       "length": 40,
-      "glow": "#ff8a30"
+      "glow": "#ff8a30",
+      "variant": "long"
     },
     {
       "id": "look_conjured_gloom_blade",
       "shape": "sword",
       "material": "mat_steel",
       "length": 40,
-      "glow": "#8a5ad0"
+      "glow": "#8a5ad0",
+      "variant": "long"
     },
     {
       "id": "look_sickle",
       "shape": "sword",
       "material": "mat_steel",
-      "length": 26
+      "length": 26,
+      "variant": "sickle"
     },
     {
       "id": "look_handaxe",
       "shape": "axe",
       "material": "mat_steel",
-      "length": 26
+      "length": 26,
+      "variant": "hand"
     },
     {
       "id": "look_battleaxe",
       "shape": "axe",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "battle"
     },
     {
       "id": "look_greataxe",
       "shape": "axe",
       "material": "mat_steel",
-      "length": 58
+      "length": 58,
+      "variant": "great"
     },
     {
       "id": "look_war_pick",
       "shape": "axe",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "pick"
     },
     {
       "id": "look_club",
       "shape": "club",
       "material": "mat_wood",
-      "length": 26
+      "length": 26,
+      "variant": "club"
     },
     {
       "id": "look_greatclub",
       "shape": "club",
       "material": "mat_wood",
-      "length": 58
+      "length": 58,
+      "variant": "great"
     },
     {
       "id": "look_light_hammer",
       "shape": "hammer",
       "material": "mat_steel",
-      "length": 26
+      "length": 26,
+      "variant": "light"
     },
     {
       "id": "look_mace",
       "shape": "mace",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "flanged"
     },
     {
       "id": "look_flail",
       "shape": "mace",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "flail"
     },
     {
       "id": "look_maul",
       "shape": "hammer",
       "material": "mat_steel",
-      "length": 58
+      "length": 58,
+      "variant": "maul"
     },
     {
       "id": "look_morningstar",
       "shape": "mace",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "spiked"
     },
     {
       "id": "look_warhammer",
       "shape": "hammer",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "war"
     },
     {
       "id": "look_javelin",
       "shape": "spear",
       "material": "mat_wood",
-      "length": 40
+      "length": 40,
+      "variant": "javelin"
     },
     {
       "id": "look_spear",
       "shape": "spear",
       "material": "mat_wood",
-      "length": 40
+      "length": 40,
+      "variant": "spear"
     },
     {
       "id": "look_glaive",
       "shape": "spear",
       "material": "mat_steel",
-      "length": 58
+      "length": 58,
+      "variant": "glaive"
     },
     {
       "id": "look_halberd",
       "shape": "spear",
       "material": "mat_steel",
-      "length": 58
+      "length": 58,
+      "variant": "halberd"
     },
     {
       "id": "look_lance",
       "shape": "spear",
       "material": "mat_steel",
-      "length": 58
+      "length": 58,
+      "variant": "lance"
     },
     {
       "id": "look_pike",
       "shape": "spear",
       "material": "mat_steel",
-      "length": 58
+      "length": 58,
+      "variant": "pike"
     },
     {
       "id": "look_trident",
       "shape": "spear",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "trident"
     },
     {
       "id": "look_quarterstaff",
       "shape": "staff",
       "material": "mat_wood",
-      "length": 58
+      "length": 58,
+      "variant": "quarter"
     },
     {
       "id": "look_blowgun",
       "shape": "staff",
       "material": "mat_wood",
-      "length": 40
+      "length": 40,
+      "variant": "blowgun"
     },
     {
       "id": "look_dagger",
       "shape": "dagger",
       "material": "mat_steel",
-      "length": 26
+      "length": 26,
+      "variant": "dagger"
     },
     {
       "id": "look_dart",
       "shape": "dagger",
       "material": "mat_steel",
-      "length": 26
+      "length": 26,
+      "variant": "dart"
     },
     {
       "id": "look_shortbow",
       "shape": "bow",
       "material": "mat_wood",
-      "length": 40
+      "length": 40,
+      "variant": "short"
     },
     {
       "id": "look_longbow",
       "shape": "bow",
       "material": "mat_wood",
-      "length": 58
+      "length": 58,
+      "variant": "long"
     },
     {
       "id": "look_light_crossbow",
       "shape": "crossbow",
       "material": "mat_wood",
-      "length": 40
+      "length": 40,
+      "variant": "light"
     },
     {
       "id": "look_hand_crossbow",
       "shape": "crossbow",
       "material": "mat_wood",
-      "length": 26
+      "length": 26,
+      "variant": "hand"
     },
     {
       "id": "look_heavy_crossbow",
       "shape": "crossbow",
       "material": "mat_wood",
-      "length": 58
+      "length": 58,
+      "variant": "heavy"
     },
     {
       "id": "look_sling",
       "shape": "sling",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "sling"
     },
     {
       "id": "look_whip",
-      "shape": "sling",
+      "shape": "whip",
       "material": "mat_steel",
-      "length": 40
+      "length": 40,
+      "variant": "whip"
     },
     {
       "id": "look_musket",
       "shape": "gun",
       "material": "mat_steel",
-      "length": 58
+      "length": 58,
+      "variant": "musket"
     },
     {
       "id": "look_pistol",
       "shape": "gun",
       "material": "mat_steel",
-      "length": 26
+      "length": 26,
+      "variant": "pistol"
     },
     {
       "id": "look_padded_armor",
