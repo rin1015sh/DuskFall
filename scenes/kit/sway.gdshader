@@ -74,8 +74,9 @@ bool is_accent(vec4 c) {
 // 덩어리 안 잎 하나: 잎 격자(엇갈린 줄) 칸마다 잎 하나 — 덩어리 가운데에서 바깥·아래로 처진 뾰족한 잎
 // u: 덩어리 가운데 기준 도트 좌표, rd: 덩어리 반지름(도트). 돌려줌: x = 맞음(1/0), y = 잎 가운데 y(앞뒤), z·w = 잎 가운데
 vec4 leaf_at(vec2 u, float rd, vec2 gid, vec2 cpx, float t, float gust, out float tone_k, out float edge) {
-	bool needle = leaf >= 2.0;
-	vec2 LS = needle ? vec2(3.5, 2.5) : vec2(5.0, 3.5);  // 잎 격자(도트)
+	bool blade = leaf >= 3.0;
+	bool needle = leaf >= 2.0 && !blade;
+	vec2 LS = blade ? vec2(2.5, 2.5) : (needle ? vec2(3.5, 2.5) : vec2(5.0, 3.5));  // 잎 격자(도트)
 	float best = -1e9;
 	vec4 res = vec4(0.0);
 	tone_k = 0.0;
@@ -97,19 +98,23 @@ vec4 leaf_at(vec2 u, float rd, vec2 gid, vec2 cpx, float t, float gust, out floa
 		}
 		// 판 가장자리에서 잘리지 않게: 잎이 통째로 조각 안에 들어가는 자리만(바람 흔들림 여유 포함)
 		vec2 lpx = cpx + lc * 2.0;
-		float mg = 12.0 + hash(id + gid + 9.1) * 16.0;  // 잎마다 다른 여유 — 가장자리가 곧은 줄로 늘어서지 않게
-		if (lpx.x < mg || lpx.y < mg || lpx.x > frame_rect.z - mg || lpx.y > frame_rect.w - 12.0) {
+		float lim = min(frame_rect.z, frame_rect.w) * 0.14;  // 작은 판(풀)은 여유도 작게
+		float mg = min(12.0 + hash(id + gid + 9.1) * 16.0, lim + hash(id + gid + 9.1) * lim);  // 잎마다 다른 여유 — 가장자리가 곧은 줄로 늘어서지 않게
+		if (lpx.x < mg || lpx.y < (blade ? 2.0 : mg) || lpx.x > frame_rect.z - mg || lpx.y > frame_rect.w - min(12.0, lim)) {
 			continue;
 		}
-		vec2 dir = needle
+		vec2 dir = blade
+				? normalize(vec2(lc.x / rd * 0.6 + (hash(id + 3.3) - 0.5) * 0.7, -1.0))  // 풀잎: 위로 부채꼴
+				: (needle
 				? normalize(vec2((lc.x >= 0.0 ? 1.0 : -1.0) * (0.7 + 0.5 * h), 0.75))  // 바늘잎: 가지처럼 바깥·아래로
-				: normalize(lc / max(length(lc), 0.5) * 0.8 + vec2((hash(id + 3.3) - 0.5) * 0.9, 1.0));
-		vec2 v = u - lc;
+				: normalize(lc / max(length(lc), 0.5) * 0.8 + vec2((hash(id + 3.3) - 0.5) * 0.9, 1.0)));
+		float len = blade ? 5.0 + h * 3.0 : (needle ? 3.6 + h * 1.6 : 3.4 + h * 1.4);
+		vec2 v = u - lc - (blade ? dir * len * 0.45 : vec2(0.0));  // 풀잎은 밑동이 격자 자리, 위로 뻗는다
 		float a = dot(v, dir);
 		float b = dot(v, vec2(-dir.y, dir.x));
-		float len = needle ? 3.6 + h * 1.6 : 3.4 + h * 1.4;
-		float wk = needle ? 0.6 : 1.0;
-		float wid = wk * 2.1 * (1.0 - 0.5 * clamp(a / len, -1.0, 1.0));
+		float wk = blade ? 0.6 : (needle ? 0.6 : 1.0);
+		float tp = blade ? 0.85 : 0.5;  // 끝으로 갈수록 가늘게(풀잎은 뾰족하게)
+		float wid = wk * 2.1 * (1.0 - tp * clamp(a / len, -1.0, 1.0));
 		float e = (a / len) * (a / len) + (b / wid) * (b / wid);
 		if (e < 1.0 && lc.y > best) {
 			best = lc.y;
@@ -119,11 +124,11 @@ vec4 leaf_at(vec2 u, float rd, vec2 gid, vec2 cpx, float t, float gust, out floa
 			vec2 v2 = v + vec2(0.8, 0.8);
 			float a2 = dot(v2, dir);
 			float b2 = dot(v2, vec2(-dir.y, dir.x));
-			float wid2 = wk * 2.1 * (1.0 - 0.5 * clamp(a2 / len, -1.0, 1.0));
+			float wid2 = wk * 2.1 * (1.0 - tp * clamp(a2 / len, -1.0, 1.0));
 			vec2 v3 = v - vec2(0.8, 0.8);
 			float a3 = dot(v3, dir);
 			float b3 = dot(v3, vec2(-dir.y, dir.x));
-			float wid3 = wk * 2.1 * (1.0 - 0.5 * clamp(a3 / len, -1.0, 1.0));
+			float wid3 = wk * 2.1 * (1.0 - tp * clamp(a3 / len, -1.0, 1.0));
 			edge = (a2 / len) * (a2 / len) + (b2 / wid2) * (b2 / wid2) > 1.0 ? -1.0
 					: ((a3 / len) * (a3 / len) + (b3 / wid3) * (b3 / wid3) > 1.0 ? 1.0 : 0.0);
 		}
@@ -133,7 +138,32 @@ vec4 leaf_at(vec2 u, float rd, vec2 gid, vec2 cpx, float t, float gust, out floa
 
 void fragment() {
 	vec4 c = texture(texture_albedo, UV);
-	if (leaf > 0.0) {
+	if (leaf >= 3.0) {
+		// 풀(leaf 3): 원래 그림 모양 그대로, 2도트 너비 줄(풀잎)마다 다른 박자로 흔들림 — 끝(위)일수록 크게.
+		// 흔들리는 끝 쪽은 살짝 밝고 따뜻하게. 꽃은 줄기와 같이 움직이고, 반투명 그림자는 제자리.
+		vec2 p = UV * sheet_px - frame_rect.xy;
+		p = floor(p * 0.5) * 2.0 + 1.0;
+		float t = TIME * speed;
+		float hf = clamp(1.0 - p.y / frame_rect.w, 0.0, 1.0);
+		float col_id = floor(p.x / 4.0);
+		float hb = hash(vec2(col_id, 3.0) + org_v * 7.1);
+		// 옆 줄과 박자가 조금씩 어긋난 물결(풀밭을 지나가는 바람) + 줄마다 작은 떨림. 크기는 밑동에서 잰 높이(도트)로 — 작은 풀은 조금만
+		float sw = sin(t * 2.1 + col_id * 0.45 + org_v.x * 1.3) * (0.55 + 0.7 * gust_v) + gust_v * 0.5 + sin(t * 3.7 + hb * 6.2831) * 0.25;
+		float up_d = (frame_rect.w - p.y) * 0.5;
+		float off = round(sw * min(up_d * 0.12, 2.0)) * 2.0;
+		vec4 sc = tex_at(p - vec2(off, 0.0));
+		vec4 b0 = tex_at(p);
+		if (sc.a > 0.9) {
+			if (is_leaf(sc)) {
+				// 흔들리는 끝 쪽만 살짝 밝고 따뜻하게(원래 그림 음영은 그대로 — 밑동 덩어리를 어둡게 하면 판처럼 보인다)
+				float tipk = smoothstep(0.45, 0.8, hf);
+				sc.rgb *= mix(vec3(1.0), vec3(1.07, 1.06, 0.95), tipk);
+			}
+			c = sc;
+		} else {
+			c = b0.a < 0.9 ? b0 : vec4(0.0);  // 반투명 그림자는 제자리(흔들지 않는다)
+		}
+	} else if (leaf > 0.0) {
 		vec2 p = UV * sheet_px - frame_rect.xy;
 		p = floor(p * 0.5) * 2.0 + 1.0;  // 그림 1도트 = 2px 격자
 		float S = clump_px;
@@ -163,7 +193,7 @@ void fragment() {
 					n += 1.0;
 				}
 			}
-			if (n < (leaf >= 2.0 ? 3.0 : 4.0)) {
+			if (n < (leaf >= 2.0 ? 3.0 : 4.0)) {  // 바늘잎·풀은 가는 자리도
 				continue;  // 잎이 적은 자리(이끼 낀 줄기)는 덩어리 아님
 			}
 			float hgt = clamp(1.0 - ctr.y / frame_rect.w, 0.0, 1.0);
@@ -217,6 +247,8 @@ void fragment() {
 			float tk;
 			float ed;
 			vec4 lf = leaf_at(u, rd, cg[m], cc[m], t, gust_v, tk, ed);
+			// 잎마다 제 왼쪽 위 절반은 한 단 밝게(잎 한 장 한 장이 같은 단 면 속에서도 보이게)
+			float hl = (lf.x > 0.5 && dot(u - lf.zw, vec2(-0.7, -0.7)) > 0.4 && ed >= 0.0) ? 1.0 : 0.0;
 			vec3 base = cb[m];
 			if (lf.x > 0.5) {
 				// 덩어리 공 음영을 잎 가운데에서 재서 잎 하나가 한 단(경계가 잎 모양으로 끊긴다)
@@ -224,8 +256,12 @@ void fragment() {
 				float dd = min(length(dv), 1.0);
 				float nz = sqrt(max(0.0, 1.0 - dd * dd));
 				float lit = dot(normalize(vec3(dv, nz)), normalize(vec3(-0.55, -0.75, 0.5)));
-				float b = lit > 0.62 ? 4.0 : (lit > 0.3 ? 3.0 : (lit > 0.0 ? 2.0 : (lit > -0.35 ? 1.0 : 0.0)));
-				b += tk > 0.93 ? 1.0 : (tk < 0.05 ? -1.0 : 0.0);  // 잎마다 조금씩 다르게
+				if (leaf >= 3.0) {
+					lit = -dv.y * 0.8 - dv.x * 0.25;  // 풀: 끝(위)이 밝고 밑동이 어둡다
+				}
+				// 덩어리 음영 폭은 좁게(대부분 가운데 단) — 한쪽이 통째로 밝거나 어두운 넓은 면이 생기지 않게
+				float b = lit > 0.78 ? 4.0 : (lit > 0.35 ? 3.0 : (lit > -0.15 ? 2.0 : (lit > -0.6 ? 1.0 : 0.0)));
+				b += tk > 0.8 ? 1.0 : (tk < 0.2 ? -1.0 : 0.0);  // 잎마다 한 단씩 오르내림(넓은 같은 단 면이 생기지 않게)
 				if (b > 3.5 && tk < 0.5) {
 					b = 3.0;  // 가장 밝은 단은 잎 걸러 하나씩 — 위쪽이 한 덩이로 뭉쳐 보이지 않게
 				}
@@ -235,7 +271,7 @@ void fragment() {
 				if (gust_v > 0.4 && flip > 0.8 && tk > 0.5) {
 					b += 1.0;
 				}
-				b = clamp(b + ed, 0.0, 4.0);
+				b = clamp(b + ed + hl, 0.0, 4.0);
 				float f = b > 3.5 ? 1.2 : (b > 2.5 ? 1.0 : (b > 1.5 ? 0.8 : (b > 0.5 ? 0.6 : 0.42)));
 				vec3 col = base * f;
 				if (b > 3.5) {
@@ -250,12 +286,14 @@ void fragment() {
 					c = vec4(oc.rgb, 1.0);
 				}
 				done = true;
-			} else if (cand[m].w < 0.8 && all(greaterThan(p, vec2(6.0))) && all(lessThan(p, frame_rect.zw - 6.0))) {
-				c = vec4(base * 0.46 * vec3(0.8, 0.92, 1.15), 1.0);  // 잎 사이 속 그늘
+			} else if (leaf < 3.0 && cand[m].w < 0.8 && all(greaterThan(p, vec2(6.0))) && all(lessThan(p, frame_rect.zw - 6.0))) {
+				c = vec4(base * 0.55 * vec3(0.8, 0.92, 1.15), 1.0);  // 잎 사이 속 그늘
 				done = true;
 			}
 		}
-		if (!done && near && is_leaf(c)) {
+		if (!done && near && leaf >= 3.0) {
+			c.a = 0.0;  // 풀: 잎 사이로 땅이 보인다
+		} else if (!done && near && is_leaf(c)) {
 			if (any(lessThan(p, vec2(12.0))) || any(greaterThan(p, frame_rect.zw - 12.0))) {
 				c.a = 0.0;  // 판 가장자리에 남은 원래 잎 — 곧은 선으로 잘려 보이지 않게 지운다
 			} else {

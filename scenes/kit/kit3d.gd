@@ -14,6 +14,8 @@ const SWAY := {"tree_broadleaf": 1.6, "tree_pine": 1.2, "tree_thorn": 1.4, "tree
 const LEAFY := {"tree_broadleaf": true, "tree_thorn": true, "tree_giant": true, "bush": true}
 ## 바늘잎(sway.gdshader leaf 2 — 가늘고 긴 잎이 가지처럼 바깥·아래로)
 const NEEDLE := {"tree_pine": true}
+## 풀(leaf 3 — 원래 그림 모양 그대로 2도트 줄마다 따로 흔들림, 끝이 밝고 밑동이 어둡다)
+const BLADE := {"grass_tall": true, "weeds": true, "reed_thorn": true, "cattail": true, "tuft": true, "flowers": true}
 ## 잎 덩어리를 넣지 않는 변형(눈 덮임·마른·죽은 나무 — 잎이 아니다)과 초록이 아닌 잎 변형(단풍)
 const LEAF_SKIP := ["snowy", "dead", "dry"]
 const LEAF_ANY := ["autumn"]
@@ -21,12 +23,12 @@ const LEAF_ANY := ["autumn"]
 
 ## 잎 덩어리 방식: 0 없음, 1 넓은 잎, 2 바늘잎, +0.5 초록 아닌 잎도
 static func leaf_mode(id: String, variant: String) -> float:
-	if not LEAFY.has(id) and not NEEDLE.has(id):
+	if not LEAFY.has(id) and not NEEDLE.has(id) and not BLADE.has(id):
 		return 0.0
 	for k: String in LEAF_SKIP:
 		if variant.contains(k):
 			return 0.0
-	var m := 2.0 if NEEDLE.has(id) else 1.0
+	var m := 3.0 if BLADE.has(id) else (2.0 if NEEDLE.has(id) else 1.0)
 	for k: String in LEAF_ANY:
 		if variant.contains(k):
 			m += 0.5
@@ -176,7 +178,12 @@ static func _add_sway(sp: Sprite3D, amp: float, leaf: float = 0.0, no_line: bool
 		if leaf > 0.0:
 			m.set_shader_parameter("sheet_px", tex.get_size())
 			m.set_shader_parameter("frame_rect", Vector4(region.position.x, region.position.y, region.size.x, region.size.y))
-			m.set_shader_parameter("clump_px", clamp(region.size.x * 0.15, 14.0, 30.0) if leaf >= 2.0 else clamp(region.size.x * 0.25, 18.0, 46.0))  # 바늘잎은 좁은 꼭대기까지 덮게 작게
+			var cpx: float = clampf(region.size.x * 0.25, 18.0, 46.0)
+			if leaf >= 3.0:
+				cpx = clampf(minf(region.size.x, region.size.y) * 0.5, 8.0, 26.0)  # 풀 무더기 하나 = 덩어리 하나
+			elif leaf >= 2.0:
+				cpx = clampf(region.size.x * 0.15, 14.0, 30.0)  # 바늘잎은 좁은 꼭대기까지 덮게 작게
+			m.set_shader_parameter("clump_px", cpx)
 		_sway_mats[key] = m
 	sp.material_override = _sway_mats[key]
 

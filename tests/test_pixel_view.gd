@@ -301,4 +301,6 @@ func test_leaf_modes() -> void:
 	assert_eq(Kit3D.leaf_mode("tree_pine", "snowy"), 0.0)
 	assert_eq(Kit3D.leaf_mode("tree_pine", "dead"), 0.0)
 	assert_eq(Kit3D.leaf_mode("bush", "dry"), 0.0)
-	assert_eq(Kit3D.leaf_mode("grass_tall", "a"), 0.0)
+	assert_eq(Kit3D.leaf_mode("grass_tall", "a"), 3.0, "풀은 줄마다 흔들림")
+	assert_eq(Kit3D.leaf_mode("tuft", "a"), 3.0)
+	assert_eq(Kit3D.leaf_mode("boulder_mossy", "a"), 0.0)
