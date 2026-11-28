@@ -96,6 +96,7 @@ static func make(kit: RefCounted, id: String, variant: String = "", opts: Dictio
 	sprite.position = Vector3(cx, o.y - h * 0.5 + float(opts.get("up", 0.0)) * kit.px, 0.0) * ps
 	if not flat:
 		sprite.position += footprint_shift(h - o.y) * ps
+		sprite.set_meta("foot_lift", footprint_shift(h - o.y) * ps)  # 물 반사 짝(map_view._build_refl_doubles)이 되돌린다
 	sprite.name = "Sprite"
 	holder.add_child(sprite)
 	holder.set_meta("sprite", sprite)

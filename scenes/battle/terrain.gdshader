@@ -15,6 +15,10 @@ void vertex() {
 }
 
 void fragment() {
+	// 거울 카메라(물 반사 — 아래에서 올려다봄, 카메라 뒤쪽 축 y < 0): 위를 보는 면(바닥·윗면)은 아래서 보이지 않으니 버린다
+	if (INV_VIEW_MATRIX[2].y < 0.0 && abs(normalize(cross(dFdx(wpos), dFdy(wpos))).y) > 0.6) {
+		discard;
+	}
 	vec4 c = texture(tex, UV) * COLOR;
 	ALBEDO = c.rgb;
 	if (cutaway) {

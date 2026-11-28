@@ -12,6 +12,11 @@ extends Node
 ## UI(CanvasLayer)는 원래 해상도 그대로.
 
 const OUTLINE_LAYER := 1 << 19  # 외곽선 판의 그림 층(도트 카메라만 본다)
+const REFL_LAYER := 1 << 18  # 거울 카메라만 보는 그림 층(거울 카메라의 빛 판, 물가 소품의 반사 짝)
+const WATER_LAYER := 1 << 17  # 물 표면 그물(거울 카메라는 보지 않는다 — map_view)
+const MAIN_ONLY_LAYER := 1 << 16  # 도트 카메라만 보는 그림(물가 소품 원본 — 거울 카메라는 발을 바닥에 내린 짝을 본다)
+const MAIN_MASK := 0xFFFFF & ~REFL_LAYER
+const REFL_MASK := 0xFFFFF & ~OUTLINE_LAYER & ~WATER_LAYER & ~MAIN_ONLY_LAYER
 const V_T := 64.0  # 확대 1에서 세계 1유닛 = 64px(view3d.T)
 const ART_DOT := 1.0 / 32.0  # 그림 1도트 = 세계 1/32유닛(키트 64px 그림의 2×2화소)
 const DOTS_PX := 2.0  # 확대 1에서 그림 1도트 = 캔버스 2px
@@ -42,6 +47,14 @@ var outline := true
 ## 화면에 씌우는 빛과 그림자(pixel_light.gdshader — 곱하기 판 + 더하기 판, 빛 지도는 map_view._build_lighting)
 var lighting := true
 var _light_mats: Array[ShaderMaterial] = []
+## 물 반사(거울 카메라): 물 높이 거울 아래에서 올려다본 세계를 그림 도트 해상도로 그려 물 셰이더(overlay.gdshader)가 찾는다.
+## 곱하기 빛 판을 거울 카메라에도 붙여 비친 세계에도 빛 색과 그림자가 입혀진다. 반사 표면이 없는 맵은 그리지 않는다.
+var reflection := true
+var rvp: SubViewport
+var rcam: Camera3D
+var _refl_on := false
+var _refl_h := 0.0
+var _water_mats: Array[ShaderMaterial] = []
 
 var source: Camera3D
 var vp: SubViewport
@@ -75,6 +88,9 @@ func setup(main_camera: Camera3D) -> void:
 		_add_outline()
 	if lighting:
 		_add_lighting()
+	if reflection:
+		_add_reflection()
+	cam.cull_mask = MAIN_MASK
 	layer = CanvasLayer.new()
 	layer.layer = -1  # 세계 그림은 맨 뒤(HP 막대 0층, UI 위층)
 	add_child(layer)
@@ -164,7 +180,59 @@ func _add_outline() -> void:
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mi.position = Vector3(0, 0, -2)
 	cam.add_child(mi)
-	cam.cull_mask = 0xFFFFF
+
+
+## 거울 카메라: 물 높이에 대고 도트 카메라를 뒤집은 자리(아래)에서 위로 올려다본다(회전만 — 그림은 위아래가 뒤집혀 담기고
+## 물 셰이더가 거울 위치를 이 카메라 행렬로 찾으니 따로 뒤집지 않는다). 빈 곳은 투명 → 물 셰이더가 하늘 색.
+func _add_reflection() -> void:
+	rvp = SubViewport.new()
+	rvp.world_3d = vp.world_3d
+	rvp.transparent_bg = true
+	rvp.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	rvp.msaa_3d = Viewport.MSAA_DISABLED
+	rvp.size = Vector2i(4, 4)
+	add_child(rvp)
+	rcam = Camera3D.new()
+	rcam.projection = Camera3D.PROJECTION_ORTHOGONAL
+	rcam.cull_mask = REFL_MASK
+	rvp.add_child(rcam)
+	rcam.make_current()
+	# 곱하기 판만(색 틀기·그림자) — 더하기 판은 알파까지 더해 투명 바탕(하늘 자리)을 메운다. 광원 빛은 물 셰이더의 빛 반짝임 층이 맡는다.
+	for i in mini(_light_mats.size(), 1):
+		var mi := MeshInstance3D.new()
+		var q := QuadMesh.new()
+		q.size = Vector2(2, 2)
+		mi.mesh = q
+		mi.material_override = _light_mats[i]
+		mi.layers = REFL_LAYER
+		mi.extra_cull_margin = 16384.0
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.position = Vector3(0, 0, -2.1 - i * 0.01)
+		rcam.add_child(mi)
+
+
+## 물 반사 켜기: on(반사 표면 있음)·거울 높이 h·물 셰이더 재질들(map_view의 floors_overlay)
+func set_reflection(on: bool, h: float, mats: Array) -> void:
+	_refl_on = on and rvp != null
+	_refl_h = h
+	_water_mats.clear()
+	for m: Variant in mats:
+		if m is ShaderMaterial:
+			_water_mats.append(m)
+			(m as ShaderMaterial).set_shader_parameter("refl_on", _refl_on)
+			if rvp != null:
+				(m as ShaderMaterial).set_shader_parameter("refl_tex", rvp.get_texture())
+	if rvp != null:
+		rvp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if _refl_on else SubViewport.UPDATE_DISABLED
+
+
+## 도트 카메라 자세를 높이 h 거울에 뒤집은 자세(위치는 거울상, 보는 방향은 위로 — 오른손 좌표 그대로)
+static func mirror_xform(xf: Transform3D, h: float) -> Transform3D:
+	var x := xf.basis.x
+	var z := Vector3(xf.basis.z.x, -xf.basis.z.y, xf.basis.z.z)
+	var y := z.cross(x)
+	var o := Vector3(xf.origin.x, 2.0 * h - xf.origin.y, xf.origin.z)
+	return Transform3D(Basis(x, y, z), o)
 
 
 ## 빛 판 두 장: 곱하기(색 틀기·그림자·가장자리) → 더하기(광원 빛 웅덩이). 외곽선(127)보다 먼저.
@@ -188,7 +256,6 @@ func _add_lighting() -> void:
 		mi.position = Vector3(0, 0, -2.1 - i * 0.01)
 		cam.add_child(mi)
 		_light_mats.append(m)
-	cam.cull_mask = 0xFFFFF
 
 
 ## 빛 지도를 넣는다(map_view.lighting — {glow, info, shadow, origin, size}). 빈 사전이면 끈다.
@@ -236,6 +303,19 @@ func sync() -> void:
 	_post.set_shader_parameter("ss", ss)
 	# 디더 무늬를 세계에 붙인다: 화면 왼쪽 위 화소의 세계 화소 번호(아래가 +y)
 	_post.set_shader_parameter("origin_px", Vector2i(ia * blk - lo.x / 2, -ib * blk - lo.y / 2))
+	if _refl_on:
+		# 거울 그림은 그림 도트 해상도(버퍼의 1/blk) — 물결로 흔들리니 충분하다
+		var rs := Vector2i(maxi(lo.x / blk, 1), maxi(lo.y / blk, 1))
+		if rvp.size != rs:
+			rvp.size = rs
+		rcam.transform = mirror_xform(cam.transform, _refl_h)
+		rcam.size = cam.size
+		rcam.near = cam.near
+		rcam.far = cam.far
+		var vpm := Projection(rcam.get_camera_projection()) * Projection(rcam.transform.affine_inverse())
+		for m in _water_mats:
+			m.set_shader_parameter("refl_mat", vpm)
+			m.set_shader_parameter("refl_h", _refl_h)
 	if _line != null:
 		_line.set_shader_parameter("ss", float(ss * blk))  # 외곽선 두께 = 그림 1도트
 		_line.set_shader_parameter("depth_range", cam.far - cam.near)

@@ -97,6 +97,12 @@ res://
   흩뿌림 장식(map_view._build_scatter — 새 도트 그림 assets/pixel_decor, tools/make_decor.py가 바닥 색에서 뽑아 그림): 키트 바닥 id별 기본표 SCATTER,
   3칸 얼룩 밀도·덤불 무리, 다른 바닥과 맞닿은 풀 칸은 경계 쪽에 큰 덤불. 맵 `art.scatter`(false = 끔, {바닥 id: [개수, [[id, 무게]...]]})·`art.scatter_density`.
   물·얼음·진흙 표면도 덩어리 방식(overlay.gdshader — 둥근 웅덩이, 물가 밝은 젖은 테·안쪽 깊이 띠, 물결 빛 점 반짝임 SURFACE_SHIMMER).
+  물 층 나누기(반사 표면 SURFACE_REFLECT — 물·깊은 물·전기 물·얼음, 진흙 없음): ① 물속(깊을수록 어둡고 진하게) ② 반사 — 거울 카메라(pixel_view, 물 높이 거울 아래에서
+  올려다봄, 그림 도트 해상도, 곱하기 빛 판까지 입힘, 바닥·윗면은 아래서 안 보여 버림)를 거울 위치로 찾아 줄마다 1~2도트 가로로 흔들림, 빈 곳은 하늘 색(기본 빛 따라 낮 ↔ 밤),
+  물가는 둑 그늘로 옅게, 밝게 비친 것(불)은 또렷하게 ③ 그림자 — 드리운 그림자·수관 그늘 아래는 하늘 반사가 줄어 어둡게 ④ 빛 반짝임 — 해 반짝임은 그늘 아닌 밝은 곳만,
+  광원 빛 안은 빛 색 가로 대시, 빛 웅덩이 안 물은 퍼지는 빛을 덜 받게 미리 어둡게 ⑤ 물가 젖은 테. 거울 높이 = 가장 많은 반사 칸 바닥 높이(map_view.reflect_h).
+  서 있는 키트 판은 바닥 자국만큼 들려 있어(footprint_shift) 물가 소품(REFL_REACH 7칸)은 발을 내린 반사 짝을 거울 전용 층에(원본은 도트 카메라 전용 층).
+  층: OUTLINE 19·REFL 18(거울 전용)·WATER 17·MAIN_ONLY 16. 반사 표면이 없는 맵은 거울을 그리지 않는다. `--pixel_reflect=0`이면 끔.
   맵 둘레(map_view._build_surround, 규칙 밖 그림만): 검은 바탕 대신 갈 수 없지만 이어져 보이는 지형 — 맵 밖 16칸에 맵 바닥과 이어 섞이는 바닥(둘레 바닥 + 얼룩,
   floor.gdshader cell_origin), 경계 바로 바깥 2.6칸은 지형에 맞는 큰 나무·바위로 빽빽하게 막고(남쪽 = 화면 앞은 1칸 띄우고 낮은 바위·덤불), 그 너머는 드문 나무·바위·풀,
   먼 끝만 살짝 어둡게. 지형 SURROUND_BIOMES: 풀 바닥 40%↑ forest, 아니면 rocky. 맵 `art.surround`(false = 끔, {biome, floor, patch, wall/low/far, width, density}).

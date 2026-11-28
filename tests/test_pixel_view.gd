@@ -261,3 +261,26 @@ func test_outline_selout() -> void:
 				ni += 1
 	assert_true(ne > 0 and ni > 0)
 	assert_true(edge / ne > inner / ni * 0.6, "굽은 검은 테 없음(가장자리 %.2f, 안 %.2f)" % [edge / ne, inner / ni])
+
+
+## 물 반사: 거울 카메라 자세(물 높이에 뒤집은 위치·위를 보는 방향, 오른손 좌표 그대로), 표면 반사 세기, 층 비트가 겹치지 않는다.
+func test_water_reflection() -> void:
+	var PixelView := preload("res://scenes/battle/pixel_view.gd")
+	var MapView := preload("res://scenes/battle/map_view.gd")
+	var pitch := 0.8956648938
+	var xf := Transform3D(Basis(Vector3.RIGHT, -pitch), Vector3(3.0, 20.0, 30.0))
+	var m: Transform3D = PixelView.mirror_xform(xf, 1.5)
+	assert_near(m.origin.y, 2.0 * 1.5 - 20.0, 1e-5, "위치는 거울상")
+	assert_near(m.origin.x, 3.0, 1e-5)
+	assert_near(m.origin.z, 30.0, 1e-5)
+	var f_main := -xf.basis.z
+	var f_m := -m.basis.z
+	assert_true(f_main.y < 0.0 and f_m.y > 0.0, "도트 카메라는 내려다보고 거울 카메라는 올려다본다")
+	assert_near(f_m.z, f_main.z, 1e-5, "북쪽으로 보는 성분은 같다")
+	assert_near(m.basis.determinant(), 1.0, 1e-5, "회전만(뒤집기 없음 — 면 방향이 바뀌지 않게)")
+	assert_eq(PixelView.MAIN_MASK & PixelView.REFL_LAYER, 0, "도트 카메라는 거울 전용 층을 안 본다")
+	assert_eq(PixelView.REFL_MASK & (PixelView.WATER_LAYER | PixelView.MAIN_ONLY_LAYER | PixelView.OUTLINE_LAYER), 0, "거울 카메라는 물·원본·외곽선을 안 본다")
+	assert_true(PixelView.MAIN_MASK & PixelView.WATER_LAYER != 0 and PixelView.MAIN_MASK & PixelView.MAIN_ONLY_LAYER != 0)
+	assert_true(MapView.SURFACE_REFLECT.has("water") and not MapView.SURFACE_REFLECT.has("mud"), "물은 비치고 진흙은 안 비친다")
+	var sh: Shader = load("res://scenes/battle/overlay.gdshader")
+	assert_true(sh.code.contains("refl_mat") and sh.code.contains("shadow_tex") and sh.code.contains("glow_tex"), "물 셰이더 층: 반사·그림자·빛")

@@ -72,6 +72,17 @@ const SURFACE_ART := {
 const SURFACE_TINT := {"electrified_water": Color(0.6, 0.85, 1.4), "acid": Color(0.8, 1.2, 0.6)}
 ## 표면 반짝임 세기(overlay.gdshader 물결 빛 점)
 const SURFACE_SHIMMER := {"water": 1.0, "deep_water": 1.0, "electrified_water": 1.6, "ice": 0.4}
+## 표면 반사 세기(overlay.gdshader 반사 층 — 도트 화면 거울 카메라 pixel_view가 비친 세계를 그린다). 진흙은 비치지 않는다.
+const SURFACE_REFLECT := {"water": 0.5, "deep_water": 0.6, "electrified_water": 0.45, "ice": 0.3}
+## 물을 나눈 표면 그림 층 소식: 반사 표면이 있는지·거울 높이(가장 많은 반사 칸의 바닥 높이) — battle_scene이 pixel_view로 넘긴다
+var reflect_on := false
+var reflect_h := 0.0
+var reflect_version := 0
+## 물가 소품 반사 짝 만들기(도트 화면 물 반사가 켜졌을 때 — battle_scene이 정한다)
+static var reflect_doubles := true
+const REFL_REACH := 7  # 반사 표면에서 북쪽·옆으로 몇 칸 안의 소품까지 짝을 만드나(큰 나무 높이까지 비친다)
+var _refl_key := ""
+var _refl_nodes: Array[Node3D] = []
 const CLOUD_ART := {"steam": "grey", "fog": "grey", "magical_darkness": "black", "sleet": "blue", "stinking_cloud": "violet"}
 ## 벽 윗면·벽면·절벽 면 밝기(옛 2D와 같다). 폐허 벽 윗면은 윗돌 블록(CAP_SHADE).
 const TOP_SHADE := 0.32
@@ -191,6 +202,7 @@ func build(g: Node, sorted_layer: Node3D, map_data: Dictionary = {}) -> void:
 	_top_mi = _mesh_node("wall_tops", TERRAIN_SHADER, true)
 	_face_mi = _mesh_node("wall_faces", TERRAIN_SHADER, true)
 	_water_mi = _mesh_node("floors", OVERLAY_SHADER, false, "floors_overlay")
+	_water_mi.layers = PixelView.WATER_LAYER  # 물 전용 층(도트 카메라는 보고 거울 카메라는 안 본다 — 층은 한 비트라도 겹치면 보인다)
 	# 자연 암벽: 키트 벽면 중 바위 그림(wall_cave 등 — cliff_drop은 아래로 꺼지는 낭떠러지라 검다)
 	var rock_f: Array = kit.info("wall_%s" % String(art().get("cliff_rock", "cave"))).get("variants", {}).get("clean", {"frames": [[0, 0, 256, 160]]})["frames"][0]
 	if String(art().get("terrain", "block")) == "natural":
@@ -727,6 +739,15 @@ func _build_lighting() -> void:
 		_shadow_tex = ImageTexture.create_from_image(_build_shadows(org, iw, ih))
 	lighting = {"glow": ImageTexture.create_from_image(glow), "info": ImageTexture.create_from_image(info), "shadow": _shadow_tex, "origin": org, "size": Vector2(cells)}
 	lighting_version += 1
+	# 물 그림 층(그림자·빛 반짝임)도 같은 빛 지도를 본다
+	var om: ShaderMaterial = _mats.get("floors_overlay")
+	if om != null:
+		om.set_shader_parameter("light_on", true)
+		om.set_shader_parameter("glow_tex", lighting["glow"])
+		om.set_shader_parameter("linfo_tex", lighting["info"])
+		om.set_shader_parameter("shadow_tex", _shadow_tex)
+		om.set_shader_parameter("l_origin", org)
+		om.set_shader_parameter("l_size", Vector2(cells))
 
 
 var _shadow_key := ""
@@ -816,7 +837,7 @@ func _build_canopy() -> void:
 			if v > 0.0:
 				img.set_pixel(px, py, Color(v, 0, 0))
 	var tex := ImageTexture.create_from_image(img)
-	for m: Variant in [_mats.get("floors"), _surround_mat]:
+	for m: Variant in [_mats.get("floors"), _surround_mat, _mats.get("floors_overlay")]:
 		if m is ShaderMaterial:
 			(m as ShaderMaterial).set_shader_parameter("canopy_on", true)
 			(m as ShaderMaterial).set_shader_parameter("canopy", tex)
@@ -1277,6 +1298,8 @@ func _refresh_surfaces() -> void:
 	var surf := Image.create(grid.size.x, grid.size.y, false, Image.FORMAT_RGBA8)
 	var palette: Array[String] = []
 	var water_cells := {}  # 네모를 깔 칸(표면 칸 + 둘레 — 셰이더가 흔든 가장자리를 그린다)
+	var refl_hs := {}  # 반사 표면 칸 바닥 높이 → 칸 수
+	var refl_cells := {}
 	for c: Vector2i in grid.all_cells():
 		var sid: String = grid.surface_id(c)
 		var h: float = float(grid.height(c))
@@ -1289,6 +1312,10 @@ func _refresh_surfaces() -> void:
 				if not sid in palette and palette.size() < 8:
 					palette.append(sid)
 				var pi := palette.find(sid)
+				if SURFACE_REFLECT.has(sid):
+					refl_cells[c] = true
+					var gh := snappedf(ground_at(Vector2(c) + Vector2(0.5, 0.5)), 0.25)
+					refl_hs[gh] = int(refl_hs.get(gh, 0)) + 1
 				if pi >= 0:
 					surf.set_pixel(c.x, c.y, Color8(int(f[0]) / V.T, int(f[1]) / V.T, pi + 1, 0))
 					for dy in range(-1, 2):
@@ -1357,7 +1384,67 @@ func _refresh_surfaces() -> void:
 	for i in 8:
 		shim.append(float(SURFACE_SHIMMER.get(palette[i], 0.0)) if i < palette.size() else 0.0)
 	om.set_shader_parameter("shimmer", shim)
+	var refl := PackedFloat32Array()
+	for i in 8:
+		refl.append(float(SURFACE_REFLECT.get(palette[i], 0.0)) if i < palette.size() else 0.0)
+	om.set_shader_parameter("reflect", refl)
 	om.set_shader_parameter("dot_px", art_dots)
+	var best_h := 0.0
+	var best_n := 0
+	for gh: float in refl_hs:
+		if int(refl_hs[gh]) > best_n:
+			best_n = int(refl_hs[gh])
+			best_h = gh
+	if (best_n > 0) != reflect_on or (best_n > 0 and best_h != reflect_h):
+		reflect_on = best_n > 0
+		reflect_h = best_h
+		reflect_version += 1
+	_build_refl_doubles(refl_cells)
+
+
+## 물 반사 짝: 서 있는 키트 판은 그림 아래쪽 바닥 자국(발 아래 줄)만큼 들려 남쪽으로 밀려 있다(Kit3D.footprint_shift — 화면 위치는 같다).
+## 거울은 그 들린 높이만큼 비친 그림을 아래로 떼어 놓으니, 물가 소품마다 발을 바닥에 내린 짝을 거울 카메라 전용 층에 두고
+## 원본은 도트 카메라 전용 층으로 옮긴다(규칙 밖 그림만). 반사 칸이 바뀔 때만 다시 만든다.
+func _build_refl_doubles(refl_cells: Dictionary) -> void:
+	var on := reflect_doubles and art_dots > 0 and not refl_cells.is_empty()
+	var key := str(refl_cells.keys()) if on else ""
+	if key == _refl_key:
+		return
+	_refl_key = key
+	for n in _refl_nodes:
+		if is_instance_valid(n):
+			n.queue_free()
+	_refl_nodes.clear()
+	for n: Node in sorted.get_children():
+		var sp := n.get_node_or_null("Sprite") as SpriteBase3D
+		if sp == null or not sp.has_meta("foot_lift"):
+			continue
+		if sp.layers == PixelView.MAIN_ONLY_LAYER:
+			sp.layers = 1
+		if not on or not (n is Node3D) or n.has_meta("refl_double"):
+			continue
+		var p: Vector3 = (n as Node3D).position
+		var near := false
+		for dz in range(0, REFL_REACH + 1):
+			for dx in range(-3, 4):
+				if refl_cells.has(Vector2i(int(floor(p.x)) + dx, int(floor(p.z)) + dz)):
+					near = true
+					break
+			if near:
+				break
+		var lift: Vector3 = sp.get_meta("foot_lift")
+		if not near or lift.is_zero_approx():
+			continue
+		var d := n.duplicate() as Node3D
+		d.set_meta("refl_double", true)
+		var dsp := d.get_node("Sprite") as SpriteBase3D
+		dsp.position -= lift
+		dsp.layers = PixelView.REFL_LAYER
+		if dsp is AnimatedSprite3D:
+			(dsp as AnimatedSprite3D).play((sp as AnimatedSprite3D).animation)
+		sp.layers = PixelView.MAIN_ONLY_LAYER
+		sorted.add_child(d)
+		_refl_nodes.append(d)
 
 
 ## 캐릭터를 가리는 앞쪽 벽·절벽은 셰이더가 비춘다(발 위치·크기 배율 목록). 큰 소품은 반투명.
